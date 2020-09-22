@@ -64,7 +64,7 @@ describe("StatsComponent.activate", () => {
         statsComponent.activate();
 
         let sequenceViewAdd$: Subject<void> = new Subject<void>();
-        let sequenceViewAddSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.apiV3.sequenceViewAdd$;
+        let sequenceViewAddSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.api.sequenceViewAdd$;
         sequenceViewAddSpy.and.returnValue(sequenceViewAdd$);
 
         let currentNode$: Subject<Node> = <any>navigatorMock.stateService.currentNode$;
@@ -99,7 +99,7 @@ describe("StatsComponent.activate", () => {
         statsComponent.activate();
 
         let sequenceViewAdd$: Subject<void> = new Subject<void>();
-        let sequenceViewAddSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.apiV3.sequenceViewAdd$;
+        let sequenceViewAddSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.api.sequenceViewAdd$;
         sequenceViewAddSpy.and.returnValue(sequenceViewAdd$);
 
         let currentNode$: Subject<Node> = <any>navigatorMock.stateService.currentNode$;
@@ -133,11 +133,11 @@ describe("StatsComponent.activate", () => {
                 scheduler);
 
         let sequenceViewAdd$: Subject<void> = new Subject<void>();
-        let sequenceViewAddSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.apiV3.sequenceViewAdd$;
+        let sequenceViewAddSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.api.sequenceViewAdd$;
         sequenceViewAddSpy.and.returnValue(sequenceViewAdd$);
 
         let imageViewAdd$: Subject<void> = new Subject<void>();
-        let imageViewAddSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.apiV3.imageViewAdd$;
+        let imageViewAddSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.api.imageViewAdd$;
         imageViewAddSpy.and.returnValue(imageViewAdd$);
 
         let currentNode$: Subject<Node> = <any>navigatorMock.stateService.currentNode$;

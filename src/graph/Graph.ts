@@ -3,7 +3,6 @@ import {merge as observableMerge, from as observableFrom, of as observableOf, Ob
 import {tap, refCount, catchError, publish, finalize, map, reduce, mergeMap, mergeAll, last} from "rxjs/operators";
 
 import {
-    APIv3,
     ICoreNode,
     IFillNode,
     IFullNode,
@@ -27,6 +26,7 @@ import {
     GraphCalculator,
 } from "../Graph";
 import { GeoRBush } from "../Geo";
+import API from "../api/API";
 
 type NodeIndexItem = {
     lat: number;
@@ -66,7 +66,7 @@ type SequenceAccess = {
  * @classdesc Represents a graph of nodes with edges.
  */
 export class Graph {
-    private _apiV3: APIv3;
+    private _api: API;
 
     /**
      * Nodes that have initialized cache with a timestamp of last access.
@@ -178,7 +178,7 @@ export class Graph {
     /**
      * Create a new graph instance.
      *
-     * @param {APIv3} [apiV3] - API instance for retrieving data.
+     * @param {API} [api] - API instance for retrieving data.
      * @param {rbush.RBush<NodeIndexItem>} [nodeIndex] - Node index for fast spatial retreival.
      * @param {GraphCalculator} [graphCalculator] - Instance for graph calculations.
      * @param {EdgeCalculator} [edgeCalculator] - Instance for edge calculations.
@@ -186,14 +186,14 @@ export class Graph {
      * @param {IGraphConfiguration} [configuration] - Configuration struct.
      */
     constructor(
-        apiV3: APIv3,
+        api: API,
         nodeIndex?: GeoRBush<NodeIndexItem>,
         graphCalculator?: GraphCalculator,
         edgeCalculator?: EdgeCalculator,
         filterCreator?: FilterCreator,
         configuration?: IGraphConfiguration) {
 
-        this._apiV3 = apiV3;
+        this._api = api;
 
         this._cachedNodes = {};
         this._cachedNodeTiles = {};
@@ -316,7 +316,7 @@ export class Graph {
                     const fillNodes$: Observable<Node[]>[] = coreNodeBatches
                         .map(
                             (batch: string[]): Observable<Node[]> => {
-                                return this._apiV3.imageByKeyFill$(batch).pipe(
+                                return this._api.imageByKeyFill$(batch).pipe(
                                     map(
                                         (imageByKeyFill: { [key: string]: IFillNode }): Node[] => {
                                             const filledNodes: Node[] = [];
@@ -379,7 +379,7 @@ export class Graph {
             throw new GraphMapillaryError(`Cannot fill node that is already full (${key}).`);
         }
 
-        this._cachingFill$[key] = this._apiV3.imageByKeyFill$([key]).pipe(
+        this._cachingFill$[key] = this._api.imageByKeyFill$([key]).pipe(
             tap(
                 (imageByKeyFill: { [key: string]: IFillNode }): void => {
                     if (!node.full) {
@@ -424,7 +424,7 @@ export class Graph {
             throw new GraphMapillaryError(`Cannot cache full node that already exist in graph (${key}).`);
         }
 
-        this._cachingFull$[key] = this._apiV3.imageByKeyFull$([key]).pipe(
+        this._cachingFull$[key] = this._api.imageByKeyFull$([key]).pipe(
             tap(
                 (imageByKeyFull: { [key: string]: IFullNode }): void => {
                     let fn: IFullNode = imageByKeyFull[key];
@@ -575,7 +575,7 @@ export class Graph {
         const sequenceNodes$: Observable<Graph> = observableFrom(batches).pipe(
             mergeMap(
                 (batch: string[]): Observable<Graph> => {
-                    return this._apiV3.imageByKeyFull$(batch).pipe(
+                    return this._api.imageByKeyFull$(batch).pipe(
                         tap(
                             (imageByKeyFull: { [key: string]: IFullNode }): void => {
                                 for (const fullKey in imageByKeyFull) {
@@ -670,7 +670,7 @@ export class Graph {
         let spatialNodes$: Observable<Graph>[] = [];
 
         for (let batch of batches) {
-            let spatialNodeBatch$: Observable<Graph> = this._apiV3.imageByKeyFill$(batch).pipe(
+            let spatialNodeBatch$: Observable<Graph> = this._api.imageByKeyFill$(batch).pipe(
                 tap(
                     (imageByKeyFill: { [key: string]: IFillNode }): void => {
                         for (let fillKey in imageByKeyFill) {
@@ -1447,7 +1447,7 @@ export class Graph {
             return this._cachingSequences$[sequenceKey];
         }
 
-        this._cachingSequences$[sequenceKey] = this._apiV3.sequenceByKey$([sequenceKey]).pipe(
+        this._cachingSequences$[sequenceKey] = this._api.sequenceByKey$([sequenceKey]).pipe(
             tap(
                 (sequenceByKey: { [sequenceKey: string]: ISequence }): void => {
                     if (!(sequenceKey in this._sequences)) {
@@ -1478,7 +1478,7 @@ export class Graph {
     }
 
     private _cacheTile$(h: string): Observable<Graph> {
-        this._cachingTiles$[h] = this._apiV3.imagesByH$([h]).pipe(
+        this._cachingTiles$[h] = this._api.imagesByH$([h]).pipe(
             tap(
                 (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): void => {
                     let coreNodes: { [index: string]: ICoreNode } = imagesByH[h];

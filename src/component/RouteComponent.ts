@@ -109,7 +109,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
                         }),
                     mergeMap(
                         (path: IRoutePath): Observable<ISequence> => {
-                            return this._navigator.apiV3.sequenceByKey$([path.sequenceKey]).pipe(
+                            return this._navigator.api.sequenceByKey$([path.sequenceKey]).pipe(
                                 map(
                                     (sequenceByKey: { [sequenceKey: string]: ISequence }): ISequence => {
                                         return sequenceByKey[path.sequenceKey];

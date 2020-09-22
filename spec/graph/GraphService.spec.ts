@@ -4,7 +4,7 @@ import {take, first, skip} from "rxjs/operators";
 
 import {NodeHelper} from "../helper/NodeHelper.spec";
 
-import {APIv3, ICoreNode} from "../../src/API";
+import {ICoreNode} from "../../src/API";
 import {
     Graph,
     GraphMode,
@@ -14,14 +14,16 @@ import {
     Node,
     Sequence,
 } from "../../src/Graph";
+import DataProvider from "../../src/api/DataProvider";
+import API from "../../src/api/API";
 
 describe("GraphService.ctor", () => {
     it("should create a graph service", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
         expect(graphService).toBeDefined();
     });
@@ -29,15 +31,15 @@ describe("GraphService.ctor", () => {
 
 describe("GraphService.cacheBoundingBox$", () => {
     it("should call cache bounding box on graph", (done: Function) => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         const cacheBoundingBoxSpy: jasmine.Spy = spyOn(graph, "cacheBoundingBox$");
         cacheBoundingBoxSpy.and.returnValue(observableOf([]));
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
         graphService.cacheBoundingBox$({ lat: 0, lon: 1 }, { lat: 2, lon: 3 })
             .subscribe(
@@ -55,22 +57,22 @@ describe("GraphService.cacheBoundingBox$", () => {
 
 describe("GraphService.cacheSequence$", () => {
     it("should cache sequence when graph does not have sequence", () => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingSequence").and.returnValue(false);
         spyOn(graph, "hasSequence").and.returnValue(false);
 
-        let cacheSequence$: Subject<Graph> = new Subject<Graph>();
-        let cacheSequenceSpy: jasmine.Spy = spyOn(graph, "cacheSequence$");
+        const cacheSequence$: Subject<Graph> = new Subject<Graph>();
+        const cacheSequenceSpy: jasmine.Spy = spyOn(graph, "cacheSequence$");
         cacheSequenceSpy.and.returnValue(cacheSequence$);
 
-        let getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
+        const getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
         getSequenceSpy.and.returnValue(graph);
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
         graphService.cacheSequence$("sequenceKey").subscribe(() => { /*noop*/ });
 
@@ -81,22 +83,22 @@ describe("GraphService.cacheSequence$", () => {
     });
 
     it("should cache sequence when graph is caching sequence", () => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingSequence").and.returnValue(true);
         spyOn(graph, "hasSequence").and.returnValue(false);
 
-        let cacheSequence$: Subject<Graph> = new Subject<Graph>();
-        let cacheSequenceSpy: jasmine.Spy = spyOn(graph, "cacheSequence$");
+        const cacheSequence$: Subject<Graph> = new Subject<Graph>();
+        const cacheSequenceSpy: jasmine.Spy = spyOn(graph, "cacheSequence$");
         cacheSequenceSpy.and.returnValue(cacheSequence$);
 
-        let getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
+        const getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
         getSequenceSpy.and.returnValue(graph);
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
         graphService.cacheSequence$("sequenceKey").subscribe(() => { /*noop*/ });
 
@@ -107,22 +109,22 @@ describe("GraphService.cacheSequence$", () => {
     });
 
     it("should not cache sequence when graph have sequence", () => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingSequence").and.returnValue(false);
         spyOn(graph, "hasSequence").and.returnValue(true);
 
-        let cacheSequence$: Subject<Graph> = new Subject<Graph>();
-        let cacheSequenceSpy: jasmine.Spy = spyOn(graph, "cacheSequence$");
+        const cacheSequence$: Subject<Graph> = new Subject<Graph>();
+        const cacheSequenceSpy: jasmine.Spy = spyOn(graph, "cacheSequence$");
         cacheSequenceSpy.and.returnValue(cacheSequence$);
 
-        let getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
+        const getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
         getSequenceSpy.and.returnValue(graph);
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
         graphService.cacheSequence$("sequenceKey").subscribe(() => { /*noop*/ });
 
@@ -135,24 +137,24 @@ describe("GraphService.cacheSequence$", () => {
 
 describe("GraphService.cacheSequenceNodes$", () => {
     it("should cache sequence nodes when graph does not have sequence nodes", () => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingSequence").and.returnValue(false);
         spyOn(graph, "hasSequence").and.returnValue(true);
         spyOn(graph, "isCachingSequenceNodes").and.returnValue(false);
         spyOn(graph, "hasSequenceNodes").and.returnValue(false);
 
-        let cacheSequenceNodes$: Subject<Graph> = new Subject<Graph>();
-        let cacheSequenceNodesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceNodes$");
+        const cacheSequenceNodes$: Subject<Graph> = new Subject<Graph>();
+        const cacheSequenceNodesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceNodes$");
         cacheSequenceNodesSpy.and.returnValue(cacheSequenceNodes$);
 
-        let getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
+        const getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
         getSequenceSpy.and.returnValue(new Sequence({ key: "skey", keys: [] }));
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
         graphService.cacheSequenceNodes$("sequenceKey").subscribe(() => { /*noop*/ });
 
@@ -163,24 +165,24 @@ describe("GraphService.cacheSequenceNodes$", () => {
     });
 
     it("should cache sequence nodes when graph is caching sequence nodes", () => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingSequence").and.returnValue(false);
         spyOn(graph, "hasSequence").and.returnValue(true);
         spyOn(graph, "isCachingSequenceNodes").and.returnValue(true);
         spyOn(graph, "hasSequenceNodes").and.returnValue(false);
 
-        let cacheSequenceNodes$: Subject<Graph> = new Subject<Graph>();
-        let cacheSequenceNodesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceNodes$");
+        const cacheSequenceNodes$: Subject<Graph> = new Subject<Graph>();
+        const cacheSequenceNodesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceNodes$");
         cacheSequenceNodesSpy.and.returnValue(cacheSequenceNodes$);
 
-        let getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
+        const getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
         getSequenceSpy.and.returnValue(new Sequence({ key: "skey", keys: [] }));
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
         graphService.cacheSequenceNodes$("sequenceKey").subscribe(() => { /*noop*/ });
 
@@ -191,24 +193,24 @@ describe("GraphService.cacheSequenceNodes$", () => {
     });
 
     it("should not cache sequence nodes when graph has sequence nodes", () => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingSequence").and.returnValue(false);
         spyOn(graph, "hasSequence").and.returnValue(true);
         spyOn(graph, "isCachingSequenceNodes").and.returnValue(false);
         spyOn(graph, "hasSequenceNodes").and.returnValue(true);
 
-        let cacheSequenceNodes$: Subject<Graph> = new Subject<Graph>();
-        let cacheSequenceNodesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceNodes$");
+        const cacheSequenceNodes$: Subject<Graph> = new Subject<Graph>();
+        const cacheSequenceNodesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceNodes$");
         cacheSequenceNodesSpy.and.returnValue(cacheSequenceNodes$);
 
-        let getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
+        const getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
         getSequenceSpy.and.returnValue(new Sequence({ key: "skey", keys: [] }));
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
         graphService.cacheSequenceNodes$("sequenceKey").subscribe(() => { /*noop*/ });
 
@@ -219,24 +221,24 @@ describe("GraphService.cacheSequenceNodes$", () => {
     });
 
     it("should supply reference node key if present", () => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingSequence").and.returnValue(false);
         spyOn(graph, "hasSequence").and.returnValue(true);
         spyOn(graph, "isCachingSequenceNodes").and.returnValue(true);
         spyOn(graph, "hasSequenceNodes").and.returnValue(false);
 
-        let cacheSequenceNodes$: Subject<Graph> = new Subject<Graph>();
-        let cacheSequenceNodesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceNodes$");
+        const cacheSequenceNodes$: Subject<Graph> = new Subject<Graph>();
+        const cacheSequenceNodesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceNodes$");
         cacheSequenceNodesSpy.and.returnValue(cacheSequenceNodes$);
 
-        let getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
+        const getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
         getSequenceSpy.and.returnValue(new Sequence({ key: "skey", keys: [] }));
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
         const sequenceKey: string = "sequenceKey";
         const referenceNodeKey: string = "referenceNodeKey";
@@ -253,11 +255,11 @@ describe("GraphService.cacheSequenceNodes$", () => {
 
 describe("GraphService.graphMode$", () => {
     it("should start in spatial graph mode", (done: () => void) => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
         graphService.graphMode$.pipe(
             first())
@@ -269,11 +271,11 @@ describe("GraphService.graphMode$", () => {
     });
 
     it("should set sequence mode", (done: () => void) => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
         graphService.graphMode$.pipe(
             skip(1),
@@ -288,11 +290,11 @@ describe("GraphService.graphMode$", () => {
     });
 
     it("should not apply mode if same as current", (done: () => void) => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
         let firstEmit: boolean = true;
         graphService.graphMode$.pipe(
@@ -317,17 +319,17 @@ describe("GraphService.graphMode$", () => {
     it("should cancel spatial edge caching when setting graph mode to sequence", () => {
         spyOn(console, "error").and.stub();
 
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         spyOn(imageLoadingService.loadnode$, "next").and.stub();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
         spyOn(graph, "hasNode").and.returnValue(false);
 
-        let cacheFull$: Subject<Graph> = new Subject<Graph>();
-        let cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
+        const cacheFull$: Subject<Graph> = new Subject<Graph>();
+        const cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
         cacheFullSpy.and.returnValue(cacheFull$);
 
         spyOn(graph, "hasInitializedCache").and.returnValue(false);
@@ -336,24 +338,24 @@ describe("GraphService.graphMode$", () => {
         spyOn(graph, "isCachingNodeSequence").and.returnValue(false);
         spyOn(graph, "hasNodeSequence").and.returnValue(false);
 
-        let cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
+        const cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
         spyOn(graph, "cacheNodeSequence$").and.returnValue(cacheNodeSequence$);
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
+        const cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
-        let hasSpatialAreaSpy: jasmine.Spy = spyOn(graph, "hasSpatialArea").and.stub();
+        const hasSpatialAreaSpy: jasmine.Spy = spyOn(graph, "hasSpatialArea").and.stub();
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        const helper: NodeHelper = new NodeHelper();
-        let node: TestNode = new TestNode(helper.createCoreNode());
+        let helper: NodeHelper = new NodeHelper();
+        const node: TestNode = new TestNode(helper.createCoreNode());
         node.spatialEdges.cached = false;
 
-        let cacheAssets$: Subject<Node> = new Subject<Node>();
-        let cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        const cacheAssets$: Subject<Node> = new Subject<Node>();
+        const cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
         cacheAssetsSpy.and.returnValue(cacheAssets$);
 
         spyOn(graph, "getNode").and.returnValue(node);
@@ -415,39 +417,39 @@ describe("GraphService.cacheNode$", () => {
     });
 
     it("should cache and return node", (done: Function) => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        let loadNodeSpy: jasmine.Spy = spyOn(imageLoadingService.loadnode$, "next").and.stub();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const loadNodeSpy: jasmine.Spy = spyOn(imageLoadingService.loadnode$, "next").and.stub();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
         spyOn(graph, "hasNode").and.returnValue(false);
 
-        let cacheFull$: Subject<Graph> = new Subject<Graph>();
-        let cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
+        const cacheFull$: Subject<Graph> = new Subject<Graph>();
+        const cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
         cacheFullSpy.and.returnValue(cacheFull$);
 
         spyOn(graph, "hasInitializedCache").and.returnValue(false);
-        let initializeCacheSpy: jasmine.Spy = spyOn(graph, "initializeCache").and.stub();
+        const initializeCacheSpy: jasmine.Spy = spyOn(graph, "initializeCache").and.stub();
 
         spyOn(graph, "isCachingNodeSequence").and.returnValue(false);
         spyOn(graph, "hasNodeSequence").and.returnValue(false);
 
-        let cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
+        const cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
         spyOn(graph, "cacheNodeSequence$").and.returnValue(cacheNodeSequence$);
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
+        const cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        let node: TestNode = new TestNode(helper.createCoreNode());
+        const node: TestNode = new TestNode(helper.createCoreNode());
 
-        let cacheAssets$: Subject<Node> = new Subject<Node>();
-        let cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        const cacheAssets$: Subject<Node> = new Subject<Node>();
+        const cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
         cacheAssetsSpy.and.returnValue(cacheAssets$);
 
         spyOn(graph, "getNode").and.returnValue(node);
@@ -471,18 +473,18 @@ describe("GraphService.cacheNode$", () => {
     });
 
     it("should fill and return node", (done: Function) => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         spyOn(imageLoadingService.loadnode$, "next").and.stub();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
         spyOn(graph, "hasNode").and.returnValue(true);
         spyOn(graph, "isCachingFill").and.returnValue(false);
 
-        let cacheFill$: Subject<Graph> = new Subject<Graph>();
-        let cacheFillSpy: jasmine.Spy = spyOn(graph, "cacheFill$");
+        const cacheFill$: Subject<Graph> = new Subject<Graph>();
+        const cacheFillSpy: jasmine.Spy = spyOn(graph, "cacheFill$");
         cacheFillSpy.and.returnValue(cacheFill$);
 
         spyOn(graph, "hasInitializedCache").and.returnValue(false);
@@ -491,20 +493,20 @@ describe("GraphService.cacheNode$", () => {
         spyOn(graph, "isCachingNodeSequence").and.returnValue(false);
         spyOn(graph, "hasNodeSequence").and.returnValue(false);
 
-        let cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
+        const cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
         spyOn(graph, "cacheNodeSequence$").and.returnValue(cacheNodeSequence$);
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
+        const cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        let node: TestNode = new TestNode(helper.createCoreNode());
+        const node: TestNode = new TestNode(helper.createCoreNode());
 
-        let cacheAssets$: Subject<Node> = new Subject<Node>();
-        let cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        const cacheAssets$: Subject<Node> = new Subject<Node>();
+        const cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
         cacheAssetsSpy.and.returnValue(cacheAssets$);
 
         spyOn(graph, "getNode").and.returnValue(node);
@@ -524,16 +526,16 @@ describe("GraphService.cacheNode$", () => {
     });
 
     it("should cache node sequence and sequence edges", () => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         spyOn(imageLoadingService.loadnode$, "next").and.stub();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
         spyOn(graph, "hasNode").and.returnValue(false);
 
-        let cacheFull$: Subject<Graph> = new Subject<Graph>();
+        const cacheFull$: Subject<Graph> = new Subject<Graph>();
         spyOn(graph, "cacheFull$").and.returnValue(cacheFull$);
 
         spyOn(graph, "hasInitializedCache").and.returnValue(false);
@@ -542,22 +544,22 @@ describe("GraphService.cacheNode$", () => {
         spyOn(graph, "isCachingNodeSequence").and.returnValue(false);
         spyOn(graph, "hasNodeSequence").and.returnValue(false);
 
-        let cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
-        let cacheNodeSequenceSpy: jasmine.Spy = spyOn(graph, "cacheNodeSequence$");
+        const cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
+        const cacheNodeSequenceSpy: jasmine.Spy = spyOn(graph, "cacheNodeSequence$");
         cacheNodeSequenceSpy.and.returnValue(cacheNodeSequence$);
 
-        let cacheSequenceEdgesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceEdges").and.stub();
+        const cacheSequenceEdgesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceEdges").and.stub();
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
+        const cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        let node: TestNode = new TestNode(helper.createCoreNode());
+        const node: TestNode = new TestNode(helper.createCoreNode());
 
-        let cacheAssets$: Subject<Node> = new Subject<Node>();
+        const cacheAssets$: Subject<Node> = new Subject<Node>();
         spyOn(node, "cacheAssets$").and.returnValue(cacheAssets$);
 
         spyOn(graph, "getNode").and.returnValue(node);
@@ -578,16 +580,16 @@ describe("GraphService.cacheNode$", () => {
     });
 
     it("should cache spatial edges", () => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         spyOn(imageLoadingService.loadnode$, "next").and.stub();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
         spyOn(graph, "hasNode").and.returnValue(false);
 
-        let cacheFull$: Subject<Graph> = new Subject<Graph>();
+        const cacheFull$: Subject<Graph> = new Subject<Graph>();
         spyOn(graph, "cacheFull$").and.returnValue(cacheFull$);
 
         spyOn(graph, "hasInitializedCache").and.returnValue(true);
@@ -598,14 +600,14 @@ describe("GraphService.cacheNode$", () => {
         spyOn(graph, "hasTiles").and.returnValue(true);
         spyOn(graph, "hasSpatialArea").and.returnValue(true);
 
-        let cacheSpatialEdgesSpy: jasmine.Spy = spyOn(graph, "cacheSpatialEdges").and.stub();
+        const cacheSpatialEdgesSpy: jasmine.Spy = spyOn(graph, "cacheSpatialEdges").and.stub();
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        let node: TestNode = new TestNode(helper.createCoreNode());
+        const node: TestNode = new TestNode(helper.createCoreNode());
         node.sequenceEdges.cached = true;
 
-        let cacheAssets$: Subject<Node> = new Subject<Node>();
+        const cacheAssets$: Subject<Node> = new Subject<Node>();
         spyOn(node, "cacheAssets$").and.returnValue(cacheAssets$);
 
         spyOn(graph, "getNode").and.returnValue(node);
@@ -620,16 +622,16 @@ describe("GraphService.cacheNode$", () => {
     });
 
     it("should cache spatial edges if in spatial mode", () => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         spyOn(imageLoadingService.loadnode$, "next").and.stub();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
         spyOn(graph, "hasNode").and.returnValue(false);
 
-        let cacheFull$: Subject<Graph> = new Subject<Graph>();
+        const cacheFull$: Subject<Graph> = new Subject<Graph>();
         spyOn(graph, "cacheFull$").and.returnValue(cacheFull$);
 
         spyOn(graph, "hasInitializedCache").and.returnValue(true);
@@ -644,12 +646,12 @@ describe("GraphService.cacheNode$", () => {
 
         const cachesSpatialEdgesSpy: jasmine.Spy = spyOn(graph, "cacheSpatialEdges").and.stub();
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        let node: TestNode = new TestNode(helper.createCoreNode());
+        const node: TestNode = new TestNode(helper.createCoreNode());
         node.sequenceEdges.cached = true;
 
-        let cacheAssets$: Subject<Node> = new Subject<Node>();
+        const cacheAssets$: Subject<Node> = new Subject<Node>();
         spyOn(node, "cacheAssets$").and.returnValue(cacheAssets$);
 
         spyOn(graph, "getNode").and.returnValue(node);
@@ -665,16 +667,16 @@ describe("GraphService.cacheNode$", () => {
     });
 
     it("should not cache spatial edges if in sequence mode", () => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         spyOn(imageLoadingService.loadnode$, "next").and.stub();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
         spyOn(graph, "hasNode").and.returnValue(false);
 
-        let cacheFull$: Subject<Graph> = new Subject<Graph>();
+        const cacheFull$: Subject<Graph> = new Subject<Graph>();
         spyOn(graph, "cacheFull$").and.returnValue(cacheFull$);
 
         spyOn(graph, "hasInitializedCache").and.returnValue(true);
@@ -684,12 +686,12 @@ describe("GraphService.cacheNode$", () => {
 
         const hasTilesSpy: jasmine.Spy = spyOn(graph, "hasTiles").and.stub();
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        let node: TestNode = new TestNode(helper.createCoreNode());
+        const node: TestNode = new TestNode(helper.createCoreNode());
         node.sequenceEdges.cached = true;
 
-        let cacheAssets$: Subject<Node> = new Subject<Node>();
+        const cacheAssets$: Subject<Node> = new Subject<Node>();
         spyOn(node, "cacheAssets$").and.returnValue(cacheAssets$);
 
         spyOn(graph, "getNode").and.returnValue(node);
@@ -714,39 +716,39 @@ describe("GraphService.reset$", () => {
     it("should abort node caching and throw", () => {
         spyOn(console, "error").and.stub();
 
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         spyOn(imageLoadingService.loadnode$, "next").and.stub();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
         spyOn(graph, "hasNode").and.returnValue(false);
 
-        let cacheFull$: Subject<Graph> = new Subject<Graph>();
-        let cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
+        const cacheFull$: Subject<Graph> = new Subject<Graph>();
+        const cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
         cacheFullSpy.and.returnValue(cacheFull$);
 
         spyOn(graph, "hasInitializedCache").and.returnValue(false);
-        let initializeCacheSpy: jasmine.Spy = spyOn(graph, "initializeCache").and.stub();
+        const initializeCacheSpy: jasmine.Spy = spyOn(graph, "initializeCache").and.stub();
 
         spyOn(graph, "isCachingNodeSequence").and.returnValue(false);
         spyOn(graph, "hasNodeSequence").and.returnValue(false);
 
-        let cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
+        const cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
         spyOn(graph, "cacheNodeSequence$").and.returnValue(cacheNodeSequence$);
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
+        const cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        let node: TestNode = new TestNode(helper.createCoreNode());
+        const node: TestNode = new TestNode(helper.createCoreNode());
 
-        let cacheAssets$: Subject<Node> = new Subject<Node>();
-        let cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        const cacheAssets$: Subject<Node> = new Subject<Node>();
+        const cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
         cacheAssetsSpy.and.returnValue(cacheAssets$);
 
         spyOn(graph, "getNode").and.returnValue(node);
@@ -773,17 +775,17 @@ describe("GraphService.reset$", () => {
     it("should cancel sequence edge caching", () => {
         spyOn(console, "error").and.stub();
 
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         spyOn(imageLoadingService.loadnode$, "next").and.stub();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
         spyOn(graph, "hasNode").and.returnValue(false);
 
-        let cacheFull$: Subject<Graph> = new Subject<Graph>();
-        let cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
+        const cacheFull$: Subject<Graph> = new Subject<Graph>();
+        const cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
         cacheFullSpy.and.returnValue(cacheFull$);
 
         spyOn(graph, "hasInitializedCache").and.returnValue(false);
@@ -792,23 +794,23 @@ describe("GraphService.reset$", () => {
         spyOn(graph, "isCachingNodeSequence").and.returnValue(false);
         spyOn(graph, "hasNodeSequence").and.returnValue(false);
 
-        let cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
+        const cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
         spyOn(graph, "cacheNodeSequence$").and.returnValue(cacheNodeSequence$);
 
-        let cacheSequenceEdgesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceEdges").and.stub();
+        const cacheSequenceEdgesSpy: jasmine.Spy = spyOn(graph, "cacheSequenceEdges").and.stub();
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
+        const cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        let node: TestNode = new TestNode(helper.createCoreNode());
+        const node: TestNode = new TestNode(helper.createCoreNode());
         node.spatialEdges.cached = false;
 
-        let cacheAssets$: Subject<Node> = new Subject<Node>();
-        let cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        const cacheAssets$: Subject<Node> = new Subject<Node>();
+        const cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
         cacheAssetsSpy.and.returnValue(cacheAssets$);
 
         spyOn(graph, "getNode").and.returnValue(node);
@@ -834,17 +836,17 @@ describe("GraphService.reset$", () => {
     it("should cancel spatial edge caching", () => {
         spyOn(console, "error").and.stub();
 
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         spyOn(imageLoadingService.loadnode$, "next").and.stub();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
         spyOn(graph, "hasNode").and.returnValue(false);
 
-        let cacheFull$: Subject<Graph> = new Subject<Graph>();
-        let cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
+        const cacheFull$: Subject<Graph> = new Subject<Graph>();
+        const cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
         cacheFullSpy.and.returnValue(cacheFull$);
 
         spyOn(graph, "hasInitializedCache").and.returnValue(false);
@@ -853,23 +855,23 @@ describe("GraphService.reset$", () => {
         spyOn(graph, "isCachingNodeSequence").and.returnValue(false);
         spyOn(graph, "hasNodeSequence").and.returnValue(false);
 
-        let cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
+        const cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
         spyOn(graph, "cacheNodeSequence$").and.returnValue(cacheNodeSequence$);
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
+        const cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
-        let hasSpatialAreaSpy: jasmine.Spy = spyOn(graph, "hasSpatialArea").and.stub();
+        const hasSpatialAreaSpy: jasmine.Spy = spyOn(graph, "hasSpatialArea").and.stub();
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        let node: TestNode = new TestNode(helper.createCoreNode());
+        const node: TestNode = new TestNode(helper.createCoreNode());
         node.spatialEdges.cached = false;
 
-        let cacheAssets$: Subject<Node> = new Subject<Node>();
-        let cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        const cacheAssets$: Subject<Node> = new Subject<Node>();
+        const cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
         cacheAssetsSpy.and.returnValue(cacheAssets$);
 
         spyOn(graph, "getNode").and.returnValue(node);
@@ -901,15 +903,15 @@ describe("GraphService.setFilter$", () => {
     });
 
     it("should reset spatial edges and set filter", () => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
-        let resetSpatialEdgesSpy: jasmine.Spy = spyOn(graph, "resetSpatialEdges").and.stub();
-        let setFilterSpy: jasmine.Spy = spyOn(graph, "setFilter").and.stub();
+        const resetSpatialEdgesSpy: jasmine.Spy = spyOn(graph, "resetSpatialEdges").and.stub();
+        const setFilterSpy: jasmine.Spy = spyOn(graph, "setFilter").and.stub();
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
         graphService.setFilter$(["==", "sequenceKey", "skey"]).subscribe(() => { /*noop*/ });
 
@@ -924,17 +926,17 @@ describe("GraphService.setFilter$", () => {
     });
 
     it("should cancel spatial subscriptions", () => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         spyOn(imageLoadingService.loadnode$, "next").and.stub();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
         spyOn(graph, "hasNode").and.returnValue(false);
 
-        let cacheFull$: Subject<Graph> = new Subject<Graph>();
-        let cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
+        const cacheFull$: Subject<Graph> = new Subject<Graph>();
+        const cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
         cacheFullSpy.and.returnValue(cacheFull$);
 
         spyOn(graph, "hasInitializedCache").and.returnValue(false);
@@ -943,26 +945,26 @@ describe("GraphService.setFilter$", () => {
         spyOn(graph, "isCachingNodeSequence").and.returnValue(false);
         spyOn(graph, "hasNodeSequence").and.returnValue(false);
 
-        let cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
+        const cacheNodeSequence$: Subject<Graph> = new Subject<Graph>();
         spyOn(graph, "cacheNodeSequence$").and.returnValue(cacheNodeSequence$);
 
         spyOn(graph, "hasTiles").and.returnValue(false);
 
-        let cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
+        const cacheTiles$: Subject<Graph>[] = [new Subject<Graph>()];
         spyOn(graph, "cacheTiles$").and.returnValue(cacheTiles$);
 
-        let hasSpatialAreaSpy: jasmine.Spy = spyOn(graph, "hasSpatialArea").and.stub();
+        const hasSpatialAreaSpy: jasmine.Spy = spyOn(graph, "hasSpatialArea").and.stub();
 
         spyOn(graph, "resetSpatialEdges").and.stub();
         spyOn(graph, "setFilter").and.stub();
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
-        let node: TestNode = new TestNode(helper.createCoreNode());
+        const node: TestNode = new TestNode(helper.createCoreNode());
         node.spatialEdges.cached = false;
 
-        let cacheAssets$: Subject<Node> = new Subject<Node>();
-        let cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        const cacheAssets$: Subject<Node> = new Subject<Node>();
+        const cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
         cacheAssetsSpy.and.returnValue(cacheAssets$);
 
         spyOn(graph, "getNode").and.returnValue(node);
@@ -988,14 +990,14 @@ describe("GraphService.setFilter$", () => {
 
 describe("GraphService.uncache$", () => {
     it("should call graph uncache", () => {
-        let imageLoadingService: ImageLoadingService = new ImageLoadingService();
+        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
 
-        let apiV3: APIv3 = new APIv3("clientId");
-        let graph: Graph = new Graph(apiV3);
+        const api: API = new API(undefined);
+        const graph: Graph = new Graph(api);
 
-        let uncacheSpy: jasmine.Spy = spyOn(graph, "uncache").and.stub();
+        const uncacheSpy: jasmine.Spy = spyOn(graph, "uncache").and.stub();
 
-        let graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph, imageLoadingService);
 
         graphService.uncache$(["nKey"], "sKey").subscribe(() => { /*noop*/ });
 

@@ -5,7 +5,6 @@ import {first, mergeAll} from "rxjs/operators";
 import {NodeHelper} from "../helper/NodeHelper.spec";
 
 import {
-    APIv3,
     ICoreNode,
     IFillNode,
     IFullNode,
@@ -21,22 +20,24 @@ import {
     Node,
     Sequence,
 } from "../../src/Graph";
+import API from "../../src/api/API";
+import DataProvider from "../../src/api/DataProvider";
 
 describe("Graph.ctor", () => {
     it("should create a graph", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
 
-        let graph: Graph = new Graph(apiV3);
+        const graph: Graph = new Graph(api);
 
         expect(graph).toBeDefined();
     });
 
     it("should create a graph with all ctor params", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
         expect(graph).toBeDefined();
     });
@@ -50,27 +51,27 @@ describe("Graph.cacheBoundingBox$", () => {
     });
 
     it("should cache one node in the bounding box", (done: Function) => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeHsFromBoundingBox").and.returnValue([h]);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
         new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        let key: string = "key";
-        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
-        spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+        const key: string = "key";
+        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         fullNode.key = key;
         fullNode.l.lat = 0.5;
         fullNode.l.lon = 0.5;
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
         graph.cacheBoundingBox$({ lat: 0, lon: 0 }, { lat: 1, lon: 1 })
             .subscribe(
@@ -84,52 +85,52 @@ describe("Graph.cacheBoundingBox$", () => {
                     done();
                 });
 
-        let tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         tileResult[h] = {};
         tileResult[h]["0"] = fullNode;
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        let fillResult: { [key: string]: IFillNode } = {};
+        const fillResult: { [key: string]: IFillNode } = {};
         fillResult[key] = fullNode;
         imageByKeyFill.next(fillResult);
         imageByKeyFill.complete();
     });
 
     it("should not cache tile of fill node if already cached", (done: Function) => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeHsFromBoundingBox").and.returnValue([h]);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
         spyOn(calculator, "encodeH").and.returnValue(h);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
         new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        const imagesByHSpy: jasmine.Spy = spyOn(apiV3, "imagesByH$");
+        const imagesByHSpy: jasmine.Spy = spyOn(api, "imagesByH$");
         imagesByHSpy.and.returnValue(imagesByH);
 
-        let key: string = "key";
-        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
-        const imageByKeyFillSpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFill$");
+        const key: string = "key";
+        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFillSpy: jasmine.Spy = spyOn(api, "imageByKeyFill$");
         imageByKeyFillSpy.and.returnValue(imageByKeyFill);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
-        const imageByKeyFullSpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        const imageByKeyFull: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFullSpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeyFullSpy.and.returnValue(imageByKeyFull);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         fullNode.key = key;
         fullNode.l.lat = 0.5;
         fullNode.l.lon = 0.5;
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fullResult: { [key: string]: IFullNode } = {};
+        const fullResult: { [key: string]: IFullNode } = {};
         fullResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fullResult);
         imageByKeyFull.complete();
@@ -139,7 +140,7 @@ describe("Graph.cacheBoundingBox$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         tileResult[h] = {};
         tileResult[h]["0"] = fullNode;
         imagesByH.next(tileResult);
@@ -170,28 +171,28 @@ describe("Graph.cacheBoundingBox$", () => {
     });
 
     it("should only cache tile once for two similar calls", (done: Function) => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeHsFromBoundingBox").and.returnValue([h]);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
         new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        const imagesByHSpy: jasmine.Spy = spyOn(apiV3, "imagesByH$");
+        const imagesByHSpy: jasmine.Spy = spyOn(api, "imagesByH$");
         imagesByHSpy.and.returnValue(imagesByH);
 
-        let key: string = "key";
-        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
-        spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+        const key: string = "key";
+        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         fullNode.key = key;
         fullNode.l.lat = 0.5;
         fullNode.l.lon = 0.5;
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
         let count: number = 0;
         observableMerge(
@@ -215,13 +216,13 @@ describe("Graph.cacheBoundingBox$", () => {
                     done();
                 });
 
-        let tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         tileResult[h] = {};
         tileResult[h]["0"] = fullNode;
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        let fillResult: { [key: string]: IFillNode } = {};
+        const fillResult: { [key: string]: IFillNode } = {};
         fillResult[key] = fullNode;
         imageByKeyFill.next(fillResult);
         imageByKeyFill.complete();
@@ -236,16 +237,16 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should be fetching", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const fullNode: IFullNode = helper.createFullNode();
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
 
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
         graph.cacheFull$(fullNode.key);
 
         expect(graph.isCachingFull(fullNode.key)).toBe(true);
@@ -254,17 +255,17 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should fetch", (done: Function) => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
+        const fullNode: IFullNode = helper.createFullNode();
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key)
             .subscribe(
@@ -287,17 +288,17 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should not make additional calls when fetching same node twice", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const fullNode: IFullNode = helper.createFullNode();
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
 
-        let imageByKeyFullSpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        const imageByKeyFullSpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeyFullSpy.and.returnValue(imageByKeyFull);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
@@ -306,20 +307,20 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should throw when fetching node already in graph", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let result: { [key: string]: IFullNode } = {};
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
@@ -329,16 +330,16 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should throw if sequence key is missing", (done: Function) => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = undefined;
 
         graph.cacheFull$(fullNode.key)
@@ -348,22 +349,22 @@ describe("Graph.cacheFull$", () => {
                     done();
                 });
 
-        let result: { [key: string]: IFullNode } = {};
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
     });
 
     it("should make full when fetched node has been retrieved in tile in parallell", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let key: string = "key";
-        let otherKey: string = "otherKey";
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        let imageByKeyFullOther: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.callFake(
+        const key: string = "key";
+        const otherKey: string = "otherKey";
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFullOther: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.callFake(
             (keys: string[]): Observable<{ [key: string]: IFullNode }> => {
                 if (keys[0] === key) {
                     return imageByKeyFull;
@@ -374,21 +375,21 @@ describe("Graph.cacheFull$", () => {
                 throw new GraphMapillaryError("Wrong key.");
             });
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
         new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let otherNode: IFullNode = helper.createFullNode();
+        const otherNode: IFullNode = helper.createFullNode();
         otherNode.key = otherKey;
         graph.cacheFull$(otherNode.key).subscribe(() => { /*noop*/ });
 
-        let otherFullResult: { [key: string]: IFullNode } = {};
+        const otherFullResult: { [key: string]: IFullNode } = {};
         otherFullResult[otherNode.key] = otherNode;
         imageByKeyFullOther.next(otherFullResult);
         imageByKeyFullOther.complete();
@@ -398,14 +399,14 @@ describe("Graph.cacheFull$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         fullNode.key = key;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         expect(graph.hasNode(fullNode.key)).toBe(false);
         expect(graph.isCachingFull(fullNode.key)).toBe(true);
 
-        let tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         tileResult[h] = {};
         tileResult[h]["0"] = otherNode;
         tileResult[h]["1"] = fullNode;
@@ -415,7 +416,7 @@ describe("Graph.cacheFull$", () => {
         expect(graph.hasNode(fullNode.key)).toBe(true);
         expect(graph.getNode(fullNode.key).full).toBe(false);
 
-        let fullResult: { [key: string]: IFullNode } = {};
+        const fullResult: { [key: string]: IFullNode } = {};
         fullResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fullResult);
         imageByKeyFull.complete();
@@ -432,30 +433,30 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should be filling", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
-        spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -464,9 +465,9 @@ describe("Graph.cacheFill$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let tileNode: ICoreNode = helper.createCoreNode();
+        const tileNode: ICoreNode = helper.createCoreNode();
         tileNode.key = "tileNodeKey";
-        let result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
         result[h]["0"] = tileNode;
         imagesByH.next(result);
@@ -481,30 +482,30 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should fill", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
-        spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -513,9 +514,9 @@ describe("Graph.cacheFill$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let tileNode: ICoreNode = helper.createCoreNode();
+        const tileNode: ICoreNode = helper.createCoreNode();
         tileNode.key = "tileNodeKey";
-        let result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
         result[h]["0"] = tileNode;
         imagesByH.next(result);
@@ -525,8 +526,8 @@ describe("Graph.cacheFill$", () => {
 
         graph.cacheFill$(tileNode.key).subscribe(() => { /*noop*/ });
 
-        let fillTileNode: IFillNode = helper.createFullNode();
-        let fillResult: { [key: string]: IFillNode } = {};
+        const fillTileNode: IFillNode = helper.createFullNode();
+        const fillResult: { [key: string]: IFillNode } = {};
         fillResult[tileNode.key] = fillTileNode;
         imageByKeyFill.next(fillResult);
 
@@ -535,31 +536,31 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should not make additional calls when filling same node twice", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
-        let imageByKeyFillSpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFill$");
+        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFillSpy: jasmine.Spy = spyOn(api, "imageByKeyFill$");
         imageByKeyFillSpy.and.returnValue(imageByKeyFill);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -568,9 +569,9 @@ describe("Graph.cacheFill$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let tileNode: ICoreNode = helper.createCoreNode();
+        const tileNode: ICoreNode = helper.createCoreNode();
         tileNode.key = "tileNodeKey";
-        let result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
         result[h]["0"] = tileNode;
         imagesByH.next(result);
@@ -585,24 +586,24 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should throw if already fetching", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.key);
 
         expect(graph.isCachingFull(fullNode.key)).toBe(true);
@@ -611,35 +612,35 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should throw if node does not exist", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
-        spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
         expect(() => { graph.cacheFill$("key"); }).toThrowError(Error);
     });
 
     it("should throw if already full", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
-        spyOn(apiV3, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.key);
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -655,19 +656,19 @@ describe("Graph.cacheTiles$", () => {
     });
 
     it("should be caching tiles", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let node: Node = helper.createNode();
+        const node: Node = helper.createNode();
 
         spyOn(calculator, "encodeHs").and.returnValue(["h"]);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
         spyOn(graph, "hasNode").and.returnValue(true);
         spyOn(graph, "getNode").and.returnValue(node);
@@ -682,26 +683,26 @@ describe("Graph.cacheTiles$", () => {
     });
 
     it("should cache tiles", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
 
-        let imageByKeyResult: { [key: string]: IFullNode } = {};
+        const imageByKeyResult: { [key: string]: IFullNode } = {};
         imageByKeyResult[fullNode.key] = fullNode;
-        let imageByKeyFull: Observable<{ [key: string]: IFullNode }> = observableOf<{ [key: string]: IFullNode }>(imageByKeyResult);
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Observable<{ [key: string]: IFullNode }> = observableOf<{ [key: string]: IFullNode }>(imageByKeyResult);
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         expect(graph.hasTiles(fullNode.key)).toBe(false);
@@ -711,7 +712,7 @@ describe("Graph.cacheTiles$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
         result[h]["0"] = fullNode;
         imagesByH.next(result);
@@ -721,21 +722,21 @@ describe("Graph.cacheTiles$", () => {
     });
 
     it("should encode hs only once when checking tiles cache", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let node: Node = helper.createNode();
+        const node: Node = helper.createNode();
 
-        let h: string = "h";
-        let encodeHsSpy: jasmine.Spy = spyOn(calculator, "encodeHs");
+        const h: string = "h";
+        const encodeHsSpy: jasmine.Spy = spyOn(calculator, "encodeHs");
         encodeHsSpy.and.returnValue([h]);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
         spyOn(graph, "hasNode").and.returnValue(true);
         spyOn(graph, "getNode").and.returnValue(node);
@@ -747,27 +748,27 @@ describe("Graph.cacheTiles$", () => {
     });
 
     it("should encode hs only once when caching tiles", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
-        let encodeHsSpy: jasmine.Spy = spyOn(calculator, "encodeHs");
+        const encodeHsSpy: jasmine.Spy = spyOn(calculator, "encodeHs");
         encodeHsSpy.and.returnValue([h]);
 
-        let imageByKeyResult: { [key: string]: IFullNode } = {};
+        const imageByKeyResult: { [key: string]: IFullNode } = {};
         imageByKeyResult[fullNode.key] = fullNode;
-        let imageByKeyFull: Observable<{ [key: string]: IFullNode }> = observableOf<{ [key: string]: IFullNode }>(imageByKeyResult);
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Observable<{ [key: string]: IFullNode }> = observableOf<{ [key: string]: IFullNode }>(imageByKeyResult);
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         expect(graph.hasTiles(fullNode.key)).toBe(false);
@@ -776,7 +777,7 @@ describe("Graph.cacheTiles$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
         result[h]["0"] = fullNode;
         imagesByH.next(result);
@@ -795,29 +796,29 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should throw when sequence does not exist", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         expect(() => { graph.cacheSequenceNodes$("sequenceKey"); }).toThrowError(Error);
     });
 
     it("should not be cached", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKey);
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const key: string = "key";
@@ -833,18 +834,18 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKey);
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const key: string = "key";
@@ -862,18 +863,18 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should be cached and not caching", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKey);
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -900,7 +901,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not be cached after uncaching sequence node", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(graphCalculator, "encodeH").and.returnValue("h");
@@ -914,12 +915,12 @@ describe("Graph.cacheSequenceNodes$", () => {
         };
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKey);
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -949,7 +950,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not be cached after uncaching sequence", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(graphCalculator, "encodeH").and.returnValue("h");
@@ -963,12 +964,12 @@ describe("Graph.cacheSequenceNodes$", () => {
         };
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKey);
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1000,7 +1001,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should be cached after uncaching if sequence is kept", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(graphCalculator, "encodeH").and.returnValue("h");
@@ -1014,12 +1015,12 @@ describe("Graph.cacheSequenceNodes$", () => {
         };
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKey);
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1049,7 +1050,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should be cached after uncaching if all nodes are kept", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(graphCalculator, "encodeH").and.returnValue("h");
@@ -1063,12 +1064,12 @@ describe("Graph.cacheSequenceNodes$", () => {
         };
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKey);
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1098,10 +1099,10 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not be cached after uncaching tile", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        let h: string = "h";
+        const h: string = "h";
         spyOn(graphCalculator, "encodeH").and.returnValue(h);
         spyOn(graphCalculator, "encodeHs").and.returnValue([h]);
 
@@ -1114,12 +1115,12 @@ describe("Graph.cacheSequenceNodes$", () => {
         };
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKey);
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1143,16 +1144,16 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.initializeCache(fullNode.key);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
         new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
         observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
@@ -1161,9 +1162,9 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
 
-        let node: Node = graph.getNode(fullNode.key);
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node: Node = graph.getNode(fullNode.key);
+        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
@@ -1174,10 +1175,10 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should be cached after uncaching tile if sequence is kept", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        let h: string = "h";
+        const h: string = "h";
         spyOn(graphCalculator, "encodeH").and.returnValue(h);
         spyOn(graphCalculator, "encodeHs").and.returnValue([h]);
 
@@ -1190,12 +1191,12 @@ describe("Graph.cacheSequenceNodes$", () => {
         };
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKey);
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1219,16 +1220,16 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.initializeCache(fullNode.key);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
         new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
         observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
@@ -1237,9 +1238,9 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
 
-        let node: Node = graph.getNode(fullNode.key);
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node: Node = graph.getNode(fullNode.key);
+        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([], sequenceKey);
 
@@ -1250,18 +1251,18 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should throw if caching already cached sequence nodes", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKey);
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1285,19 +1286,19 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should only call API once if caching multiple times before response", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1322,18 +1323,18 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not be cached and not caching on error", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKey);
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1358,19 +1359,19 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching in with single batch when lass than or equal to 200 nodes", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const key: string = "key";
@@ -1396,19 +1397,19 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching in batches when more than 200 nodes", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const key: string = "key";
@@ -1435,19 +1436,19 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching prioritized batch when reference node key is specified at start", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const key: string = "key";
@@ -1479,19 +1480,19 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching prioritized batch when reference node key is specified at end", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const key: string = "key";
@@ -1524,19 +1525,19 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching in prioritized batches when reference node key is specified in middle", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const key: string = "key";
@@ -1570,19 +1571,19 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not corrupt sequence when caching in batches", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const key: string = "key";
@@ -1605,19 +1606,19 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should create single batch when fewer than or equal to 50 nodes", () => {
-        const apiV3: APIv3 = new APIv3("clientId");
+        const api: API = new API(undefined);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const key: string = "key";
@@ -1658,24 +1659,24 @@ describe("Graph.cacheSpatialArea$", () => {
     });
 
     it("should be cached", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let graphCalculator: GraphCalculator = new GraphCalculator(null);
-        let edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        let node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.key);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
@@ -1685,36 +1686,36 @@ describe("Graph.cacheSpatialArea$", () => {
     });
 
     it("should not be cached", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let graphCalculator: GraphCalculator = new GraphCalculator(null);
-        let edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(graphCalculator, "encodeH").and.returnValue(h);
         spyOn(graphCalculator, "encodeHs").and.returnValue([h]);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        let node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.key);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
-        let coreNode: ICoreNode = helper.createCoreNode();
+        const coreNode: ICoreNode = helper.createCoreNode();
         coreNode.key = "otherKey";
 
         graph.hasTiles(fullNode.key);
@@ -1722,13 +1723,13 @@ describe("Graph.cacheSpatialArea$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const result: { [key: string]: { [index: string]: ICoreNode } } = {};
         result[h] = {};
         result[h]["0"] = fullNode;
         result[h]["1"] = coreNode;
         imagesByH.next(result);
 
-        let otherNode: Node = graph.getNode(coreNode.key);
+        const otherNode: Node = graph.getNode(coreNode.key);
 
         spyOn(index, "search").and.returnValue([{ node: node }, {node: otherNode }]);
 
@@ -1744,35 +1745,35 @@ describe("Graph.cacheSpatialEdges", () => {
     });
 
     it("should use fallback keys", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let graphCalculator: GraphCalculator = new GraphCalculator(null);
-        let edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: ISequence } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        let node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.key);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
@@ -1780,7 +1781,7 @@ describe("Graph.cacheSpatialEdges", () => {
 
         expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
 
-        let getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
+        const getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
         getPotentialSpy.and.returnValue([]);
 
         spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
@@ -1800,48 +1801,48 @@ describe("Graph.cacheSpatialEdges", () => {
     });
 
     it("should apply filter", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let graphCalculator: GraphCalculator = new GraphCalculator(null);
-        let edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: ISequence } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        let node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.key);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
-        let otherFullNode: IFullNode = helper.createFullNode();
+        const otherFullNode: IFullNode = helper.createFullNode();
         otherFullNode.sequence_key = "otherSequenceKey";
-        let otherNode: Node = new Node(otherFullNode);
+        const otherNode: Node = new Node(otherFullNode);
         otherNode.makeFull(otherFullNode);
 
         spyOn(index, "search").and.returnValue([{ node: node }, { node: otherNode }]);
 
         expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
 
-        let getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
+        const getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
         getPotentialSpy.and.returnValue([]);
 
         spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
@@ -1861,48 +1862,48 @@ describe("Graph.cacheSpatialEdges", () => {
     });
 
     it("should apply remove by filtering", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let graphCalculator: GraphCalculator = new GraphCalculator(null);
-        let edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: ISequence } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        let node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.key);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
-        let otherFullNode: IFullNode = helper.createFullNode();
+        const otherFullNode: IFullNode = helper.createFullNode();
         otherFullNode.sequence_key = "otherSequenceKey";
-        let otherNode: Node = new Node(otherFullNode);
+        const otherNode: Node = new Node(otherFullNode);
         otherNode.makeFull(otherFullNode);
 
         spyOn(index, "search").and.returnValue([{ node: node }, { node: otherNode }]);
 
         expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
 
-        let getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
+        const getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
         getPotentialSpy.and.returnValue([]);
 
         spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
@@ -1929,20 +1930,20 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should not be cached", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -1950,20 +1951,23 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should be caching", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const graph: Graph = new Graph(api, index, calculator);
+
+        const fullNode: IFullNode = helper.createFullNode();
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
@@ -1975,24 +1979,24 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should be cached", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -2003,7 +2007,7 @@ describe("Graph.cacheNodeSequence$", () => {
                     expect(g.isCachingNodeSequence(fullNode.key)).toBe(false);
                 });
 
-        let result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: ISequence } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: [fullNode.key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -2013,49 +2017,49 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should throw if node not in graph", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
 
         expect(() => { graph.cacheNodeSequence$(fullNode.key); }).toThrowError(Error);
     });
 
     it("should throw if already cached", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: ISequence } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: [fullNode.key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -2066,25 +2070,25 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should call api only once when caching the same sequence twice in succession", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        let sequenceByKeySpy: jasmine.Spy = spyOn(apiV3, "sequenceByKey$");
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKeySpy: jasmine.Spy = spyOn(api, "sequenceByKey$");
         sequenceByKeySpy.and.returnValue(sequenceByKey);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -2095,24 +2099,24 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should emit to changed stream", (done: Function) => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -2128,7 +2132,7 @@ describe("Graph.cacheNodeSequence$", () => {
                     done();
                 });
 
-        let result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: ISequence } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: [fullNode.key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -2137,40 +2141,40 @@ describe("Graph.cacheNodeSequence$", () => {
 
 describe("Graph.cacheSequence$", () => {
     it("should not be cached", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceKey";
 
         expect(graph.hasSequence(sequenceKey)).toBe(false);
     });
 
     it("should not be caching", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceKey";
 
         expect(graph.isCachingSequence(sequenceKey)).toBe(false);
     });
 
     it("should be caching", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceKey";
 
         graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
 
@@ -2179,17 +2183,17 @@ describe("Graph.cacheSequence$", () => {
     });
 
     it("should cache", (done: Function) => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let sequenceKey: string = "sequenceKey";
-        let key: string = "key";
+        const sequenceKey: string = "sequenceKey";
+        const key: string = "key";
 
         graph.cacheSequence$(sequenceKey)
             .subscribe(
@@ -2204,24 +2208,24 @@ describe("Graph.cacheSequence$", () => {
                         done();
                     });
 
-        let result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: ISequence } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
     });
 
     it("should call api only once when caching the same sequence twice in succession", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        let sequenceByKeySpy: jasmine.Spy = spyOn(apiV3, "sequenceByKey$");
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKeySpy: jasmine.Spy = spyOn(api, "sequenceByKey$");
         sequenceByKeySpy.and.returnValue(sequenceByKey);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceKey";
 
         graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
         graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
@@ -2238,44 +2242,44 @@ describe("Graph.resetSpatialEdges", () => {
     });
 
     it("should use fallback keys", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let graphCalculator: GraphCalculator = new GraphCalculator(null);
-        let edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: ISequence } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        let node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.key);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
-        let searchSpy: jasmine.Spy =  spyOn(index, "search");
+        const searchSpy: jasmine.Spy =  spyOn(index, "search");
         searchSpy.and.returnValue([{ node: node }]);
 
         expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
 
-        let getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
+        const getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
         getPotentialSpy.and.returnValue([]);
 
         spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
@@ -2287,51 +2291,51 @@ describe("Graph.resetSpatialEdges", () => {
         graph.initializeCache(fullNode.key);
         graph.cacheSpatialEdges(fullNode.key);
 
-        let nodeSequenceResetSpy: jasmine.Spy = spyOn(node, "resetSequenceEdges").and.stub();
-        let nodeSpatialResetSpy: jasmine.Spy = spyOn(node, "resetSpatialEdges").and.stub();
+        const nodeSequenceResetSpy: jasmine.Spy = spyOn(node, "resetSequenceEdges").and.stub();
+        const nodeSpatialResetSpy: jasmine.Spy = spyOn(node, "resetSpatialEdges").and.stub();
 
         graph.resetSpatialEdges();
 
         expect(nodeSequenceResetSpy.calls.count()).toBe(0);
         expect(nodeSpatialResetSpy.calls.count()).toBe(1);
 
-        let countBefore: number = searchSpy.calls.count();
+        const countBefore: number = searchSpy.calls.count();
         expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
-        let countAfter: number = searchSpy.calls.count();
+        const countAfter: number = searchSpy.calls.count();
 
         expect(countAfter - countBefore).toBe(1);
     });
 
     it("should have to re-encode hs after spatial edges reset", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let graphCalculator: GraphCalculator = new GraphCalculator(null);
-        let edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(graphCalculator, "encodeH").and.returnValue(h);
-        let encodeHsSpy: jasmine.Spy = spyOn(graphCalculator, "encodeHs");
+        const encodeHsSpy: jasmine.Spy = spyOn(graphCalculator, "encodeHs");
         encodeHsSpy.and.returnValue([h]);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let graph: Graph = new Graph(apiV3, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: IFullNode } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        let result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: ISequence } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -2339,15 +2343,15 @@ describe("Graph.resetSpatialEdges", () => {
         expect(graph.hasTiles(fullNode.key)).toBe(false);
         expect(graph.isCachingTiles(fullNode.key)).toBe(false);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
         new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let imagesByHresult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHresult: { [key: string]: { [index: string]: ICoreNode } } = {};
         imagesByHresult[h] = {};
         imagesByHresult[h]["0"] = fullNode;
         imagesByH.next(imagesByHresult);
@@ -2355,7 +2359,7 @@ describe("Graph.resetSpatialEdges", () => {
         expect(graph.hasTiles(fullNode.key)).toBe(true);
         expect(graph.isCachingTiles(fullNode.key)).toBe(false);
 
-        let node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.key);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
@@ -2363,7 +2367,7 @@ describe("Graph.resetSpatialEdges", () => {
 
         expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
 
-        let getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
+        const getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
         getPotentialSpy.and.returnValue([]);
 
         spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
@@ -2375,17 +2379,17 @@ describe("Graph.resetSpatialEdges", () => {
         graph.initializeCache(fullNode.key);
         graph.cacheSpatialEdges(fullNode.key);
 
-        let nodeSequenceResetSpy: jasmine.Spy = spyOn(node, "resetSequenceEdges").and.stub();
-        let nodeSpatialResetSpy: jasmine.Spy = spyOn(node, "resetSpatialEdges").and.stub();
+        const nodeSequenceResetSpy: jasmine.Spy = spyOn(node, "resetSequenceEdges").and.stub();
+        const nodeSpatialResetSpy: jasmine.Spy = spyOn(node, "resetSpatialEdges").and.stub();
 
         graph.resetSpatialEdges();
 
         expect(nodeSequenceResetSpy.calls.count()).toBe(0);
         expect(nodeSpatialResetSpy.calls.count()).toBe(1);
 
-        let countBefore: number = encodeHsSpy.calls.count();
+        const countBefore: number = encodeHsSpy.calls.count();
         expect(graph.hasTiles(fullNode.key)).toBe(true);
-        let countAfter: number = encodeHsSpy.calls.count();
+        const countAfter: number = encodeHsSpy.calls.count();
 
         expect(countAfter - countBefore).toBe(1);
 
@@ -2400,20 +2404,20 @@ describe("Graph.reset", () => {
     });
 
     it("should remove node", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
+        const fullNode: IFullNode = helper.createFullNode();
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2422,9 +2426,9 @@ describe("Graph.reset", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        let node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.key);
 
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
         nodeDisposeSpy.and.stub();
 
         graph.reset([]);
@@ -2434,20 +2438,20 @@ describe("Graph.reset", () => {
     });
 
     it("should dispose cache initialized node", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
+        const fullNode: IFullNode = helper.createFullNode();
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2456,10 +2460,10 @@ describe("Graph.reset", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        let node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.key);
         graph.initializeCache(node.key);
 
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
         nodeDisposeSpy.and.stub();
 
         graph.reset([]);
@@ -2469,20 +2473,20 @@ describe("Graph.reset", () => {
     });
 
     it("should keep supplied node", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let graph: Graph = new Graph(apiV3, index, calculator);
+        const graph: Graph = new Graph(api, index, calculator);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
+        const fullNode: IFullNode = helper.createFullNode();
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2491,14 +2495,14 @@ describe("Graph.reset", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        let node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.key);
         graph.initializeCache(node.key);
 
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
         nodeDisposeSpy.and.stub();
-        let nodeResetSequenceSpy: jasmine.Spy = spyOn(node, "resetSequenceEdges");
+        const nodeResetSequenceSpy: jasmine.Spy = spyOn(node, "resetSequenceEdges");
         nodeResetSequenceSpy.and.stub();
-        let nodeResetSpatialSpy: jasmine.Spy = spyOn(node, "resetSpatialEdges");
+        const nodeResetSpatialSpy: jasmine.Spy = spyOn(node, "resetSpatialEdges");
         nodeResetSpatialSpy.and.stub();
 
         graph.reset([node.key]);
@@ -2518,27 +2522,27 @@ describe("Graph.uncache", () => {
     });
 
     it("should remove prestored node if not cache initialized", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
+        const fullNode: IFullNode = helper.createFullNode();
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2547,9 +2551,9 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        let node: Node = graph.getNode(fullNode.key);
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node: Node = graph.getNode(fullNode.key);
+        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
@@ -2560,28 +2564,28 @@ describe("Graph.uncache", () => {
     });
 
     it("should not remove prestored node if in kept sequence", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = "sequencKey";
-        let result: { [key: string]: IFullNode } = {};
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2590,9 +2594,9 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        let node: Node = graph.getNode(fullNode.key);
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node: Node = graph.getNode(fullNode.key);
+        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([], fullNode.sequence_key);
 
@@ -2603,27 +2607,27 @@ describe("Graph.uncache", () => {
     });
 
     it("should remove prestored node if cache initialized", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
+        const fullNode: IFullNode = helper.createFullNode();
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2634,8 +2638,8 @@ describe("Graph.uncache", () => {
 
         graph.initializeCache(fullNode.key);
 
-        let node: Node = graph.getNode(fullNode.key);
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node: Node = graph.getNode(fullNode.key);
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
@@ -2645,27 +2649,27 @@ describe("Graph.uncache", () => {
     });
 
     it("should not remove prestored node when in keys to keep", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
+        const fullNode: IFullNode = helper.createFullNode();
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2676,9 +2680,9 @@ describe("Graph.uncache", () => {
 
         graph.initializeCache(fullNode.key);
 
-        let node: Node = graph.getNode(fullNode.key);
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node: Node = graph.getNode(fullNode.key);
+        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([fullNode.key]);
 
@@ -2689,27 +2693,27 @@ describe("Graph.uncache", () => {
     });
 
     it("should not remove prestored node if below threshold", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
             maxUnusedPreStoredNodes: 1,
             maxUnusedTiles: 0,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
+        const fullNode: IFullNode = helper.createFullNode();
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2720,9 +2724,9 @@ describe("Graph.uncache", () => {
 
         graph.initializeCache(fullNode.key);
 
-        let node: Node = graph.getNode(fullNode.key);
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node: Node = graph.getNode(fullNode.key);
+        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
@@ -2733,30 +2737,30 @@ describe("Graph.uncache", () => {
     });
 
     it("should remove prestored node accessed earliest", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
 
-        let imageByKeyFullSpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        const imageByKeyFullSpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 1,
             maxUnusedTiles: 0,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let fullNode1: IFullNode = helper.createFullNode();
+        const fullNode1: IFullNode = helper.createFullNode();
         fullNode1.key = "key1";
-        let result1: { [key: string]: IFullNode } = {};
+        const result1: { [key: string]: IFullNode } = {};
         result1[fullNode1.key] = fullNode1;
 
-        let imageByKeyFull1: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull1: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull1);
 
         graph.cacheFull$(fullNode1.key).subscribe(() => { /*noop*/ });
@@ -2766,12 +2770,12 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode1.key)).toBe(true);
 
-        let fullNode2: IFullNode = helper.createFullNode();
+        const fullNode2: IFullNode = helper.createFullNode();
         fullNode2.key = "key2";
-        let result2: { [key: string]: IFullNode } = {};
+        const result2: { [key: string]: IFullNode } = {};
         result2[fullNode2.key] = fullNode2;
 
-        let imageByKeyFull2: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull2: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull2);
 
         graph.cacheFull$(fullNode2.key).subscribe(() => { /*noop*/ });
@@ -2779,20 +2783,20 @@ describe("Graph.uncache", () => {
         imageByKeyFull2.next(result2);
         imageByKeyFull2.complete();
 
-        let node1: Node = graph.getNode(fullNode1.key);
+        const node1: Node = graph.getNode(fullNode1.key);
         graph.initializeCache(node1.key);
 
         expect(graph.hasInitializedCache(node1.key)).toBe(true);
 
-        let node2: Node = graph.getNode(fullNode2.key);
+        const node2: Node = graph.getNode(fullNode2.key);
         graph.initializeCache(node2.key);
 
         expect(graph.hasInitializedCache(node2.key)).toBe(true);
 
-        let nodeDisposeSpy1: jasmine.Spy = spyOn(node1, "dispose").and.stub();
-        let nodeDisposeSpy2: jasmine.Spy = spyOn(node2, "dispose").and.stub();
+        const nodeDisposeSpy1: jasmine.Spy = spyOn(node1, "dispose").and.stub();
+        const nodeDisposeSpy2: jasmine.Spy = spyOn(node2, "dispose").and.stub();
 
-        let time: number = new Date().getTime();
+        const time: number = new Date().getTime();
         while (new Date().getTime() === time) {
             graph.hasNode(node2.key);
         }
@@ -2810,28 +2814,28 @@ describe("Graph.uncache", () => {
     });
 
     it("should uncache cache initialized node", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 1,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
+        const fullNode: IFullNode = helper.createFullNode();
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2844,22 +2848,22 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasInitializedCache(fullNode.key)).toBe(true);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
         new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
         observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
-        let node: Node = graph.getNode(fullNode.key);
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        const node: Node = graph.getNode(fullNode.key);
+        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
 
         graph.uncache([]);
 
@@ -2870,28 +2874,28 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache cache initialized node if below threshold", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 1,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
+        const fullNode: IFullNode = helper.createFullNode();
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2904,23 +2908,23 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasInitializedCache(fullNode.key)).toBe(true);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
         new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
         observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
-        let node: Node = graph.getNode(fullNode.key);
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node: Node = graph.getNode(fullNode.key);
+        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
@@ -2932,28 +2936,28 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache cache initialized node if key should be kept", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 1,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
+        const fullNode: IFullNode = helper.createFullNode();
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2962,26 +2966,26 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        let node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.key);
         graph.initializeCache(node.key);
 
         expect(graph.hasInitializedCache(node.key)).toBe(true);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
         new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
         observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache");
+        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache");
         nodeUncacheSpy.and.stub();
 
         graph.uncache([node.key]);
@@ -2993,28 +2997,28 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache cache initialized node if key in use", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 1,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
+        const fullNode: IFullNode = helper.createFullNode();
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -3023,22 +3027,22 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        let node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.key);
         graph.initializeCache(node.key);
 
         expect(graph.hasInitializedCache(node.key)).toBe(true);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
         new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(node.key);
         observableFrom(graph.cacheTiles$(node.key)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
@@ -3050,31 +3054,31 @@ describe("Graph.uncache", () => {
     });
 
     it("should uncache cache initialized node accessed earliest", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
 
-        let imageByKeyFullSpy: jasmine.Spy = spyOn(apiV3, "imageByKeyFull$");
+        const imageByKeyFullSpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 1,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let fullNode1: IFullNode = helper.createFullNode();
+        const fullNode1: IFullNode = helper.createFullNode();
         fullNode1.key = "key1";
-        let result1: { [key: string]: IFullNode } = {};
+        const result1: { [key: string]: IFullNode } = {};
         result1[fullNode1.key] = fullNode1;
 
-        let imageByKeyFull1: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull1: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull1);
 
         graph.cacheFull$(fullNode1.key).subscribe(() => { /*noop*/ });
@@ -3084,12 +3088,12 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode1.key)).toBe(true);
 
-        let fullNode2: IFullNode = helper.createFullNode();
+        const fullNode2: IFullNode = helper.createFullNode();
         fullNode2.key = "key2";
-        let result2: { [key: string]: IFullNode } = {};
+        const result2: { [key: string]: IFullNode } = {};
         result2[fullNode2.key] = fullNode2;
 
-        let imageByKeyFull2: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull2: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull2);
 
         graph.cacheFull$(fullNode2.key).subscribe(() => { /*noop*/ });
@@ -3099,35 +3103,35 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode2.key)).toBe(true);
 
-        let node1: Node = graph.getNode(fullNode1.key);
+        const node1: Node = graph.getNode(fullNode1.key);
         graph.initializeCache(node1.key);
 
         expect(graph.hasInitializedCache(node1.key)).toBe(true);
 
-        let node2: Node = graph.getNode(fullNode2.key);
+        const node2: Node = graph.getNode(fullNode2.key);
         graph.initializeCache(node2.key);
 
         expect(graph.hasInitializedCache(node2.key)).toBe(true);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
         new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode1.key);
         observableFrom(graph.cacheTiles$(fullNode1.key)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode1;
         imagesByHResult[h]["1"] = fullNode2;
         imagesByH.next(imagesByHResult);
 
-        let nodeUncacheSpy1: jasmine.Spy = spyOn(node1, "uncache").and.stub();
-        let nodeUncacheSpy2: jasmine.Spy = spyOn(node2, "uncache").and.stub();
+        const nodeUncacheSpy1: jasmine.Spy = spyOn(node1, "uncache").and.stub();
+        const nodeUncacheSpy2: jasmine.Spy = spyOn(node2, "uncache").and.stub();
 
-        let time: number = new Date().getTime();
+        const time: number = new Date().getTime();
         while (new Date().getTime() === time) {
             graph.hasNode(node2.key);
         }
@@ -3146,36 +3150,36 @@ describe("Graph.uncache", () => {
     });
 
     it("should uncache sequence", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceKey";
 
         graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
 
-        let result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: ISequence } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
         expect(graph.hasSequence(sequenceKey)).toBe(true);
 
-        let sequence: Sequence = graph.getSequence(sequenceKey);
+        const sequence: Sequence = graph.getSequence(sequenceKey);
 
-        let sequenceDisposeSpy: jasmine.Spy = spyOn(sequence, "dispose");
+        const sequenceDisposeSpy: jasmine.Spy = spyOn(sequence, "dispose");
         sequenceDisposeSpy.and.stub();
 
         graph.uncache([]);
@@ -3186,36 +3190,36 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache sequence if specified to keep", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceKey";
 
         graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
 
-        let result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: ISequence } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
         expect(graph.hasSequence(sequenceKey)).toBe(true);
 
-        let sequence: Sequence = graph.getSequence(sequenceKey);
+        const sequence: Sequence = graph.getSequence(sequenceKey);
 
-        let sequenceDisposeSpy: jasmine.Spy = spyOn(sequence, "dispose");
+        const sequenceDisposeSpy: jasmine.Spy = spyOn(sequence, "dispose");
         sequenceDisposeSpy.and.stub();
 
         graph.uncache([], sequenceKey);
@@ -3226,36 +3230,36 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache sequence if number below threshold", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
-        spyOn(apiV3, "sequenceByKey$").and.returnValue(sequenceByKey);
+        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceKey";
 
         graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
 
-        let result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: ISequence } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
         expect(graph.hasSequence(sequenceKey)).toBe(true);
 
-        let sequence: Sequence = graph.getSequence(sequenceKey);
+        const sequence: Sequence = graph.getSequence(sequenceKey);
 
-        let sequenceDisposeSpy: jasmine.Spy = spyOn(sequence, "dispose");
+        const sequenceDisposeSpy: jasmine.Spy = spyOn(sequence, "dispose");
         sequenceDisposeSpy.and.stub();
 
         graph.uncache([]);
@@ -3266,58 +3270,58 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache sequence accessed last", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let sequenceByKeySpy: jasmine.Spy = spyOn(apiV3, "sequenceByKey$");
+        const sequenceByKeySpy: jasmine.Spy = spyOn(api, "sequenceByKey$");
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let sequenceKey1: string = "sequenceKey1";
+        const sequenceKey1: string = "sequenceKey1";
 
-        let sequenceByKey1: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey1: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         sequenceByKeySpy.and.returnValue(sequenceByKey1);
 
         graph.cacheSequence$(sequenceKey1).subscribe(() => { /*noop*/ });
 
-        let result1: { [sequenceKey: string]: ISequence } = {};
+        const result1: { [sequenceKey: string]: ISequence } = {};
         result1[sequenceKey1] = { key: sequenceKey1, keys: [] };
         sequenceByKey1.next(result1);
         sequenceByKey1.complete();
 
         expect(graph.hasSequence(sequenceKey1)).toBe(true);
 
-        let sequence1: Sequence = graph.getSequence(sequenceKey1);
+        const sequence1: Sequence = graph.getSequence(sequenceKey1);
 
-        let sequenceDisposeSpy1: jasmine.Spy = spyOn(sequence1, "dispose").and.stub();
+        const sequenceDisposeSpy1: jasmine.Spy = spyOn(sequence1, "dispose").and.stub();
 
-        let sequenceKey2: string = "sequenceKey2";
+        const sequenceKey2: string = "sequenceKey2";
 
-        let sequenceByKey2: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey2: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         sequenceByKeySpy.and.returnValue(sequenceByKey2);
 
         graph.cacheSequence$(sequenceKey2).subscribe(() => { /*noop*/ });
 
-        let result2: { [sequenceKey: string]: ISequence } = {};
+        const result2: { [sequenceKey: string]: ISequence } = {};
         result2[sequenceKey2] = { key: sequenceKey2, keys: [] };
         sequenceByKey2.next(result2);
         sequenceByKey2.complete();
 
         expect(graph.hasSequence(sequenceKey2)).toBe(true);
 
-        let sequence2: Sequence = graph.getSequence(sequenceKey2);
+        const sequence2: Sequence = graph.getSequence(sequenceKey2);
 
-        let sequenceDisposeSpy2: jasmine.Spy = spyOn(sequence2, "dispose").and.stub();
+        const sequenceDisposeSpy2: jasmine.Spy = spyOn(sequence2, "dispose").and.stub();
 
-        let time: number = new Date().getTime();
+        const time: number = new Date().getTime();
         while (new Date().getTime() === time) {
             graph.hasSequence(sequenceKey2);
         }
@@ -3334,28 +3338,28 @@ describe("Graph.uncache", () => {
     });
 
     it("should uncache node by uncaching tile", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
+        const fullNode: IFullNode = helper.createFullNode();
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -3364,25 +3368,25 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
         observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
         expect(graph.hasTiles(fullNode.key)).toBe(true);
 
-        let node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.key);
 
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
         nodeDisposeSpy.and.stub();
 
         graph.uncache([]);
@@ -3393,29 +3397,29 @@ describe("Graph.uncache", () => {
     });
 
     it("should not dispose node by uncaching tile if in specified sequence", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let fullNode: IFullNode = helper.createFullNode();
+        const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
-        let result: { [key: string]: IFullNode } = {};
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -3424,26 +3428,26 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
         observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
         expect(graph.hasTiles(fullNode.key)).toBe(true);
 
-        let node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.key);
 
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
 
         graph.uncache([], fullNode.sequence_key);
 
@@ -3454,28 +3458,28 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache node by uncaching tile when number below threshold", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 1,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
+        const fullNode: IFullNode = helper.createFullNode();
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -3484,25 +3488,25 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
         observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
         expect(graph.hasTiles(fullNode.key)).toBe(true);
 
-        let node: Node = graph.getNode(fullNode.key);
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node: Node = graph.getNode(fullNode.key);
+        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
@@ -3514,28 +3518,28 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache and dispose node by uncaching tile when tile is related to kept key", () => {
-        let apiV3: APIv3 = new APIv3("clientId");
-        let index: GeoRBush<any> = new GeoRBush(16);
-        let calculator: GraphCalculator = new GraphCalculator(null);
+        const api: API = new API(undefined);
+        const index: GeoRBush<any> = new GeoRBush(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
 
-        let h: string = "h";
+        const h: string = "h";
         spyOn(calculator, "encodeH").and.returnValue(h);
         spyOn(calculator, "encodeHs").and.returnValue([h]);
 
-        let imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        spyOn(apiV3, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        let configuration: IGraphConfiguration = {
+        const configuration: IGraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        let graph: Graph = new Graph(apiV3, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
 
-        let fullNode: IFullNode = helper.createFullNode();
-        let result: { [key: string]: IFullNode } = {};
+        const fullNode: IFullNode = helper.createFullNode();
+        const result: { [key: string]: IFullNode } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -3544,25 +3548,25 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        let imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
+        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
-        spyOn(apiV3, "imagesByH$").and.returnValue(imagesByH);
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
         observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        let imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
         expect(graph.hasTiles(fullNode.key)).toBe(true);
 
-        let node: Node = graph.getNode(fullNode.key);
-        let nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        let nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node: Node = graph.getNode(fullNode.key);
+        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([node.key]);
 

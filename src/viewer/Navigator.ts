@@ -3,7 +3,6 @@ import {from as observableFrom, throwError as observableThrowError, BehaviorSubj
 import {last, tap, map, mergeAll, finalize, mergeMap, first} from "rxjs/operators";
 
 import {
-    APIv3,
     IFullNode,
 } from "../API";
 import {
@@ -27,9 +26,11 @@ import {
     PlayService,
 } from "../Viewer";
 import { PanService } from "./PanService";
+import API from "../api/API";
+import DataProvider from "../api/DataProvider";
 
 export class Navigator {
-    private _apiV3: APIv3;
+    private _api: API;
 
     private _cacheService: CacheService;
     private _graphService: GraphService;
@@ -51,7 +52,7 @@ export class Navigator {
         clientId: string,
         options: IViewerOptions,
         token?: string,
-        apiV3?: APIv3,
+        api?: API,
         graphService?: GraphService,
         imageLoadingService?: ImageLoadingService,
         loadingService?: LoadingService,
@@ -60,13 +61,13 @@ export class Navigator {
         playService?: PlayService,
         panService?: PanService) {
 
-        this._apiV3 = apiV3 != null ? apiV3 : new APIv3(clientId, token);
+        this._api = api != null ? api : new API(new DataProvider(clientId, token));
 
         this._imageLoadingService = imageLoadingService != null ? imageLoadingService : new ImageLoadingService();
 
         this._graphService = graphService != null ?
             graphService :
-            new GraphService(new Graph(this.apiV3), this._imageLoadingService);
+            new GraphService(new Graph(this.api), this._imageLoadingService);
 
         this._loadingService = loadingService != null ? loadingService : new LoadingService();
         this._loadingName = "navigator";
@@ -93,8 +94,8 @@ export class Navigator {
         this._nodeRequestSubscription = null;
     }
 
-    public get apiV3(): APIv3 {
-        return this._apiV3;
+    public get api(): API{
+        return this._api;
     }
 
     public get cacheService(): CacheService {
@@ -182,7 +183,7 @@ export class Navigator {
 
         this._loadingService.startLoading(this._loadingName);
 
-        const node$: Observable<Node> = this.apiV3.imageCloseTo$(lat, lon).pipe(
+        const node$: Observable<Node> = this.api.imageCloseTo$(lat, lon).pipe(
             mergeMap(
                 (fullNode: IFullNode): Observable<Node> => {
                     if (fullNode == null) {
@@ -251,7 +252,7 @@ export class Navigator {
             first(),
             tap(
                 (key: string): void => {
-                    this._apiV3.setToken(token);
+                    this._api.setToken(token);
                 }),
             mergeMap(
                 (key: string): Observable<void> => {

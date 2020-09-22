@@ -8,7 +8,6 @@ import {
 } from "../API";
 import { IDataProvider } from "./interfaces/interfaces";
 import MapillaryError from "../error/MapillaryError";
-import APIv3 from "./APIv3";
 
 /**
  * @class API

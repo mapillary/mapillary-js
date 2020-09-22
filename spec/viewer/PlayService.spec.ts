@@ -3,7 +3,6 @@ import {of as observableOf, zip as observableZip,  Observable ,  Subject } from 
 import {take, first, skip} from "rxjs/operators";
 
 import {
-    APIv3,
     IFullNode,
 } from "../../src/API";
 import { EdgeDirection } from "../../src/Edge";
@@ -31,13 +30,15 @@ import { MockCreator } from "../helper/MockCreator.spec";
 import { NodeHelper } from "../helper/NodeHelper.spec";
 import { StateServiceMockCreator } from "../helper/StateServiceMockCreator.spec";
 import { FrameHelper } from "../helper/FrameHelper.spec";
+import DataProvider from "../../src/api/DataProvider";
+import API from "../../src/api/API";
 
 describe("PlayService.ctor", () => {
     it("should be defined when constructed", () => {
         const clientId: string = "clientId";
-        const apiV3: APIv3 = new APIv3(clientId);
+        const api: API = new API(new DataProvider(clientId));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(apiV3), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -47,9 +48,9 @@ describe("PlayService.ctor", () => {
 
     it("should emit default values", (done: () => void) => {
         const clientId: string = "clientId";
-        const apiV3: APIv3 = new APIv3(clientId);
+        const api: API = new API(new DataProvider(clientId));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(apiV3), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -73,9 +74,9 @@ describe("PlayService.ctor", () => {
 describe("PlayService.playing", () => {
     it("should be playing after calling play", (done: () => void) => {
         const clientId: string = "clientId";
-        const apiV3: APIv3 = new APIv3(clientId);
+        const api: API = new API(new DataProvider(clientId));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(apiV3), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -95,9 +96,9 @@ describe("PlayService.playing", () => {
 
     it("should not be playing after calling stop", (done: () => void) => {
         const clientId: string = "clientId";
-        const apiV3: APIv3 = new APIv3(clientId);
+        const api: API = new API(new DataProvider(clientId));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(apiV3), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -133,9 +134,9 @@ describe("PlayService.playing", () => {
 describe("PlayService.speed$", () => {
     it("should emit when changing speed", (done: () => void) => {
         const clientId: string = "clientId";
-        const apiV3: APIv3 = new APIv3(clientId);
+        const api: API = new API(new DataProvider(clientId));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(apiV3), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -154,9 +155,9 @@ describe("PlayService.speed$", () => {
 
     it("should not emit when setting current speed", () => {
         const clientId: string = "clientId";
-        const apiV3: APIv3 = new APIv3(clientId);
+        const api: API = new API(new DataProvider(clientId));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(apiV3), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -189,9 +190,9 @@ describe("PlayService.speed$", () => {
 
     it("should clamp speed values to 0, 1 interval", (done: () => void) => {
         const clientId: string = "clientId";
-        const apiV3: APIv3 = new APIv3(clientId);
+        const api: API = new API(new DataProvider(clientId));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(apiV3), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -239,7 +240,7 @@ let createState: () => ICurrentState = (): ICurrentState => {
 describe("PlayService.play", () => {
     let nodeHelper: NodeHelper;
 
-    let apiV3: APIv3;
+    let api: API;
     let imageLoadingService: ImageLoadingService;
     let graphService: GraphService;
     let stateService: StateService;
@@ -247,9 +248,9 @@ describe("PlayService.play", () => {
     beforeEach(() => {
         nodeHelper = new NodeHelper();
 
-        apiV3 = new APIv3("clientId");
+        api = new API(new DataProvider("clientId"));
         imageLoadingService = new ImageLoadingService();
-        graphService = new GraphService(new Graph(apiV3), imageLoadingService);
+        graphService = new GraphService(new Graph(api), imageLoadingService);
         stateService = new StateServiceMockCreator().create();
     });
 

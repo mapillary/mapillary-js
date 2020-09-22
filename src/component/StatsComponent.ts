@@ -48,7 +48,7 @@ export class StatsComponent extends Component<IComponentConfiguration> {
                 }),
             mergeMap(
                 (keys: IKeys): Observable<void> => {
-                    return this._navigator.apiV3.sequenceViewAdd$(keys.report).pipe(
+                    return this._navigator.api.sequenceViewAdd$(keys.report).pipe(
                         catchError(
                             (error: Error, caught: Observable<void>): Observable<void> => {
                                 console.error(`Failed to report sequence stats (${keys.report})`, error);
@@ -84,7 +84,7 @@ export class StatsComponent extends Component<IComponentConfiguration> {
                 }),
             mergeMap(
                 (keys: IKeys): Observable<void> => {
-                    return this._navigator.apiV3.imageViewAdd$(keys.report).pipe(
+                    return this._navigator.api.imageViewAdd$(keys.report).pipe(
                         catchError(
                             (error: Error, caught: Observable<void>): Observable<void> => {
                                 console.error(`Failed to report image stats (${keys.report})`, error);
