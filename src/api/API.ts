@@ -54,6 +54,10 @@ export class API {
           new MapillaryError("The sequence view add functionality is deprecated."));
     }
 
+    public setToken(token?: string): void {
+        this._dataProvider.setToken(token);
+    }
+
     private _wrapPromise$<T>(promise: Promise<T>): Observable<T> {
         return Observable
             .create(

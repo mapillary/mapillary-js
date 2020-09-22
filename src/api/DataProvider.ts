@@ -123,36 +123,35 @@ export class DataProvider implements IDataProvider {
 
     public getCoreImages(geohashes: string[]):
         Promise<{ [geohash: string]: { [imageKey: string]: ICoreNode } }> {
-        return Promise.resolve(this._model
+        return Promise.resolve(<PromiseLike<falcor.JSONEnvelope<IImagesByH<ICoreNode>>>>this._model
             .get([
               this._pathImagesByH,
               geohashes,
               { from: 0, to: this._pageCount },
               this._propertiesKey
-                  .concat(this._propertiesCore)])
+                  .concat(this._propertiesCore)]))
             .then(
               (value: falcor.JSONEnvelope<IImagesByH<ICoreNode>>): { [h: string]: { [index: string]: ICoreNode } } => {
-                    if (!value) {
-                        value = { json: { imagesByH: {} } };
-                        for (let h of geohashes) {
-                            value.json.imagesByH[h] = {};
-                            for (let i: number = 0; i <= this._pageCount; i++) {
-                                value.json.imagesByH[h][i] = null;
-                            }
-                        }
-                    }
+                  if (!value) {
+                      value = { json: { imagesByH: {} } };
+                      for (let h of geohashes) {
+                          value.json.imagesByH[h] = {};
+                          for (let i: number = 0; i <= this._pageCount; i++) {
+                              value.json.imagesByH[h][i] = null;
+                          }
+                      }
+                  }
 
-                    return value.json.imagesByH;
-                }))
-            .catch(
-                (error: Error) => {
-                    this._invalidateGet(this._pathImagesByH, geohashes);
-                    throw error;
-                });
+                  return value.json.imagesByH;
+              },
+              (error: Error) => {
+                  this._invalidateGet(this._pathImagesByH, geohashes);
+                  throw error;
+              });
     }
 
     public getFillImages(keys: string[]): Promise<{ [key: string]: IFillNode }> {
-        return Promise.resolve(this._model
+        return Promise.resolve(<PromiseLike<falcor.JSONEnvelope<IImageByKey<IFillNode>>>>this._model
             .get([
                 this._pathImageByKey,
                 keys,
@@ -160,17 +159,17 @@ export class DataProvider implements IDataProvider {
                     .concat(this._propertiesFill)
                     .concat(this._propertiesSpatial),
                 this._propertiesKey
-                    .concat(this._propertiesUser)])
+                    .concat(this._propertiesUser)]))
             .then(
                 (value: falcor.JSONEnvelope<IImageByKey<IFillNode>>):
-                  { [key: string]: IFillNode } => {
-                      if (!value) {
-                          throw new Error(`Images (${keys.join(", ")}) could not be found.`);
-                      }
+                    { [key: string]: IFillNode } => {
+                    if (!value) {
+                        this._invalidateGet(this._pathImageByKey, keys);
+                        throw new Error(`Images (${keys.join(", ")}) could not be found.`);
+                    }
 
-                      return value.json.imageByKey;
-                  }))
-            .catch(
+                    return value.json.imageByKey;
+                },
                 (error: Error) => {
                     this._invalidateGet(this._pathImageByKey, keys);
                     throw error;
@@ -178,7 +177,7 @@ export class DataProvider implements IDataProvider {
     }
 
     public getFullImages(keys: string[]): Promise<{ [key: string]: IFullNode }> {
-        return Promise.resolve(this._model
+        return Promise.resolve(<PromiseLike<falcor.JSONEnvelope<IImageByKey<IFullNode>>>>this._model
             .get([
                 this._pathImageByKey,
                 keys,
@@ -187,17 +186,17 @@ export class DataProvider implements IDataProvider {
                     .concat(this._propertiesFill)
                     .concat(this._propertiesSpatial),
                 this._propertiesKey
-                    .concat(this._propertiesUser)])
+                    .concat(this._propertiesUser)]))
             .then(
-                (value: falcor.JSONEnvelope<IImageByKey<IFillNode>>):
-                  { [key: string]: IFillNode } => {
-                      if (!value) {
-                          throw new Error(`Images (${keys.join(", ")}) could not be found.`);
-                      }
+                (value: falcor.JSONEnvelope<IImageByKey<IFullNode>>):
+                    { [key: string]: IFullNode } => {
+                    if (!value) {
+                        this._invalidateGet(this._pathImageByKey, keys);
+                        throw new Error(`Images (${keys.join(", ")}) could not be found.`);
+                    }
 
-                      return value.json.imageByKey;
-                  }))
-            .catch(
+                    return value.json.imageByKey;
+                },
                 (error: Error) => {
                     this._invalidateGet(this._pathImageByKey, keys);
                     throw error;
@@ -212,29 +211,28 @@ export class DataProvider implements IDataProvider {
 
     public getSequences(sequenceKeys: string[]):
         Promise<{ [sequenceKey: string]: ISequence }> {
-        return Promise.resolve(this._model
+        return Promise.resolve(<PromiseLike<falcor.JSONEnvelope<ISequenceByKey<ISequence>>>>this._model
             .get([
-              this._pathSequenceByKey,
-              sequenceKeys,
-              this._propertiesKey
-                  .concat(this._propertiesSequence)])
+                this._pathSequenceByKey,
+                sequenceKeys,
+                this._propertiesKey
+                    .concat(this._propertiesSequence)]))
             .then(
-              (value: falcor.JSONEnvelope<ISequenceByKey<ISequence>>): { [sequenceKey: string]: ISequence } => {
-                if (!value) {
-                    value = { json: { sequenceByKey: {} } };
-                }
-
-                for (const sequenceKey of sequenceKeys) {
-                    if (!(sequenceKey in value.json.sequenceByKey)) {
-                        console.warn(`Sequence data missing (${sequenceKey})`);
-
-                        value.json.sequenceByKey[sequenceKey] = { key: sequenceKey, keys: [] };
+                (value: falcor.JSONEnvelope<ISequenceByKey<ISequence>>): { [sequenceKey: string]: ISequence } => {
+                    if (!value) {
+                        value = { json: { sequenceByKey: {} } };
                     }
-                }
 
-                return value.json.sequenceByKey;
-            }))
-            .catch(
+                    for (const sequenceKey of sequenceKeys) {
+                        if (!(sequenceKey in value.json.sequenceByKey)) {
+                            console.warn(`Sequence data missing (${sequenceKey})`);
+
+                            value.json.sequenceByKey[sequenceKey] = { key: sequenceKey, keys: [] };
+                        }
+                    }
+
+                    return value.json.sequenceByKey;
+                },
                 (error: Error) => {
                     this._invalidateGet(this._pathSequenceByKey, sequenceKeys);
                     throw error;
