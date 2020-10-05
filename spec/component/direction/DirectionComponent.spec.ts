@@ -60,7 +60,7 @@ describe("DirectionComponent.activate", () => {
         directionComponent.activate();
 
         const node: Node = new NodeHelper().createNode();
-        node.initializeCache(new NodeCache());
+        node.initializeCache(new NodeCache(undefined));
         node.cacheSpatialEdges([]);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
 
@@ -88,7 +88,7 @@ describe("DirectionComponent.activate", () => {
         (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(observableOf<Sequence>(sequence));
 
         const node: Node = new NodeHelper().createNode();
-        node.initializeCache(new NodeCache());
+        node.initializeCache(new NodeCache(undefined));
         node.cacheSpatialEdges([]);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
 
@@ -117,7 +117,7 @@ describe("DirectionComponent.activate", () => {
         (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(cacheSequence$);
 
         const node: Node = new NodeHelper().createNode();
-        node.initializeCache(new NodeCache());
+        node.initializeCache(new NodeCache(undefined));
         node.cacheSpatialEdges([]);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
 
@@ -149,7 +149,7 @@ describe("DirectionComponent.activate", () => {
         (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(observableThrowError(new Error("Failed to cache seq.")));
 
         const node: Node = new NodeHelper().createNode();
-        node.initializeCache(new NodeCache());
+        node.initializeCache(new NodeCache(undefined));
         node.cacheSpatialEdges([]);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
 

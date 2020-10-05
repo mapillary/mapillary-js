@@ -27,6 +27,7 @@ import {
 } from "../Graph";
 import { GeoRBush } from "../Geo";
 import API from "../api/API";
+import { IDataProvider } from "../api/interfaces/interfaces";
 
 type NodeIndexItem = {
     lat: number;
@@ -894,10 +895,11 @@ export class Graph {
             throw new GraphMapillaryError(`Node already in cache (${key}).`);
         }
 
-        let node: Node = this.getNode(key);
-        node.initializeCache(new NodeCache());
+        const node: Node = this.getNode(key);
+        const provider: IDataProvider = this._api.dataProvider;
+        node.initializeCache(new NodeCache(provider));
 
-        let accessed: number = new Date().getTime();
+        const accessed: number = new Date().getTime();
         this._cachedNodes[key] = { accessed: accessed, node: node };
 
         this._updateCachedTileAccess(key, accessed);

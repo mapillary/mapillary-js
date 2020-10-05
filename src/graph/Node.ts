@@ -10,11 +10,11 @@ import {
 import {IEdge} from "../Edge";
 import {
     IEdgeStatus,
-    IMesh,
     ILoadStatus,
     NodeCache,
 } from "../Graph";
 import {ImageSize} from "../Viewer";
+import IMesh from "../api/interfaces/IMesh";
 
 /**
  * @class Node

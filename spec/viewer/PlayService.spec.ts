@@ -285,7 +285,7 @@ describe("PlayService.play", () => {
         playService.play();
 
         const frame: IFrame = new FrameHelper().createFrame();
-        frame.state.currentNode.initializeCache(new NodeCache());
+        frame.state.currentNode.initializeCache(new NodeCache(undefined));
         (<Subject<IFrame>>stateService.currentState$).next(frame);
 
         frame.state.currentNode.cacheSequenceEdges([]);
@@ -350,7 +350,7 @@ describe("PlayService.play", () => {
         playService.play();
 
         const frame: IFrame = new FrameHelper().createFrame();
-        frame.state.currentNode.initializeCache(new NodeCache());
+        frame.state.currentNode.initializeCache(new NodeCache(undefined));
         (<Subject<IFrame>>stateService.currentState$).next(frame);
 
         frame.state.currentNode.cacheSequenceEdges([]);
@@ -370,7 +370,7 @@ describe("PlayService.play", () => {
 
         const frame: IFrame = new FrameHelper().createFrame();
         const node: Node = frame.state.currentNode;
-        node.initializeCache(new NodeCache());
+        node.initializeCache(new NodeCache(undefined));
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
@@ -400,7 +400,7 @@ describe("PlayService.play", () => {
 
         const frame: IFrame = new FrameHelper().createFrame();
         const node: Node = frame.state.currentNode;
-        node.initializeCache(new NodeCache());
+        node.initializeCache(new NodeCache(undefined));
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
 
         const prevFullNode: IFullNode = new NodeHelper().createFullNode();
@@ -658,7 +658,7 @@ describe("PlayService.play", () => {
 
         const frame: IFrame = new FrameHelper().createFrame();
         const node: Node = frame.state.currentNode;
-        node.initializeCache(new NodeCache());
+        node.initializeCache(new NodeCache(undefined));
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
@@ -710,7 +710,7 @@ describe("PlayService.play", () => {
 
         const frame: IFrame = new FrameHelper().createFrame();
         const node: Node = frame.state.currentNode;
-        node.initializeCache(new NodeCache());
+        node.initializeCache(new NodeCache(undefined));
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 

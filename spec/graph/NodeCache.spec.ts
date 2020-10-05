@@ -1,36 +1,38 @@
-import {first, skip} from "rxjs/operators";
-import {EdgeDirection, IEdge} from "../../src/Edge";
+import { first, skip } from "rxjs/operators";
+import { EdgeDirection, IEdge } from "../../src/Edge";
 import {
     IEdgeStatus,
     NodeCache,
 } from "../../src/Graph";
 import { ImageSize } from "../../src/Viewer";
 import { MockCreator } from "../helper/MockCreator.spec";
+import { IDataProvider } from "../../src/API";
+import DataProvider from "../../src/api/DataProvider";
 
 describe("NodeCache.ctor", () => {
     it("should create a node cache", () => {
-        let nodeCache: NodeCache = new NodeCache();
+        let nodeCache: NodeCache = new NodeCache(undefined);
         expect(nodeCache).toBeDefined();
     });
 });
 
 describe("NodeCache.mesh", () => {
     it("should be null initially", () => {
-        let nodeCache: NodeCache = new NodeCache();
+        let nodeCache: NodeCache = new NodeCache(undefined);
         expect(nodeCache.mesh).toBeNull();
     });
 });
 
 describe("NodeCache.image", () => {
     it("should be null initially", () => {
-        let nodeCache: NodeCache = new NodeCache();
+        let nodeCache: NodeCache = new NodeCache(undefined);
         expect(nodeCache.image).toBeNull();
     });
 });
 
 describe("NodeCache.sequenceEdges$", () => {
     it("should emit uncached empty edge status initially", (done: Function) => {
-        let nodeCache: NodeCache = new NodeCache();
+        let nodeCache: NodeCache = new NodeCache(undefined);
 
         nodeCache.sequenceEdges$.pipe(
             first())
@@ -44,7 +46,7 @@ describe("NodeCache.sequenceEdges$", () => {
     });
 
     it("should emit cached non empty edge status when sequence edges cached", (done: Function) => {
-        let nodeCache: NodeCache = new NodeCache();
+        let nodeCache: NodeCache = new NodeCache(undefined);
 
         let sequenceEdge: IEdge = {
             data: {
@@ -76,7 +78,7 @@ describe("NodeCache.sequenceEdges$", () => {
 
 describe("NodeCache.resetSequenceEdges", () => {
     it("should reset the sequence edges", () => {
-        let nodeCache: NodeCache = new NodeCache();
+        let nodeCache: NodeCache = new NodeCache(undefined);
 
         let sequenceEdge: IEdge = {
             data: {
@@ -102,7 +104,7 @@ describe("NodeCache.resetSequenceEdges", () => {
 
 describe("NodeCache.spatialEdges$", () => {
     it("should emit uncached empty edge status initially", (done: Function) => {
-        let nodeCache: NodeCache = new NodeCache();
+        let nodeCache: NodeCache = new NodeCache(undefined);
 
         nodeCache.spatialEdges$.pipe(
             first())
@@ -116,7 +118,7 @@ describe("NodeCache.spatialEdges$", () => {
     });
 
     it("should emit cached non empty edge status when spatial edges cached", (done: Function) => {
-        let nodeCache: NodeCache = new NodeCache();
+        let nodeCache: NodeCache = new NodeCache(undefined);
 
         let spatialEdge: IEdge = {
             data: {
@@ -148,7 +150,7 @@ describe("NodeCache.spatialEdges$", () => {
 
 describe("NodeCache.resetSpatialEdges", () => {
     it("should reset the spatial edges", () => {
-        let nodeCache: NodeCache = new NodeCache();
+        let nodeCache: NodeCache = new NodeCache(undefined);
 
         let spatialEdge: IEdge = {
             data: {
@@ -174,7 +176,7 @@ describe("NodeCache.resetSpatialEdges", () => {
 
 describe("NodeCache.dispose", () => {
     it("should clear all properties", () => {
-        let nodeCache: NodeCache = new NodeCache();
+        let nodeCache: NodeCache = new NodeCache(undefined);
 
         let sequencEdge: IEdge = {
             data: {
@@ -211,11 +213,14 @@ describe("NodeCache.dispose", () => {
 
 describe("NodeCache.cacheImage$", () => {
     it("should return the node cache with a cached image", (done: Function) => {
-        const requestMock: XMLHttpRequest = new XMLHttpRequest();
-        spyOn(requestMock, "send").and.stub();
-        spyOn(requestMock, "open").and.stub();
+        const promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve(undefined);
+            },
+        };
 
-        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+        const dataProvider: IDataProvider = new DataProvider("cid");
+        spyOn(dataProvider, "getImage").and.returnValue(promise);
 
         const imageMock: HTMLImageElement = new Image();
         spyOn(window, <keyof Window>"Image").and.returnValue(imageMock);
@@ -225,7 +230,7 @@ describe("NodeCache.cacheImage$", () => {
         spyOn(window, "Blob").and.returnValue(<Blob>{});
         spyOn(window.URL, "createObjectURL").and.returnValue("url");
 
-        const nodeCache: NodeCache = new NodeCache();
+        const nodeCache: NodeCache = new NodeCache(dataProvider);
 
         expect(nodeCache.image).toBeNull();
 
@@ -238,18 +243,18 @@ describe("NodeCache.cacheImage$", () => {
                     done();
                 });
 
-        new MockCreator().mockProperty(requestMock, "status", 200);
-        requestMock.dispatchEvent(new ProgressEvent("load", { total: 1, loaded: 1}));
-
         imageMock.dispatchEvent(new CustomEvent("load"));
     });
 
     it("should cache an image", () => {
-        const requestMock: XMLHttpRequest = new XMLHttpRequest();
-        spyOn(requestMock, "send").and.stub();
-        spyOn(requestMock, "open").and.stub();
+        const promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve(undefined);
+            },
+        };
 
-        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+        const dataProvider: IDataProvider = new DataProvider("cid");
+        spyOn(dataProvider, "getImage").and.returnValue(promise);
 
         const imageMock: HTMLImageElement = new Image();
         spyOn(window, <keyof Window>"Image").and.returnValue(imageMock);
@@ -259,14 +264,11 @@ describe("NodeCache.cacheImage$", () => {
         spyOn(window, "Blob").and.returnValue(<Blob>{});
         spyOn(window.URL, "createObjectURL").and.returnValue("url");
 
-        const nodeCache: NodeCache = new NodeCache();
+        const nodeCache: NodeCache = new NodeCache(dataProvider);
 
         expect(nodeCache.image).toBeNull();
 
         nodeCache.cacheImage$("key", ImageSize.Size640).subscribe();
-
-        new MockCreator().mockProperty(requestMock, "status", 200);
-        requestMock.dispatchEvent(new ProgressEvent("load", { total: 1, loaded: 1}));
 
         imageMock.dispatchEvent(new CustomEvent("load"));
 
@@ -275,11 +277,14 @@ describe("NodeCache.cacheImage$", () => {
     });
 
     it("should emit the cached image", (done: Function) => {
-        const requestMock: XMLHttpRequest = new XMLHttpRequest();
-        spyOn(requestMock, "send").and.stub();
-        spyOn(requestMock, "open").and.stub();
+        const promise: any = {
+            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+                resolve(undefined);
+            },
+        };
 
-        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+        const dataProvider: IDataProvider = new DataProvider("cid");
+        spyOn(dataProvider, "getImage").and.returnValue(promise);
 
         const imageMock: HTMLImageElement = new Image();
         spyOn(window, <keyof Window>"Image").and.returnValue(imageMock);
@@ -289,7 +294,7 @@ describe("NodeCache.cacheImage$", () => {
         spyOn(window, "Blob").and.returnValue(<Blob>{});
         spyOn(window.URL, "createObjectURL").and.returnValue("url");
 
-        const nodeCache: NodeCache = new NodeCache();
+        const nodeCache: NodeCache = new NodeCache(dataProvider);
 
         expect(nodeCache.image).toBeNull();
 
@@ -304,10 +309,6 @@ describe("NodeCache.cacheImage$", () => {
                 });
 
         nodeCache.cacheImage$("key", ImageSize.Size640).subscribe();
-
-        new MockCreator().mockProperty(requestMock, "status", 200);
-        requestMock.dispatchEvent(new ProgressEvent("load", { total: 1, loaded: 1}));
-
         imageMock.dispatchEvent(new CustomEvent("load"));
     });
 });

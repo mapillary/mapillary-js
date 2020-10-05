@@ -1,7 +1,4 @@
-import {empty as observableEmpty, Observable} from "rxjs";
-
-import {catchError, retry} from "rxjs/operators";
-
+import * as pako from "pako";
 import * as falcor from "falcor";
 
 import {
@@ -12,6 +9,8 @@ import {
     ModelCreator,
 } from "../../src/API";
 import DataProvider from "../../src/api/DataProvider";
+import { MapillaryError } from "../../src/Error";
+import IClusterReconstruction from "../../src/component/spatialdata/interfaces/IClusterReconstruction";
 
 describe("DataProvider.ctor", () => {
     it("should create a data provider", () => {
@@ -43,7 +42,7 @@ describe("DataProvider.getFillImages", () => {
 
         provider.getFillImages([key])
             .then(
-                (result: { [key: string]: IFillNode}): void => {
+                (result: { [key: string]: IFillNode }): void => {
                     expect(result).toBeDefined();
 
                     expect(modelSpy.calls.count()).toBe(1);
@@ -186,7 +185,7 @@ describe("DataProvider.getFullImages", () => {
 
         provider.getFullImages([key])
             .then(
-                (result: { [key: string]: IFillNode}): void => {
+                (result: { [key: string]: IFillNode }): void => {
                     expect(result).toBeDefined();
 
                     expect(spy.calls.count()).toBe(1);
@@ -252,7 +251,7 @@ describe("DataProvider.getFullImages", () => {
 
         provider.getFullImages([key])
             .then(
-                (result: { [key: string]: IFillNode}): void => { return; },
+                (result: { [key: string]: IFillNode }): void => { return; },
                 (error: Error): void => {
                     expect(invalidateSpy.calls.count()).toBe(1);
                     expect(invalidateSpy.calls.first().args.length).toBe(1);
@@ -573,5 +572,177 @@ describe("DataProvider.setToken", () => {
         expect(creatorSpy.calls.mostRecent().args.length).toBe(2);
         expect(creatorSpy.calls.mostRecent().args[0]).toBe("clientId");
         expect(creatorSpy.calls.mostRecent().args[1]).toBe("token");
+    });
+});
+
+class XMLHTTPRequestMock {
+    public response: {};
+    public responseType: string;
+    public status: number;
+    public timeout: number;
+
+    public onload: (e: Event) => any;
+    public onerror: (e: Event) => any;
+    public ontimeout: (e: Event) => any;
+    public onabort: (e: Event) => any;
+
+    public abort(): void { this.onabort(new Event("abort")); }
+    public open(...args: any[]): void { return; }
+    public send(...args: any[]): void { return; }
+};
+
+describe("DataProvider.getImage", () => {
+    it("should return array buffer on successful load", (done: Function) => {
+        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
+        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+
+        const abort: Promise<void> = new Promise((_, __): void => { /*noop*/ });
+        const provider: DataProvider = new DataProvider(
+            "clientId", undefined, undefined);
+
+        const response: ArrayBuffer = new ArrayBuffer(1024);
+
+        provider.getImage("key", 320, abort)
+            .then(
+                (buffer: ArrayBuffer): void => {
+                    expect(buffer instanceof ArrayBuffer).toBeTrue();
+                    expect(buffer).toEqual(response);
+                    done();
+                });
+
+        requestMock.status = 200;
+        requestMock.response = response;
+        requestMock.onload(undefined);
+    });
+
+    it("should reject on abort", (done: Function) => {
+        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
+        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+
+        let aborter: Function;
+        const abort: Promise<void> = new Promise(
+            (_, reject): void => {
+                aborter = reject;
+            });
+
+        const provider: DataProvider = new DataProvider(
+            "clientId", undefined, undefined);
+
+        provider.getImage("key", 320, abort)
+            .then(
+                undefined,
+                (reason: Error): void => {
+                    expect(reason instanceof MapillaryError).toBeTrue();
+                    expect(reason.message).toContain("abort");
+
+                    done();
+                });
+
+        aborter();
+    });
+
+    it("should reject on unsuccessful load", (done: Function) => {
+        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
+        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+
+        const abort: Promise<void> = new Promise((_, __): void => { /*noop*/ });
+        const provider: DataProvider = new DataProvider(
+            "clientId", undefined, undefined);
+
+        const response: ArrayBuffer = new ArrayBuffer(1024);
+
+        provider.getImage("key", 320, abort)
+            .then(
+                undefined,
+                (reason: Error): void => {
+                    expect(reason instanceof MapillaryError).toBeTrue();
+                    expect(reason.message).toContain("status");
+
+                    done();
+                });
+
+        requestMock.status = 404;
+        requestMock.response = response;
+        requestMock.onload(undefined);
+    });
+
+    it("should reject for empty response on load", (done: Function) => {
+        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
+        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+
+        const abort: Promise<void> = new Promise((_, __): void => { /*noop*/ });
+        const provider: DataProvider = new DataProvider(
+            "clientId", undefined, undefined);
+
+        const response: ArrayBuffer = new ArrayBuffer(1024);
+
+        provider.getImage("key", 320, abort)
+            .then(
+                undefined,
+                (reason: Error): void => {
+                    expect(reason instanceof MapillaryError).toBeTrue();
+                    expect(reason.message).toContain("empty");
+
+                    done();
+                });
+
+        requestMock.status = 200;
+        requestMock.response = undefined;
+        requestMock.onload(undefined);
+    });
+
+    it("should reject on error", (done: Function) => {
+        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
+        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+
+        const abort: Promise<void> = new Promise((_, __): void => { /*noop*/ });
+        const provider: DataProvider = new DataProvider(
+            "clientId", undefined, undefined);
+
+        const response: ArrayBuffer = new ArrayBuffer(1024);
+
+        provider.getImage("key", 320, abort)
+            .then(
+                undefined,
+                (reason: Error): void => {
+                    expect(reason instanceof MapillaryError).toBeTrue();
+                    expect(reason.message).toContain("error");
+
+                    done();
+                });
+
+        requestMock.onerror(undefined);
+    });
+});
+
+describe("DataProvider.getClusterReconstruction", () => {
+    it("should return cluster reconstruction on successful load", (done: Function) => {
+        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
+        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+
+        const provider: DataProvider = new DataProvider(
+            "clientId", undefined, undefined);
+
+        provider.getClusterReconstruction("clusterKey")
+            .then(
+                (r: IClusterReconstruction): void => {
+                    expect(r.points).toEqual({});
+                    expect(r.reference_lla.altitude).toBe(1);
+                    expect(r.reference_lla.latitude).toBe(2);
+                    expect(r.reference_lla.longitude).toBe(3);
+
+                    done();
+                });
+
+        const response: string = pako.deflate(
+            JSON.stringify([{
+                points: {},
+                reference_lla: { altitude: 1, latitude: 2, longitude: 3 },
+            }]),
+            { to: "string" });
+
+        requestMock.status = 200;
+        requestMock.response = response;
+        requestMock.onload(undefined);
     });
 });

@@ -1,4 +1,4 @@
-import {IUrlOptions} from "../Viewer";
+import { IUrlOptions } from "../Viewer";
 
 export class Urls {
     private static _apiHost: string = "a.mapillary.com";
@@ -40,6 +40,10 @@ export class Urls {
 
     public static falcorModel(clientId: string): string {
         return `${Urls._scheme}://${Urls._apiHost}/v3/model.json?client_id=${clientId}`;
+    }
+
+    public static imageTile(imageKey: string, coords: string, size: string): string {
+        return `${Urls.tileScheme}://${Urls.tileDomain}/${imageKey}/${coords}/${size}/0/default.jpg`;
     }
 
     public static protoMesh(key: string): string {

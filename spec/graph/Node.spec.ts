@@ -1,6 +1,7 @@
 import {NodeHelper} from "../helper/NodeHelper.spec";
 import {ICoreNode, IFillNode} from "../../src/API";
-import {IMesh, Node, NodeCache} from "../../src/Graph";
+import {Node, NodeCache} from "../../src/Graph";
+import IMesh from "../../src/api/interfaces/IMesh";
 
 describe("Node", () => {
     let helper: NodeHelper;
@@ -68,7 +69,7 @@ describe("Node.dispose", () => {
     it("should dipose cache", () => {
         let coreNode: ICoreNode = helper.createCoreNode();
         let node: Node = new Node(coreNode);
-        let nodeCache: NodeCache = new NodeCache();
+        let nodeCache: NodeCache = new NodeCache(undefined);
 
         let disposeSpy: jasmine.Spy = spyOn(nodeCache, "dispose");
         disposeSpy.and.stub();
@@ -98,7 +99,7 @@ describe("Node.uncache", () => {
     it("should dispose node cache", () => {
         let coreNode: ICoreNode = helper.createCoreNode();
         let node: Node = new Node(coreNode);
-        let nodeCache: NodeCache = new NodeCache();
+        let nodeCache: NodeCache = new NodeCache(undefined);
 
         let disposeSpy: jasmine.Spy = spyOn(nodeCache, "dispose");
         disposeSpy.and.stub();
@@ -113,7 +114,7 @@ describe("Node.uncache", () => {
     it("should be able to initialize cache again after uncache", () => {
         let coreNode: ICoreNode = helper.createCoreNode();
         let node: Node = new Node(coreNode);
-        let nodeCache: NodeCache = new NodeCache();
+        let nodeCache: NodeCache = new NodeCache(undefined);
 
         let disposeSpy: jasmine.Spy = spyOn(nodeCache, "dispose");
         disposeSpy.and.stub();
@@ -336,6 +337,8 @@ describe("Node.assetsCached", () => {
     class NodeCacheMock extends NodeCache {
         protected _overridingImage: HTMLImageElement;
         protected _overridingMesh: IMesh;
+
+        constructor() { super(undefined); }
 
         public get image(): HTMLImageElement {
             return this._overridingImage;

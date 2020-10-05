@@ -1,6 +1,6 @@
 import * as Pbf from "pbf";
 
-import {IMesh} from "../Graph";
+import IMesh from "./interfaces/IMesh";
 
 export class MeshReader {
     public static read(buffer: Buffer): IMesh {
@@ -17,3 +17,5 @@ export class MeshReader {
         }
     }
 }
+
+export default MeshReader;

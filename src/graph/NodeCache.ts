@@ -1,20 +1,22 @@
-import {of as observableOf, combineLatest as observableCombineLatest, Subject, Observable, Subscriber, Subscription} from "rxjs";
+import { of as observableOf, combineLatest as observableCombineLatest, Subject, Observable, Subscriber, Subscription } from "rxjs";
 
-import {map, tap, startWith, publishReplay, refCount, finalize, first} from "rxjs/operators";
+import { map, tap, startWith, publishReplay, refCount, finalize, first, throttleTime } from "rxjs/operators";
 
-import {IEdge} from "../Edge";
+import { IEdge } from "../Edge";
 import {
     IEdgeStatus,
-    IMesh,
     ILoadStatus,
     ILoadStatusObject,
-    MeshReader,
 } from "../Graph";
 import {
     Settings,
     Urls,
 } from "../Utils";
-import {ImageSize} from "../Viewer";
+import { ImageSize } from "../Viewer";
+import IMesh from "../api/interfaces/IMesh";
+import MeshReader from "../api/MeshReader";
+import DataProvider from "../api/DataProvider";
+import { IDataProvider } from "../api/interfaces/interfaces";
 
 /**
  * @class NodeCache
@@ -24,14 +26,16 @@ import {ImageSize} from "../Viewer";
 export class NodeCache {
     private _disposed: boolean;
 
+    private _provider: IDataProvider;
+
     private _image: HTMLImageElement;
     private _loadStatus: ILoadStatus;
     private _mesh: IMesh;
     private _sequenceEdges: IEdgeStatus;
     private _spatialEdges: IEdgeStatus;
 
-    private _imageRequest: XMLHttpRequest;
-    private _meshRequest: XMLHttpRequest;
+    private _imageAborter: Function;
+    private _meshAborter: Function;
 
     private _imageChanged$: Subject<HTMLImageElement>;
     private _image$: Observable<HTMLImageElement>;
@@ -49,8 +53,10 @@ export class NodeCache {
     /**
      * Create a new node cache instance.
      */
-    constructor() {
+    constructor(provider: IDataProvider) {
         this._disposed = false;
+
+        this._provider = provider;
 
         this._image = null;
         this._loadStatus = { loaded: 0, total: 0 };
@@ -190,33 +196,33 @@ export class NodeCache {
             Settings.baseImageSize;
 
         this._cachingAssets$ = observableCombineLatest(
-                this._cacheImage$(key, imageSize),
-                this._cacheMesh$(key, merged)).pipe(
-            map(
-                ([imageStatus, meshStatus]: [ILoadStatusObject<HTMLImageElement>, ILoadStatusObject<IMesh>]): NodeCache => {
-                    this._loadStatus.loaded = 0;
-                    this._loadStatus.total = 0;
+            this._cacheImage$(key, imageSize),
+            this._cacheMesh$(key, merged)).pipe(
+                map(
+                    ([imageStatus, meshStatus]: [ILoadStatusObject<HTMLImageElement>, ILoadStatusObject<IMesh>]): NodeCache => {
+                        this._loadStatus.loaded = 0;
+                        this._loadStatus.total = 0;
 
-                    if (meshStatus) {
-                        this._mesh = meshStatus.object;
-                        this._loadStatus.loaded += meshStatus.loaded.loaded;
-                        this._loadStatus.total += meshStatus.loaded.total;
-                    }
+                        if (meshStatus) {
+                            this._mesh = meshStatus.object;
+                            this._loadStatus.loaded += meshStatus.loaded.loaded;
+                            this._loadStatus.total += meshStatus.loaded.total;
+                        }
 
-                    if (imageStatus) {
-                        this._image = imageStatus.object;
-                        this._loadStatus.loaded += imageStatus.loaded.loaded;
-                        this._loadStatus.total += imageStatus.loaded.total;
-                    }
+                        if (imageStatus) {
+                            this._image = imageStatus.object;
+                            this._loadStatus.loaded += imageStatus.loaded.loaded;
+                            this._loadStatus.total += imageStatus.loaded.total;
+                        }
 
-                    return this;
-                }),
-            finalize(
-                (): void => {
-                    this._cachingAssets$ = null;
-                }),
-            publishReplay(1),
-            refCount());
+                        return this;
+                    }),
+                finalize(
+                    (): void => {
+                        this._cachingAssets$ = null;
+                    }),
+                publishReplay(1),
+                refCount());
 
         this._cachingAssets$.pipe(
             first(
@@ -319,13 +325,16 @@ export class NodeCache {
 
         this._disposed = true;
 
-        if (this._imageRequest != null) {
-            this._imageRequest.abort();
+        if (this._imageAborter != null) {
+            this._imageAborter();
+            this._imageAborter = null;
         }
 
-        if (this._meshRequest != null) {
-            this._meshRequest.abort();
+        if (this._meshAborter != null) {
+            this._meshAborter();
+            this._meshAborter = null;
         }
+
     }
 
     /**
@@ -356,77 +365,47 @@ export class NodeCache {
     private _cacheImage$(key: string, imageSize: ImageSize): Observable<ILoadStatusObject<HTMLImageElement>> {
         return Observable.create(
             (subscriber: Subscriber<ILoadStatusObject<HTMLImageElement>>): void => {
-                let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-                xmlHTTP.open("GET", Urls.thumbnail(key, imageSize, Urls.origin), true);
-                xmlHTTP.responseType = "arraybuffer";
-                xmlHTTP.timeout = 15000;
+                const abort: Promise<void> = new Promise(
+                    (_, reject): void => {
+                        this._imageAborter = reject;
+                    });
 
-                xmlHTTP.onload = (pe: ProgressEvent) => {
-                    if (xmlHTTP.status !== 200) {
-                        this._imageRequest = null;
+                this._provider.getImage(key, imageSize, abort)
+                    .then(
+                        (buffer: ArrayBuffer): void => {
+                            this._imageAborter = null;
 
-                        subscriber.error(
-                            new Error(`Failed to fetch image (${key}). Status: ${xmlHTTP.status}, ${xmlHTTP.statusText}`));
+                            const image: HTMLImageElement = new Image();
+                            image.crossOrigin = "Anonymous";
 
-                        return;
-                    }
+                            image.onload = (e: Event) => {
+                                if (this._disposed) {
+                                    window.URL.revokeObjectURL(image.src);
+                                    subscriber.error(new Error(`Image load was aborted (${key})`));
 
-                    let image: HTMLImageElement = new Image();
-                    image.crossOrigin = "Anonymous";
+                                    return;
+                                }
 
-                    image.onload = (e: Event) => {
-                        this._imageRequest = null;
+                                subscriber.next({
+                                    loaded: { loaded: 1, total: 1 },
+                                    object: image
+                                });
+                                subscriber.complete();
+                            };
 
-                        if (this._disposed) {
-                            window.URL.revokeObjectURL(image.src);
-                            subscriber.error(new Error(`Image load was aborted (${key})`));
+                            image.onerror = () => {
+                                this._imageAborter = null;
 
-                            return;
-                        }
+                                subscriber.error(new Error(`Failed to load image (${key})`));
+                            };
 
-                        subscriber.next({ loaded: { loaded: pe.loaded, total: pe.total }, object: image });
-                        subscriber.complete();
-                    };
-
-                    image.onerror = (error: ErrorEvent) => {
-                        this._imageRequest = null;
-
-                        subscriber.error(new Error(`Failed to load image (${key})`));
-                    };
-
-                    let blob: Blob = new Blob([xmlHTTP.response]);
-                    image.src = window.URL.createObjectURL(blob);
-                };
-
-                xmlHTTP.onprogress = (pe: ProgressEvent) => {
-                    if (this._disposed) {
-                        return;
-                    }
-
-                    subscriber.next({loaded: { loaded: pe.loaded, total: pe.total }, object: null });
-                };
-
-                xmlHTTP.onerror = (error: Event) => {
-                    this._imageRequest = null;
-
-                    subscriber.error(new Error(`Failed to fetch image (${key})`));
-                };
-
-                xmlHTTP.ontimeout = (e: Event) => {
-                    this._imageRequest = null;
-
-                    subscriber.error(new Error(`Image request timed out (${key})`));
-                };
-
-                xmlHTTP.onabort = (event: Event) => {
-                    this._imageRequest = null;
-
-                    subscriber.error(new Error(`Image request was aborted (${key})`));
-                };
-
-                this._imageRequest = xmlHTTP;
-
-                xmlHTTP.send(null);
+                            const blob: Blob = new Blob([buffer]);
+                            image.src = window.URL.createObjectURL(blob);
+                        },
+                        (error: Error): void => {
+                            this._imageAborter = null;
+                            subscriber.error(error);
+                        });
             });
     }
 
@@ -448,61 +427,30 @@ export class NodeCache {
                     return;
                 }
 
-                let xmlHTTP: XMLHttpRequest = new XMLHttpRequest();
-                xmlHTTP.open("GET", Urls.protoMesh(key), true);
-                xmlHTTP.responseType = "arraybuffer";
-                xmlHTTP.timeout = 15000;
+                const abort: Promise<void> = new Promise(
+                    (_, reject): void => {
+                        this._meshAborter = reject;
+                    });
 
-                xmlHTTP.onload = (pe: ProgressEvent) => {
-                    this._meshRequest = null;
+                this._provider.getMesh(key, abort)
+                    .then(
+                        (mesh: IMesh): void => {
+                            this._meshAborter = null;
 
-                    if (this._disposed) {
-                        return;
-                    }
+                            if (this._disposed) {
+                                return;
+                            }
 
-                    let mesh: IMesh = xmlHTTP.status === 200 ?
-                        MeshReader.read(new Buffer(xmlHTTP.response)) :
-                        { faces: [], vertices: [] };
-
-                    subscriber.next({ loaded: { loaded: pe.loaded, total: pe.total }, object: mesh });
-                    subscriber.complete();
-                };
-
-                xmlHTTP.onprogress = (pe: ProgressEvent) => {
-                    if (this._disposed) {
-                        return;
-                    }
-
-                    subscriber.next({ loaded: { loaded: pe.loaded, total: pe.total }, object: null });
-                };
-
-                xmlHTTP.onerror = (e: Event) => {
-                    this._meshRequest = null;
-
-                    console.error(`Failed to cache mesh (${key})`);
-
-                    subscriber.next(this._createEmptyMeshLoadStatus());
-                    subscriber.complete();
-                };
-
-                xmlHTTP.ontimeout = (e: Event) => {
-                    this._meshRequest = null;
-
-                    console.error(`Mesh request timed out (${key})`);
-
-                    subscriber.next(this._createEmptyMeshLoadStatus());
-                    subscriber.complete();
-                };
-
-                xmlHTTP.onabort = (e: Event) => {
-                    this._meshRequest = null;
-
-                    subscriber.error(new Error(`Mesh request was aborted (${key})`));
-                };
-
-                this._meshRequest = xmlHTTP;
-
-                xmlHTTP.send(null);
+                            subscriber.next({
+                                loaded: { loaded: 1, total: 1 },
+                                object: mesh,
+                            });
+                            subscriber.complete();
+                        },
+                        (error: Error): void => {
+                            this._meshAborter = null;
+                            subscriber.error(error);
+                        });
             });
     }
 
