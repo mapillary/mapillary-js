@@ -107,10 +107,10 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
     private _imageTileLoader: ImageTileLoader;
     private _roiCalculator: RegionOfInterestCalculator;
 
-    constructor (name: string, container: Container, navigator: Navigator) {
+    constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._imageTileLoader = new ImageTileLoader(Urls.tileScheme, Urls.tileDomain, Urls.origin);
+        this._imageTileLoader = new ImageTileLoader(navigator.api.dataProvider);
         this._roiCalculator = new RegionOfInterestCalculator();
 
         this._rendererOperation$ = new Subject<IImagePlaneGLRendererOperation>();
@@ -239,9 +239,9 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
             switchMap(
                 (size: ISize): Observable<[TextureProvider, ISize]> => {
                     return observableCombineLatest(
-                            textureProvider$,
-                            observableOf<ISize>(size)).pipe(
-                        first());
+                        textureProvider$,
+                        observableOf<ISize>(size)).pipe(
+                            first());
                 }))
             .subscribe(
                 ([provider, size]: [TextureProvider, ISize]): void => {
@@ -260,45 +260,45 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                 });
 
         let roiTrigger$: Observable<[RenderCamera, ISize, Transform]> = observableCombineLatest(
-                this._container.renderService.renderCameraFrame$,
-                this._container.renderService.size$.pipe(debounceTime(250))).pipe(
-            map(
-                ([camera, size]: [RenderCamera, ISize]): PositionLookat => {
-                    return [
-                        camera.camera.position.clone(),
-                        camera.camera.lookat.clone(),
-                        camera.zoom.valueOf(),
-                        size.height.valueOf(),
-                        size.width.valueOf()];
-                }),
-            pairwise(),
-            skipWhile(
-                (pls: [PositionLookat, PositionLookat]): boolean => {
-                    return pls[1][2] - pls[0][2] < 0 || pls[1][2] === 0;
-                }),
-            map(
-                (pls: [PositionLookat, PositionLookat]): boolean => {
-                    let samePosition: boolean = pls[0][0].equals(pls[1][0]);
-                    let sameLookat: boolean = pls[0][1].equals(pls[1][1]);
-                    let sameZoom: boolean = pls[0][2] === pls[1][2];
-                    let sameHeight: boolean = pls[0][3] === pls[1][3];
-                    let sameWidth: boolean = pls[0][4] === pls[1][4];
+            this._container.renderService.renderCameraFrame$,
+            this._container.renderService.size$.pipe(debounceTime(250))).pipe(
+                map(
+                    ([camera, size]: [RenderCamera, ISize]): PositionLookat => {
+                        return [
+                            camera.camera.position.clone(),
+                            camera.camera.lookat.clone(),
+                            camera.zoom.valueOf(),
+                            size.height.valueOf(),
+                            size.width.valueOf()];
+                    }),
+                pairwise(),
+                skipWhile(
+                    (pls: [PositionLookat, PositionLookat]): boolean => {
+                        return pls[1][2] - pls[0][2] < 0 || pls[1][2] === 0;
+                    }),
+                map(
+                    (pls: [PositionLookat, PositionLookat]): boolean => {
+                        let samePosition: boolean = pls[0][0].equals(pls[1][0]);
+                        let sameLookat: boolean = pls[0][1].equals(pls[1][1]);
+                        let sameZoom: boolean = pls[0][2] === pls[1][2];
+                        let sameHeight: boolean = pls[0][3] === pls[1][3];
+                        let sameWidth: boolean = pls[0][4] === pls[1][4];
 
-                    return samePosition && sameLookat && sameZoom && sameHeight && sameWidth;
-                }),
-            distinctUntilChanged(),
-            filter(
-                (stalled: boolean): boolean => {
-                    return stalled;
-                }),
-            switchMap(
-                (stalled: boolean): Observable<RenderCamera> => {
-                    return this._container.renderService.renderCameraFrame$.pipe(
-                        first());
-                }),
-            withLatestFrom(
-                this._container.renderService.size$,
-                this._navigator.stateService.currentTransform$));
+                        return samePosition && sameLookat && sameZoom && sameHeight && sameWidth;
+                    }),
+                distinctUntilChanged(),
+                filter(
+                    (stalled: boolean): boolean => {
+                        return stalled;
+                    }),
+                switchMap(
+                    (stalled: boolean): Observable<RenderCamera> => {
+                        return this._container.renderService.renderCameraFrame$.pipe(
+                            first());
+                    }),
+                withLatestFrom(
+                    this._container.renderService.size$,
+                    this._navigator.stateService.currentTransform$));
 
         this._setRegionOfInterestSubscription = textureProvider$.pipe(
             switchMap(
@@ -306,7 +306,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                     return roiTrigger$.pipe(
                         map(
                             ([camera, size, transform]: [RenderCamera, ISize, Transform]):
-                            [IRegionOfInterest, TextureProvider] => {
+                                [IRegionOfInterest, TextureProvider] => {
                                 const basic: number[] = new ViewportCoords().viewportToBasic(0, 0, transform, camera.perspective);
 
                                 if (basic[0] < 0 || basic[1] < 0 || basic[0] > 1 || basic[1] > 1) {
@@ -409,8 +409,8 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                                 return observableEmpty();
                             }));
                 })).pipe(
-            publish(),
-            refCount());
+                    publish(),
+                    refCount());
 
         this._updateBackgroundSubscription = nodeImage$.pipe(
             withLatestFrom(textureProvider$))
@@ -534,7 +534,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                             this._navigator.stateService.currentTransform$),
                         mergeMap(
                             ([, renderCamera, currentNode, currentTransform]: [boolean, RenderCamera, GraphNode, Transform]):
-                            Observable<[RenderCamera, GraphNode, Transform, [GraphNode, Transform, number][]]> => {
+                                Observable<[RenderCamera, GraphNode, Transform, [GraphNode, Transform, number][]]> => {
                                 return observableOf(
                                     [
                                         renderCamera,
@@ -601,7 +601,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
     }
 
     protected _getDefaultConfiguration(): IComponentConfiguration {
-        return { };
+        return {};
     }
 }
 

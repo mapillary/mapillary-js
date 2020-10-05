@@ -1,4 +1,5 @@
-import {Observable, Subscriber} from "rxjs";
+import { Observable, Subscriber } from "rxjs";
+import { IDataProvider } from "../api/interfaces/interfaces";
 
 /**
  * @class ImageTileLoader
@@ -6,21 +7,15 @@ import {Observable, Subscriber} from "rxjs";
  * @classdesc Represents a loader of image tiles.
  */
 export class ImageTileLoader {
-    private _origin: string;
-    private _scheme: string;
-    private _host: string;
+    private _provider: IDataProvider;
 
     /**
      * Create a new node image tile loader instance.
      *
-     * @param {string} scheme - The URI scheme.
-     * @param {string} host - The URI host.
-     * @param {string} [origin] - The origin query param.
+     * @param {IDataProvider} provider - The data provider.
      */
-    constructor(scheme: string, host: string, origin?: string) {
-        this._scheme = scheme;
-        this._host = host;
-        this._origin = origin != null ? `?origin=${origin}` : "";
+    constructor(provider: IDataProvider) {
+        this._provider = provider;
     }
 
     /**
@@ -48,68 +43,56 @@ export class ImageTileLoader {
         scaledW: number,
         scaledH: number): [Observable<HTMLImageElement>, Function] {
 
-        let characteristics: string = `/${identifier}/${x},${y},${w},${h}/${scaledW},${scaledH}/0/default.jpg`;
-        let url: string =
-            this._scheme +
-            "://" +
-            this._host +
-            characteristics +
-            this._origin;
+        let aborter: Function;
+        const abort: Promise<void> = new Promise(
+            (_, reject): void => {
+                aborter = reject;
+            });
 
-        let xmlHTTP: XMLHttpRequest = null;
+        return [
+            Observable.create(
+                (subscriber: Subscriber<HTMLImageElement>): void => {
+                    this._provider
+                        .getImageTile(
+                            identifier,
+                            x,
+                            y,
+                            w,
+                            h,
+                            scaledW,
+                            scaledH,
+                            abort)
+                        .then(
+                            (buffer: ArrayBuffer): void => {
+                                aborter = null;
 
-        return [Observable.create(
-            (subscriber: Subscriber<HTMLImageElement>): void => {
-                xmlHTTP = new XMLHttpRequest();
-                xmlHTTP.open("GET", url, true);
-                xmlHTTP.responseType = "arraybuffer";
-                xmlHTTP.timeout = 15000;
+                                const image: HTMLImageElement = new Image();
+                                image.crossOrigin = "Anonymous";
 
-                xmlHTTP.onload = (event: Event) => {
-                    if (xmlHTTP.status !== 200) {
-                        subscriber.error(
-                            new Error(
-                                `Failed to fetch tile (${identifier}: ${x},${y},${w},${h}). ` +
-                                `Status: ${xmlHTTP.status}, ${xmlHTTP.statusText}`));
+                                image.onload = () => {
+                                    subscriber.next(image);
+                                    subscriber.complete();
+                                };
 
-                        return;
-                    }
+                                image.onerror = () => {
+                                    aborter = null;
 
-                    let image: HTMLImageElement = new Image();
-                    image.crossOrigin = "Anonymous";
+                                    subscriber.error(new Error(`Failed to load image (${identifier})`));
+                                };
 
-                    image.onload = (e: Event) => {
-                        subscriber.next(image);
-                        subscriber.complete();
-                    };
-
-                    image.onerror = (error: ErrorEvent) => {
-                        subscriber.error(new Error(`Failed to load tile image (${identifier}: ${x},${y},${w},${h})`));
-                    };
-
-                    let blob: Blob = new Blob([xmlHTTP.response]);
-                    image.src = window.URL.createObjectURL(blob);
-                };
-
-                xmlHTTP.onerror = (error: Event) => {
-                    subscriber.error(new Error(`Failed to fetch tile (${identifier}: ${x},${y},${w},${h})`));
-                };
-
-                xmlHTTP.ontimeout = (error: Event) => {
-                    subscriber.error(new Error(`Tile request timed out (${identifier}: ${x},${y},${w},${h})`));
-                };
-
-                xmlHTTP.onabort = (event: Event) => {
-                    subscriber.error(new Error(`Tile request was aborted (${identifier}: ${x},${y},${w},${h})`));
-                };
-
-                xmlHTTP.send(null);
-            }),
+                                const blob: Blob = new Blob([buffer]);
+                                image.src = window.URL.createObjectURL(blob);
+                            },
+                            (error: Error): void => {
+                                aborter = null;
+                                subscriber.error(error);
+                            })
+                }),
             (): void => {
-                if (xmlHTTP != null) {
-                    xmlHTTP.abort();
+                if (!!aborter) {
+                    aborter();
                 }
-            },
+            }
         ];
     }
 }
