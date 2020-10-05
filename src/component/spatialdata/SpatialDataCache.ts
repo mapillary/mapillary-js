@@ -1,11 +1,9 @@
 import * as geohash from "latlon-geohash";
-import * as pako from "pako";
 
 import {
     empty as observableEmpty,
     from as observableFrom,
     of as observableOf,
-    zip as observableZip,
     Observable,
     Subscriber,
 } from "rxjs";
@@ -32,11 +30,9 @@ import {
     GraphService,
     Node,
 } from "../../Graph";
-import {
-    Urls,
-} from "../../Utils";
 import { CameraProjection } from "../../api/interfaces/CameraProjection";
 import IClusterReconstruction from "./interfaces/IClusterReconstruction";
+import { IDataProvider } from "../../api/interfaces/interfaces";
 
 export type NodeData = {
     alt: number;
@@ -62,8 +58,9 @@ export type NodeData = {
 
 export class SpatialDataCache {
     private _graphService: GraphService;
+    private _provider: IDataProvider;
 
-    private _cacheRequests: { [hash: string]: XMLHttpRequest[] };
+    private _cacheRequests: { [hash: string]: Function[] };
     private _tiles: { [hash: string]: NodeData[] };
 
     private _clusterReconstructions: { [key: string]: IClusterReconstruction };
@@ -73,8 +70,9 @@ export class SpatialDataCache {
     private _cachingClusterReconstructions$: { [hash: string]: Observable<IClusterReconstruction> };
     private _cachingTiles$: { [hash: string]: Observable<NodeData[]> };
 
-    constructor(graphService: GraphService) {
+    constructor(graphService: GraphService, provider: IDataProvider) {
         this._graphService = graphService;
+        this._provider = provider;
 
         this._tiles = {};
         this._cacheRequests = {};
@@ -117,14 +115,21 @@ export class SpatialDataCache {
         this._tileClusters[hash] = clusterKeys;
         this._cacheRequests[hash] = [];
 
-        this._cachingClusterReconstructions$[hash] =  observableFrom(clusterKeys).pipe(
+        this._cachingClusterReconstructions$[hash] = observableFrom(clusterKeys).pipe(
             mergeMap(
                 (key: string): Observable<IClusterReconstruction> => {
                     if (this._hasClusterReconstruction(key)) {
                         return observableOf(this._getClusterReconstruction(key));
                     }
 
-                    return this._getClusterReconstruction$(key, this._cacheRequests[hash])
+                    let aborter: Function;
+                    const abort: Promise<void> = new Promise(
+                        (_, reject): void => {
+                            aborter = reject;
+                        });
+                    this._cacheRequests[hash].push(aborter);
+
+                    return this._getClusterReconstruction$(key, abort)
                         .pipe(
                             catchError(
                                 (error: Error): Observable<IClusterReconstruction> => {
@@ -265,7 +270,7 @@ export class SpatialDataCache {
                     (reconstruction: IClusterReconstruction): boolean => {
                         return !!reconstruction;
                     }) :
-                [];
+            [];
     }
 
     public getTile(hash: string): NodeData[] {
@@ -278,8 +283,8 @@ export class SpatialDataCache {
                 continue;
             }
 
-            for (const request of this._cacheRequests[hash]) {
-                request.abort();
+            for (const aborter of this._cacheRequests[hash]) {
+                aborter();
             }
 
             delete this._cacheRequests[hash];
@@ -350,49 +355,18 @@ export class SpatialDataCache {
         return this._clusterReconstructions[key];
     }
 
-    private _getClusterReconstruction$(key: string, requests: XMLHttpRequest[]): Observable<IClusterReconstruction> {
+    private _getClusterReconstruction$(key: string, abort: Promise<void>): Observable<IClusterReconstruction> {
         return Observable.create(
             (subscriber: Subscriber<IClusterReconstruction>): void => {
-                const xhr: XMLHttpRequest = new XMLHttpRequest();
-
-                xhr.open("GET", Urls.clusterReconstruction(key), true);
-                xhr.responseType = "arraybuffer";
-                xhr.timeout = 15000;
-
-                xhr.onload = () => {
-                    if (!xhr.response) {
-                        subscriber.error(new Error(`Cluster reconstruction retreival failed (${key})`));
-                    } else {
-                        const inflated: string = pako.inflate(xhr.response, { to: "string" });
-                        const reconstructions: IClusterReconstruction[] = JSON.parse(inflated);
-
-                        if (reconstructions.length < 1) {
-                            subscriber.error(new Error(`No cluster reconstruction exists (${key})`));
-                        }
-
-                        const reconstruction: IClusterReconstruction = reconstructions[0];
-                        reconstruction.key = key;
-
-                        subscriber.next(reconstruction);
-                        subscriber.complete();
-                    }
-                };
-
-                xhr.onerror = () => {
-                    subscriber.error(new Error(`Failed to get cluster reconstruction (${key})`));
-                };
-
-                xhr.ontimeout = () => {
-                    subscriber.error(new Error(`Cluster reconstruction request timed out (${key})`));
-                };
-
-                xhr.onabort = () => {
-                    subscriber.error(new AbortMapillaryError(`Cluster reconstruction request was aborted (${key})`));
-                };
-
-                requests.push(xhr);
-
-                xhr.send(null);
+                this._provider.getClusterReconstruction(key, abort)
+                    .then(
+                        (reconstruction: IClusterReconstruction): void => {
+                            subscriber.next(reconstruction);
+                            subscriber.complete();
+                        },
+                        (error: Error): void => {
+                            subscriber.error(error);
+                        });
             });
     }
 

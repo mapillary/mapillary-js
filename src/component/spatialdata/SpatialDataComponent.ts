@@ -86,7 +86,9 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._cache = new SpatialDataCache(navigator.graphService);
+        this._cache = new SpatialDataCache(
+            navigator.graphService,
+            navigator.api.dataProvider);
         this._scene = new SpatialDataScene(this._getDefaultConfiguration());
         this._viewportCoords = new ViewportCoords();
         this._geoCoords = new GeoCoords();
@@ -156,13 +158,13 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         const sequencePlay$: Observable<boolean> = observableCombineLatest(
             this._navigator.playService.playing$,
             this._navigator.playService.speed$).pipe(
-            map(
-                ([playing, speed]: [boolean, number]): boolean => {
-                    return playing && speed > PlayService.sequenceSpeed;
-                }),
-            distinctUntilChanged(),
-            publishReplay(1),
-            refCount());
+                map(
+                    ([playing, speed]: [boolean, number]): boolean => {
+                        return playing && speed > PlayService.sequenceSpeed;
+                    }),
+                distinctUntilChanged(),
+                publishReplay(1),
+                refCount());
 
         const hashes$: Observable<string[]> = observableCombineLatest(
             this._navigator.stateService.state$.pipe(
@@ -174,35 +176,35 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             hash$,
             sequencePlay$,
             direction$).pipe(
-            distinctUntilChanged(
-                (
-                    [e1, h1, s1, d1]: [boolean, string, boolean, string],
-                    [e2, h2, s2, d2]: [boolean, string, boolean, string]): boolean => {
+                distinctUntilChanged(
+                    (
+                        [e1, h1, s1, d1]: [boolean, string, boolean, string],
+                        [e2, h2, s2, d2]: [boolean, string, boolean, string]): boolean => {
 
-                    if (e1 !== e2) {
-                        return false;
-                    }
+                        if (e1 !== e2) {
+                            return false;
+                        }
 
-                    if (e1) {
-                        return h1 === h2 && s1 === s2;
-                    }
+                        if (e1) {
+                            return h1 === h2 && s1 === s2;
+                        }
 
-                    return h1 === h2 && s1 === s2 && d1 === d2;
-                }),
-            concatMap(
-                ([earth, hash, sequencePlay, direction]: [boolean, string, boolean, string]): Observable<string[]> => {
-                    if (earth) {
+                        return h1 === h2 && s1 === s2 && d1 === d2;
+                    }),
+                concatMap(
+                    ([earth, hash, sequencePlay, direction]: [boolean, string, boolean, string]): Observable<string[]> => {
+                        if (earth) {
+                            return sequencePlay ?
+                                observableOf([hash]) :
+                                observableOf(this._adjacentComponent(hash, 4));
+                        }
+
                         return sequencePlay ?
-                            observableOf([hash]) :
-                            observableOf(this._adjacentComponent(hash, 4));
-                    }
-
-                    return sequencePlay ?
-                        observableOf([hash, geohash.neighbours(hash)[<keyof geohash.Neighbours>direction]]) :
-                        observableOf(this._computeTiles(hash, direction));
-                }),
-            publish(),
-            refCount());
+                            observableOf([hash, geohash.neighbours(hash)[<keyof geohash.Neighbours>direction]]) :
+                            observableOf(this._computeTiles(hash, direction));
+                    }),
+                publish(),
+                refCount());
 
         const tile$: Observable<[string, NodeData[]]> = hashes$.pipe(
             switchMap(
@@ -218,7 +220,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                                 return observableCombineLatest(observableOf(h), t$);
                             },
                             6));
-                        }),
+                }),
             publish(),
             refCount());
 
@@ -247,7 +249,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                             this._createTransform(data, reference),
                             this._computeOriginalPosition(data, reference),
                             hash);
-                        }
+                    }
                 });
 
         this._addReconstructionSubscription = tile$.pipe(

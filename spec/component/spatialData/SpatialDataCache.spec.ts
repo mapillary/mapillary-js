@@ -1,9 +1,8 @@
 import * as geohash from "latlon-geohash";
-import * as pako from "pako";
 
 import { Subject } from "rxjs";
 
-import {SpatialDataCache} from "../../../src/Component";
+import { SpatialDataCache } from "../../../src/Component";
 import {
     GraphService,
     Node,
@@ -12,11 +11,15 @@ import {
 import GraphServiceMockCreator from "../../helper/GraphServiceMockCreator.spec";
 import NodeHelper from "../../helper/NodeHelper.spec";
 import IClusterReconstruction from "../../../src/component/spatialdata/interfaces/IClusterReconstruction";
+import IDataProvider from "../../../src/api/interfaces/IDataProvider";
+import DataProvider from "../../../src/api/DataProvider";
 
 describe("SpatialDataCache.ctor", () => {
     it("should be defined", () => {
         const cache: SpatialDataCache =
-            new SpatialDataCache(new GraphServiceMockCreator().create());
+            new SpatialDataCache(
+                new GraphServiceMockCreator().create(),
+                undefined);
 
         expect(cache).toBeDefined();
     });
@@ -35,7 +38,8 @@ describe("SpatialDataCache.cacheTile$", () => {
             sw: { lat: -1, lon: -2 },
         });
 
-        const cache: SpatialDataCache = new SpatialDataCache(graphService);
+        const cache: SpatialDataCache = new SpatialDataCache(
+            graphService, undefined);
 
         const hash: string = "12345678";
         cache.cacheTile$(hash);
@@ -51,7 +55,8 @@ describe("SpatialDataCache.cacheTile$", () => {
 
     it("should throw if hash is wrong level", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cache: SpatialDataCache = new SpatialDataCache(graphService);
+        const cache: SpatialDataCache = new SpatialDataCache(
+            graphService, undefined);
 
         expect(() => { cache.cacheTile$("1234567"); }).toThrowError(Error);
         expect(() => { cache.cacheTile$("123456789"); }).toThrowError(Error);
@@ -66,7 +71,8 @@ describe("SpatialDataCache.cacheTile$", () => {
         const boundsSpy: jasmine.Spy = spyOn(geohash, "bounds");
         boundsSpy.and.returnValue({ ne: { lat: 1, lon: 2 }, sw: { lat: -1, lon: -2 } });
 
-        const cache: SpatialDataCache = new SpatialDataCache(graphService);
+        const cache: SpatialDataCache = new SpatialDataCache(
+            graphService, undefined);
 
         const hash: string = "00000000";
 
@@ -86,7 +92,8 @@ describe("SpatialDataCache.cacheTile$", () => {
         const boundsSpy: jasmine.Spy = spyOn(geohash, "bounds");
         boundsSpy.and.returnValue({ ne: { lat: 1, lon: 2 }, sw: { lat: -1, lon: -2 } });
 
-        const cache: SpatialDataCache = new SpatialDataCache(graphService);
+        const cache: SpatialDataCache = new SpatialDataCache(
+            graphService, undefined);
 
         const hash: string = "00000000";
 
@@ -115,7 +122,8 @@ describe("SpatialDataCache.cacheTile$", () => {
         const boundsSpy: jasmine.Spy = spyOn(geohash, "bounds");
         boundsSpy.and.returnValue({ ne: { lat: 1, lon: 2 }, sw: { lat: -1, lon: -2 } });
 
-        const cache: SpatialDataCache = new SpatialDataCache(graphService);
+        const cache: SpatialDataCache = new SpatialDataCache(
+            graphService, undefined);
 
         const hash: string = "00000000";
 
@@ -142,20 +150,6 @@ describe("SpatialDataCache.cacheTile$", () => {
 });
 
 describe("SpatialDataCache.cacheReconstructions$", () => {
-    class XMLHTTPRequestMock {
-        public response: {};
-        public responseType: string;
-        public timeout: number;
-
-        public onload: (e: Event) => any;
-        public onerror: (e: Event) => any;
-        public ontimeout: (e: Event) => any;
-        public onabort: (e: Event) => any;
-
-        public abort(): void { this.onabort(new Event("abort")); }
-        public open(...args: any[]): void { return; }
-        public send(...args: any[]): void { return; }
-    }
 
     const cacheTile: (
         hash: string,
@@ -167,31 +161,39 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             graphService: GraphService,
             nodes: Node[]): void => {
 
-        const cacheBoundingBox$: Subject<Node[]> = new Subject<Node[]>();
-        const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
-        cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
+            const cacheBoundingBox$: Subject<Node[]> = new Subject<Node[]>();
+            const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
+            cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
 
-        const boundsSpy: jasmine.Spy = spyOn(geohash, "bounds");
-        boundsSpy.and.returnValue({ ne: { lat: 1, lon: 2 }, sw: { lat: -1, lon: -2 } });
+            const boundsSpy: jasmine.Spy = spyOn(geohash, "bounds");
+            boundsSpy.and.returnValue({ ne: { lat: 1, lon: 2 }, sw: { lat: -1, lon: -2 } });
 
-        cache.cacheTile$(hash)
-            .subscribe();
+            cache.cacheTile$(hash)
+                .subscribe();
 
-        cacheBoundingBox$.next(nodes);
+            cacheBoundingBox$.next(nodes);
 
-        expect(cache.hasTile(hash)).toBe(true);
-    };
+            expect(cache.hasTile(hash)).toBe(true);
+        };
 
     it("should cache a reconstruction", (done: Function) => {
-        const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cache: SpatialDataCache = new SpatialDataCache(graphService);
         const node: Node = new NodeHelper().createNode();
         const hash: string = "00000000";
 
-        cacheTile(hash, cache, graphService, [node]);
+        let resolver: Function;
+        const promise: any = {
+            then: (resolve: (result: any) => void): void => {
+                resolver = resolve;
+            },
+        };
 
-        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
-        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+        const dataProvider: IDataProvider = new DataProvider("cid");
+        spyOn(dataProvider, "getClusterReconstruction").and.returnValue(promise);
+
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const cache: SpatialDataCache = new SpatialDataCache(graphService, dataProvider);
+
+        cacheTile(hash, cache, graphService, [node]);
 
         let emitCount: number = 0;
         cache.cacheClusterReconstructions$(hash)
@@ -207,57 +209,29 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
                     done();
                 });
 
-        const response: string = pako.deflate(
-            JSON.stringify([{ points: [], refererence_lla: { altitude: 0, latitude: 0, longitude: 0} }]),
-            { to: "string" });
-
-        requestMock.response = response;
-        requestMock.onload(new Event("load"));
-    });
-
-    it("should not have a non-existing reconstruction", (done: Function) => {
-        spyOn(console, "error").and.stub();
-
-        const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cache: SpatialDataCache = new SpatialDataCache(graphService);
-        const node: Node = new NodeHelper().createNode();
-        const hash: string = "00000001";
-
-        cacheTile(hash, cache, graphService, [node]);
-
-        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
-        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
-
-        let emitCount: number = 0;
-        cache.cacheClusterReconstructions$(hash)
-            .subscribe(
-                (): void => {
-                    emitCount++;
-                },
-                undefined,
-                (): void => {
-                    expect(emitCount).toBe(0);
-                    expect(cache.hasClusterReconstructions(hash)).toBe(false);
-                    expect(cache.getClusterReconstructions(hash).length).toBe(0);
-                    done();
-                });
-
-        requestMock.response = null;
-        requestMock.onload(new Event("load"));
+        resolver({ key: node.clusterKey });
     });
 
     it("should not have an errored reconstruction", (done: Function) => {
         spyOn(console, "error").and.stub();
 
-        const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cache: SpatialDataCache = new SpatialDataCache(graphService);
         const node: Node = new NodeHelper().createNode();
         const hash: string = "00000000";
 
-        cacheTile(hash, cache, graphService, [node]);
+        let rejecter: Function;
+        const promise: any = {
+            then: (_: (result: any) => void, reject: (error: Error) => void): void => {
+                rejecter = reject;
+            },
+        };
 
-        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
-        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+        const dataProvider: IDataProvider = new DataProvider("cid");
+        spyOn(dataProvider, "getClusterReconstruction").and.returnValue(promise);
+
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const cache: SpatialDataCache = new SpatialDataCache(graphService, dataProvider);
+
+        cacheTile(hash, cache, graphService, [node]);
 
         let emitCount: number = 0;
         cache.cacheClusterReconstructions$(hash)
@@ -273,50 +247,59 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
                     done();
                 });
 
-        requestMock.onerror(new Event("error"));
+        rejecter(new Error("reject"));
     });
 
     it("should abort on uncache", (done: Function) => {
-        spyOn(console, "error").and.stub();
-
-        const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cache: SpatialDataCache = new SpatialDataCache(graphService);
         const node: Node = new NodeHelper().createNode();
         const hash: string = "00000000";
 
+        const promise: any = {
+            then: (): void => { /*noop*/ },
+        };
+
+        const dataProvider: IDataProvider = new DataProvider("cid");
+        const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getClusterReconstruction");
+        clusterSpy.and.returnValue(promise);
+
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const cache: SpatialDataCache = new SpatialDataCache(graphService, dataProvider);
+
         cacheTile(hash, cache, graphService, [node]);
 
-        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
-        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
-
-        let emitCount: number = 0;
         cache.cacheClusterReconstructions$(hash)
-            .subscribe(
-                (): void => {
-                    emitCount++;
-                },
-                undefined,
-                (): void => {
-                    expect(emitCount).toBe(0);
-                    expect(cache.hasClusterReconstructions(hash)).toBe(false);
-                    expect(cache.isCachingTile(hash)).toBe(false);
-                    done();
-                });
+            .subscribe();
+
+        expect(clusterSpy.calls.count()).toBe(1);
+        const abort: Promise<void> = clusterSpy.calls.mostRecent().args[1];
+
+        abort.catch(
+            (): void => {
+                done();
+            });
 
         cache.uncache();
     });
 
     it("should only request reconstruction once if called twice before completing", () => {
-        const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cache: SpatialDataCache = new SpatialDataCache(graphService);
         const node: Node = new NodeHelper().createNode();
         const hash: string = "00000000";
 
-        cacheTile(hash, cache, graphService, [node]);
+        let resolver: Function;
+        const promise: any = {
+            then: (resolve: (value: IClusterReconstruction) => void): void => {
+                resolver = resolve;
+            },
+        };
 
-        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
-        const sendSpy: jasmine.Spy = spyOn(requestMock, "send");
-        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+        const dataProvider: IDataProvider = new DataProvider("cid");
+        const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getClusterReconstruction");
+        clusterSpy.and.returnValue(promise);
+
+        const graphService: GraphService = new GraphServiceMockCreator().create();
+        const cache: SpatialDataCache = new SpatialDataCache(graphService, dataProvider);
+
+        cacheTile(hash, cache, graphService, [node]);
 
         let emitCount1: number = 0;
         cache.cacheClusterReconstructions$(hash)
@@ -325,7 +308,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
                     emitCount1++;
                 });
 
-        expect(sendSpy.calls.count()).toBe(1);
+        expect(clusterSpy.calls.count()).toBe(1);
 
         let emitCount2: number = 0;
         cache.cacheClusterReconstructions$(hash)
@@ -334,17 +317,19 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
                     emitCount2++;
                 });
 
-        const response: string = pako.deflate(
-            JSON.stringify([{ points: [], refererence_lla: { altitude: 0, latitude: 0, longitude: 0} }]),
-            { to: "string" });
+        expect(emitCount1).toBe(0);
+        expect(emitCount2).toBe(0);
 
-        requestMock.response = response;
-        requestMock.onload(new Event("load"));
+        resolver({
+            key: node.clusterKey,
+            points: [],
+            refererence_lla: { altitude: 0, latitude: 0, longitude: 0 },
+        });
 
         expect(emitCount1).toBe(1);
         expect(emitCount2).toBe(1);
 
-        expect(sendSpy.calls.count()).toBe(1);
+        expect(clusterSpy.calls.count()).toBe(1);
 
         expect(cache.isCachingClusterReconstructions(hash)).toBe(false);
         expect(cache.hasClusterReconstructions(hash)).toBe(true);
