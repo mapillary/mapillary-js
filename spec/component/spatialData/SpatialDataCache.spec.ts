@@ -10,9 +10,9 @@ import {
 
 import GraphServiceMockCreator from "../../helper/GraphServiceMockCreator.spec";
 import NodeHelper from "../../helper/NodeHelper.spec";
-import IClusterReconstruction from "../../../src/component/spatialdata/interfaces/IClusterReconstruction";
 import IDataProvider from "../../../src/api/interfaces/IDataProvider";
 import DataProvider from "../../../src/api/DataProvider";
+import IClusterReconstruction from "../../../src/api/interfaces/IClusterReconstruction";
 
 describe("SpatialDataCache.ctor", () => {
     it("should be defined", () => {

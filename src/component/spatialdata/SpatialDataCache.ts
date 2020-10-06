@@ -31,8 +31,8 @@ import {
     Node,
 } from "../../Graph";
 import { CameraProjection } from "../../api/interfaces/CameraProjection";
-import IClusterReconstruction from "./interfaces/IClusterReconstruction";
 import { IDataProvider } from "../../api/interfaces/interfaces";
+import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
 
 export type NodeData = {
     alt: number;

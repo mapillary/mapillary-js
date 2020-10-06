@@ -6,13 +6,13 @@ import MapillaryError from "../error/MapillaryError";
 import IMesh from "./interfaces/IMesh";
 import MeshReader from "./MeshReader";
 import Urls from "../utils/Urls";
-import IClusterReconstruction from "../component/spatialdata/interfaces/IClusterReconstruction";
 import IDataProvider from "./interfaces/IDataProvider";
 import ModelCreator from "./ModelCreator";
 import ICoreNode from "./interfaces/ICoreNode";
 import IFillNode from "./interfaces/IFillNode";
 import IFullNode from "./interfaces/IFullNode";
 import ISequence from "./interfaces/ISequence";
+import IClusterReconstruction from "./interfaces/IClusterReconstruction";
 
 interface IImageByKey<T> {
     imageByKey: { [key: string]: T };

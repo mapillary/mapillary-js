@@ -1,6 +1,6 @@
-import {IReconstructionPoint} from "../../../Component";
+import CameraProjection from "./CameraProjection";
+import IReconstructionPoint from "./IReconstructionPoint";
 import IGeoReference from "./IGeoReference";
-import { CameraProjection } from "../../../api/interfaces/CameraProjection";
 
 export interface IShot {
     camera: string;

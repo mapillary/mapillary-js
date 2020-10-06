@@ -2,8 +2,8 @@ import IFillNode from "./IFillNode";
 import IFullNode from "./IFullNode";
 import ICoreNode from "./ICoreNode";
 import ISequence from "./ISequence";
-import IClusterReconstruction from "../../component/spatialdata/interfaces/IClusterReconstruction";
 import IMesh from "./IMesh";
+import IClusterReconstruction from "./IClusterReconstruction";
 
 /**
  * Interface that describes the data provider functionality.

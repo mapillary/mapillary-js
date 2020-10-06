@@ -58,8 +58,8 @@ import {
 } from "../../Viewer";
 import PlayService from "../../viewer/PlayService";
 import State from "../../state/State";
-import IClusterReconstruction from "./interfaces/IClusterReconstruction";
 import CameraVisualizationMode from "./CameraVisualizationMode";
+import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
 
 export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     public static componentName: string = "spatialData";

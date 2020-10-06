@@ -1,15 +1,15 @@
 import * as THREE from "three";
 
 import {
-    IReconstructionPoint,
     ISpatialDataConfiguration,
 } from "../../Component";
 import {
     Transform,
 } from "../../Geo";
-import IClusterReconstruction from "./interfaces/IClusterReconstruction";
 import CameraVisualizationMode from "./CameraVisualizationMode";
 import { NodeData } from "./SpatialDataCache";
+import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
+import IReconstructionPoint from "../../api/interfaces/IReconstructionPoint";
 
 export class SpatialDataScene {
     private _scene: THREE.Scene;
@@ -442,7 +442,7 @@ export class SpatialDataScene {
     }
 
     private _createDiagonals(transform: Transform, depth: number): THREE.Object3D {
-        const origin: number [] = transform.unprojectBasic([0, 0], 0, true);
+        const origin: number[] = transform.unprojectBasic([0, 0], 0, true);
         const topLeft: number[] = transform.unprojectBasic([0, 0], depth, true);
         const topRight: number[] = transform.unprojectBasic([1, 0], depth, true);
         const bottomRight: number[] = transform.unprojectBasic([1, 1], depth, true);

@@ -10,7 +10,7 @@ import {
 } from "../../src/API";
 import DataProvider from "../../src/api/DataProvider";
 import { MapillaryError } from "../../src/Error";
-import IClusterReconstruction from "../../src/component/spatialdata/interfaces/IClusterReconstruction";
+import IClusterReconstruction from "../../src/api/interfaces/IClusterReconstruction";
 
 describe("DataProvider.ctor", () => {
     it("should create a data provider", () => {
