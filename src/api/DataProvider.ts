@@ -6,13 +6,13 @@ import MapillaryError from "../error/MapillaryError";
 import IMesh from "./interfaces/IMesh";
 import MeshReader from "./MeshReader";
 import Urls from "../utils/Urls";
-import IDataProvider from "./interfaces/IDataProvider";
 import ModelCreator from "./ModelCreator";
 import ICoreNode from "./interfaces/ICoreNode";
 import IFillNode from "./interfaces/IFillNode";
 import IFullNode from "./interfaces/IFullNode";
 import ISequence from "./interfaces/ISequence";
 import IClusterReconstruction from "./interfaces/IClusterReconstruction";
+import DataProviderBase from "./DataProviderBase";
 
 interface IImageByKey<T> {
     imageByKey: { [key: string]: T };
@@ -36,7 +36,7 @@ type APIPath =
  *
  * @classdesc Provides data through API calls.
  */
-export class DataProvider implements IDataProvider {
+export class DataProvider extends DataProviderBase {
     private _clientId: string;
 
     private _model: falcor.Model;
@@ -64,6 +64,8 @@ export class DataProvider implements IDataProvider {
      * @param {ModelCreator} [creator] - Optional model creator instance.
      */
     constructor(clientId: string, token?: string, creator?: ModelCreator) {
+        super();
+
         this._clientId = clientId;
 
         this._modelCreator = creator != null ? creator : new ModelCreator();
@@ -245,7 +247,6 @@ export class DataProvider implements IDataProvider {
         abort?: Promise<void>): Promise<ArrayBuffer> {
         const coords: string = `${x},${y},${w},${h}`
         const size: string = `${scaledW},${scaledH}`;
-
         return this._getArrayBuffer(
             Urls.imageTile(imageKey, coords, size),
             abort);
@@ -296,47 +297,6 @@ export class DataProvider implements IDataProvider {
         this._model.invalidate([]);
         this._model = null;
         this._model = this._modelCreator.createModel(this._clientId, token);
-    }
-
-    protected _getArrayBuffer(url: string, abort?: Promise<void>): Promise<ArrayBuffer> {
-        const xhr: XMLHttpRequest = new XMLHttpRequest();
-
-        const promise: Promise<ArrayBuffer> = new Promise(
-            (resolve, reject) => {
-                xhr.open("GET", url, true);
-                xhr.responseType = "arraybuffer";
-                xhr.timeout = 15000;
-
-                xhr.onload = () => {
-                    if (xhr.status !== 200) {
-                        reject(new MapillaryError(`Response status error: ${url}`));
-                    }
-
-                    if (!xhr.response) {
-                        reject(new MapillaryError(`Response empty: ${url}`));
-                    }
-
-                    resolve(xhr.response);
-                };
-
-                xhr.onerror = () => {
-                    reject(new MapillaryError(`Request error: ${url}`));
-                };
-
-                xhr.ontimeout = (e: Event) => {
-                    reject(new MapillaryError(`Request timeout: ${url}`));
-                };
-
-                xhr.onabort = (e: Event) => {
-                    reject(new MapillaryError(`Request aborted: ${url}`));
-                };
-
-                xhr.send(null);
-            });
-
-        if (!!abort) { abort.catch((): void => { xhr.abort(); }); }
-
-        return promise;
     }
 
     private _invalidateGet(path: APIPath, paths: string[]): void {
