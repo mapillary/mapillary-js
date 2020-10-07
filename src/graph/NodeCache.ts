@@ -1,6 +1,6 @@
 import { of as observableOf, combineLatest as observableCombineLatest, Subject, Observable, Subscriber, Subscription } from "rxjs";
 
-import { map, tap, startWith, publishReplay, refCount, finalize, first, throttleTime } from "rxjs/operators";
+import { map, tap, startWith, publishReplay, refCount, finalize, first } from "rxjs/operators";
 
 import { IEdge } from "../Edge";
 import {
@@ -10,13 +10,10 @@ import {
 } from "../Graph";
 import {
     Settings,
-    Urls,
 } from "../Utils";
 import { ImageSize } from "../Viewer";
 import IMesh from "../api/interfaces/IMesh";
-import MeshReader from "../api/MeshReader";
-import DataProvider from "../api/DataProvider";
-import { IDataProvider } from "../api/interfaces/interfaces";
+import IDataProvider from "../api/interfaces/IDataProvider";
 
 /**
  * @class NodeCache
@@ -230,10 +227,10 @@ export class NodeCache {
                     return !!nodeCache._image;
                 }))
             .subscribe(
-                (nodeCache: NodeCache): void => {
+                (): void => {
                     this._imageChanged$.next(this._image);
                 },
-                (error: Error): void => { /*noop*/ });
+                (): void => { /*noop*/ });
 
         return this._cachingAssets$;
     }
@@ -264,7 +261,7 @@ export class NodeCache {
                     this._image = status.object;
                 }),
             map(
-                (imageStatus: ILoadStatusObject<HTMLImageElement>): NodeCache => {
+                (): NodeCache => {
                     return this;
                 }),
             publishReplay(1),
@@ -272,10 +269,10 @@ export class NodeCache {
 
         cacheImage$
             .subscribe(
-                (nodeCache: NodeCache): void => {
+                (): void => {
                     this._imageChanged$.next(this._image);
                 },
-                (error: Error): void => { /*noop*/ });
+                (): void => { /*noop*/ });
 
         return cacheImage$;
     }
@@ -378,7 +375,7 @@ export class NodeCache {
                             const image: HTMLImageElement = new Image();
                             image.crossOrigin = "Anonymous";
 
-                            image.onload = (e: Event) => {
+                            image.onload = () => {
                                 if (this._disposed) {
                                     window.URL.revokeObjectURL(image.src);
                                     subscriber.error(new Error(`Image load was aborted (${key})`));

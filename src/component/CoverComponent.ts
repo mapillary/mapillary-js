@@ -1,6 +1,13 @@
-import {of as observableOf, combineLatest as observableCombineLatest, Observable, Subscription} from "rxjs";
+import {
+    of as observableOf,
+    combineLatest as observableCombineLatest,
+    empty as observableEmpty,
+    Observable,
+    Subscription,
+    Subscriber,
+} from "rxjs";
 
-import {map, distinctUntilChanged, switchMap, first, filter} from "rxjs/operators";
+import { map, distinctUntilChanged, switchMap, first, filter, catchError, publishReplay, refCount } from "rxjs/operators";
 import * as vd from "virtual-dom";
 
 import {
@@ -9,12 +16,12 @@ import {
     ComponentService,
     Component,
 } from "../Component";
-import {Node} from "../Graph";
+import { Node } from "../Graph";
 import {
     IVNodeHash,
     ISize,
 } from "../Render";
-import {Urls} from "../Utils";
+import { Urls } from "../Utils";
 import {
     Container,
     ImageSize,
@@ -26,13 +33,58 @@ export class CoverComponent extends Component<ICoverConfiguration> {
 
     private _renderSubscription: Subscription;
     private _keySubscription: Subscription;
+    private _configureSrcSubscription: Subscription;
+    private _revokeUrlSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
     }
 
     public _activate(): void {
-        this._configuration$.pipe(
+        const originalSrc$: Observable<string> = this.configuration$.pipe(
+            first(
+                (c: ICoverConfiguration): boolean => {
+                    return !!c.key;
+                }),
+            filter(
+                (c: ICoverConfiguration): boolean => {
+                    return !c.src;
+                }),
+            switchMap(
+                (c: ICoverConfiguration): Observable<string> => {
+                    return this._getImageSrc$(c.key, ImageSize.Size640).pipe(
+                        catchError(
+                            (): Observable<string> => {
+                                return observableEmpty();
+                            }));
+                }),
+            publishReplay(1),
+            refCount());
+
+        this._configureSrcSubscription = originalSrc$.pipe(
+            map(
+                (src: string): ICoverConfiguration => {
+                    return { src: src };
+                }))
+            .subscribe(
+                (c: ICoverConfiguration): void => {
+                    this._configurationSubject$.next(c);
+                });
+
+        this._revokeUrlSubscription = observableCombineLatest(
+            this.configuration$,
+            originalSrc$).pipe(
+                filter(
+                    ([c, src]: [ICoverConfiguration, string]): boolean => {
+                        return !!c.src && c.src !== src;
+                    }),
+                first())
+            .subscribe(
+                ([c, src]: [ICoverConfiguration, string]): void => {
+                    window.URL.revokeObjectURL(src);
+                });
+
+        this._keySubscription = this._configuration$.pipe(
             distinctUntilChanged(
                 undefined,
                 (configuration: ICoverConfiguration): CoverState => {
@@ -41,22 +93,22 @@ export class CoverComponent extends Component<ICoverConfiguration> {
             switchMap(
                 (configuration: ICoverConfiguration): Observable<[CoverState, Node]> => {
                     return observableCombineLatest(
-                            observableOf(configuration.state),
-                            this._navigator.stateService.currentNode$);
+                        observableOf(configuration.state),
+                        this._navigator.stateService.currentNode$);
                 }),
             switchMap(
                 ([state, node]: [CoverState, Node]): Observable<[string, string]> => {
                     const keySrc$: Observable<[string, string]> = observableCombineLatest(
-                            observableOf(node.key),
-                            node.image$.pipe(
-                                filter(
-                                    (image: HTMLImageElement): boolean => {
-                                        return !!image;
-                                    }),
-                                map(
-                                    (image: HTMLImageElement): string => {
-                                        return image.src;
-                                    })));
+                        observableOf(node.key),
+                        node.image$.pipe(
+                            filter(
+                                (image: HTMLImageElement): boolean => {
+                                    return !!image;
+                                }),
+                            map(
+                                (image: HTMLImageElement): string => {
+                                    return image.src;
+                                })));
 
                     return state === CoverState.Visible ? keySrc$.pipe(first()) : keySrc$;
                 }),
@@ -71,36 +123,38 @@ export class CoverComponent extends Component<ICoverConfiguration> {
             .subscribe(this._configurationSubject$);
 
         this._renderSubscription = observableCombineLatest(
-                this._configuration$,
-                this._container.renderService.size$).pipe(
-            map(
-                ([configuration, size]: [ICoverConfiguration, ISize]): IVNodeHash => {
-                    if (!configuration.key) {
-                        return { name: this._name, vnode: vd.h("div", []) };
-                    }
+            this._configuration$,
+            this._container.renderService.size$).pipe(
+                map(
+                    ([configuration, size]: [ICoverConfiguration, ISize]): IVNodeHash => {
+                        if (!configuration.src) {
+                            return { name: this._name, vnode: vd.h("div", []) };
+                        }
 
-                    const compactClass: string = size.width <= 640 || size.height <= 480 ? ".CoverCompact" : "";
+                        const compactClass: string = size.width <= 640 || size.height <= 480 ? ".CoverCompact" : "";
 
-                    if (configuration.state === CoverState.Hidden) {
-                        const doneContainer: vd.VNode = vd.h(
-                            "div.CoverContainer.CoverDone" + compactClass,
-                            [this._getCoverBackgroundVNode(configuration)]);
+                        if (configuration.state === CoverState.Hidden) {
+                            const doneContainer: vd.VNode = vd.h(
+                                "div.CoverContainer.CoverDone" + compactClass,
+                                [this._getCoverBackgroundVNode(configuration)]);
 
-                        return { name: this._name, vnode: doneContainer };
-                    }
+                            return { name: this._name, vnode: doneContainer };
+                        }
 
-                    const container: vd.VNode = vd.h(
-                        "div.CoverContainer" + compactClass,
-                        [this._getCoverButtonVNode(configuration)]);
+                        const container: vd.VNode = vd.h(
+                            "div.CoverContainer" + compactClass,
+                            [this._getCoverButtonVNode(configuration)]);
 
-                    return { name: this._name, vnode: container };
-                }))
+                        return { name: this._name, vnode: container };
+                    }))
             .subscribe(this._container.domRenderer.render$);
     }
 
     public _deactivate(): void {
         this._renderSubscription.unsubscribe();
         this._keySubscription.unsubscribe();
+        this._configureSrcSubscription.unsubscribe();
+        this._revokeUrlSubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): ICoverConfiguration {
@@ -113,7 +167,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
             "div.CoverButton",
             [vd.h("div.CoverButtonIcon", [])]);
 
-        const coverLogo: vd.VNode = vd.h("a.CoverLogo", {href: Urls.explore, target: "_blank"}, []);
+        const coverLogo: vd.VNode = vd.h("a.CoverLogo", { href: Urls.explore, target: "_blank" }, []);
         const coverIndicator: vd.VNode = vd.h(
             "div.CoverIndicator",
             { onclick: (): void => { this.configure({ state: CoverState.Loading }); } },
@@ -130,18 +184,45 @@ export class CoverComponent extends Component<ICoverConfiguration> {
     }
 
     private _getCoverBackgroundVNode(conf: ICoverConfiguration): vd.VNode {
-        let url: string = conf.src != null ?
-            conf.src : Urls.thumbnail(conf.key, ImageSize.Size640);
+        const properties: vd.createProperties = {
+            style: { backgroundImage: `url(${conf.src})` },
+        };
 
-        let properties: vd.createProperties = { style: { backgroundImage: `url(${url})` } };
-
-        let children: vd.VNode[] = [];
+        const children: vd.VNode[] = [];
         if (conf.state === CoverState.Loading) {
             children.push(vd.h("div.Spinner", {}, []));
         }
 
         return vd.h("div.CoverBackground", properties, children);
     }
+
+    private _getImageSrc$(key: string, imageSize: ImageSize): Observable<string> {
+        return Observable.create(
+            (subscriber: Subscriber<string>): void => {
+                this._navigator.api.dataProvider.getImage(key, imageSize)
+                    .then(
+                        (buffer: ArrayBuffer): void => {
+                            const image: HTMLImageElement = new Image();
+                            image.crossOrigin = "Anonymous";
+
+                            image.onload = () => {
+                                subscriber.next(image.src);
+                                subscriber.complete();
+                            };
+
+                            image.onerror = () => {
+                                subscriber.error(new Error(`Failed to load cover image (${key})`));
+                            };
+
+                            const blob: Blob = new Blob([buffer]);
+                            image.src = window.URL.createObjectURL(blob);
+                        },
+                        (error: Error): void => {
+                            subscriber.error(error);
+                        });
+            });
+    }
+
 }
 
 ComponentService.registerCover(CoverComponent);

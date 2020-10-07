@@ -38,9 +38,7 @@ import {
     ImagePlaneGLRenderer,
 } from "../../Component";
 import {
-    GeoCoords,
     Transform,
-    Geo,
 } from "../../Geo";
 import {
     ICurrentState,
@@ -69,7 +67,6 @@ import {
 } from "../../Tiles";
 import {
     Settings,
-    Urls,
 } from "../../Utils";
 import ViewportCoords from "../../geo/ViewportCoords";
 import Spatial from "../../geo/Spatial";
@@ -292,7 +289,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                         return stalled;
                     }),
                 switchMap(
-                    (stalled: boolean): Observable<RenderCamera> => {
+                    (): Observable<RenderCamera> => {
                         return this._container.renderService.renderCameraFrame$.pipe(
                             first());
                     }),
@@ -402,7 +399,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                                         return hasTexture;
                                     }))),
                         catchError(
-                            (error: Error, caught: Observable<[HTMLImageElement, GraphNode]>):
+                            (error: Error):
                                 Observable<[HTMLImageElement, GraphNode]> => {
                                 console.error(`Failed to fetch high res image (${node.key})`, error);
 
