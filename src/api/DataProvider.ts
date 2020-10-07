@@ -30,7 +30,7 @@ type APIPath =
     "imagesByH" |
     "sequenceByKey";
 
-class DataProviderUrls {
+export class DataProviderUrls {
     private _apiHost: string = "a.mapillary.com";
     private _clientId: string;
     private _clusterReconstructionHost: string =

@@ -1,6 +1,6 @@
-import {combineLatest as observableCombineLatest, Observable, Subscription} from "rxjs";
+import { combineLatest as observableCombineLatest, Observable, Subscription } from "rxjs";
 
-import {map} from "rxjs/operators";
+import { map } from "rxjs/operators";
 import * as vd from "virtual-dom";
 
 import {
@@ -8,12 +8,12 @@ import {
     Component,
     IComponentConfiguration,
 } from "../Component";
-import {Node} from "../Graph";
+import { Node } from "../Graph";
 import {
     IVNodeHash,
     ISize,
 } from "../Render";
-import {Urls} from "../Utils";
+import { Urls } from "../Utils";
 import {
     Container,
     Navigator,
@@ -29,15 +29,15 @@ export class AttributionComponent extends Component<IComponentConfiguration> {
 
     protected _activate(): void {
         this._disposable = observableCombineLatest(
-                this._navigator.stateService.currentNode$,
-                this._container.renderService.size$).pipe(
-            map(
-                ([node, size]: [Node, ISize]): IVNodeHash => {
-                    return {
-                        name: this._name,
-                        vnode: this._getAttributionNode(node.username, node.key, node.capturedAt, size.width),
-                    };
-                }))
+            this._navigator.stateService.currentNode$,
+            this._container.renderService.size$).pipe(
+                map(
+                    ([node, size]: [Node, ISize]): IVNodeHash => {
+                        return {
+                            name: this._name,
+                            vnode: this._getAttributionNode(node.username, node.key, node.capturedAt, size.width),
+                        };
+                    }))
             .subscribe(this._container.domRenderer.render$);
     }
 
@@ -73,14 +73,14 @@ export class AttributionComponent extends Component<IComponentConfiguration> {
         const imageLink: vd.VNode =
             vd.h(
                 "a.AttributionImageContainer",
-                { href: Urls.exporeImage(key), target: "_blank" },
+                { href: Urls.exploreImage(key), target: "_blank" },
                 [imageByContent, dateContent]);
 
         const compactClass: string = compact ? ".AttributionCompact" : "";
 
         return vd.h("div.AttributionContainer" + compactClass, {}, [mapillaryLink, imageLink]);
     }
-    }
+}
 
 ComponentService.register(AttributionComponent);
 export default AttributionComponent;
