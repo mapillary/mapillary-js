@@ -88,7 +88,7 @@
     "lint": "yarn run lint-spec && yarn run lint-src",
     "lint-spec": "tslint -c tslint.json -p tsconfig.json \"spec/**/*.ts\"",
     "lint-src": "tslint -c tslint.json -p tsconfig.json \"src/**/*.ts\"",
-    "prepare": "yarn run clean && yarn run lint-src && yarn run build-min && yarn run build-dev && yarn run build-css",
+    "prepare": "yarn run clean && yarn run lint && yarn run build-min && yarn run build-dev && yarn run build-css",
     "start": "node server.js",
     "test": "karma start --single-run",
     "test-watch": "karma start"
