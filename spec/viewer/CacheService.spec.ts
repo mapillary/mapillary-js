@@ -1,6 +1,6 @@
-import {of as observableOf, Subject} from "rxjs";
+import { of as observableOf, Subject } from "rxjs";
 
-import {NodeHelper} from "../helper/NodeHelper.spec";
+import { NodeHelper } from "../helper/NodeHelper.spec";
 
 import {
     ICoreNode,
@@ -26,8 +26,7 @@ import DataProvider from "../../src/api/DataProvider";
 
 describe("CacheService.ctor", () => {
     it("should be defined when constructed", () => {
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -40,8 +39,7 @@ describe("CacheService.ctor", () => {
 
 describe("CacheService.started", () => {
     it("should not be started", () => {
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -52,8 +50,7 @@ describe("CacheService.started", () => {
     });
 
     it("should be started after calling start", () => {
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -66,8 +63,7 @@ describe("CacheService.started", () => {
     });
 
     it("should not be started after calling stop", () => {
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -123,8 +119,7 @@ describe("CacheService.start", () => {
     });
 
     it("should call graph service uncache method", () => {
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph, imageLoadingService);
@@ -167,8 +162,7 @@ describe("CacheService.start", () => {
     });
 
     it("should call graph service uncache method with sequence key of last trajectory node", () => {
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph, imageLoadingService);
@@ -212,8 +206,7 @@ describe("CacheService.start", () => {
     });
 
     it("should cache current node if switching to sequence graph mode", () => {
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph, imageLoadingService);
@@ -257,8 +250,7 @@ describe("CacheService.start", () => {
     });
 
     it("should cache all trajectory nodes ahead if switching to spatial graph mode", () => {
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph, imageLoadingService);
@@ -311,8 +303,7 @@ describe("CacheService.start", () => {
     it("should keep the subscription open if caching a node fails", () => {
         spyOn(console, "error").and.stub();
 
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph, imageLoadingService);

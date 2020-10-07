@@ -1,6 +1,6 @@
-import {from as observableFrom, throwError as observableThrowError, BehaviorSubject, Observable, ReplaySubject, Subscription} from "rxjs";
+import { from as observableFrom, throwError as observableThrowError, BehaviorSubject, Observable, ReplaySubject, Subscription } from "rxjs";
 
-import {last, tap, map, mergeAll, finalize, mergeMap, first} from "rxjs/operators";
+import { last, tap, map, mergeAll, finalize, mergeMap, first } from "rxjs/operators";
 
 import {
     IFullNode,
@@ -13,8 +13,8 @@ import {
     ImageLoadingService,
     Node,
 } from "../Graph";
-import {EdgeDirection} from "../Edge";
-import {AbortMapillaryError} from "../Error";
+import { EdgeDirection } from "../Edge";
+import { AbortMapillaryError } from "../Error";
 import {
     StateService,
     IFrame,
@@ -48,7 +48,7 @@ export class Navigator {
     private _requestSubscription: Subscription;
     private _nodeRequestSubscription: Subscription;
 
-    constructor (
+    constructor(
         clientId: string,
         options: IViewerOptions,
         token?: string,
@@ -61,7 +61,10 @@ export class Navigator {
         playService?: PlayService,
         panService?: PanService) {
 
-        this._api = api != null ? api : new API(new DataProvider(clientId, token));
+        this._api = api != null ? api : new API(new DataProvider({
+            clientId: clientId,
+            token: token,
+        }));
 
         this._imageLoadingService = imageLoadingService != null ? imageLoadingService : new ImageLoadingService();
 
@@ -94,7 +97,7 @@ export class Navigator {
         this._nodeRequestSubscription = null;
     }
 
-    public get api(): API{
+    public get api(): API {
         return this._api;
     }
 
@@ -272,14 +275,14 @@ export class Navigator {
                                 (node: Node): void => {
                                     return undefined;
                                 }));
-                    }));
+                }));
     }
 
     private _cacheKeys$(keys: string[]): Observable<Node> {
         let cacheNodes$: Observable<Node>[] = keys
             .map(
                 (key: string): Observable<Node> => {
-                        return this._graphService.cacheNode$(key);
+                    return this._graphService.cacheNode$(key);
                 });
 
         return observableFrom(cacheNodes$).pipe(
@@ -351,10 +354,10 @@ export class Navigator {
             map(
                 (frame: IFrame): string[] => {
                     return frame.state.trajectory
-                            .map(
-                                (node: Node): string => {
-                                    return node.key;
-                                });
+                        .map(
+                            (node: Node): string => {
+                                return node.key;
+                            });
                 }));
     }
 }

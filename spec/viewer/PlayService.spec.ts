@@ -1,6 +1,6 @@
-import {of as observableOf, zip as observableZip,  Observable ,  Subject } from "rxjs";
+import { of as observableOf, zip as observableZip, Observable, Subject } from "rxjs";
 
-import {take, first, skip} from "rxjs/operators";
+import { take, first, skip } from "rxjs/operators";
 
 import {
     IFullNode,
@@ -35,8 +35,7 @@ import API from "../../src/api/API";
 
 describe("PlayService.ctor", () => {
     it("should be defined when constructed", () => {
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -47,8 +46,7 @@ describe("PlayService.ctor", () => {
     });
 
     it("should emit default values", (done: () => void) => {
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -56,10 +54,10 @@ describe("PlayService.ctor", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
 
         observableZip(
-                playService.direction$,
-                playService.playing$,
-                playService.speed$).pipe(
-            first())
+            playService.direction$,
+            playService.playing$,
+            playService.speed$).pipe(
+                first())
             .subscribe(
                 ([d, p, s]: [EdgeDirection, boolean, number]): void => {
                     expect(d).toBe(EdgeDirection.Next);
@@ -73,8 +71,7 @@ describe("PlayService.ctor", () => {
 
 describe("PlayService.playing", () => {
     it("should be playing after calling play", (done: () => void) => {
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -95,8 +92,7 @@ describe("PlayService.playing", () => {
     });
 
     it("should not be playing after calling stop", (done: () => void) => {
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -133,8 +129,7 @@ describe("PlayService.playing", () => {
 
 describe("PlayService.speed$", () => {
     it("should emit when changing speed", (done: () => void) => {
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -154,8 +149,7 @@ describe("PlayService.speed$", () => {
     });
 
     it("should not emit when setting current speed", () => {
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -170,7 +164,7 @@ describe("PlayService.speed$", () => {
             skip(1))
             .subscribe(
                 (speed: number): void => {
-                    speedEmitCount ++;
+                    speedEmitCount++;
 
                     if (firstEmit) {
                         expect(speed).toBe(0);
@@ -189,8 +183,7 @@ describe("PlayService.speed$", () => {
     });
 
     it("should clamp speed values to 0, 1 interval", (done: () => void) => {
-        const clientId: string = "clientId";
-        const api: API = new API(new DataProvider(clientId));
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -248,7 +241,7 @@ describe("PlayService.play", () => {
     beforeEach(() => {
         nodeHelper = new NodeHelper();
 
-        api = new API(new DataProvider("clientId"));
+        api = new API(new DataProvider({ clientId: "cid" }));
         imageLoadingService = new ImageLoadingService();
         graphService = new GraphService(new Graph(api), imageLoadingService);
         stateService = new StateServiceMockCreator().create();
@@ -323,7 +316,6 @@ describe("PlayService.play", () => {
     it("should emit in correct order if stopping immediately", (done: () => void) => {
         const playService: PlayService = new PlayService(graphService, stateService);
 
-        const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheBoundingBox$").and.returnValue(observableOf([]));
@@ -376,11 +368,11 @@ describe("PlayService.play", () => {
 
         (<Subject<IFrame>>stateService.currentState$).next(frame);
 
-        sequenceEdgesSubject.next({ cached: false, edges: []});
+        sequenceEdgesSubject.next({ cached: false, edges: [] });
 
         expect(stopSpy.calls.count()).toBe(0);
 
-        sequenceEdgesSubject.next({ cached: true, edges: []});
+        sequenceEdgesSubject.next({ cached: true, edges: [] });
 
         expect(stopSpy.calls.count()).toBe(1);
     });
@@ -414,11 +406,11 @@ describe("PlayService.play", () => {
 
         (<Subject<IFrame>>stateService.currentState$).next(frame);
 
-        sequenceEdgesSubject.next({ cached: false, edges: []});
+        sequenceEdgesSubject.next({ cached: false, edges: [] });
 
         expect(stopSpy.calls.count()).toBe(0);
 
-        sequenceEdgesSubject.next({ cached: true, edges: []});
+        sequenceEdgesSubject.next({ cached: true, edges: [] });
 
         expect(stopSpy.calls.count()).toBe(0);
 
@@ -476,7 +468,7 @@ describe("PlayService.play", () => {
 
         (<Subject<IFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
 
-        sequenceEdgesSubject.next({ cached: true, edges: []});
+        sequenceEdgesSubject.next({ cached: true, edges: [] });
 
         expect(stopSpy.calls.count()).toBe(0);
 
@@ -549,7 +541,7 @@ describe("PlayService.play", () => {
 
         (<Subject<IFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
 
-        sequenceEdgesSubject.next({ cached: true, edges: []});
+        sequenceEdgesSubject.next({ cached: true, edges: [] });
 
         expect(stopSpy.calls.count()).toBe(0);
 
@@ -631,7 +623,7 @@ describe("PlayService.play", () => {
 
         (<Subject<IFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
 
-        sequenceEdgesSubject.next({ cached: true, edges: []});
+        sequenceEdgesSubject.next({ cached: true, edges: [] });
 
         expect(stopSpy.calls.count()).toBe(1);
         expect(cacheBoudningBoxSpy.calls.count()).toBe(0);
@@ -673,7 +665,7 @@ describe("PlayService.play", () => {
             edges: [{
                 data: { direction: EdgeDirection.Next, worldMotionAzimuth: 0 },
                 from: node.key,
-                to:  toNode.key,
+                to: toNode.key,
             }],
         });
 
@@ -725,7 +717,7 @@ describe("PlayService.play", () => {
             edges: [{
                 data: { direction: EdgeDirection.Next, worldMotionAzimuth: 0 },
                 from: node.key,
-                to:  toNode.key,
+                to: toNode.key,
             }],
         });
 
@@ -817,7 +809,7 @@ describe("PlayService.play", () => {
         const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
         currentNodeSubject.next(currentNode);
 
-        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [prevNodeKey, currentNode.key ]});
+        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [prevNodeKey, currentNode.key] });
         cacheSequenceSubject.next(sequence);
 
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
@@ -861,7 +853,7 @@ describe("PlayService.play", () => {
         const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
         currentNodeSubject.next(currentNode);
 
-        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key, nextNodeKey ]});
+        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key, nextNodeKey] });
         cacheSequenceSubject.next(sequence);
 
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
@@ -909,7 +901,7 @@ describe("PlayService.play", () => {
         const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
         currentNodeSubject.next(currentNode);
 
-        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [prevNodeKey, currentNode.key]});
+        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [prevNodeKey, currentNode.key] });
         cacheSequenceSubject.next(sequence);
 
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
@@ -962,7 +954,7 @@ describe("PlayService.play", () => {
         const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
         currentNodeSubject.next(currentNode);
 
-        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key, nextNodeKey ]});
+        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key, nextNodeKey] });
         cacheSequenceSubject.next(sequence);
 
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
@@ -1026,7 +1018,7 @@ describe("PlayService.play", () => {
         const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
         currentNodeSubject.next(currentNode);
 
-        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key, nextNodeKey ]});
+        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key, nextNodeKey] });
         cacheSequenceSubject.next(sequence);
 
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
@@ -1069,7 +1061,7 @@ describe("PlayService.play", () => {
         currentNode.makeFull(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
 
-        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key]});
+        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key] });
         const sequenceNodes: Node[] = [];
 
         for (let i: number = 0; i < 20; i++) {

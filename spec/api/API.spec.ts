@@ -1,6 +1,6 @@
-import {empty as observableEmpty, Observable} from "rxjs";
+import { empty as observableEmpty, Observable } from "rxjs";
 
-import {catchError, retry} from "rxjs/operators";
+import { catchError, retry } from "rxjs/operators";
 
 import {
     ICoreNode,
@@ -27,7 +27,7 @@ describe("API.imageByKeyFill$", () => {
             },
         };
 
-        const provider: DataProvider = new DataProvider(null);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getFillImages");
         providerSpy.and.returnValue(promise);
 
@@ -37,7 +37,7 @@ describe("API.imageByKeyFill$", () => {
 
         api.imageByKeyFill$([key])
             .subscribe(
-                (result: { [key: string]: IFillNode}): void => {
+                (result: { [key: string]: IFillNode }): void => {
                     expect(result).toBeDefined();
 
                     expect(providerSpy.calls.count()).toBe(1);
@@ -55,7 +55,7 @@ describe("API.imageByKeyFill$", () => {
             },
         };
 
-        const provider: DataProvider = new DataProvider(null);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getFillImages");
         providerSpy.and.returnValue(promise);
 
@@ -86,7 +86,7 @@ describe("API.imageByKeyFull$", () => {
             },
         };
 
-        const provider: DataProvider = new DataProvider(null);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getFullImages");
         providerSpy.and.returnValue(promise);
 
@@ -96,7 +96,7 @@ describe("API.imageByKeyFull$", () => {
 
         api.imageByKeyFull$([key])
             .subscribe(
-                (result: { [key: string]: IFillNode}): void => {
+                (result: { [key: string]: IFillNode }): void => {
                     expect(result).toBeDefined();
 
                     expect(providerSpy.calls.count()).toBe(1);
@@ -114,7 +114,7 @@ describe("API.imageByKeyFull$", () => {
             },
         };
 
-        const provider: DataProvider = new DataProvider(null);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getFullImages");
         providerSpy.and.returnValue(promise);
 
@@ -145,7 +145,7 @@ describe("API.imagesByH$", () => {
             },
         };
 
-        const provider: DataProvider = new DataProvider(null);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getCoreImages");
         providerSpy.and.returnValue(promise);
 
@@ -173,7 +173,7 @@ describe("API.imagesByH$", () => {
             },
         };
 
-        const provider: DataProvider = new DataProvider(null);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getCoreImages");
         providerSpy.and.returnValue(promise);
 
@@ -204,7 +204,7 @@ describe("API.sequenceByKey$", () => {
             },
         };
 
-        const provider: DataProvider = new DataProvider(null);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getSequences");
         providerSpy.and.returnValue(promise);
 
@@ -232,7 +232,7 @@ describe("API.sequenceByKey$", () => {
             },
         };
 
-        const provider: DataProvider = new DataProvider(null);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getSequences");
         providerSpy.and.returnValue(promise);
 
@@ -257,7 +257,7 @@ describe("API.sequenceByKey$", () => {
 
 describe("API.setToken", () => {
     it("should call provider correctly", () => {
-        const provider: DataProvider = new DataProvider(null);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "setToken");
 
         const api: API = new API(provider);

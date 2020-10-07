@@ -187,7 +187,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             },
         };
 
-        const dataProvider: IDataProvider = new DataProvider("cid");
+        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" });
         spyOn(dataProvider, "getClusterReconstruction").and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
@@ -225,7 +225,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             },
         };
 
-        const dataProvider: IDataProvider = new DataProvider("cid");
+        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" });
         spyOn(dataProvider, "getClusterReconstruction").and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
@@ -258,7 +258,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             then: (): void => { /*noop*/ },
         };
 
-        const dataProvider: IDataProvider = new DataProvider("cid");
+        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" });
         const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getClusterReconstruction");
         clusterSpy.and.returnValue(promise);
 
@@ -292,7 +292,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             },
         };
 
-        const dataProvider: IDataProvider = new DataProvider("cid");
+        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" });
         const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getClusterReconstruction");
         clusterSpy.and.returnValue(promise);
 

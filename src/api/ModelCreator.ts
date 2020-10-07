@@ -1,12 +1,10 @@
 import * as falcor from "falcor";
 import XmlHttpSource from "falcor-http-datasource";
 
-import {Urls} from "../Utils";
-
 type HttpDataSourceConfiguration = {
     crossDomain: boolean;
     withCredentials: boolean;
-    headers?: { [key: string]: string } ;
+    headers?: { [key: string]: string };
 };
 
 /**
@@ -21,12 +19,12 @@ export class ModelCreator {
      * @description Max cache size will be set to 16 MB. Authorization
      * header will be added if bearer token is supplied.
      *
-     * @param {number} clientId - Client id for API requests.
+     * @param {number} url - Json graph URL for API requests.
      * @param {number} [token] - Optional bearer token for API requests of
      * protected resources.
      * @returns {falcor.Model} Falcor model for HTTP requests.
      */
-    public createModel(clientId: string, token?: string): falcor.Model {
+    public createModel(url: string, token?: string): falcor.Model {
         const configuration: HttpDataSourceConfiguration = {
             crossDomain: true,
             withCredentials: false,
@@ -38,7 +36,7 @@ export class ModelCreator {
 
         return new falcor.Model({
             maxSize: 16 * 1024 * 1024,
-            source: new XmlHttpSource(Urls.falcorModel(clientId), configuration),
+            source: new XmlHttpSource(url, configuration),
         });
     }
 }

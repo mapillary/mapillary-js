@@ -11,10 +11,11 @@ import {
 import DataProvider from "../../src/api/DataProvider";
 import { MapillaryError } from "../../src/Error";
 import IClusterReconstruction from "../../src/api/interfaces/IClusterReconstruction";
+import { createDiffieHellman } from "crypto";
 
 describe("DataProvider.ctor", () => {
     it("should create a data provider", () => {
-        const provider: DataProvider = new DataProvider("clientId", null);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
 
         expect(provider).toBeDefined();
     });
@@ -36,7 +37,10 @@ describe("DataProvider.getFillImages", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         const key: string = "key";
 
@@ -70,7 +74,10 @@ describe("DataProvider.getFillImages", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         const key: string = "key";
 
@@ -102,7 +109,10 @@ describe("DataProvider.getFillImages", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         const key: string = "key";
 
@@ -139,7 +149,10 @@ describe("DataProvider.getFillImages", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         const key: string = "key";
 
@@ -179,7 +192,10 @@ describe("DataProvider.getFullImages", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         const key: string = "key";
 
@@ -213,7 +229,10 @@ describe("DataProvider.getFullImages", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         const key: string = "key";
 
@@ -245,7 +264,10 @@ describe("DataProvider.getFullImages", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         const key: string = "key";
 
@@ -282,7 +304,10 @@ describe("DataProvider.getCoreImages", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         const h: string = "h";
 
@@ -319,7 +344,10 @@ describe("DataProvider.getCoreImages", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         const h: string = "h";
 
@@ -354,7 +382,10 @@ describe("DataProvider.getCoreImages", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         const h: string = "h";
 
@@ -388,7 +419,10 @@ describe("DataProvider.getSequences", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         const skey: string = "skey";
 
@@ -425,7 +459,10 @@ describe("DataProvider.getSequences", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         const skey: string = "skey";
 
@@ -465,7 +502,10 @@ describe("DataProvider.getSequences", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         provider.getSequences([skey])
             .then(
@@ -498,7 +538,10 @@ describe("DataProvider.getSequences", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         const skey: string = "skey";
 
@@ -532,7 +575,10 @@ describe("DataProvider.getSequences", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         const skey: string = "skey";
 
@@ -559,7 +605,10 @@ describe("DataProvider.setToken", () => {
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
-        const provider: DataProvider = new DataProvider("clientId", undefined, creator);
+        const provider: DataProvider = new DataProvider({
+            clientId: "cid",
+            creator: creator,
+        });
 
         provider.setToken("token");
 
@@ -567,10 +616,10 @@ describe("DataProvider.setToken", () => {
 
         expect(creatorSpy.calls.count()).toBe(2);
         expect(creatorSpy.calls.first().args.length).toBe(2);
-        expect(creatorSpy.calls.first().args[0]).toBe("clientId");
+        expect(creatorSpy.calls.first().args[0]).toContain("cid");
         expect(creatorSpy.calls.first().args[1]).toBeUndefined();
         expect(creatorSpy.calls.mostRecent().args.length).toBe(2);
-        expect(creatorSpy.calls.mostRecent().args[0]).toBe("clientId");
+        expect(creatorSpy.calls.mostRecent().args[0]).toContain("cid");
         expect(creatorSpy.calls.mostRecent().args[1]).toBe("token");
     });
 });
@@ -597,8 +646,7 @@ describe("DataProvider.getImage", () => {
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         const abort: Promise<void> = new Promise((_, __): void => { /*noop*/ });
-        const provider: DataProvider = new DataProvider(
-            "clientId", undefined, undefined);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
@@ -625,8 +673,7 @@ describe("DataProvider.getImage", () => {
                 aborter = reject;
             });
 
-        const provider: DataProvider = new DataProvider(
-            "clientId", undefined, undefined);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
 
         provider.getImage("key", 320, abort)
             .then(
@@ -646,8 +693,7 @@ describe("DataProvider.getImage", () => {
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         const abort: Promise<void> = new Promise((_, __): void => { /*noop*/ });
-        const provider: DataProvider = new DataProvider(
-            "clientId", undefined, undefined);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
@@ -671,8 +717,7 @@ describe("DataProvider.getImage", () => {
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         const abort: Promise<void> = new Promise((_, __): void => { /*noop*/ });
-        const provider: DataProvider = new DataProvider(
-            "clientId", undefined, undefined);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
@@ -696,8 +741,7 @@ describe("DataProvider.getImage", () => {
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         const abort: Promise<void> = new Promise((_, __): void => { /*noop*/ });
-        const provider: DataProvider = new DataProvider(
-            "clientId", undefined, undefined);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
@@ -720,8 +764,7 @@ describe("DataProvider.getClusterReconstruction", () => {
         const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
-        const provider: DataProvider = new DataProvider(
-            "clientId", undefined, undefined);
+        const provider: DataProvider = new DataProvider({ clientId: "cid" });
 
         provider.getClusterReconstruction("clusterKey")
             .then(
