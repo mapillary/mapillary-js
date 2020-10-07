@@ -5,10 +5,10 @@
 
 export * from "./Support";
 
-export {EdgeDirection} from "./Edge";
-export {AbortMapillaryError} from "./Error";
-export {RenderMode} from "./Render";
-export {TransitionMode} from "./State";
+export { EdgeDirection } from "./Edge";
+export { AbortMapillaryError } from "./Error";
+export { RenderMode } from "./Render";
+export { TransitionMode } from "./State";
 export {
     Alignment,
     ImageSize,
@@ -19,14 +19,17 @@ export {
     ComponentSize,
 } from "./Component";
 
-import * as TagComponent from "./component/tag/Tag";
-export {TagComponent};
+import * as TagComponent from "./component/tag/TagExport";
+export { TagComponent };
 
-import * as MarkerComponent from "./component/marker/Marker";
-export {MarkerComponent};
+import * as MarkerComponent from "./component/marker/MarkerExport";
+export { MarkerComponent };
 
-import * as PopupComponent from "./component/popup/Popup";
-export {PopupComponent};
+import * as PopupComponent from "./component/popup/PopupExport";
+export { PopupComponent };
 
-import * as SpatialDataComponent from "./component/spatialdata/SpatialData";
-export {SpatialDataComponent};
+import * as SpatialDataComponent from "./component/spatialdata/SpatialDataExport";
+export { SpatialDataComponent };
+
+import * as API from "./api/APIExport";
+export { API };

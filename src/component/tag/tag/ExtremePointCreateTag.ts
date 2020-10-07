@@ -3,7 +3,7 @@ import * as THREE from "three";
 
 import { ViewportCoords, Transform } from "../../../Geo";
 import { ISize } from "../../../Render";
-import { RectGeometry, PointsGeometry } from "../Tag";
+import { RectGeometry, PointsGeometry } from "../TagExport";
 import { CreateTag, IExtremePointCreateTagOptions } from "../../../Component";
 
 export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
@@ -40,7 +40,7 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
     public dispose(): void {
         super.dispose();
         this._disposeObjects();
-     }
+    }
 
     public getDOMObjects(camera: THREE.Camera, size: ISize): vd.VNode[] {
         const container: { offsetHeight: number, offsetWidth: number } = {
@@ -99,12 +99,12 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
         if (length > 2 && this._options.indicateCompleter === true) {
             const [centroidX, centroidY]: number[] = this._geometry.getCentroid2d(this._transform);
             const centroidCanvas: number[] =
-            this._viewportCoords.basicToCanvasSafe(
-                centroidX,
-                centroidY,
-                container,
-                this._transform,
-                camera);
+                this._viewportCoords.basicToCanvasSafe(
+                    centroidX,
+                    centroidY,
+                    container,
+                    this._transform,
+                    camera);
 
             if (!!centroidCanvas) {
                 const complete: (e: MouseEvent) => void = (e: MouseEvent): void => {

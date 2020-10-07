@@ -1,5 +1,5 @@
-import {IComponentConfiguration} from "../../Component";
-import { CameraVisualizationMode } from "../spatialdata/SpatialData";
+import { IComponentConfiguration } from "../../Component";
+import { CameraVisualizationMode } from "../spatialdata/SpatialDataExport";
 
 /**
  * Interface for configuration of spatial data component.

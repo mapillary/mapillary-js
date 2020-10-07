@@ -10,27 +10,27 @@ import ISequence from "./interfaces/ISequence";
 export class DataProviderBase implements IDataProvider {
     public getCoreImages(geohashes: string[]):
         Promise<{ [geohash: string]: { [imageKey: string]: ICoreNode } }> {
-        throw new MapillaryError("Not implemented");
+        return Promise.reject(new MapillaryError("Not implemented"));
     }
 
     public getClusterReconstruction(clusterKey: string, abort?: Promise<void>):
         Promise<IClusterReconstruction> {
-        throw new MapillaryError("Not implemented");
+        return Promise.reject(new MapillaryError("Not implemented"));
     }
 
     public getFillImages(imageKeys: string[]):
         Promise<{ [imageKey: string]: IFillNode }> {
-        throw new MapillaryError("Not implemented");
+        return Promise.reject(new MapillaryError("Not implemented"));
     }
 
     public getFullImages(imageKeys: string[]):
         Promise<{ [imageKey: string]: IFullNode }> {
-        throw new MapillaryError("Not implemented");
+        return Promise.reject(new MapillaryError("Not implemented"));
     }
 
     public getImage(imageKey: string, size: number, abort?: Promise<void>):
         Promise<ArrayBuffer> {
-        throw new MapillaryError("Not implemented");
+        return Promise.reject(new MapillaryError("Not implemented"));
     }
 
     public getImageTile(
@@ -42,16 +42,16 @@ export class DataProviderBase implements IDataProvider {
         scaledW: number,
         scaledH: number,
         abort?: Promise<void>): Promise<ArrayBuffer> {
-        throw new MapillaryError("Not implemented");
+        return Promise.reject(new MapillaryError("Not implemented"));
     }
 
     public getMesh(imageKey: string, abort?: Promise<void>): Promise<IMesh> {
-        throw new MapillaryError("Not implemented");
+        return Promise.reject(new MapillaryError("Not implemented"));
     }
 
     public getSequences(sequenceKeys: string[]):
         Promise<{ [sequenceKey: string]: ISequence }> {
-        throw new MapillaryError("Not implemented");
+        return Promise.reject(new MapillaryError("Not implemented"));
     }
 
     public setToken(token?: string): void {
