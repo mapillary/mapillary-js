@@ -5,8 +5,10 @@
     <title>Spatial data</title>
     <meta charset='utf-8'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
     <link rel='stylesheet' href='dist/mapillary.min.css' />
     <script src='dist/mapillary.js'></script>
+
     <style>
         body {
             margin: 0;
@@ -41,11 +43,12 @@
     <button onclick="toggleSetting('tilesVisible')">Tiles</button>
     <button onclick="toggleImages()">Images</button>
     <script>
-        const viewer = new Mapillary.Viewer(
-            "viewer",
-            "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
-            "zarcRdNFZwg3FkXNcsFeGw",
-            { component: { cover: false, stats: false, spatialData: true } });
+        const viewer = new Mapillary.Viewer({
+            apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
+            component: { cover: false, stats: false, spatialData: true },
+            container: "viewer",
+            key: "zarcRdNFZwg3FkXNcsFeGw",
+        });
 
         window.addEventListener("resize", function () { viewer.resize(); });
 

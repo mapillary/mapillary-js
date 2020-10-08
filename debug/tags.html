@@ -1,17 +1,33 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>MapillaryJS Tags Debug Page</title>
     <meta charset='utf-8'>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
     <link rel='stylesheet' href='dist/mapillary.min.css' />
+    <script src='dist/mapillary.js'></script>
+
     <style>
-        body { margin: 0; padding: 0; }
-        html, body { width: 100%; height: 100%; }
-        #viewer { width: 90%; height: 90%; }
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        #viewer {
+            width: 90%;
+            height: 90%;
+        }
     </style>
 </head>
+
 <body>
     <div id='viewer'></div>
     <button onclick="createGeometry(Mapillary.TagComponent.TagMode.CreatePolygon)">Create polygon</button>
@@ -21,31 +37,21 @@
     <button onclick="stopCreate()">Stop create</button>
     <button onclick="deactivate()">Deactivate</button>
     <button onclick="activate()">Activate</button>
-    <script src='dist/mapillary.js'></script>
+
     <script>
-        var viewer = new Mapillary.Viewer(
-            "viewer",
-            "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
-            "zarcRdNFZwg3FkXNcsFeGw",
-            {
-                component: {
-                    cover: false,
-                    stats: false,
-                    tag: true,
-                },
-                renderMode: Mapillary.RenderMode.Letterbox,
-            }
-        );
+        var viewer = new Mapillary.Viewer({
+            apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
+            component: { cover: false, stats: false, tag: true },
+            container: "viewer",
+            key: "zarcRdNFZwg3FkXNcsFeGw",
+            renderMode: Mapillary.RenderMode.Letterbox,
+        });
 
-        window.addEventListener("resize", function() { viewer.resize(); });
+        window.addEventListener("resize", function () { viewer.resize(); });
 
-        function deactivate() {
-            viewer.deactivateComponent("tag");
-        }
+        function deactivate() { viewer.deactivateComponent("tag"); }
 
-        function activate() {
-            viewer.activateComponent("tag");
-        }
+        function activate() { viewer.activateComponent("tag"); }
 
         var tagComponent = viewer.getComponent("tag");
 
@@ -54,17 +60,17 @@
         }
 
         var currentMode = Mapillary.TagComponent.TagMode.Default;
-        tagComponent.on(Mapillary.TagComponent.TagComponent.modechanged, function(mode) {
+        tagComponent.on(Mapillary.TagComponent.TagComponent.modechanged, function (mode) {
             currentMode = mode;
         })
 
-        document.addEventListener("keydown", function(keyEvent) {
+        document.addEventListener("keydown", function (keyEvent) {
             if (keyEvent.key === "Control" && currentMode === Mapillary.TagComponent.TagMode.CreateRectDrag) {
                 createGeometry(Mapillary.TagComponent.TagMode.Default);
             }
         });
 
-        document.addEventListener("keyup", function(keyEvent) {
+        document.addEventListener("keyup", function (keyEvent) {
             if (keyEvent.key === "Control" && currentMode === Mapillary.TagComponent.TagMode.Default) {
                 createGeometry(Mapillary.TagComponent.TagMode.CreateRectDrag);
             }
@@ -76,9 +82,7 @@
 
         var createdTags = {};
 
-        function onTagGeometryChanged(tag) {
-            return;
-        };
+        function onTagGeometryChanged(tag) { return; };
 
         var createdIndex = 0;
 
@@ -94,7 +98,8 @@
                 textColor: 0x00FFFF,
             };
 
-            var tag = new Mapillary.TagComponent.OutlineTag(id, geometry, options);
+            var tag = new Mapillary.TagComponent.OutlineTag(
+                id, geometry, options);
             tag.on(Mapillary.TagComponent.OutlineTag.geometrychanged, onTagGeometryChanged);
 
             return tag;
@@ -115,7 +120,7 @@
             return tag;
         }
 
-        tagComponent.on(Mapillary.TagComponent.TagComponent.geometrycreated, function(geometry) {
+        tagComponent.on(Mapillary.TagComponent.TagComponent.geometrycreated, function (geometry) {
             var tag;
             if (geometry instanceof Mapillary.TagComponent.RectGeometry) {
                 tag = createOutlineTag(geometry, "Rectangle");
@@ -129,10 +134,11 @@
             tagComponent.add([tag]);
         });
 
-        viewer.on(Mapillary.Viewer.nodechanged, function(node) {
+        viewer.on(Mapillary.Viewer.nodechanged, function (node) {
             createdTags = {};
             tagComponent.removeAll();
         });
     </script>
 </body>
+
 </html>

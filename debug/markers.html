@@ -1,32 +1,41 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>MapillaryJS Markers Debug Page</title>
     <meta charset='utf-8'>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
     <script src='dist/mapillary.js'></script>
     <link rel='stylesheet' href='dist/mapillary.min.css' />
+
     <style>
-        body { margin: 0; padding: 0; }
-        html, body { width: 100%; height: 100%; }
-        #viewer { width: 100%; height: 100%; }
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        #viewer {
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
+
 <body>
     <div id='viewer'></div>
     <script>
-        const mly = new Mapillary.Viewer(
-            'viewer',
-            'QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh',
-            null,
-            {
-                component: {
-                    cover: false,
-                    marker: true,
-                    stats: false,
-                },
-            });
+        const mly = new Mapillary.Viewer({
+            apiClient: 'QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh',
+            component: { cover: false, marker: true, stats: false },
+            container: 'viewer',
+        });
 
         const createTimes = [];
         const addTimes = [];
@@ -36,12 +45,12 @@
         const markerComponent = mly.getComponent("marker");
 
         // Log performance results
-        const logTimes = function() {
+        const logTimes = function () {
             const totalCreateTime = createTimes
-                .reduce(function(acc, val) { return acc + val; }, 0);
+                .reduce(function (acc, val) { return acc + val; }, 0);
 
             const totalAddTime = addTimes
-                .reduce(function(acc, val) { return acc + val; }, 0);
+                .reduce(function (acc, val) { return acc + val; }, 0);
 
             console.log("Markers added:", markerCount);
             console.log("Batch size:", batchSize);
@@ -54,8 +63,8 @@
         };
 
         // Create markers in a bounding box with center at latLon
-        const createRandomMarkers = function(start, count, latLon) {
-            const getRandomUniform = function(min, max) {
+        const createRandomMarkers = function (start, count, latLon) {
+            const getRandomUniform = function (min, max) {
                 return Math.random() * (max - min) + min;
             };
 
@@ -84,7 +93,7 @@
         };
 
         // Add markers to component in batch
-        const addMarkers = function(markers) {
+        const addMarkers = function (markers) {
             const t0 = window.performance.now();
             markerComponent.add(markers);
             addTimes.push(window.performance.now() - t0);
@@ -93,8 +102,8 @@
         // Start creating and adding markers when node has been set
         mly.moveToKey('6Zhtztzt67fWmdd4OYH44w')
             .then(
-                function(n) {
-                    let intervalId = window.setInterval(function() {
+                function (n) {
+                    let intervalId = window.setInterval(function () {
                         const markers = createRandomMarkers(markerCount, batchSize, n.latLon);
                         addMarkers(markers);
 
@@ -105,11 +114,12 @@
                             logTimes();
                         }
                     },
-                    5);
+                        5);
                 },
-                function(e) { console.error(e); });
+                function (e) { console.error(e); });
 
-        window.addEventListener('resize', function() { mly.resize(); });
-     </script>
+        window.addEventListener('resize', function () { mly.resize(); });
+    </script>
 </body>
+
 </html>
