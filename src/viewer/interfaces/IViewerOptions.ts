@@ -10,6 +10,14 @@ import IDataProvider from "../../api/interfaces/IDataProvider";
  */
 export interface IViewerOptions {
     /**
+     * A data provider class instance for API and static
+     * resource requests or a `Mapillary API ClientID`
+     * string. A client id be obtained from
+     * https://www.mapillary.com/app/settings/developers.
+     */
+    apiClient: string | IDataProvider;
+
+    /**
      * Default size of the thumbnail used in the viewer
      * @default {ImageSize.Size640}
      */
@@ -28,17 +36,26 @@ export interface IViewerOptions {
     combinedPanning?: boolean;
 
     /**
-     * The component options.
+     * Component options.
      */
     component?: IComponentOptions;
 
     /**
-     * @param {string | IDataProvider} apiClient - Required.
-     * Either a data provider class instance or a `Mapillary API ClientID`
-     * string. A client id be obtained from
-     * https://www.mapillary.com/app/settings/developers.
+     * The HTML element in which
+     * MapillaryJS will render the viewer, or the element's string `id`. The
+     * specified element must have no children.
      */
-    apiClient: string | IDataProvider;
+    container: string | HTMLElement;
+
+    /**
+     * Optional `image-key` to start from. The key
+     * can be any Mapillary image. If a key is provided the viewer is
+     * bound to that key until it has been fully loaded. If null is provided
+     * no image is loaded at viewer initialization and the viewer is not
+     * bound to any particular key. Any image can then be navigated to
+     * with e.g. `viewer.moveToKey("<my-image-key>")`.
+     */
+    key?: string;
 
     /**
      * The max size of an image shown in the viewer
@@ -58,6 +75,12 @@ export interface IViewerOptions {
      * File name extensions will be automatically appended.
      */
     sprite?: string;
+
+    /**
+     * Optional bearer token for API requests of
+     * protected resources.
+     */
+    token?: string;
 
     /**
      * The transtion mode in the viewer.

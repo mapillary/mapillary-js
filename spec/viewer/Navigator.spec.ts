@@ -53,7 +53,9 @@ const createState: () => ICurrentState = (): ICurrentState => {
 
 describe("Navigator.ctor", () => {
     it("should be defined without optional params", () => {
-        const navigator: Navigator = new Navigator({ apiClient: "cid" });
+        const navigator: Navigator = new Navigator({
+            apiClient: "clientid", container: "containerid",
+        });
 
         expect(navigator).toBeDefined();
     });
@@ -69,8 +71,7 @@ describe("Navigator.ctor", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -98,8 +99,7 @@ describe("Navigator.moveToKey$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -139,7 +139,13 @@ describe("Navigator.moveToKey$", () => {
         const stateSpy: jasmine.Spy = spyOn(stateService, "setNodes").and.stub();
 
         const navigator: Navigator =
-            new Navigator({ apiClient: clientId }, undefined, api, graphService, imageLoadingService, loadingService, stateService);
+            new Navigator(
+                { apiClient: "cl", container: "co" },
+                api,
+                graphService,
+                imageLoadingService,
+                loadingService,
+                stateService);
 
         navigator.moveToKey$(key).subscribe(() => { /*noop*/ });
 
@@ -167,8 +173,7 @@ describe("Navigator.moveToKey$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -204,8 +209,7 @@ describe("Navigator.moveToKey$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -249,7 +253,13 @@ describe("Navigator.moveToKey$", () => {
         spyOn(stateService, "setNodes").and.stub();
 
         const navigator: Navigator =
-            new Navigator({ apiClient: clientId }, undefined, api, graphService, imageLoadingService, loadingService, stateService);
+            new Navigator(
+                { apiClient: "cl", container: "co" },
+                api,
+                graphService,
+                imageLoadingService,
+                loadingService,
+                stateService);
 
         navigator.moveToKey$(key)
             .subscribe(
@@ -284,7 +294,13 @@ describe("Navigator.moveToKey$", () => {
         spyOn(stateService, "setNodes").and.stub();
 
         const navigator: Navigator =
-            new Navigator({ apiClient: clientId }, undefined, api, graphService, imageLoadingService, loadingService, stateService);
+            new Navigator(
+                { apiClient: "cl", container: "co" },
+                api,
+                graphService,
+                imageLoadingService,
+                loadingService,
+                stateService);
 
         navigator.moveToKey$(key)
             .subscribe(
@@ -324,8 +340,7 @@ describe("Navigator.moveToKey$", () => {
 
             const navigator: Navigator =
                 new Navigator(
-                    { apiClient: clientId },
-                    undefined,
+                    { apiClient: "cl", container: "co" },
                     api,
                     graphService,
                     imageLoadingService,
@@ -386,8 +401,7 @@ describe("Navigator.movedToKey$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -427,8 +441,7 @@ describe("Navigator.moveCloseTo$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -461,8 +474,7 @@ describe("Navigator.moveCloseTo$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -498,8 +510,7 @@ describe("Navigator.moveCloseTo$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -538,8 +549,7 @@ describe("Navigator.moveCloseTo$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -602,8 +612,7 @@ describe("Navigator.setFilter$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -649,8 +658,7 @@ describe("Navigator.setFilter$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -700,8 +708,7 @@ describe("Navigator.setFilter$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -772,8 +779,7 @@ describe("Navigator.setFilter$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -854,8 +860,7 @@ describe("Navigator.setToken$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -923,8 +928,7 @@ describe("Navigator.setToken$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -1001,8 +1005,7 @@ describe("Navigator.setToken$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -1038,8 +1041,7 @@ describe("Navigator.setToken$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,
@@ -1073,8 +1075,7 @@ describe("Navigator.setToken$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                { apiClient: clientId },
-                undefined,
+                { apiClient: "cl", container: "co" },
                 api,
                 graphService,
                 imageLoadingService,

@@ -306,40 +306,32 @@ export class Viewer extends EventEmitter {
      * application when the initial key is not known at implementation
      * time.
      *
-     * @param {string | HTMLElement} container - The HTML element in which
-     * MapillaryJS will render the viewer, or the element's string `id`. The
-     * specified element must have no children.
-     * @param {string} clientId - @deprecated
-     * @param {string} key - Optional `image-key` to start from. The key
-     * can be any Mapillary image. If a key is provided the viewer is
-     * bound to that key until it has been fully loaded. If null is provided
-     * no image is loaded at viewer initialization and the viewer is not
-     * bound to any particular key. Any image can then be navigated to
-     * with e.g. `viewer.moveToKey("<my-image-key>")`.
      * @param {IViewerOptions} options - Optional configuration object
      * specifing Viewer's and the components' initial setup.
-     * @param {string} token - Optional bearer token for API requests of
-     * protected resources.
      *
      * @example
      * ```
-     * var viewer = new Mapillary.Viewer("<element-id>", "<client-id>", "<image-key>");
+     * var viewer = new Mapillary.Viewer({
+     *     apiClient: "<my-client-id>",
+     *     container: "<my-container-id>",
+     * });
      * ```
      */
-    constructor(
-        container: string | HTMLElement,
-        options: IViewerOptions,
-        key?: string,
-        token?: string) {
+    constructor(options: IViewerOptions) {
         super();
 
         Settings.setOptions(options);
         Urls.setOptions(options.url);
 
-        this._navigator = new Navigator(options, token);
-        this._container = new Container(container, this._navigator.stateService, options);
+        this._navigator = new Navigator(options);
+        this._container = new Container(options, this._navigator.stateService);
         this._observer = new Observer(this, this._navigator, this._container);
-        this._componentController = new ComponentController(this._container, this._navigator, this._observer, key, options.component);
+        this._componentController = new ComponentController(
+            this._container,
+            this._navigator,
+            this._observer,
+            options.key,
+            options.component);
     }
 
     /**

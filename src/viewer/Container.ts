@@ -3,8 +3,8 @@ import {
     DOMRenderer,
     RenderService,
 } from "../Render";
-import {StateService} from "../State";
-import {DOM} from "../Utils";
+import { StateService } from "../State";
+import { DOM } from "../Utils";
 import {
     IViewerOptions,
     KeyboardService,
@@ -33,16 +33,21 @@ export class Container {
 
     private _dom: DOM;
 
-    constructor (container: string | HTMLElement, stateService: StateService, options: IViewerOptions, dom?: DOM) {
+    constructor(
+        options: IViewerOptions,
+        stateService: StateService,
+        dom?: DOM) {
+
         this._dom = !!dom ? dom : new DOM();
 
-        if (typeof container === 'string') {
-            this._container = this._dom.document.getElementById(container);
+        if (typeof options.container === 'string') {
+            this._container =
+                this._dom.document.getElementById(options.container);
             if (!this._container) {
-                throw new Error(`Container '${container}' not found.`);
+                throw new Error(`Container '${options.container}' not found.`);
             }
-        } else if (container instanceof HTMLElement) {
-            this._container = container;
+        } else if (options.container instanceof HTMLElement) {
+            this._container = options.container;
         } else {
             throw new Error(`Invalid type: 'container' must be a String or HTMLElement.`);
         }

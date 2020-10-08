@@ -50,7 +50,6 @@ export class Navigator {
 
     constructor(
         options: IViewerOptions,
-        token?: string,
         api?: API,
         graphService?: GraphService,
         imageLoadingService?: ImageLoadingService,
@@ -65,7 +64,7 @@ export class Navigator {
         } else if (typeof options.apiClient === 'string') {
             this._api = new API(new DataProvider({
                 clientId: options.apiClient,
-                token: token,
+                token: options.token,
             }));
         } else if (options.apiClient instanceof Object) {
             this._api = new API(options.apiClient);
