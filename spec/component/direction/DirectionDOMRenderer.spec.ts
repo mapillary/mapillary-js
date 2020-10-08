@@ -1,16 +1,16 @@
-import {NodeHelper} from "../../helper/NodeHelper.spec";
+import { NodeHelper } from "../../helper/NodeHelper.spec";
 
 import {
     DirectionDOMRenderer,
     IDirectionConfiguration,
 } from "../../../src/Component";
-import {Node} from "../../../src/Graph";
+import { Node } from "../../../src/Graph";
 import {
     RenderCamera,
     RenderMode,
 } from "../../../src/Render";
-import {Navigator} from "../../../src/Viewer";
-import {IFrame} from "../../../src/State";
+import { Navigator } from "../../../src/Viewer";
+import { IFrame } from "../../../src/State";
 import { FrameHelper } from "../../helper/FrameHelper.spec";
 
 describe("DirectionDOMRenderer.ctor", () => {
@@ -79,7 +79,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         expect(renderer.needsRender).toBe(true);
 
-        let navigator: Navigator = new Navigator("", {});
+        let navigator: Navigator = new Navigator({ apiClient: "cid" });
 
         renderer.render(navigator);
 
@@ -148,7 +148,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         expect(renderer.needsRender).toBe(true);
 
-        let navigator: Navigator = new Navigator("", {});
+        let navigator: Navigator = new Navigator({ apiClient: "cid" });
 
         renderer.render(navigator);
 
@@ -180,7 +180,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         expect(renderer.needsRender).toBe(true);
 
-        let navigator: Navigator = new Navigator("", {});
+        let navigator: Navigator = new Navigator({ apiClient: "cid" });
 
         renderer.render(navigator);
 
@@ -208,7 +208,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         expect(renderer.needsRender).toBe(true);
 
-        let navigator: Navigator = new Navigator("", {});
+        let navigator: Navigator = new Navigator({ apiClient: "cid" });
 
         renderer.render(navigator);
 

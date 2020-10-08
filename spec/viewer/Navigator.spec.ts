@@ -53,7 +53,7 @@ const createState: () => ICurrentState = (): ICurrentState => {
 
 describe("Navigator.ctor", () => {
     it("should be defined without optional params", () => {
-        const navigator: Navigator = new Navigator("clientId", {});
+        const navigator: Navigator = new Navigator({ apiClient: "cid" });
 
         expect(navigator).toBeDefined();
     });
@@ -69,8 +69,7 @@ describe("Navigator.ctor", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -99,8 +98,7 @@ describe("Navigator.moveToKey$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -141,7 +139,7 @@ describe("Navigator.moveToKey$", () => {
         const stateSpy: jasmine.Spy = spyOn(stateService, "setNodes").and.stub();
 
         const navigator: Navigator =
-            new Navigator(clientId, {}, undefined, api, graphService, imageLoadingService, loadingService, stateService);
+            new Navigator({ apiClient: clientId }, undefined, api, graphService, imageLoadingService, loadingService, stateService);
 
         navigator.moveToKey$(key).subscribe(() => { /*noop*/ });
 
@@ -169,8 +167,7 @@ describe("Navigator.moveToKey$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -207,8 +204,7 @@ describe("Navigator.moveToKey$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -253,7 +249,7 @@ describe("Navigator.moveToKey$", () => {
         spyOn(stateService, "setNodes").and.stub();
 
         const navigator: Navigator =
-            new Navigator(clientId, {}, undefined, api, graphService, imageLoadingService, loadingService, stateService);
+            new Navigator({ apiClient: clientId }, undefined, api, graphService, imageLoadingService, loadingService, stateService);
 
         navigator.moveToKey$(key)
             .subscribe(
@@ -288,7 +284,7 @@ describe("Navigator.moveToKey$", () => {
         spyOn(stateService, "setNodes").and.stub();
 
         const navigator: Navigator =
-            new Navigator(clientId, {}, undefined, api, graphService, imageLoadingService, loadingService, stateService);
+            new Navigator({ apiClient: clientId }, undefined, api, graphService, imageLoadingService, loadingService, stateService);
 
         navigator.moveToKey$(key)
             .subscribe(
@@ -328,8 +324,7 @@ describe("Navigator.moveToKey$", () => {
 
             const navigator: Navigator =
                 new Navigator(
-                    clientId,
-                    {},
+                    { apiClient: clientId },
                     undefined,
                     api,
                     graphService,
@@ -391,8 +386,7 @@ describe("Navigator.movedToKey$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -433,8 +427,7 @@ describe("Navigator.moveCloseTo$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -468,8 +461,7 @@ describe("Navigator.moveCloseTo$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -506,8 +498,7 @@ describe("Navigator.moveCloseTo$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -547,8 +538,7 @@ describe("Navigator.moveCloseTo$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -612,8 +602,7 @@ describe("Navigator.setFilter$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -660,8 +649,7 @@ describe("Navigator.setFilter$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -712,8 +700,7 @@ describe("Navigator.setFilter$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -785,8 +772,7 @@ describe("Navigator.setFilter$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -868,8 +854,7 @@ describe("Navigator.setToken$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -938,8 +923,7 @@ describe("Navigator.setToken$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -1017,8 +1001,7 @@ describe("Navigator.setToken$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -1055,8 +1038,7 @@ describe("Navigator.setToken$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,
@@ -1091,8 +1073,7 @@ describe("Navigator.setToken$", () => {
 
         const navigator: Navigator =
             new Navigator(
-                clientId,
-                {},
+                { apiClient: clientId },
                 undefined,
                 api,
                 graphService,

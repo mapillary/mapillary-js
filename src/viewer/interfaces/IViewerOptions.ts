@@ -1,6 +1,7 @@
-import {IComponentOptions, ImageSize, IUrlOptions} from "../../Viewer";
-import {RenderMode} from "../../Render";
-import {TransitionMode} from "../../State";
+import { IComponentOptions, ImageSize, IUrlOptions } from "../../Viewer";
+import { RenderMode } from "../../Render";
+import { TransitionMode } from "../../State";
+import IDataProvider from "../../api/interfaces/IDataProvider";
 
 /**
  * Interface for the options that can be provided to the {@link Viewer}.
@@ -30,6 +31,14 @@ export interface IViewerOptions {
      * The component options.
      */
     component?: IComponentOptions;
+
+    /**
+     * @param {string | IDataProvider} apiClient - Required.
+     * Either a data provider class instance or a `Mapillary API ClientID`
+     * string. A client id be obtained from
+     * https://www.mapillary.com/app/settings/developers.
+     */
+    apiClient: string | IDataProvider;
 
     /**
      * The max size of an image shown in the viewer

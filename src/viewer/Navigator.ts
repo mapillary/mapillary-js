@@ -49,7 +49,6 @@ export class Navigator {
     private _nodeRequestSubscription: Subscription;
 
     constructor(
-        clientId: string,
         options: IViewerOptions,
         token?: string,
         api?: API,
@@ -61,10 +60,18 @@ export class Navigator {
         playService?: PlayService,
         panService?: PanService) {
 
-        this._api = api != null ? api : new API(new DataProvider({
-            clientId: clientId,
-            token: token,
-        }));
+        if (!!api) {
+            this._api = api;
+        } else if (typeof options.apiClient === 'string') {
+            this._api = new API(new DataProvider({
+                clientId: options.apiClient,
+                token: token,
+            }));
+        } else if (options.apiClient instanceof Object) {
+            this._api = new API(options.apiClient);
+        } else {
+            throw new Error(`Invalid type: 'apiClient' must be a String or an object instance implementing the IDataProvder interface.`);
+        }
 
         this._imageLoadingService = imageLoadingService != null ? imageLoadingService : new ImageLoadingService();
 

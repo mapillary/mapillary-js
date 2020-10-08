@@ -4,11 +4,11 @@ import {
     Observable,
 } from "rxjs";
 
-import {first} from "rxjs/operators";
+import { first } from "rxjs/operators";
 import * as when from "when";
 
-import {ILatLon} from "../API";
-import {EdgeDirection} from "../Edge";
+import { ILatLon } from "../API";
+import { EdgeDirection } from "../Edge";
 import {
     FilterExpression,
     Node,
@@ -29,11 +29,14 @@ import {
     Settings,
     Urls,
 } from "../Utils";
-import {RenderMode} from "../Render";
-import {TransitionMode} from "../State";
+import { RenderMode } from "../Render";
+import { TransitionMode } from "../State";
 import { IPointOfView } from "./interfaces/interfaces";
 import RenderCamera from "../render/RenderCamera";
 import ILatLonAlt from "../geo/interfaces/ILatLonAlt";
+import API from "../api/API";
+import { IDataProvider } from "../api/interfaces/interfaces";
+import DataProvider from "../api/DataProvider";
 
 /**
  * @class Viewer
@@ -306,8 +309,7 @@ export class Viewer extends EventEmitter {
      * @param {string | HTMLElement} container - The HTML element in which
      * MapillaryJS will render the viewer, or the element's string `id`. The
      * specified element must have no children.
-     * @param {string} clientId - Required `Mapillary API ClientID`. Can
-     * be obtained from https://www.mapillary.com/app/settings/developers.
+     * @param {string} clientId - @deprecated
      * @param {string} key - Optional `image-key` to start from. The key
      * can be any Mapillary image. If a key is provided the viewer is
      * bound to that key until it has been fully loaded. If null is provided
@@ -324,15 +326,17 @@ export class Viewer extends EventEmitter {
      * var viewer = new Mapillary.Viewer("<element-id>", "<client-id>", "<image-key>");
      * ```
      */
-    constructor (container: string | HTMLElement, clientId: string, key?: string, options?: IViewerOptions, token?: string) {
+    constructor(
+        container: string | HTMLElement,
+        options: IViewerOptions,
+        key?: string,
+        token?: string) {
         super();
-
-        options = options != null ? options : {};
 
         Settings.setOptions(options);
         Urls.setOptions(options.url);
 
-        this._navigator = new Navigator(clientId, options, token);
+        this._navigator = new Navigator(options, token);
         this._container = new Container(container, this._navigator.stateService, options);
         this._observer = new Observer(this, this._navigator, this._container);
         this._componentController = new ComponentController(this._container, this._navigator, this._observer, key, options.component);
@@ -563,7 +567,7 @@ export class Viewer extends EventEmitter {
                 observableCombineLatest(
                     this._container.renderService.renderCamera$,
                     this._container.renderService.bearing$).pipe(
-                    first())
+                        first())
                     .subscribe(
                         ([rc, bearing]: [RenderCamera, number]): void => {
                             resolve({
@@ -594,7 +598,7 @@ export class Viewer extends EventEmitter {
                 observableCombineLatest(
                     this._container.renderService.renderCamera$,
                     this._navigator.stateService.reference$).pipe(
-                    first())
+                        first())
                     .subscribe(
                         ([render, reference]: [RenderCamera, ILatLonAlt]): void => {
                             resolve(this._observer.projection.cameraToLatLon(render, reference));
@@ -617,7 +621,7 @@ export class Viewer extends EventEmitter {
      * ```
      */
     public getZoom(): when.Promise<number> {
-         return when.promise<number>(
+        return when.promise<number>(
             (resolve: (value: number) => void, reject: (reason: Error) => void): void => {
                 this._navigator.stateService.getZoom()
                     .subscribe(
