@@ -12,6 +12,8 @@ import ISequence from "./interfaces/ISequence";
 import IClusterReconstruction from "./interfaces/IClusterReconstruction";
 import DataProviderBase from "./DataProviderBase";
 import IDataProviderOptions from "./IDataProviderOptions";
+import IGeometryProvider from "./IGeometryProvider";
+import GeohashGeometryProvider from "./GeohashGeometryProvider";
 
 interface IImageByKey<T> {
     imageByKey: { [key: string]: T };
@@ -110,6 +112,8 @@ export class DataProviderUrls {
  * @classdesc Provides data through API calls.
  */
 export class DataProvider extends DataProviderBase {
+    private _geometryProvider: IGeometryProvider;
+
     private _clientId: string;
     private _urls: DataProviderUrls;
 
@@ -132,13 +136,18 @@ export class DataProvider extends DataProviderBase {
     /**
      * Create a new data provider instance.
      *
-     * @param {number} clientId - Client id for API requests.
-     * @param {number} [token] - Optional bearer token for API requests of
-     * protected resources.
-     * @param {ModelCreator} [creator] - Optional model creator instance.
+     * @param {IDataProviderOptions} options - Options struct.
+     * @param {IGeometryProvider} [geometryProvider] - Optional geometry
+     * provider instance.
      */
-    constructor(options: IDataProviderOptions) {
+    constructor(
+        options: IDataProviderOptions,
+        geometryProvider?: IGeometryProvider) {
+
         super();
+
+        this._geometryProvider = !!geometryProvider ?
+            geometryProvider : new GeohashGeometryProvider();
 
         this._clientId = options.clientId;
         this._urls = new DataProviderUrls(options);
@@ -205,12 +214,16 @@ export class DataProvider extends DataProviderBase {
         return this._clientId;
     }
 
-    public getCoreImages(geohashes: string[]):
-        Promise<{ [geohash: string]: { [imageKey: string]: ICoreNode } }> {
+    public get geometry(): IGeometryProvider {
+        return this._geometryProvider;
+    }
+
+    public getCoreImages(cellIds: string[]):
+        Promise<{ [cellId: string]: { [imageKey: string]: ICoreNode } }> {
         return Promise.resolve(<PromiseLike<falcor.JSONEnvelope<IImagesByH<ICoreNode>>>>this._model
             .get([
                 this._pathImagesByH,
-                geohashes,
+                cellIds,
                 { from: 0, to: this._pageCount },
                 this._propertiesKey
                     .concat(this._propertiesCore)]))
@@ -218,7 +231,7 @@ export class DataProvider extends DataProviderBase {
                 (value: falcor.JSONEnvelope<IImagesByH<ICoreNode>>): { [h: string]: { [index: string]: ICoreNode } } => {
                     if (!value) {
                         value = { json: { imagesByH: {} } };
-                        for (const h of geohashes) {
+                        for (const h of cellIds) {
                             value.json.imagesByH[h] = {};
                             for (let i: number = 0; i <= this._pageCount; i++) {
                                 value.json.imagesByH[h][i] = null;
@@ -229,7 +242,7 @@ export class DataProvider extends DataProviderBase {
                     return value.json.imagesByH;
                 },
                 (error: Error) => {
-                    this._invalidateGet(this._pathImagesByH, geohashes);
+                    this._invalidateGet(this._pathImagesByH, cellIds);
                     throw error;
                 });
     }

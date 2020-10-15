@@ -4,6 +4,7 @@ import ICoreNode from "./ICoreNode";
 import ISequence from "./ISequence";
 import IMesh from "./IMesh";
 import IClusterReconstruction from "./IClusterReconstruction";
+import IGeometryProvider from "../IGeometryProvider";
 
 /**
  * Interface that describes the data provider functionality.
@@ -11,8 +12,10 @@ import IClusterReconstruction from "./IClusterReconstruction";
  * @interface IDataProvider
  */
 export interface IDataProvider {
-    getCoreImages(geohashes: string[]):
-        Promise<{ [geohash: string]: { [imageKey: string]: ICoreNode } }>;
+    readonly geometry: IGeometryProvider;
+
+    getCoreImages(cellIds: string[]):
+        Promise<{ [cellId: string]: { [imageKey: string]: ICoreNode } }>;
     getClusterReconstruction(clusterKey: string, abort?: Promise<void>):
         Promise<IClusterReconstruction>;
     getFillImages(imageKeys: string[]):

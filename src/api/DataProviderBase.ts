@@ -6,10 +6,15 @@ import IFillNode from "./interfaces/IFillNode";
 import IFullNode from "./interfaces/IFullNode";
 import IMesh from "./interfaces/IMesh";
 import ISequence from "./interfaces/ISequence";
+import IGeometryProvider from "./IGeometryProvider";
 
 export class DataProviderBase implements IDataProvider {
-    public getCoreImages(geohashes: string[]):
-        Promise<{ [geohash: string]: { [imageKey: string]: ICoreNode } }> {
+    public get geometry(): IGeometryProvider {
+        throw new MapillaryError("Not implemented");
+    }
+
+    public getCoreImages(cellIds: string[]):
+        Promise<{ [cellId: string]: { [imageKey: string]: ICoreNode } }> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 

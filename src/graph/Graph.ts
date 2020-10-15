@@ -1,6 +1,6 @@
-import {merge as observableMerge, from as observableFrom, of as observableOf, Observable, Subject} from "rxjs";
+import { merge as observableMerge, from as observableFrom, of as observableOf, Observable, Subject } from "rxjs";
 
-import {tap, refCount, catchError, publish, finalize, map, reduce, mergeMap, mergeAll, last} from "rxjs/operators";
+import { tap, refCount, catchError, publish, finalize, map, reduce, mergeMap, mergeAll, last } from "rxjs/operators";
 
 import {
     ICoreNode,
@@ -14,7 +14,7 @@ import {
     IPotentialEdge,
     EdgeCalculator,
 } from "../Edge";
-import {GraphMapillaryError} from "../Error";
+import { GraphMapillaryError } from "../Error";
 import {
     FilterCreator,
     FilterExpression,
@@ -173,7 +173,6 @@ export class Graph {
      */
     private _sequences: { [skey: string]: SequenceAccess };
 
-    private _tilePrecision: number;
     private _tileThreshold: number;
 
     /**
@@ -236,8 +235,6 @@ export class Graph {
         this._requiredSpatialArea = {};
 
         this._sequences = {};
-
-        this._tilePrecision = 7;
         this._tileThreshold = 20;
     }
 
@@ -263,7 +260,7 @@ export class Graph {
      * nodes in the bounding box.
      */
     public cacheBoundingBox$(sw: ILatLon, ne: ILatLon): Observable<Node[]> {
-        const cacheTiles$: Observable<Graph>[] = this._graphCalculator.encodeHsFromBoundingBox(sw, ne)
+        const cacheTiles$: Observable<Graph>[] = this._api.dataProvider.geometry.bboxToCellIds(sw, ne)
             .filter(
                 (h: string): boolean => {
                     return !(h in this._cachedTiles);
@@ -310,7 +307,7 @@ export class Graph {
                     const coreNodeBatches: string[][] = [];
                     const batchSize: number = 200;
                     while (coreNodes.length > 0) {
-                         coreNodeBatches.push(coreNodes.splice(0, batchSize));
+                        coreNodeBatches.push(coreNodes.splice(0, batchSize));
                     }
 
                     const fullNodes$: Observable<Node[]> = observableOf(fullNodes);
@@ -343,9 +340,9 @@ export class Graph {
                             });
 
                     return observableMerge(
-                            fullNodes$,
-                            observableFrom(fillNodes$).pipe(
-                                mergeAll()));
+                        fullNodes$,
+                        observableFrom(fillNodes$).pipe(
+                            mergeAll()));
                 }),
             reduce(
                 (acc: Node[], value: Node[]): Node[] => {
@@ -444,7 +441,7 @@ export class Graph {
                         let node: Node = new Node(fn);
                         this._makeFull(node, fn);
 
-                        let h: string = this._graphCalculator.encodeH(node.originalLatLon, this._tilePrecision);
+                        let h: string = this._api.dataProvider.geometry.latLonToCellId(node.originalLatLon);
                         this._preStore(h, node);
                         this._setNode(node);
 
@@ -600,7 +597,7 @@ export class Graph {
                                         const node: Node = new Node(fn);
                                         this._makeFull(node, fn);
 
-                                        const h: string = this._graphCalculator.encodeH(node.originalLatLon, this._tilePrecision);
+                                        const h: string = this._api.dataProvider.geometry.latLonToCellId(node.originalLatLon);
                                         this._preStore(h, node);
                                         this._setNode(node);
                                     }
@@ -743,7 +740,7 @@ export class Graph {
      */
     public cacheSpatialEdges(key: string): void {
         if (key in this._cachedSpatialEdges) {
-             throw new GraphMapillaryError(`Spatial edges already cached (${key}).`);
+            throw new GraphMapillaryError(`Spatial edges already cached (${key}).`);
         }
 
         let node: Node = this.getNode(key);
@@ -798,7 +795,7 @@ export class Graph {
     }
 
     /**
-     * Retrieve and cache geohash tiles for a node.
+     * Retrieve and cache tiles for a node.
      *
      * @param {string} key - Key of node for which to retrieve tiles.
      * @returns {Array<Observable<Graph>>} Array of observables emitting
@@ -1125,10 +1122,9 @@ export class Graph {
 
         if (!(key in this._requiredNodeTiles)) {
             let node: Node = this.getNode(key);
-            nodeTiles.cache = this._graphCalculator
-                .encodeHs(
+            nodeTiles.cache = this._api.dataProvider.geometry
+                .latLonToCellIds(
                     node.latLon,
-                    this._tilePrecision,
                     this._tileThreshold)
                 .filter(
                     (h: string): boolean => {
@@ -1234,7 +1230,7 @@ export class Graph {
         for (const node of nodes) {
             this._nodes[node.key] = node;
 
-            const h: string = this._graphCalculator.encodeH(node.originalLatLon, this._tilePrecision);
+            const h: string = this._api.dataProvider.geometry.latLonToCellId(node.originalLatLon);
             this._preStore(h, node);
         }
 
@@ -1299,7 +1295,9 @@ export class Graph {
 
             let node: Node = this._nodes[key];
 
-            let nodeHs: string[] = this._graphCalculator.encodeHs(node.latLon);
+            let nodeHs: string[] = this._api.dataProvider.geometry
+                .latLonToCellIds(node.latLon, this._tileThreshold);
+
             for (let nodeH of nodeHs) {
                 if (!(nodeH in keepHs)) {
                     keepHs[nodeH] = true;

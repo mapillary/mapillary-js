@@ -1,18 +1,19 @@
-import {from as observableFrom, of as observableOf, merge as observableMerge, Observable, Subject} from "rxjs";
+import { from as observableFrom, of as observableOf, merge as observableMerge, Observable, Subject } from "rxjs";
 
-import {first, mergeAll} from "rxjs/operators";
+import { first, mergeAll } from "rxjs/operators";
 
-import {NodeHelper} from "../helper/NodeHelper.spec";
+import { NodeHelper } from "../helper/NodeHelper.spec";
 
 import {
     ICoreNode,
     IFillNode,
     IFullNode,
     ISequence,
+    IDataProvider,
 } from "../../src/API";
-import {EdgeCalculator} from "../../src/Edge";
-import {GraphMapillaryError} from "../../src/Error";
-import {GeoRBush} from "../../src/Geo";
+import { EdgeCalculator } from "../../src/Edge";
+import { GraphMapillaryError } from "../../src/Error";
+import { GeoRBush } from "../../src/Geo";
 import {
     GraphCalculator,
     Graph,
@@ -22,10 +23,12 @@ import {
 } from "../../src/Graph";
 import API from "../../src/api/API";
 import DataProvider from "../../src/api/DataProvider";
+import { Data } from "pako";
+import { IGeometryProvider, GeohashGeometryProvider } from "../../src/api/APIExport";
 
 describe("Graph.ctor", () => {
     it("should create a graph", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
 
         const graph: Graph = new Graph(api);
 
@@ -33,7 +36,7 @@ describe("Graph.ctor", () => {
     });
 
     it("should create a graph with all ctor params", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -51,15 +54,19 @@ describe("Graph.cacheBoundingBox$", () => {
     });
 
     it("should cache one node in the bounding box", (done: Function) => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeHsFromBoundingBox").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         const key: string = "key";
@@ -98,17 +105,21 @@ describe("Graph.cacheBoundingBox$", () => {
     });
 
     it("should not cache tile of fill node if already cached", (done: Function) => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeHsFromBoundingBox").and.returnValue([h]);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
-        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         const imagesByHSpy: jasmine.Spy = spyOn(api, "imagesByH$");
         imagesByHSpy.and.returnValue(imagesByH);
 
@@ -171,15 +182,19 @@ describe("Graph.cacheBoundingBox$", () => {
     });
 
     it("should only cache tile once for two similar calls", (done: Function) => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeHsFromBoundingBox").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         const imagesByHSpy: jasmine.Spy = spyOn(api, "imagesByH$");
         imagesByHSpy.and.returnValue(imagesByH);
 
@@ -196,8 +211,8 @@ describe("Graph.cacheBoundingBox$", () => {
 
         let count: number = 0;
         observableMerge(
-                graph.cacheBoundingBox$({ lat: 0, lon: 0 }, { lat: 1, lon: 1 }),
-                graph.cacheBoundingBox$({ lat: 0, lon: 0 }, { lat: 1, lon: 1 }))
+            graph.cacheBoundingBox$({ lat: 0, lon: 0 }, { lat: 1, lon: 1 }),
+            graph.cacheBoundingBox$({ lat: 0, lon: 0 }, { lat: 1, lon: 1 }))
             .subscribe(
                 (nodes: Node[]): void => {
                     expect(nodes.length).toBe(1);
@@ -237,7 +252,7 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should be fetching", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -255,7 +270,7 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should fetch", (done: Function) => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -288,7 +303,7 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should not make additional calls when fetching same node twice", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -307,7 +322,7 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should throw when fetching node already in graph", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -330,7 +345,7 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should throw if sequence key is missing", (done: Function) => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -356,7 +371,11 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should make full when fetched node has been retrieved in tile in parallell", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -376,11 +395,11 @@ describe("Graph.cacheFull$", () => {
             });
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         const graph: Graph = new Graph(api, index, calculator);
@@ -433,7 +452,11 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should be filling", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -441,8 +464,8 @@ describe("Graph.cacheFill$", () => {
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
@@ -482,7 +505,11 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should fill", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -490,8 +517,8 @@ describe("Graph.cacheFill$", () => {
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
@@ -536,7 +563,11 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should not make additional calls when filling same node twice", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -544,8 +575,8 @@ describe("Graph.cacheFill$", () => {
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
@@ -586,7 +617,11 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should throw if already fetching", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -594,8 +629,8 @@ describe("Graph.cacheFill$", () => {
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
@@ -612,7 +647,7 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should throw if node does not exist", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -625,7 +660,7 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should throw if already full", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -656,13 +691,17 @@ describe("Graph.cacheTiles$", () => {
     });
 
     it("should be caching tiles", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const node: Node = helper.createNode();
 
-        spyOn(calculator, "encodeHs").and.returnValue(["h"]);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue(["h"]);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
@@ -683,15 +722,19 @@ describe("Graph.cacheTiles$", () => {
     });
 
     it("should cache tiles", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const fullNode: IFullNode = helper.createFullNode();
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imageByKeyResult: { [key: string]: IFullNode } = {};
         imageByKeyResult[fullNode.key] = fullNode;
@@ -722,14 +765,18 @@ describe("Graph.cacheTiles$", () => {
     });
 
     it("should encode hs only once when checking tiles cache", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const node: Node = helper.createNode();
 
         const h: string = "h";
-        const encodeHsSpy: jasmine.Spy = spyOn(calculator, "encodeHs");
+        const encodeHsSpy: jasmine.Spy = spyOn(geometryProvider, "latLonToCellIds");
         encodeHsSpy.and.returnValue([h]);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
@@ -748,15 +795,19 @@ describe("Graph.cacheTiles$", () => {
     });
 
     it("should encode hs only once when caching tiles", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const fullNode: IFullNode = helper.createFullNode();
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        const encodeHsSpy: jasmine.Spy = spyOn(calculator, "encodeHs");
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        const encodeHsSpy: jasmine.Spy = spyOn(geometryProvider, "latLonToCellIds");
         encodeHsSpy.and.returnValue([h]);
 
         const imageByKeyResult: { [key: string]: IFullNode } = {};
@@ -796,7 +847,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should throw when sequence does not exist", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -807,7 +858,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not be cached", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -834,7 +885,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -863,7 +914,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should be cached and not caching", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -901,10 +952,14 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not be cached after uncaching sequence node", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        spyOn(graphCalculator, "encodeH").and.returnValue("h");
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
         const configuration: IGraphConfiguration = {
@@ -950,10 +1005,14 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not be cached after uncaching sequence", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        spyOn(graphCalculator, "encodeH").and.returnValue("h");
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
         const configuration: IGraphConfiguration = {
@@ -1001,10 +1060,14 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should be cached after uncaching if sequence is kept", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        spyOn(graphCalculator, "encodeH").and.returnValue("h");
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
         const configuration: IGraphConfiguration = {
@@ -1050,10 +1113,14 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should be cached after uncaching if all nodes are kept", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        spyOn(graphCalculator, "encodeH").and.returnValue("h");
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
         const configuration: IGraphConfiguration = {
@@ -1099,12 +1166,16 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not be cached after uncaching tile", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const h: string = "h";
-        spyOn(graphCalculator, "encodeH").and.returnValue(h);
-        spyOn(graphCalculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
         const configuration: IGraphConfiguration = {
@@ -1145,7 +1216,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.initializeCache(fullNode.key);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
@@ -1175,12 +1246,16 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should be cached after uncaching tile if sequence is kept", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const h: string = "h";
-        spyOn(graphCalculator, "encodeH").and.returnValue(h);
-        spyOn(graphCalculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
         const configuration: IGraphConfiguration = {
@@ -1221,7 +1296,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.initializeCache(fullNode.key);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
@@ -1251,7 +1326,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should throw if caching already cached sequence nodes", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1286,7 +1361,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should only call API once if caching multiple times before response", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1323,7 +1398,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not be cached and not caching on error", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1359,7 +1434,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching in with single batch when lass than or equal to 200 nodes", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1397,7 +1472,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching in batches when more than 200 nodes", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1436,7 +1511,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching prioritized batch when reference node key is specified at start", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1480,7 +1555,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching prioritized batch when reference node key is specified at end", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1525,7 +1600,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching in prioritized batches when reference node key is specified in middle", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1571,7 +1646,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not corrupt sequence when caching in batches", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1606,7 +1681,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should create single batch when fewer than or equal to 50 nodes", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1659,7 +1734,11 @@ describe("Graph.cacheSpatialArea$", () => {
     });
 
     it("should be cached", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1686,7 +1765,11 @@ describe("Graph.cacheSpatialArea$", () => {
     });
 
     it("should not be cached", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1694,8 +1777,8 @@ describe("Graph.cacheSpatialArea$", () => {
         const fullNode: IFullNode = helper.createFullNode();
 
         const h: string = "h";
-        spyOn(graphCalculator, "encodeH").and.returnValue(h);
-        spyOn(graphCalculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -1731,7 +1814,7 @@ describe("Graph.cacheSpatialArea$", () => {
 
         const otherNode: Node = graph.getNode(coreNode.key);
 
-        spyOn(index, "search").and.returnValue([{ node: node }, {node: otherNode }]);
+        spyOn(index, "search").and.returnValue([{ node: node }, { node: otherNode }]);
 
         expect(graph.hasSpatialArea(fullNode.key)).toBe(false);
     });
@@ -1745,7 +1828,7 @@ describe("Graph.cacheSpatialEdges", () => {
     });
 
     it("should use fallback keys", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1801,7 +1884,7 @@ describe("Graph.cacheSpatialEdges", () => {
     });
 
     it("should apply filter", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1862,7 +1945,7 @@ describe("Graph.cacheSpatialEdges", () => {
     });
 
     it("should apply remove by filtering", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1930,7 +2013,7 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should not be cached", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -1951,7 +2034,7 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should be caching", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -1979,7 +2062,7 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should be cached", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2017,7 +2100,7 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should throw if node not in graph", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2036,7 +2119,7 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should throw if already cached", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2070,7 +2153,7 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should call api only once when caching the same sequence twice in succession", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2099,7 +2182,7 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should emit to changed stream", (done: Function) => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2141,7 +2224,7 @@ describe("Graph.cacheNodeSequence$", () => {
 
 describe("Graph.cacheSequence$", () => {
     it("should not be cached", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2153,7 +2236,7 @@ describe("Graph.cacheSequence$", () => {
     });
 
     it("should not be caching", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2165,7 +2248,7 @@ describe("Graph.cacheSequence$", () => {
     });
 
     it("should be caching", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2183,7 +2266,7 @@ describe("Graph.cacheSequence$", () => {
     });
 
     it("should cache", (done: Function) => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2198,15 +2281,15 @@ describe("Graph.cacheSequence$", () => {
         graph.cacheSequence$(sequenceKey)
             .subscribe(
                 (g: Graph): void => {
-                        expect(g.hasSequence(sequenceKey)).toBe(true);
-                        expect(g.isCachingSequence(sequenceKey)).toBe(false);
-                        expect(g.getSequence(sequenceKey)).toBeDefined();
-                        expect(g.getSequence(sequenceKey).key).toBe(sequenceKey);
-                        expect(g.getSequence(sequenceKey).keys.length).toBe(1);
-                        expect(g.getSequence(sequenceKey).keys[0]).toBe(key);
+                    expect(g.hasSequence(sequenceKey)).toBe(true);
+                    expect(g.isCachingSequence(sequenceKey)).toBe(false);
+                    expect(g.getSequence(sequenceKey)).toBeDefined();
+                    expect(g.getSequence(sequenceKey).key).toBe(sequenceKey);
+                    expect(g.getSequence(sequenceKey).keys.length).toBe(1);
+                    expect(g.getSequence(sequenceKey).keys[0]).toBe(key);
 
-                        done();
-                    });
+                    done();
+                });
 
         const result: { [sequenceKey: string]: ISequence } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [key] };
@@ -2215,7 +2298,7 @@ describe("Graph.cacheSequence$", () => {
     });
 
     it("should call api only once when caching the same sequence twice in succession", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2242,7 +2325,7 @@ describe("Graph.resetSpatialEdges", () => {
     });
 
     it("should use fallback keys", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -2274,7 +2357,7 @@ describe("Graph.resetSpatialEdges", () => {
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
-        const searchSpy: jasmine.Spy =  spyOn(index, "search");
+        const searchSpy: jasmine.Spy = spyOn(index, "search");
         searchSpy.and.returnValue([{ node: node }]);
 
         expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
@@ -2307,14 +2390,18 @@ describe("Graph.resetSpatialEdges", () => {
     });
 
     it("should have to re-encode hs after spatial edges reset", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const h: string = "h";
-        spyOn(graphCalculator, "encodeH").and.returnValue(h);
-        const encodeHsSpy: jasmine.Spy = spyOn(graphCalculator, "encodeHs");
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        const encodeHsSpy: jasmine.Spy = spyOn(geometryProvider, "latLonToCellIds");
         encodeHsSpy.and.returnValue([h]);
 
         const fullNode: IFullNode = helper.createFullNode();
@@ -2344,7 +2431,7 @@ describe("Graph.resetSpatialEdges", () => {
         expect(graph.isCachingTiles(fullNode.key)).toBe(false);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
@@ -2404,12 +2491,16 @@ describe("Graph.reset", () => {
     });
 
     it("should remove node", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -2438,12 +2529,16 @@ describe("Graph.reset", () => {
     });
 
     it("should dispose cache initialized node", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -2473,12 +2568,16 @@ describe("Graph.reset", () => {
     });
 
     it("should keep supplied node", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -2522,12 +2621,16 @@ describe("Graph.uncache", () => {
     });
 
     it("should remove prestored node if not cache initialized", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -2564,12 +2667,16 @@ describe("Graph.uncache", () => {
     });
 
     it("should not remove prestored node if in kept sequence", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -2607,12 +2714,16 @@ describe("Graph.uncache", () => {
     });
 
     it("should remove prestored node if cache initialized", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -2649,12 +2760,16 @@ describe("Graph.uncache", () => {
     });
 
     it("should not remove prestored node when in keys to keep", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -2693,12 +2808,16 @@ describe("Graph.uncache", () => {
     });
 
     it("should not remove prestored node if below threshold", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -2737,12 +2856,16 @@ describe("Graph.uncache", () => {
     });
 
     it("should remove prestored node accessed earliest", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
         const imageByKeyFullSpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
 
@@ -2814,13 +2937,17 @@ describe("Graph.uncache", () => {
     });
 
     it("should uncache cache initialized node", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -2849,7 +2976,7 @@ describe("Graph.uncache", () => {
         expect(graph.hasInitializedCache(fullNode.key)).toBe(true);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
@@ -2874,13 +3001,17 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache cache initialized node if below threshold", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -2909,7 +3040,7 @@ describe("Graph.uncache", () => {
         expect(graph.hasInitializedCache(fullNode.key)).toBe(true);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
@@ -2936,13 +3067,17 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache cache initialized node if key should be kept", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -2972,7 +3107,7 @@ describe("Graph.uncache", () => {
         expect(graph.hasInitializedCache(node.key)).toBe(true);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
@@ -2997,13 +3132,17 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache cache initialized node if key in use", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -3033,7 +3172,7 @@ describe("Graph.uncache", () => {
         expect(graph.hasInitializedCache(node.key)).toBe(true);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(node.key);
@@ -3054,13 +3193,17 @@ describe("Graph.uncache", () => {
     });
 
     it("should uncache cache initialized node accessed earliest", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imageByKeyFullSpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
 
@@ -3114,7 +3257,7 @@ describe("Graph.uncache", () => {
         expect(graph.hasInitializedCache(node2.key)).toBe(true);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-        new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode1.key);
@@ -3150,7 +3293,7 @@ describe("Graph.uncache", () => {
     });
 
     it("should uncache sequence", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3190,7 +3333,7 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache sequence if specified to keep", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3230,7 +3373,7 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache sequence if number below threshold", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3270,7 +3413,7 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache sequence accessed last", () => {
-        const api: API = new API(undefined);
+        const api: API = new API(new DataProvider({ clientId: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3338,13 +3481,17 @@ describe("Graph.uncache", () => {
     });
 
     it("should uncache node by uncaching tile", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -3397,13 +3544,17 @@ describe("Graph.uncache", () => {
     });
 
     it("should not dispose node by uncaching tile if in specified sequence", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -3458,13 +3609,17 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache node by uncaching tile when number below threshold", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -3518,13 +3673,17 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache and dispose node by uncaching tile when tile is related to kept key", () => {
-        const api: API = new API(undefined);
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" },
+            geometryProvider);
+        const api: API = new API(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(calculator, "encodeH").and.returnValue(h);
-        spyOn(calculator, "encodeHs").and.returnValue([h]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
