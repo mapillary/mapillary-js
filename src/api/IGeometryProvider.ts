@@ -1,6 +1,27 @@
 import ILatLon from "./interfaces/ILatLon";
 
+export interface ICellNeighbors {
+    e: string;
+    n: string;
+    ne: string;
+    nw: string;
+    s: string;
+    se: string;
+    sw: string;
+    w: string;
+}
+
+export interface ICellCorners {
+    ne: ILatLon;
+    nw: ILatLon;
+    se: ILatLon;
+    sw: ILatLon;
+}
+
 export interface IGeometryProvider {
+    getNeighbors(cellId: string): ICellNeighbors;
+    getCorners(cellId: string): ICellCorners;
+
     /**
      * Convert a geodetic bounding box to the  the minimum set
      * of cell ids containing the bounding box.
@@ -22,8 +43,7 @@ export interface IGeometryProvider {
      * @param {ILatLon} latlon - Latitude and longitude to convert.
      * @returns {string} Cell for the latitude, longitude.
      */
-    latLonToCellId(latLon: ILatLon): string;
-
+    latLonToCellId(latLon: ILatLon, relativeLevel?: number): string;
 
     /**
      * Convert a geodetic square to cell ids.
@@ -36,7 +56,7 @@ export interface IGeometryProvider {
      *
      * @returns {string} Cells reachable within the threshold.
      */
-    latLonToCellIds(latLon: ILatLon, threshold: number): string[];
+    latLonToCellIds(latLon: ILatLon, threshold: number, relativeLevel?: number): string[];
 }
 
 export default IGeometryProvider;

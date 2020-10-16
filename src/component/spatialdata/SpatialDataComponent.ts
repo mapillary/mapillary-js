@@ -1,5 +1,3 @@
-import * as geohash from "latlon-geohash";
-
 import {
     combineLatest as observableCombineLatest,
     empty as observableEmpty,
@@ -60,6 +58,7 @@ import PlayService from "../../viewer/PlayService";
 import State from "../../state/State";
 import CameraVisualizationMode from "./CameraVisualizationMode";
 import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
+import { ICellNeighbors, ICellCorners } from "../../api/IGeometryProvider";
 
 export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     public static componentName: string = "spatialData";
@@ -148,7 +147,8 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     return this._navigator.stateService.currentNode$.pipe(
                         map(
                             (node: Node): string => {
-                                return geohash.encode(node.latLon.lat, node.latLon.lon, 8);
+                                return this._navigator.api.dataProvider.geometry
+                                    .latLonToCellId(node.latLon, 1);
                             }),
                         distinctUntilChanged());
                 }),
@@ -200,7 +200,10 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         }
 
                         return sequencePlay ?
-                            observableOf([hash, geohash.neighbours(hash)[<keyof geohash.Neighbours>direction]]) :
+                            observableOf([
+                                hash,
+                                this._navigator.api.dataProvider.geometry
+                                    .getNeighbors(hash)[<keyof ICellNeighbors>direction]]) :
                             observableOf(this._computeTiles(hash, direction));
                     }),
                 publish(),
@@ -471,14 +474,15 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         const neighbours: string[] = [];
 
         for (const hash of currentHashes) {
-            const hashNeighbours: geohash.Neighbours = geohash.neighbours(hash);
+            const hashNeighbours: ICellNeighbors =
+                this._navigator.api.dataProvider.geometry.getNeighbors(hash);
 
             for (const direction in hashNeighbours) {
                 if (!hashNeighbours.hasOwnProperty(direction)) {
                     continue;
                 }
 
-                neighbours.push(hashNeighbours[<keyof geohash.Neighbours>direction]);
+                neighbours.push(hashNeighbours[<keyof ICellNeighbors>direction]);
             }
         }
 
@@ -504,19 +508,20 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     }
 
     private _computeTileBBox(hash: string, reference: ILatLonAlt): number[][] {
-        const bounds: geohash.Bounds = geohash.bounds(hash);
+        const corners: ICellCorners =
+            this._navigator.api.dataProvider.geometry.getCorners(hash);
 
         const sw: number[] = this._geoCoords.geodeticToEnu(
-            bounds.sw.lat,
-            bounds.sw.lon,
+            corners.sw.lat,
+            corners.sw.lon,
             0,
             reference.lat,
             reference.lon,
             reference.alt);
 
         const ne: number[] = this._geoCoords.geodeticToEnu(
-            bounds.ne.lat,
-            bounds.ne.lon,
+            corners.ne.lat,
+            corners.ne.lon,
             0,
             reference.lat,
             reference.lon,
@@ -572,14 +577,15 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             return;
         }
 
-        const neighbours: geohash.Neighbours = geohash.neighbours(currentHash);
+        const neighbours: ICellNeighbors =
+            this._navigator.api.dataProvider.geometry.getNeighbors(currentHash);
         const directionIndex: number = directions.indexOf(direction);
         const length: number = directions.length;
 
         const directionNeighbours: string[] = [
-            neighbours[<keyof geohash.Neighbours>directions[this._modulo((directionIndex - 1), length)]],
-            neighbours[<keyof geohash.Neighbours>direction],
-            neighbours[<keyof geohash.Neighbours>directions[this._modulo((directionIndex + 1), length)]],
+            neighbours[<keyof ICellNeighbors>directions[this._modulo((directionIndex - 1), length)]],
+            neighbours[<keyof ICellNeighbors>direction],
+            neighbours[<keyof ICellNeighbors>directions[this._modulo((directionIndex + 1), length)]],
         ];
 
         for (let directionNeighbour of directionNeighbours) {

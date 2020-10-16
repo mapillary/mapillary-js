@@ -1,5 +1,3 @@
-import * as geohash from "latlon-geohash";
-
 import {
     empty as observableEmpty,
     from as observableFrom,
@@ -33,6 +31,7 @@ import {
 import { CameraProjection } from "../../api/interfaces/CameraProjection";
 import { IDataProvider } from "../../api/interfaces/interfaces";
 import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
+import { ICellCorners } from "../../api/IGeometryProvider";
 
 export type NodeData = {
     alt: number;
@@ -190,11 +189,10 @@ export class SpatialDataCache {
             return this._cachingTiles$[hash];
         }
 
-        const bounds: geohash.Bounds = geohash.bounds(hash);
-        const sw: ILatLon = { lat: bounds.sw.lat, lon: bounds.sw.lon };
-        const ne: ILatLon = { lat: bounds.ne.lat, lon: bounds.ne.lon };
+        const corners: ICellCorners =
+            this._provider.geometry.getCorners(hash);
 
-        this._cachingTiles$[hash] = this._graphService.cacheBoundingBox$(sw, ne).pipe(
+        this._cachingTiles$[hash] = this._graphService.cacheBoundingBox$(corners.sw, corners.ne).pipe(
             catchError(
                 (error: Error): Observable<Node[]> => {
                     console.error(error);

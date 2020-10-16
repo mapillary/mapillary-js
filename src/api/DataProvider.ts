@@ -149,6 +149,11 @@ export class DataProvider extends DataProviderBase {
         this._geometryProvider = !!geometryProvider ?
             geometryProvider : new GeohashGeometryProvider();
 
+        if (!(this._geometryProvider instanceof GeohashGeometryProvider)) {
+            throw new MapillaryError(
+                "The falcor data provider requires the geohash geometry provider.");
+        }
+
         this._clientId = options.clientId;
         this._urls = new DataProviderUrls(options);
 

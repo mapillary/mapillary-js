@@ -1,12 +1,16 @@
 import * as geohash from "latlon-geohash";
 
-import IGeometryProvider from "./IGeometryProvider";
+import IGeometryProvider, {
+    ICellNeighbors,
+    ICellCorners,
+} from "./IGeometryProvider";
 import ILatLon from "./interfaces/ILatLon";
 import GeoCoords from "../geo/GeoCoords";
 import MapillaryError from "../error/MapillaryError";
 
 export class GeohashGeometryProvider implements IGeometryProvider {
     private _geoCoords: GeoCoords;
+    private _level: number;
 
     /**
      * Create a new geohash geometry provider instance.
@@ -15,6 +19,7 @@ export class GeohashGeometryProvider implements IGeometryProvider {
      */
     constructor(geoCoords?: GeoCoords) {
         this._geoCoords = geoCoords != null ? geoCoords : new GeoCoords();
+        this._level = 7;
     }
 
     /**
@@ -28,7 +33,6 @@ export class GeohashGeometryProvider implements IGeometryProvider {
      *
      * @param {ILatLon} sw - South west corner of bounding box.
      * @param {ILatLon} ne - North east corner of bounding box.
-     * @param {number} precision - Precision of the encoding.
      *
      * @returns {string} The geohash tiles containing the bounding box.
      */
@@ -56,6 +60,19 @@ export class GeohashGeometryProvider implements IGeometryProvider {
             threshold);
     }
 
+    public getCorners(cellId: string): ICellCorners {
+        const bounds: geohash.Bounds = geohash.bounds(cellId);
+        const nw: ILatLon = { lat: bounds.ne.lat, lon: bounds.sw.lon };
+        const ne: ILatLon = { lat: bounds.ne.lat, lon: bounds.ne.lon };
+        const se: ILatLon = { lat: bounds.ne.lat, lon: bounds.sw.lon };
+        const sw: ILatLon = { lat: bounds.sw.lat, lon: bounds.sw.lon };
+        return { nw, ne, se, sw };
+    }
+
+    public getNeighbors(cellId: string): ICellNeighbors {
+        return geohash.neighbours(cellId);
+    }
+
     /**
      * Encode the geohash tile for geodetic coordinates.
      *
@@ -64,8 +81,14 @@ export class GeohashGeometryProvider implements IGeometryProvider {
      *
      * @returns {string} The geohash tile for the lat, lon and precision.
      */
-    public latLonToCellId(latLon: ILatLon): string {
-        return geohash.encode(latLon.lat, latLon.lon, 7);
+    public latLonToCellId(
+        latLon: ILatLon,
+        relativeLevel: number = 0): string {
+
+        return geohash.encode(
+            latLon.lat,
+            latLon.lon,
+            this._level + relativeLevel);
     }
 
     /**
@@ -78,8 +101,13 @@ export class GeohashGeometryProvider implements IGeometryProvider {
      *
      * @returns {string} The geohash tiles reachable within the threshold.
      */
-    public latLonToCellIds(latLon: ILatLon, threshold: number): string[] {
-        const h: string = geohash.encode(latLon.lat, latLon.lon, 7);
+    public latLonToCellIds(
+        latLon: ILatLon,
+        threshold: number,
+        relativeLevel: number = 0): string[] {
+
+        const h: string = geohash.encode(
+            latLon.lat, latLon.lon, this._level + relativeLevel);
         const bounds: geohash.Bounds = geohash.bounds(h);
         const ne: geohash.Point = bounds.ne;
         const sw: geohash.Point = bounds.sw;

@@ -1,5 +1,3 @@
-import * as geohash from "latlon-geohash";
-
 import { Subject } from "rxjs";
 
 import { SpatialDataCache } from "../../../src/Component";
@@ -13,6 +11,8 @@ import NodeHelper from "../../helper/NodeHelper.spec";
 import IDataProvider from "../../../src/api/interfaces/IDataProvider";
 import DataProvider from "../../../src/api/DataProvider";
 import IClusterReconstruction from "../../../src/api/interfaces/IClusterReconstruction";
+import IGeometryProvider from "../../../src/api/IGeometryProvider";
+import GeohashGeometryProvider from "../../../src/api/GeohashGeometryProvider";
 
 describe("SpatialDataCache.ctor", () => {
     it("should be defined", () => {
@@ -26,29 +26,34 @@ describe("SpatialDataCache.ctor", () => {
 });
 
 describe("SpatialDataCache.cacheTile$", () => {
-    it("should call cache bouding box", () => {
+    it("should call cache bounding box", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const cacheBoundingBox$: Subject<Node[]> = new Subject<Node[]>();
         const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
         cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
 
-        const boundsSpy: jasmine.Spy = spyOn(geohash, "bounds");
-        boundsSpy.and.returnValue({
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+
+        const getCornersSpy: jasmine.Spy = spyOn(geometryProvider, "getCorners");
+        getCornersSpy.and.returnValue({
+            nw: { lat: 1, lon: 0 },
             ne: { lat: 1, lon: 2 },
-            sw: { lat: -1, lon: -2 },
+            se: { lat: -1, lon: 2 },
+            sw: { lat: -1, lon: 0 },
         });
 
+        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" }, geometryProvider);
         const cache: SpatialDataCache = new SpatialDataCache(
-            graphService, undefined);
+            graphService, dataProvider);
 
         const hash: string = "12345678";
         cache.cacheTile$(hash);
 
-        expect(boundsSpy.calls.count()).toBe(1);
+        expect(getCornersSpy.calls.count()).toBe(1);
 
         expect(cacheBoundingBoxSpy.calls.count()).toBe(1);
         expect(cacheBoundingBoxSpy.calls.first().args[0].lat).toBe(-1);
-        expect(cacheBoundingBoxSpy.calls.first().args[0].lon).toBe(-2);
+        expect(cacheBoundingBoxSpy.calls.first().args[0].lon).toBe(0);
         expect(cacheBoundingBoxSpy.calls.first().args[1].lat).toBe(1);
         expect(cacheBoundingBoxSpy.calls.first().args[1].lon).toBe(2);
     });
@@ -68,11 +73,19 @@ describe("SpatialDataCache.cacheTile$", () => {
         const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
         cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
 
-        const boundsSpy: jasmine.Spy = spyOn(geohash, "bounds");
-        boundsSpy.and.returnValue({ ne: { lat: 1, lon: 2 }, sw: { lat: -1, lon: -2 } });
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
 
+        const getCornersSpy: jasmine.Spy = spyOn(geometryProvider, "getCorners");
+        getCornersSpy.and.returnValue({
+            nw: { lat: 1, lon: 0 },
+            ne: { lat: 1, lon: 2 },
+            se: { lat: -1, lon: 2 },
+            sw: { lat: -1, lon: 0 },
+        });
+
+        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" }, geometryProvider);
         const cache: SpatialDataCache = new SpatialDataCache(
-            graphService, undefined);
+            graphService, dataProvider);
 
         const hash: string = "00000000";
 
@@ -89,11 +102,19 @@ describe("SpatialDataCache.cacheTile$", () => {
         const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
         cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
 
-        const boundsSpy: jasmine.Spy = spyOn(geohash, "bounds");
-        boundsSpy.and.returnValue({ ne: { lat: 1, lon: 2 }, sw: { lat: -1, lon: -2 } });
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
 
+        const getCornersSpy: jasmine.Spy = spyOn(geometryProvider, "getCorners");
+        getCornersSpy.and.returnValue({
+            nw: { lat: 1, lon: 0 },
+            ne: { lat: 1, lon: 2 },
+            se: { lat: -1, lon: 2 },
+            sw: { lat: -1, lon: 0 },
+        });
+
+        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" }, geometryProvider);
         const cache: SpatialDataCache = new SpatialDataCache(
-            graphService, undefined);
+            graphService, dataProvider);
 
         const hash: string = "00000000";
 
@@ -119,11 +140,19 @@ describe("SpatialDataCache.cacheTile$", () => {
         const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
         cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
 
-        const boundsSpy: jasmine.Spy = spyOn(geohash, "bounds");
-        boundsSpy.and.returnValue({ ne: { lat: 1, lon: 2 }, sw: { lat: -1, lon: -2 } });
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
 
+        const getCornersSpy: jasmine.Spy = spyOn(geometryProvider, "getCorners");
+        getCornersSpy.and.returnValue({
+            nw: { lat: 1, lon: 0 },
+            ne: { lat: 1, lon: 2 },
+            se: { lat: -1, lon: 2 },
+            sw: { lat: -1, lon: 0 },
+        });
+
+        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" }, geometryProvider);
         const cache: SpatialDataCache = new SpatialDataCache(
-            graphService, undefined);
+            graphService, dataProvider);
 
         const hash: string = "00000000";
 
@@ -165,9 +194,6 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
             cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
 
-            const boundsSpy: jasmine.Spy = spyOn(geohash, "bounds");
-            boundsSpy.and.returnValue({ ne: { lat: 1, lon: 2 }, sw: { lat: -1, lon: -2 } });
-
             cache.cacheTile$(hash)
                 .subscribe();
 
@@ -187,7 +213,18 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             },
         };
 
-        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" });
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+
+        const getCornersSpy: jasmine.Spy = spyOn(geometryProvider, "getCorners");
+        getCornersSpy.and.returnValue({
+            nw: { lat: 1, lon: 0 },
+            ne: { lat: 1, lon: 2 },
+            se: { lat: -1, lon: 2 },
+            sw: { lat: -1, lon: 0 },
+        });
+
+        const dataProvider: IDataProvider = new DataProvider(
+            { clientId: "cid" }, geometryProvider);
         spyOn(dataProvider, "getClusterReconstruction").and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
@@ -225,7 +262,17 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             },
         };
 
-        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" });
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+
+        const getCornersSpy: jasmine.Spy = spyOn(geometryProvider, "getCorners");
+        getCornersSpy.and.returnValue({
+            nw: { lat: 1, lon: 0 },
+            ne: { lat: 1, lon: 2 },
+            se: { lat: -1, lon: 2 },
+            sw: { lat: -1, lon: 0 },
+        });
+
+        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" }, geometryProvider);
         spyOn(dataProvider, "getClusterReconstruction").and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
@@ -258,7 +305,17 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             then: (): void => { /*noop*/ },
         };
 
-        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" });
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+
+        const getCornersSpy: jasmine.Spy = spyOn(geometryProvider, "getCorners");
+        getCornersSpy.and.returnValue({
+            nw: { lat: 1, lon: 0 },
+            ne: { lat: 1, lon: 2 },
+            se: { lat: -1, lon: 2 },
+            sw: { lat: -1, lon: 0 },
+        });
+
+        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" }, geometryProvider);
         const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getClusterReconstruction");
         clusterSpy.and.returnValue(promise);
 
@@ -292,7 +349,17 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             },
         };
 
-        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" });
+        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
+
+        const getCornersSpy: jasmine.Spy = spyOn(geometryProvider, "getCorners");
+        getCornersSpy.and.returnValue({
+            nw: { lat: 1, lon: 0 },
+            ne: { lat: 1, lon: 2 },
+            se: { lat: -1, lon: 2 },
+            sw: { lat: -1, lon: 0 },
+        });
+
+        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" }, geometryProvider);
         const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getClusterReconstruction");
         clusterSpy.and.returnValue(promise);
 
