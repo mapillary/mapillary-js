@@ -1,5 +1,5 @@
 import IDataProviderOptions from "../../src/api/IDataProviderOptions";
-import { DataProviderUrls } from "../../src/api/DataProvider";
+import { DataProviderUrls } from "../../src/api/FalcorDataProvider";
 
 describe("DataProviderUrls.ctor", () => {
     it("should set all option properties", () => {

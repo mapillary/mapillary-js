@@ -1,10 +1,10 @@
-import {of as observableOf, Observable, Subject} from "rxjs";
+import { of as observableOf, Subject } from "rxjs";
 
-import {take, first, skip} from "rxjs/operators";
+import { take, first, skip } from "rxjs/operators";
 
-import {NodeHelper} from "../helper/NodeHelper.spec";
+import { NodeHelper } from "../helper/NodeHelper.spec";
 
-import {ICoreNode} from "../../src/API";
+import { ICoreNode } from "../../src/API";
 import {
     Graph,
     GraphMode,
@@ -14,7 +14,6 @@ import {
     Node,
     Sequence,
 } from "../../src/Graph";
-import DataProvider from "../../src/api/DataProvider";
 import API from "../../src/api/API";
 
 describe("GraphService.ctor", () => {

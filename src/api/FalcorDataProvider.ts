@@ -111,7 +111,7 @@ export class DataProviderUrls {
  *
  * @classdesc Provides data through API calls.
  */
-export class DataProvider extends DataProviderBase {
+export class FalcorDataProvider extends DataProviderBase {
     private _geometry: IGeometryProvider;
 
     private _urls: DataProviderUrls;
@@ -394,4 +394,4 @@ export class DataProvider extends DataProviderBase {
     }
 }
 
-export default DataProvider;
+export default FalcorDataProvider;

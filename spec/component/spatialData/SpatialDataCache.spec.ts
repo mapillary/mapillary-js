@@ -9,7 +9,7 @@ import {
 import GraphServiceMockCreator from "../../helper/GraphServiceMockCreator.spec";
 import NodeHelper from "../../helper/NodeHelper.spec";
 import IDataProvider from "../../../src/api/interfaces/IDataProvider";
-import DataProvider from "../../../src/api/DataProvider";
+import FalcorDataProvider from "../../../src/api/FalcorDataProvider";
 import IClusterReconstruction from "../../../src/api/interfaces/IClusterReconstruction";
 import IGeometryProvider from "../../../src/api/IGeometryProvider";
 import GeohashGeometryProvider from "../../../src/api/GeohashGeometryProvider";
@@ -42,7 +42,7 @@ describe("SpatialDataCache.cacheTile$", () => {
             sw: { lat: -1, lon: 0 },
         });
 
-        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
         const cache: SpatialDataCache = new SpatialDataCache(
             graphService, dataProvider);
 
@@ -83,7 +83,7 @@ describe("SpatialDataCache.cacheTile$", () => {
             sw: { lat: -1, lon: 0 },
         });
 
-        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
         const cache: SpatialDataCache = new SpatialDataCache(
             graphService, dataProvider);
 
@@ -112,7 +112,7 @@ describe("SpatialDataCache.cacheTile$", () => {
             sw: { lat: -1, lon: 0 },
         });
 
-        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
         const cache: SpatialDataCache = new SpatialDataCache(
             graphService, dataProvider);
 
@@ -150,7 +150,7 @@ describe("SpatialDataCache.cacheTile$", () => {
             sw: { lat: -1, lon: 0 },
         });
 
-        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
         const cache: SpatialDataCache = new SpatialDataCache(
             graphService, dataProvider);
 
@@ -223,7 +223,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             sw: { lat: -1, lon: 0 },
         });
 
-        const dataProvider: IDataProvider = new DataProvider(
+        const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientId: "cid" }, geometryProvider);
         spyOn(dataProvider, "getClusterReconstruction").and.returnValue(promise);
 
@@ -272,7 +272,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             sw: { lat: -1, lon: 0 },
         });
 
-        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
         spyOn(dataProvider, "getClusterReconstruction").and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
@@ -315,7 +315,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             sw: { lat: -1, lon: 0 },
         });
 
-        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
         const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getClusterReconstruction");
         clusterSpy.and.returnValue(promise);
 
@@ -359,7 +359,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             sw: { lat: -1, lon: 0 },
         });
 
-        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
         const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getClusterReconstruction");
         clusterSpy.and.returnValue(promise);
 

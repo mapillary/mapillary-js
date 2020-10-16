@@ -7,7 +7,7 @@ import {
 import { ImageSize } from "../../src/Viewer";
 import { MockCreator } from "../helper/MockCreator.spec";
 import { IDataProvider } from "../../src/API";
-import DataProvider from "../../src/api/DataProvider";
+import FalcorDataProvider from "../../src/api/FalcorDataProvider";
 
 describe("NodeCache.ctor", () => {
     it("should create a node cache", () => {
@@ -219,7 +219,7 @@ describe("NodeCache.cacheImage$", () => {
             },
         };
 
-        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" });
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" });
         spyOn(dataProvider, "getImage").and.returnValue(promise);
 
         const imageMock: HTMLImageElement = new Image();
@@ -253,7 +253,7 @@ describe("NodeCache.cacheImage$", () => {
             },
         };
 
-        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" });
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" });
         spyOn(dataProvider, "getImage").and.returnValue(promise);
 
         const imageMock: HTMLImageElement = new Image();
@@ -283,7 +283,7 @@ describe("NodeCache.cacheImage$", () => {
             },
         };
 
-        const dataProvider: IDataProvider = new DataProvider({ clientId: "cid" });
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" });
         spyOn(dataProvider, "getImage").and.returnValue(promise);
 
         const imageMock: HTMLImageElement = new Image();

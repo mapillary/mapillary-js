@@ -27,7 +27,7 @@ import {
 } from "../Viewer";
 import { PanService } from "./PanService";
 import API from "../api/API";
-import DataProvider from "../api/DataProvider";
+import FalcorDataProvider from "../api/FalcorDataProvider";
 
 export class Navigator {
     private _api: API;
@@ -62,7 +62,7 @@ export class Navigator {
         if (!!api) {
             this._api = api;
         } else if (typeof options.apiClient === 'string') {
-            this._api = new API(new DataProvider({
+            this._api = new API(new FalcorDataProvider({
                 clientId: options.apiClient,
                 token: options.token,
             }));

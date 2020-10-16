@@ -34,9 +34,6 @@ import { TransitionMode } from "../State";
 import { IPointOfView } from "./interfaces/interfaces";
 import RenderCamera from "../render/RenderCamera";
 import ILatLonAlt from "../geo/interfaces/ILatLonAlt";
-import API from "../api/API";
-import { IDataProvider } from "../api/interfaces/interfaces";
-import DataProvider from "../api/DataProvider";
 
 /**
  * @class Viewer
