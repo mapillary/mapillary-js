@@ -57,7 +57,7 @@ export type NodeData = {
 
 export class SpatialDataCache {
     private _graphService: GraphService;
-    private _provider: IDataProvider;
+    private _data: IDataProvider;
 
     private _cacheRequests: { [hash: string]: Function[] };
     private _tiles: { [hash: string]: NodeData[] };
@@ -71,7 +71,7 @@ export class SpatialDataCache {
 
     constructor(graphService: GraphService, provider: IDataProvider) {
         this._graphService = graphService;
-        this._provider = provider;
+        this._data = provider;
 
         this._tiles = {};
         this._cacheRequests = {};
@@ -190,7 +190,7 @@ export class SpatialDataCache {
         }
 
         const corners: ICellCorners =
-            this._provider.geometry.getCorners(hash);
+            this._data.geometry.getCorners(hash);
 
         this._cachingTiles$[hash] = this._graphService.cacheBoundingBox$(corners.sw, corners.ne).pipe(
             catchError(
@@ -356,7 +356,7 @@ export class SpatialDataCache {
     private _getClusterReconstruction$(key: string, abort: Promise<void>): Observable<IClusterReconstruction> {
         return Observable.create(
             (subscriber: Subscriber<IClusterReconstruction>): void => {
-                this._provider.getClusterReconstruction(key, abort)
+                this._data.getClusterReconstruction(key, abort)
                     .then(
                         (reconstruction: IClusterReconstruction): void => {
                             subscriber.next(reconstruction);

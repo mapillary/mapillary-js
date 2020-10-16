@@ -107,7 +107,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._imageTileLoader = new ImageTileLoader(navigator.api.dataProvider);
+        this._imageTileLoader = new ImageTileLoader(navigator.api.data);
         this._roiCalculator = new RegionOfInterestCalculator();
 
         this._rendererOperation$ = new Subject<IImagePlaneGLRendererOperation>();

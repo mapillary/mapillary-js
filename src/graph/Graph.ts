@@ -260,7 +260,7 @@ export class Graph {
      * nodes in the bounding box.
      */
     public cacheBoundingBox$(sw: ILatLon, ne: ILatLon): Observable<Node[]> {
-        const cacheTiles$: Observable<Graph>[] = this._api.dataProvider.geometry.bboxToCellIds(sw, ne)
+        const cacheTiles$: Observable<Graph>[] = this._api.data.geometry.bboxToCellIds(sw, ne)
             .filter(
                 (h: string): boolean => {
                     return !(h in this._cachedTiles);
@@ -441,7 +441,7 @@ export class Graph {
                         let node: Node = new Node(fn);
                         this._makeFull(node, fn);
 
-                        let h: string = this._api.dataProvider.geometry.latLonToCellId(node.originalLatLon);
+                        let h: string = this._api.data.geometry.latLonToCellId(node.originalLatLon);
                         this._preStore(h, node);
                         this._setNode(node);
 
@@ -597,7 +597,7 @@ export class Graph {
                                         const node: Node = new Node(fn);
                                         this._makeFull(node, fn);
 
-                                        const h: string = this._api.dataProvider.geometry.latLonToCellId(node.originalLatLon);
+                                        const h: string = this._api.data.geometry.latLonToCellId(node.originalLatLon);
                                         this._preStore(h, node);
                                         this._setNode(node);
                                     }
@@ -893,7 +893,7 @@ export class Graph {
         }
 
         const node: Node = this.getNode(key);
-        const provider: IDataProvider = this._api.dataProvider;
+        const provider: IDataProvider = this._api.data;
         node.initializeCache(new NodeCache(provider));
 
         const accessed: number = new Date().getTime();
@@ -1122,7 +1122,7 @@ export class Graph {
 
         if (!(key in this._requiredNodeTiles)) {
             let node: Node = this.getNode(key);
-            nodeTiles.cache = this._api.dataProvider.geometry
+            nodeTiles.cache = this._api.data.geometry
                 .latLonToCellIds(
                     node.latLon,
                     this._tileThreshold)
@@ -1230,7 +1230,7 @@ export class Graph {
         for (const node of nodes) {
             this._nodes[node.key] = node;
 
-            const h: string = this._api.dataProvider.geometry.latLonToCellId(node.originalLatLon);
+            const h: string = this._api.data.geometry.latLonToCellId(node.originalLatLon);
             this._preStore(h, node);
         }
 
@@ -1295,7 +1295,7 @@ export class Graph {
 
             let node: Node = this._nodes[key];
 
-            let nodeHs: string[] = this._api.dataProvider.geometry
+            let nodeHs: string[] = this._api.data.geometry
                 .latLonToCellIds(node.latLon, this._tileThreshold);
 
             for (let nodeH of nodeHs) {

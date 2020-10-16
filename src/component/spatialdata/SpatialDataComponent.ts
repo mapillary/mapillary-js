@@ -87,7 +87,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
         this._cache = new SpatialDataCache(
             navigator.graphService,
-            navigator.api.dataProvider);
+            navigator.api.data);
         this._scene = new SpatialDataScene(this._getDefaultConfiguration());
         this._viewportCoords = new ViewportCoords();
         this._geoCoords = new GeoCoords();
@@ -147,7 +147,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     return this._navigator.stateService.currentNode$.pipe(
                         map(
                             (node: Node): string => {
-                                return this._navigator.api.dataProvider.geometry
+                                return this._navigator.api.data.geometry
                                     .latLonToCellId(node.latLon, 1);
                             }),
                         distinctUntilChanged());
@@ -202,7 +202,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         return sequencePlay ?
                             observableOf([
                                 hash,
-                                this._navigator.api.dataProvider.geometry
+                                this._navigator.api.data.geometry
                                     .getNeighbors(hash)[<keyof ICellNeighbors>direction]]) :
                             observableOf(this._computeTiles(hash, direction));
                     }),
@@ -475,7 +475,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
         for (const hash of currentHashes) {
             const hashNeighbours: ICellNeighbors =
-                this._navigator.api.dataProvider.geometry.getNeighbors(hash);
+                this._navigator.api.data.geometry.getNeighbors(hash);
 
             for (const direction in hashNeighbours) {
                 if (!hashNeighbours.hasOwnProperty(direction)) {
@@ -509,7 +509,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
     private _computeTileBBox(hash: string, reference: ILatLonAlt): number[][] {
         const corners: ICellCorners =
-            this._navigator.api.dataProvider.geometry.getCorners(hash);
+            this._navigator.api.data.geometry.getCorners(hash);
 
         const sw: number[] = this._geoCoords.geodeticToEnu(
             corners.sw.lat,
@@ -578,7 +578,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         }
 
         const neighbours: ICellNeighbors =
-            this._navigator.api.dataProvider.geometry.getNeighbors(currentHash);
+            this._navigator.api.data.geometry.getNeighbors(currentHash);
         const directionIndex: number = directions.indexOf(direction);
         const length: number = directions.length;
 

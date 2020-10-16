@@ -199,7 +199,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
     private _getImageSrc$(key: string, imageSize: ImageSize): Observable<string> {
         return Observable.create(
             (subscriber: Subscriber<string>): void => {
-                this._navigator.api.dataProvider.getImage(key, imageSize)
+                this._navigator.api.data.getImage(key, imageSize)
                     .then(
                         (buffer: ArrayBuffer): void => {
                             const image: HTMLImageElement = new Image();

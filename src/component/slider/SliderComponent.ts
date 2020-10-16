@@ -157,7 +157,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
         this._domRenderer = new SliderDOMRenderer(container);
-        this._imageTileLoader = new ImageTileLoader(navigator.api.dataProvider);
+        this._imageTileLoader = new ImageTileLoader(navigator.api.data);
         this._roiCalculator = new RegionOfInterestCalculator();
         this._spatial = new Spatial();
 

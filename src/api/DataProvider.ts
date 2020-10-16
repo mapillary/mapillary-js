@@ -112,9 +112,8 @@ export class DataProviderUrls {
  * @classdesc Provides data through API calls.
  */
 export class DataProvider extends DataProviderBase {
-    private _geometryProvider: IGeometryProvider;
+    private _geometry: IGeometryProvider;
 
-    private _clientId: string;
     private _urls: DataProviderUrls;
 
     private _model: falcor.Model;
@@ -137,24 +136,23 @@ export class DataProvider extends DataProviderBase {
      * Create a new data provider instance.
      *
      * @param {IDataProviderOptions} options - Options struct.
-     * @param {IGeometryProvider} [geometryProvider] - Optional geometry
+     * @param {IGeometryProvider} [geometry] - Optional geometry
      * provider instance.
      */
     constructor(
         options: IDataProviderOptions,
-        geometryProvider?: IGeometryProvider) {
+        geometry?: IGeometryProvider) {
 
         super();
 
-        this._geometryProvider = !!geometryProvider ?
-            geometryProvider : new GeohashGeometryProvider();
+        this._geometry = !!geometry ?
+            geometry : new GeohashGeometryProvider();
 
-        if (!(this._geometryProvider instanceof GeohashGeometryProvider)) {
+        if (!(this._geometry instanceof GeohashGeometryProvider)) {
             throw new MapillaryError(
                 "The falcor data provider requires the geohash geometry provider.");
         }
 
-        this._clientId = options.clientId;
         this._urls = new DataProviderUrls(options);
 
         this._modelCreator = options.creator != null ?
@@ -215,12 +213,8 @@ export class DataProvider extends DataProviderBase {
         ];
     }
 
-    public get clientId(): string {
-        return this._clientId;
-    }
-
     public get geometry(): IGeometryProvider {
-        return this._geometryProvider;
+        return this._geometry;
     }
 
     public getCoreImages(cellIds: string[]):
