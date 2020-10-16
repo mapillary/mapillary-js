@@ -3,7 +3,7 @@ import * as geohash from "latlon-geohash";
 import IGeometryProvider, {
     ICellNeighbors,
     ICellCorners,
-} from "./IGeometryProvider";
+} from "./interfaces/IGeometryProvider";
 import ILatLon from "./interfaces/ILatLon";
 import GeoCoords from "../geo/GeoCoords";
 import MapillaryError from "../error/MapillaryError";

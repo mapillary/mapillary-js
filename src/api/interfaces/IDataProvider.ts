@@ -4,7 +4,7 @@ import ICoreNode from "./ICoreNode";
 import ISequence from "./ISequence";
 import IMesh from "./IMesh";
 import IClusterReconstruction from "./IClusterReconstruction";
-import IGeometryProvider from "../IGeometryProvider";
+import IGeometryProvider from "./IGeometryProvider";
 
 /**
  * Interface that describes the data provider functionality.

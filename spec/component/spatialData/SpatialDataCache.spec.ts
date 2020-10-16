@@ -11,7 +11,7 @@ import NodeHelper from "../../helper/NodeHelper.spec";
 import IDataProvider from "../../../src/api/interfaces/IDataProvider";
 import FalcorDataProvider from "../../../src/api/FalcorDataProvider";
 import IClusterReconstruction from "../../../src/api/interfaces/IClusterReconstruction";
-import IGeometryProvider from "../../../src/api/IGeometryProvider";
+import IGeometryProvider from "../../../src/api/interfaces/IGeometryProvider";
 import GeohashGeometryProvider from "../../../src/api/GeohashGeometryProvider";
 
 describe("SpatialDataCache.ctor", () => {

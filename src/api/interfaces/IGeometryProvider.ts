@@ -1,4 +1,4 @@
-import ILatLon from "./interfaces/ILatLon";
+import ILatLon from "./ILatLon";
 
 export interface ICellNeighbors {
     e: string;

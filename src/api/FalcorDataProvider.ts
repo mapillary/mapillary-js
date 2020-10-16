@@ -11,8 +11,8 @@ import IFullNode from "./interfaces/IFullNode";
 import ISequence from "./interfaces/ISequence";
 import IClusterReconstruction from "./interfaces/IClusterReconstruction";
 import DataProviderBase from "./DataProviderBase";
-import IDataProviderOptions from "./IDataProviderOptions";
-import IGeometryProvider from "./IGeometryProvider";
+import IDataProviderOptions from "./interfaces/IDataProviderOptions";
+import IGeometryProvider from "./interfaces/IGeometryProvider";
 import GeohashGeometryProvider from "./GeohashGeometryProvider";
 
 interface IImageByKey<T> {

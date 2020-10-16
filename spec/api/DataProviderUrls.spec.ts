@@ -1,4 +1,4 @@
-import IDataProviderOptions from "../../src/api/IDataProviderOptions";
+import IDataProviderOptions from "../../src/api/interfaces/IDataProviderOptions";
 import { DataProviderUrls } from "../../src/api/FalcorDataProvider";
 
 describe("DataProviderUrls.ctor", () => {

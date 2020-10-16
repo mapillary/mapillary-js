@@ -58,7 +58,7 @@ import PlayService from "../../viewer/PlayService";
 import State from "../../state/State";
 import CameraVisualizationMode from "./CameraVisualizationMode";
 import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
-import { ICellNeighbors, ICellCorners } from "../../api/IGeometryProvider";
+import { ICellNeighbors, ICellCorners } from "../../api/interfaces/IGeometryProvider";
 
 export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     public static componentName: string = "spatialData";

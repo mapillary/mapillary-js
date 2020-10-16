@@ -31,7 +31,7 @@ import {
 import { CameraProjection } from "../../api/interfaces/CameraProjection";
 import { IDataProvider } from "../../api/interfaces/interfaces";
 import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
-import { ICellCorners } from "../../api/IGeometryProvider";
+import { ICellCorners } from "../../api/interfaces/IGeometryProvider";
 
 export type NodeData = {
     alt: number;

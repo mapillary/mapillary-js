@@ -6,7 +6,7 @@ import IFillNode from "./interfaces/IFillNode";
 import IFullNode from "./interfaces/IFullNode";
 import IMesh from "./interfaces/IMesh";
 import ISequence from "./interfaces/ISequence";
-import IGeometryProvider from "./IGeometryProvider";
+import IGeometryProvider from "./interfaces/IGeometryProvider";
 
 export class DataProviderBase implements IDataProvider {
     public get geometry(): IGeometryProvider {
