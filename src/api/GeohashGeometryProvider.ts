@@ -15,7 +15,7 @@ export class GeohashGeometryProvider implements IGeometryProvider {
     /**
      * Create a new geohash geometry provider instance.
      *
-     * @param {GeoCoords} [geoCoords] - Optinoal geo coords instance.
+     * @ignore @param {GeoCoords} [geoCoords] - Optional geo coords instance.
      */
     constructor(geoCoords?: GeoCoords) {
         this._geoCoords = geoCoords != null ? geoCoords : new GeoCoords();
@@ -111,7 +111,7 @@ export class GeohashGeometryProvider implements IGeometryProvider {
         const bounds: geohash.Bounds = geohash.bounds(h);
         const ne: geohash.Point = bounds.ne;
         const sw: geohash.Point = bounds.sw;
-        const neighbours: geohash.Neighbours = geohash.neighbours(h);
+        const neighbours: ICellNeighbors = this.getNeighbors(h);
 
         const bl: number[] = [0, 0, 0];
         const tr: number[] =

@@ -12,8 +12,8 @@ describe("GeohashGeometryProvider.ctor", () => {
     });
 });
 
-describe("GraphCalGeohashGeometryProviderculator.encodeH", () => {
-    it("should call encoder correclty", () => {
+describe("GeohashGeometryProvider.latLonToCellId", () => {
+    it("should call encoder correctly", () => {
         const encodeSpy: jasmine.Spy = spyOn(geohash, "encode");
         encodeSpy.and.returnValue("0,0");
 
