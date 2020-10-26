@@ -7,10 +7,18 @@ import IFullNode from "./interfaces/IFullNode";
 import IMesh from "./interfaces/IMesh";
 import ISequence from "./interfaces/ISequence";
 import IGeometryProvider from "./interfaces/IGeometryProvider";
+import GeometryProviderBase from "./GeometryProviderBase";
 
 export class DataProviderBase implements IDataProvider {
+    constructor(protected _geometry: IGeometryProvider) {
+        if (!(this._geometry instanceof GeometryProviderBase)) {
+            throw new MapillaryError(
+                "The data provider requires a geometry provider base instance.");
+        }
+    }
+
     public get geometry(): IGeometryProvider {
-        throw new MapillaryError("Not implemented");
+        return this._geometry;
     }
 
     public getCoreImages(cellIds: string[]):

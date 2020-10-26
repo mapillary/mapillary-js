@@ -1,15 +1,14 @@
 import * as geohash from "latlon-geohash";
 
-import IGeometryProvider, {
+import {
     ICellNeighbors,
     ICellCorners,
 } from "./interfaces/IGeometryProvider";
 import ILatLon from "./interfaces/ILatLon";
 import GeoCoords from "../geo/GeoCoords";
-import MapillaryError from "../error/MapillaryError";
+import GeometryProviderBase from "./GeometryProviderBase";
 
-export class GeohashGeometryProvider implements IGeometryProvider {
-    private _geoCoords: GeoCoords;
+export class GeohashGeometryProvider extends GeometryProviderBase {
     private _level: number;
 
     /**
@@ -18,7 +17,8 @@ export class GeohashGeometryProvider implements IGeometryProvider {
      * @ignore @param {GeoCoords} [geoCoords] - Optional geo coords instance.
      */
     constructor(geoCoords?: GeoCoords) {
-        this._geoCoords = geoCoords != null ? geoCoords : new GeoCoords();
+        super(geoCoords);
+
         this._level = 7;
     }
 
@@ -37,27 +37,7 @@ export class GeohashGeometryProvider implements IGeometryProvider {
      * @returns {string} The geohash tiles containing the bounding box.
      */
     public bboxToCellIds(sw: ILatLon, ne: ILatLon): string[] {
-        if (ne.lat <= sw.lat || ne.lon <= sw.lon) {
-            throw new MapillaryError("North east needs to be top right of south west");
-        }
-
-        const centerLat: number = (sw.lat + ne.lat) / 2;
-        const centerLon: number = (sw.lon + ne.lon) / 2;
-
-        const enu: number[] =
-            this._geoCoords.geodeticToEnu(
-                ne.lat,
-                ne.lon,
-                0,
-                centerLat,
-                centerLon,
-                0);
-
-        const threshold: number = Math.max(enu[0], enu[1]);
-
-        return this.latLonToCellIds(
-            { lat: centerLat, lon: centerLon },
-            threshold);
+        return this._bboxSquareToCellIds(sw, ne);
     }
 
     public getCorners(cellId: string): ICellCorners {
@@ -108,75 +88,23 @@ export class GeohashGeometryProvider implements IGeometryProvider {
 
         const h: string = geohash.encode(
             latLon.lat, latLon.lon, this._level + relativeLevel);
+
         const bounds: geohash.Bounds = geohash.bounds(h);
-        const ne: geohash.Point = bounds.ne;
-        const sw: geohash.Point = bounds.sw;
+        const corners: ICellCorners = {
+            ne: { lat: bounds.ne.lat, lon: bounds.ne.lon },
+            nw: { lat: bounds.ne.lat, lon: bounds.sw.lon },
+            se: { lat: bounds.sw.lat, lon: bounds.ne.lon },
+            sw: { lat: bounds.sw.lat, lon: bounds.sw.lon },
+        };
+
         const neighbours: ICellNeighbors = this.getNeighbors(h);
 
-        const bl: number[] = [0, 0, 0];
-        const tr: number[] =
-            this._geoCoords.geodeticToEnu(
-                ne.lat,
-                ne.lon,
-                0,
-                sw.lat,
-                sw.lon,
-                0);
-
-        const position: number[] =
-            this._geoCoords.geodeticToEnu(
-                latLon.lat,
-                latLon.lon,
-                0,
-                sw.lat,
-                sw.lon,
-                0);
-
-        const left: number = position[0] - bl[0];
-        const right: number = tr[0] - position[0];
-        const bottom: number = position[1] - bl[1];
-        const top: number = tr[1] - position[1];
-
-        const l: boolean = left < threshold;
-        const r: boolean = right < threshold;
-        const b: boolean = bottom < threshold;
-        const t: boolean = top < threshold;
-
-        const hs: string[] = [h];
-
-        if (t) {
-            hs.push(neighbours.n);
-        }
-
-        if (t && l) {
-            hs.push(neighbours.nw);
-        }
-
-        if (l) {
-            hs.push(neighbours.w);
-        }
-
-        if (l && b) {
-            hs.push(neighbours.sw);
-        }
-
-        if (b) {
-            hs.push(neighbours.s);
-        }
-
-        if (b && r) {
-            hs.push(neighbours.se);
-        }
-
-        if (r) {
-            hs.push(neighbours.e);
-        }
-
-        if (r && t) {
-            hs.push(neighbours.ne);
-        }
-
-        return hs;
+        return this._filterNeighbors(
+            latLon,
+            threshold,
+            h,
+            corners,
+            neighbours);
     }
 }
 

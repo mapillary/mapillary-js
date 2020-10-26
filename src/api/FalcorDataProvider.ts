@@ -11,7 +11,7 @@ import IFullNode from "./interfaces/IFullNode";
 import ISequence from "./interfaces/ISequence";
 import IClusterReconstruction from "./interfaces/IClusterReconstruction";
 import DataProviderBase from "./DataProviderBase";
-import IDataProviderOptions from "./interfaces/IDataProviderOptions";
+import IFalcorDataProviderOptions from "./interfaces/IFalcorDataProviderOptions";
 import IGeometryProvider from "./interfaces/IGeometryProvider";
 import GeohashGeometryProvider from "./GeohashGeometryProvider";
 
@@ -43,7 +43,7 @@ export class DataProviderUrls {
     private _origin: string = "mapillary.webgl";
     private _scheme: string = "https";
 
-    constructor(options: IDataProviderOptions) {
+    constructor(options: IFalcorDataProviderOptions) {
         this._clientId = options.clientId;
 
         if (!!options.apiHost) {
@@ -112,8 +112,6 @@ export class DataProviderUrls {
  * @classdesc Provides data through API calls.
  */
 export class FalcorDataProvider extends DataProviderBase {
-    private _geometry: IGeometryProvider;
-
     private _urls: DataProviderUrls;
 
     private _model: falcor.Model;
@@ -135,18 +133,15 @@ export class FalcorDataProvider extends DataProviderBase {
     /**
      * Create a new data provider instance.
      *
-     * @param {IDataProviderOptions} options - Options struct.
+     * @param {IFalcorDataProviderOptions} options - Options struct.
      * @param {IGeometryProvider} [geometry] - Optional geometry
      * provider instance.
      */
     constructor(
-        options: IDataProviderOptions,
+        options: IFalcorDataProviderOptions,
         geometry?: IGeometryProvider) {
 
-        super();
-
-        this._geometry = !!geometry ?
-            geometry : new GeohashGeometryProvider();
+        super(!!geometry ? geometry : new GeohashGeometryProvider());
 
         if (!(this._geometry instanceof GeohashGeometryProvider)) {
             throw new MapillaryError(
@@ -211,10 +206,6 @@ export class FalcorDataProvider extends DataProviderBase {
         this._propertiesUser = [
             "username",
         ];
-    }
-
-    public get geometry(): IGeometryProvider {
-        return this._geometry;
     }
 
     public getCoreImages(cellIds: string[]):

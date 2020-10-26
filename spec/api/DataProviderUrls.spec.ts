@@ -1,9 +1,9 @@
-import IDataProviderOptions from "../../src/api/interfaces/IDataProviderOptions";
+import IFalcorDataProviderOptions from "../../src/api/interfaces/IFalcorDataProviderOptions";
 import { DataProviderUrls } from "../../src/api/FalcorDataProvider";
 
 describe("DataProviderUrls.ctor", () => {
     it("should set all option properties", () => {
-        const options: IDataProviderOptions = {
+        const options: IFalcorDataProviderOptions = {
             apiHost: "test-api",
             clientId: "cid",
             clusterReconstructionHost: "test-cluster",

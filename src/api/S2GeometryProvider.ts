@@ -1,15 +1,14 @@
 import { S2 } from "s2-geometry";
 
-import IGeometryProvider, {
+import {
     ICellNeighbors,
     ICellCorners
 } from "./interfaces/IGeometryProvider";
 import ILatLon from "./interfaces/ILatLon";
-import MapillaryError from "../error/MapillaryError";
 import GeoCoords from "../geo/GeoCoords";
+import GeometryProviderBase from "./GeometryProviderBase";
 
-export class S2GeometryProvider implements IGeometryProvider {
-    private _geoCoords: GeoCoords;
+export class S2GeometryProvider extends GeometryProviderBase {
     private _level: number;
 
     /**
@@ -18,32 +17,13 @@ export class S2GeometryProvider implements IGeometryProvider {
      * @ignore @param {GeoCoords} [geoCoords] - Optional geo coords instance.
      */
     constructor(geoCoords?: GeoCoords) {
-        this._geoCoords = geoCoords != null ? geoCoords : new GeoCoords();
+        super(geoCoords);
+
         this._level = 15;
     }
 
     public bboxToCellIds(sw: ILatLon, ne: ILatLon): string[] {
-        if (ne.lat <= sw.lat || ne.lon <= sw.lon) {
-            throw new MapillaryError("North east needs to be top right of south west");
-        }
-
-        const centerLat: number = (sw.lat + ne.lat) / 2;
-        const centerLon: number = (sw.lon + ne.lon) / 2;
-
-        const enu: number[] =
-            this._geoCoords.geodeticToEnu(
-                ne.lat,
-                ne.lon,
-                0,
-                centerLat,
-                centerLon,
-                0);
-
-        const threshold: number = Math.max(enu[0], enu[1]);
-
-        return this.latLonToCellIds(
-            { lat: centerLat, lon: centerLon },
-            threshold);
+        return this._bboxSquareToCellIds(sw, ne);
     }
 
     public getNeighbors(cellId: string): ICellNeighbors {
@@ -103,74 +83,15 @@ export class S2GeometryProvider implements IGeometryProvider {
             this._level + relativeLevel);
 
         const cellId: string = S2.keyToId(key);
-
         const corners: ICellCorners = this.getCorners(cellId);
         const neighbors: ICellNeighbors = this.getNeighbors(cellId);
 
-        const bl: number[] = [0, 0, 0];
-        const tr: number[] =
-            this._geoCoords.geodeticToEnu(
-                corners.ne.lat,
-                corners.ne.lon,
-                0,
-                corners.sw.lat,
-                corners.sw.lon,
-                0);
-
-        const position: number[] =
-            this._geoCoords.geodeticToEnu(
-                latLon.lat,
-                latLon.lon,
-                0,
-                corners.sw.lat,
-                corners.sw.lon,
-                0);
-
-        const left: number = position[0] - bl[0];
-        const right: number = tr[0] - position[0];
-        const bottom: number = position[1] - bl[1];
-        const top: number = tr[1] - position[1];
-
-        const l: boolean = left < threshold;
-        const r: boolean = right < threshold;
-        const b: boolean = bottom < threshold;
-        const t: boolean = top < threshold;
-
-        const cellIds: string[] = [cellId];
-
-        if (t) {
-            cellIds.push(neighbors.n);
-        }
-
-        if (t && l) {
-            cellIds.push(neighbors.nw);
-        }
-
-        if (l) {
-            cellIds.push(neighbors.w);
-        }
-
-        if (l && b) {
-            cellIds.push(neighbors.sw);
-        }
-
-        if (b) {
-            cellIds.push(neighbors.s);
-        }
-
-        if (b && r) {
-            cellIds.push(neighbors.se);
-        }
-
-        if (r) {
-            cellIds.push(neighbors.e);
-        }
-
-        if (r && t) {
-            cellIds.push(neighbors.ne);
-        }
-
-        return cellIds;
+        return this._filterNeighbors(
+            latLon,
+            threshold,
+            cellId,
+            corners,
+            neighbors);
     }
 
     private _getNeighbors(key: string, level: number): string[] {

@@ -1,11 +1,11 @@
 import ModelCreator from "../ModelCreator";
 
 /**
- * Interface for the options that can be provided to the {@link DataProvider}.
+ * Interface for the options that can be provided to the {@link FalcorDataProvider}.
  *
  * @interface
  */
-export interface IDataProviderOptions {
+export interface IFalcorDataProviderOptions {
     /**
      * API v3 host.
      *
@@ -80,4 +80,4 @@ export interface IDataProviderOptions {
     token?: string;
 }
 
-export default IDataProviderOptions;
+export default IFalcorDataProviderOptions;

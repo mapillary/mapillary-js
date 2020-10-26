@@ -28,6 +28,7 @@ import {
 import { PanService } from "./PanService";
 import API from "../api/API";
 import FalcorDataProvider from "../api/FalcorDataProvider";
+import DataProviderBase from "../api/DataProviderBase";
 
 export class Navigator {
     private _api: API;
@@ -66,10 +67,10 @@ export class Navigator {
                 clientId: options.apiClient,
                 token: options.token,
             }));
-        } else if (options.apiClient instanceof Object) {
+        } else if (options.apiClient instanceof DataProviderBase) {
             this._api = new API(options.apiClient);
         } else {
-            throw new Error(`Invalid type: 'apiClient' must be a String or an object instance implementing the IDataProvder interface.`);
+            throw new Error(`Invalid type: 'apiClient' must be a String or an object instance extending the DataProvderBase class.`);
         }
 
         this._imageLoadingService = imageLoadingService != null ? imageLoadingService : new ImageLoadingService();

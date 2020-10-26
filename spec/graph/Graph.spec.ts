@@ -23,7 +23,8 @@ import {
 } from "../../src/Graph";
 import API from "../../src/api/API";
 import FalcorDataProvider from "../../src/api/FalcorDataProvider";
-import { IGeometryProvider, GeohashGeometryProvider } from "../../src/api/APIExport";
+import IGeometryProvider from "../../src/api/interfaces/IGeometryProvider";
+import GeohashGeometryProvider from "../../src/api/GeohashGeometryProvider";
 
 describe("Graph.ctor", () => {
     it("should create a graph", () => {
