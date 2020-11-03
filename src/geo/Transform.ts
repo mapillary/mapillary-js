@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import {IGPano} from "../API";
+import { IGPano } from "../API";
 import { CameraProjection } from "../api/interfaces/CameraProjection";
 
 /**
@@ -71,8 +71,8 @@ export class Transform {
         this._height = this._getValue(height, keepOrientation ? imageHeight : imageWidth);
 
         this._basicAspect = keepOrientation ?
-             this._width / this._height :
-             this._height / this._width;
+            this._width / this._height :
+            this._height / this._width;
 
         this._basicWidth = keepOrientation ? width : height;
         this._basicHeight = keepOrientation ? height : width;
@@ -265,11 +265,11 @@ export class Transform {
             case 1:
                 return new THREE.Vector3(-rte[1], -rte[5], -rte[9]);
             case 3:
-                return new THREE.Vector3(rte[1],  rte[5],  rte[9]);
+                return new THREE.Vector3(rte[1], rte[5], rte[9]);
             case 6:
                 return new THREE.Vector3(-rte[0], -rte[4], -rte[8]);
             case 8:
-                return new THREE.Vector3(rte[0],  rte[4],  rte[8]);
+                return new THREE.Vector3(rte[0], rte[4], rte[8]);
             default:
                 return new THREE.Vector3(-rte[1], -rte[5], -rte[9]);
         }

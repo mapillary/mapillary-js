@@ -22,7 +22,7 @@ export interface IDataProvider {
         Promise<{ [imageKey: string]: IFillNode }>;
     getFullImages(imageKeys: string[]):
         Promise<{ [imageKey: string]: IFullNode }>;
-    getImage(imageKey: string, size: number, abort?: Promise<void>):
+    getImage(url: string, abort?: Promise<void>):
         Promise<ArrayBuffer>;
     getImageTile(
         imageKey: string,

@@ -234,7 +234,7 @@ describe("NodeCache.cacheImage$", () => {
 
         expect(nodeCache.image).toBeNull();
 
-        nodeCache.cacheImage$("key", ImageSize.Size640)
+        nodeCache.cacheImage$({}, ImageSize.Size640)
             .subscribe(
                 (nc: NodeCache): void => {
                     expect(nc.image).not.toBeNull();
@@ -268,7 +268,7 @@ describe("NodeCache.cacheImage$", () => {
 
         expect(nodeCache.image).toBeNull();
 
-        nodeCache.cacheImage$("key", ImageSize.Size640).subscribe();
+        nodeCache.cacheImage$({}, ImageSize.Size640).subscribe();
 
         imageMock.dispatchEvent(new CustomEvent("load"));
 
@@ -308,7 +308,7 @@ describe("NodeCache.cacheImage$", () => {
                     done();
                 });
 
-        nodeCache.cacheImage$("key", ImageSize.Size640).subscribe();
+        nodeCache.cacheImage$({}, ImageSize.Size640).subscribe();
         imageMock.dispatchEvent(new CustomEvent("load"));
     });
 });

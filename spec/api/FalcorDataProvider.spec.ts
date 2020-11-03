@@ -648,7 +648,7 @@ describe("FalcorDataProvider.getImage", () => {
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
-        provider.getImage("key", 320, abort)
+        provider.getImage("url", abort)
             .then(
                 (buffer: ArrayBuffer): void => {
                     expect(buffer instanceof ArrayBuffer).toBeTrue();
@@ -673,7 +673,7 @@ describe("FalcorDataProvider.getImage", () => {
 
         const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
 
-        provider.getImage("key", 320, abort)
+        provider.getImage("url", abort)
             .then(
                 undefined,
                 (reason: Error): void => {
@@ -695,7 +695,7 @@ describe("FalcorDataProvider.getImage", () => {
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
-        provider.getImage("key", 320, abort)
+        provider.getImage("url", abort)
             .then(
                 undefined,
                 (reason: Error): void => {
@@ -719,7 +719,7 @@ describe("FalcorDataProvider.getImage", () => {
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
-        provider.getImage("key", 320, abort)
+        provider.getImage("url", abort)
             .then(
                 undefined,
                 (reason: Error): void => {
@@ -743,7 +743,7 @@ describe("FalcorDataProvider.getImage", () => {
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
-        provider.getImage("key", 320, abort)
+        provider.getImage("url", abort)
             .then(
                 undefined,
                 (reason: Error): void => {

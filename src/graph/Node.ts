@@ -1,5 +1,5 @@
-import {map} from "rxjs/operators";
-import {Observable} from "rxjs";
+import { map } from "rxjs/operators";
+import { Observable } from "rxjs";
 
 import {
     ICoreNode,
@@ -7,13 +7,13 @@ import {
     IGPano,
     ILatLon,
 } from "../API";
-import {IEdge} from "../Edge";
+import { IEdge } from "../Edge";
 import {
     IEdgeStatus,
     ILoadStatus,
     NodeCache,
 } from "../Graph";
-import {ImageSize} from "../Viewer";
+import { ImageSize } from "../Viewer";
 import IMesh from "../api/interfaces/IMesh";
 
 /**
@@ -571,7 +571,7 @@ export class Node {
      * @ignore
      */
     public cacheAssets$(): Observable<Node> {
-        return this._cache.cacheAssets$(this.key, this.pano, this.merged).pipe(
+        return this._cache.cacheAssets$(this.key, this._fill, this.pano, this.merged).pipe(
             map(
                 (): Node => {
                     return this;
@@ -590,7 +590,7 @@ export class Node {
      * @ignore
      */
     public cacheImage$(imageSize: ImageSize): Observable<Node> {
-        return this._cache.cacheImage$(this.key, imageSize).pipe(
+        return this._cache.cacheImage$(this._fill, imageSize).pipe(
             map(
                 (): Node => {
                     return this;

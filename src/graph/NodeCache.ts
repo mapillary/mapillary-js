@@ -14,6 +14,7 @@ import {
 import { ImageSize } from "../Viewer";
 import IMesh from "../api/interfaces/IMesh";
 import IDataProvider from "../api/interfaces/IDataProvider";
+import IThumb from "../api/interfaces/IThumb";
 
 /**
  * @class NodeCache
@@ -183,7 +184,7 @@ export class NodeCache {
      * cache whenever the load status has changed and when the mesh or image
      * has been fully loaded.
      */
-    public cacheAssets$(key: string, pano: boolean, merged: boolean): Observable<NodeCache> {
+    public cacheAssets$(key: string, thumb: IThumb, pano: boolean, merged: boolean): Observable<NodeCache> {
         if (this._cachingAssets$ != null) {
             return this._cachingAssets$;
         }
@@ -193,7 +194,7 @@ export class NodeCache {
             Settings.baseImageSize;
 
         this._cachingAssets$ = observableCombineLatest(
-            this._cacheImage$(key, imageSize),
+            this._cacheImage$(thumb, imageSize),
             this._cacheMesh$(key, merged)).pipe(
                 map(
                     ([imageStatus, meshStatus]: [ILoadStatusObject<HTMLImageElement>, ILoadStatusObject<IMesh>]): NodeCache => {
@@ -245,12 +246,12 @@ export class NodeCache {
      * size is not larger than the current image size the node cache is
      * returned immediately.
      */
-    public cacheImage$(key: string, imageSize: ImageSize): Observable<NodeCache> {
+    public cacheImage$(thumb: IThumb, imageSize: ImageSize): Observable<NodeCache> {
         if (this._image != null && imageSize <= Math.max(this._image.width, this._image.height)) {
             return observableOf<NodeCache>(this);
         }
 
-        const cacheImage$: Observable<NodeCache> = this._cacheImage$(key, imageSize).pipe(
+        const cacheImage$: Observable<NodeCache> = this._cacheImage$(thumb, imageSize).pipe(
             first(
                 (status: ILoadStatusObject<HTMLImageElement>): boolean => {
                     return status.object != null;
@@ -353,13 +354,13 @@ export class NodeCache {
     /**
      * Cache the image.
      *
-     * @param {string} key - Key of the node to cache.
+     * @param {IThumb} thumb - Thumb URLs.
      * @param {boolean} pano - Value indicating whether node is a panorama.
      * @returns {Observable<ILoadStatusObject<HTMLImageElement>>} Observable
      * emitting a load status object every time the load status changes
      * and completes when the image is fully loaded.
      */
-    private _cacheImage$(key: string, imageSize: ImageSize): Observable<ILoadStatusObject<HTMLImageElement>> {
+    private _cacheImage$(thumb: IThumb, imageSize: ImageSize): Observable<ILoadStatusObject<HTMLImageElement>> {
         return Observable.create(
             (subscriber: Subscriber<ILoadStatusObject<HTMLImageElement>>): void => {
                 const abort: Promise<void> = new Promise(
@@ -367,7 +368,8 @@ export class NodeCache {
                         this._imageAborter = reject;
                     });
 
-                this._provider.getImage(key, imageSize, abort)
+                const url: string = this._getThumbUrl(thumb, imageSize);
+                this._provider.getImage(url, abort)
                     .then(
                         (buffer: ArrayBuffer): void => {
                             this._imageAborter = null;
@@ -378,7 +380,7 @@ export class NodeCache {
                             image.onload = () => {
                                 if (this._disposed) {
                                     window.URL.revokeObjectURL(image.src);
-                                    subscriber.error(new Error(`Image load was aborted (${key})`));
+                                    subscriber.error(new Error(`Image load was aborted (${url})`));
 
                                     return;
                                 }
@@ -393,7 +395,7 @@ export class NodeCache {
                             image.onerror = () => {
                                 this._imageAborter = null;
 
-                                subscriber.error(new Error(`Failed to load image (${key})`));
+                                subscriber.error(new Error(`Failed to load image (${url})`));
                             };
 
                             const blob: Blob = new Blob([buffer]);
@@ -470,6 +472,19 @@ export class NodeCache {
         }
 
         this._image = null;
+    }
+
+    private _getThumbUrl(thumb: IThumb, size: ImageSize): string {
+        switch (size) {
+            case ImageSize.Size320:
+                return thumb.thumb320;
+            case ImageSize.Size640:
+                return thumb.thumb640;
+            case ImageSize.Size1024:
+                return thumb.thumb1024;
+            default:
+                return thumb.thumb2048;
+        }
     }
 }
 

@@ -41,7 +41,7 @@ export class DataProviderBase implements IDataProvider {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
-    public getImage(imageKey: string, size: number, abort?: Promise<void>):
+    public getImage(url: string, abort?: Promise<void>):
         Promise<ArrayBuffer> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }

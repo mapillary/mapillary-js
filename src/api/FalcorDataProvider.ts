@@ -14,6 +14,8 @@ import DataProviderBase from "./DataProviderBase";
 import IFalcorDataProviderOptions from "./interfaces/IFalcorDataProviderOptions";
 import IGeometryProvider from "./interfaces/IGeometryProvider";
 import GeohashGeometryProvider from "./GeohashGeometryProvider";
+import { ImageSize } from "../viewer/ImageSize";
+import IThumb from "./interfaces/IThumb";
 
 interface IImageByKey<T> {
     imageByKey: { [key: string]: T };
@@ -278,7 +280,7 @@ export class FalcorDataProvider extends DataProviderBase {
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
                     }
 
-                    return value.json.imageByKey;
+                    return this._populateThumbs(value.json.imageByKey);
                 },
                 (error: Error) => {
                     this._invalidateGet(this._pathImageByKey, keys);
@@ -304,7 +306,7 @@ export class FalcorDataProvider extends DataProviderBase {
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
                     }
 
-                    return value.json.imageByKey;
+                    return this._populateThumbs(value.json.imageByKey);
                 },
                 (error: Error) => {
                     this._invalidateGet(this._pathImageByKey, keys);
@@ -312,8 +314,8 @@ export class FalcorDataProvider extends DataProviderBase {
                 });
     }
 
-    public getImage(imageKey: string, size: number, abort?: Promise<void>): Promise<ArrayBuffer> {
-        return this._getArrayBuffer(this._urls.thumbnail(imageKey, size, this._urls.origin), abort);
+    public getImage(url: string, abort?: Promise<void>): Promise<ArrayBuffer> {
+        return this._getArrayBuffer(url, abort);
     }
 
     public getImageTile(
@@ -382,6 +384,26 @@ export class FalcorDataProvider extends DataProviderBase {
 
     private _invalidateGet(path: APIPath, paths: string[]): void {
         this._model.invalidate([path, paths]);
+    }
+
+    private _populateThumbs<T extends IThumb>(ibk: { [key: string]: T }): { [key: string]: T } {
+        for (let key in ibk) {
+            if (!ibk.hasOwnProperty(key)) {
+                continue;
+            }
+
+            const image: IThumb = ibk[key];
+            image.thumb320 = this._urls.thumbnail(
+                key, ImageSize.Size320, this._urls.origin);
+            image.thumb640 = this._urls.thumbnail(
+                key, ImageSize.Size640, this._urls.origin);
+            image.thumb1024 = this._urls.thumbnail(
+                key, ImageSize.Size1024, this._urls.origin);
+            image.thumb2048 = this._urls.thumbnail(
+                key, ImageSize.Size2048, this._urls.origin);
+        }
+
+        return ibk;
     }
 }
 

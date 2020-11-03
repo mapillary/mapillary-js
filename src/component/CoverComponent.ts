@@ -27,6 +27,8 @@ import {
     ImageSize,
     Navigator,
 } from "../Viewer";
+import IFullNode from "../api/interfaces/IFullNode";
+import MapillaryError from "../error/MapillaryError";
 
 export class CoverComponent extends Component<ICoverConfiguration> {
     public static componentName: string = "cover";
@@ -52,7 +54,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
                 }),
             switchMap(
                 (c: ICoverConfiguration): Observable<string> => {
-                    return this._getImageSrc$(c.key, ImageSize.Size640).pipe(
+                    return this._getImageSrc$(c.key).pipe(
                         catchError(
                             (): Observable<string> => {
                                 return observableEmpty();
@@ -196,33 +198,42 @@ export class CoverComponent extends Component<ICoverConfiguration> {
         return vd.h("div.CoverBackground", properties, children);
     }
 
-    private _getImageSrc$(key: string, imageSize: ImageSize): Observable<string> {
+    private _getImageSrc$(key: string): Observable<string> {
         return Observable.create(
             (subscriber: Subscriber<string>): void => {
-                this._navigator.api.data.getImage(key, imageSize)
+                this._navigator.api.data
+                    .getFullImages([key])
                     .then(
-                        (buffer: ArrayBuffer): void => {
-                            const image: HTMLImageElement = new Image();
-                            image.crossOrigin = "Anonymous";
+                        (fullNodes: { [key: string]: IFullNode; }): void => {
+                            if (!fullNodes[key]) {
+                                throw new MapillaryError(`Non existent cover key: ${key}`);
+                            }
 
-                            image.onload = () => {
-                                subscriber.next(image.src);
-                                subscriber.complete();
-                            };
+                            this._navigator.api.data
+                                .getImage(fullNodes[key].thumb640)
+                                .then(
+                                    (buffer: ArrayBuffer): void => {
+                                        const image: HTMLImageElement = new Image();
+                                        image.crossOrigin = "Anonymous";
 
-                            image.onerror = () => {
-                                subscriber.error(new Error(`Failed to load cover image (${key})`));
-                            };
+                                        image.onload = () => {
+                                            subscriber.next(image.src);
+                                            subscriber.complete();
+                                        };
 
-                            const blob: Blob = new Blob([buffer]);
-                            image.src = window.URL.createObjectURL(blob);
-                        },
-                        (error: Error): void => {
-                            subscriber.error(error);
-                        });
+                                        image.onerror = () => {
+                                            subscriber.error(new Error(`Failed to load cover image (${key})`));
+                                        };
+
+                                        const blob: Blob = new Blob([buffer]);
+                                        image.src = window.URL.createObjectURL(blob);
+                                    },
+                                    (error: Error): void => {
+                                        subscriber.error(error);
+                                    });
+                        })
             });
     }
-
 }
 
 ComponentService.registerCover(CoverComponent);
