@@ -36,7 +36,7 @@ type APIPath =
 
 export class DataProviderUrls {
     private _apiHost: string = "a.mapillary.com";
-    private _clientId: string;
+    private _clientToken: string;
     private _clusterReconstructionHost: string =
         "cluster-reconstructions.mapillary.com";
     private _imageHost: string = "images.mapillary.com";
@@ -46,7 +46,7 @@ export class DataProviderUrls {
     private _scheme: string = "https";
 
     constructor(options: IFalcorDataProviderOptions) {
-        this._clientId = options.clientId;
+        this._clientToken = options.clientToken;
 
         if (!!options.apiHost) {
             this._apiHost = options.apiHost;
@@ -74,7 +74,7 @@ export class DataProviderUrls {
     }
 
     public get falcorModel(): string {
-        return `${this._scheme}://${this._apiHost}/v3/model.json?client_id=${this._clientId}`;
+        return `${this._scheme}://${this._apiHost}/v3/model.json?client_id=${this._clientToken}`;
     }
 
     public get origin(): string {

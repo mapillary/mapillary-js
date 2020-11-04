@@ -16,9 +16,9 @@ export interface IFalcorDataProviderOptions {
     apiHost?: string;
 
     /**
-     * Client id for API requests.
+     * Client token for API requests.
      */
-    clientId: string;
+    clientToken: string;
 
     /**
      * Cluster reconstruction host.

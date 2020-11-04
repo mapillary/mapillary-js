@@ -12,7 +12,7 @@ export interface IViewerOptions {
     /**
      * A data provider class instance for API and static
      * resource requests or a `Mapillary API ClientID`
-     * string. A client id be obtained from
+     * token string. A client id be obtained from
      * https://www.mapillary.com/app/settings/developers.
      */
     apiClient: string | IDataProvider;

@@ -5,7 +5,7 @@ describe("DataProviderUrls.ctor", () => {
     it("should set all option properties", () => {
         const options: IFalcorDataProviderOptions = {
             apiHost: "test-api",
-            clientId: "cid",
+            clientToken: "ct",
             clusterReconstructionHost: "test-cluster",
             imageHost: "test-image",
             imageTileHost: "test-image-tile",
@@ -17,7 +17,7 @@ describe("DataProviderUrls.ctor", () => {
 
         expect(urls.falcorModel).toContain(options.apiHost);
         expect(urls.falcorModel).toContain(options.scheme);
-        expect(urls.falcorModel).toContain(options.clientId);
+        expect(urls.falcorModel).toContain(options.clientToken);
         expect(urls.thumbnail("key", 640)).toContain(options.imageHost);
         expect(urls.tileDomain).toContain(options.imageTileHost);
         expect(urls.protoMesh("key")).toContain(options.meshHost);

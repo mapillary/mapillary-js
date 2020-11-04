@@ -35,7 +35,7 @@ import API from "../../src/api/API";
 
 describe("PlayService.ctor", () => {
     it("should be defined when constructed", () => {
-        const api: API = new API(new FalcorDataProvider({ clientId: "cid" }));
+        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -46,7 +46,7 @@ describe("PlayService.ctor", () => {
     });
 
     it("should emit default values", (done: () => void) => {
-        const api: API = new API(new FalcorDataProvider({ clientId: "cid" }));
+        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -71,7 +71,7 @@ describe("PlayService.ctor", () => {
 
 describe("PlayService.playing", () => {
     it("should be playing after calling play", (done: () => void) => {
-        const api: API = new API(new FalcorDataProvider({ clientId: "cid" }));
+        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -92,7 +92,7 @@ describe("PlayService.playing", () => {
     });
 
     it("should not be playing after calling stop", (done: () => void) => {
-        const api: API = new API(new FalcorDataProvider({ clientId: "cid" }));
+        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -129,7 +129,7 @@ describe("PlayService.playing", () => {
 
 describe("PlayService.speed$", () => {
     it("should emit when changing speed", (done: () => void) => {
-        const api: API = new API(new FalcorDataProvider({ clientId: "cid" }));
+        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -149,7 +149,7 @@ describe("PlayService.speed$", () => {
     });
 
     it("should not emit when setting current speed", () => {
-        const api: API = new API(new FalcorDataProvider({ clientId: "cid" }));
+        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -183,7 +183,7 @@ describe("PlayService.speed$", () => {
     });
 
     it("should clamp speed values to 0, 1 interval", (done: () => void) => {
-        const api: API = new API(new FalcorDataProvider({ clientId: "cid" }));
+        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
         const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
         const stateService: StateService = new StateService();
@@ -241,7 +241,7 @@ describe("PlayService.play", () => {
     beforeEach(() => {
         nodeHelper = new NodeHelper();
 
-        api = new API(new FalcorDataProvider({ clientId: "cid" }));
+        api = new API(new FalcorDataProvider({ clientToken: "cid" }));
         imageLoadingService = new ImageLoadingService();
         graphService = new GraphService(new Graph(api), imageLoadingService);
         stateService = new StateServiceMockCreator().create();

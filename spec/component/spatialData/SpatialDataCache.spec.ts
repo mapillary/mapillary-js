@@ -42,7 +42,7 @@ describe("SpatialDataCache.cacheTile$", () => {
             sw: { lat: -1, lon: 0 },
         });
 
-        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
         const cache: SpatialDataCache = new SpatialDataCache(
             graphService, dataProvider);
 
@@ -83,7 +83,7 @@ describe("SpatialDataCache.cacheTile$", () => {
             sw: { lat: -1, lon: 0 },
         });
 
-        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
         const cache: SpatialDataCache = new SpatialDataCache(
             graphService, dataProvider);
 
@@ -112,7 +112,7 @@ describe("SpatialDataCache.cacheTile$", () => {
             sw: { lat: -1, lon: 0 },
         });
 
-        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
         const cache: SpatialDataCache = new SpatialDataCache(
             graphService, dataProvider);
 
@@ -150,7 +150,7 @@ describe("SpatialDataCache.cacheTile$", () => {
             sw: { lat: -1, lon: 0 },
         });
 
-        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
         const cache: SpatialDataCache = new SpatialDataCache(
             graphService, dataProvider);
 
@@ -224,7 +224,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         });
 
         const dataProvider: IDataProvider = new FalcorDataProvider(
-            { clientId: "cid" }, geometryProvider);
+            { clientToken: "cid" }, geometryProvider);
         spyOn(dataProvider, "getClusterReconstruction").and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
@@ -272,7 +272,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             sw: { lat: -1, lon: 0 },
         });
 
-        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
         spyOn(dataProvider, "getClusterReconstruction").and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
@@ -315,7 +315,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             sw: { lat: -1, lon: 0 },
         });
 
-        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
         const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getClusterReconstruction");
         clusterSpy.and.returnValue(promise);
 
@@ -359,7 +359,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             sw: { lat: -1, lon: 0 },
         });
 
-        const dataProvider: IDataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider: IDataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
         const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getClusterReconstruction");
         clusterSpy.and.returnValue(promise);
 

@@ -25,7 +25,7 @@ describe("API.imageByKeyFill$", () => {
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getFillImages");
         providerSpy.and.returnValue(promise);
 
@@ -53,7 +53,7 @@ describe("API.imageByKeyFill$", () => {
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getFillImages");
         providerSpy.and.returnValue(promise);
 
@@ -84,7 +84,7 @@ describe("API.imageByKeyFull$", () => {
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getFullImages");
         providerSpy.and.returnValue(promise);
 
@@ -112,7 +112,7 @@ describe("API.imageByKeyFull$", () => {
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getFullImages");
         providerSpy.and.returnValue(promise);
 
@@ -143,7 +143,7 @@ describe("API.imagesByH$", () => {
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getCoreImages");
         providerSpy.and.returnValue(promise);
 
@@ -171,7 +171,7 @@ describe("API.imagesByH$", () => {
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getCoreImages");
         providerSpy.and.returnValue(promise);
 
@@ -202,7 +202,7 @@ describe("API.sequenceByKey$", () => {
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getSequences");
         providerSpy.and.returnValue(promise);
 
@@ -230,7 +230,7 @@ describe("API.sequenceByKey$", () => {
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "getSequences");
         providerSpy.and.returnValue(promise);
 
@@ -255,7 +255,7 @@ describe("API.sequenceByKey$", () => {
 
 describe("API.setToken", () => {
     it("should call provider correctly", () => {
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "setToken");
 
         const api: API = new API(provider);

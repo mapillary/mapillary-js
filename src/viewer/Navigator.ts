@@ -64,7 +64,7 @@ export class Navigator {
             this._api = api;
         } else if (typeof options.apiClient === 'string') {
             this._api = new API(new FalcorDataProvider({
-                clientId: options.apiClient,
+                clientToken: options.apiClient,
                 token: options.token,
             }));
         } else if (options.apiClient instanceof DataProviderBase) {
