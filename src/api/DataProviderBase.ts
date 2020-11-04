@@ -21,7 +21,7 @@ export class DataProviderBase implements IDataProvider {
         return this._geometry;
     }
 
-    public getCoreImages(cellIds: string[]):
+    public getCoreImages(cellId: string):
         Promise<{ [cellId: string]: { [imageKey: string]: ICoreNode } }> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }

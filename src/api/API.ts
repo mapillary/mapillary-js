@@ -35,8 +35,8 @@ export class API {
             new MapillaryError("The image close to functionality is deprecated."));
     }
 
-    public imagesByH$(hs: string[]): Observable<{ [h: string]: { [index: string]: ICoreNode } }> {
-        return this._wrapPromise$(this._data.getCoreImages(hs));
+    public imagesByH$(h: string): Observable<{ [h: string]: { [index: string]: ICoreNode } }> {
+        return this._wrapPromise$(this._data.getCoreImages(h));
     }
 
     public imageViewAdd$(keys: string[]): Observable<void> {

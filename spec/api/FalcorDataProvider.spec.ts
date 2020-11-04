@@ -309,7 +309,7 @@ describe("FalcorDataProvider.getCoreImages", () => {
 
         const h: string = "h";
 
-        provider.getCoreImages([h])
+        provider.getCoreImages(h)
             .then(
                 (result: { [key: string]: { [index: string]: ICoreNode } }): void => {
                     expect(result).toBeDefined();
@@ -349,7 +349,7 @@ describe("FalcorDataProvider.getCoreImages", () => {
 
         const h: string = "h";
 
-        provider.getCoreImages([h])
+        provider.getCoreImages(h)
             .then(
                 (result: { [key: string]: { [index: string]: ICoreNode } }): void => { return; },
                 (error: Error): void => {
@@ -387,7 +387,7 @@ describe("FalcorDataProvider.getCoreImages", () => {
 
         const h: string = "h";
 
-        provider.getCoreImages([h])
+        provider.getCoreImages(h)
             .then(
                 (result: { [key: string]: { [index: string]: ICoreNode } }): void => {
                     expect(result).toBeDefined();

@@ -151,7 +151,7 @@ describe("API.imagesByH$", () => {
 
         const h: string = "h";
 
-        api.imagesByH$([h])
+        api.imagesByH$(h)
             .subscribe(
                 (result: { [key: string]: { [index: string]: ICoreNode } }): void => {
                     expect(result).toBeDefined();
@@ -179,7 +179,7 @@ describe("API.imagesByH$", () => {
 
         const h: string = "h";
 
-        api.imagesByH$([h]).pipe(
+        api.imagesByH$(h).pipe(
             catchError(
                 (err: Error): Observable<{}> => {
                     expect(err).toBeDefined();

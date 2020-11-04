@@ -210,12 +210,12 @@ export class FalcorDataProvider extends DataProviderBase {
         ];
     }
 
-    public getCoreImages(cellIds: string[]):
+    public getCoreImages(cellId: string):
         Promise<{ [cellId: string]: { [imageKey: string]: ICoreNode } }> {
         return Promise.resolve(<PromiseLike<falcor.JSONEnvelope<IImagesByH<ICoreNode>>>>this._model
             .get([
                 this._pathImagesByH,
-                cellIds,
+                [cellId],
                 { from: 0, to: this._pageCount },
                 this._propertiesKey
                     .concat(this._propertiesCore)]))
@@ -223,7 +223,7 @@ export class FalcorDataProvider extends DataProviderBase {
                 (value: falcor.JSONEnvelope<IImagesByH<ICoreNode>>): { [h: string]: { [index: string]: ICoreNode } } => {
                     if (!value) {
                         value = { json: { imagesByH: {} } };
-                        for (const h of cellIds) {
+                        for (const h of [cellId]) {
                             value.json.imagesByH[h] = {};
                             for (let i: number = 0; i <= this._pageCount; i++) {
                                 value.json.imagesByH[h][i] = null;
@@ -234,7 +234,7 @@ export class FalcorDataProvider extends DataProviderBase {
                     return value.json.imagesByH;
                 },
                 (error: Error) => {
-                    this._invalidateGet(this._pathImagesByH, cellIds);
+                    this._invalidateGet(this._pathImagesByH, [cellId]);
                     throw error;
                 });
     }

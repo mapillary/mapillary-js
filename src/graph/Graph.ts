@@ -1478,7 +1478,7 @@ export class Graph {
     }
 
     private _cacheTile$(h: string): Observable<Graph> {
-        this._cachingTiles$[h] = this._api.imagesByH$([h]).pipe(
+        this._cachingTiles$[h] = this._api.imagesByH$(h).pipe(
             tap(
                 (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): void => {
                     let coreNodes: { [index: string]: ICoreNode } = imagesByH[h];

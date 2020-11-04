@@ -14,7 +14,7 @@ import IGeometryProvider from "./IGeometryProvider";
 export interface IDataProvider {
     readonly geometry: IGeometryProvider;
 
-    getCoreImages(cellIds: string[]):
+    getCoreImages(cellId: string):
         Promise<{ [cellId: string]: { [imageKey: string]: ICoreNode } }>;
     getClusterReconstruction(clusterKey: string, abort?: Promise<void>):
         Promise<IClusterReconstruction>;
