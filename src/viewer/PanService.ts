@@ -358,3 +358,5 @@ export class PanService {
         return 2 * Math.atan(x) * 180 / Math.PI;
     }
 }
+
+export default PanService;

@@ -624,46 +624,6 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Move close to given latitude and longitude.
-     *
-     * @description Because the method propagates IO errors, these potential errors
-     * need to be handled by the method caller (see example).
-     *
-     * @param {Number} lat - Latitude, in degrees.
-     * @param {Number} lon - Longitude, in degrees.
-     * @returns {Promise<Node>} Promise to the node that was navigated to.
-     * @throws {Error} If no nodes exist close to provided latitude
-     * longitude.
-     * @throws {Error} Propagates any IO errors to the caller.
-     * @throws {Error} When viewer is not navigable.
-     * @throws  {@link AbortMapillaryError} When a subsequent move request is made
-     * before the move close to call has completed.
-     *
-     * @example
-     * ```
-     * viewer.moveCloseTo(0, 0).then(
-     *     (n) => { console.log(n); },
-     *     (e) => { console.error(e); });
-     * ```
-     */
-    public moveCloseTo(lat: number, lon: number): when.Promise<Node> {
-        const moveCloseTo$: Observable<Node> = this.isNavigable ?
-            this._navigator.moveCloseTo$(lat, lon) :
-            observableThrowError(new Error("Calling moveCloseTo is not supported when viewer is not navigable."));
-
-        return when.promise<Node>(
-            (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
-                moveCloseTo$.subscribe(
-                    (node: Node): void => {
-                        resolve(node);
-                    },
-                    (error: Error): void => {
-                        reject(error);
-                    });
-            });
-    }
-
-    /**
      * Navigate in a given direction.
      *
      * @description This method has to be called through EdgeDirection enumeration as in the example.

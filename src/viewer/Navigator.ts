@@ -1,10 +1,14 @@
-import { from as observableFrom, throwError as observableThrowError, BehaviorSubject, Observable, ReplaySubject, Subscription } from "rxjs";
+import {
+    from as observableFrom,
+    throwError as observableThrowError,
+    BehaviorSubject,
+    Observable,
+    ReplaySubject,
+    Subscription
+} from "rxjs";
 
 import { last, tap, map, mergeAll, finalize, mergeMap, first } from "rxjs/operators";
 
-import {
-    IFullNode,
-} from "../API";
 import {
     FilterExpression,
     Graph,
@@ -25,7 +29,7 @@ import {
     LoadingService,
     PlayService,
 } from "../Viewer";
-import { PanService } from "./PanService";
+import PanService from "./PanService";
 import API from "../api/API";
 import FalcorDataProvider from "../api/FalcorDataProvider";
 import DataProviderBase from "../api/DataProviderBase";
@@ -188,26 +192,6 @@ export class Navigator {
         return this._makeRequest$(node$);
     }
 
-    public moveCloseTo$(lat: number, lon: number): Observable<Node> {
-        this._abortRequest(`to lat ${lat}, lon ${lon}`);
-
-        this._loadingService.startLoading(this._loadingName);
-
-        const node$: Observable<Node> = this.api.imageCloseTo$(lat, lon).pipe(
-            mergeMap(
-                (fullNode: IFullNode): Observable<Node> => {
-                    if (fullNode == null) {
-                        this._loadingService.stopLoading(this._loadingName);
-
-                        return observableThrowError(new Error(`No image found close to lat ${lat}, lon ${lon}.`));
-                    }
-
-                    return this._moveToKey$(fullNode.key);
-                }));
-
-        return this._makeRequest$(node$);
-    }
-
     public setFilter$(filter: FilterExpression): Observable<void> {
         this._stateService.clearNodes();
 
@@ -248,7 +232,7 @@ export class Navigator {
                             }));
                 }),
             map(
-                (node: Node): void => {
+                (): void => {
                     return undefined;
                 }));
     }
@@ -261,7 +245,7 @@ export class Navigator {
         return this._movedToKey$.pipe(
             first(),
             tap(
-                (key: string): void => {
+                (): void => {
                     this._api.setUserToken(userToken);
                 }),
             mergeMap(
@@ -279,7 +263,7 @@ export class Navigator {
                                 }),
                             last(),
                             map(
-                                (node: Node): void => {
+                                (): void => {
                                     return undefined;
                                 }));
                 }));
