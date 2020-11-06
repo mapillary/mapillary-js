@@ -3,11 +3,11 @@
 
 <head>
     <title>Spatial data</title>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-    <link rel='stylesheet' href='dist/mapillary.min.css' />
-    <script src='dist/mapillary.js'></script>
+    <link rel="stylesheet" href="dist/mapillary.min.css" />
+    <script src="dist/mapillary.js"></script>
 
     <style>
         body {
@@ -21,7 +21,7 @@
             height: 100%;
         }
 
-        #viewer {
+        #mly {
             width: 90%;
             height: 90%;
         }
@@ -29,7 +29,7 @@
 </head>
 
 <body>
-    <div id='viewer'></div>
+    <div id="mly"></div>
     <select name="visualization" id="visualization">
         <option value="default">Default</option>
         <option value="mergecc">CC</option>
@@ -46,7 +46,7 @@
         const viewer = new Mapillary.Viewer({
             apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
             component: { cover: false, stats: false, spatialData: true },
-            container: "viewer",
+            container: "mly",
             key: "zarcRdNFZwg3FkXNcsFeGw",
         });
 
@@ -56,7 +56,7 @@
 
         document
             .getElementById("visualization")
-            .addEventListener('change', (event) => {
+            .addEventListener("change", (event) => {
                 const cvms = Mapillary.SpatialDataComponent.CameraVisualizationMode;
                 let mode;
                 switch (event.target.value) {

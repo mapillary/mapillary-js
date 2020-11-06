@@ -819,8 +819,6 @@ describe("Navigator.setToken$", () => {
         spyOn(loadingService, "stopLoading").and.stub();
 
         spyOn(graphService, "cacheNode$").and.returnValue(new Subject<Node>());
-        spyOn(api, "imageCloseTo$").and.returnValue(new Subject<IFullNode>());
-
         spyOn(stateService, "clearNodes").and.stub();
 
         const navigator: Navigator =

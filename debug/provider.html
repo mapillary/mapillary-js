@@ -3,11 +3,11 @@
 
 <head>
   <title>MapillaryJS Provider Page</title>
-  <meta charset='utf-8'>
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-  <link rel='stylesheet' href='dist/mapillary.min.css' />
-  <script src='dist/mapillary.js'></script>
+  <link rel="stylesheet" href="dist/mapillary.min.css" />
+  <script src="dist/mapillary.js"></script>
 
   <style>
     body {
@@ -29,7 +29,7 @@
 </head>
 
 <body>
-  <div id='mly'></div>
+  <div id="mly"></div>
 
   <script>
     class MyDataProvder extends Mapillary.API.FalcorDataProvider {
@@ -40,7 +40,7 @@
     const clientId = "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh";
     const viewer = new Mapillary.Viewer({
       apiClient: new MyDataProvder({ clientToken: clientId }),
-      component: { cover: false, image: false, stats: false },
+      component: { cover: false },
       container: "mly",
       key: "zarcRdNFZwg3FkXNcsFeGw",
     });

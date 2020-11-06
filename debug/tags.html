@@ -3,11 +3,11 @@
 
 <head>
     <title>MapillaryJS Tags Debug Page</title>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-    <link rel='stylesheet' href='dist/mapillary.min.css' />
-    <script src='dist/mapillary.js'></script>
+    <link rel="stylesheet" href="dist/mapillary.min.css" />
+    <script src="dist/mapillary.js"></script>
 
     <style>
         body {
@@ -21,7 +21,7 @@
             height: 100%;
         }
 
-        #viewer {
+        #mly {
             width: 90%;
             height: 90%;
         }
@@ -29,7 +29,7 @@
 </head>
 
 <body>
-    <div id='viewer'></div>
+    <div id="mly"></div>
     <button onclick="createGeometry(Mapillary.TagComponent.TagMode.CreatePolygon)">Create polygon</button>
     <button onclick="createGeometry(Mapillary.TagComponent.TagMode.CreateRect)">Create rectangle</button>
     <button onclick="createGeometry(Mapillary.TagComponent.TagMode.CreateRectDrag)">Create rectangle drag</button>
@@ -41,8 +41,8 @@
     <script>
         var viewer = new Mapillary.Viewer({
             apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
-            component: { cover: false, stats: false, tag: true },
-            container: "viewer",
+            component: { cover: false, tag: true },
+            container: "mly",
             key: "zarcRdNFZwg3FkXNcsFeGw",
             renderMode: Mapillary.RenderMode.Letterbox,
         });

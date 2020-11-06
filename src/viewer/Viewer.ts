@@ -194,7 +194,7 @@ export class Viewer extends EventEmitter {
      * Fired when the navigable state of the viewer changes.
      *
      * @description The navigable state indicates if the viewer supports
-     * moving, i.e. calling the `moveToKey`, `moveDir` and `moveCloseTo`
+     * moving, i.e. calling the `moveToKey` and `moveDir`
      * methods. The viewer will not be in a navigable state if the cover
      * is activated and the viewer has been supplied a key. When the cover
      * is deactivated or activated without being supplied a key it will
@@ -335,8 +335,8 @@ export class Viewer extends EventEmitter {
      * Return a boolean indicating if the viewer is in a navigable state.
      *
      * @description The navigable state indicates if the viewer supports
-     * moving, i.e. calling the {@link moveToKey}, {@link moveDir}
-     * and {@link moveCloseTo} methods or changing the authentication state,
+     * moving, i.e. calling the {@link moveToKey} and {@link moveDir}
+     * methods or changing the authentication state,
      * i.e. calling {@link setUserToken}. The viewer will not be in a navigable
      * state if the cover is activated and the viewer has been supplied a key.
      * When the cover is deactivated or the viewer is activated without being

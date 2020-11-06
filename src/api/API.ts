@@ -29,28 +29,12 @@ export class API {
         return this._wrapPromise$(this._data.getFullImages(keys));
     }
 
-    public imageCloseTo$(lat: number, lon: number): Observable<IFullNode> {
-        let lonLat: string = `${lon}:${lat}`;
-        return observableThrowError(
-            new MapillaryError("The image close to functionality is deprecated."));
-    }
-
     public imagesByH$(h: string): Observable<{ [h: string]: { [index: string]: ICoreNode } }> {
         return this._wrapPromise$(this._data.getCoreImages(h));
     }
 
-    public imageViewAdd$(keys: string[]): Observable<void> {
-        return observableThrowError(
-            new MapillaryError("The image view add functionality is deprecated."));
-    }
-
     public sequenceByKey$(sequenceKeys: string[]): Observable<{ [sequenceKey: string]: ISequence }> {
         return this._wrapPromise$(this._data.getSequences(sequenceKeys));
-    }
-
-    public sequenceViewAdd$(sequenceKeys: string[]): Observable<void> {
-        return observableThrowError(
-            new MapillaryError("The sequence view add functionality is deprecated."));
     }
 
     public setUserToken(userToken?: string): void {

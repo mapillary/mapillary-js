@@ -168,13 +168,6 @@ export interface IComponentOptions {
     spatialData?: boolean | ISpatialDataConfiguration;
 
     /**
-     * Contribute viewing stats to Mapillary.
-     *
-     * @default true
-     */
-    stats?: boolean;
-
-    /**
      * Enable an interface for drawing 2D geometries on top of images.
      *
      * @description Requires WebGL support.
