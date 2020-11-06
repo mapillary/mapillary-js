@@ -5,8 +5,6 @@ import { map, tap, startWith, publishReplay, refCount, finalize, first } from "r
 import { IEdge } from "../Edge";
 import {
     IEdgeStatus,
-    ILoadStatus,
-    ILoadStatusObject,
 } from "../Graph";
 import {
     Settings,
@@ -27,7 +25,6 @@ export class NodeCache {
     private _provider: IDataProvider;
 
     private _image: HTMLImageElement;
-    private _loadStatus: ILoadStatus;
     private _mesh: IMesh;
     private _sequenceEdges: IEdgeStatus;
     private _spatialEdges: IEdgeStatus;
@@ -57,7 +54,6 @@ export class NodeCache {
         this._provider = provider;
 
         this._image = null;
-        this._loadStatus = { loaded: 0, total: 0 };
         this._mesh = null;
         this._sequenceEdges = { cached: false, edges: [] };
         this._spatialEdges = { cached: false, edges: [] };
@@ -109,16 +105,6 @@ export class NodeCache {
      */
     public get image$(): Observable<HTMLImageElement> {
         return this._image$;
-    }
-
-    /**
-     * Get loadStatus.
-     *
-     * @returns {ILoadStatus} Value indicating the load status
-     * of the mesh and image.
-     */
-    public get loadStatus(): ILoadStatus {
-        return this._loadStatus;
     }
 
     /**
@@ -189,7 +175,7 @@ export class NodeCache {
             return this._cachingAssets$;
         }
 
-        let imageSize: ImageSize = pano ?
+        const imageSize: ImageSize = pano ?
             Settings.basePanoramaSize :
             Settings.baseImageSize;
 
@@ -197,21 +183,9 @@ export class NodeCache {
             this._cacheImage$(thumb, imageSize),
             this._cacheMesh$(key, merged)).pipe(
                 map(
-                    ([imageStatus, meshStatus]: [ILoadStatusObject<HTMLImageElement>, ILoadStatusObject<IMesh>]): NodeCache => {
-                        this._loadStatus.loaded = 0;
-                        this._loadStatus.total = 0;
-
-                        if (meshStatus) {
-                            this._mesh = meshStatus.object;
-                            this._loadStatus.loaded += meshStatus.loaded.loaded;
-                            this._loadStatus.total += meshStatus.loaded.total;
-                        }
-
-                        if (imageStatus) {
-                            this._image = imageStatus.object;
-                            this._loadStatus.loaded += imageStatus.loaded.loaded;
-                            this._loadStatus.total += imageStatus.loaded.total;
-                        }
+                    ([image, mesh]: [HTMLImageElement, IMesh]): NodeCache => {
+                        this._image = image;
+                        this._mesh = mesh;
 
                         return this;
                     }),
@@ -253,13 +227,13 @@ export class NodeCache {
 
         const cacheImage$: Observable<NodeCache> = this._cacheImage$(thumb, imageSize).pipe(
             first(
-                (status: ILoadStatusObject<HTMLImageElement>): boolean => {
-                    return status.object != null;
+                (image: HTMLImageElement): boolean => {
+                    return !!image;
                 }),
             tap(
-                (status: ILoadStatusObject<HTMLImageElement>): void => {
+                (image: HTMLImageElement): void => {
                     this._disposeImage();
-                    this._image = status.object;
+                    this._image = image;
                 }),
             map(
                 (): NodeCache => {
@@ -312,8 +286,6 @@ export class NodeCache {
         this._disposeImage();
 
         this._mesh = null;
-        this._loadStatus.loaded = 0;
-        this._loadStatus.total = 0;
         this._sequenceEdges = { cached: false, edges: [] };
         this._spatialEdges = { cached: false, edges: [] };
 
@@ -360,9 +332,9 @@ export class NodeCache {
      * emitting a load status object every time the load status changes
      * and completes when the image is fully loaded.
      */
-    private _cacheImage$(thumb: IThumb, imageSize: ImageSize): Observable<ILoadStatusObject<HTMLImageElement>> {
+    private _cacheImage$(thumb: IThumb, imageSize: ImageSize): Observable<HTMLImageElement> {
         return Observable.create(
-            (subscriber: Subscriber<ILoadStatusObject<HTMLImageElement>>): void => {
+            (subscriber: Subscriber<HTMLImageElement>): void => {
                 const abort: Promise<void> = new Promise(
                     (_, reject): void => {
                         this._imageAborter = reject;
@@ -385,10 +357,7 @@ export class NodeCache {
                                     return;
                                 }
 
-                                subscriber.next({
-                                    loaded: { loaded: 1, total: 1 },
-                                    object: image
-                                });
+                                subscriber.next(image);
                                 subscriber.complete();
                             };
 
@@ -417,11 +386,11 @@ export class NodeCache {
      * a load status object every time the load status changes and completes
      * when the mesh is fully loaded.
      */
-    private _cacheMesh$(key: string, merged: boolean): Observable<ILoadStatusObject<IMesh>> {
+    private _cacheMesh$(key: string, merged: boolean): Observable<IMesh> {
         return Observable.create(
-            (subscriber: Subscriber<ILoadStatusObject<IMesh>>): void => {
+            (subscriber: Subscriber<IMesh>): void => {
                 if (!merged) {
-                    subscriber.next(this._createEmptyMeshLoadStatus());
+                    subscriber.next(this._createEmptyMesh());
                     subscriber.complete();
                     return;
                 }
@@ -440,10 +409,7 @@ export class NodeCache {
                                 return;
                             }
 
-                            subscriber.next({
-                                loaded: { loaded: 1, total: 1 },
-                                object: mesh,
-                            });
+                            subscriber.next(mesh);
                             subscriber.complete();
                         },
                         (error: Error): void => {
@@ -459,11 +425,8 @@ export class NodeCache {
      * @returns {ILoadStatusObject<IMesh>} Load status object
      * with empty mesh.
      */
-    private _createEmptyMeshLoadStatus(): ILoadStatusObject<IMesh> {
-        return {
-            loaded: { loaded: 0, total: 0 },
-            object: { faces: [], vertices: [] },
-        };
+    private _createEmptyMesh(): IMesh {
+        return { faces: [], vertices: [] };
     }
 
     private _disposeImage(): void {

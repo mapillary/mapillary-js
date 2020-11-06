@@ -1,9 +1,8 @@
-import { combineLatest as observableCombineLatest, Observable, BehaviorSubject, Subscription } from "rxjs";
+import { combineLatest as observableCombineLatest, BehaviorSubject, Subscription } from "rxjs";
 import { map } from "rxjs/operators";
 import * as vd from "virtual-dom";
 
 import { Component, ComponentService, IComponentConfiguration } from "../Component";
-import { ILoadStatus } from "../Graph";
 import { IVNodeHash } from "../Render";
 import { IFrame } from "../State";
 
@@ -92,7 +91,7 @@ export class DebugComponent extends Component<IComponentConfiguration> {
         }
     }
 
-    private _closeDebugElement(open: boolean): void {
+    private _closeDebugElement(): void {
         this._open$.next(false);
     }
 

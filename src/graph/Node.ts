@@ -10,7 +10,6 @@ import {
 import { IEdge } from "../Edge";
 import {
     IEdgeStatus,
-    ILoadStatus,
     NodeCache,
 } from "../Graph";
 import { ImageSize } from "../Viewer";
@@ -310,18 +309,6 @@ export class Node {
     }
 
     /**
-     * Get loadStatus.
-     *
-     * @returns {ILoadStatus} Value indicating the load status
-     * of the mesh and image.
-     *
-     * @ignore
-     */
-    public get loadStatus(): ILoadStatus {
-        return this._cache.loadStatus;
-    }
-
-    /**
      * Get merged.
      *
      * @returns {boolean} Value indicating whether SfM has been
@@ -571,11 +558,17 @@ export class Node {
      * @ignore
      */
     public cacheAssets$(): Observable<Node> {
-        return this._cache.cacheAssets$(this.key, this._fill, this.pano, this.merged).pipe(
-            map(
-                (): Node => {
-                    return this;
-                }));
+        return this._cache
+            .cacheAssets$(
+                this.key,
+                this._fill,
+                this.pano,
+                this.merged)
+            .pipe(
+                map(
+                    (): Node => {
+                        return this;
+                    }));
     }
 
     /**
