@@ -9,7 +9,6 @@ import {
     Graph,
     GraphMode,
     GraphService,
-    ImageLoadingService,
     Node,
 } from "../../src/Graph";
 import {
@@ -27,8 +26,7 @@ import FalcorDataProvider from "../../src/api/FalcorDataProvider";
 describe("CacheService.ctor", () => {
     it("should be defined when constructed", () => {
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
         const cacheService: CacheService = new CacheService(graphService, stateService);
@@ -40,8 +38,7 @@ describe("CacheService.ctor", () => {
 describe("CacheService.started", () => {
     it("should not be started", () => {
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
         const cacheService: CacheService = new CacheService(graphService, stateService);
@@ -51,8 +48,7 @@ describe("CacheService.started", () => {
 
     it("should be started after calling start", () => {
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
         const cacheService: CacheService = new CacheService(graphService, stateService);
@@ -64,8 +60,7 @@ describe("CacheService.started", () => {
 
     it("should not be started after calling stop", () => {
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
         const cacheService: CacheService = new CacheService(graphService, stateService);
@@ -120,9 +115,8 @@ describe("CacheService.start", () => {
 
     it("should call graph service uncache method", () => {
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graph: Graph = new Graph(api);
-        const graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph);
         graphService.setGraphMode(GraphMode.Spatial);
 
         const currentStateSubject$: Subject<IFrame> = new Subject<IFrame>();
@@ -163,9 +157,8 @@ describe("CacheService.start", () => {
 
     it("should call graph service uncache method with sequence key of last trajectory node", () => {
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graph: Graph = new Graph(api);
-        const graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph);
         graphService.setGraphMode(GraphMode.Sequence);
 
         const currentStateSubject$: Subject<IFrame> = new Subject<IFrame>();
@@ -207,9 +200,8 @@ describe("CacheService.start", () => {
 
     it("should cache current node if switching to sequence graph mode", () => {
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graph: Graph = new Graph(api);
-        const graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph);
 
         spyOn(graphService, "uncache$").and.returnValue(observableOf<void>(null));
 
@@ -251,9 +243,8 @@ describe("CacheService.start", () => {
 
     it("should cache all trajectory nodes ahead if switching to spatial graph mode", () => {
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graph: Graph = new Graph(api);
-        const graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph);
 
         spyOn(graphService, "uncache$").and.returnValue(observableOf<void>(null));
 
@@ -304,9 +295,8 @@ describe("CacheService.start", () => {
         spyOn(console, "error").and.stub();
 
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
         const graph: Graph = new Graph(api);
-        const graphService: GraphService = new GraphService(graph, imageLoadingService);
+        const graphService: GraphService = new GraphService(graph);
 
         spyOn(graphService, "uncache$").and.returnValue(observableOf<void>(null));
 

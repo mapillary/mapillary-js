@@ -1,11 +1,11 @@
-import {combineLatest as observableCombineLatest, Observable, BehaviorSubject, Subscription} from "rxjs";
-import {map} from "rxjs/operators";
+import { combineLatest as observableCombineLatest, Observable, BehaviorSubject, Subscription } from "rxjs";
+import { map } from "rxjs/operators";
 import * as vd from "virtual-dom";
 
-import {Component, ComponentService, IComponentConfiguration} from "../Component";
-import {ILoadStatus} from "../Graph";
-import {IVNodeHash} from "../Render";
-import {IFrame} from "../State";
+import { Component, ComponentService, IComponentConfiguration } from "../Component";
+import { ILoadStatus } from "../Graph";
+import { IVNodeHash } from "../Render";
+import { IFrame } from "../State";
 
 export class DebugComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "debug";
@@ -16,13 +16,12 @@ export class DebugComponent extends Component<IComponentConfiguration> {
 
     public _activate(): void {
         this._disposable = observableCombineLatest(
-                this._navigator.stateService.currentState$,
-                this._open$,
-                this._navigator.imageLoadingService.loadstatus$).pipe(
-            map(
-                ([frame, open, loadStatus]: [IFrame, boolean, {[key: string]: ILoadStatus}]): IVNodeHash => {
-                    return {name: this._name, vnode: this._getDebugVNode(open, this._getDebugInfo(frame, loadStatus))};
-                }))
+            this._navigator.stateService.currentState$,
+            this._open$).pipe(
+                map(
+                    ([frame, open]: [IFrame, boolean]): IVNodeHash => {
+                        return { name: this._name, vnode: this._getDebugVNode(open, this._getDebugInfo(frame)) };
+                    }))
             .subscribe(this._container.domRenderer.render$);
     }
 
@@ -34,7 +33,7 @@ export class DebugComponent extends Component<IComponentConfiguration> {
         return {};
     }
 
-    private _getDebugInfo(frame: IFrame, loadStatus: {[key: string]: ILoadStatus}): vd.VNode[] {
+    private _getDebugInfo(frame: IFrame): vd.VNode[] {
         let ret: vd.VNode[] = [];
 
         ret.push(vd.h("h2", "Node"));
@@ -46,32 +45,6 @@ export class DebugComponent extends Component<IComponentConfiguration> {
         if (frame.state.previousNode) {
             ret.push(vd.h("p", `previousNode: ${frame.state.previousNode.key}`));
         }
-
-        ret.push(vd.h("h2", "Loading"));
-
-        let total: number = 0;
-        let loaded: number = 0;
-        let loading: number = 0;
-
-        for (const key in loadStatus) {
-            if (!loadStatus.hasOwnProperty(key)) {
-                continue;
-            }
-
-            const status: ILoadStatus = loadStatus[key];
-
-            total += status.loaded;
-
-            if (status.loaded !== status.total) {
-                loading++;
-            } else {
-                loaded++;
-            }
-        }
-
-        ret.push(vd.h("p", `Loaded Images: ${loaded}`));
-        ret.push(vd.h("p", `Loading Images: ${loading}`));
-        ret.push(vd.h("p", `Total bytes loaded: ${total}`));
 
         ret.push(vd.h("h2", "Camera"));
 
@@ -107,13 +80,15 @@ export class DebugComponent extends Component<IComponentConfiguration> {
         let buttonCssClass: string = open ? "" : ".DebugButtonFixed";
 
         if (open) {
-            return vd.h(`button.DebugButton${buttonCssClass}`,
-                        {onclick: this._closeDebugElement.bind(this)},
-                        [buttonText]);
+            return vd.h(
+                `button.DebugButton${buttonCssClass}`,
+                { onclick: this._closeDebugElement.bind(this) },
+                [buttonText]);
         } else {
-            return vd.h(`button.DebugButton${buttonCssClass}`,
-                        {onclick: this._openDebugElement.bind(this)},
-                        [buttonText]);
+            return vd.h(
+                `button.DebugButton${buttonCssClass}`,
+                { onclick: this._openDebugElement.bind(this) },
+                [buttonText]);
         }
     }
 

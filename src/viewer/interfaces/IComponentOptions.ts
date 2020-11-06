@@ -24,7 +24,7 @@ export interface IComponentOptions {
      *
      * @default true
      */
-    attribution?: boolean ;
+    attribution?: boolean;
 
     /**
      * Display a background if no key is set.
@@ -96,13 +96,6 @@ export interface IComponentOptions {
      * @default true
      */
     keyboard?: boolean | IKeyboardConfiguration;
-
-    /**
-     * Show indication of loading.
-     *
-     * @default true
-     */
-    loading?: boolean;
 
     /**
      * Enable an interface for showing 3D markers in the viewer.

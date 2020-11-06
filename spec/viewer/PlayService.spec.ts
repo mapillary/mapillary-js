@@ -11,7 +11,6 @@ import {
     GraphMode,
     GraphService,
     IEdgeStatus,
-    ImageLoadingService,
     Node,
     NodeCache,
     Sequence,
@@ -36,8 +35,7 @@ import API from "../../src/api/API";
 describe("PlayService.ctor", () => {
     it("should be defined when constructed", () => {
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -47,8 +45,7 @@ describe("PlayService.ctor", () => {
 
     it("should emit default values", (done: () => void) => {
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -72,8 +69,7 @@ describe("PlayService.ctor", () => {
 describe("PlayService.playing", () => {
     it("should be playing after calling play", (done: () => void) => {
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -93,8 +89,7 @@ describe("PlayService.playing", () => {
 
     it("should not be playing after calling stop", (done: () => void) => {
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -130,8 +125,7 @@ describe("PlayService.playing", () => {
 describe("PlayService.speed$", () => {
     it("should emit when changing speed", (done: () => void) => {
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -150,8 +144,7 @@ describe("PlayService.speed$", () => {
 
     it("should not emit when setting current speed", () => {
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -184,8 +177,7 @@ describe("PlayService.speed$", () => {
 
     it("should clamp speed values to 0, 1 interval", (done: () => void) => {
         const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        const imageLoadingService: ImageLoadingService = new ImageLoadingService();
-        const graphService: GraphService = new GraphService(new Graph(api), imageLoadingService);
+        const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -234,7 +226,6 @@ describe("PlayService.play", () => {
     let nodeHelper: NodeHelper;
 
     let api: API;
-    let imageLoadingService: ImageLoadingService;
     let graphService: GraphService;
     let stateService: StateService;
 
@@ -242,8 +233,7 @@ describe("PlayService.play", () => {
         nodeHelper = new NodeHelper();
 
         api = new API(new FalcorDataProvider({ clientToken: "cid" }));
-        imageLoadingService = new ImageLoadingService();
-        graphService = new GraphService(new Graph(api), imageLoadingService);
+        graphService = new GraphService(new Graph(api));
         stateService = new StateServiceMockCreator().create();
     });
 

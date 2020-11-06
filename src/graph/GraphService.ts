@@ -22,12 +22,11 @@ import {
     tap,
 } from "rxjs/operators";
 
-import {ILatLon} from "../API";
+import { ILatLon } from "../API";
 import {
     FilterExpression,
     Graph,
     GraphMode,
-    ImageLoadingService,
     Node,
     Sequence,
 } from "../Graph";
@@ -43,8 +42,6 @@ export class GraphService {
     private _graphMode$: Observable<GraphMode>;
     private _graphModeSubject$: Subject<GraphMode>;
 
-    private _imageLoadingService: ImageLoadingService;
-
     private _firstGraphSubjects$: Subject<Graph>[];
 
     private _initializeCacheSubscriptions: Subscription[];
@@ -56,12 +53,12 @@ export class GraphService {
      *
      * @param {Graph} graph - Graph instance to be operated on.
      */
-    constructor(graph: Graph, imageLoadingService: ImageLoadingService) {
+    constructor(graph: Graph) {
         this._graph$ = observableConcat(
-                observableOf(graph),
-                graph.changed$).pipe(
-            publishReplay(1),
-            refCount());
+            observableOf(graph),
+            graph.changed$).pipe(
+                publishReplay(1),
+                refCount());
 
         this._graph$.subscribe(() => { /*noop*/ });
 
@@ -73,8 +70,6 @@ export class GraphService {
             refCount());
 
         this._graphMode$.subscribe(() => { /*noop*/ });
-
-        this._imageLoadingService = imageLoadingService;
 
         this._firstGraphSubjects$ = [];
 
@@ -161,9 +156,7 @@ export class GraphService {
             refCount());
 
         node$.subscribe(
-            (node: Node): void => {
-                this._imageLoadingService.loadnode$.next(node);
-            },
+            undefined,
             (error: Error): void => {
                 console.error(`Failed to cache node (${key})`, error);
             });

@@ -14,7 +14,6 @@ import {
     Graph,
     GraphService,
     IEdgeStatus,
-    ImageLoadingService,
     Node,
 } from "../Graph";
 import { EdgeDirection } from "../Edge";
@@ -39,7 +38,6 @@ export class Navigator {
 
     private _cacheService: CacheService;
     private _graphService: GraphService;
-    private _imageLoadingService: ImageLoadingService;
     private _loadingService: LoadingService;
     private _loadingName: string;
     private _panService: PanService;
@@ -57,7 +55,6 @@ export class Navigator {
         options: IViewerOptions,
         api?: API,
         graphService?: GraphService,
-        imageLoadingService?: ImageLoadingService,
         loadingService?: LoadingService,
         stateService?: StateService,
         cacheService?: CacheService,
@@ -77,11 +74,9 @@ export class Navigator {
             throw new Error(`Invalid type: 'apiClient' must be a String or an object instance extending the DataProvderBase class.`);
         }
 
-        this._imageLoadingService = imageLoadingService != null ? imageLoadingService : new ImageLoadingService();
-
         this._graphService = graphService != null ?
             graphService :
-            new GraphService(new Graph(this.api), this._imageLoadingService);
+            new GraphService(new Graph(this.api));
 
         this._loadingService = loadingService != null ? loadingService : new LoadingService();
         this._loadingName = "navigator";
@@ -118,10 +113,6 @@ export class Navigator {
 
     public get graphService(): GraphService {
         return this._graphService;
-    }
-
-    public get imageLoadingService(): ImageLoadingService {
-        return this._imageLoadingService;
     }
 
     public get loadingService(): LoadingService {
