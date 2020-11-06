@@ -74,10 +74,10 @@ export interface IFalcorDataProviderOptions {
     scheme?: string;
 
     /**
-     * Optional OAuth token for API requests of
+     * Optional OAuth user token for API requests of
      * protected resources.
      */
-    token?: string;
+    userToken?: string;
 }
 
 export default IFalcorDataProviderOptions;

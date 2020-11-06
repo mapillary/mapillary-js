@@ -852,7 +852,7 @@ describe("Navigator.setToken$", () => {
         spyOn(cacheService, "start").and.stub();
 
         const clearNodesSpy: jasmine.Spy = spyOn(stateService, "clearNodes").and.stub();
-        const setTokenSpy: jasmine.Spy = spyOn(api, "setToken").and.stub();
+        const setTokenSpy: jasmine.Spy = spyOn(api, "setUserToken").and.stub();
 
         const resetSubject$: Subject<Graph> = new Subject<Graph>();
         const resetSpy: jasmine.Spy = spyOn(graphService, "reset$");
@@ -868,7 +868,7 @@ describe("Navigator.setToken$", () => {
                 stateService,
                 cacheService);
 
-        navigator.setToken$("token")
+        navigator.setUserToken$("token")
             .subscribe(
                 (): void => {
                     expect(clearNodesSpy.calls.count()).toBe(1);
@@ -906,7 +906,7 @@ describe("Navigator.setToken$", () => {
         spyOn(stateService, "setNodes").and.stub();
 
         const clearNodesSpy: jasmine.Spy = spyOn(stateService, "clearNodes").and.stub();
-        const setTokenSpy: jasmine.Spy = spyOn(api, "setToken").and.stub();
+        const setTokenSpy: jasmine.Spy = spyOn(api, "setUserToken").and.stub();
 
         const resetSubject$: Subject<Graph> = new Subject<Graph>();
         const resetSpy: jasmine.Spy = spyOn(graphService, "reset$");
@@ -945,7 +945,7 @@ describe("Navigator.setToken$", () => {
         cacheNodeSubject1$.next(node0);
         cacheNodeSubject1$.complete();
 
-        navigator.setToken$("token")
+        navigator.setUserToken$("token")
             .subscribe(
                 (): void => {
                     expect(clearNodesSpy.calls.count()).toBe(1);
@@ -1022,7 +1022,7 @@ describe("Navigator.setToken$", () => {
                     done();
                 });
 
-        navigator.setToken$(undefined);
+        navigator.setUserToken$(undefined);
     });
 
     it("should abort outstanding move close to request", (done: () => void) => {
@@ -1058,7 +1058,7 @@ describe("Navigator.setToken$", () => {
                     done();
                 });
 
-        navigator.setToken$(undefined);
+        navigator.setUserToken$(undefined);
     });
 
     it("should abort outstanding move dir request", (done: () => void) => {
@@ -1092,6 +1092,6 @@ describe("Navigator.setToken$", () => {
                     done();
                 });
 
-        navigator.setToken$(undefined);
+        navigator.setUserToken$(undefined);
     });
 });

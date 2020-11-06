@@ -155,7 +155,7 @@ export class FalcorDataProvider extends DataProviderBase {
         this._modelCreator = options.creator != null ?
             options.creator : new ModelCreator();
         this._model = this._modelCreator.createModel(
-            this._urls.falcorModel, options.token);
+            this._urls.falcorModel, options.userToken);
 
         this._pageCount = 999;
 
@@ -375,11 +375,11 @@ export class FalcorDataProvider extends DataProviderBase {
                 });
     }
 
-    public setToken(token?: string): void {
+    public setUserToken(userToken?: string): void {
         this._model.invalidate([]);
         this._model = null;
         this._model = this._modelCreator.createModel(
-            this._urls.falcorModel, token);
+            this._urls.falcorModel, userToken);
     }
 
     private _invalidateGet(path: APIPath, paths: string[]): void {

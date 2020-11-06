@@ -17,21 +17,21 @@ export class ModelCreator {
      * Creates a Falcor model.
      *
      * @description Max cache size will be set to 16 MB. Authorization
-     * header will be added if bearer token is supplied.
+     * header will be added if user bearer token is supplied.
      *
      * @param {number} url - Json graph URL for API requests.
-     * @param {number} [token] - Optional bearer token for API requests of
+     * @param {number} [userToken] - Optional user bearer token for API requests of
      * protected resources.
      * @returns {falcor.Model} Falcor model for HTTP requests.
      */
-    public createModel(url: string, token?: string): falcor.Model {
+    public createModel(url: string, userToken?: string): falcor.Model {
         const configuration: HttpDataSourceConfiguration = {
             crossDomain: true,
             withCredentials: false,
         };
 
-        if (token != null) {
-            configuration.headers = { "Authorization": `Bearer ${token}` };
+        if (userToken != null) {
+            configuration.headers = { "Authorization": `Bearer ${userToken}` };
         }
 
         return new falcor.Model({

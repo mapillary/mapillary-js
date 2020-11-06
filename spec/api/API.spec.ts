@@ -256,11 +256,11 @@ describe("API.sequenceByKey$", () => {
 describe("API.setToken", () => {
     it("should call provider correctly", () => {
         const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
-        const providerSpy: jasmine.Spy = spyOn(provider, "setToken");
+        const providerSpy: jasmine.Spy = spyOn(provider, "setUserToken");
 
         const api: API = new API(provider);
 
-        api.setToken("token");
+        api.setUserToken("token");
 
         expect(providerSpy.calls.count()).toBe(1);
         expect(providerSpy.calls.first().args[0]).toBe("token");

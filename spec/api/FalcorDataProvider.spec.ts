@@ -608,7 +608,7 @@ describe("FalcorDataProvider.setToken", () => {
             creator: creator,
         });
 
-        provider.setToken("token");
+        provider.setUserToken("token");
 
         expect(modelSpy.calls.count()).toBe(1);
 

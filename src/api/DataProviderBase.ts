@@ -67,7 +67,7 @@ export class DataProviderBase implements IDataProvider {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
-    public setToken(token?: string): void {
+    public setUserToken(userToken?: string): void {
         throw new MapillaryError("Not implemented");
     }
 

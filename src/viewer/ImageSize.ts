@@ -26,3 +26,5 @@ export enum ImageSize {
      */
     Size2048 = 2048,
 }
+
+export default ImageSize;

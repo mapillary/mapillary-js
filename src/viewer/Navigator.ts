@@ -65,7 +65,7 @@ export class Navigator {
         } else if (typeof options.apiClient === 'string') {
             this._api = new API(new FalcorDataProvider({
                 clientToken: options.apiClient,
-                token: options.token,
+                userToken: options.userToken,
             }));
         } else if (options.apiClient instanceof DataProviderBase) {
             this._api = new API(options.apiClient);
@@ -253,8 +253,8 @@ export class Navigator {
                 }));
     }
 
-    public setToken$(token?: string): Observable<void> {
-        this._abortRequest("to set token");
+    public setUserToken$(userToken?: string): Observable<void> {
+        this._abortRequest("to set user token");
 
         this._stateService.clearNodes();
 
@@ -262,7 +262,7 @@ export class Navigator {
             first(),
             tap(
                 (key: string): void => {
-                    this._api.setToken(token);
+                    this._api.setUserToken(userToken);
                 }),
             mergeMap(
                 (key: string): Observable<void> => {

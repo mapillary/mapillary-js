@@ -1,7 +1,9 @@
-import { IComponentOptions, ImageSize, IUrlOptions } from "../../Viewer";
-import { RenderMode } from "../../Render";
-import { TransitionMode } from "../../State";
-import IDataProvider from "../../api/interfaces/IDataProvider";
+import DataProviderBase from "../../api/DataProviderBase";
+import RenderMode from "../../render/RenderMode";
+import TransitionMode from "../../state/TransitionMode";
+import ImageSize from "../ImageSize";
+import IComponentOptions from "./IComponentOptions";
+import IUrlOptions from "./IUrlOptions";
 
 /**
  * Interface for the options that can be provided to the {@link Viewer}.
@@ -12,10 +14,10 @@ export interface IViewerOptions {
     /**
      * A data provider class instance for API and static
      * resource requests or a `Mapillary API ClientID`
-     * token string. A client id be obtained from
+     * client token string. A client id be obtained from
      * https://www.mapillary.com/app/settings/developers.
      */
-    apiClient: string | IDataProvider;
+    apiClient: string | DataProviderBase;
 
     /**
      * Default size of the thumbnail used in the viewer
@@ -77,10 +79,10 @@ export interface IViewerOptions {
     sprite?: string;
 
     /**
-     * Optional bearer token for API requests of
+     * Optional user bearer token for API requests of
      * protected resources.
      */
-    token?: string;
+    userToken?: string;
 
     /**
      * The transtion mode in the viewer.

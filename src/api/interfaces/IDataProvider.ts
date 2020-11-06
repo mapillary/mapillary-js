@@ -36,7 +36,7 @@ export interface IDataProvider {
     getMesh(imageKey: string, abort?: Promise<void>): Promise<IMesh>;
     getSequences(sequenceKeys: string[]):
         Promise<{ [sequenceKey: string]: ISequence }>;
-    setToken(token?: string): void;
+    setUserToken(userToken?: string): void;
 }
 
 export default IDataProvider;
