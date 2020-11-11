@@ -1,4 +1,4 @@
-[![Build Status](https://circleci.com/gh/mapillary/mapillary-js.svg?style=svg)](https://circleci.com/gh/mapillary/mapillary-js)
+![yarn workflow](https://github.com/mapillary/mapillary-js/workflows/Build/badge.svg)
 
 # MapillaryJS
 
