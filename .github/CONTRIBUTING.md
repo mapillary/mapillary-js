@@ -1,5 +1,9 @@
 Thanks in advance for contributing to MapillaryJS. Please follow the conventions below when submitting an issue or pull request.
 
+## [Code of Conduct](https://code.facebook.com/codeofconduct)
+
+The code of conduct is described in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
+
 ## Preparing your Development Environment
 
 ### Linux
@@ -92,3 +96,6 @@ We use the standardized commit messages according to [Conventional Commits](http
 
 We use [rebase merging](https://git-scm.com/book/en/v2/Git-Branching-Rebasing) (as opposed to [basic merging](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging#Basic-Merging)) to merge branches.
 
+## License
+
+By contributing to MapillaryJS, you agree that your contributions will be licensed under its MIT license.

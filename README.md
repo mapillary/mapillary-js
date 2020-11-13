@@ -1,4 +1,4 @@
-![yarn workflow](https://github.com/mapillary/mapillary-js/workflows/Build/badge.svg)
+![yarn workflow](https://github.com/mapillary/mapillary-js/workflows/Build/badge.svg) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mapillary/mapillary-js/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/mapillary-js.svg?style=flat)](https://www.npmjs.com/package/mapillary-js)
 
 # MapillaryJS
 
@@ -109,18 +109,18 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 
 - [API Reference](https://mapillary.github.io/mapillary-js)
 
-## Changelog
+## Migrating
 
-Every release is described on the GitHub [Releases](https://github.com/mapillary/mapillary-js/releases) page.
+Learn how to [migrate](./MIGRATING.md) between major MapillaryJS releases.
+
+## Contribute to MapillaryJS
+
+Learn how to [contribute](./.github/CONTRIBUTING.md).
+
+### [Code of Conduct](https://code.facebook.com/codeofconduct)
+
+Facebook has adopted a Code of Conduct that we expect project participants to adhere to. Please read [the full text](./.github/CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
 
 ## License
 
-MIT License
-
-## Contributing to MapillaryJS
-
-See [CONTRIBUTING.md](https://github.com/mapillary/mapillary-js/blob/master/CONTRIBUTING.md).
-
-## Migrating from MapillaryJS 1 to 2
-
-See [MIGRATING.md](https://github.com/mapillary/mapillary-js/blob/master/MIGRATING.md).
+MapillaryJS is [MIT licensed](./LICENSE).
