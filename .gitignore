@@ -5,7 +5,7 @@ vagrant.*
 Vagrantfile
 
 # npm
-node_modules/
+node_modules/*
 
 # File types
 *.DS_Store
@@ -14,8 +14,8 @@ node_modules/
 .#*
 
 # Build artifacts
-dist/
+dist/*
 spec/*.js
 
-# Doc artifacts
-docs/
+# Documentation artifacts
+docs/build/*

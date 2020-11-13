@@ -79,14 +79,14 @@ Once that command finishes, you will have a standalone build at dist/mapillary.m
 npm test
 ```
 
-## Building and serving the docs
+## Building and serving the documentation
 
 ```bash
 npm run build-docs &&
 python -m SimpleHTTPServer
 ````
 
-Open the docs page at [http://localhost:8000/docs](http://localhost:8000/docs).
+Open the documentation page at [http://localhost:8000/docs/build](http://localhost:8000/docs/build).
 
 ## Commit conventions
 

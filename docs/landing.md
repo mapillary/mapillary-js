@@ -1,7 +1,3 @@
-![yarn workflow](https://github.com/mapillary/mapillary-js/workflows/Build/badge.svg) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mapillary/mapillary-js/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/mapillary-js.svg?style=flat)](https://www.npmjs.com/package/mapillary-js)
-
-# MapillaryJS
-
 MapillaryJS is a JavaScript & WebGL library that renders street level imagery from [Mapillary](https://www.mapillary.com).
 
 [<img width="49%" alt="San Francisco on Mapillary.com" src="https://user-images.githubusercontent.com/2492302/40781267-834ef7d4-64db-11e8-8c4c-3e83f17ff7c8.png">](https://www.mapillary.com/app/?focus=photo&pKey=VKf9Ay98ubkclhS2cCEWDg) [<img width="49%" alt="Frigilana on Mapillary.com" src="https://user-images.githubusercontent.com/2492302/40781605-ccfbb5c4-64dc-11e8-9b89-02beb73449ec.png">](https://www.mapillary.com/app/?focus=photo&pKey=FjsftlSr2Vqigl8P2zpOAw)
@@ -34,7 +30,9 @@ To use MapillaryJS you must [create an account](https://www.mapillary.com/signup
 
 Alternatively, you can `npm install mapillary-js` to use it with a module loader or bundler of your choice.
 
-Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and [Documentation](https://github.com/mapillary/mapillary-js#documentation) sections below for more information.
+## Documentation
+
+Refer to the [Examples](#examples) section below and the [Index](./globals.html).
 
 ## Examples
 
@@ -105,22 +103,18 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 - [Listen to geometry changes](https://bl.ocks.org/oscarlorentzon/d19b3387b7671be59f4add09f67c3b63)
 - [Indicate hovered tag](https://bl.ocks.org/oscarlorentzon/d99e59952f64a3692c0ae660b4252c60)
 
-## Documentation
-
-- [API Reference](https://mapillary.github.io/mapillary-js)
-
 ## Migrating
 
-Learn how to [migrate](./MIGRATING.md) between major MapillaryJS releases.
+Learn how to [migrate](https://github.com/mapillary/mapillary-js/blob/master/MIGRATING.md) between major MapillaryJS releases.
 
 ## Contribute to MapillaryJS
 
-Learn how to [contribute](./.github/CONTRIBUTING.md).
+Learn how to [contribute](https://github.com/mapillary/mapillary-js/blob/master/.github/CONTRIBUTING.md).
 
 ### [Code of Conduct](https://code.facebook.com/codeofconduct)
 
-Facebook has adopted a Code of Conduct that we expect project participants to adhere to. Please read [the full text](./.github/CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
+Facebook has adopted a Code of Conduct that we expect project participants to adhere to. Please read [the full text](https://github.com/mapillary/mapillary-js/blob/master/.github/CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
 
 ## License
 
-MapillaryJS is [MIT licensed](./LICENSE).
+MapillaryJS is [MIT licensed](https://github.com/mapillary/mapillary-js/blob/master/LICENSE).
