@@ -4,11 +4,11 @@
  * @interface INodeUrls
  */
 export interface INodeUrls {
-  mesh?: string;
-  thumb320?: string;
-  thumb640?: string;
-  thumb1024?: string;
-  thumb2048?: string;
+  mesh_url?: string;
+  thumb320_url?: string;
+  thumb640_url?: string;
+  thumb1024_url?: string;
+  thumb2048_url?: string;
 }
 
 export default INodeUrls;

@@ -210,7 +210,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
                             }
 
                             this._navigator.api.data
-                                .getImage(fullNodes[key].thumb640)
+                                .getImage(fullNodes[key].thumb640_url)
                                 .then(
                                     (buffer: ArrayBuffer): void => {
                                         const image: HTMLImageElement = new Image();

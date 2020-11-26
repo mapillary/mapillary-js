@@ -394,14 +394,14 @@ export class FalcorDataProvider extends DataProviderBase {
             }
 
             const image: INodeUrls = ibk[key];
-            image.mesh = this._urls.protoMesh(key);
-            image.thumb320 = this._urls.thumbnail(
+            image.mesh_url = this._urls.protoMesh(key);
+            image.thumb320_url = this._urls.thumbnail(
                 key, ImageSize.Size320, this._urls.origin);
-            image.thumb640 = this._urls.thumbnail(
+            image.thumb640_url = this._urls.thumbnail(
                 key, ImageSize.Size640, this._urls.origin);
-            image.thumb1024 = this._urls.thumbnail(
+            image.thumb1024_url = this._urls.thumbnail(
                 key, ImageSize.Size1024, this._urls.origin);
-            image.thumb2048 = this._urls.thumbnail(
+            image.thumb2048_url = this._urls.thumbnail(
                 key, ImageSize.Size2048, this._urls.origin);
         }
 

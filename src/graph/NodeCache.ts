@@ -400,7 +400,7 @@ export class NodeCache {
                         this._meshAborter = reject;
                     });
 
-                this._provider.getMesh(nodeUrls.mesh, abort)
+                this._provider.getMesh(nodeUrls.mesh_url, abort)
                     .then(
                         (mesh: IMesh): void => {
                             this._meshAborter = null;
@@ -442,13 +442,13 @@ export class NodeCache {
     private _getThumbUrl(nodeUrls: INodeUrls, size: ImageSize): string {
         switch (size) {
             case ImageSize.Size320:
-                return nodeUrls.thumb320;
+                return nodeUrls.thumb320_url;
             case ImageSize.Size640:
-                return nodeUrls.thumb640;
+                return nodeUrls.thumb640_url;
             case ImageSize.Size1024:
-                return nodeUrls.thumb1024;
+                return nodeUrls.thumb1024_url;
             default:
-                return nodeUrls.thumb2048;
+                return nodeUrls.thumb2048_url;
         }
     }
 }
