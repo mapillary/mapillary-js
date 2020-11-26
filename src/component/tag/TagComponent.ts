@@ -56,7 +56,7 @@ import {
     IVNodeHash,
     RenderCamera,
 } from "../../Render";
-import {IFrame} from "../../State";
+import { IFrame } from "../../State";
 import {
     Container,
     ISpriteAtlas,
@@ -271,8 +271,8 @@ export class TagComponent extends Component<ITagConfiguration> {
                         mergeMap(
                             (tag: RenderTag<Tag>): Observable<Tag> => {
                                 return observableMerge(
-                                        tag.tag.changed$,
-                                        tag.tag.geometryChanged$);
+                                    tag.tag.changed$,
+                                    tag.tag.geometryChanged$);
                             }));
                 }),
             share());
@@ -521,7 +521,7 @@ export class TagComponent extends Component<ITagConfiguration> {
                             .canvasToViewport(
                                 pixelPoint[0],
                                 pixelPoint[1],
-                                this._container.element);
+                                this._container.container);
 
                         const ids: string[] = this._tagScene.intersectObjects(viewport, render.perspective);
 
@@ -683,31 +683,31 @@ export class TagComponent extends Component<ITagConfiguration> {
                 });
 
         this._domSubscription = observableCombineLatest(
-                this._renderTags$.pipe(
-                    startWith([]),
-                    tap(
-                        (): void => {
-                            this._container.domRenderer.render$.next({
+            this._renderTags$.pipe(
+                startWith([]),
+                tap(
+                    (): void => {
+                        this._container.domRenderer.render$.next({
+                            name: this._name,
+                            vnode: this._tagDomRenderer.clear(),
+                        });
+                    })),
+            this._container.renderService.renderCamera$,
+            this._container.spriteService.spriteAtlas$,
+            this._container.renderService.size$,
+            this._tagChanged$.pipe(startWith(null)),
+            observableMerge(
+                this._tagCreator.tag$,
+                this._createGeometryChanged$).pipe(startWith(null))).pipe(
+                    map(
+                        ([renderTags, rc, atlas, size, , ct]:
+                            [RenderTag<Tag>[], RenderCamera, ISpriteAtlas, ISize, Tag, CreateTag<Geometry>]):
+                            IVNodeHash => {
+                            return {
                                 name: this._name,
-                                vnode: this._tagDomRenderer.clear(),
-                            });
-                        })),
-                this._container.renderService.renderCamera$,
-                this._container.spriteService.spriteAtlas$,
-                this._container.renderService.size$,
-                this._tagChanged$.pipe(startWith(null)),
-                observableMerge(
-                    this._tagCreator.tag$,
-                    this._createGeometryChanged$).pipe(startWith(null))).pipe(
-            map(
-                ([renderTags, rc, atlas, size, , ct]:
-                [RenderTag<Tag>[], RenderCamera, ISpriteAtlas, ISize, Tag, CreateTag<Geometry>]):
-                    IVNodeHash => {
-                    return {
-                        name: this._name,
-                        vnode: this._tagDomRenderer.render(renderTags, ct, atlas, rc.perspective, size),
-                    };
-                }))
+                                vnode: this._tagDomRenderer.render(renderTags, ct, atlas, rc.perspective, size),
+                            };
+                        }))
             .subscribe(this._container.domRenderer.render$);
 
         this._glSubscription = this._navigator.stateService.currentState$.pipe(
@@ -763,7 +763,7 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._handlerStopCreateSubscription.unsubscribe();
         this._handlerEnablerSubscription.unsubscribe();
 
-        this._container.element.classList.remove("component-tag-create");
+        this._container.container.classList.remove("component-tag-create");
     }
 
     protected _getDefaultConfiguration(): ITagConfiguration {

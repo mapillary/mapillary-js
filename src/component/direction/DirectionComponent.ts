@@ -26,13 +26,13 @@ import {
     DirectionDOMRenderer,
     IDirectionConfiguration,
 } from "../../Component";
-import {IEdgeStatus, Node, Sequence} from "../../Graph";
+import { IEdgeStatus, Node, Sequence } from "../../Graph";
 import {
     ISize,
     IVNodeHash,
     RenderCamera,
 } from "../../Render";
-import {Container, Navigator} from "../../Viewer";
+import { Container, Navigator } from "../../Viewer";
 
 /**
  * @class DirectionComponent
@@ -73,7 +73,7 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
             directionDOMRenderer :
             new DirectionDOMRenderer(
                 this.defaultConfiguration,
-                { height: container.element.offsetHeight, width: container.element.offsetWidth });
+                { height: container.container.offsetHeight, width: container.container.offsetWidth });
 
         this._hoveredKeySubject$ = new Subject<string>();
 
@@ -154,24 +154,24 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
         this._nodeSubscription = this._navigator.stateService.currentNode$.pipe(
             tap(
                 (node: Node): void => {
-                    this._container.domRenderer.render$.next({name: this._name, vnode: vd.h("div", {}, [])});
+                    this._container.domRenderer.render$.next({ name: this._name, vnode: vd.h("div", {}, []) });
                     this._renderer.setNode(node);
                 }),
             withLatestFrom(this._configuration$),
             switchMap(
                 ([node, configuration]: [Node, IDirectionConfiguration]): Observable<[IEdgeStatus, Sequence]> => {
                     return observableCombineLatest(
-                            node.spatialEdges$,
-                            configuration.distinguishSequence ?
-                                this._navigator.graphService
-                                    .cacheSequence$(node.sequenceKey).pipe(
+                        node.spatialEdges$,
+                        configuration.distinguishSequence ?
+                            this._navigator.graphService
+                                .cacheSequence$(node.sequenceKey).pipe(
                                     catchError(
                                         (error: Error, caught: Observable<Sequence>): Observable<Sequence> => {
                                             console.error(`Failed to cache sequence (${node.sequenceKey})`, error);
 
                                             return observableOf<Sequence>(null);
                                         })) :
-                                observableOf<Sequence>(null));
+                            observableOf<Sequence>(null));
                 }))
             .subscribe(
                 ([edgeStatus, sequence]: [IEdgeStatus, Sequence]): void => {
@@ -198,26 +198,26 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
             .subscribe(this._container.domRenderer.render$);
 
         this._hoveredKeySubscription = observableCombineLatest(
-                this._container.domRenderer.element$,
-                this._container.renderService.renderCamera$,
-                this._container.mouseService.mouseMove$.pipe(startWith(null)),
-                this._container.mouseService.mouseUp$.pipe(startWith(null))).pipe(
-            map(
-                ([element]: [Element, RenderCamera, MouseEvent, MouseEvent]): string => {
-                    let elements: HTMLCollectionOf<Element> =
-                        <HTMLCollectionOf<Element>>element.getElementsByClassName("DirectionsPerspective");
+            this._container.domRenderer.element$,
+            this._container.renderService.renderCamera$,
+            this._container.mouseService.mouseMove$.pipe(startWith(null)),
+            this._container.mouseService.mouseUp$.pipe(startWith(null))).pipe(
+                map(
+                    ([element]: [Element, RenderCamera, MouseEvent, MouseEvent]): string => {
+                        let elements: HTMLCollectionOf<Element> =
+                            <HTMLCollectionOf<Element>>element.getElementsByClassName("DirectionsPerspective");
 
-                    for (let i: number = 0; i < elements.length; i++) {
-                        let hovered: Element = elements.item(i).querySelector(":hover");
+                        for (let i: number = 0; i < elements.length; i++) {
+                            let hovered: Element = elements.item(i).querySelector(":hover");
 
-                        if (hovered != null && hovered.hasAttribute("data-key")) {
-                            return hovered.getAttribute("data-key");
+                            if (hovered != null && hovered.hasAttribute("data-key")) {
+                                return hovered.getAttribute("data-key");
+                            }
                         }
-                    }
 
-                    return null;
-                }),
-            distinctUntilChanged())
+                        return null;
+                    }),
+                distinctUntilChanged())
             .subscribe(this._hoveredKeySubject$);
 
         this._emitHoveredKeySubscription = this._hoveredKey$

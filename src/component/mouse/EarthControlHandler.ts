@@ -110,14 +110,14 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                         planeNormal,
                         planePoint,
                         render.perspective,
-                        this._container.element);
+                        this._container.container);
 
                     const previousIntersection: THREE.Vector3 = this._planeIntersection(
                         previous,
                         planeNormal,
                         planePoint,
                         render.perspective,
-                        this._container.element);
+                        this._container.container);
 
                     if (!currentIntersection || !previousIntersection) {
                         return null;
@@ -154,8 +154,8 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                 }),
             map(
                 ([previous, current]: [MouseEvent, MouseEvent]): IRotation => {
-                    const [currentX, currentY]: number[] = this._eventToViewport(current, this._container.element);
-                    const [previousX, previousY]: number[] = this._eventToViewport(previous, this._container.element);
+                    const [currentX, currentY]: number[] = this._eventToViewport(current, this._container.container);
+                    const [previousX, previousY]: number[] = this._eventToViewport(previous, this._container.container);
 
                     const phi: number = (previousX - currentX) * Math.PI;
                     const theta: number = (currentY - previousY) * Math.PI / 2;
@@ -187,7 +187,7 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                         delta = 800 * delta;
                     }
 
-                    const canvasSize: number[] = this._viewportCoords.containerToCanvas(this._container.element);
+                    const canvasSize: number[] = this._viewportCoords.containerToCanvas(this._container.container);
 
                     return -delta / canvasSize[1];
                 }))
@@ -205,7 +205,7 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
     }
 
     protected _getConfiguration(): IMouseConfiguration {
-        return { };
+        return {};
     }
 
     private _eventToViewport(event: MouseEvent, element: HTMLElement): number[] {

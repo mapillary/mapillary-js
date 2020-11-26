@@ -1,5 +1,5 @@
-import {map, withLatestFrom} from "rxjs/operators";
-import {Observable, Subject} from "rxjs";
+import { map, withLatestFrom } from "rxjs/operators";
+import { Observable, Subject } from "rxjs";
 
 import {
     Component,
@@ -12,7 +12,7 @@ import {
     Transform,
     ViewportCoords,
 } from "../../../Geo";
-import {RenderCamera} from "../../../Render";
+import { RenderCamera } from "../../../Render";
 import {
     Container,
     Navigator,
@@ -45,11 +45,11 @@ export abstract class CreateHandlerBase extends TagHandlerBase {
 
     protected _enable(): void {
         this._enableCreate();
-        this._container.element.classList.add("component-tag-create");
+        this._container.container.classList.add("component-tag-create");
     }
 
     protected _disable(): void {
-        this._container.element.classList.remove("component-tag-create");
+        this._container.container.classList.remove("component-tag-create");
         this._disableCreate();
     }
 
@@ -69,7 +69,7 @@ export abstract class CreateHandlerBase extends TagHandlerBase {
                 ([event, camera, transform]: [MouseEvent, RenderCamera, Transform]): number[] => {
                     return this._mouseEventToBasic(
                         event,
-                        this._container.element,
+                        this._container.container,
                         camera,
                         transform);
                 }));

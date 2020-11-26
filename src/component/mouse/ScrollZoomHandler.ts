@@ -1,5 +1,5 @@
-import {map, filter, withLatestFrom} from "rxjs/operators";
-import {Subscription} from "rxjs";
+import { map, filter, withLatestFrom } from "rxjs/operators";
+import { Subscription } from "rxjs";
 
 import {
     Component,
@@ -10,7 +10,7 @@ import {
     Transform,
     ViewportCoords,
 } from "../../Geo";
-import {RenderCamera} from "../../Render";
+import { RenderCamera } from "../../Render";
 import {
     ICurrentState,
     IFrame,
@@ -61,33 +61,33 @@ export class ScrollZoomHandler extends HandlerBase<IMouseConfiguration> {
 
         this._zoomSubscription = this._container.mouseService
             .filteredWheel$(this._component.name, this._container.mouseService.mouseWheel$).pipe(
-            withLatestFrom(
-                this._navigator.stateService.currentState$,
-                (w: WheelEvent, f: IFrame): [WheelEvent, IFrame] => {
-                    return [w, f];
-                }),
-            filter(
-                (args: [WheelEvent, IFrame]): boolean => {
-                    let state: ICurrentState = args[1].state;
-                    return state.currentNode.fullPano || state.nodesAhead < 1;
-                }),
-            map(
-                (args: [WheelEvent, IFrame]): WheelEvent => {
-                    return args[0];
-                }),
-            withLatestFrom(
-                this._container.renderService.renderCamera$,
-                this._navigator.stateService.currentTransform$,
-                (w: WheelEvent, r: RenderCamera, t: Transform): [WheelEvent, RenderCamera, Transform] => {
-                    return [w, r, t];
-                }))
+                withLatestFrom(
+                    this._navigator.stateService.currentState$,
+                    (w: WheelEvent, f: IFrame): [WheelEvent, IFrame] => {
+                        return [w, f];
+                    }),
+                filter(
+                    (args: [WheelEvent, IFrame]): boolean => {
+                        let state: ICurrentState = args[1].state;
+                        return state.currentNode.fullPano || state.nodesAhead < 1;
+                    }),
+                map(
+                    (args: [WheelEvent, IFrame]): WheelEvent => {
+                        return args[0];
+                    }),
+                withLatestFrom(
+                    this._container.renderService.renderCamera$,
+                    this._navigator.stateService.currentTransform$,
+                    (w: WheelEvent, r: RenderCamera, t: Transform): [WheelEvent, RenderCamera, Transform] => {
+                        return [w, r, t];
+                    }))
             .subscribe(
                 (args: [WheelEvent, RenderCamera, Transform]): void => {
                     let event: WheelEvent = args[0];
                     let render: RenderCamera = args[1];
                     let transform: Transform = args[2];
 
-                    let element: HTMLElement = this._container.element;
+                    let element: HTMLElement = this._container.container;
 
                     let [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
 

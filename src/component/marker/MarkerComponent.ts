@@ -23,7 +23,7 @@ import {
 import * as THREE from "three";
 import * as when from "when";
 
-import {ILatLon} from "../../API";
+import { ILatLon } from "../../API";
 import {
     IMarkerConfiguration,
     IMarkerEvent,
@@ -33,7 +33,7 @@ import {
     ComponentService,
     Component,
 } from "../../Component";
-import {IFrame} from "../../State";
+import { IFrame } from "../../State";
 import {
     Container,
     Navigator,
@@ -234,7 +234,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                             .canvasToViewport(
                                 pixelPoint[0],
                                 pixelPoint[1],
-                                this._container.element);
+                                this._container.container);
 
                         const id: string = this._markerScene.intersectObjects(viewport, render.perspective);
 
@@ -295,12 +295,12 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
             refCount());
 
         const geoInitiated$: Observable<void> = observableCombineLatest(
-                groundAltitude$,
-                this._navigator.stateService.reference$).pipe(
-            first(),
-            map((): void => { /* noop */ }),
-            publishReplay(1),
-            refCount());
+            groundAltitude$,
+            this._navigator.stateService.reference$).pipe(
+                first(),
+                map((): void => { /* noop */ }),
+                publishReplay(1),
+                refCount());
 
         const clampedConfiguration$: Observable<IMarkerConfiguration> = this._configuration$.pipe(
             map(
@@ -314,25 +314,25 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
             refCount());
 
         const visibleBBox$: Observable<[ILatLon, ILatLon]> = observableCombineLatest(
-                clampedConfiguration$,
-                currentlatLon$).pipe(
-            map(
-                ([configuration, latLon]: [IMarkerConfiguration, ILatLon]): [ILatLon, ILatLon] => {
-                    return this._graphCalculator
-                        .boundingBoxCorners(latLon, configuration.visibleBBoxSize / 2);
-                }),
-            publishReplay(1),
-            refCount());
+            clampedConfiguration$,
+            currentlatLon$).pipe(
+                map(
+                    ([configuration, latLon]: [IMarkerConfiguration, ILatLon]): [ILatLon, ILatLon] => {
+                        return this._graphCalculator
+                            .boundingBoxCorners(latLon, configuration.visibleBBoxSize / 2);
+                    }),
+                publishReplay(1),
+                refCount());
 
         const visibleMarkers$: Observable<Marker[]> = observableCombineLatest(
-                observableConcat(
-                    observableOf<MarkerSet>(this._markerSet),
-                    this._markerSet.changed$),
-                visibleBBox$).pipe(
-            map(
-                ([set, bbox]: [MarkerSet, [ILatLon, ILatLon]]): Marker[] => {
-                    return set.search(bbox);
-                }));
+            observableConcat(
+                observableOf<MarkerSet>(this._markerSet),
+                this._markerSet.changed$),
+            visibleBBox$).pipe(
+                map(
+                    ([set, bbox]: [MarkerSet, [ILatLon, ILatLon]]): Marker[] => {
+                        return set.search(bbox);
+                    }));
 
         this._setChangedSubscription = geoInitiated$.pipe(
             switchMap(
@@ -350,7 +350,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     const markersToRemove: { [id: string]: Marker } = Object.assign({}, sceneMarkers);
 
                     for (const marker of markers) {
-                         if (marker.id in sceneMarkers) {
+                        if (marker.id in sceneMarkers) {
                             delete markersToRemove[marker.id];
                         } else {
                             const point3d: number[] = geoCoords
@@ -423,13 +423,13 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
                     for (const marker of markerScene.getAll()) {
                         const point3d: number[] = geoCoords
-                                .geodeticToEnu(
-                                    marker.latLon.lat,
-                                    marker.latLon.lon,
-                                    reference.alt + alt,
-                                    reference.lat,
-                                    reference.lon,
-                                    reference.alt);
+                            .geodeticToEnu(
+                                marker.latLon.lat,
+                                marker.latLon.lon,
+                                reference.alt + alt,
+                                reference.lat,
+                                reference.lon,
+                                reference.alt);
 
                         markerScene.update(marker.id, point3d);
                     }
@@ -456,13 +456,13 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
                     for (const marker of markerScene.getAll()) {
                         const point3d: number[] = geoCoords
-                                .geodeticToEnu(
-                                    marker.latLon.lat,
-                                    marker.latLon.lon,
-                                    reference.alt + alt,
-                                    reference.lat,
-                                    reference.lon,
-                                    reference.alt);
+                            .geodeticToEnu(
+                                marker.latLon.lat,
+                                marker.latLon.lon,
+                                reference.alt + alt,
+                                reference.lat,
+                                reference.lon,
+                                reference.alt);
 
                         const distanceX: number = point3d[0] - position[0];
                         const distanceY: number = point3d[1] - position[1];
@@ -494,44 +494,44 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
             .subscribe(this._container.glRenderer.render$);
 
         const hoveredMarkerId$: Observable<string> = observableCombineLatest(
-                this._container.renderService.renderCamera$,
-                this._container.mouseService.mouseMove$).pipe(
-            map(
-                ([render, event]: [RenderCamera, MouseEvent]): string => {
-                    const element: HTMLElement = this._container.element;
-                    const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
-                    const viewport: number[] = this._viewportCoords.canvasToViewport(
-                        canvasX,
-                        canvasY,
-                        element);
+            this._container.renderService.renderCamera$,
+            this._container.mouseService.mouseMove$).pipe(
+                map(
+                    ([render, event]: [RenderCamera, MouseEvent]): string => {
+                        const element: HTMLElement = this._container.container;
+                        const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
+                        const viewport: number[] = this._viewportCoords.canvasToViewport(
+                            canvasX,
+                            canvasY,
+                            element);
 
-                    const markerId: string = this._markerScene.intersectObjects(viewport, render.perspective);
+                        const markerId: string = this._markerScene.intersectObjects(viewport, render.perspective);
 
-                    return markerId;
-                }),
-            publishReplay(1),
-            refCount());
+                        return markerId;
+                    }),
+                publishReplay(1),
+                refCount());
 
         const draggingStarted$: Observable<boolean> =
-             this._container.mouseService
+            this._container.mouseService
                 .filtered$(this._name, this._container.mouseService.mouseDragStart$).pipe(
-                map(
-                    (event: MouseEvent): boolean => {
-                        return true;
-                    }));
+                    map(
+                        (event: MouseEvent): boolean => {
+                            return true;
+                        }));
 
         const draggingStopped$: Observable<boolean> =
-             this._container.mouseService
+            this._container.mouseService
                 .filtered$(this._name, this._container.mouseService.mouseDragEnd$).pipe(
-                map(
-                    (event: Event): boolean => {
-                        return false;
-                    }));
+                    map(
+                        (event: Event): boolean => {
+                            return false;
+                        }));
 
         const filteredDragging$: Observable<boolean> = observableMerge(
-                draggingStarted$,
-                draggingStopped$).pipe(
-            startWith(false));
+            draggingStarted$,
+            draggingStopped$).pipe(
+                startWith(false));
 
         this._dragEventSubscription = observableMerge(
             draggingStarted$.pipe(
@@ -539,8 +539,8 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
             observableCombineLatest(
                 draggingStopped$,
                 observableOf<string>(null))).pipe(
-            startWith<[boolean, string]>([false, null]),
-            pairwise())
+                    startWith<[boolean, string]>([false, null]),
+                    pairwise())
             .subscribe(
                 ([previous, current]: [boolean, string][]): void => {
                     const dragging: boolean = current[0];
@@ -553,22 +553,22 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                 });
 
         const mouseDown$: Observable<boolean> = observableMerge(
-                this._container.mouseService.mouseDown$.pipe(
-                    map((event: MouseEvent): boolean => { return true; })),
-                this._container.mouseService.documentMouseUp$.pipe(
-                    map((event: MouseEvent): boolean => { return false; }))).pipe(
-            startWith(false));
+            this._container.mouseService.mouseDown$.pipe(
+                map((event: MouseEvent): boolean => { return true; })),
+            this._container.mouseService.documentMouseUp$.pipe(
+                map((event: MouseEvent): boolean => { return false; }))).pipe(
+                    startWith(false));
 
         this._mouseClaimSubscription = observableCombineLatest(
-                this._container.mouseService.active$,
-                hoveredMarkerId$.pipe(distinctUntilChanged()),
-                mouseDown$,
-                filteredDragging$).pipe(
-            map(
-                ([active, markerId, mouseDown, filteredDragging]: [boolean, string, boolean, boolean]): boolean => {
-                    return (!active && markerId != null && mouseDown) || filteredDragging;
-                }),
-            distinctUntilChanged())
+            this._container.mouseService.active$,
+            hoveredMarkerId$.pipe(distinctUntilChanged()),
+            mouseDown$,
+            filteredDragging$).pipe(
+                map(
+                    ([active, markerId, mouseDown, filteredDragging]: [boolean, string, boolean, boolean]): boolean => {
+                        return (!active && markerId != null && mouseDown) || filteredDragging;
+                    }),
+                distinctUntilChanged())
             .subscribe(
                 (claim: boolean): void => {
                     if (claim) {
@@ -582,35 +582,35 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
         const offset$: Observable<[Marker, number[], RenderCamera]> = this._container.mouseService
             .filtered$(this._name, this._container.mouseService.mouseDragStart$).pipe(
-            withLatestFrom(
-                hoveredMarkerId$,
-                this._container.renderService.renderCamera$),
-            map(
-                ([e, id, r]: [MouseEvent, string, RenderCamera]): [Marker, number[], RenderCamera] => {
-                    const marker: Marker = this._markerScene.get(id);
-                    const element: HTMLElement = this._container.element;
+                withLatestFrom(
+                    hoveredMarkerId$,
+                    this._container.renderService.renderCamera$),
+                map(
+                    ([e, id, r]: [MouseEvent, string, RenderCamera]): [Marker, number[], RenderCamera] => {
+                        const marker: Marker = this._markerScene.get(id);
+                        const element: HTMLElement = this._container.container;
 
-                    const [groundCanvasX, groundCanvasY]: number[] =
-                        this._viewportCoords.projectToCanvas(
-                            marker.geometry.position.toArray(),
-                            element,
-                            r.perspective);
+                        const [groundCanvasX, groundCanvasY]: number[] =
+                            this._viewportCoords.projectToCanvas(
+                                marker.geometry.position.toArray(),
+                                element,
+                                r.perspective);
 
-                    const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(e, element);
+                        const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(e, element);
 
-                    const offset: number[] = [canvasX - groundCanvasX, canvasY - groundCanvasY];
+                        const offset: number[] = [canvasX - groundCanvasX, canvasY - groundCanvasY];
 
-                    return [marker, offset, r];
-                }),
-            publishReplay(1),
-            refCount());
+                        return [marker, offset, r];
+                    }),
+                publishReplay(1),
+                refCount());
 
         this._updateMarkerSubscription = this._container.mouseService
             .filtered$(this._name, this._container.mouseService.mouseDrag$).pipe(
-            withLatestFrom(
-                offset$,
-                this._navigator.stateService.reference$,
-                clampedConfiguration$))
+                withLatestFrom(
+                    offset$,
+                    this._navigator.stateService.reference$,
+                    clampedConfiguration$))
             .subscribe(
                 ([event, [marker, offset, render], reference, configuration]:
                     [MouseEvent, [Marker, number[], RenderCamera], ILatLonAlt, IMarkerConfiguration]): void => {
@@ -618,7 +618,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                         return;
                     }
 
-                    const element: HTMLElement = this._container.element;
+                    const element: HTMLElement = this._container.container;
                     const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
 
                     const groundX: number = canvasX - offset[0];

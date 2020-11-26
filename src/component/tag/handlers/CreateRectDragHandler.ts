@@ -22,8 +22,8 @@ import {
     OutlineCreateTag,
     RectGeometry,
 } from "../../../Component";
-import {Transform} from "../../../Geo";
-import {RenderCamera} from "../../../Render";
+import { Transform } from "../../../Geo";
+import { RenderCamera } from "../../../Render";
 
 export class CreateRectDragHandler extends CreateHandlerBase {
     private _addPointSubscription: Subscription;
@@ -42,8 +42,8 @@ export class CreateRectDragHandler extends CreateHandlerBase {
             .subscribe(this._tagCreator.delete$);
 
         this._createSubscription = this._mouseEventToBasic$(
-                this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDragStart$)).pipe(
-            filter(this._validateBasic))
+            this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseDragStart$)).pipe(
+                filter(this._validateBasic))
             .subscribe(this._tagCreator.createRect$);
 
         this._initializeAnchorIndexingSubscription = this._tagCreator.tag$.pipe(
@@ -57,19 +57,19 @@ export class CreateRectDragHandler extends CreateHandlerBase {
                 });
 
         const basicMouse$: Observable<number[]> = observableCombineLatest(
-                observableMerge(
-                    this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseMove$),
-                    this._container.mouseService.filtered$(this._name, this._container.mouseService.domMouseMove$)),
-                this._container.renderService.renderCamera$).pipe(
-            withLatestFrom(this._navigator.stateService.currentTransform$),
-            map(
-                ([[event, camera], transform]: [[MouseEvent, RenderCamera], Transform]): number[] => {
-                    return this._mouseEventToBasic(
-                        event,
-                        this._container.element,
-                        camera,
-                        transform);
-                }));
+            observableMerge(
+                this._container.mouseService.filtered$(this._name, this._container.mouseService.mouseMove$),
+                this._container.mouseService.filtered$(this._name, this._container.mouseService.domMouseMove$)),
+            this._container.renderService.renderCamera$).pipe(
+                withLatestFrom(this._navigator.stateService.currentTransform$),
+                map(
+                    ([[event, camera], transform]: [[MouseEvent, RenderCamera], Transform]): number[] => {
+                        return this._mouseEventToBasic(
+                            event,
+                            this._container.container,
+                            camera,
+                            transform);
+                    }));
 
         this._setVertexSubscription = this._tagCreator.tag$.pipe(
             switchMap(

@@ -84,41 +84,41 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
 
     protected _enable(): void {
         let draggingStarted$: Observable<boolean> =
-             this._container.mouseService
+            this._container.mouseService
                 .filtered$(this._component.name, this._container.mouseService.mouseDragStart$).pipe(
-                map(
-                    (): boolean => {
-                        return true;
-                    }),
-                share());
+                    map(
+                        (): boolean => {
+                            return true;
+                        }),
+                    share());
 
         let draggingStopped$: Observable<boolean> =
-             this._container.mouseService
+            this._container.mouseService
                 .filtered$(this._component.name, this._container.mouseService.mouseDragEnd$).pipe(
-                map(
-                    (): boolean => {
-                        return false;
-                    }),
-                share());
+                    map(
+                        (): boolean => {
+                            return false;
+                        }),
+                    share());
 
         this._activeMouseSubscription = observableMerge(
-                draggingStarted$,
-                draggingStopped$)
+            draggingStarted$,
+            draggingStopped$)
             .subscribe(this._container.mouseService.activate$);
 
         const documentMouseMove$: Observable<MouseEvent> = observableMerge(
-                draggingStarted$,
-                draggingStopped$).pipe(
-            switchMap(
-                (dragging: boolean): Observable<MouseEvent> => {
-                    return dragging ?
-                        this._container.mouseService.documentMouseMove$ :
-                        observableEmpty();
-                }));
+            draggingStarted$,
+            draggingStopped$).pipe(
+                switchMap(
+                    (dragging: boolean): Observable<MouseEvent> => {
+                        return dragging ?
+                            this._container.mouseService.documentMouseMove$ :
+                            observableEmpty();
+                    }));
 
         this._preventDefaultSubscription = observableMerge(
-                documentMouseMove$,
-                this._container.touchService.touchMove$)
+            documentMouseMove$,
+            this._container.touchService.touchMove$)
             .subscribe(
                 (event: MouseEvent | TouchEvent): void => {
                     event.preventDefault(); // prevent selection of content outside the viewer
@@ -139,8 +139,8 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                     }));
 
         this._activeTouchSubscription = observableMerge(
-                touchMovingStarted$,
-                touchMovingStopped$)
+            touchMovingStarted$,
+            touchMovingStopped$)
             .subscribe(this._container.touchService.activate$);
 
         const rotation$: Observable<IRotation> = this._navigator.stateService.currentState$.pipe(
@@ -159,24 +159,24 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                         MouseOperator.filteredPairwiseMouseDrag$(this._component.name, this._container.mouseService);
 
                     const singleTouchDrag$: Observable<[Touch, Touch]> = observableMerge(
-                            this._container.touchService.singleTouchDragStart$,
-                            this._container.touchService.singleTouchDrag$,
-                            this._container.touchService.singleTouchDragEnd$.pipe(
-                                map((): TouchEvent => { return null; }))).pipe(
-                        map(
-                            (event: TouchEvent): Touch => {
-                                return event != null && event.touches.length > 0 ?
-                                    event.touches[0] : null;
-                            }),
-                        pairwise(),
-                        filter(
-                            (pair: [Touch, Touch]): boolean => {
-                                return pair[0] != null && pair[1] != null;
-                            }));
+                        this._container.touchService.singleTouchDragStart$,
+                        this._container.touchService.singleTouchDrag$,
+                        this._container.touchService.singleTouchDragEnd$.pipe(
+                            map((): TouchEvent => { return null; }))).pipe(
+                                map(
+                                    (event: TouchEvent): Touch => {
+                                        return event != null && event.touches.length > 0 ?
+                                            event.touches[0] : null;
+                                    }),
+                                pairwise(),
+                                filter(
+                                    (pair: [Touch, Touch]): boolean => {
+                                        return pair[0] != null && pair[1] != null;
+                                    }));
 
                     return observableMerge(
-                            mouseDrag$,
-                            singleTouchDrag$);
+                        mouseDrag$,
+                        singleTouchDrag$);
                 }),
             withLatestFrom(
                 this._container.renderService.renderCamera$,
@@ -190,7 +190,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                     let movementX: number = event.clientX - previousEvent.clientX;
                     let movementY: number = event.clientY - previousEvent.clientY;
 
-                    let element: HTMLElement = this._container.element;
+                    let element: HTMLElement = this._container.container;
 
                     let [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
 
@@ -200,7 +200,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                             canvasY,
                             element,
                             render.perspective)
-                                .sub(render.perspective.position);
+                            .sub(render.perspective.position);
 
                     let directionX: THREE.Vector3 =
                         this._viewportCoords.unprojectFromCanvas(
@@ -208,7 +208,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                             canvasY,
                             element,
                             render.perspective)
-                                .sub(render.perspective.position);
+                            .sub(render.perspective.position);
 
                     let directionY: THREE.Vector3 =
                         this._viewportCoords.unprojectFromCanvas(
@@ -216,7 +216,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                             canvasY - movementY,
                             element,
                             render.perspective)
-                                .sub(render.perspective.position);
+                            .sub(render.perspective.position);
 
                     let phi: number = (movementX > 0 ? 1 : -1) * directionX.angleTo(currentDirection);
                     let theta: number = (movementY > 0 ? -1 : 1) * directionY.angleTo(currentDirection);
@@ -271,10 +271,10 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                 []),
             sample(
                 observableMerge(
-                        this._container.mouseService.filtered$(
-                            this._component.name,
-                            this._container.mouseService.mouseDragEnd$),
-                        this._container.touchService.singleTouchDragEnd$)),
+                    this._container.mouseService.filtered$(
+                        this._component.name,
+                        this._container.mouseService.mouseDragEnd$),
+                    this._container.touchService.singleTouchDragEnd$)),
             map(
                 (rotationBuffer: [number, IRotation][]): IRotation => {
                     const drainedBuffer: [number, IRotation][] = this._drainBuffer(rotationBuffer.slice());

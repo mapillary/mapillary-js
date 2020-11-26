@@ -21,12 +21,12 @@ import {
     IComponentConfiguration,
     Popup,
 } from "../../Component";
-import {Transform} from "../../Geo";
+import { Transform } from "../../Geo";
 import {
     ISize,
     RenderCamera,
 } from "../../Render";
-import {DOM} from "../../Utils";
+import { DOM } from "../../Utils";
 import {
     Container,
     Navigator,
@@ -153,16 +153,16 @@ export class PopupComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        this._popupContainer = this._dom.createElement("div", "mapillary-js-popup-container", this._container.element) ;
+        this._popupContainer = this._dom.createElement("div", "mapillary-js-popup-container", this._container.container);
 
         for (const popup of this._popups) {
             popup.setParentContainer(this._popupContainer);
         }
 
         this._updateAllSubscription = observableCombineLatest(
-                this._container.renderService.renderCamera$,
-                this._container.renderService.size$,
-                this._navigator.stateService.currentTransform$)
+            this._container.renderService.renderCamera$,
+            this._container.renderService.size$,
+            this._navigator.stateService.currentTransform$)
             .subscribe(
                 ([renderCamera, size, transform]: [RenderCamera, ISize, Transform]): void => {
                     for (const popup of this._popups) {
@@ -206,7 +206,7 @@ export class PopupComponent extends Component<IComponentConfiguration> {
             popup.remove();
         }
 
-        this._container.element.removeChild(this._popupContainer);
+        this._container.container.removeChild(this._popupContainer);
         delete this._popupContainer;
     }
 

@@ -1,14 +1,14 @@
-import {DOMRendererMockCreator} from "./DOMRendererMockCreator.spec";
-import {GLRendererMockCreator} from "./GLRendererMockCreator.spec";
-import {KeyboardServiceMockCreator} from "./KeyboardServiceMockCreator.spec";
-import {MockCreator} from "./MockCreator.spec";
-import {MockCreatorBase} from "./MockCreatorBase.spec";
-import {MouseServiceMockCreator} from "./MouseServiceMockCreator.spec";
-import {RenderServiceMockCreator} from "./RenderServiceMockCreator.spec";
-import {SpriteServiceMockCreator} from "./SpriteServiceMockCreator.spec";
-import {TouchServiceMockCreator} from "./TouchServiceMockCreator.spec";
+import { DOMRendererMockCreator } from "./DOMRendererMockCreator.spec";
+import { GLRendererMockCreator } from "./GLRendererMockCreator.spec";
+import { KeyboardServiceMockCreator } from "./KeyboardServiceMockCreator.spec";
+import { MockCreator } from "./MockCreator.spec";
+import { MockCreatorBase } from "./MockCreatorBase.spec";
+import { MouseServiceMockCreator } from "./MouseServiceMockCreator.spec";
+import { RenderServiceMockCreator } from "./RenderServiceMockCreator.spec";
+import { SpriteServiceMockCreator } from "./SpriteServiceMockCreator.spec";
+import { TouchServiceMockCreator } from "./TouchServiceMockCreator.spec";
 
-import {Container} from "../../src/Viewer";
+import { Container } from "../../src/Viewer";
 
 export class ContainerMockCreator extends MockCreatorBase<Container> {
     public create(): Container {
@@ -16,7 +16,7 @@ export class ContainerMockCreator extends MockCreatorBase<Container> {
 
         this._mockProperty(mock, "canvasContainer", document.createElement("canvas"));
         this._mockProperty(mock, "domRenderer", new DOMRendererMockCreator().create());
-        this._mockProperty(mock, "element", document.createElement("div"));
+        this._mockProperty(mock, "container", document.createElement("div"));
         this._mockProperty(mock, "glRenderer", new GLRendererMockCreator().create());
         this._mockProperty(mock, "keyboardService", new KeyboardServiceMockCreator().create());
         this._mockProperty(mock, "mouseService", new MouseServiceMockCreator().create());

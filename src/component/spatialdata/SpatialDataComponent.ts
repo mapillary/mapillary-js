@@ -376,7 +376,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             withLatestFrom(this._container.renderService.renderCamera$),
             switchMap(
                 ([event, render]: [MouseEvent, RenderCamera]): Observable<Node> => {
-                    const element: HTMLElement = this._container.element;
+                    const element: HTMLElement = this._container.container;
                     const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
                     const viewport: number[] = this._viewportCoords.canvasToViewport(
                         canvasX,

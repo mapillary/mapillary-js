@@ -507,7 +507,7 @@ export class Viewer extends EventEmitter {
      * @returns {HTMLElement} The viewer's container.
      */
     public getContainer(): HTMLElement {
-        return this._container.element;
+        return this._container.container;
     }
 
     /**

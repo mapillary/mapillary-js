@@ -24,8 +24,8 @@ import {
     Geometry,
     CreateTag,
 } from "../../../Component";
-import {Transform} from "../../../Geo";
-import {RenderCamera} from "../../../Render";
+import { Transform } from "../../../Geo";
+import { RenderCamera } from "../../../Render";
 
 export abstract class CreateVertexHandler extends CreateHandlerBase {
     private _addPointSubscription: Subscription;
@@ -64,19 +64,19 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
                 (tag: CreateTag<Geometry>): Observable<[CreateTag<Geometry>, MouseEvent, RenderCamera, Transform]> => {
                     return !!tag ?
                         observableCombineLatest(
-                                observableOf(tag),
-                                observableMerge(
-                                        this._container.mouseService.mouseMove$,
-                                        this._container.mouseService.domMouseMove$),
-                                this._container.renderService.renderCamera$,
-                                this._navigator.stateService.currentTransform$) :
+                            observableOf(tag),
+                            observableMerge(
+                                this._container.mouseService.mouseMove$,
+                                this._container.mouseService.domMouseMove$),
+                            this._container.renderService.renderCamera$,
+                            this._navigator.stateService.currentTransform$) :
                         observableEmpty();
                 }))
             .subscribe(
                 ([tag, event, camera, transform]: [CreateTag<Geometry>, MouseEvent, RenderCamera, Transform]): void => {
                     const basicPoint: number[] = this._mouseEventToBasic(
                         event,
-                        this._container.element,
+                        this._container.container,
                         camera,
                         transform);
 
@@ -88,8 +88,8 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
                 (tag: CreateTag<Geometry>): Observable<[CreateTag<Geometry>, number[]]> => {
                     return !!tag ?
                         observableCombineLatest(
-                                observableOf(tag),
-                                basicClick$) :
+                            observableOf(tag),
+                            basicClick$) :
                         observableEmpty();
                 }))
             .subscribe(

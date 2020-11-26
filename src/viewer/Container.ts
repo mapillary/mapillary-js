@@ -71,7 +71,7 @@ export class Container {
         this.spriteService = new SpriteService(options.sprite);
     }
 
-    public get element(): HTMLElement {
+    public get container(): HTMLElement {
         return this._container;
     }
 

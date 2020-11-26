@@ -1,6 +1,6 @@
-import {merge as observableMerge, Observable, Subscription} from "rxjs";
+import { merge as observableMerge, Observable, Subscription } from "rxjs";
 
-import {filter, withLatestFrom, map} from "rxjs/operators";
+import { filter, withLatestFrom, map } from "rxjs/operators";
 import * as THREE from "three";
 
 import {
@@ -12,7 +12,7 @@ import {
     Transform,
     ViewportCoords,
 } from "../../Geo";
-import {RenderCamera} from "../../Render";
+import { RenderCamera } from "../../Render";
 import {
     ICurrentState,
     IFrame,
@@ -76,8 +76,8 @@ export class TouchZoomHandler extends HandlerBase<IMouseConfiguration> {
                     }));
 
         this._activeSubscription = observableMerge(
-                pinchStarted$,
-                pinchStopped$)
+            pinchStarted$,
+            pinchStopped$)
             .subscribe(this._container.touchService.activate$);
 
         this._zoomSubscription = this._container.touchService.pinch$.pipe(
@@ -96,7 +96,7 @@ export class TouchZoomHandler extends HandlerBase<IMouseConfiguration> {
                 this._navigator.stateService.currentTransform$))
             .subscribe(
                 ([pinch, render, transform]: [IPinch, RenderCamera, Transform]): void => {
-                    let element: HTMLElement = this._container.element;
+                    let element: HTMLElement = this._container.container;
 
                     let [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(pinch, element);
 

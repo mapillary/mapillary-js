@@ -16,7 +16,7 @@ import {
     map,
 } from "rxjs/operators";
 
-import {ILatLon} from "../API";
+import { ILatLon } from "../API";
 import {
     ILatLonAlt,
     Transform,
@@ -25,8 +25,8 @@ import {
     IEdgeStatus,
     Node,
 } from "../Graph";
-import {RenderCamera} from "../Render";
-import {EventEmitter} from "../Utils";
+import { RenderCamera } from "../Render";
+import { EventEmitter } from "../Utils";
 import {
     Container,
     IUnprojection,
@@ -97,42 +97,42 @@ export class Observer {
             this._container.renderService.renderCamera$,
             this._navigator.stateService.currentNode$,
             this._navigator.stateService.reference$).pipe(
-            first(),
-            map(
-                ([render, node, reference]: [RenderCamera, Node, ILatLonAlt]): number[] => {
-                    if (this._projection.distanceBetweenLatLons(latLon, node.latLon) > 1000) {
-                        return null;
-                    }
+                first(),
+                map(
+                    ([render, node, reference]: [RenderCamera, Node, ILatLonAlt]): number[] => {
+                        if (this._projection.distanceBetweenLatLons(latLon, node.latLon) > 1000) {
+                            return null;
+                        }
 
-                    const canvasPoint: number[] = this._projection.latLonToCanvas(
-                        latLon,
-                        this._container.element,
-                        render,
-                        reference);
+                        const canvasPoint: number[] = this._projection.latLonToCanvas(
+                            latLon,
+                            this._container.container,
+                            render,
+                            reference);
 
-                    return !!canvasPoint ?
-                        [Math.round(canvasPoint[0]), Math.round(canvasPoint[1])] :
-                        null;
-                }));
+                        return !!canvasPoint ?
+                            [Math.round(canvasPoint[0]), Math.round(canvasPoint[1])] :
+                            null;
+                    }));
     }
 
     public projectBasic$(basicPoint: number[]): Observable<number[]> {
         return observableCombineLatest(
-                this._container.renderService.renderCamera$,
-                this._navigator.stateService.currentTransform$).pipe(
-            first(),
-            map(
-                ([render, transform]: [RenderCamera, Transform]): number[] => {
-                    const canvasPoint: number[] = this._projection.basicToCanvas(
-                        basicPoint,
-                        this._container.element,
-                        render,
-                        transform);
+            this._container.renderService.renderCamera$,
+            this._navigator.stateService.currentTransform$).pipe(
+                first(),
+                map(
+                    ([render, transform]: [RenderCamera, Transform]): number[] => {
+                        const canvasPoint: number[] = this._projection.basicToCanvas(
+                            basicPoint,
+                            this._container.container,
+                            render,
+                            transform);
 
-                    return !!canvasPoint ?
-                        [Math.round(canvasPoint[0]), Math.round(canvasPoint[1])] :
-                        null;
-                }));
+                        return !!canvasPoint ?
+                            [Math.round(canvasPoint[0]), Math.round(canvasPoint[1])] :
+                            null;
+                    }));
     }
 
     public startEmit(): void {
@@ -168,14 +168,14 @@ export class Observer {
                 });
 
         this._moveSubscription = observableCombineLatest(
-                this._navigator.stateService.inMotion$,
-                this._container.mouseService.active$,
-                this._container.touchService.active$).pipe(
-            map(
-                (values: boolean[]): boolean => {
-                    return values[0] || values[1] || values[2];
-                }),
-            distinctUntilChanged())
+            this._navigator.stateService.inMotion$,
+            this._container.mouseService.active$,
+            this._container.touchService.active$).pipe(
+                map(
+                    (values: boolean[]): boolean => {
+                        return values[0] || values[1] || values[2];
+                    }),
+                distinctUntilChanged())
             .subscribe(
                 (started: boolean) => {
                     if (started) {
@@ -194,7 +194,7 @@ export class Observer {
             .subscribe(
                 (bearing): void => {
                     this._eventEmitter.fire(Viewer.bearingchanged, bearing);
-                 });
+                });
 
         const mouseMove$: Observable<MouseEvent> = this._container.mouseService.active$.pipe(
             switchMap(
@@ -205,38 +205,38 @@ export class Observer {
                 }));
 
         this._viewerMouseEventSubscription = observableMerge(
-                this._mapMouseEvent$(Viewer.click, this._container.mouseService.staticClick$),
-                this._mapMouseEvent$(Viewer.contextmenu, this._container.mouseService.contextMenu$),
-                this._mapMouseEvent$(Viewer.dblclick, this._container.mouseService.dblClick$),
-                this._mapMouseEvent$(Viewer.mousedown, this._container.mouseService.mouseDown$),
-                this._mapMouseEvent$(Viewer.mousemove, mouseMove$),
-                this._mapMouseEvent$(Viewer.mouseout, this._container.mouseService.mouseOut$),
-                this._mapMouseEvent$(Viewer.mouseover, this._container.mouseService.mouseOver$),
-                this._mapMouseEvent$(Viewer.mouseup, this._container.mouseService.mouseUp$)).pipe(
-            withLatestFrom(
-                this._container.renderService.renderCamera$,
-                this._navigator.stateService.reference$,
-                this._navigator.stateService.currentTransform$),
-            map(
-                ([[type, event], render, reference, transform]:
-                [[string, MouseEvent], RenderCamera, ILatLonAlt, Transform]): IViewerMouseEvent => {
-                    const unprojection: IUnprojection =
-                        this._projection.eventToUnprojection(
-                            event,
-                            this._container.element,
-                            render,
-                            reference,
-                            transform);
+            this._mapMouseEvent$(Viewer.click, this._container.mouseService.staticClick$),
+            this._mapMouseEvent$(Viewer.contextmenu, this._container.mouseService.contextMenu$),
+            this._mapMouseEvent$(Viewer.dblclick, this._container.mouseService.dblClick$),
+            this._mapMouseEvent$(Viewer.mousedown, this._container.mouseService.mouseDown$),
+            this._mapMouseEvent$(Viewer.mousemove, mouseMove$),
+            this._mapMouseEvent$(Viewer.mouseout, this._container.mouseService.mouseOut$),
+            this._mapMouseEvent$(Viewer.mouseover, this._container.mouseService.mouseOver$),
+            this._mapMouseEvent$(Viewer.mouseup, this._container.mouseService.mouseUp$)).pipe(
+                withLatestFrom(
+                    this._container.renderService.renderCamera$,
+                    this._navigator.stateService.reference$,
+                    this._navigator.stateService.currentTransform$),
+                map(
+                    ([[type, event], render, reference, transform]:
+                        [[string, MouseEvent], RenderCamera, ILatLonAlt, Transform]): IViewerMouseEvent => {
+                        const unprojection: IUnprojection =
+                            this._projection.eventToUnprojection(
+                                event,
+                                this._container.container,
+                                render,
+                                reference,
+                                transform);
 
-                    return  {
-                        basicPoint: unprojection.basicPoint,
-                        latLon: unprojection.latLon,
-                        originalEvent: event,
-                        pixelPoint: unprojection.pixelPoint,
-                        target: <Viewer>this._eventEmitter,
-                        type: type,
-                    };
-                }))
+                        return {
+                            basicPoint: unprojection.basicPoint,
+                            latLon: unprojection.latLon,
+                            originalEvent: event,
+                            pixelPoint: unprojection.pixelPoint,
+                            target: <Viewer>this._eventEmitter,
+                            type: type,
+                        };
+                    }))
             .subscribe(
                 (event: IViewerMouseEvent): void => {
                     this._eventEmitter.fire(event.type, event);
@@ -329,37 +329,37 @@ export class Observer {
 
     public unproject$(canvasPoint: number[]): Observable<ILatLon> {
         return observableCombineLatest(
-                this._container.renderService.renderCamera$,
-                this._navigator.stateService.reference$,
-                this._navigator.stateService.currentTransform$).pipe(
-            first(),
-            map(
-                ([render, reference, transform]: [RenderCamera, ILatLonAlt, Transform]): ILatLon => {
-                    const unprojection: IUnprojection =
-                        this._projection.canvasToUnprojection(
-                            canvasPoint,
-                            this._container.element,
-                            render,
-                            reference,
-                            transform);
+            this._container.renderService.renderCamera$,
+            this._navigator.stateService.reference$,
+            this._navigator.stateService.currentTransform$).pipe(
+                first(),
+                map(
+                    ([render, reference, transform]: [RenderCamera, ILatLonAlt, Transform]): ILatLon => {
+                        const unprojection: IUnprojection =
+                            this._projection.canvasToUnprojection(
+                                canvasPoint,
+                                this._container.container,
+                                render,
+                                reference,
+                                transform);
 
-                    return unprojection.latLon;
-                }));
+                        return unprojection.latLon;
+                    }));
     }
 
     public unprojectBasic$(canvasPoint: number[]): Observable<number[]> {
         return observableCombineLatest(
-                this._container.renderService.renderCamera$,
-                this._navigator.stateService.currentTransform$).pipe(
-            first(),
-            map(
-                ([render, transform]: [RenderCamera, Transform]): number[] => {
-                    return this._projection.canvasToBasic(
-                        canvasPoint,
-                        this._container.element,
-                        render,
-                        transform);
-                }));
+            this._container.renderService.renderCamera$,
+            this._navigator.stateService.currentTransform$).pipe(
+                first(),
+                map(
+                    ([render, transform]: [RenderCamera, Transform]): number[] => {
+                        return this._projection.canvasToBasic(
+                            canvasPoint,
+                            this._container.container,
+                            render,
+                            transform);
+                    }));
     }
 
     private _closeTo(v1: number, v2: number, absoluteTolerance: number): boolean {

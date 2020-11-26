@@ -37,7 +37,7 @@ import {
     Transform,
     ViewportCoords,
 } from "../../../Geo";
-import {RenderCamera} from "../../../Render";
+import { RenderCamera } from "../../../Render";
 import {
     Container,
     Navigator,
@@ -91,9 +91,9 @@ export class EditVertexHandler extends TagHandlerBase {
             share());
 
         const mouseMove$: Observable<MouseEvent> = observableMerge(
-                this._container.mouseService.mouseMove$,
-                this._container.mouseService.domMouseMove$).pipe(
-            share());
+            this._container.mouseService.mouseMove$,
+            this._container.mouseService.domMouseMove$).pipe(
+                share());
 
         this._claimMouseSubscription = interaction$.pipe(
             switchMap(
@@ -115,11 +115,11 @@ export class EditVertexHandler extends TagHandlerBase {
                 (cursor: string): void => {
                     const interactionCursors: InteractionCursor[] = ["crosshair", "move", "nesw-resize", "nwse-resize"];
                     for (const interactionCursor of interactionCursors) {
-                        this._container.element.classList.remove(`component-tag-edit-${interactionCursor}`);
+                        this._container.container.classList.remove(`component-tag-edit-${interactionCursor}`);
                     }
 
                     if (!!cursor) {
-                        this._container.element.classList.add(`component-tag-edit-${cursor}`);
+                        this._container.container.classList.add(`component-tag-edit-${cursor}`);
                     }
                 });
 
@@ -154,30 +154,30 @@ export class EditVertexHandler extends TagHandlerBase {
                             .filtered$(
                                 this._name,
                                 this._container.mouseService.domMouseDrag$).pipe(
-                            filter(
-                                (event: MouseEvent): boolean => {
-                                    return this._viewportCoords.insideElement(event, this._container.element);
-                                }));
+                                    filter(
+                                        (event: MouseEvent): boolean => {
+                                            return this._viewportCoords.insideElement(event, this._container.container);
+                                        }));
 
                     return observableCombineLatest(
-                            mouseDrag$,
-                            this._container.renderService.renderCamera$).pipe(
-                        withLatestFrom(
-                            observableOf(interaction),
-                            this._navigator.stateService.currentTransform$,
-                            (
-                                [event, render]: [MouseEvent, RenderCamera],
-                                i: IInteraction,
-                                transform: Transform):
-                                [MouseEvent, RenderCamera, IInteraction, Transform] => {
-                                return [event, render, i, transform];
-                            }));
+                        mouseDrag$,
+                        this._container.renderService.renderCamera$).pipe(
+                            withLatestFrom(
+                                observableOf(interaction),
+                                this._navigator.stateService.currentTransform$,
+                                (
+                                    [event, render]: [MouseEvent, RenderCamera],
+                                    i: IInteraction,
+                                    transform: Transform):
+                                    [MouseEvent, RenderCamera, IInteraction, Transform] => {
+                                    return [event, render, i, transform];
+                                }));
                 }))
             .subscribe(
                 ([mouseEvent, renderCamera, interaction, transform]: [MouseEvent, RenderCamera, IInteraction, Transform]): void => {
                     const basic: number[] = this._mouseEventToBasic(
                         mouseEvent,
-                        this._container.element,
+                        this._container.container,
                         renderCamera,
                         transform,
                         interaction.offsetX,
