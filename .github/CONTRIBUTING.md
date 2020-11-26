@@ -2,91 +2,46 @@ Thanks in advance for contributing to MapillaryJS. Please follow the conventions
 
 ## [Code of Conduct](https://code.facebook.com/codeofconduct)
 
-The code of conduct is described in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
+Facebook has adopted the [Contributor Covenant](https://www.contributor-covenant.org/) as its Code of Conduct, and we expect project participants to adhere to it. Please read [the full text](.CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
 
-## Preparing your Development Environment
+## Contribution Prerequisites
+- You have [Node](https://nodejs.org) installed at v10.0.0+ and [Yarn](https://classic.yarnpkg.com) at v1.2.0+.
+- You are familiar with Git.
 
-### Linux
+## Sending a Pull Request
+We will review your pull request and either merge it, request changes to it, or close it with an explanation. We’ll do our best to provide updates and feedback throughout the process.
 
-Install [GNU Make](http://www.gnu.org/software/make/) and [git](https://git-scm.com/):
-```bash
-sudo apt-get update &&
-sudo apt-get install build-essential git
-```
+**Before submitting a pull request**, please make sure the following is done:
 
-Install [node.js](https://nodejs.org/) _10.x_ and [npm](https://www.npmjs.com/) according to the [node.js package manager installation instructions](https://nodejs.org/en/download/package-manager/).
+1. Fork [the repository](https://github.com/mapillary/mapillary-js) and create your branch from `master`.
+2. Run `yarn` in the repository root.
+3. If you’ve fixed a bug or added code that should be tested, add tests!
+4. Ensure the test suite passes (`yarn test`).
+5. Make sure your code lints (`yarn lint`).
+6. If you haven’t already, complete the CLA.
 
-Clone a copy of the repo:
-```bash
-git clone https://github.com/mapillary/mapillary-js.git
-```
+## Contributor License Agreement (CLA)
+In order to accept your pull request, we need you to submit a CLA. You only need to do this once, so if you’ve done this for another Facebook open source project, you’re good to go. If you are submitting a pull request for the first time, just let us know that you have completed the CLA and we can cross-check with your GitHub username.
 
-Change to the mapillary-js directory and install node module dependencies:
-```bash
-cd mapillary-js &&
-npm install
-```
+[Complete your CLA here.](https://code.facebook.com/cla)
 
-### OSX
 
-Install the Command Line Tools for Xcode:
+## Development Workflow
+After cloning MapillaryJS, run `yarn` to fetch its dependencies. Then, you can run several commands:
 
-```bash
-xcode-select --install
-```
+- `yarn lint` checks the code style.
+- `yarn test` runs the complete test suite.
+- `yarn test-watch` runs an interactive test watcher.
+- `yarn build` creates a `dist` folder with the package.
+- `yarn build-docs` builds the documentation in the `docs/build` folder.
 
-Install [Homebrew](http://brew.sh/) according to the instructions.
+We recommend running `yarn test` to make sure you don’t introduce any regressions as you work on your change.
 
-Install [node.js](https://nodejs.org/):
-```bash
-brew install node
-```
+The easiest way to try your changes is to run `yarn start` and open the debug page at [http://localhost:3000](http://localhost:3000).
 
-Clone a copy of the repo:
-```bash
-git clone https://github.com/mapillary/mapillary-js.git
-```
+However it can be handy to try your build of MapillaryJS in a real project. First, run `yarn build`. This will produce pre-built bundles in the `dist` folder.
 
-Change to the mapillary-js directory and install node module dependencies:
-```bash
-cd mapillary-js &&
-npm install
-```
-
-## Serving the Debug Page
-
-```bash
-npm start
-```
-
-Open the debug page at [http://localhost:3000](http://localhost:3000).
-
-## Creating a Standalone Build
-
-A standalone build allows you to turn the MapillaryJS repository content into files that can be included on an html page.
-
-To create a standalone build, run
-
-```bash
-npm prepare
-```
-
-Once that command finishes, you will have a standalone build at dist/mapillary.min.js and dist/mapillary.min.css together with the the dist/*.svg files.
-
-## Running Tests
-
-```bash
-npm test
-```
-
-## Building and serving the documentation
-
-```bash
-npm run build-docs &&
-python -m SimpleHTTPServer
-````
-
-Open the documentation page at [http://localhost:8000/docs/build](http://localhost:8000/docs/build).
+If you want to try your changes in your existing project, you may copy `dist/mapillary.js`, `dist/mapillary.js.map`, and `dist/mapillary.min.css` into your app and use them instead of the stable version.
 
 ## Commit conventions
 
