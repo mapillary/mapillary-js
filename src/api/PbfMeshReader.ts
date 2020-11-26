@@ -2,11 +2,11 @@ import * as Pbf from "pbf";
 
 import IMesh from "./interfaces/IMesh";
 
-export class MeshReader {
+export class PbfMeshReader {
     public static read(buffer: ArrayBuffer): IMesh {
         let pbf: Pbf<IMesh> = new Pbf<IMesh>(buffer);
 
-        return pbf.readFields(MeshReader._readMeshField, { faces: [], vertices: [] });
+        return pbf.readFields(PbfMeshReader._readMeshField, { faces: [], vertices: [] });
     }
 
     private static _readMeshField(tag: number, mesh: IMesh, pbf: Pbf<IMesh>): void {
@@ -18,4 +18,4 @@ export class MeshReader {
     }
 }
 
-export default MeshReader;
+export default PbfMeshReader;

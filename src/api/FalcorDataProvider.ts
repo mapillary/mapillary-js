@@ -3,7 +3,7 @@ import * as pako from "pako";
 
 import MapillaryError from "../error/MapillaryError";
 import IMesh from "./interfaces/IMesh";
-import MeshReader from "./MeshReader";
+import PbfMeshReader from "./PbfMeshReader";
 import ModelCreator from "./ModelCreator";
 import ICoreNode from "./interfaces/ICoreNode";
 import IFillNode from "./interfaces/IFillNode";
@@ -339,7 +339,7 @@ export class FalcorDataProvider extends DataProviderBase {
         return this._getArrayBuffer(url, abort)
             .then(
                 (buffer: ArrayBuffer): IMesh => {
-                    return MeshReader.read(buffer);
+                    return PbfMeshReader.read(buffer);
                 },
                 (reason: Error): IMesh => {
                     throw reason;
