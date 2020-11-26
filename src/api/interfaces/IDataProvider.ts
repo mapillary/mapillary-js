@@ -33,7 +33,7 @@ export interface IDataProvider {
         scaledW: number,
         scaledH: number,
         abort?: Promise<void>): Promise<ArrayBuffer>;
-    getMesh(imageKey: string, abort?: Promise<void>): Promise<IMesh>;
+    getMesh(url: string, abort?: Promise<void>): Promise<IMesh>;
     getSequences(sequenceKeys: string[]):
         Promise<{ [sequenceKey: string]: ISequence }>;
     setUserToken(userToken?: string): void;

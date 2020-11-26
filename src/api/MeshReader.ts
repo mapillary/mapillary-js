@@ -3,7 +3,7 @@ import * as Pbf from "pbf";
 import IMesh from "./interfaces/IMesh";
 
 export class MeshReader {
-    public static read(buffer: Buffer): IMesh {
+    public static read(buffer: ArrayBuffer): IMesh {
         let pbf: Pbf<IMesh> = new Pbf<IMesh>(buffer);
 
         return pbf.readFields(MeshReader._readMeshField, { faces: [], vertices: [] });

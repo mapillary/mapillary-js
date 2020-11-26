@@ -58,7 +58,7 @@ export class DataProviderBase implements IDataProvider {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
-    public getMesh(imageKey: string, abort?: Promise<void>): Promise<IMesh> {
+    public getMesh(url: string, abort?: Promise<void>): Promise<IMesh> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 

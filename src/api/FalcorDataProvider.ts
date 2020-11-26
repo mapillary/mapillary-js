@@ -15,7 +15,7 @@ import IFalcorDataProviderOptions from "./interfaces/IFalcorDataProviderOptions"
 import IGeometryProvider from "./interfaces/IGeometryProvider";
 import GeohashGeometryProvider from "./GeohashGeometryProvider";
 import { ImageSize } from "../viewer/ImageSize";
-import IThumb from "./interfaces/IThumb";
+import INodeUrls from "./interfaces/INodeUrls";
 
 interface IImageByKey<T> {
     imageByKey: { [key: string]: T };
@@ -280,7 +280,7 @@ export class FalcorDataProvider extends DataProviderBase {
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
                     }
 
-                    return this._populateThumbs(value.json.imageByKey);
+                    return this._populateUrls(value.json.imageByKey);
                 },
                 (error: Error) => {
                     this._invalidateGet(this._pathImageByKey, keys);
@@ -306,7 +306,7 @@ export class FalcorDataProvider extends DataProviderBase {
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
                     }
 
-                    return this._populateThumbs(value.json.imageByKey);
+                    return this._populateUrls(value.json.imageByKey);
                 },
                 (error: Error) => {
                     this._invalidateGet(this._pathImageByKey, keys);
@@ -334,11 +334,11 @@ export class FalcorDataProvider extends DataProviderBase {
             abort);
     }
 
-    public getMesh(imageKey: string, abort?: Promise<void>): Promise<IMesh> {
-        return this._getArrayBuffer(this._urls.protoMesh(imageKey), abort)
+    public getMesh(url: string, abort?: Promise<void>): Promise<IMesh> {
+        return this._getArrayBuffer(url, abort)
             .then(
                 (buffer: ArrayBuffer): IMesh => {
-                    return MeshReader.read(new Buffer(buffer));
+                    return MeshReader.read(buffer);
                 },
                 (reason: Error): IMesh => {
                     throw reason;
@@ -386,13 +386,14 @@ export class FalcorDataProvider extends DataProviderBase {
         this._model.invalidate([path, paths]);
     }
 
-    private _populateThumbs<T extends IThumb>(ibk: { [key: string]: T }): { [key: string]: T } {
+    private _populateUrls<T extends INodeUrls>(ibk: { [key: string]: T }): { [key: string]: T } {
         for (let key in ibk) {
             if (!ibk.hasOwnProperty(key)) {
                 continue;
             }
 
-            const image: IThumb = ibk[key];
+            const image: INodeUrls = ibk[key];
+            image.mesh = this._urls.protoMesh(key);
             image.thumb320 = this._urls.thumbnail(
                 key, ImageSize.Size320, this._urls.origin);
             image.thumb640 = this._urls.thumbnail(

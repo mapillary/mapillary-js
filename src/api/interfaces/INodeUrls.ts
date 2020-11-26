@@ -1,13 +1,14 @@
 /**
  * Interface that describes an object with image thumb URLs.
  *
- * @interface IThumb
+ * @interface INodeUrls
  */
-export interface IThumb {
+export interface INodeUrls {
+  mesh?: string;
   thumb320?: string;
   thumb640?: string;
   thumb1024?: string;
   thumb2048?: string;
 }
 
-export default IThumb;
+export default INodeUrls;

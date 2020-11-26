@@ -425,6 +425,8 @@ export class Node {
      *
      * @deprecated This property will be deprecated in favor
      * of the organization key and private properties.
+     *
+     * @ignore
      */
     public get projectKey(): string {
         return this._fill.project != null ?
@@ -560,7 +562,6 @@ export class Node {
     public cacheAssets$(): Observable<Node> {
         return this._cache
             .cacheAssets$(
-                this.key,
                 this._fill,
                 this.pano,
                 this.merged)

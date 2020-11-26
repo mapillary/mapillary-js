@@ -1,5 +1,5 @@
 declare class Pbf<T> {
-    constructor(buffer: Buffer);
+    constructor(buffer: ArrayBuffer);
 
     readFields(readData: (tag: number, data: T, pbf: Pbf<T>) => void, data: T): T;
 

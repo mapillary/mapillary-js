@@ -12,7 +12,7 @@ import {
 import { ImageSize } from "../Viewer";
 import IMesh from "../api/interfaces/IMesh";
 import IDataProvider from "../api/interfaces/IDataProvider";
-import IThumb from "../api/interfaces/IThumb";
+import INodeUrls from "../api/interfaces/INodeUrls";
 
 /**
  * @class NodeCache
@@ -170,7 +170,7 @@ export class NodeCache {
      * cache whenever the load status has changed and when the mesh or image
      * has been fully loaded.
      */
-    public cacheAssets$(key: string, thumb: IThumb, pano: boolean, merged: boolean): Observable<NodeCache> {
+    public cacheAssets$(nodeUrls: INodeUrls, pano: boolean, merged: boolean): Observable<NodeCache> {
         if (this._cachingAssets$ != null) {
             return this._cachingAssets$;
         }
@@ -180,8 +180,8 @@ export class NodeCache {
             Settings.baseImageSize;
 
         this._cachingAssets$ = observableCombineLatest(
-            this._cacheImage$(thumb, imageSize),
-            this._cacheMesh$(key, merged)).pipe(
+            this._cacheImage$(nodeUrls, imageSize),
+            this._cacheMesh$(nodeUrls, merged)).pipe(
                 map(
                     ([image, mesh]: [HTMLImageElement, IMesh]): NodeCache => {
                         this._image = image;
@@ -213,19 +213,19 @@ export class NodeCache {
     /**
      * Cache an image with a higher resolution than the current one.
      *
-     * @param {string} key - Key of the node to cache.
+     * @param {INodeUrls} nodeUrls - Node URLs.
      * @param {ImageSize} imageSize - The size to cache.
      * @returns {Observable<NodeCache>} Observable emitting a single item,
      * the node cache, when the image has been cached. If supplied image
      * size is not larger than the current image size the node cache is
      * returned immediately.
      */
-    public cacheImage$(thumb: IThumb, imageSize: ImageSize): Observable<NodeCache> {
+    public cacheImage$(nodeUrls: INodeUrls, imageSize: ImageSize): Observable<NodeCache> {
         if (this._image != null && imageSize <= Math.max(this._image.width, this._image.height)) {
             return observableOf<NodeCache>(this);
         }
 
-        const cacheImage$: Observable<NodeCache> = this._cacheImage$(thumb, imageSize).pipe(
+        const cacheImage$: Observable<NodeCache> = this._cacheImage$(nodeUrls, imageSize).pipe(
             first(
                 (image: HTMLImageElement): boolean => {
                     return !!image;
@@ -326,13 +326,13 @@ export class NodeCache {
     /**
      * Cache the image.
      *
-     * @param {IThumb} thumb - Thumb URLs.
+     * @param {INodeUrls} nodeUrls - Node URLs.
      * @param {boolean} pano - Value indicating whether node is a panorama.
      * @returns {Observable<ILoadStatusObject<HTMLImageElement>>} Observable
      * emitting a load status object every time the load status changes
      * and completes when the image is fully loaded.
      */
-    private _cacheImage$(thumb: IThumb, imageSize: ImageSize): Observable<HTMLImageElement> {
+    private _cacheImage$(nodeUrls: INodeUrls, imageSize: ImageSize): Observable<HTMLImageElement> {
         return Observable.create(
             (subscriber: Subscriber<HTMLImageElement>): void => {
                 const abort: Promise<void> = new Promise(
@@ -340,7 +340,7 @@ export class NodeCache {
                         this._imageAborter = reject;
                     });
 
-                const url: string = this._getThumbUrl(thumb, imageSize);
+                const url: string = this._getThumbUrl(nodeUrls, imageSize);
                 this._provider.getImage(url, abort)
                     .then(
                         (buffer: ArrayBuffer): void => {
@@ -380,13 +380,13 @@ export class NodeCache {
     /**
      * Cache the mesh.
      *
-     * @param {string} key - Key of the node to cache.
+     * @param {INodeUrls} nodeUrls - Node URLs.
      * @param {boolean} merged - Value indicating whether node is merged.
      * @returns {Observable<ILoadStatusObject<IMesh>>} Observable emitting
      * a load status object every time the load status changes and completes
      * when the mesh is fully loaded.
      */
-    private _cacheMesh$(key: string, merged: boolean): Observable<IMesh> {
+    private _cacheMesh$(nodeUrls: INodeUrls, merged: boolean): Observable<IMesh> {
         return Observable.create(
             (subscriber: Subscriber<IMesh>): void => {
                 if (!merged) {
@@ -400,7 +400,7 @@ export class NodeCache {
                         this._meshAborter = reject;
                     });
 
-                this._provider.getMesh(key, abort)
+                this._provider.getMesh(nodeUrls.mesh, abort)
                     .then(
                         (mesh: IMesh): void => {
                             this._meshAborter = null;
@@ -414,7 +414,9 @@ export class NodeCache {
                         },
                         (error: Error): void => {
                             this._meshAborter = null;
-                            subscriber.error(error);
+                            console.error(error);
+                            subscriber.next(this._createEmptyMesh());
+                            subscriber.complete();
                         });
             });
     }
@@ -437,16 +439,16 @@ export class NodeCache {
         this._image = null;
     }
 
-    private _getThumbUrl(thumb: IThumb, size: ImageSize): string {
+    private _getThumbUrl(nodeUrls: INodeUrls, size: ImageSize): string {
         switch (size) {
             case ImageSize.Size320:
-                return thumb.thumb320;
+                return nodeUrls.thumb320;
             case ImageSize.Size640:
-                return thumb.thumb640;
+                return nodeUrls.thumb640;
             case ImageSize.Size1024:
-                return thumb.thumb1024;
+                return nodeUrls.thumb1024;
             default:
-                return thumb.thumb2048;
+                return nodeUrls.thumb2048;
         }
     }
 }

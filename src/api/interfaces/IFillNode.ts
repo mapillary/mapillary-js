@@ -1,13 +1,13 @@
 import { IGPano, IProject, IUser } from "../../API";
 import { CameraProjection } from "./CameraProjection";
-import IThumb from "./IThumb";
+import INodeUrls from "./INodeUrls";
 
 /**
  * Interface that describes the raw filling node properties.
  *
  * @interface ISpatialNode
  */
-export interface IFillNode extends IThumb {
+export interface IFillNode extends INodeUrls {
     /**
      * Scale of atomic reconstruction.
      */
