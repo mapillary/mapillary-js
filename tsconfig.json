@@ -23,6 +23,7 @@
             "node",
             "pbf",
             "rbush",
+            "s2-geometry",
             "three",
             "virtual-dom",
             "when"
