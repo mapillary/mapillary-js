@@ -1,5 +1,5 @@
 import { IGPano, IProject, IUser } from "../../API";
-import { CameraProjection } from "./CameraProjection";
+import { CameraProjectionType } from "./CameraProjectionType";
 import INodeUrls from "./INodeUrls";
 
 /**
@@ -116,7 +116,7 @@ export interface IFillNode extends INodeUrls {
     /**
      * Projection type of captured image.
      */
-    camera_projection_type?: CameraProjection;
+    camera_projection_type?: CameraProjectionType;
 
     /**
      * User who uploaded the image.

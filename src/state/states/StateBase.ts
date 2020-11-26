@@ -1,5 +1,5 @@
-import {ArgumentMapillaryError} from "../../Error";
-import {Node} from "../../Graph";
+import { ArgumentMapillaryError } from "../../Error";
+import { Node } from "../../Graph";
 import {
     Camera,
     Geo,
@@ -75,7 +75,7 @@ export abstract class StateBase implements IState {
                 undefined,
                 node.ck1,
                 node.ck2,
-                node.cameraProjection);
+                node.cameraProjectionType);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -388,7 +388,7 @@ export abstract class StateBase implements IState {
                 undefined,
                 node.ck1,
                 node.ck2,
-                node.cameraProjection);
+                node.cameraProjectionType);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -415,7 +415,7 @@ export abstract class StateBase implements IState {
                 undefined,
                 node.ck1,
                 node.ck2,
-                node.cameraProjection);
+                node.cameraProjectionType);
 
             this._trajectoryTransforms.unshift(transform);
             this._trajectoryCameras.unshift(new Camera(transform));

@@ -28,14 +28,14 @@ import {
     GraphService,
     Node,
 } from "../../Graph";
-import { CameraProjection } from "../../api/interfaces/CameraProjection";
+import { CameraProjectionType } from "../../api/interfaces/CameraProjectionType";
 import { IDataProvider } from "../../api/interfaces/interfaces";
 import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
 import { ICellCorners } from "../../api/interfaces/IGeometryProvider";
 
 export type NodeData = {
     alt: number;
-    cameraProjection: CameraProjection;
+    cameraProjectionType: CameraProjectionType;
     clusterKey: string;
     focal: number;
     gpano: IGPano;
@@ -328,7 +328,7 @@ export class SpatialDataCache {
     private _createNodeData(node: Node): NodeData {
         return {
             alt: node.alt,
-            cameraProjection: node.cameraProjection,
+            cameraProjectionType: node.cameraProjectionType,
             clusterKey: node.clusterKey,
             focal: node.focal,
             gpano: node.gpano,

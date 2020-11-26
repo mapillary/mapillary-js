@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { IGPano } from "../API";
-import { CameraProjection } from "../api/interfaces/CameraProjection";
+import { CameraProjectionType } from "../api/interfaces/CameraProjectionType";
 
 /**
  * @class Transform
@@ -30,7 +30,7 @@ export class Transform {
 
     private _ck1: number;
     private _ck2: number;
-    private _cameraProjection: CameraProjection;
+    private _cameraProjectionType: CameraProjectionType;
 
     private _radialPeak: number;
 
@@ -59,7 +59,7 @@ export class Transform {
         textureScale?: number[],
         ck1?: number,
         ck2?: number,
-        cameraProjection?: CameraProjection) {
+        cameraProjectionType?: CameraProjectionType) {
 
         this._orientation = this._getValue(orientation, 1);
 
@@ -91,8 +91,8 @@ export class Transform {
 
         this._ck1 = !!ck1 ? ck1 : 0;
         this._ck2 = !!ck2 ? ck2 : 0;
-        this._cameraProjection = !!cameraProjection ?
-            cameraProjection :
+        this._cameraProjectionType = !!cameraProjectionType ?
+            cameraProjectionType :
             !!gpano ?
                 "equirectangular" :
                 "perspective";
@@ -109,7 +109,7 @@ export class Transform {
     }
 
     public get cameraProjection(): string {
-        return this._cameraProjection;
+        return this._cameraProjectionType;
     }
 
     /**
@@ -393,7 +393,7 @@ export class Transform {
             let y: number = -Math.sin(lat);
             let z: number = Math.cos(lat) * Math.cos(lon);
             return [x, y, z];
-        } else if (this._cameraProjection === "fisheye") {
+        } else if (this._cameraProjectionType === "fisheye") {
             let [dxn, dyn]: number[] = [sfm[0] / this._focal, sfm[1] / this._focal];
             const dTheta: number = Math.sqrt(dxn * dxn + dyn * dyn);
             let d: number = this._distortionFromDistortedRadius(dTheta, this._ck1, this._ck2, this._radialPeak);
@@ -466,7 +466,7 @@ export class Transform {
                 (fullPanoPixel[0] - this.gpano.CroppedAreaLeftPixels - this.gpano.CroppedAreaImageWidthPixels / 2) / size,
                 (fullPanoPixel[1] - this.gpano.CroppedAreaTopPixels - this.gpano.CroppedAreaImageHeightPixels / 2) / size,
             ];
-        } else if (this._cameraProjection === "fisheye") {
+        } else if (this._cameraProjectionType === "fisheye") {
             if (bearing[2] > 0) {
                 const [x, y, z]: number[] = bearing;
                 const r: number = Math.sqrt(x * x + y * y);

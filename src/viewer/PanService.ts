@@ -331,7 +331,7 @@ export class PanService {
             undefined,
             node.ck1,
             node.ck2,
-            node.cameraProjection);
+            node.cameraProjectionType);
     }
 
     private _computeProjectedPoints(transform: Transform): number[][] {

@@ -117,7 +117,7 @@ export class Node {
      *
      * @returns {number} The camera projection of the image.
      */
-    public get cameraProjection(): "perspective" | "fisheye" | "equirectangular" {
+    public get cameraProjectionType(): "perspective" | "fisheye" | "equirectangular" {
         return this._fill.camera_projection_type;
     }
 

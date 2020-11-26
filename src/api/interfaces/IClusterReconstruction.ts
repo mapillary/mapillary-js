@@ -1,4 +1,4 @@
-import CameraProjection from "./CameraProjection";
+import CameraProjectionType from "./CameraProjectionType";
 import IReconstructionPoint from "./IReconstructionPoint";
 import IGeoReference from "./IGeoReference";
 
@@ -12,7 +12,7 @@ export interface ICamera {
     focal: number;
     k1: number;
     k2: number;
-    projection_type: CameraProjection;
+    projection_type: CameraProjectionType;
 }
 
 export interface IClusterReconstruction {
