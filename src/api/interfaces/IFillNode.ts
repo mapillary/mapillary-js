@@ -109,6 +109,11 @@ export interface IFillNode extends INodeUrls {
     project?: IProject;
 
     /**
+     * Image quality score.
+     */
+    quality_score?: number;
+
+    /**
      * Projection type of captured image.
      */
     camera_projection_type?: CameraProjection;

@@ -435,6 +435,21 @@ export class Node {
     }
 
     /**
+     * Get quality score.
+     *
+     * @returns {number} A number between zero and one
+     * determining the quality of the image. Blurriness
+     * (motion blur / out-of-focus), occlusion (camera
+     * mount, ego vehicle, water-drops), windshield
+     * reflections, bad illumination (exposure, glare),
+     * and bad weather condition (fog, rain, snow)
+     * affect the quality score.
+     */
+    public get qualityScore(): number {
+        return this._fill.quality_score;
+    }
+
+    /**
      * Get rotation.
      *
      * @description Will not be set if SfM has not been run.

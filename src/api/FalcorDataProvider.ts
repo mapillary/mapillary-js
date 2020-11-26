@@ -172,10 +172,11 @@ export class FalcorDataProvider extends DataProviderBase {
         this._propertiesFill = [
             "captured_at",
             "captured_with_camera_uuid",
-            "user",
             "organization_key",
             "private",
             "project",
+            "quality_score",
+            "user",
         ];
 
         this._propertiesKey = [
