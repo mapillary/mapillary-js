@@ -111,7 +111,7 @@ export class PanService {
         const panNodes$: Observable<[Node, Transform, number][]> = this._stateService.currentNode$.pipe(
             switchMap(
                 (current: Node): Observable<[Node, Transform, number][]> => {
-                    if (!current.merged) {
+                    if (!current.merged || current.fullPano) {
                         return observableOf([]);
                     }
 
