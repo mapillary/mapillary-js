@@ -1,10 +1,15 @@
 {
     "compilerOptions": {
+        "outDir": "./dist",
+        "allowJs": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": false,
+        "strict": true,
+        "strictNullChecks": true,
+        "strictPropertyInitialization": true,
+        "noUnusedParameters": true,
+        "noUnusedLocals": true,
         "allowSyntheticDefaultImports": true,
-        "lib": [
-            "es6",
-            "dom"
-        ],
         "module": "commonjs",
         "noImplicitAny": true,
         "target": "es5",
@@ -27,5 +32,8 @@
             "virtual-dom",
             "when"
         ]
-    }
+    },
+    "include": [
+        "./src/**/*.ts"
+    ]
 }
