@@ -16,7 +16,7 @@ export interface IDataProvider {
 
     getCoreImages(cellId: string):
         Promise<{ [cellId: string]: { [imageKey: string]: ICoreNode } }>;
-    getClusterReconstruction(clusterKey: string, abort?: Promise<void>):
+    getClusterReconstruction(url: string, abort?: Promise<void>):
         Promise<IClusterReconstruction>;
     getFillImages(imageKeys: string[]):
         Promise<{ [imageKey: string]: IFillNode }>;

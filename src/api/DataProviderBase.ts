@@ -26,7 +26,7 @@ export class DataProviderBase implements IDataProvider {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
-    public getClusterReconstruction(clusterKey: string, abort?: Promise<void>):
+    public getClusterReconstruction(url: string, abort?: Promise<void>):
         Promise<IClusterReconstruction> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }

@@ -15,7 +15,7 @@ import IFalcorDataProviderOptions from "./interfaces/IFalcorDataProviderOptions"
 import IGeometryProvider from "./interfaces/IGeometryProvider";
 import GeohashGeometryProvider from "./GeohashGeometryProvider";
 import { ImageSize } from "../viewer/ImageSize";
-import INodeUrls from "./interfaces/INodeUrls";
+import JsonInflator from "./JsonInflator";
 
 interface IImageByKey<T> {
     imageByKey: { [key: string]: T };
@@ -240,24 +240,18 @@ export class FalcorDataProvider extends DataProviderBase {
                 });
     }
 
-    public getClusterReconstruction(clusterKey: string, abort?: Promise<void>): Promise<IClusterReconstruction> {
-        return this._getArrayBuffer(this._urls.clusterReconstruction(clusterKey), abort)
+    public getClusterReconstruction(url: string, abort?: Promise<void>): Promise<IClusterReconstruction> {
+        return this._getArrayBuffer(url, abort)
             .then(
                 (buffer: ArrayBuffer): IClusterReconstruction => {
-                    const inflated: string =
-                        pako.inflate(<pako.Data>buffer, { to: "string" });
-
                     const reconstructions: IClusterReconstruction[] =
-                        JSON.parse(inflated);
+                        JsonInflator.decompress(buffer);
 
                     if (reconstructions.length < 1) {
-                        throw new MapillaryError("");
+                        throw new MapillaryError("Cluster reconstruction is empty.");
                     }
 
-                    const reconstruction: IClusterReconstruction = reconstructions[0];
-                    reconstruction.key = clusterKey;
-
-                    return reconstruction;
+                    return reconstructions[0];
                 },
                 (reason: Error): IClusterReconstruction => {
                     throw reason;
@@ -387,13 +381,14 @@ export class FalcorDataProvider extends DataProviderBase {
         this._model.invalidate([path, paths]);
     }
 
-    private _populateUrls<T extends INodeUrls>(ibk: { [key: string]: T }): { [key: string]: T } {
+    private _populateUrls<T extends IFillNode>(ibk: { [key: string]: T }): { [key: string]: T } {
         for (let key in ibk) {
             if (!ibk.hasOwnProperty(key)) {
                 continue;
             }
 
-            const image: INodeUrls = ibk[key];
+            const image: T = ibk[key];
+            image.cluster_url = this._urls.clusterReconstruction(image.cluster_key);
             image.mesh_url = this._urls.protoMesh(key);
             image.thumb320_url = this._urls.thumbnail(
                 key, ImageSize.Size320, this._urls.origin);

@@ -154,6 +154,17 @@ export class Node {
     }
 
     /**
+     * Get clusterUrl.
+     *
+     * @returns {string} Url to the cluster reconstruction file.
+     *
+     * @ignore
+     */
+    public get clusterUrl(): string {
+        return this._fill.cluster_url;
+    }
+
+    /**
      * Get ck1.
      *
      * @description Will not be set if SfM has not been run.

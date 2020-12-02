@@ -4,6 +4,7 @@
  * @interface INodeUrls
  */
 export interface INodeUrls {
+  cluster_url?: string;
   mesh_url?: string;
   thumb320_url?: string;
   thumb640_url?: string;

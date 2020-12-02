@@ -764,7 +764,7 @@ describe("FalcorDataProvider.getClusterReconstruction", () => {
 
         const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
 
-        provider.getClusterReconstruction("clusterKey")
+        provider.getClusterReconstruction("url")
             .then(
                 (r: IClusterReconstruction): void => {
                     expect(r.points).toEqual({});

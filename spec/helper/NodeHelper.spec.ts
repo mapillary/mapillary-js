@@ -4,7 +4,7 @@ import {
     IFullNode,
     IGPano,
 } from "../../src/API";
-import {Node} from "../../src/Graph";
+import { Node } from "../../src/Graph";
 
 export class NodeHelper {
     private _clusterKey: string = "ckey";
@@ -17,7 +17,7 @@ export class NodeHelper {
         return {
             cl: { lat: 0, lon: 0 },
             key: this._nodeKey,
-            l: { lat: 0, lon: 0},
+            l: { lat: 0, lon: 0 },
             sequence_key: this._sequenceKey,
         };
     }
@@ -32,6 +32,7 @@ export class NodeHelper {
             cca: 0,
             cfocal: 0,
             cluster_key: this._clusterKey,
+            cluster_url: this._clusterKey = "_url",
             gpano: null,
             height: 1,
             merge_cc: 0,
@@ -54,10 +55,11 @@ export class NodeHelper {
             cfocal: 0,
             cl: { lat: 0, lon: 0 },
             cluster_key: this._clusterKey,
+            cluster_url: this._clusterKey = "_url",
             gpano: null,
             height: 1,
             key: this._nodeKey,
-            l: { lat: 0, lon: 0},
+            l: { lat: 0, lon: 0 },
             merge_cc: 1,
             merge_version: 1,
             orientation: 0,
