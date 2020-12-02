@@ -327,7 +327,7 @@ export class Viewer extends EventEmitter {
             this._container,
             this._navigator,
             this._observer,
-            options.key,
+            options.imageKey,
             options.component);
     }
 

@@ -57,7 +57,7 @@ export interface IViewerOptions {
      * bound to any particular key. Any image can then be navigated to
      * with e.g. `viewer.moveToKey("<my-image-key>")`.
      */
-    key?: string;
+    imageKey?: string;
 
     /**
      * The max size of an image shown in the viewer

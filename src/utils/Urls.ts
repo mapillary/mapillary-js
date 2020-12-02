@@ -8,10 +8,6 @@ export class Urls {
         return `${Urls._scheme}://${Urls._exploreHost}`;
     }
 
-    public static get tileScheme(): string {
-        return Urls._scheme;
-    }
-
     public static exploreImage(key: string): string {
         return `${Urls._scheme}://${Urls._exploreHost}/app/?pKey=${key}&focus=photo`;
     }
