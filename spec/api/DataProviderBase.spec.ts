@@ -2,6 +2,7 @@ import DataProviderBase from "../../src/api/DataProviderBase";
 import MapillaryError from "../../src/error/MapillaryError";
 import GeometryProviderBase from "../../src/api/GeometryProviderBase";
 import IGeometryProvider from "../../src/api/interfaces/IGeometryProvider";
+import BufferFetcher from "../../src/api/BufferFetcher";
 
 describe("DataProviderBase.ctor", () => {
     it("should create a data provider base", () => {
@@ -31,7 +32,7 @@ class XMLHTTPRequestMock {
 class DataProvider extends DataProviderBase {
     constructor() { super(new GeometryProviderBase()); }
     public getArrayBuffer(abort?: Promise<void>): Promise<ArrayBuffer> {
-        return super._getArrayBuffer("", abort);
+        return BufferFetcher.getArrayBuffer("", abort);
     }
 }
 

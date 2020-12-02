@@ -1,5 +1,4 @@
 import * as falcor from "falcor";
-import * as pako from "pako";
 
 import MapillaryError from "../error/MapillaryError";
 import IMesh from "./interfaces/IMesh";
@@ -16,6 +15,7 @@ import IGeometryProvider from "./interfaces/IGeometryProvider";
 import GeohashGeometryProvider from "./GeohashGeometryProvider";
 import { ImageSize } from "../viewer/ImageSize";
 import JsonInflator from "./JsonInflator";
+import BufferFetcher from "./BufferFetcher";
 
 interface IImageByKey<T> {
     imageByKey: { [key: string]: T };
@@ -241,7 +241,7 @@ export class FalcorDataProvider extends DataProviderBase {
     }
 
     public getClusterReconstruction(url: string, abort?: Promise<void>): Promise<IClusterReconstruction> {
-        return this._getArrayBuffer(url, abort)
+        return BufferFetcher.getArrayBuffer(url, abort)
             .then(
                 (buffer: ArrayBuffer): IClusterReconstruction => {
                     const reconstructions: IClusterReconstruction[] =
@@ -310,7 +310,7 @@ export class FalcorDataProvider extends DataProviderBase {
     }
 
     public getImage(url: string, abort?: Promise<void>): Promise<ArrayBuffer> {
-        return this._getArrayBuffer(url, abort);
+        return BufferFetcher.getArrayBuffer(url, abort);
     }
 
     public getImageTile(
@@ -324,13 +324,13 @@ export class FalcorDataProvider extends DataProviderBase {
         abort?: Promise<void>): Promise<ArrayBuffer> {
         const coords: string = `${x},${y},${w},${h}`
         const size: string = `${scaledW},${scaledH}`;
-        return this._getArrayBuffer(
+        return BufferFetcher.getArrayBuffer(
             this._urls.imageTile(imageKey, coords, size),
             abort);
     }
 
     public getMesh(url: string, abort?: Promise<void>): Promise<IMesh> {
-        return this._getArrayBuffer(url, abort)
+        return BufferFetcher.getArrayBuffer(url, abort)
             .then(
                 (buffer: ArrayBuffer): IMesh => {
                     return PbfMeshReader.read(buffer);
