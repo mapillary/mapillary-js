@@ -1,5 +1,5 @@
 import IFalcorDataProviderOptions from "../../src/api/interfaces/IFalcorDataProviderOptions";
-import { DataProviderUrls } from "../../src/api/FalcorDataProvider";
+import { FalcorDataProviderUrls } from "../../src/api/FalcorDataProvider";
 
 describe("DataProviderUrls.ctor", () => {
     it("should set all option properties", () => {
@@ -13,7 +13,7 @@ describe("DataProviderUrls.ctor", () => {
             scheme: "test-scheme",
         };
 
-        const urls: DataProviderUrls = new DataProviderUrls(options);
+        const urls: FalcorDataProviderUrls = new FalcorDataProviderUrls(options);
 
         expect(urls.falcorModel).toContain(options.apiHost);
         expect(urls.falcorModel).toContain(options.scheme);

@@ -34,7 +34,7 @@ type APIPath =
     "imagesByH" |
     "sequenceByKey";
 
-export class DataProviderUrls {
+export class FalcorDataProviderUrls {
     private _apiHost: string = "a.mapillary.com";
     private _clientToken: string;
     private _clusterReconstructionHost: string =
@@ -114,7 +114,7 @@ export class DataProviderUrls {
  * @classdesc Provides data through API calls.
  */
 export class FalcorDataProvider extends DataProviderBase {
-    private _urls: DataProviderUrls;
+    private _urls: FalcorDataProviderUrls;
 
     private _model: falcor.Model;
     private _modelCreator: ModelCreator;
@@ -150,7 +150,7 @@ export class FalcorDataProvider extends DataProviderBase {
                 "The falcor data provider requires the geohash geometry provider.");
         }
 
-        this._urls = new DataProviderUrls(options);
+        this._urls = new FalcorDataProviderUrls(options);
 
         this._modelCreator = options.creator != null ?
             options.creator : new ModelCreator();

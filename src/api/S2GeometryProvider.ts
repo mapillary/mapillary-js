@@ -19,7 +19,7 @@ export class S2GeometryProvider extends GeometryProviderBase {
     constructor(geoCoords?: GeoCoords) {
         super(geoCoords);
 
-        this._level = 15;
+        this._level = 17;
     }
 
     public bboxToCellIds(sw: ILatLon, ne: ILatLon): string[] {
