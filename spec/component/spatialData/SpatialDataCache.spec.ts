@@ -58,15 +58,6 @@ describe("SpatialDataCache.cacheTile$", () => {
         expect(cacheBoundingBoxSpy.calls.first().args[1].lon).toBe(2);
     });
 
-    it("should throw if hash is wrong level", () => {
-        const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cache: SpatialDataCache = new SpatialDataCache(
-            graphService, undefined);
-
-        expect(() => { cache.cacheTile$("1234567"); }).toThrowError(Error);
-        expect(() => { cache.cacheTile$("123456789"); }).toThrowError(Error);
-    });
-
     it("should be caching tile", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const cacheBoundingBox$: Subject<Node[]> = new Subject<Node[]>();

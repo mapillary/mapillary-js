@@ -177,10 +177,6 @@ export class SpatialDataCache {
     }
 
     public cacheTile$(hash: string): Observable<NodeData[]> {
-        if (hash.length !== 8) {
-            throw new Error("Hash needs to be level 8.");
-        }
-
         if (this.hasTile(hash)) {
             throw new Error("Cannot cache tile that already exists.");
         }

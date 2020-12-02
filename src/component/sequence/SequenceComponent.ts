@@ -39,7 +39,7 @@ import {
     ISequenceConfiguration,
     SequenceDOMRenderer,
 } from "../../Component";
-import {EdgeDirection} from "../../Edge";
+import { EdgeDirection } from "../../Edge";
 import {
     IEdgeStatus,
     GraphMode,
@@ -264,15 +264,15 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             switchMap(
                 (node: Node): Observable<Sequence> => {
                     return observableConcat(
-                            observableOf(null),
-                            this._navigator.graphService.cacheSequence$(node.sequenceKey).pipe(
-                                retry(3),
-                                catchError(
-                                    (e: Error): Observable<Sequence> => {
-                                        console.error("Failed to cache sequence", e);
+                        observableOf(null),
+                        this._navigator.graphService.cacheSequence$(node.sequenceKey).pipe(
+                            retry(3),
+                            catchError(
+                                (e: Error): Observable<Sequence> => {
+                                    console.error("Failed to cache sequence", e);
 
-                                        return observableOf(null);
-                                    })));
+                                    return observableOf(null);
+                                })));
                 }),
             startWith(null),
             publishReplay(1),
@@ -295,17 +295,17 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             refCount());
 
         this._moveSubscription = observableMerge(
-                rendererKey$.pipe(debounceTime(100, this._scheduler)),
-                rendererKey$.pipe(auditTime(400, this._scheduler))).pipe(
-            distinctUntilChanged(),
-            switchMap(
-                (key: string): Observable<Node> => {
-                    return this._navigator.moveToKey$(key).pipe(
-                        catchError(
-                            (e: Error): Observable<Node> => {
-                                return observableEmpty();
-                            }));
-                }))
+            rendererKey$.pipe(debounceTime(100, this._scheduler)),
+            rendererKey$.pipe(auditTime(400, this._scheduler))).pipe(
+                distinctUntilChanged(),
+                switchMap(
+                    (key: string): Observable<Node> => {
+                        return this._navigator.moveToKey$(key).pipe(
+                            catchError(
+                                (e: Error): Observable<Node> => {
+                                    return observableEmpty();
+                                }));
+                    }))
             .subscribe();
 
         this._setSequenceGraphModeSubscription = this._sequenceDOMRenderer.changingPositionChanged$.pipe(
@@ -361,24 +361,24 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 });
 
         this._cacheSequenceNodesSubscription = observableCombineLatest(
-                this._navigator.graphService.graphMode$,
-                this._sequenceDOMRenderer.changingPositionChanged$.pipe(
-                    startWith(false),
-                    distinctUntilChanged())).pipe(
-            withLatestFrom(this._navigator.stateService.currentNode$),
-            switchMap(
-                ([[mode, changing], node]: [[GraphMode, boolean], Node]): Observable<Sequence> => {
-                    return changing && mode === GraphMode.Sequence ?
-                        this._navigator.graphService.cacheSequenceNodes$(node.sequenceKey, node.key).pipe(
-                            retry(3),
-                            catchError(
-                                (error: Error): Observable<Sequence> => {
-                                    console.error("Failed to cache sequence nodes.", error);
+            this._navigator.graphService.graphMode$,
+            this._sequenceDOMRenderer.changingPositionChanged$.pipe(
+                startWith(false),
+                distinctUntilChanged())).pipe(
+                    withLatestFrom(this._navigator.stateService.currentNode$),
+                    switchMap(
+                        ([[mode, changing], node]: [[GraphMode, boolean], Node]): Observable<Sequence> => {
+                            return changing && mode === GraphMode.Sequence ?
+                                this._navigator.graphService.cacheSequenceNodes$(node.sequenceKey, node.key).pipe(
+                                    retry(3),
+                                    catchError(
+                                        (error: Error): Observable<Sequence> => {
+                                            console.error("Failed to cache sequence nodes.", error);
 
-                                    return observableEmpty();
-                                })) :
-                        observableEmpty();
-                }))
+                                            return observableEmpty();
+                                        })) :
+                                observableEmpty();
+                        }))
             .subscribe();
 
         const position$: Observable<{ index: number, max: number }> = sequence$.pipe(
@@ -421,37 +421,37 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 }));
 
         this._renderSubscription = observableCombineLatest(
-                edgeStatus$,
-                this._configuration$,
-                this._containerWidth$,
-                this._sequenceDOMRenderer.changed$.pipe(startWith(this._sequenceDOMRenderer)),
-                this._navigator.playService.speed$,
-                position$).pipe(
-            map(
-                (
-                    [edgeStatus, configuration, containerWidth, renderer, speed, position]:
-                    [
-                        IEdgeStatus,
-                        ISequenceConfiguration,
-                        number,
-                        SequenceDOMRenderer,
-                        number,
-                        { index: number, max: number }
-                    ]): IVNodeHash => {
+            edgeStatus$,
+            this._configuration$,
+            this._containerWidth$,
+            this._sequenceDOMRenderer.changed$.pipe(startWith(this._sequenceDOMRenderer)),
+            this._navigator.playService.speed$,
+            position$).pipe(
+                map(
+                    (
+                        [edgeStatus, configuration, containerWidth, renderer, speed, position]:
+                            [
+                                IEdgeStatus,
+                                ISequenceConfiguration,
+                                number,
+                                SequenceDOMRenderer,
+                                number,
+                                { index: number, max: number }
+                            ]): IVNodeHash => {
 
-                    const vNode: vd.VNode = this._sequenceDOMRenderer
-                        .render(
-                            edgeStatus,
-                            configuration,
-                            containerWidth,
-                            speed,
-                            position.index,
-                            position.max,
-                            this,
-                            this._navigator);
+                        const vNode: vd.VNode = this._sequenceDOMRenderer
+                            .render(
+                                edgeStatus,
+                                configuration,
+                                containerWidth,
+                                speed,
+                                position.index,
+                                position.max,
+                                this,
+                                this._navigator);
 
-                    return {name: this._name, vnode: vNode };
-                }))
+                        return { name: this._name, vnode: vNode };
+                    }))
             .subscribe(this._container.domRenderer.render$);
 
         this._setSpeedSubscription = this._sequenceDOMRenderer.speed$
@@ -481,12 +481,12 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     (configuration: ISequenceConfiguration) => {
                         return [configuration.minWidth, configuration.maxWidth];
                     }))).pipe(
-            map(
-                ([size, configuration]: [ISize, ISequenceConfiguration]): number => {
-                    return this._sequenceDOMRenderer.getContainerWidth(
-                        size,
-                        configuration);
-                }))
+                        map(
+                            ([size, configuration]: [ISize, ISequenceConfiguration]): number => {
+                                return this._sequenceDOMRenderer.getContainerWidth(
+                                    size,
+                                    configuration);
+                            }))
             .subscribe(this._containerWidth$);
 
         this._playingSubscription = this._configuration$.pipe(
