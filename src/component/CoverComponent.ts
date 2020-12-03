@@ -203,9 +203,8 @@ export class CoverComponent extends Component<ICoverConfiguration> {
     private _getImageSrc$(key: string): Observable<string> {
         return Observable.create(
             (subscriber: Subscriber<string>): void => {
-                this._navigator.api.data
-                    .getFullImages([key])
-                    .then(
+                this._navigator.api.imageByKeyFull$([key])
+                    .subscribe(
                         (fullNodes: { [key: string]: IFullNode; }): void => {
                             if (!fullNodes[key]) {
                                 subscriber.error(new MapillaryError(`Non existent cover key: ${key}`));

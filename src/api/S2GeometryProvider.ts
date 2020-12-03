@@ -50,7 +50,7 @@ export class S2GeometryProvider extends GeometryProviderBase {
     public getCorners(cellId: string): ICellCorners {
         const key: string = S2.idToKey(cellId);
         const cell: S2.S2Cell = S2.S2Cell.FromHilbertQuadKey(key);
-        const [nw, ne, se, sw]: S2.ILatLng[] = cell.getCornerLatLngs();
+        const [se, sw, nw, ne]: S2.ILatLng[] = cell.getCornerLatLngs();
 
         return {
             ne: { lat: ne.lat, lon: ne.lng },

@@ -1,5 +1,5 @@
-import {skip, first, take} from "rxjs/operators";
-import {Subject} from "rxjs";
+import { skip, first, take } from "rxjs/operators";
+import { Subject } from "rxjs";
 
 import {
     ComponentService,
@@ -7,8 +7,8 @@ import {
     CoverState,
     ICoverConfiguration,
 } from "../../src/Component";
-import {Node} from "../../src/Graph";
-import {EventEmitter} from "../../src/Utils";
+import { Node } from "../../src/Graph";
+import { EventEmitter } from "../../src/Utils";
 import {
     ComponentController,
     Container,
@@ -17,15 +17,17 @@ import {
     Viewer,
 } from "../../src/Viewer";
 
-import {ContainerMockCreator} from "../helper/ContainerMockCreator.spec";
-import {NavigatorMockCreator} from "../helper/NavigatorMockCreator.spec";
-import {NodeMockCreator} from "../helper/NodeMockCreator.spec";
+import { ContainerMockCreator } from "../helper/ContainerMockCreator.spec";
+import { NavigatorMockCreator } from "../helper/NavigatorMockCreator.spec";
+import { NodeMockCreator } from "../helper/NodeMockCreator.spec";
 import { MockCreator } from "../helper/MockCreator.spec";
 
 describe("ComponentController.ctor", () => {
     it("should be defined", () => {
         const container: Container = new ContainerMockCreator().create();
         const navigator: Navigator = new NavigatorMockCreator().create();
+        (<jasmine.Spy>navigator.api.imageByKeyFull$)
+            .and.returnValue(new Subject());
         const componentService: ComponentService = new ComponentService(container, navigator);
         const eventEmitter: EventEmitter = new EventEmitter();
         const observer: Observer = new Observer(eventEmitter, navigator, container);
@@ -45,6 +47,8 @@ describe("ComponentController.ctor", () => {
     it("should always have cover activated initially", () => {
         const container: Container = new ContainerMockCreator().create();
         const navigator: Navigator = new NavigatorMockCreator().create();
+        (<jasmine.Spy>navigator.api.imageByKeyFull$)
+            .and.returnValue(new Subject());
         const eventEmitter: EventEmitter = new EventEmitter();
         const observer: Observer = new Observer(eventEmitter, navigator, container);
 
@@ -86,6 +90,8 @@ describe("ComponentController.navigable", () => {
     it("should be navigable if no key is supplied", () => {
         const container: Container = new ContainerMockCreator().create();
         const navigator: Navigator = new NavigatorMockCreator().create();
+        (<jasmine.Spy>navigator.api.imageByKeyFull$)
+            .and.returnValue(new Subject());
         const componentService: ComponentService = new ComponentService(container, navigator);
         const eventEmitter: EventEmitter = new EventEmitter();
         const observer: Observer = new Observer(eventEmitter, navigator, container);
@@ -105,6 +111,8 @@ describe("ComponentController.navigable", () => {
     it("should not be navigable if key is supplied", () => {
         const container: Container = new ContainerMockCreator().create();
         const navigator: Navigator = new NavigatorMockCreator().create();
+        (<jasmine.Spy>navigator.api.imageByKeyFull$)
+            .and.returnValue(new Subject());
         const componentService: ComponentService = new ComponentService(container, navigator);
         const eventEmitter: EventEmitter = new EventEmitter();
         const observer: Observer = new Observer(eventEmitter, navigator, container);
@@ -124,6 +132,8 @@ describe("ComponentController.navigable", () => {
     it("should not change when initialized without key and moved to key", () => {
         const container: Container = new ContainerMockCreator().create();
         const navigator: Navigator = new NavigatorMockCreator().create();
+        (<jasmine.Spy>navigator.api.imageByKeyFull$)
+            .and.returnValue(new Subject());
         const componentService: ComponentService = new ComponentService(container, navigator);
         const eventEmitter: EventEmitter = new EventEmitter();
         const observer: Observer = new Observer(eventEmitter, navigator, container);
@@ -171,6 +181,8 @@ describe("ComponentController.navigable", () => {
     it("should change when initialized with key and cover false and node retrieved", () => {
         const container: Container = new ContainerMockCreator().create();
         const navigator: Navigator = new NavigatorMockCreator().create();
+        (<jasmine.Spy>navigator.api.imageByKeyFull$)
+            .and.returnValue(new Subject());
         const componentService: ComponentService = new ComponentService(container, navigator);
         const eventEmitter: EventEmitter = new EventEmitter();
         const observer: Observer = new Observer(eventEmitter, navigator, container);
@@ -216,7 +228,7 @@ describe("ComponentController.navigable", () => {
             });
 
         (<Subject<string>>navigator.stateService.currentKey$).next(null);
-        moveToKey$.next(new NodeMockCreator().create({ key: "key"}));
+        moveToKey$.next(new NodeMockCreator().create({ key: "key" }));
 
         expect(componentController.navigable).toBe(true);
         expect(configurationCount).toBe(1);
@@ -229,6 +241,8 @@ describe("ComponentController.navigable", () => {
 
         const container: Container = new ContainerMockCreator().create();
         const navigator: Navigator = new NavigatorMockCreator().create();
+        (<jasmine.Spy>navigator.api.imageByKeyFull$)
+            .and.returnValue(new Subject());
         const componentService: ComponentService = new ComponentService(container, navigator);
         const eventEmitter: EventEmitter = new EventEmitter();
         const observer: Observer = new Observer(eventEmitter, navigator, container);
@@ -268,6 +282,8 @@ describe("ComponentController.navigable", () => {
     it("should change when activating cover after successful deactivation", () => {
         const container: Container = new ContainerMockCreator().create();
         const navigator: Navigator = new NavigatorMockCreator().create();
+        (<jasmine.Spy>navigator.api.imageByKeyFull$)
+            .and.returnValue(new Subject());
         const componentService: ComponentService = new ComponentService(container, navigator);
         const eventEmitter: EventEmitter = new EventEmitter();
         const observer: Observer = new Observer(eventEmitter, navigator, container);
@@ -288,7 +304,7 @@ describe("ComponentController.navigable", () => {
                 componentService);
 
         (<Subject<string>>navigator.stateService.currentKey$).next(null);
-        moveToKey$.next(new NodeMockCreator().create({ key: "key"}));
+        moveToKey$.next(new NodeMockCreator().create({ key: "key" }));
 
         expect(componentController.navigable).toBe(true);
         expect(componentService.coverActivated).toBe(false);
@@ -313,6 +329,8 @@ describe("ComponentController.activateCover", () => {
     it("should not move again if deactivating cover twice", () => {
         const container: Container = new ContainerMockCreator().create();
         const navigator: Navigator = new NavigatorMockCreator().create();
+        (<jasmine.Spy>navigator.api.imageByKeyFull$)
+            .and.returnValue(new Subject());
         const componentService: ComponentService = new ComponentService(container, navigator);
         const observer: Observer = new MockCreator().create(Observer, "Observer");
 
@@ -349,6 +367,8 @@ describe("ComponentController.activateCover", () => {
     it("should not stop again if activating cover twice", () => {
         const container: Container = new ContainerMockCreator().create();
         const navigator: Navigator = new NavigatorMockCreator().create();
+        (<jasmine.Spy>navigator.api.imageByKeyFull$)
+            .and.returnValue(new Subject());
         const componentService: ComponentService = new ComponentService(container, navigator);
         const observer: Observer = new MockCreator().create(Observer, "Observer");
 

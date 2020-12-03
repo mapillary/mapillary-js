@@ -72,10 +72,10 @@ describe("S2GeometryProvider.latLonToCellIds", () => {
 
                     const s2Cell: S2.S2Cell = new S2.S2Cell();
                     spyOn(s2Cell, "getCornerLatLngs").and.returnValue([
-                        { lat: lat + 0.5, lng: lng - 0.5 },
-                        { lat: lat + 0.5, lng: lng + 0.5 },
                         { lat: lat - 0.5, lng: lng + 0.5 },
                         { lat: lat - 0.5, lng: lng - 0.5 },
+                        { lat: lat + 0.5, lng: lng - 0.5 },
+                        { lat: lat + 0.5, lng: lng + 0.5 },
                     ]);
 
                     return s2Cell;
