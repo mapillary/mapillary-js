@@ -56,7 +56,9 @@ export class CoverComponent extends Component<ICoverConfiguration> {
                 (c: ICoverConfiguration): Observable<string> => {
                     return this._getImageSrc$(c.key).pipe(
                         catchError(
-                            (): Observable<string> => {
+                            (error: Error): Observable<string> => {
+                                console.error(error);
+
                                 return observableEmpty();
                             }));
                 }),
@@ -206,7 +208,8 @@ export class CoverComponent extends Component<ICoverConfiguration> {
                     .then(
                         (fullNodes: { [key: string]: IFullNode; }): void => {
                             if (!fullNodes[key]) {
-                                throw new MapillaryError(`Non existent cover key: ${key}`);
+                                subscriber.error(new MapillaryError(`Non existent cover key: ${key}`));
+                                return;
                             }
 
                             this._navigator.api.data
@@ -231,7 +234,10 @@ export class CoverComponent extends Component<ICoverConfiguration> {
                                     (error: Error): void => {
                                         subscriber.error(error);
                                     });
-                        })
+                        },
+                        (error: Error): void => {
+                            subscriber.error(error);
+                        });
             });
     }
 }
