@@ -50,48 +50,80 @@ export class S2GeometryProvider extends GeometryProviderBase {
     public getCorners(cellId: string): ICellCorners {
         const key: string = S2.idToKey(cellId);
         const cell: S2.S2Cell = S2.S2Cell.FromHilbertQuadKey(key);
-        const [se, sw, nw, ne]: S2.ILatLng[] = cell.getCornerLatLngs();
+        const corners: S2.ILatLng[] = cell.getCornerLatLngs();
+
+        let south: number = Number.POSITIVE_INFINITY;
+        let north: number = Number.NEGATIVE_INFINITY;
+        let west: number = Number.POSITIVE_INFINITY;
+        let east: number = Number.NEGATIVE_INFINITY;
+
+        for (let c of corners) {
+            if (c.lat < south) { south = c.lat; }
+            if (c.lat > north) { north = c.lat; }
+            if (c.lng < west) { west = c.lng; }
+            if (c.lng > east) { east = c.lng; }
+        }
 
         return {
-            ne: { lat: ne.lat, lon: ne.lng },
-            nw: { lat: nw.lat, lon: nw.lng },
-            se: { lat: se.lat, lon: se.lng },
-            sw: { lat: sw.lat, lon: sw.lng },
+            ne: { lat: north, lon: east },
+            nw: { lat: north, lon: west },
+            se: { lat: south, lon: east },
+            sw: { lat: south, lon: west },
         };
     }
 
-    public latLonToCellId(
-        latLon: ILatLon,
-        relativeLevel: number = 0): string {
-
-        const key: string = S2.latLngToKey(
-            latLon.lat,
-            latLon.lon,
-            this._level + relativeLevel);
-
-        return S2.keyToId(key);
+    public latLonToCellId(latLon: ILatLon): string {
+        return this._latLonToId(latLon, this._level);
     }
 
-    public latLonToCellIds(
-        latLon: ILatLon,
-        threshold: number,
-        relativeLevel: number = 0): string[] {
-
-        const key: string = S2.latLngToKey(
-            latLon.lat,
-            latLon.lon,
-            this._level + relativeLevel);
-
-        const cellId: string = S2.keyToId(key);
-        const corners: ICellCorners = this.getCorners(cellId);
+    public latLonToCellIds(latLon: ILatLon, threshold: number): string[] {
+        const cellId: string = this._latLonToId(latLon, this._level);
         const neighbors: ICellNeighbors = this.getNeighbors(cellId);
+        const corners: ILatLon[] =
+            this._getLatLonBoundingBoxCorners(latLon, threshold);
 
-        return this._filterNeighbors(
-            latLon,
-            threshold,
-            cellId,
-            corners,
-            neighbors);
+        for (let corner of corners) {
+            if (this._latLonToId(corner, this._level) !== cellId) {
+                return [
+                    cellId,
+                    neighbors.e,
+                    neighbors.n,
+                    neighbors.ne,
+                    neighbors.nw,
+                    neighbors.s,
+                    neighbors.se,
+                    neighbors.sw,
+                    neighbors.w
+                ];
+            }
+        }
+
+        return [cellId];
+    }
+
+    private _enuToGeodetic(point: number[], reference: ILatLon): ILatLon {
+        const [lat, lon]: number[] = this._geoCoords.enuToGeodetic(
+            point[0],
+            point[1],
+            point[2],
+            reference.lat,
+            reference.lon,
+            0);
+
+        return { lat, lon };
+    }
+
+    private _getLatLonBoundingBoxCorners(
+        latLon: ILatLon, threshold: number): ILatLon[] {
+        return [
+            [-threshold, threshold, 0],
+            [threshold, threshold, 0],
+            [threshold, -threshold, 0],
+            [-threshold, -threshold, 0],
+        ].map(
+            (point: number[]): ILatLon => {
+                return this._enuToGeodetic(point, latLon);
+            });
     }
 
     private _getNeighbors(key: string, level: number): string[] {
@@ -102,6 +134,15 @@ export class S2GeometryProvider extends GeometryProviderBase {
             level);
 
         return neighbors;
+    }
+
+    private _latLonToId(latLon: ILatLon, level: number): string {
+        const key: string = S2.latLngToKey(
+            latLon.lat,
+            latLon.lon,
+            level);
+
+        return S2.keyToId(key);
     }
 }
 
