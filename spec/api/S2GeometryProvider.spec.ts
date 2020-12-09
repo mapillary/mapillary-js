@@ -4,7 +4,7 @@ import GeoCoords from "../../src/geo/GeoCoords";
 import MapillaryError from "../../src/error/MapillaryError";
 import S2GeometryProvider from "../../src/api/S2GeometryProvider";
 import { ILatLon } from "../../src/API";
-import { ICellCorners } from "../../src/api/interfaces/IGeometryProvider";
+import ICellCorners from "../../src/api/interfaces/ICellCorners";
 
 describe("S2GeometryProvider.ctor", () => {
     it("should be defined", () => {

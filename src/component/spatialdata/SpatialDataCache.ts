@@ -19,7 +19,6 @@ import {
 
 import {
     IGPano,
-    ILatLon,
 } from "../../API";
 import {
     AbortMapillaryError,
@@ -31,7 +30,7 @@ import {
 import { CameraProjectionType } from "../../api/interfaces/CameraProjectionType";
 import { IDataProvider } from "../../api/interfaces/interfaces";
 import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
-import { ICellCorners } from "../../api/interfaces/IGeometryProvider";
+import ICellCorners from "../../api/interfaces/ICellCorners";
 
 export type NodeData = {
     alt: number;

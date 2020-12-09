@@ -8,8 +8,7 @@ import {
 } from "../../Geo";
 import CameraVisualizationMode from "./CameraVisualizationMode";
 import { NodeData } from "./SpatialDataCache";
-import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
-import IReconstructionPoint from "../../api/interfaces/IReconstructionPoint";
+import IClusterReconstruction, { IReconstructionPoint } from "../../api/interfaces/IClusterReconstruction";
 
 export class SpatialDataScene {
     private _scene: THREE.Scene;

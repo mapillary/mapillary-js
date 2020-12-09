@@ -1,13 +1,25 @@
 import { S2 } from "s2-geometry";
 
-import {
-    ICellNeighbors,
-    ICellCorners
-} from "./interfaces/IGeometryProvider";
 import ILatLon from "./interfaces/ILatLon";
 import GeoCoords from "../geo/GeoCoords";
 import GeometryProviderBase from "./GeometryProviderBase";
+import ICellCorners, { ICellNeighbors } from "./interfaces/ICellCorners";
 
+/**
+ * @class S2GeometryProvider
+ *
+ * @classdesc Geometry provider based on S2 cells.
+ *
+ * @example
+ * ```
+ * class MyDataProvider extends Mapillary.API.DataProviderBase {
+ *      ...
+ * }
+ *
+ * const s2GeometryProvider = new Mapillary.API.S2GeometryProvider();
+ * const myDataProvider = new MyDataProvider(s2GeometryProvider);
+ * ```
+ */
 export class S2GeometryProvider extends GeometryProviderBase {
     private _level: number;
 
@@ -22,10 +34,12 @@ export class S2GeometryProvider extends GeometryProviderBase {
         this._level = 17;
     }
 
+    /** @inheritdoc */
     public bboxToCellIds(sw: ILatLon, ne: ILatLon): string[] {
         return this._bboxSquareToCellIds(sw, ne);
     }
 
+    /** @inheritdoc */
     public getNeighbors(cellId: string): ICellNeighbors {
         const key: string = S2.idToKey(cellId);
         const position: string = key.split('/')[1];
@@ -47,6 +61,7 @@ export class S2GeometryProvider extends GeometryProviderBase {
         };
     }
 
+    /** @inheritdoc */
     public getCorners(cellId: string): ICellCorners {
         const key: string = S2.idToKey(cellId);
         const cell: S2.S2Cell = S2.S2Cell.FromHilbertQuadKey(key);
@@ -72,10 +87,12 @@ export class S2GeometryProvider extends GeometryProviderBase {
         };
     }
 
+    /** @inheritdoc */
     public latLonToCellId(latLon: ILatLon): string {
         return this._latLonToId(latLon, this._level);
     }
 
+    /** @inheritdoc */
     public latLonToCellIds(latLon: ILatLon, threshold: number): string[] {
         const cellId: string = this._latLonToId(latLon, this._level);
         const neighbors: ICellNeighbors = this.getNeighbors(cellId);

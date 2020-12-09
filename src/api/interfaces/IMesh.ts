@@ -12,7 +12,8 @@ export interface IMesh {
 
     /**
      * Flattened array of vertices for the mesh. Each vertex
-     * consists of X, Y and Z coordinates in the camera frame.
+     * consists of X, Y and Z coordinates in the camera
+     * reference frame.
      */
     vertices: number[];
 }

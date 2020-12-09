@@ -1,7 +1,7 @@
-import {MapillaryError} from "../../../Error";
+import MapillaryError from "../../../error/MapillaryError";
 
 export class GeometryTagError extends MapillaryError {
-    constructor (message?: string) {
+    constructor(message?: string) {
         super(message != null ? message : "The provided geometry value is incorrect");
 
         Object.setPrototypeOf(this, GeometryTagError.prototype);
@@ -10,4 +10,4 @@ export class GeometryTagError extends MapillaryError {
     }
 }
 
-export default MapillaryError;
+export default GeometryTagError;

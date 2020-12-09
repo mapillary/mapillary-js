@@ -1,13 +1,25 @@
 import * as geohash from "latlon-geohash";
 
-import {
-    ICellNeighbors,
-    ICellCorners,
-} from "./interfaces/IGeometryProvider";
 import ILatLon from "./interfaces/ILatLon";
 import GeoCoords from "../geo/GeoCoords";
 import GeometryProviderBase from "./GeometryProviderBase";
+import ICellCorners, { ICellNeighbors } from "./interfaces/ICellCorners";
 
+/**
+ * @class GeohashGeometryProvider
+ *
+ * @classdesc Geometry provider based on geohash cells.
+ *
+ * @example
+ * ```
+ * class MyDataProvider extends Mapillary.API.DataProviderBase {
+ *      ...
+ * }
+ *
+ * const geohashGeometryProvider = new Mapillary.API.GeohashGeometryProvider();
+ * const myDataProvider = new MyDataProvider(geohashGeometryProvider);
+ * ```
+ */
 export class GeohashGeometryProvider extends GeometryProviderBase {
     private _level: number;
 
@@ -40,6 +52,7 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
         return this._bboxSquareToCellIds(sw, ne);
     }
 
+    /** @inheritdoc */
     public getCorners(cellId: string): ICellCorners {
         const bounds: geohash.Bounds = geohash.bounds(cellId);
         const nw: ILatLon = { lat: bounds.ne.lat, lon: bounds.sw.lon };
@@ -49,6 +62,7 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
         return { nw, ne, se, sw };
     }
 
+    /** @inheritdoc */
     public getNeighbors(cellId: string): ICellNeighbors {
         return geohash.neighbours(cellId);
     }
@@ -79,7 +93,8 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
      * @param {number} precision - Precision of the encoding.
      * @param {number} threshold - Threshold of the encoding in meters.
      *
-     * @returns {string} The geohash tiles reachable within the threshold.
+     * @returns {Array<string>} The geohash tiles reachable within the
+     * threshold.
      */
     public latLonToCellIds(
         latLon: ILatLon,

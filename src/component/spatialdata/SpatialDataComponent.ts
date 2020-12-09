@@ -15,7 +15,6 @@ import {
     concatMap,
     switchMap,
     tap,
-    filter,
     last,
     mergeMap,
     first,
@@ -58,7 +57,7 @@ import PlayService from "../../viewer/PlayService";
 import State from "../../state/State";
 import CameraVisualizationMode from "./CameraVisualizationMode";
 import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
-import { ICellNeighbors, ICellCorners } from "../../api/interfaces/IGeometryProvider";
+import ICellCorners, { ICellNeighbors } from "../../api/interfaces/ICellCorners";
 
 export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     public static componentName: string = "spatialData";

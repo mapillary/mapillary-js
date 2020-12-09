@@ -3,7 +3,7 @@ import ModelCreator from "../ModelCreator";
 /**
  * Interface for the options that can be provided to the {@link FalcorDataProvider}.
  *
- * @interface
+ * @interface IFalcorDataProviderOptions
  */
 export interface IFalcorDataProviderOptions {
     /**

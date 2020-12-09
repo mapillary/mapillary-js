@@ -34,6 +34,17 @@ type APIPath =
     "imagesByH" |
     "sequenceByKey";
 
+/**
+ * @class PointsGeometry
+ *
+ * @classdesc Represents a point set in the 2D basic image coordinate system.
+ *
+ * @example
+ * ```
+ * var points = [[0.5, 0.3], [0.7, 0.3], [0.6, 0.5]];
+ * var pointsGeometry = new Mapillary.TagComponent.PointsGeometry(points);
+ * ```
+ */
 export class FalcorDataProviderUrls {
     private _apiHost: string = "a.mapillary.com";
     private _clientToken: string;
@@ -45,6 +56,11 @@ export class FalcorDataProviderUrls {
     private _origin: string = "mapillary.webgl";
     private _scheme: string = "https";
 
+    /**
+     * Create a new Falcor data provider URLs instance.
+     *
+     * @param {IFalcorDataProviderOptions} options - Options struct.
+     */
     constructor(options: IFalcorDataProviderOptions) {
         this._clientToken = options.clientToken;
 
@@ -109,9 +125,9 @@ export class FalcorDataProviderUrls {
 }
 
 /**
- * @class DataProvider
+ * @class FalcorDataProvider
  *
- * @classdesc Provides data through API calls.
+ * @classdesc Provides data through Falcor API calls.
  */
 export class FalcorDataProvider extends DataProviderBase {
     private _urls: FalcorDataProviderUrls;
@@ -133,7 +149,7 @@ export class FalcorDataProvider extends DataProviderBase {
     private _propertiesUser: string[];
 
     /**
-     * Create a new data provider instance.
+     * Create a new Falcor data provider instance.
      *
      * @param {IFalcorDataProviderOptions} options - Options struct.
      * @param {IGeometryProvider} [geometry] - Optional geometry
@@ -211,6 +227,9 @@ export class FalcorDataProvider extends DataProviderBase {
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
     public getCoreImages(cellId: string):
         Promise<{ [cellId: string]: { [imageKey: string]: ICoreNode } }> {
         return Promise.resolve(<PromiseLike<falcor.JSONEnvelope<IImagesByH<ICoreNode>>>>this._model
@@ -240,6 +259,9 @@ export class FalcorDataProvider extends DataProviderBase {
                 });
     }
 
+    /**
+     * @inheritdoc
+     */
     public getClusterReconstruction(url: string, abort?: Promise<void>): Promise<IClusterReconstruction> {
         return BufferFetcher.getArrayBuffer(url, abort)
             .then(
@@ -258,6 +280,9 @@ export class FalcorDataProvider extends DataProviderBase {
                 });
     }
 
+    /**
+     * @inheritdoc
+     */
     public getFillImages(keys: string[]): Promise<{ [key: string]: IFillNode }> {
         return Promise.resolve(<PromiseLike<falcor.JSONEnvelope<IImageByKey<IFillNode>>>>this._model
             .get([
@@ -283,6 +308,9 @@ export class FalcorDataProvider extends DataProviderBase {
                 });
     }
 
+    /**
+     * @inheritdoc
+     */
     public getFullImages(keys: string[]): Promise<{ [key: string]: IFullNode }> {
         return Promise.resolve(<PromiseLike<falcor.JSONEnvelope<IImageByKey<IFullNode>>>>this._model
             .get([
@@ -309,10 +337,16 @@ export class FalcorDataProvider extends DataProviderBase {
                 });
     }
 
+    /**
+     * @inheritdoc
+     */
     public getImage(url: string, abort?: Promise<void>): Promise<ArrayBuffer> {
         return BufferFetcher.getArrayBuffer(url, abort);
     }
 
+    /**
+     * @inheritdoc
+     */
     public getImageTile(
         imageKey: string,
         x: number,
@@ -329,6 +363,9 @@ export class FalcorDataProvider extends DataProviderBase {
             abort);
     }
 
+    /**
+     * @inheritdoc
+     */
     public getMesh(url: string, abort?: Promise<void>): Promise<IMesh> {
         return BufferFetcher.getArrayBuffer(url, abort)
             .then(
@@ -340,6 +377,9 @@ export class FalcorDataProvider extends DataProviderBase {
                 });
     }
 
+    /**
+     * @inheritdoc
+     */
     public getSequences(sequenceKeys: string[]):
         Promise<{ [sequenceKey: string]: ISequence }> {
         return Promise.resolve(<PromiseLike<falcor.JSONEnvelope<ISequenceByKey<ISequence>>>>this._model
@@ -370,6 +410,9 @@ export class FalcorDataProvider extends DataProviderBase {
                 });
     }
 
+    /**
+     * @inheritdoc
+     */
     public setUserToken(userToken?: string): void {
         this._model.invalidate([]);
         this._model = null;

@@ -7,7 +7,6 @@ import {
     ISequence,
 } from "../API";
 import { IDataProvider } from "./interfaces/interfaces";
-import MapillaryError from "../error/MapillaryError";
 
 /**
  * @class API
