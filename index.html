@@ -69,27 +69,27 @@
 				<a href="#using-mapillaryjs" id="using-mapillaryjs" style="color: inherit; text-decoration: none;">
 					<h2>Using MapillaryJS</h2>
 				</a>
-				<p>To use MapillaryJS you must <a href="https://www.mapillary.com/signup">create an account</a> and <a href="https://www.mapillary.com/app/settings/developers">obtain a Client ID by registering an application</a>. Then you can use MapillaryJS with a <code>&lt;script&gt;</code> tag.</p>
+				<p>To use MapillaryJS you must <a href="https://www.mapillary.com/signup">create an account</a> and <a href="https://www.mapillary.com/app/settings/developers">obtain a Client ID by registering an application</a>.</p>
+				<p>You can use MapillaryJS as a <code>&lt;script&gt;</code> tag from a <a href="https://unpkg.com/browse/mapillary-js@3.0.0/dist/">CDN</a>, or as a <code>mapillary-js</code> package on <a href="https://www.npmjs.com/package/mapillary-js">npm</a>.</p>
 				<pre><code class="language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&#x27;https://unpkg.com/mapillary-js@2.21.0/dist/mapillary.min.js&#x27;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&#x27;https://unpkg.com/mapillary-js@2.21.0/dist/mapillary.min.css&#x27;</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&#x27;stylesheet&#x27;</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&#x27;https://unpkg.com/mapillary-js@3.0.0/dist/mapillary.min.js&#x27;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&#x27;https://unpkg.com/mapillary-js@3.0.0/dist/mapillary.min.css&#x27;</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&#x27;stylesheet&#x27;</span> /&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
 
 <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;mly&#x27;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&#x27;width: 640px; height: 480px;&#x27;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
 
     <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
-        <span class="hljs-keyword">var</span> mly = <span class="hljs-keyword">new</span> Mapillary.Viewer(
-            <span class="hljs-string">&#x27;mly&#x27;</span>,
-            <span class="hljs-string">&#x27;&lt;your client id&gt;&#x27;</span>,
-            <span class="hljs-string">&#x27;&lt;your image key for initializing the viewer&gt;&#x27;</span>
-        );
+        <span class="hljs-keyword">var</span> mly = <span class="hljs-keyword">new</span> Mapillary.Viewer({
+            <span class="hljs-attr">apiClient</span>: <span class="hljs-string">&#x27;&lt;your client id&gt;&#x27;</span>,
+            <span class="hljs-attr">container</span>: <span class="hljs-string">&#x27;mly&#x27;</span>,
+            <span class="hljs-attr">imageKey</span>: <span class="hljs-string">&#x27;&lt;your image key for initializing the viewer&gt;&#x27;</span>,
+        });
     </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></code></pre>
-				<p>Alternatively, you can <code>npm install mapillary-js</code> to use it with a module loader or bundler of your choice.</p>
 				<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
 					<h2>Documentation</h2>
 				</a>
@@ -251,7 +251,13 @@
 						<a href="classes/bearingcomponent.html" class="tsd-kind-icon">Bearing<wbr>Component</a>
 					</li>
 					<li class=" tsd-kind-class">
+						<a href="classes/bufferfetcher.html" class="tsd-kind-icon">Buffer<wbr>Fetcher</a>
+					</li>
+					<li class=" tsd-kind-class">
 						<a href="classes/circlemarker.html" class="tsd-kind-icon">Circle<wbr>Marker</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/dataproviderbase.html" class="tsd-kind-icon">Data<wbr>Provider<wbr>Base</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/doubleclickzoomhandler.html" class="tsd-kind-icon">Double<wbr>Click<wbr>Zoom<wbr>Handler</a>
@@ -263,7 +269,22 @@
 						<a href="classes/extremepointtag.html" class="tsd-kind-icon">Extreme<wbr>Point<wbr>Tag</a>
 					</li>
 					<li class=" tsd-kind-class">
+						<a href="classes/falcordataprovider.html" class="tsd-kind-icon">Falcor<wbr>Data<wbr>Provider</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/falcordataproviderurls.html" class="tsd-kind-icon">Falcor<wbr>Data<wbr>Provider<wbr>Urls</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/geohashgeometryprovider.html" class="tsd-kind-icon">Geohash<wbr>Geometry<wbr>Provider</a>
+					</li>
+					<li class=" tsd-kind-class">
 						<a href="classes/geometry.html" class="tsd-kind-icon">Geometry</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/geometryproviderbase.html" class="tsd-kind-icon">Geometry<wbr>Provider<wbr>Base</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/jsoninflator.html" class="tsd-kind-icon">Json<wbr>Inflator</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/keyplayhandler.html" class="tsd-kind-icon">Key<wbr>Play<wbr>Handler</a>
@@ -281,6 +302,9 @@
 						<a href="classes/keyboardcomponent.html" class="tsd-kind-icon">Keyboard<wbr>Component</a>
 					</li>
 					<li class=" tsd-kind-class">
+						<a href="classes/mapillaryerror.html" class="tsd-kind-icon">Mapillary<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
 						<a href="classes/markercomponent.html" class="tsd-kind-icon">Marker<wbr>Component</a>
 					</li>
 					<li class=" tsd-kind-class">
@@ -294,6 +318,9 @@
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/outlinetag.html" class="tsd-kind-icon">Outline<wbr>Tag</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/pbfmeshreader.html" class="tsd-kind-icon">Pbf<wbr>Mesh<wbr>Reader</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/pointgeometry.html" class="tsd-kind-icon">Point<wbr>Geometry</a>
@@ -312,6 +339,9 @@
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/rectgeometry.html" class="tsd-kind-icon">Rect<wbr>Geometry</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/s2geometryprovider.html" class="tsd-kind-icon">S2<wbr>Geometry<wbr>Provider</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/scrollzoomhandler.html" class="tsd-kind-icon">Scroll<wbr>Zoom<wbr>Handler</a>
@@ -350,10 +380,25 @@
 						<a href="interfaces/icachedepth.html" class="tsd-kind-icon">ICache<wbr>Depth</a>
 					</li>
 					<li class=" tsd-kind-interface">
+						<a href="interfaces/icamera.html" class="tsd-kind-icon">ICamera</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/icellcorners.html" class="tsd-kind-icon">ICell<wbr>Corners</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/icellneighbors.html" class="tsd-kind-icon">ICell<wbr>Neighbors</a>
+					</li>
+					<li class=" tsd-kind-interface">
 						<a href="interfaces/icirclemarkeroptions.html" class="tsd-kind-icon">ICircle<wbr>Marker<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-interface">
+						<a href="interfaces/iclusterreconstruction.html" class="tsd-kind-icon">ICluster<wbr>Reconstruction</a>
+					</li>
+					<li class=" tsd-kind-interface">
 						<a href="interfaces/icomponentoptions.html" class="tsd-kind-icon">IComponent<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/icorenode.html" class="tsd-kind-icon">ICore<wbr>Node</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/idirectionconfiguration.html" class="tsd-kind-icon">IDirection<wbr>Configuration</a>
@@ -371,7 +416,25 @@
 						<a href="interfaces/iextremepointtagoptions.html" class="tsd-kind-icon">IExtreme<wbr>Point<wbr>Tag<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-interface">
+						<a href="interfaces/ifalcordataprovideroptions.html" class="tsd-kind-icon">IFalcor<wbr>Data<wbr>Provider<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/ifillnode.html" class="tsd-kind-icon">IFill<wbr>Node</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/ifullnode.html" class="tsd-kind-icon">IFull<wbr>Node</a>
+					</li>
+					<li class=" tsd-kind-interface">
 						<a href="interfaces/igpano.html" class="tsd-kind-icon">IGPano</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/igeoreference.html" class="tsd-kind-icon">IGeo<wbr>Reference</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="interfaces/iimagebykey.html" class="tsd-kind-icon">IImage<wbr>ByKey</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="interfaces/iimagesbyh.html" class="tsd-kind-icon">IImages<wbr>ByH</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/ikeyboardconfiguration.html" class="tsd-kind-icon">IKeyboard<wbr>Configuration</a>
@@ -384,6 +447,9 @@
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/imarkerevent.html" class="tsd-kind-icon">IMarker<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/imesh.html" class="tsd-kind-icon">IMesh</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/imouseconfiguration.html" class="tsd-kind-icon">IMouse<wbr>Configuration</a>
@@ -407,7 +473,19 @@
 						<a href="interfaces/ipopupoptions.html" class="tsd-kind-icon">IPopup<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-interface">
+						<a href="interfaces/ireconstructionpoint.html" class="tsd-kind-icon">IReconstruction<wbr>Point</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/isequence.html" class="tsd-kind-icon">ISequence</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="interfaces/isequencebykey.html" class="tsd-kind-icon">ISequence<wbr>ByKey</a>
+					</li>
+					<li class=" tsd-kind-interface">
 						<a href="interfaces/isequenceconfiguration.html" class="tsd-kind-icon">ISequence<wbr>Configuration</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/ishot.html" class="tsd-kind-icon">IShot</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/isimplemarkeroptions.html" class="tsd-kind-icon">ISimple<wbr>Marker<wbr>Options</a>
@@ -428,6 +506,9 @@
 						<a href="interfaces/itagconfiguration.html" class="tsd-kind-icon">ITag<wbr>Configuration</a>
 					</li>
 					<li class=" tsd-kind-interface">
+						<a href="interfaces/iurloptions.html" class="tsd-kind-icon">IUrl<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
 						<a href="interfaces/iviewerevent.html" class="tsd-kind-icon">IViewer<wbr>Event</a>
 					</li>
 					<li class=" tsd-kind-interface">
@@ -438,6 +519,9 @@
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/izoomconfiguration.html" class="tsd-kind-icon">IZoom<wbr>Configuration</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#apipath" class="tsd-kind-icon">APIPath</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
 						<a href="globals.html#filterexpression" class="tsd-kind-icon">Filter<wbr>Expression</a>
@@ -496,13 +580,16 @@
 					</li>
 				</ul>
 				<ul class="tsd-legend">
-					<li class="tsd-kind-property tsd-parent-kind-interface"><span
-						class="tsd-kind-icon">Property</span>
+					<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span
+						class="tsd-kind-icon">Static property</span>
+					</li>
+					<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span
+						class="tsd-kind-icon">Static method</span>
 					</li>
 				</ul>
 				<ul class="tsd-legend">
-					<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span
-						class="tsd-kind-icon">Static property</span>
+					<li class="tsd-kind-property tsd-parent-kind-interface"><span
+						class="tsd-kind-icon">Property</span>
 					</li>
 				</ul>
 			</div>

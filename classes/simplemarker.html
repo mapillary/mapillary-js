@@ -77,23 +77,23 @@
 							(non-interactive) and one interactive with configuration use</p>
 						</dd>
 						<dt>example</dt>
-						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">defaultMarker</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.MarkerComponent.SimpleMarker(</span>
-    <span class="hljs-string">&quot;id-1&quot;</span><span class="hljs-string">,</span>
-    { <span class="hljs-attr">lat:</span> <span class="hljs-number">0</span>, <span class="hljs-attr">lon:</span> <span class="hljs-number">0</span>, }<span class="hljs-string">);</span>
+						<dd><pre><code><span class="hljs-built_in">var</span> defaultMarker = <span class="hljs-built_in">new</span> Mapillary.MarkerComponent.SimpleMarker(
+    <span class="hljs-string">&quot;id-1&quot;</span>,
+    { lat: <span class="hljs-number">0</span>, lon: <span class="hljs-number">0</span>, });
 
-<span class="hljs-string">var</span> <span class="hljs-string">interactiveMarker</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.MarkerComponent.SimpleMarker(</span>
-    <span class="hljs-string">&quot;id-2&quot;</span><span class="hljs-string">,</span>
-    { <span class="hljs-attr">lat:</span> <span class="hljs-number">0</span>, <span class="hljs-attr">lon:</span> <span class="hljs-number">0</span>, }<span class="hljs-string">,</span>
+<span class="hljs-built_in">var</span> interactiveMarker = <span class="hljs-built_in">new</span> Mapillary.MarkerComponent.SimpleMarker(
+    <span class="hljs-string">&quot;id-2&quot;</span>,
+    { lat: <span class="hljs-number">0</span>, lon: <span class="hljs-number">0</span>, },
     {
-        <span class="hljs-attr">ballColor:</span> <span class="hljs-string">&quot;#00f&quot;</span>,
-        <span class="hljs-attr">ballOpacity:</span> <span class="hljs-number">0.5</span>,
-        <span class="hljs-attr">color:</span> <span class="hljs-string">&quot;#00f&quot;</span>,
-        <span class="hljs-attr">interactive:</span> <span class="hljs-literal">true</span>,
-        <span class="hljs-attr">opacity:</span> <span class="hljs-number">0.3</span>,
-        <span class="hljs-attr">radius:</span> <span class="hljs-number">0.7</span>,
-    }<span class="hljs-string">);</span>
+        ballColor: <span class="hljs-string">&quot;#00f&quot;</span>,
+        ballOpacity: <span class="hljs-number">0.5</span>,
+        <span class="hljs-built_in">color</span>: <span class="hljs-string">&quot;#00f&quot;</span>,
+        interactive: <span class="hljs-literal">true</span>,
+        <span class="hljs-built_in">opacity</span>: <span class="hljs-number">0.3</span>,
+        <span class="hljs-built_in">radius</span>: <span class="hljs-number">0.7</span>,
+    });
 
-<span class="hljs-string">markerComponent.add([defaultMarker,</span> <span class="hljs-string">interactiveMarker]);</span></code></pre></dd>
+markerComponent.add([defaultMarker, interactiveMarker]);</code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -143,7 +143,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Marker.__constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/92686fc3/src/component/marker/marker/SimpleMarker.ts#L48">src/component/marker/marker/SimpleMarker.ts:48</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/marker/marker/SimpleMarker.ts#L48">src/component/marker/marker/SimpleMarker.ts:48</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -176,7 +176,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="simplemarker.html">SimpleMarker</a>.<a href="simplemarker.html#id">id</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/92686fc3/src/component/marker/marker/Marker.ts#L25">src/component/marker/marker/Marker.ts:25</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/marker/marker/Marker.ts#L25">src/component/marker/marker/Marker.ts:25</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -200,7 +200,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="simplemarker.html">SimpleMarker</a>.<a href="simplemarker.html#latlon">latLon</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/92686fc3/src/component/marker/marker/Marker.ts#L42">src/component/marker/marker/Marker.ts:42</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/marker/marker/Marker.ts#L42">src/component/marker/marker/Marker.ts:42</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -273,13 +273,16 @@
 					</li>
 				</ul>
 				<ul class="tsd-legend">
-					<li class="tsd-kind-property tsd-parent-kind-interface"><span
-						class="tsd-kind-icon">Property</span>
+					<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span
+						class="tsd-kind-icon">Static property</span>
+					</li>
+					<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span
+						class="tsd-kind-icon">Static method</span>
 					</li>
 				</ul>
 				<ul class="tsd-legend">
-					<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span
-						class="tsd-kind-icon">Static property</span>
+					<li class="tsd-kind-property tsd-parent-kind-interface"><span
+						class="tsd-kind-icon">Property</span>
 					</li>
 				</ul>
 			</div>
