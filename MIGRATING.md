@@ -1,4 +1,120 @@
-# Migrating from MapillaryJS 1 to 2
+# Migrating
+
+This document describes how to migrate between major versions of MapillaryJS.
+
+# MapillaryJS 2 to 3
+
+## Components
+
+The `stats` and `loading` components have been removed. Configuring these components in the component options struct will no longer have any effect.
+
+## Node class
+
+The following property names have changed.
+
+|MapillaryJS 2|MapillaryJS 3|
+|---|---|
+|`cameraProjection`|`cameraProjectionType`|
+
+## Viewer class
+
+### Constructor parameters
+
+All parameters of the viewer constructor now goes into the viewer options object.
+
+MapillaryJS 3:
+```js
+var mly = new Mapillary.Viewer({
+    apiClient: '<your client id>',
+    container: '<your container id>',
+    imageKey: '<your optional image key for initializing the viewer>',
+    userToken: '<your optional auth token>',
+    // your other viewer options
+});
+```
+
+MapillaryJS 2:
+```js
+var mly = new Mapillary.Viewer(
+    '<your container id>',
+    '<your client id>',
+    '<your optional image key for initializing the viewer>',
+    {
+        // your other viewer options
+    },
+    '<your optional auth token>',
+);
+```
+
+### Move close to
+
+The `Mapillary.Viewer.moveCloseTo` method has been removed, use the [Mapillary REST API](https://www.mapillary.com/developer/api-documentation/#search-images) for this functionality instead.
+
+### Auth token
+
+The name of the method for setting a user auth token has changed.
+
+MapillaryJS 3:
+```ts
+viewer.setUserToken('<your user token>');
+```
+
+MapillaryJS 3:
+```ts
+viewer.setAuthToken('<your user token>');
+```
+
+### URL options
+
+Most URL options now need to be set through the Falcor data provider. When setting the Falcor data provider explicitly, the client and user tokens also need to be set on the provider.
+
+MapillaryJS 3:
+```js
+var provider = new Mapillary.API.FalcorDataProvider({
+    apiHost: '<your api host>',
+    clientToken: '<your client id>',
+    clusterReconstructionHost: '<your cluster reconstruction host>',
+    imageHost: '<your image host>',
+    imageTileHost: '<your image tile host>',
+    meshHost: '<your mesh host>',
+    scheme: '<your scheme for all falcor data provider hosts>',
+    userToken: '<your optional auth token>',
+});
+
+var mly = new Mapillary.Viewer({
+    apiClient: provider,
+    container: '<your container id>',
+    imageKey: '<your optional image key for initializing the viewer>',
+    url: {
+        exploreHost: '<your explore host>',
+        scheme: '<your explore scheme>',
+    },
+});
+```
+
+MapillaryJS 2:
+```js
+var mly = new Mapillary.Viewer(
+    '<your container id>',
+    '<your client id>',
+    '<your image key>',
+    {
+        url: {
+            apiHost: '<your api host>',
+            clusterReconstructionHost: '<your cluster reconstruction host>',
+            exploreHost: '<your explore host>',
+            imageHost: '<your image host>',
+            imageTileHost: '<your image tile host>',
+            meshHost: '<your mesh host>',
+            scheme: '<your scheme for all hosts>',
+        }
+    },
+    '<your optional auth token>',
+);
+```
+
+
+# MapillaryJS 1 to 2
 
 MapillaryJS 2 has a completely rewritten graph structure and IO handling. The graph was rewritten to, among other things, load nodes faster when using the `viewer.move*` methods.
 
@@ -30,7 +146,7 @@ spatialEdges$: Observable<IEdgeStatus>
 
 The edge status is like so:
 
-```
+```ts
 interface IEdgeStatus {
     cached: boolean;
     edges: IEdge[];

@@ -81,6 +81,7 @@
         "./src/state/TransitionMode.ts",
         "./src/viewer/interfaces/IComponentOptions.ts",
         "./src/viewer/interfaces/IPointOfView.ts",
+        "./src/viewer/interfaces/IUrlOptions.ts",
         "./src/viewer/interfaces/IViewerEvent.ts",
         "./src/viewer/interfaces/IViewerMouseEvent.ts",
         "./src/viewer/interfaces/IViewerOptions.ts",
