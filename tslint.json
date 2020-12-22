@@ -1,11 +1,15 @@
 {
   "extends": "tslint:recommended",
   "rules": {
-    // TypeScript Specific
     "adjacent-overload-signatures": false,
     "ban-types": false,
     "member-access": true,
-    "member-ordering": [true, {"order": "fields-first"}],
+    "member-ordering": [
+      true,
+      {
+        "order": "fields-first"
+      }
+    ],
     "no-any": false,
     "no-empty-interface": false,
     "no-namespace": false,
@@ -17,12 +21,9 @@
       "call-signature",
       "parameter",
       "property-declaration",
-      "variable-declaration",
       "member-variable-declaration"
     ],
     "unified-signatures": false,
-
-    // Functionality
     "no-bitwise": false,
     "no-console": [
       true,
@@ -32,26 +33,31 @@
       "timeEnd",
       "trace"
     ],
-    "no-submodule-imports": [true, "rxjs"],
+    "no-submodule-imports": [
+      true,
+      "rxjs"
+    ],
     "no-switch-case-fall-through": true,
-    "no-unnecessary-class": [true, "allow-static-only"],
-
-    // Maintainability
+    "no-unnecessary-class": [
+      true,
+      "allow-static-only"
+    ],
     "max-classes-per-file": false,
     "max-line-length": [
       true,
       140
     ],
     "prefer-const": false,
-
-    // Style
     "align": [
       true,
       "parameters",
       "arguments",
       "statements"
     ],
-    "array-type": [true, "array"],
+    "array-type": [
+      true,
+      "array"
+    ],
     "arrow-return-shorthand": false,
     "callable-types": false,
     "comment-format": [
