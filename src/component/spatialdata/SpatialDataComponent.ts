@@ -58,6 +58,7 @@ import State from "../../state/State";
 import CameraVisualizationMode from "./CameraVisualizationMode";
 import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
 import ICellCorners, { ICellNeighbors } from "../../api/interfaces/ICellCorners";
+import Spatial from "../../geo/Spatial";
 
 export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     public static componentName: string = "spatialData";
@@ -66,20 +67,16 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     private _scene: SpatialDataScene;
     private _viewportCoords: ViewportCoords;
     private _geoCoords: GeoCoords;
+    private _spatial: Spatial;
 
     private _addNodeSubscription: Subscription;
     private _addReconstructionSubscription: Subscription;
     private _addTileSubscription: Subscription;
-    private _cameraVisibilitySubscription: Subscription;
+    private _applyConfigurationSubscription: Subscription;
     private _earthControlsSubscription: Subscription;
     private _moveSubscription: Subscription;
-    private _pointVisibilitySubscription: Subscription;
-    private _positionVisibilitySubscription: Subscription;
     private _renderSubscription: Subscription;
-    private _tileVisibilitySubscription: Subscription;
     private _uncacheSubscription: Subscription;
-    private _cameraVisualizationModeSubscription: Subscription;
-    private _ccToModeSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
@@ -90,6 +87,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._scene = new SpatialDataScene(this._getDefaultConfiguration());
         this._viewportCoords = new ViewportCoords();
         this._geoCoords = new GeoCoords();
+        this._spatial = new Spatial();
     }
 
     protected _activate(): void {
@@ -289,72 +287,45 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         hash);
                 });
 
-        this._cameraVisibilitySubscription = this._configuration$.pipe(
+        this._applyConfigurationSubscription = this._configuration$.pipe(
             map(
-                (configuration: ISpatialDataConfiguration): boolean => {
-                    return configuration.camerasVisible;
+                (c: ISpatialDataConfiguration): ISpatialDataConfiguration => {
+                    c.cameraSize = this._spatial.clamp(c.cameraSize, 0.01, 1);
+                    c.pointSize = this._spatial.clamp(c.pointSize, 0.01, 1);
+                    return {
+                        cameraSize: c.cameraSize,
+                        cameraVisualizationMode: c.cameraVisualizationMode,
+                        camerasVisible: c.camerasVisible,
+                        connectedComponents: c.connectedComponents,
+                        pointSize: c.pointSize,
+                        pointsVisible: c.pointsVisible,
+                        positionsVisible: c.positionsVisible,
+                        tilesVisible: c.tilesVisible,
+                    }
                 }),
-            distinctUntilChanged())
+            distinctUntilChanged(
+                (c1: ISpatialDataConfiguration, c2: ISpatialDataConfiguration): boolean => {
+                    return c1.cameraSize === c2.cameraSize &&
+                        c1.cameraVisualizationMode === c2.cameraVisualizationMode &&
+                        c1.camerasVisible === c2.camerasVisible &&
+                        c1.connectedComponents === c2.connectedComponents &&
+                        c1.pointSize === c2.pointSize &&
+                        c1.pointsVisible === c2.pointsVisible &&
+                        c1.positionsVisible === c2.positionsVisible &&
+                        c1.tilesVisible === c2.tilesVisible;
+                }))
             .subscribe(
-                (visible: boolean): void => {
-                    this._scene.setCameraVisibility(visible);
-                });
-
-        this._pointVisibilitySubscription = this._configuration$.pipe(
-            map(
-                (configuration: ISpatialDataConfiguration): boolean => {
-                    return configuration.pointsVisible;
-                }),
-            distinctUntilChanged())
-            .subscribe(
-                (visible: boolean): void => {
-                    this._scene.setPointVisibility(visible);
-                });
-
-        this._positionVisibilitySubscription = this._configuration$.pipe(
-            map(
-                (configuration: ISpatialDataConfiguration): boolean => {
-                    return configuration.positionsVisible;
-                }),
-            distinctUntilChanged())
-            .subscribe(
-                (visible: boolean): void => {
-                    this._scene.setPositionVisibility(visible);
-                });
-
-        this._tileVisibilitySubscription = this._configuration$.pipe(
-            map(
-                (configuration: ISpatialDataConfiguration): boolean => {
-                    return configuration.tilesVisible;
-                }),
-            distinctUntilChanged())
-            .subscribe(
-                (visible: boolean): void => {
-                    this._scene.setTileVisibility(visible);
-                });
-
-        this._ccToModeSubscription = this._configuration$.pipe(
-            map(
-                (configuration: ISpatialDataConfiguration): CameraVisualizationMode => {
-                    return configuration.connectedComponents === true ?
+                (c: ISpatialDataConfiguration): void => {
+                    this._scene.setCameraSize(c.cameraSize);
+                    this._scene.setCameraVisibility(c.camerasVisible);
+                    this._scene.setPointSize(c.pointSize);
+                    this._scene.setPointVisibility(c.pointsVisible);
+                    this._scene.setPositionVisibility(c.positionsVisible);
+                    this._scene.setTileVisibility(c.tilesVisible);
+                    const cvm: CameraVisualizationMode = c.connectedComponents ?
                         CameraVisualizationMode.ConnectedComponent :
-                        CameraVisualizationMode.Default;
-                }),
-            distinctUntilChanged())
-            .subscribe(
-                (mode: CameraVisualizationMode): void => {
-                    this.configure({ cameraVisualizationMode: mode });
-                });
-
-        this._cameraVisualizationModeSubscription = this._configuration$.pipe(
-            map(
-                (configuration: ISpatialDataConfiguration): CameraVisualizationMode => {
-                    return configuration.cameraVisualizationMode;
-                }),
-            distinctUntilChanged())
-            .subscribe(
-                (mode: CameraVisualizationMode): void => {
-                    this._scene.setCameraVisualizationMode(mode);
+                        c.cameraVisualizationMode;
+                    this._scene.setCameraVisualizationMode(cvm);
                 });
 
         this._uncacheSubscription = hash$
@@ -419,16 +390,11 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._addNodeSubscription.unsubscribe();
         this._addReconstructionSubscription.unsubscribe();
         this._addTileSubscription.unsubscribe();
-        this._cameraVisibilitySubscription.unsubscribe();
+        this._applyConfigurationSubscription.unsubscribe();
         this._earthControlsSubscription.unsubscribe();
         this._moveSubscription.unsubscribe();
-        this._pointVisibilitySubscription.unsubscribe();
-        this._positionVisibilitySubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
-        this._tileVisibilitySubscription.unsubscribe();
         this._uncacheSubscription.unsubscribe();
-        this._cameraVisualizationModeSubscription.unsubscribe();
-        this._ccToModeSubscription.unsubscribe();
 
         this._navigator.stateService.state$.pipe(
             first())
@@ -442,9 +408,11 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
     protected _getDefaultConfiguration(): ISpatialDataConfiguration {
         return {
+            cameraSize: 0.1,
             cameraVisualizationMode: CameraVisualizationMode.Default,
             camerasVisible: false,
             connectedComponents: false,
+            pointSize: 0.1,
             pointsVisible: true,
             positionsVisible: false,
             tilesVisible: false,
