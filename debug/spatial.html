@@ -16,32 +16,17 @@
         }
 
         html,
-        body {
+        body,
+        #mly {
             width: 100%;
             height: 100%;
-        }
-
-        #mly {
-            width: 90%;
-            height: 90%;
         }
     </style>
 </head>
 
 <body>
     <div id="mly"></div>
-    <select name="visualization" id="visualization">
-        <option value="default">Default</option>
-        <option value="mergecc">CC</option>
-        <option value="cluster">Cluster</option>
-        <option value="sequence">Sequence</option>
-    </select>
-    <button onclick="toggleSetting('earthControls')">Earth</button>
-    <button onclick="toggleSetting('pointsVisible')">Points</button>
-    <button onclick="toggleSetting('camerasVisible')">Cameras</button>
-    <button onclick="toggleSetting('positionsVisible')">Positions</button>
-    <button onclick="toggleSetting('tilesVisible')">Tiles</button>
-    <button onclick="toggleImages()">Images</button>
+
     <script>
         const viewer = new Mapillary.Viewer({
             apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
@@ -53,41 +38,71 @@
         window.addEventListener("resize", function () { viewer.resize(); });
 
         const spatial = viewer.getComponent("spatialData");
+        const s = Object.assign(
+            {},
+            spatial.defaultConfiguration,
+            { imagesVisible: true });
 
-        document
-            .getElementById("visualization")
-            .addEventListener("change", (event) => {
-                const cvms = Mapillary.SpatialDataComponent.CameraVisualizationMode;
-                let mode;
-                switch (event.target.value) {
-                    case "mergecc": mode = cvms.ConnectedComponent; break;
-                    case "cluster": mode = cvms.Cluster; break;
-                    case "sequence": mode = cvms.Sequence; break;
-                    default: mode = cvms.Default; break;
-                }
-                spatial.configure({ cameraVisualizationMode: mode });
-            });
+        const mode = Mapillary.SpatialDataComponent.CameraVisualizationMode;
+        const none = mode.Default;
+        const cluster = mode.Cluster;
+        const connectedComponent = mode.ConnectedComponent;
+        const sequence = mode.Sequence;
 
-        const s = {
-            camerasVisible: false,
-            earthControls: false,
-            imagesVisible: true,
-            pointsVisible: true,
-            positionsVisible: false,
-            tilesVisible: false,
-        }
-
-        function toggleSetting(name) {
-            s[name] = !s[name];
-            const c = {}; c[name] = s[name];
-            spatial.configure(c);
-        }
+        const modeRotation = {};
+        modeRotation[none] = cluster;
+        modeRotation[cluster] = connectedComponent;
+        modeRotation[connectedComponent] = sequence;
+        modeRotation[sequence] = none;
 
         function toggleImages() {
             s.imagesVisible = !s.imagesVisible;
             if (s.imagesVisible) { viewer.activateComponent("imagePlane"); }
             else { viewer.deactivateComponent("imagePlane"); }
         }
+
+        function rotateCvm() {
+            s.cameraVisualizationMode = modeRotation[s.cameraVisualizationMode];
+            configure("cameraVisualizationMode");
+        }
+
+        function toggleBooleanSetting(name) {
+            s[name] = !s[name];
+            configure(name);
+        }
+
+        function changeSize(name, coeff) {
+            s[name] *= coeff;
+            s[name] = Math.max(0.01, Math.min(1, s[name]));
+            configure(name);
+        }
+
+        function configure(name) {
+            const c = {}; c[name] = s[name];
+            spatial.configure(c);
+        }
+
+        window.document.addEventListener(
+            "keydown",
+            e => {
+                let name = undefined;
+                switch (e.key) {
+                    case 'c': name = 'camerasVisible'; break;
+                    case 'e': name = 'earthControls'; break;
+                    case 'p': name = 'pointsVisible'; break;
+                    case 'o': name = 'positionsVisible'; break;
+                    case 't': name = 'tilesVisible'; break;
+                    case 'i': toggleImages(); break;
+                    case 'v': rotateCvm(); break;
+                    case 'q': changeSize('pointSize', 0.9); break;
+                    case 'w': changeSize('pointSize', 1.1); break;
+                    case 'a': changeSize('cameraSize', 0.9); break;
+                    case 's': changeSize('cameraSize', 1.1); break;
+                    default: break;
+                }
+
+                if (!!name) { toggleBooleanSetting(name); }
+            });
     </script>
 </body>
 
