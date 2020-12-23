@@ -7,35 +7,51 @@ import { CameraVisualizationMode } from "../spatialdata/SpatialDataExport";
  * @interface
  * @example
  * ```
- * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<image-key>',
- *     {
- *         component: {
- *             spatialData: {
- *                 camerasVisible: true,
- *                 connectedComponents: true,
- *                 earthControls: true,
- *                 pointsVisible: false,
- *                 positionsVisible: true,
- *                 tilesVisible: true,
- *             },
+ * var mode = Mapilary.SpatialDataComponent.CameraVisualizationMode;
+ * var viewer = new Mapillary.Viewer({
+ *     ...
+ *     component: {
+ *         spatialData: {
+ *             cameraSize: 0.5,
+ *             camerasVisible: true,
+ *             cameraVisualizationMode: mode.Cluster,
+ *             earthControls: true,
+ *             pointSize: 0.5,
+ *             pointsVisible: false,
+ *             positionsVisible: true,
+ *             tilesVisible: true,
  *         },
- *     })
+ *     },
+ *     ...
+ * });
  * ```
  */
 export interface ISpatialDataConfiguration extends IComponentConfiguration {
+    /**
+     * The camera size on the interval [0.01, 1].
+     *
+     * @default 0.1
+     */
+    cameraSize?: number;
+
     /**
      * Specify if the cameras should be visible or not.
      *
      * @default false
      */
     camerasVisible?: boolean;
-
     /**
      * Specify the camera visualization mode.
      *
      * @default CameraVisualizationMode.Default
      */
     cameraVisualizationMode?: CameraVisualizationMode;
+
+    /**
+     * @deprecated Deprecated since v2.19.0. Use cameraVisualizationMode
+     * property instead.
+     */
+    connectedComponents?: boolean;
 
     /**
      * Specify if the camera should be controlled in earth
@@ -45,14 +61,15 @@ export interface ISpatialDataConfiguration extends IComponentConfiguration {
      * may be removed in a future minor release.
      *
      * @default false
-     * @ignore
      */
     earthControls?: boolean;
 
     /**
-     * @deprecated since v2.19.0
+     * The point size on the interval [0.01, 1].
+     *
+     * @default 0.1
      */
-    connectedComponents?: boolean;
+    pointSize?: number;
 
     /**
      * Specify if the points should be visible or not.
