@@ -1,4 +1,4 @@
-import {IComponentConfiguration} from "../../Component";
+import { IComponentConfiguration } from "../../Component";
 
 /**
  * Interface for configuration of keyboard component.
@@ -6,16 +6,17 @@ import {IComponentConfiguration} from "../../Component";
  * @interface
  * @example
  * ```
- * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<image-key>',
- *     {
- *         component: {
- *             keyboard: {
- *                 keyZoom: false,
- *                 keySequenceNavigation: false,
- *                 keySpatialNavigation: false,
- *             },
+ * var viewer = new Mapillary.Viewer({
+ *     ...
+ *     component: {
+ *         keyboard: {
+ *             keyZoom: false,
+ *             keySequenceNavigation: false,
+ *             keySpatialNavigation: false,
  *         },
- *     })
+ *     },
+ *     ...
+ * });
  * ```
  */
 export interface IKeyboardConfiguration extends IComponentConfiguration {

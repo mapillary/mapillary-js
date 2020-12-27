@@ -95,10 +95,7 @@ import {
  *
  * @example
  * ```
- * var viewer = new Mapillary.Viewer(
- *     "<element-id>",
- *     "<client-id>",
- *     "<my key>");
+ * var viewer = new Mapillary.Viewer({ ... });
  *
  * viewer.deactivateComponent("imagePlane");
  * viewer.deactivateComponent("direction");

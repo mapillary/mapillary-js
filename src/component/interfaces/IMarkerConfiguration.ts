@@ -1,4 +1,4 @@
-import {IComponentConfiguration} from "../../Component";
+import { IComponentConfiguration } from "../../Component";
 
 /**
  * Interface for configuration of marker component.
@@ -6,14 +6,15 @@ import {IComponentConfiguration} from "../../Component";
  * @interface
  * @example
  * ```
- * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<image-key>',
- *     {
- *         component: {
- *             marker: {
- *                 visibleBBoxSize: 80,
- *             },
+ * var viewer = new Mapillary.Viewer({
+ *     ...
+ *     component: {
+ *         marker: {
+ *             visibleBBoxSize: 80,
  *         },
- *     })
+ *     },
+ *     ...
+ * });
  * ```
  */
 export interface IMarkerConfiguration extends IComponentConfiguration {

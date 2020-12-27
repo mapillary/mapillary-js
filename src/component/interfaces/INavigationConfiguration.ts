@@ -1,4 +1,4 @@
-import {IComponentConfiguration} from "../../Component";
+import { IComponentConfiguration } from "../../Component";
 
 /**
  * Interface for configuration of navigation component.
@@ -6,14 +6,15 @@ import {IComponentConfiguration} from "../../Component";
  * @interface
  *  @example
  * ```
- * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<image-key>',
- *     {
- *         component: {
- *             navigation: {
- *                 spatial: false,
- *             },
+ * var viewer = new Mapillary.Viewer({
+ *     ...
+ *     component: {
+ *         navigation: {
+ *             spatial: false,
  *         },
- *     })
+ *     },
+ *     ...
+ * });
  * ```
  */
 export interface INavigationConfiguration extends IComponentConfiguration {

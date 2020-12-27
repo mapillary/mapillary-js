@@ -9,15 +9,16 @@ import {
  * @interface
  * @example
  * ```
- * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<image-key>',
- *     {
- *         component: {
- *             tag: {
- *                 createColor: 0xFF0000,
- *                 mode: Mapillary.TagComponent.TagMode.CreateRect,
- *             },
+ * var viewer = new Mapillary.Viewer({
+ *     ...
+ *     component: {
+ *         tag: {
+ *             createColor: 0xFF0000,
+ *             mode: Mapillary.TagComponent.TagMode.CreateRect,
  *         },
- *     })
+ *     },
+ *     ...
+ * });
  * ```
  */
 export interface ITagConfiguration extends IComponentConfiguration {
