@@ -1,4 +1,4 @@
-import {IComponentConfiguration} from "../../Component";
+import { IComponentConfiguration } from "../../Component";
 
 /**
  * Enumeration for slider mode.
@@ -59,19 +59,20 @@ export interface ISliderKeys {
  *
  * @interface
  * ```
- * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<image-key>',
- *     {
- *         component: {
- *             slider: {
- *                 initialPosition: 0.5,
- *                 keys: {
- *                     background: '<background-key>',
- *                     foreground: '<foreground-key>',
- *                 },
- *                 sliderVisible: true,
+ * var viewer = new Mapillary.Viewer({
+ *     ...
+ *     component: {
+ *         slider: {
+ *             initialPosition: 0.5,
+ *             keys: {
+ *                 background: '<background-key>',
+ *                 foreground: '<foreground-key>',
  *             },
+ *             sliderVisible: true,
  *         },
- *     })
+ *     },
+ *     ...
+ * });
  * ```
  */
 export interface ISliderConfiguration extends IComponentConfiguration {

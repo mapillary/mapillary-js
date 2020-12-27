@@ -1,4 +1,4 @@
-import {Subscription} from "rxjs";
+import { Subscription } from "rxjs";
 
 import {
     ComponentService,
@@ -27,10 +27,7 @@ import {
  *
  * @example
  * ```
- * var viewer = new Mapillary.Viewer(
- *     "<element-id>",
- *     "<client-id>",
- *     "<my key>");
+ * var viewer = new Mapillary.Viewer({ ... });
  *
  * var keyboardComponent = viewer.getComponent("keyboard");
  * ```

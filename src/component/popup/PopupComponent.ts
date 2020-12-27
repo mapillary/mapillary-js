@@ -52,11 +52,7 @@ import {
  *
  * @example
  * ```
- * var viewer = new Mapillary.Viewer(
- *     "<element-id>",
- *     "<client-id>",
- *     "<my key>",
- *     { component: { popup: true } });
+ * var viewer = new Mapillary.Viewer({ component: { popup: true }, ... });
  *
  * var popupComponent = viewer.getComponent("popup");
  * ```

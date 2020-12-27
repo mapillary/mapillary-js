@@ -1,6 +1,6 @@
-import {combineLatest as observableCombineLatest, Subject, Subscription} from "rxjs";
+import { combineLatest as observableCombineLatest, Subject, Subscription } from "rxjs";
 
-import {withLatestFrom, map} from "rxjs/operators";
+import { withLatestFrom, map } from "rxjs/operators";
 import * as vd from "virtual-dom";
 
 import {
@@ -34,10 +34,7 @@ import ComponentSize from "../utils/ComponentSize";
  *
  * @example
  * ```
- * var viewer = new Mapillary.Viewer(
- *     "<element-id>",
- *     "<client-id>",
- *     "<my key>");
+ * var viewer = new Mapillary.Viewer({ ... });
  *
  * var zoomComponent = viewer.getComponent("zoom");
  * zoomComponent.configure({ size: Mapillary.ComponentSize.Small });
@@ -63,36 +60,36 @@ export class ZoomComponent extends Component<IZoomConfiguration> {
 
     protected _activate(): void {
         this._renderSubscription = observableCombineLatest(
-                this._navigator.stateService.currentState$,
-                this._navigator.stateService.state$,
-                this._configuration$,
-                this._container.renderService.size$).pipe(
-            map(
-                ([frame, state, configuration, size]: [IFrame, State, IZoomConfiguration, ISize]): IVNodeHash => {
-                    const zoom: number = frame.state.zoom;
+            this._navigator.stateService.currentState$,
+            this._navigator.stateService.state$,
+            this._configuration$,
+            this._container.renderService.size$).pipe(
+                map(
+                    ([frame, state, configuration, size]: [IFrame, State, IZoomConfiguration, ISize]): IVNodeHash => {
+                        const zoom: number = frame.state.zoom;
 
-                    const zoomInIcon: vd.VNode = vd.h("div.ZoomInIcon", []);
-                    const zoomInButton: vd.VNode = zoom >= 3 || state === State.Waiting ?
-                        vd.h("div.ZoomInButtonDisabled", [zoomInIcon]) :
-                        vd.h("div.ZoomInButton", { onclick: (): void => { this._zoomDelta$.next(1); } }, [zoomInIcon]);
+                        const zoomInIcon: vd.VNode = vd.h("div.ZoomInIcon", []);
+                        const zoomInButton: vd.VNode = zoom >= 3 || state === State.Waiting ?
+                            vd.h("div.ZoomInButtonDisabled", [zoomInIcon]) :
+                            vd.h("div.ZoomInButton", { onclick: (): void => { this._zoomDelta$.next(1); } }, [zoomInIcon]);
 
-                    const zoomOutIcon: vd.VNode = vd.h("div.ZoomOutIcon", []);
-                    const zoomOutButton: vd.VNode = zoom <= 0 || state === State.Waiting ?
-                        vd.h("div.ZoomOutButtonDisabled", [zoomOutIcon]) :
-                        vd.h("div.ZoomOutButton", { onclick: (): void => { this._zoomDelta$.next(-1); } }, [zoomOutIcon]);
+                        const zoomOutIcon: vd.VNode = vd.h("div.ZoomOutIcon", []);
+                        const zoomOutButton: vd.VNode = zoom <= 0 || state === State.Waiting ?
+                            vd.h("div.ZoomOutButtonDisabled", [zoomOutIcon]) :
+                            vd.h("div.ZoomOutButton", { onclick: (): void => { this._zoomDelta$.next(-1); } }, [zoomOutIcon]);
 
-                    const compact: string = configuration.size === ComponentSize.Small ||
-                        configuration.size === ComponentSize.Automatic && size.width < 640 ?
-                        ".ZoomCompact" : "";
+                        const compact: string = configuration.size === ComponentSize.Small ||
+                            configuration.size === ComponentSize.Automatic && size.width < 640 ?
+                            ".ZoomCompact" : "";
 
-                    return {
-                        name: this._name,
-                        vnode: vd.h(
-                            "div.ZoomContainer" + compact,
-                            { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
-                            [zoomInButton, zoomOutButton]),
-                    };
-                }))
+                        return {
+                            name: this._name,
+                            vnode: vd.h(
+                                "div.ZoomContainer" + compact,
+                                { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
+                                [zoomInButton, zoomOutButton]),
+                        };
+                    }))
             .subscribe(this._container.domRenderer.render$);
 
         this._zoomSubscription = this._zoomDelta$.pipe(

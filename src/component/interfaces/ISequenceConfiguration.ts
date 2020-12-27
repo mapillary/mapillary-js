@@ -1,5 +1,5 @@
-import {IComponentConfiguration} from "../../Component";
-import {EdgeDirection} from "../../Edge";
+import { IComponentConfiguration } from "../../Component";
+import { EdgeDirection } from "../../Edge";
 
 /**
  * Interface for configuration of sequence component.
@@ -7,16 +7,17 @@ import {EdgeDirection} from "../../Edge";
  * @interface
  * @example
  * ```
- * var viewer = new Mapillary.Viewer('<element-id>', '<client-id>', '<image-key>',
- *     {
- *         component: {
- *             sequence: {
- *                 minWidth: 40,
- *                 maxWidth: 80,
- *                 visible: false,
- *             },
+ * var viewer = new Mapillary.Viewer({
+ *     ...
+ *     component: {
+ *         sequence: {
+ *             minWidth: 40,
+ *             maxWidth: 80,
+ *             visible: false,
  *         },
- *     })
+ *     },
+ *     ...
+ * });
  * ```
  */
 export interface ISequenceConfiguration extends IComponentConfiguration {

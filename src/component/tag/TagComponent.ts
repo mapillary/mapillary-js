@@ -93,11 +93,7 @@ import PointsGeometry from "./geometry/PointsGeometry";
  *
  * @example
  * ```
- * var viewer = new Mapillary.Viewer(
- *     "<element-id>",
- *     "<client-id>",
- *     "<my key>",
- *     { component: { tag: true } });
+ * var viewer = new Mapillary.Viewer({ component: { tag: true } }, ...);
  *
  * var tagComponent = viewer.getComponent("tag");
  * ```

@@ -1,4 +1,4 @@
-import {Subscription} from "rxjs";
+import { Subscription } from "rxjs";
 
 import {
     BounceHandler,
@@ -29,10 +29,7 @@ import {
  *
  * @example
  * ```
- * var viewer = new Mapillary.Viewer(
- *     "<element-id>",
- *     "<client-id>",
- *     "<my key>");
+ * var viewer = new Mapillary.Viewer({ ... });
  *
  * var mouseComponent = viewer.getComponent("mouse");
  * ```
