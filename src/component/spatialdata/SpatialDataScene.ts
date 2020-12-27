@@ -5,7 +5,6 @@ import { NodeData } from "./SpatialDataCache";
 import IClusterReconstruction, { IReconstructionPoint } from "../../api/interfaces/IClusterReconstruction";
 import { Transform } from "../../geo/Transform";
 import ISpatialDataConfiguration from "../interfaces/ISpatialDataConfiguration";
-import MapillaryError from "../../error/MapillaryError";
 
 type ClusterReconstructions = {
     [key: string]: {
@@ -34,33 +33,441 @@ class CameraFrameLineSegments extends THREE.LineSegments {
     }
 }
 
-class PerspectiveCameraFrame extends THREE.Object3D {
-    constructor(
-        readonly frame: CameraFrameLine,
-        readonly diagonals: CameraFrameLineSegments) {
+abstract class CameraFrameBase extends THREE.Object3D {
+    constructor(protected readonly _originalSize: number) {
         super();
+    }
+
+    public dispose(): void {
+        for (const child of this.children) {
+            const frameLine = <CameraFrameLine | CameraFrameLineSegments>child;
+            frameLine.geometry.dispose();
+            frameLine.material.dispose();
+        }
+    }
+
+    public setColor(color: string): void {
+        for (const child of this.children) {
+            const frameLine = <CameraFrameLine | CameraFrameLineSegments>child;
+            frameLine.material.color = new THREE.Color(color);
+        }
+    }
+
+    public resize(scale: number): void {
+        for (const child of this.children) {
+            const frameLine = <CameraFrameLine | CameraFrameLineSegments>child;
+            this._updatePositionAttribute(frameLine, scale);
+        }
+    }
+
+    protected _createBufferGeometry(
+        positions: number[][]): THREE.BufferGeometry {
+        const positionAttribute = new THREE.BufferAttribute(
+            new Float32Array(3 * positions.length), 3)
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute("position", positionAttribute);
+        return geometry;
+    }
+
+    protected _createCameraFrame(
+        origin: number[],
+        relativePositions: number[][],
+        scale: number):
+        CameraFrameLine {
+        const geometry = this._createBufferGeometry(relativePositions);
+        const material = new THREE.LineBasicMaterial();
+        const frame = new CameraFrameLine(
+            geometry, material, origin, relativePositions);
+        this._updatePositionAttribute(frame, scale);
+
+        return frame;
+    }
+
+    protected _updatePositionAttribute(
+        frame: CameraFrameLine | CameraFrameLineSegments,
+        scale: number): void {
+        const positionAttribute =
+            <THREE.BufferAttribute>frame.geometry.attributes.position;
+        const positions = <Float32Array>positionAttribute.array;
+
+        const originX = frame.frameOrigin[0];
+        const originY = frame.frameOrigin[1];
+        const originZ = frame.frameOrigin[2];
+
+        const relativePositions = frame.relativeFramePositions;
+        const length = relativePositions.length;
+
+        let index = 0;
+        for (let i = 0; i < length; i++) {
+            const [deltaX, deltaY, deltaZ] = relativePositions[i];
+
+            positions[index++] = originX + scale * deltaX;
+            positions[index++] = originY + scale * deltaY;
+            positions[index++] = originZ + scale * deltaZ;
+        }
+
+        positionAttribute.needsUpdate = true;
+
+        frame.geometry.computeBoundingBox();
+        frame.geometry.computeBoundingSphere();
+    }
+
+    protected _makeRelative(
+        positions: number[][],
+        origin: number[]): number[][] {
+        for (const position of positions) {
+            position[0] = position[0] - origin[0];
+            position[1] = position[1] - origin[1];
+            position[2] = position[2] - origin[2];
+        }
+
+        return positions;
+    }
+
+}
+
+class PerspectiveCameraFrame extends CameraFrameBase {
+    private readonly _horizontalFrameSamples: number;
+    private readonly _verticalFrameSamples: number;
+
+    constructor(originalSize: number, transform: Transform, scale: number) {
+        super(originalSize);
+
+        this._horizontalFrameSamples = 8;
+        this._verticalFrameSamples = 6;
+
+        const origin = transform.unprojectBasic([0, 0], 0, true);
+        const frame = this._createFrame(transform, scale, origin);
+        const diagonals = this._createDiagonals(transform, scale, origin);
 
         this.add(frame, diagonals);
     }
+
+    private _calculateRelativeDiagonals(
+        transform: Transform,
+        origin: number[]): number[][] {
+        const depth = this._originalSize;
+        const [topLeft, topRight, bottomRight, bottomLeft] =
+            this._makeRelative(
+                [
+                    transform.unprojectBasic([0, 0], depth, true),
+                    transform.unprojectBasic([1, 0], depth, true),
+                    transform.unprojectBasic([1, 1], depth, true),
+                    transform.unprojectBasic([0, 1], depth, true),
+                ],
+                origin);
+
+        const cameraCenter = [0, 0, 0];
+        const vertices: number[][] = [
+            cameraCenter, topLeft,
+            cameraCenter, topRight,
+            cameraCenter, bottomRight,
+            cameraCenter, bottomLeft,
+        ];
+
+        return vertices;
+    }
+
+    private _calculateRelativeFrame(transform: Transform, origin: number[]):
+        number[][] {
+        const vertices2d: number[][] = [];
+        const vertical = this._verticalFrameSamples;
+        const horizontal = this._horizontalFrameSamples;
+        const cameraSize = this._originalSize;
+
+        vertices2d.push(...this._subsample([0, 1], [0, 0], vertical));
+        vertices2d.push(...this._subsample([0, 0], [1, 0], horizontal));
+        vertices2d.push(...this._subsample([1, 0], [1, 1], vertical));
+
+        const vertices3d = vertices2d
+            .map(
+                (basic: number[]): number[] => {
+                    return transform.unprojectBasic(basic, cameraSize, true);
+                });
+
+        return this._makeRelative(vertices3d, origin);
+    }
+
+    private _createDiagonals(
+        transform: Transform,
+        scale: number,
+        origin: number[]): CameraFrameLineSegments {
+        const positions = this._calculateRelativeDiagonals(transform, origin);
+        const geometry = this._createBufferGeometry(positions);
+        const material = new THREE.LineBasicMaterial();
+        const diagonals = new CameraFrameLineSegments(geometry, material, origin, positions);
+        this._updatePositionAttribute(diagonals, scale);
+        return diagonals;
+    }
+
+    private _createFrame(
+        transform: Transform,
+        scale: number,
+        origin: number[]): CameraFrameLine {
+        const positions = this._calculateRelativeFrame(transform, origin);
+        return this._createCameraFrame(origin, positions, scale);
+    }
+
+
+    private _interpolate(a: number, b: number, alpha: number): number {
+        return a + alpha * (b - a);
+    }
+
+    private _subsample(
+        p1: number[],
+        p2: number[],
+        subsamples: number): number[][] {
+        if (subsamples < 1) {
+            return [p1, p2];
+        }
+
+        const samples: number[][] = [];
+
+        for (let i: number = 0; i <= subsamples + 1; i++) {
+            const p: number[] = [];
+
+            for (let j: number = 0; j < 3; j++) {
+                p.push(this._interpolate(p1[j], p2[j], i / (subsamples + 1)));
+            }
+
+            samples.push(p);
+        }
+
+        return samples;
+    }
 }
 
-class PanoCameraFrame extends THREE.Object3D {
+class PanoCameraFrame extends CameraFrameBase {
+    private readonly _latitudeVertices: number;
+    private readonly _longitudeVertices: number;
+
+    constructor(originalSize: number, transform: Transform, scale: number) {
+        super(originalSize);
+
+        this._latitudeVertices = 10;
+        this._longitudeVertices = 6;
+
+        const latV = this._latitudeVertices;
+        const lonV = this._longitudeVertices;
+        const origin = transform.unprojectBasic([0, 0], 0, true);
+        const axis = this._createAxis(transform, scale, origin);
+        const lat = this._createLatitude(0.5, latV, transform, scale, origin);
+        const lon1 = this._createLongitude(0, lonV, transform, scale, origin);
+        const lon2 = this._createLongitude(0.25, lonV, transform, scale, origin);
+        const lon3 = this._createLongitude(0.5, lonV, transform, scale, origin);
+        const lon4 = this._createLongitude(0.75, lonV, transform, scale, origin);
+
+        this.add(axis, lat, lon1, lon2, lon3, lon4);
+    }
+
+    private _calculateRelativeAxis(transform: Transform, origin: number[]):
+        number[][] {
+        const depth = this._originalSize;
+        const north: number[] = transform.unprojectBasic([0.5, 0], depth * 1.1);
+        const south: number[] = transform.unprojectBasic([0.5, 1], depth * 0.8);
+
+        return this._makeRelative([north, south], origin);
+    }
+
+    private _calculateRelativeLatitude(
+        basicY: number,
+        numVertices: number,
+        transform: Transform,
+        origin: number[]): number[][] {
+
+        const depth = 0.8 * this._originalSize;
+        const positions: number[][] = [];
+
+        for (let i: number = 0; i <= numVertices; i++) {
+            const position: number[] =
+                transform.unprojectBasic(
+                    [i / numVertices, basicY], depth);
+            positions.push(position);
+        }
+
+        return this._makeRelative(positions, origin);
+    }
+
+    private _calculateRelativeLongitude(
+        basicX: number,
+        numVertices: number,
+        transform: Transform,
+        origin: number[]): number[][] {
+        const scaledDepth = 0.8 * this._originalSize;
+        const positions: number[][] = [];
+
+        for (let i: number = 0; i <= numVertices; i++) {
+            const position: number[] =
+                transform.unprojectBasic(
+                    [basicX, i / numVertices], scaledDepth);
+
+            positions.push(position);
+        }
+
+        return this._makeRelative(positions, origin);
+    }
+
+    private _createAxis(
+        transform: Transform,
+        scale: number,
+        origin: number[]): CameraFrameLine {
+        const positions = this._calculateRelativeAxis(transform, origin);
+        return this._createCameraFrame(origin, positions, scale);
+    }
+
+    private _createLatitude(
+        basicY: number,
+        numVertices: number,
+        transform: Transform,
+        scale: number,
+        origin: number[]): CameraFrameLine {
+        const positions = this._calculateRelativeLatitude(
+            basicY, numVertices, transform, origin);
+        return this._createCameraFrame(origin, positions, scale);
+    }
+
+    private _createLongitude(
+        basicX: number,
+        numVertices: number,
+        transform: Transform,
+        scale: number,
+        origin: number[]): CameraFrameLine {
+        const positions = this._calculateRelativeLongitude(
+            basicX, numVertices, transform, origin);
+        return this._createCameraFrame(origin, positions, scale);
+    }
+}
+
+class ClusterPoints extends THREE.Points {
     constructor(
-        readonly axis: CameraFrameLine,
-        readonly latitude: CameraFrameLine,
-        readonly longitude1: CameraFrameLine,
-        readonly longitude2: CameraFrameLine,
-        readonly longitude3: CameraFrameLine,
-        readonly longitude4: CameraFrameLine) {
+        private readonly _originalSize: number,
+        reconstruction: IClusterReconstruction,
+        translation: number[],
+        scale: number) {
         super();
 
-        this.add(
-            axis,
-            latitude,
-            longitude1,
-            longitude2,
-            longitude3,
-            longitude4);
+        const [positions, colors] =
+            this._getArrays(reconstruction, translation);
+
+        const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+        geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+
+        const material: THREE.PointsMaterial = new THREE.PointsMaterial({
+            size: scale * this._originalSize,
+            vertexColors: true,
+        });
+
+        this.geometry = geometry;
+        this.material = material;
+    }
+
+    public dispose(): void {
+        this.geometry.dispose();
+        (<THREE.PointsMaterial>this.material).dispose();
+    }
+
+    public resize(scale: number): void {
+        const material = <THREE.PointsMaterial>this.material;
+        material.size = scale * this._originalSize;
+        material.needsUpdate = true;
+    }
+
+    private _getArrays(
+        reconstruction: IClusterReconstruction,
+        translation: number[]): [Float32Array, Float32Array] {
+        const points = Object
+            .keys(reconstruction.points)
+            .map(
+                (key: string): IReconstructionPoint => {
+                    return reconstruction.points[key];
+                });
+
+        const numPoints = points.length;
+        const positions = new Float32Array(numPoints * 3);
+        const colors = new Float32Array(numPoints * 3);
+        const [translationX, translationY, translationZ] = translation;
+
+        for (let i = 0; i < numPoints; i++) {
+            const index = 3 * i;
+
+            const [coordsX, coordsY, coordsZ] = points[i].coordinates;
+            positions[index + 0] = coordsX + translationX;
+            positions[index + 1] = coordsY + translationY;
+            positions[index + 2] = coordsZ + translationZ;
+
+            const color = points[i].color;
+            colors[index + 0] = color[0] / 255.0;
+            colors[index + 1] = color[1] / 255.0;
+            colors[index + 2] = color[2] / 255.0;
+        }
+
+        return [positions, colors];
+    }
+}
+
+class TileLine extends THREE.Line {
+    constructor(bbox: number[][]) {
+        super();
+        this.geometry = this._createGeometry(bbox);
+        this.material = new THREE.LineBasicMaterial();
+    }
+
+    public dispose(): void {
+        this.geometry.dispose();
+        (<THREE.Material>this.material).dispose();
+    }
+
+    private _createGeometry(bbox: number[][]): THREE.Geometry {
+        const sw: number[] = bbox[0];
+        const ne: number[] = bbox[1];
+
+        const geometry: THREE.Geometry = new THREE.Geometry();
+        geometry.vertices.push(
+            new THREE.Vector3().fromArray(sw),
+            new THREE.Vector3(sw[0], ne[1], (sw[2] + ne[2]) / 2),
+            new THREE.Vector3().fromArray(ne),
+            new THREE.Vector3(ne[0], sw[1], (sw[2] + ne[2]) / 2),
+            new THREE.Vector3().fromArray(sw));
+
+        return geometry;
+    }
+}
+
+class PositionLine extends THREE.Line {
+    constructor(transform: Transform, originalPosition: number[]) {
+        super();
+
+        this.geometry = this._createGeometry(transform, originalPosition);
+        this.material =
+            new THREE.LineBasicMaterial({ color: new THREE.Color(1, 0, 0) });
+    }
+
+    public dispose(): void {
+        this.geometry.dispose();
+        (<THREE.LineBasicMaterial>this.material).dispose();
+    }
+
+    private _createGeometry(transform: Transform, originalPosition: number[]):
+        THREE.BufferGeometry {
+        const vertices = [
+            originalPosition,
+            transform.unprojectBasic([0, 0], 0)];
+
+        const positions = new Float32Array(3 * vertices.length);
+        let index = 0;
+        for (const vertex of vertices) {
+            positions[index++] = vertex[0];
+            positions[index++] = vertex[1];
+            positions[index++] = vertex[2];
+        }
+
+        const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+        geometry.setAttribute(
+            "position",
+            new THREE.BufferAttribute(positions, 3));
+
+        return geometry;
     }
 }
 
@@ -84,11 +491,11 @@ export class SpatialDataScene {
         [hash: string]: {
             cameraKeys: { [id: string]: string };
             cameras: THREE.Object3D;
-            clusters: { [id: string]: THREE.Object3D[] };
-            connectedComponents: { [id: string]: THREE.Object3D[] };
+            clusters: { [id: string]: CameraFrameBase[] };
+            connectedComponents: { [id: string]: CameraFrameBase[] };
             keys: string[];
             positions: THREE.Object3D;
-            sequences: { [id: string]: THREE.Object3D[] };
+            sequences: { [id: string]: CameraFrameBase[] };
         };
     };
 
@@ -102,19 +509,17 @@ export class SpatialDataScene {
     private _positionsVisible: boolean;
     private _tilesVisible: boolean;
 
-    private readonly _latitudeVertices: number;
-    private readonly _longitudeVertices: number;
     private readonly _rayNearScale: number;
-    private readonly _pointSizeScale: number;
-    private readonly _maxCameraSize: number;
-    private readonly _horizontalFrameSamples: number;
-    private readonly _verticalFrameSamples: number;
+    private readonly _originalPointSize: number;
+    private readonly _originalCameraSize: number;
 
     constructor(configuration: ISpatialDataConfiguration, scene?: THREE.Scene, raycaster?: THREE.Raycaster) {
         this._rayNearScale = 1.1;
 
         this._scene = !!scene ? scene : new THREE.Scene();
-        const near = this._rayNearScale * this._maxCameraSize * configuration.cameraSize;
+        const near = this._rayNearScale *
+            this._originalCameraSize *
+            configuration.cameraSize;
         const far = 3000;
         this._raycaster = !!raycaster ?
             raycaster :
@@ -149,12 +554,8 @@ export class SpatialDataScene {
         this._positionsVisible = configuration.positionsVisible;
         this._tilesVisible = configuration.tilesVisible;
 
-        this._latitudeVertices = 10;
-        this._longitudeVertices = 6;
-        this._pointSizeScale = 2;
-        this._maxCameraSize = 2;
-        this._horizontalFrameSamples = 8;
-        this._verticalFrameSamples = 6;
+        this._originalPointSize = 2;
+        this._originalCameraSize = 2;
     }
 
     public get needsRender(): boolean {
@@ -178,12 +579,14 @@ export class SpatialDataScene {
                 tiles: [],
             };
 
-            this._clusterReconstructions[key].points.visible = this._pointsVisible;
+            this._clusterReconstructions[key].points.visible =
+                this._pointsVisible;
             this._clusterReconstructions[key].points.add(
-                this._createClusterPoints(
+                new ClusterPoints(
+                    this._originalPointSize,
                     reconstruction,
                     translation,
-                    this._pointSizeScale * this._pointSize));
+                    this._pointSize));
 
             this._scene.add(
                 this._clusterReconstructions[key].points);
@@ -211,10 +614,12 @@ export class SpatialDataScene {
         transform: Transform,
         originalPosition: number[],
         hash: string): void {
+
         const key: string = data.key;
         const clusterKey: string = data.clusterKey;
         const sequenceKey: string = data.sequenceKey;
-        const connectedComponent: string = !!data.mergeCC ? data.mergeCC.toString() : "";
+        const connectedComponent: string =
+            !!data.mergeCC ? data.mergeCC.toString() : "";
 
         if (this.hasNode(key, hash)) {
             return;
@@ -251,7 +656,12 @@ export class SpatialDataScene {
             this._nodes[hash].sequences[sequenceKey] = [];
         }
 
-        const camera = this._createCamera(transform, this._cameraSize);
+        const scale = this._cameraSize;
+        const maxSize = this._originalCameraSize;
+        const camera = !!transform.gpano ?
+            new PanoCameraFrame(maxSize, transform, scale) :
+            new PerspectiveCameraFrame(maxSize, transform, scale);
+
         this._nodes[hash].cameras.add(camera);
         for (const child of camera.children) {
             this._nodes[hash].cameraKeys[child.uuid] = key;
@@ -269,33 +679,22 @@ export class SpatialDataScene {
             this._cameraVisualizationMode);
 
         const color: string = this._getColor(id, this._cameraVisualizationMode);
-        this._setCameraColor(color, camera);
+        camera.setColor(color);
 
-        this._nodes[hash].positions.add(this._createPosition(transform, originalPosition));
+        this._nodes[hash].positions.add(
+            new PositionLine(transform, originalPosition));
 
         this._nodes[hash].keys.push(key);
 
         this._needsRender = true;
     }
 
-    public addTile(tileBBox: number[][], hash: string): void {
+    public addTile(bbox: number[][], hash: string): void {
         if (this.hasTile(hash)) {
             return;
         }
 
-        const sw: number[] = tileBBox[0];
-        const ne: number[] = tileBBox[1];
-
-        const geometry: THREE.Geometry = new THREE.Geometry();
-        geometry.vertices.push(
-            new THREE.Vector3().fromArray(sw),
-            new THREE.Vector3(sw[0], ne[1], (sw[2] + ne[2]) / 2),
-            new THREE.Vector3().fromArray(ne),
-            new THREE.Vector3(ne[0], sw[1], (sw[2] + ne[2]) / 2),
-            new THREE.Vector3().fromArray(sw));
-
-        const tile: THREE.Object3D = new THREE.Line(geometry, new THREE.LineBasicMaterial());
-
+        const tile = new TileLine(bbox);
         this._tiles[hash] = new THREE.Object3D();
         this._tiles[hash].visible = this._tilesVisible;
         this._tiles[hash].add(tile);
@@ -345,7 +744,10 @@ export class SpatialDataScene {
         return hash in this._nodes && this._nodes[hash].keys.indexOf(key) !== -1;
     }
 
-    public intersectObjects([viewportX, viewportY]: number[], camera: THREE.Camera): string {
+    public intersectObjects(
+        [viewportX, viewportY]: number[],
+        camera: THREE.Camera): string {
+
         if (!this._camerasVisible) {
             return null;
         }
@@ -381,11 +783,14 @@ export class SpatialDataScene {
             }
 
             for (const camera of nodes[cellId].cameras.children) {
-                this._updateCamera(camera, cameraSize);
+                (<CameraFrameBase>camera).resize(cameraSize);
             }
         }
 
-        this._raycaster.near = this._rayNearScale * this._maxCameraSize * cameraSize;
+        this._raycaster.near = this._rayNearScale *
+            this._originalCameraSize *
+            cameraSize;
+
         this._cameraSize = cameraSize;
         this._needsRender = true;
     }
@@ -412,7 +817,7 @@ export class SpatialDataScene {
             return;
         }
 
-        const scale = this._pointSizeScale;
+        const scale = this._originalPointSize;
         const clusters = this._clusterReconstructions;
         for (const key in clusters) {
             if (!clusters.hasOwnProperty(key)) {
@@ -420,10 +825,7 @@ export class SpatialDataScene {
             }
 
             for (const points of clusters[key].points.children) {
-                const material =
-                    <THREE.PointsMaterial>(<THREE.Points>points).material;
-                material.size = scale * pointSize;
-                material.needsUpdate = true;
+                (<ClusterPoints>points).resize(pointSize);
             }
         }
 
@@ -493,7 +895,7 @@ export class SpatialDataScene {
                 continue;
             }
 
-            let cameras: { [id: number]: THREE.Object3D[] } = undefined;
+            let cameras: { [id: number]: CameraFrameBase[] } = undefined;
 
             if (mode === CameraVisualizationMode.Cluster) {
                 cameras = this._nodes[hash].clusters;
@@ -504,7 +906,7 @@ export class SpatialDataScene {
             } else {
                 for (const child of this._nodes[hash].cameras.children) {
                     const color: string = this._getColor("", mode);
-                    this._setCameraColor(color, child);
+                    (<CameraFrameBase>child).setColor(color);
                 }
 
                 continue;
@@ -518,7 +920,7 @@ export class SpatialDataScene {
                 const color: string = this._getColor(id, mode);
 
                 for (const camera of cameras[id]) {
-                    this._setCameraColor(color, camera);
+                    camera.setColor(color);
                 }
             }
         }
@@ -535,301 +937,13 @@ export class SpatialDataScene {
         this._needsRender = false;
     }
 
-    private _arrayToFloatArray(a: number[][]): Float32Array {
-        const n: number = a.length;
-        const f: Float32Array = new Float32Array(3 * n);
-
-        for (let i: number = 0; i < n; i++) {
-            const item: number[] = a[i];
-            const index: number = 3 * i;
-
-            f[index + 0] = item[0];
-            f[index + 1] = item[1];
-            f[index + 2] = item[2];
-        }
-
-        return f;
-    }
-
-    private _calculateRelativeAxis(transform: Transform, origin: number[]):
-        number[][] {
-        const depth = this._maxCameraSize;
-        const north: number[] = transform.unprojectBasic([0.5, 0], depth * 1.1);
-        const south: number[] = transform.unprojectBasic([0.5, 1], depth * 0.8);
-
-        return this._makeRelative([north, south], origin);
-    }
-
-    private _calculateRelativeDiagonals(
-        transform: Transform,
-        origin: number[]): number[][] {
-        const depth = this._maxCameraSize;
-        const [topLeft, topRight, bottomRight, bottomLeft] =
-            this._makeRelative(
-                [
-                    transform.unprojectBasic([0, 0], depth, true),
-                    transform.unprojectBasic([1, 0], depth, true),
-                    transform.unprojectBasic([1, 1], depth, true),
-                    transform.unprojectBasic([0, 1], depth, true),
-                ],
-                origin);
-
-        const cameraCenter = [0, 0, 0];
-        const vertices: number[][] = [
-            cameraCenter, topLeft,
-            cameraCenter, topRight,
-            cameraCenter, bottomRight,
-            cameraCenter, bottomLeft,
-        ];
-
-        return vertices;
-    }
-
-    private _calculateRelativeFrame(transform: Transform, origin: number[]):
-        number[][] {
-        const vertices2d: number[][] = [];
-        const vertical = this._verticalFrameSamples;
-        const horizontal = this._horizontalFrameSamples;
-        const cameraSize = this._maxCameraSize;
-
-        vertices2d.push(...this._subsample([0, 1], [0, 0], vertical));
-        vertices2d.push(...this._subsample([0, 0], [1, 0], horizontal));
-        vertices2d.push(...this._subsample([1, 0], [1, 1], vertical));
-
-        const vertices3d = vertices2d
-            .map(
-                (basic: number[]): number[] => {
-                    return transform.unprojectBasic(basic, cameraSize, true);
-                });
-
-        return this._makeRelative(vertices3d, origin);
-    }
-
-    private _calculateRelativeLatitude(
-        basicY: number,
-        numVertices: number,
-        transform: Transform,
-        origin: number[]): number[][] {
-
-        const depth = 0.8 * this._maxCameraSize;
-        const positions: number[][] = [];
-
-        for (let i: number = 0; i <= numVertices; i++) {
-            const position: number[] =
-                transform.unprojectBasic(
-                    [i / numVertices, basicY], depth);
-            positions.push(position);
-        }
-
-        return this._makeRelative(positions, origin);
-    }
-
-    private _calculateRelativeLongitude(
-        basicX: number,
-        numVertices: number,
-        transform: Transform,
-        origin: number[]): number[][] {
-        const scaledDepth = 0.8 * this._maxCameraSize;
-        const positions: number[][] = [];
-
-        for (let i: number = 0; i <= numVertices; i++) {
-            const position: number[] =
-                transform.unprojectBasic(
-                    [basicX, i / numVertices], scaledDepth);
-
-            positions.push(position);
-        }
-
-        return this._makeRelative(positions, origin);
-    }
-
-    private _makeRelative(positions: number[][], origin: number[]): number[][] {
-        for (const position of positions) {
-            position[0] = position[0] - origin[0];
-            position[1] = position[1] - origin[1];
-            position[2] = position[2] - origin[2];
-        }
-
-        return positions;
-    }
-
-    private _createAxis(
-        transform: Transform,
-        scale: number,
-        origin: number[]): CameraFrameLine {
-        const positions = this._calculateRelativeAxis(transform, origin);
-        return this._createCameraFrame(origin, positions, scale);
-    }
-
-    private _createBufferGeometry(positions: number[][]): THREE.BufferGeometry {
-        const positionAttribute = new THREE.BufferAttribute(
-            new Float32Array(3 * positions.length), 3)
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute("position", positionAttribute);
-        return geometry;
-    }
-
-    private _createCamera(transform: Transform, scale: number): THREE.Object3D {
-        return !!transform.gpano ?
-            this._createPanoCamera(transform, scale) :
-            this._createPerspectiveCamera(transform, scale);
-    }
-
-    private _createCameraFrame(
-        origin: number[],
-        relativePositions: number[][],
-        scale: number):
-        CameraFrameLine {
-        const geometry = this._createBufferGeometry(relativePositions);
-        const material = new THREE.LineBasicMaterial();
-        const frame = new CameraFrameLine(
-            geometry, material, origin, relativePositions);
-        this._updatePositionAttribute(frame, scale);
-
-        return frame;
-    }
-
-    private _createClusterPoints(
-        reconstruction: IClusterReconstruction,
-        translation: number[],
-        pointSize: number): THREE.Object3D {
-        const points: IReconstructionPoint[] = Object
-            .keys(reconstruction.points)
-            .map(
-                (key: string): IReconstructionPoint => {
-                    return reconstruction.points[key];
-                });
-
-        const numPoints: number = points.length;
-        const positions: Float32Array = new Float32Array(numPoints * 3);
-        const colors: Float32Array = new Float32Array(numPoints * 3);
-
-        for (let i: number = 0; i < numPoints; i++) {
-            const index: number = 3 * i;
-
-            const coords: number[] = points[i].coordinates;
-            const point: THREE.Vector3 = new THREE.Vector3(coords[0], coords[1], coords[2])
-                .add(new THREE.Vector3().fromArray(translation));
-
-            positions[index + 0] = point.x;
-            positions[index + 1] = point.y;
-            positions[index + 2] = point.z;
-
-            const color: number[] = points[i].color;
-            colors[index + 0] = color[0] / 255.0;
-            colors[index + 1] = color[1] / 255.0;
-            colors[index + 2] = color[2] / 255.0;
-        }
-
-        const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-        geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-
-        const material: THREE.PointsMaterial = new THREE.PointsMaterial({
-            size: pointSize,
-            vertexColors: true,
-        });
-
-        return new THREE.Points(geometry, material);
-    }
-
-    private _createDiagonals(
-        transform: Transform,
-        scale: number,
-        origin: number[]): CameraFrameLineSegments {
-        const positions = this._calculateRelativeDiagonals(transform, origin);
-        const geometry = this._createBufferGeometry(positions);
-        const material = new THREE.LineBasicMaterial();
-        const diagonals = new CameraFrameLineSegments(geometry, material, origin, positions);
-        this._updatePositionAttribute(diagonals, scale);
-        return diagonals;
-    }
-
-    private _createFrame(
-        transform: Transform,
-        scale: number,
-        origin: number[]): CameraFrameLine {
-        const positions = this._calculateRelativeFrame(transform, origin);
-        return this._createCameraFrame(origin, positions, scale);
-    }
-
-    private _createLatitude(
-        basicY: number,
-        numVertices: number,
-        transform: Transform,
-        scale: number,
-        origin: number[]): CameraFrameLine {
-        const positions = this._calculateRelativeLatitude(
-            basicY, numVertices, transform, origin);
-        return this._createCameraFrame(origin, positions, scale);
-    }
-
-    private _createLongitude(
-        basicX: number,
-        numVertices: number,
-        transform: Transform,
-        scale: number,
-        origin: number[]): CameraFrameLine {
-        const positions = this._calculateRelativeLongitude(
-            basicX, numVertices, transform, origin);
-        return this._createCameraFrame(origin, positions, scale);
-    }
-
-    private _createPanoCamera(transform: Transform, scale: number):
-        PanoCameraFrame {
-        const latV = this._latitudeVertices;
-        const lonV = this._longitudeVertices;
-        const origin = transform.unprojectBasic([0, 0], 0, true);
-
-        const axis = this._createAxis(transform, scale, origin);
-        const lat = this._createLatitude(0.5, latV, transform, scale, origin);
-        const lon1 = this._createLongitude(0, lonV, transform, scale, origin);
-        const lon2 = this._createLongitude(0.25, lonV, transform, scale, origin);
-        const lon3 = this._createLongitude(0.5, lonV, transform, scale, origin);
-        const lon4 = this._createLongitude(0.75, lonV, transform, scale, origin);
-
-        return new PanoCameraFrame(
-            axis,
-            lat,
-            lon1,
-            lon2,
-            lon3,
-            lon4);
-    }
-
-    private _createPerspectiveCamera(transform: Transform, scale: number):
-        PerspectiveCameraFrame {
-        const origin = transform.unprojectBasic([0, 0], 0, true);
-
-        const diagonals = this._createDiagonals(transform, scale, origin);
-        const frame = this._createFrame(transform, scale, origin);
-
-        return new PerspectiveCameraFrame(frame, diagonals);
-    }
-
-    private _createPosition(transform: Transform, originalPosition: number[]):
-        THREE.Object3D {
-        const computedPosition: number[] = transform.unprojectBasic([0, 0], 0);
-        const vertices: number[][] = [originalPosition, computedPosition];
-        const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-        geometry.setAttribute(
-            "position",
-            new THREE.BufferAttribute(this._arrayToFloatArray(vertices), 3));
-
-        return new THREE.Line(
-            geometry,
-            new THREE.LineBasicMaterial({ color: new THREE.Color(1, 0, 0) }));
-    }
-
     private _disposeCameras(hash: string): void {
-        const tileCameras: THREE.Object3D = this._nodes[hash].cameras;
+        const tileCameras = this._nodes[hash].cameras;
 
         for (const camera of tileCameras.children.slice()) {
+            (<CameraFrameBase>camera).dispose();
             for (const child of camera.children) {
-                (<THREE.Line>child).geometry.dispose();
-                (<THREE.Material>(<THREE.Line>child).material).dispose();
-
-                const index: number = this._interactiveObjects.indexOf(child);
+                const index = this._interactiveObjects.indexOf(child);
                 if (index !== -1) {
                     this._interactiveObjects.splice(index, 1);
                 } else {
@@ -861,8 +975,7 @@ export class SpatialDataScene {
             }
 
             for (const points of this._clusterReconstructions[key].points.children.slice()) {
-                (<THREE.Points>points).geometry.dispose();
-                (<THREE.Material>(<THREE.Points>points).material).dispose();
+                (<ClusterPoints>points).dispose();
             }
 
             this._scene.remove(this._clusterReconstructions[key].points);
@@ -875,9 +988,7 @@ export class SpatialDataScene {
         const tilePositions: THREE.Object3D = this._nodes[hash].positions;
 
         for (const position of tilePositions.children.slice()) {
-            (<THREE.Points>position).geometry.dispose();
-            (<THREE.Material>(<THREE.Points>position).material).dispose();
-
+            (<PositionLine>position).dispose();
             tilePositions.remove(position);
         }
 
@@ -901,9 +1012,7 @@ export class SpatialDataScene {
         const tile: THREE.Object3D = this._tiles[hash];
 
         for (const line of tile.children.slice()) {
-            (<THREE.Line>line).geometry.dispose();
-            (<THREE.Material>(<THREE.Line>line).material).dispose();
-
+            (<TileLine>line).dispose();
             tile.remove(line);
         }
 
@@ -943,83 +1052,8 @@ export class SpatialDataScene {
         }
     }
 
-    private _interpolate(a: number, b: number, alpha: number): number {
-        return a + alpha * (b - a);
-    }
-
     private _randomColor(): string {
         return `hsl(${Math.floor(360 * Math.random())}, 100%, 65%)`;
-    }
-
-    private _setCameraColor(color: string, camera: THREE.Object3D): void {
-        for (const child of camera.children) {
-            (<THREE.LineBasicMaterial>(<THREE.Line>child).material).color = new THREE.Color(color);
-        }
-    }
-
-    private _subsample(p1: number[], p2: number[], subsamples: number): number[][] {
-        if (subsamples < 1) {
-            return [p1, p2];
-        }
-
-        const samples: number[][] = [];
-
-        for (let i: number = 0; i <= subsamples + 1; i++) {
-            const p: number[] = [];
-
-            for (let j: number = 0; j < 3; j++) {
-                p.push(this._interpolate(p1[j], p2[j], i / (subsamples + 1)));
-            }
-
-            samples.push(p);
-        }
-
-        return samples;
-    }
-
-    private _updateCamera(camera: THREE.Object3D, scale: number): void {
-        if (camera instanceof PanoCameraFrame) {
-            this._updatePositionAttribute(camera.axis, scale);
-            this._updatePositionAttribute(camera.latitude, scale);
-            this._updatePositionAttribute(camera.longitude1, scale);
-            this._updatePositionAttribute(camera.longitude2, scale);
-            this._updatePositionAttribute(camera.longitude3, scale);
-            this._updatePositionAttribute(camera.longitude4, scale);
-        } else if (camera instanceof PerspectiveCameraFrame) {
-            this._updatePositionAttribute(camera.frame, scale);
-            this._updatePositionAttribute(camera.diagonals, scale);
-        } else {
-            throw new MapillaryError("Unsupported camera frame type.")
-        }
-    }
-
-    private _updatePositionAttribute(
-        frame: CameraFrameLine | CameraFrameLineSegments,
-        scale: number): void {
-        const positionAttribute =
-            <THREE.BufferAttribute>frame.geometry.attributes.position;
-        const positions = <Float32Array>positionAttribute.array;
-
-        const originX = frame.frameOrigin[0];
-        const originY = frame.frameOrigin[1];
-        const originZ = frame.frameOrigin[2];
-
-        const relativePositions = frame.relativeFramePositions;
-        const length = relativePositions.length;
-
-        let index = 0;
-        for (let i = 0; i < length; i++) {
-            const [deltaX, deltaY, deltaZ] = relativePositions[i];
-
-            positions[index++] = originX + scale * deltaX;
-            positions[index++] = originY + scale * deltaY;
-            positions[index++] = originZ + scale * deltaZ;
-        }
-
-        positionAttribute.needsUpdate = true;
-
-        frame.geometry.computeBoundingBox();
-        frame.geometry.computeBoundingSphere();
     }
 }
 
