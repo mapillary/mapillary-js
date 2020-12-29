@@ -46,6 +46,7 @@ export class MouseService {
     private _documentMouseUp$: Observable<MouseEvent>;
 
     private _mouseDown$: Observable<MouseEvent>;
+    private _mouseEnter$: Observable<MouseEvent>;
     private _mouseMove$: Observable<MouseEvent>;
     private _mouseLeave$: Observable<MouseEvent>;
     private _mouseUp$: Observable<MouseEvent>;
@@ -73,6 +74,8 @@ export class MouseService {
 
     private _mouseOwner$: Observable<string>;
     private _wheelOwner$: Observable<string>;
+
+    private _windowBlur$: Observable<FocusEvent>;
 
     constructor(
         container: EventTarget,
@@ -129,6 +132,7 @@ export class MouseService {
         this._documentMouseUp$ = observableFromEvent<MouseEvent>(doc, "mouseup");
 
         this._mouseDown$ = observableFromEvent<MouseEvent>(canvasContainer, "mousedown");
+        this._mouseEnter$ = observableFromEvent<MouseEvent>(canvasContainer, "mouseenter");
         this._mouseLeave$ = observableFromEvent<MouseEvent>(canvasContainer, "mouseleave");
         this._mouseMove$ = observableFromEvent<MouseEvent>(canvasContainer, "mousemove");
         this._mouseUp$ = observableFromEvent<MouseEvent>(canvasContainer, "mouseup");
@@ -140,72 +144,73 @@ export class MouseService {
 
         this._click$ = observableFromEvent<MouseEvent>(canvasContainer, "click");
         this._contextMenu$ = observableFromEvent<MouseEvent>(canvasContainer, "contextmenu");
+        this._windowBlur$ = observableFromEvent<FocusEvent>(window, "blur");
 
         this._dblClick$ = observableMerge(
-                observableFromEvent<MouseEvent>(container, "click"),
-                observableFromEvent<MouseEvent>(canvasContainer, "dblclick")).pipe(
-            bufferCount(3, 1),
-            filter(
-                (events: MouseEvent[]): boolean => {
-                    const event1: MouseEvent = events[0];
-                    const event2: MouseEvent = events[1];
-                    const event3: MouseEvent = events[2];
+            observableFromEvent<MouseEvent>(container, "click"),
+            observableFromEvent<MouseEvent>(canvasContainer, "dblclick")).pipe(
+                bufferCount(3, 1),
+                filter(
+                    (events: MouseEvent[]): boolean => {
+                        const event1: MouseEvent = events[0];
+                        const event2: MouseEvent = events[1];
+                        const event3: MouseEvent = events[2];
 
-                    return event1.type === "click" &&
-                        event2.type === "click" &&
-                        event3.type === "dblclick" &&
-                        (<HTMLElement>event1.target).parentNode === canvasContainer &&
-                        (<HTMLElement>event2.target).parentNode === canvasContainer;
-                }),
-            map(
-                (events: MouseEvent[]): MouseEvent => {
-                    return events[2];
-                }),
-            share());
+                        return event1.type === "click" &&
+                            event2.type === "click" &&
+                            event3.type === "dblclick" &&
+                            (<HTMLElement>event1.target).parentNode === canvasContainer &&
+                            (<HTMLElement>event2.target).parentNode === canvasContainer;
+                    }),
+                map(
+                    (events: MouseEvent[]): MouseEvent => {
+                        return events[2];
+                    }),
+                share());
 
         observableMerge(
-                this._domMouseDown$,
-                this._domMouseMove$,
-                this._dblClick$,
-                this._contextMenu$)
+            this._domMouseDown$,
+            this._domMouseMove$,
+            this._dblClick$,
+            this._contextMenu$)
             .subscribe(
                 (event: MouseEvent): void => {
                     event.preventDefault();
                 });
 
         this._mouseWheel$ = observableMerge(
-                observableFromEvent<WheelEvent>(canvasContainer, "wheel"),
-                observableFromEvent<WheelEvent>(domContainer, "wheel")).pipe(
-            share());
+            observableFromEvent<WheelEvent>(canvasContainer, "wheel"),
+            observableFromEvent<WheelEvent>(domContainer, "wheel")).pipe(
+                share());
 
         this._consistentContextMenu$ = observableMerge(
-                this._mouseDown$,
-                this._mouseMove$,
-                this._mouseOut$,
-                this._mouseUp$,
-                this._contextMenu$).pipe(
-            bufferCount(3, 1),
-            filter(
-                (events: MouseEvent[]): boolean => {
-                    // fire context menu on mouse up both on mac and windows
-                    return events[0].type === "mousedown" &&
-                        events[1].type === "contextmenu" &&
-                        events[2].type === "mouseup";
-                }),
-            map(
-                (events: MouseEvent[]): MouseEvent => {
-                    return events[1];
-                }),
-            share());
+            this._mouseDown$,
+            this._mouseMove$,
+            this._mouseOut$,
+            this._mouseUp$,
+            this._contextMenu$).pipe(
+                bufferCount(3, 1),
+                filter(
+                    (events: MouseEvent[]): boolean => {
+                        // fire context menu on mouse up both on mac and windows
+                        return events[0].type === "mousedown" &&
+                            events[1].type === "contextmenu" &&
+                            events[2].type === "mouseup";
+                    }),
+                map(
+                    (events: MouseEvent[]): MouseEvent => {
+                        return events[1];
+                    }),
+                share());
 
         const dragStop$: Observable<MouseEvent | FocusEvent> = observableMerge(
-                observableFromEvent<FocusEvent>(window, "blur"),
-                this._documentMouseUp$.pipe(
-                    filter(
-                        (e: MouseEvent): boolean => {
-                            return e.button === 0;
-                        }))).pipe(
-            share());
+            this._windowBlur$,
+            this._documentMouseUp$.pipe(
+                filter(
+                    (e: MouseEvent): boolean => {
+                        return e.button === 0;
+                    }))).pipe(
+                        share());
 
         const mouseDragInitiate$: Observable<[MouseEvent, MouseEvent]> =
             this._createMouseDragInitiate$(this._mouseDown$, dragStop$, true).pipe(share());
@@ -305,6 +310,10 @@ export class MouseService {
         return this._mouseDown$;
     }
 
+    public get mouseEnter$(): Observable<MouseEvent> {
+        return this._mouseEnter$;
+    }
+
     public get mouseMove$(): Observable<MouseEvent> {
         return this._mouseMove$;
     }
@@ -361,6 +370,10 @@ export class MouseService {
         return this._staticClick$;
     }
 
+    public get windowBlur$(): Observable<FocusEvent> {
+        return this._windowBlur$;
+    }
+
     public claimMouse(name: string, zindex: number): void {
         this._claimMouse$.next({ name: name, zindex: zindex });
     }
@@ -378,11 +391,11 @@ export class MouseService {
     }
 
     public claimWheel(name: string, zindex: number): void {
-        this._claimWheel$.next({name: name, zindex: zindex});
+        this._claimWheel$.next({ name: name, zindex: zindex });
     }
 
     public unclaimWheel(name: string): void {
-        this._claimWheel$.next({name: name, zindex: null});
+        this._claimWheel$.next({ name: name, zindex: null });
     }
 
     public filtered$<T>(name: string, observable$: Observable<T>): Observable<T> {
@@ -427,9 +440,9 @@ export class MouseService {
             switchMap(
                 (mouseMove: MouseEvent): Observable<MouseEvent> => {
                     return observableConcat(
-                            observableOf(mouseMove),
-                            this._documentMouseMove$).pipe(
-                        takeUntil(stop$));
+                        observableOf(mouseMove),
+                        this._documentMouseMove$).pipe(
+                            takeUntil(stop$));
                 }));
     }
 
@@ -462,12 +475,12 @@ export class MouseService {
             switchMap(
                 (mouseDown: MouseEvent): Observable<[MouseEvent, MouseEvent]> => {
                     return observableCombineLatest(
-                            observableOf(mouseDown),
-                            defer ?
-                                this._createDeferredMouseMove$(mouseDown, this._documentMouseMove$) :
-                                this._documentMouseMove$).pipe(
-                        takeUntil(stop$),
-                        take(1));
+                        observableOf(mouseDown),
+                        defer ?
+                            this._createDeferredMouseMove$(mouseDown, this._documentMouseMove$) :
+                            this._documentMouseMove$).pipe(
+                                takeUntil(stop$),
+                                take(1));
                 }));
     }
 

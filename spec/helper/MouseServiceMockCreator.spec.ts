@@ -1,7 +1,7 @@
-import {Subject} from "rxjs";
+import { Subject } from "rxjs";
 
-import {MockCreator} from "./MockCreator.spec";
-import {MockCreatorBase} from "./MockCreatorBase.spec";
+import { MockCreator } from "./MockCreator.spec";
+import { MockCreatorBase } from "./MockCreatorBase.spec";
 import {
     MouseService,
 } from "../../src/Viewer";
@@ -25,6 +25,8 @@ export class MouseServiceMockCreator extends MockCreatorBase<MouseService> {
         this._mockProperty(mock, "mouseDrag$", new Subject<MouseEvent>());
         this._mockProperty(mock, "mouseDragEnd$", new Subject<MouseEvent>());
         this._mockProperty(mock, "mouseDragStart$", new Subject<MouseEvent>());
+        this._mockProperty(mock, "mouseEnter$", new Subject<MouseEvent>());
+        this._mockProperty(mock, "mouseLeave$", new Subject<MouseEvent>());
         this._mockProperty(mock, "mouseMove$", new Subject<MouseEvent>());
         this._mockProperty(mock, "mouseOut$", new Subject<MouseEvent>());
         this._mockProperty(mock, "mouseOver$", new Subject<MouseEvent>());
@@ -32,6 +34,8 @@ export class MouseServiceMockCreator extends MockCreatorBase<MouseService> {
         this._mockProperty(mock, "mouseWheel$", new Subject<MouseEvent>());
         this._mockProperty(mock, "proximateClick$", new Subject<MouseEvent>());
         this._mockProperty(mock, "staticClick$", new Subject<MouseEvent>());
+
+        this._mockProperty(mock, "windowBlur$", new Subject<FocusEvent>());
 
         return mock;
     }

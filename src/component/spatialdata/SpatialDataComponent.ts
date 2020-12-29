@@ -1,7 +1,9 @@
 import {
     combineLatest as observableCombineLatest,
+    concat as observableConcat,
     empty as observableEmpty,
     from as observableFrom,
+    merge as observableMerge,
     of as observableOf,
     Observable,
     Subscription,
@@ -21,6 +23,7 @@ import {
     refCount,
     publishReplay,
     publish,
+    take,
 } from "rxjs/operators";
 
 import {
@@ -60,6 +63,8 @@ import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction"
 import ICellCorners, { ICellNeighbors } from "../../api/interfaces/ICellCorners";
 import Spatial from "../../geo/Spatial";
 
+type IntersectEvent = MouseEvent | FocusEvent;
+
 export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     public static componentName: string = "spatialData";
 
@@ -74,8 +79,11 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     private _addTileSubscription: Subscription;
     private _applyConfigurationSubscription: Subscription;
     private _earthControlsSubscription: Subscription;
+    private _mouseMoveSubscription: Subscription;
     private _moveSubscription: Subscription;
     private _renderSubscription: Subscription;
+    private _setHoveredSubscription: Subscription;
+    private _setSelectedSubscription: Subscription;
     private _uncacheSubscription: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
@@ -365,9 +373,82 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 }))
             .subscribe();
 
-        this._renderSubscription = this._navigator.stateService.currentState$.pipe(
+        const intersectChange$ = this._configuration$.pipe(
             map(
-                (frame: IFrame): IGLRenderHash => {
+                (c: ISpatialDataConfiguration): ISpatialDataConfiguration => {
+                    c.cameraSize = this._spatial.clamp(c.cameraSize, 0.01, 1);
+                    return {
+                        cameraSize: c.cameraSize,
+                        camerasVisible: c.camerasVisible,
+                        earthControls: c.earthControls,
+                    }
+                }),
+            distinctUntilChanged(
+                (c1: ISpatialDataConfiguration, c2: ISpatialDataConfiguration): boolean => {
+                    return c1.cameraSize === c2.cameraSize &&
+                        c1.camerasVisible === c2.camerasVisible &&
+                        c1.earthControls === c2.earthControls;
+                }));
+
+        const mouseMove$ = this._container.mouseService.mouseMove$.pipe(
+            publishReplay(1),
+            refCount());
+
+        this._mouseMoveSubscription = mouseMove$.subscribe();
+
+        const mouseHover$ = observableMerge(
+            this._container.mouseService.mouseEnter$,
+            this._container.mouseService.mouseLeave$,
+            this._container.mouseService.windowBlur$);
+
+        this._setHoveredSubscription = observableCombineLatest(
+            this._navigator.playService.playing$,
+            mouseHover$).pipe(
+                switchMap(
+                    ([playing, mouseHover]:
+                        [boolean, IntersectEvent])
+                        : Observable<[IntersectEvent, RenderCamera, ISpatialDataConfiguration]> => {
+                        return !playing && mouseHover.type === "mouseenter" ?
+                            observableCombineLatest(
+                                observableConcat(
+                                    mouseMove$.pipe(take(1)),
+                                    this._container.mouseService.mouseMove$),
+                                this._container.renderService.renderCamera$,
+                                intersectChange$) :
+                            observableCombineLatest(
+                                observableOf(mouseHover),
+                                observableOf(null),
+                                observableOf({}));
+                    }))
+            .subscribe(
+                ([event, render]
+                    : [IntersectEvent, RenderCamera, ISpatialDataConfiguration]): void => {
+                    if (event.type !== "mousemove") {
+                        this._scene.setHoveredKey(null);
+                        return;
+                    }
+
+                    const element: HTMLElement = this._container.container;
+                    const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(<MouseEvent>event, element);
+                    const viewport: number[] = this._viewportCoords.canvasToViewport(
+                        canvasX,
+                        canvasY,
+                        element);
+
+                    const key: string = this._scene.intersectObjects(viewport, render.perspective);
+
+                    this._scene.setHoveredKey(key);
+                });
+
+        this._setSelectedSubscription = this._navigator.stateService.currentKey$
+            .subscribe(
+                (key: string): void => {
+                    this._scene.setSelectedKey(key);
+                });
+
+        this._renderSubscription = this._navigator.stateService.currentState$
+            .pipe(
+                map((frame: IFrame): IGLRenderHash => {
                     const scene: SpatialDataScene = this._scene;
 
                     return {
@@ -392,8 +473,11 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._addTileSubscription.unsubscribe();
         this._applyConfigurationSubscription.unsubscribe();
         this._earthControlsSubscription.unsubscribe();
+        this._mouseMoveSubscription.unsubscribe();
         this._moveSubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
+        this._setHoveredSubscription.unsubscribe();
+        this._setSelectedSubscription.unsubscribe();
         this._uncacheSubscription.unsubscribe();
 
         this._navigator.stateService.state$.pipe(

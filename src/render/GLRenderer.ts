@@ -1,6 +1,24 @@
-import {merge as observableMerge, combineLatest as observableCombineLatest, Observable, Subject, Subscription} from "rxjs";
+import {
+    combineLatest as observableCombineLatest,
+    merge as observableMerge,
+    Observable,
+    Subject,
+    Subscription,
+} from "rxjs";
 
-import {mergeMap, scan, filter, share, startWith, distinctUntilChanged, map, first, publishReplay, refCount} from "rxjs/operators";
+import {
+    distinctUntilChanged,
+    filter,
+    first,
+    map,
+    mergeMap,
+    publishReplay,
+    refCount,
+    scan,
+    share,
+    startWith,
+} from "rxjs/operators";
+
 import * as THREE from "three";
 
 import {
@@ -12,7 +30,7 @@ import {
     RenderService,
     ISize,
 } from "../Render";
-import {DOM} from "../Utils";
+import { DOM } from "../Utils";
 
 interface IGLRenderer {
     needsRender: boolean;
@@ -80,7 +98,7 @@ export class GLRenderer {
 
     private _renderFrameSubscription: Subscription;
 
-    constructor (canvasContainer: HTMLElement, renderService: RenderService, dom?: DOM) {
+    constructor(canvasContainer: HTMLElement, renderService: RenderService, dom?: DOM) {
         this._renderService = renderService;
         this._dom = !!dom ? dom : new DOM();
 
@@ -122,45 +140,45 @@ export class GLRenderer {
                 { needsRender: false }));
 
         observableCombineLatest(
-                this._renderer$,
-                this._renderCollection$,
-                this._renderCamera$,
-                this._eraser$).pipe(
-            map(
-                ([renderer, hashes, rc, eraser]: [IGLRenderer, IGLRenderHashes, IRenderCamera, IEraser]): ICombination => {
-                    let renders: IGLRender[] = Object.keys(hashes)
-                        .map((key: string): IGLRender => {
-                            return hashes[key];
-                        });
+            this._renderer$,
+            this._renderCollection$,
+            this._renderCamera$,
+            this._eraser$).pipe(
+                map(
+                    ([renderer, hashes, rc, eraser]: [IGLRenderer, IGLRenderHashes, IRenderCamera, IEraser]): ICombination => {
+                        let renders: IGLRender[] = Object.keys(hashes)
+                            .map((key: string): IGLRender => {
+                                return hashes[key];
+                            });
 
-                    return { camera: rc, eraser: eraser, renderer: renderer, renders: renders };
-                }),
-            filter(
-                (co: ICombination): boolean => {
-                    let needsRender: boolean =
-                        co.renderer.needsRender ||
-                        co.camera.needsRender ||
-                        co.eraser.needsRender;
+                        return { camera: rc, eraser: eraser, renderer: renderer, renders: renders };
+                    }),
+                filter(
+                    (co: ICombination): boolean => {
+                        let needsRender: boolean =
+                            co.renderer.needsRender ||
+                            co.camera.needsRender ||
+                            co.eraser.needsRender;
 
-                    let frameId: number = co.camera.frameId;
+                        let frameId: number = co.camera.frameId;
 
-                    for (let render of co.renders) {
-                        if (render.frameId !== frameId) {
-                            return false;
+                        for (let render of co.renders) {
+                            if (render.frameId !== frameId) {
+                                return false;
+                            }
+
+                            needsRender = needsRender || render.needsRender;
                         }
 
-                        needsRender = needsRender || render.needsRender;
-                    }
-
-                    return needsRender;
-                }),
-            distinctUntilChanged(
-                (n1: number, n2: number): boolean => {
-                    return n1 === n2;
-                },
-                (co: ICombination): number => {
-                    return co.eraser.needsRender ? -1 : co.camera.frameId;
-                }))
+                        return needsRender;
+                    }),
+                distinctUntilChanged(
+                    (n1: number, n2: number): boolean => {
+                        return n1 === n2;
+                    },
+                    (co: ICombination): number => {
+                        return co.eraser.needsRender ? -1 : co.camera.frameId;
+                    }))
             .subscribe(
                 (co: ICombination): void => {
                     co.renderer.needsRender = false;
@@ -249,7 +267,7 @@ export class GLRenderer {
                     const webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ canvas: canvas });
                     webGLRenderer.setPixelRatio(window.devicePixelRatio);
                     webGLRenderer.setSize(element.offsetWidth, element.offsetHeight);
-                    webGLRenderer.setClearColor(new THREE.Color(0x202020), 1.0);
+                    webGLRenderer.setClearColor(new THREE.Color(0x0F0F0F), 1.0);
                     webGLRenderer.autoClear = false;
 
                     return webGLRenderer;
@@ -358,7 +376,7 @@ export class GLRenderer {
                         return irc;
                     };
                 }))
-             .subscribe(
+            .subscribe(
                 (operation: IRenderCameraOperation): void => {
                     this._renderCameraOperation$.next(operation);
                 });
