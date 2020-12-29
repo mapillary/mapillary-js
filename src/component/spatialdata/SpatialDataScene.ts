@@ -5,6 +5,7 @@ import { NodeData } from "./SpatialDataCache";
 import IClusterReconstruction, { IReconstructionPoint } from "../../api/interfaces/IClusterReconstruction";
 import { Transform } from "../../geo/Transform";
 import ISpatialDataConfiguration from "../interfaces/ISpatialDataConfiguration";
+import MapillaryError from "../../error/MapillaryError";
 
 type ClusterReconstructions = {
     [key: string]: {
@@ -50,6 +51,7 @@ abstract class CameraFrameBase extends THREE.Object3D {
         for (const child of this.children) {
             const frameLine = <CameraFrameLine | CameraFrameLineSegments>child;
             frameLine.material.color = new THREE.Color(color);
+            frameLine.material.needsUpdate = true;
         }
     }
 
@@ -108,7 +110,6 @@ abstract class CameraFrameBase extends THREE.Object3D {
 
         positionAttribute.needsUpdate = true;
 
-        frame.geometry.computeBoundingBox();
         frame.geometry.computeBoundingSphere();
     }
 
@@ -480,7 +481,7 @@ export class SpatialDataScene {
     private _interactiveObjects: THREE.Object3D[];
 
     private _tileClusterReconstructions: {
-        [hash: string]: {
+        [cellId: string]: {
             keys: string[];
         };
     };
@@ -488,7 +489,15 @@ export class SpatialDataScene {
     private _clusterReconstructions: ClusterReconstructions;
 
     private _nodes: {
-        [hash: string]: {
+        [cellId: string]: {
+            cameraFrames: { [key: string]: CameraFrameBase };
+            cameraIds: {
+                [key: string]: {
+                    clusterKey: string;
+                    connectedComponent: string;
+                    sequenceKey: string;
+                };
+            };
             cameraKeys: { [id: string]: string };
             cameras: THREE.Object3D;
             clusters: { [id: string]: CameraFrameBase[] };
@@ -499,7 +508,9 @@ export class SpatialDataScene {
         };
     };
 
-    private _tiles: { [hash: string]: THREE.Object3D };
+    private _keyToCellId: { [key: string]: string };
+
+    private _tiles: { [cellId: string]: THREE.Object3D };
 
     private _cameraVisualizationMode: CameraVisualizationMode;
     private _cameraSize: number;
@@ -513,13 +524,16 @@ export class SpatialDataScene {
     private readonly _originalPointSize: number;
     private readonly _originalCameraSize: number;
 
+    private _hoveredKey: string;
+    private _selectedKey: string;
+
     constructor(configuration: ISpatialDataConfiguration, scene?: THREE.Scene, raycaster?: THREE.Raycaster) {
         this._rayNearScale = 1.1;
+        this._originalPointSize = 2;
+        this._originalCameraSize = 2;
 
         this._scene = !!scene ? scene : new THREE.Scene();
-        const near = this._rayNearScale *
-            this._originalCameraSize *
-            configuration.cameraSize;
+        const near = this._getNear(configuration.cameraSize);
         const far = 3000;
         this._raycaster = !!raycaster ?
             raycaster :
@@ -528,7 +542,7 @@ export class SpatialDataScene {
                 undefined,
                 near,
                 far);
-        this._raycaster.params.Line.threshold = 0.2;
+        this._raycaster.params.Line.threshold = 0.1;
 
         this._cameraColors = {};
         this._needsRender = false;
@@ -537,6 +551,7 @@ export class SpatialDataScene {
         this._tiles = {};
         this._tileClusterReconstructions = {};
         this._clusterReconstructions = {};
+        this._keyToCellId = {};
 
         this._cameraVisualizationMode = !!configuration.cameraVisualizationMode ?
             configuration.cameraVisualizationMode :
@@ -554,8 +569,8 @@ export class SpatialDataScene {
         this._positionsVisible = configuration.positionsVisible;
         this._tilesVisible = configuration.tilesVisible;
 
-        this._originalPointSize = 2;
-        this._originalCameraSize = 2;
+        this._hoveredKey = null;
+        this._selectedKey = null;
     }
 
     public get needsRender(): boolean {
@@ -565,9 +580,9 @@ export class SpatialDataScene {
     public addClusterReconstruction(
         reconstruction: IClusterReconstruction,
         translation: number[],
-        hash: string): void {
+        cellId: string): void {
 
-        if (this.hasClusterReconstruction(reconstruction.key, hash)) {
+        if (this.hasClusterReconstruction(reconstruction.key, cellId)) {
             return;
         }
 
@@ -592,18 +607,18 @@ export class SpatialDataScene {
                 this._clusterReconstructions[key].points);
         }
 
-        if (this._clusterReconstructions[key].tiles.indexOf(hash) === -1) {
-            this._clusterReconstructions[key].tiles.push(hash);
+        if (this._clusterReconstructions[key].tiles.indexOf(cellId) === -1) {
+            this._clusterReconstructions[key].tiles.push(cellId);
         }
 
-        if (!(hash in this._tileClusterReconstructions)) {
-            this._tileClusterReconstructions[hash] = {
+        if (!(cellId in this._tileClusterReconstructions)) {
+            this._tileClusterReconstructions[cellId] = {
                 keys: [],
             };
         }
 
-        if (this._tileClusterReconstructions[hash].keys.indexOf(key) === -1) {
-            this._tileClusterReconstructions[hash].keys.push(key);
+        if (this._tileClusterReconstructions[cellId].keys.indexOf(key) === -1) {
+            this._tileClusterReconstructions[cellId].keys.push(key);
         }
 
         this._needsRender = true;
@@ -613,20 +628,23 @@ export class SpatialDataScene {
         data: NodeData,
         transform: Transform,
         originalPosition: number[],
-        hash: string): void {
+        cellId: string): void {
 
         const key: string = data.key;
-        const clusterKey: string = data.clusterKey;
-        const sequenceKey: string = data.sequenceKey;
-        const connectedComponent: string =
-            !!data.mergeCC ? data.mergeCC.toString() : "";
+        const clusterKey: string = !!data.clusterKey ?
+            data.clusterKey : "default_cluster_key";
+        const sequenceKey: string = !!data.sequenceKey ?
+            data.sequenceKey : "default_sequence_key";
+        const connectedComponent: string = !!data.mergeCC ?
+            data.mergeCC.toString() : "default_mergecc_key";
 
-        if (this.hasNode(key, hash)) {
+        if (this.hasNode(key, cellId)) {
             return;
         }
 
-        if (!(hash in this._nodes)) {
-            this._nodes[hash] = {
+        if (!(cellId in this._nodes)) {
+            this._nodes[cellId] = {
+                cameraFrames: {},
                 cameraKeys: {},
                 cameras: new THREE.Object3D(),
                 clusters: {},
@@ -634,26 +652,29 @@ export class SpatialDataScene {
                 keys: [],
                 positions: new THREE.Object3D(),
                 sequences: {},
+                cameraIds: {},
             };
 
-            this._nodes[hash].cameras.visible = this._camerasVisible;
-            this._nodes[hash].positions.visible = this._positionsVisible;
+            this._nodes[cellId].cameras.visible = this._camerasVisible;
+            this._nodes[cellId].positions.visible = this._positionsVisible;
 
             this._scene.add(
-                this._nodes[hash].cameras,
-                this._nodes[hash].positions);
+                this._nodes[cellId].cameras,
+                this._nodes[cellId].positions);
         }
 
-        if (!(connectedComponent in this._nodes[hash].connectedComponents)) {
-            this._nodes[hash].connectedComponents[connectedComponent] = [];
+        const nodeCell = this._nodes[cellId];
+
+        if (!(connectedComponent in nodeCell.connectedComponents)) {
+            nodeCell.connectedComponents[connectedComponent] = [];
         }
 
-        if (!(clusterKey in this._nodes[hash].clusters)) {
-            this._nodes[hash].clusters[clusterKey] = [];
+        if (!(clusterKey in nodeCell.clusters)) {
+            nodeCell.clusters[clusterKey] = [];
         }
 
-        if (!(sequenceKey in this._nodes[hash].sequences)) {
-            this._nodes[hash].sequences[sequenceKey] = [];
+        if (!(sequenceKey in nodeCell.sequences)) {
+            nodeCell.sequences[sequenceKey] = [];
         }
 
         const scale = this._cameraSize;
@@ -662,15 +683,16 @@ export class SpatialDataScene {
             new PanoCameraFrame(maxSize, transform, scale) :
             new PerspectiveCameraFrame(maxSize, transform, scale);
 
-        this._nodes[hash].cameras.add(camera);
+        nodeCell.cameras.add(camera);
+
         for (const child of camera.children) {
-            this._nodes[hash].cameraKeys[child.uuid] = key;
+            nodeCell.cameraKeys[child.uuid] = key;
             this._interactiveObjects.push(child);
         }
 
-        this._nodes[hash].connectedComponents[connectedComponent].push(camera);
-        this._nodes[hash].clusters[clusterKey].push(camera);
-        this._nodes[hash].sequences[sequenceKey].push(camera);
+        nodeCell.connectedComponents[connectedComponent].push(camera);
+        nodeCell.clusters[clusterKey].push(camera);
+        nodeCell.sequences[sequenceKey].push(camera);
 
         const id: string = this._getId(
             clusterKey,
@@ -681,67 +703,48 @@ export class SpatialDataScene {
         const color: string = this._getColor(id, this._cameraVisualizationMode);
         camera.setColor(color);
 
-        this._nodes[hash].positions.add(
+        nodeCell.positions.add(
             new PositionLine(transform, originalPosition));
 
-        this._nodes[hash].keys.push(key);
+        nodeCell.keys.push(key);
+        nodeCell.cameraFrames[key] = camera;
+        nodeCell.cameraIds[key] =
+            { clusterKey, connectedComponent, sequenceKey };
+
+        this._keyToCellId[key] = cellId;
+
+        if (key === this._selectedKey) {
+            this._setSelectedKeyColor(key, this._cameraVisualizationMode);
+        }
 
         this._needsRender = true;
     }
 
-    public addTile(bbox: number[][], hash: string): void {
-        if (this.hasTile(hash)) {
+    public addTile(bbox: number[][], cellId: string): void {
+        if (this.hasTile(cellId)) {
             return;
         }
 
         const tile = new TileLine(bbox);
-        this._tiles[hash] = new THREE.Object3D();
-        this._tiles[hash].visible = this._tilesVisible;
-        this._tiles[hash].add(tile);
-        this._scene.add(this._tiles[hash]);
+        this._tiles[cellId] = new THREE.Object3D();
+        this._tiles[cellId].visible = this._tilesVisible;
+        this._tiles[cellId].add(tile);
+        this._scene.add(this._tiles[cellId]);
 
         this._needsRender = true;
     }
 
-    public uncache(keepHashes?: string[]): void {
-        for (const hash of Object.keys(this._tileClusterReconstructions)) {
-            if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
-                continue;
-            }
-
-            this._disposeReconstruction(hash);
-        }
-
-        for (const hash of Object.keys(this._nodes)) {
-            if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
-                continue;
-            }
-
-            this._disposeNodes(hash);
-        }
-
-        for (const hash of Object.keys(this._tiles)) {
-            if (!!keepHashes && keepHashes.indexOf(hash) !== -1) {
-                continue;
-            }
-
-            this._disposeTile(hash);
-        }
-
-        this._needsRender = true;
-    }
-
-    public hasClusterReconstruction(key: string, hash: string): boolean {
+    public hasClusterReconstruction(key: string, cellId: string): boolean {
         return key in this._clusterReconstructions &&
-            this._clusterReconstructions[key].tiles.indexOf(hash) !== -1;
+            this._clusterReconstructions[key].tiles.indexOf(cellId) !== -1;
     }
 
-    public hasTile(hash: string): boolean {
-        return hash in this._tiles;
+    public hasTile(cellId: string): boolean {
+        return cellId in this._tiles;
     }
 
-    public hasNode(key: string, hash: string): boolean {
-        return hash in this._nodes && this._nodes[hash].keys.indexOf(key) !== -1;
+    public hasNode(key: string, cellId: string): boolean {
+        return cellId in this._nodes && this._nodes[cellId].keys.indexOf(key) !== -1;
     }
 
     public intersectObjects(
@@ -757,13 +760,13 @@ export class SpatialDataScene {
         const intersects: THREE.Intersection[] =
             this._raycaster.intersectObjects(this._interactiveObjects);
         for (const intersect of intersects) {
-            for (const hash in this._nodes) {
-                if (!this._nodes.hasOwnProperty(hash)) {
+            for (const cellId in this._nodes) {
+                if (!this._nodes.hasOwnProperty(cellId)) {
                     continue;
                 }
 
-                if (intersect.object.uuid in this._nodes[hash].cameraKeys) {
-                    return this._nodes[hash].cameraKeys[intersect.object.uuid];
+                if (intersect.object.uuid in this._nodes[cellId].cameraKeys) {
+                    return this._nodes[cellId].cameraKeys[intersect.object.uuid];
                 }
             }
         }
@@ -787,10 +790,7 @@ export class SpatialDataScene {
             }
         }
 
-        this._raycaster.near = this._rayNearScale *
-            this._originalCameraSize *
-            cameraSize;
-
+        this._raycaster.near = this._getNear(cameraSize);
         this._cameraSize = cameraSize;
         this._needsRender = true;
     }
@@ -800,16 +800,45 @@ export class SpatialDataScene {
             return;
         }
 
-        for (const hash in this._nodes) {
-            if (!this._nodes.hasOwnProperty(hash)) {
+        for (const cellId in this._nodes) {
+            if (!this._nodes.hasOwnProperty(cellId)) {
                 continue;
             }
 
-            this._nodes[hash].cameras.visible = visible;
+            this._nodes[cellId].cameras.visible = visible;
         }
 
         this._camerasVisible = visible;
         this._needsRender = true;
+    }
+
+    public setHoveredKey(key?: string): void {
+        key = key != null ? key : null;
+        if (key != null && !(key in this._keyToCellId)) {
+            throw new MapillaryError(`Node does not exist: ${key}`);
+        }
+
+        if (this._hoveredKey === key) {
+            return;
+        }
+
+        this._needsRender = true;
+
+        if (this._hoveredKey != null) {
+            if (this._hoveredKey === this._selectedKey) {
+                this._setSelectedKeyColor(
+                    this._hoveredKey,
+                    this._cameraVisualizationMode);
+            } else {
+                this._resetFrameColor(this._hoveredKey);
+            }
+        }
+
+        this._setHoveredKeyColor(
+            key,
+            this._cameraVisualizationMode);
+
+        this._hoveredKey = key;
     }
 
     public setPointSize(pointSize: number): void {
@@ -856,16 +885,35 @@ export class SpatialDataScene {
             return;
         }
 
-        for (const hash in this._nodes) {
-            if (!this._nodes.hasOwnProperty(hash)) {
+        for (const cellId in this._nodes) {
+            if (!this._nodes.hasOwnProperty(cellId)) {
                 continue;
             }
 
-            this._nodes[hash].positions.visible = visible;
+            this._nodes[cellId].positions.visible = visible;
         }
 
         this._positionsVisible = visible;
         this._needsRender = true;
+    }
+
+    public setSelectedKey(key?: string): void {
+        key = key != null ? key : null;
+        if (this._selectedKey === key) {
+            return;
+        }
+
+        this._needsRender = true;
+
+        if (this._selectedKey != null) {
+            this._resetFrameColor(this._selectedKey);
+        }
+
+        this._setSelectedKeyColor(
+            key,
+            this._cameraVisualizationMode);
+
+        this._selectedKey = key;
     }
 
     public setTileVisibility(visible: boolean): void {
@@ -873,12 +921,12 @@ export class SpatialDataScene {
             return;
         }
 
-        for (const hash in this._tiles) {
-            if (!this._tiles.hasOwnProperty(hash)) {
+        for (const cellId in this._tiles) {
+            if (!this._tiles.hasOwnProperty(cellId)) {
                 continue;
             }
 
-            this._tiles[hash].visible = visible;
+            this._tiles[cellId].visible = visible;
         }
 
         this._tilesVisible = visible;
@@ -890,21 +938,21 @@ export class SpatialDataScene {
             return;
         }
 
-        for (const hash in this._nodes) {
-            if (!this._nodes.hasOwnProperty(hash)) {
+        for (const cellId in this._nodes) {
+            if (!this._nodes.hasOwnProperty(cellId)) {
                 continue;
             }
 
             let cameras: { [id: number]: CameraFrameBase[] } = undefined;
 
             if (mode === CameraVisualizationMode.Cluster) {
-                cameras = this._nodes[hash].clusters;
+                cameras = this._nodes[cellId].clusters;
             } else if (mode === CameraVisualizationMode.ConnectedComponent) {
-                cameras = this._nodes[hash].connectedComponents;
+                cameras = this._nodes[cellId].connectedComponents;
             } else if (mode === CameraVisualizationMode.Sequence) {
-                cameras = this._nodes[hash].sequences;
+                cameras = this._nodes[cellId].sequences;
             } else {
-                for (const child of this._nodes[hash].cameras.children) {
+                for (const child of this._nodes[cellId].cameras.children) {
                     const color: string = this._getColor("", mode);
                     (<CameraFrameBase>child).setColor(color);
                 }
@@ -925,6 +973,9 @@ export class SpatialDataScene {
             }
         }
 
+        this._setHoveredKeyColor(this._hoveredKey, mode);
+        this._setSelectedKeyColor(this._selectedKey, mode);
+
         this._cameraVisualizationMode = mode;
         this._needsRender = true;
     }
@@ -937,8 +988,36 @@ export class SpatialDataScene {
         this._needsRender = false;
     }
 
-    private _disposeCameras(hash: string): void {
-        const tileCameras = this._nodes[hash].cameras;
+    public uncache(keepCellIds?: string[]): void {
+        for (const cellId of Object.keys(this._tileClusterReconstructions)) {
+            if (!!keepCellIds && keepCellIds.indexOf(cellId) !== -1) {
+                continue;
+            }
+
+            this._disposeReconstruction(cellId);
+        }
+
+        for (const cellId of Object.keys(this._nodes)) {
+            if (!!keepCellIds && keepCellIds.indexOf(cellId) !== -1) {
+                continue;
+            }
+
+            this._disposeNodes(cellId);
+        }
+
+        for (const cellId of Object.keys(this._tiles)) {
+            if (!!keepCellIds && keepCellIds.indexOf(cellId) !== -1) {
+                continue;
+            }
+
+            this._disposeTile(cellId);
+        }
+
+        this._needsRender = true;
+    }
+
+    private _disposeCameras(cellId: string): void {
+        const tileCameras = this._nodes[cellId].cameras;
 
         for (const camera of tileCameras.children.slice()) {
             (<CameraFrameBase>camera).dispose();
@@ -947,23 +1026,29 @@ export class SpatialDataScene {
                 if (index !== -1) {
                     this._interactiveObjects.splice(index, 1);
                 } else {
-                    console.warn(`Object does not exist (${child.id}) for ${hash}`);
+                    console.warn(`Object does not exist (${child.id}) for ${cellId}`);
                 }
             }
 
             tileCameras.remove(camera);
         }
 
+        const keyToCellId = this._keyToCellId;
+        const keys = this._nodes[cellId].keys;
+        for (const key of keys) {
+            delete keyToCellId[key];
+        }
+
         this._scene.remove(tileCameras);
     }
 
-    private _disposePoints(hash: string): void {
-        for (const key of this._tileClusterReconstructions[hash].keys) {
+    private _disposePoints(cellId: string): void {
+        for (const key of this._tileClusterReconstructions[cellId].keys) {
             if (!(key in this._clusterReconstructions)) {
                 continue;
             }
 
-            const index: number = this._clusterReconstructions[key].tiles.indexOf(hash);
+            const index: number = this._clusterReconstructions[key].tiles.indexOf(cellId);
             if (index === -1) {
                 continue;
             }
@@ -984,8 +1069,8 @@ export class SpatialDataScene {
         }
     }
 
-    private _disposePositions(hash: string): void {
-        const tilePositions: THREE.Object3D = this._nodes[hash].positions;
+    private _disposePositions(cellId: string): void {
+        const tilePositions: THREE.Object3D = this._nodes[cellId].positions;
 
         for (const position of tilePositions.children.slice()) {
             (<PositionLine>position).dispose();
@@ -995,21 +1080,21 @@ export class SpatialDataScene {
         this._scene.remove(tilePositions);
     }
 
-    private _disposeNodes(hash: string): void {
-        this._disposeCameras(hash);
-        this._disposePositions(hash);
+    private _disposeNodes(cellId: string): void {
+        this._disposeCameras(cellId);
+        this._disposePositions(cellId);
 
-        delete this._nodes[hash];
+        delete this._nodes[cellId];
     }
 
-    private _disposeReconstruction(hash: string): void {
-        this._disposePoints(hash);
+    private _disposeReconstruction(cellId: string): void {
+        this._disposePoints(cellId);
 
-        delete this._tileClusterReconstructions[hash];
+        delete this._tileClusterReconstructions[cellId];
     }
 
-    private _disposeTile(hash: string): void {
-        const tile: THREE.Object3D = this._tiles[hash];
+    private _disposeTile(cellId: string): void {
+        const tile: THREE.Object3D = this._tiles[cellId];
 
         for (const line of tile.children.slice()) {
             (<TileLine>line).dispose();
@@ -1018,7 +1103,7 @@ export class SpatialDataScene {
 
         this._scene.remove(tile);
 
-        delete this._tiles[hash];
+        delete this._tiles[cellId];
     }
 
     private _getColor(id: string, mode: CameraVisualizationMode): string {
@@ -1052,8 +1137,57 @@ export class SpatialDataScene {
         }
     }
 
+    private _getNear(cameraSize: number): number {
+        const near = this._rayNearScale *
+            this._originalCameraSize *
+            cameraSize;
+
+        return Math.max(1, near);
+    }
+
     private _randomColor(): string {
-        return `hsl(${Math.floor(360 * Math.random())}, 100%, 65%)`;
+        return `hsl(${Math.floor(360 * Math.random())}, 100%, 50%)`;
+    }
+
+    private _resetFrameColor(key: string): void {
+        if (key == null || !(key in this._keyToCellId)) {
+            return;
+        }
+
+        const cellId = this._keyToCellId[key];
+        const cameraIds = this._nodes[cellId].cameraIds[key];
+        const id = this._getId(
+            cameraIds.clusterKey,
+            cameraIds.connectedComponent,
+            cameraIds.sequenceKey,
+            this._cameraVisualizationMode);
+
+        const color = this._getColor(id, this._cameraVisualizationMode);
+        this._nodes[cellId].cameraFrames[key].setColor(color);
+    }
+
+    private _setHoveredKeyColor(key: string, mode: CameraVisualizationMode)
+        : void {
+        if (key == null) {
+            return;
+        }
+
+        const cellId = this._keyToCellId[key];
+        const color = mode === CameraVisualizationMode.Default ?
+            "#FF0000" : "#FFFFFF";
+        this._nodes[cellId].cameraFrames[key].setColor(color);
+    }
+
+    private _setSelectedKeyColor(key: string, mode: CameraVisualizationMode)
+        : void {
+        if (key == null || !(key in this._keyToCellId)) {
+            return;
+        }
+
+        const cellId = this._keyToCellId[key];
+        const color = mode === CameraVisualizationMode.Default ?
+            "#FF8000" : "#FFFFFF";
+        this._nodes[cellId].cameraFrames[key].setColor(color);
     }
 }
 
