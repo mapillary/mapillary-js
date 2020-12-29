@@ -50,8 +50,7 @@ abstract class CameraFrameBase extends THREE.Object3D {
     public setColor(color: string): void {
         for (const child of this.children) {
             const frameLine = <CameraFrameLine | CameraFrameLineSegments>child;
-            frameLine.material.color = new THREE.Color(color);
-            frameLine.material.needsUpdate = true;
+            this._updateColorAttribute(frameLine, color);
         }
     }
 
@@ -66,23 +65,49 @@ abstract class CameraFrameBase extends THREE.Object3D {
         positions: number[][]): THREE.BufferGeometry {
         const positionAttribute = new THREE.BufferAttribute(
             new Float32Array(3 * positions.length), 3)
+        const colorAttribute = new THREE.BufferAttribute(
+            new Float32Array(3 * positions.length), 3)
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute("position", positionAttribute);
+        geometry.setAttribute("color", colorAttribute);
         return geometry;
     }
 
     protected _createCameraFrame(
         origin: number[],
         relativePositions: number[][],
-        scale: number):
+        scale: number,
+        color: string):
         CameraFrameLine {
         const geometry = this._createBufferGeometry(relativePositions);
-        const material = new THREE.LineBasicMaterial();
+        const material = new THREE.LineBasicMaterial({
+            vertexColors: true,
+        });
         const frame = new CameraFrameLine(
             geometry, material, origin, relativePositions);
         this._updatePositionAttribute(frame, scale);
+        this._updateColorAttribute(frame, color);
 
         return frame;
+    }
+
+    protected _updateColorAttribute(
+        frame: CameraFrameLine | CameraFrameLineSegments,
+        color: string): void {
+        const [r, g, b] = new THREE.Color(color).toArray();
+        const colorAttribute =
+            <THREE.BufferAttribute>frame.geometry.attributes.color;
+        const colors = <Float32Array>colorAttribute.array;
+
+        const length = colors.length;
+        let index = 0;
+        for (let i = 0; i < length; i++) {
+            colors[index++] = r;
+            colors[index++] = g;
+            colors[index++] = b;
+        }
+
+        colorAttribute.needsUpdate = true;
     }
 
     protected _updatePositionAttribute(
@@ -131,15 +156,19 @@ class PerspectiveCameraFrame extends CameraFrameBase {
     private readonly _horizontalFrameSamples: number;
     private readonly _verticalFrameSamples: number;
 
-    constructor(originalSize: number, transform: Transform, scale: number) {
+    constructor(
+        originalSize: number,
+        transform: Transform,
+        scale: number,
+        color: string) {
         super(originalSize);
 
         this._horizontalFrameSamples = 8;
         this._verticalFrameSamples = 6;
 
         const origin = transform.unprojectBasic([0, 0], 0, true);
-        const frame = this._createFrame(transform, scale, origin);
-        const diagonals = this._createDiagonals(transform, scale, origin);
+        const frame = this._createFrame(transform, scale, origin, color);
+        const diagonals = this._createDiagonals(transform, scale, origin, color);
 
         this.add(frame, diagonals);
     }
@@ -192,21 +221,26 @@ class PerspectiveCameraFrame extends CameraFrameBase {
     private _createDiagonals(
         transform: Transform,
         scale: number,
-        origin: number[]): CameraFrameLineSegments {
+        origin: number[],
+        color: string): CameraFrameLineSegments {
         const positions = this._calculateRelativeDiagonals(transform, origin);
         const geometry = this._createBufferGeometry(positions);
-        const material = new THREE.LineBasicMaterial();
+        const material = new THREE.LineBasicMaterial({
+            vertexColors: true,
+        });
         const diagonals = new CameraFrameLineSegments(geometry, material, origin, positions);
         this._updatePositionAttribute(diagonals, scale);
+        this._updateColorAttribute(diagonals, color);
         return diagonals;
     }
 
     private _createFrame(
         transform: Transform,
         scale: number,
-        origin: number[]): CameraFrameLine {
+        origin: number[],
+        color: string): CameraFrameLine {
         const positions = this._calculateRelativeFrame(transform, origin);
-        return this._createCameraFrame(origin, positions, scale);
+        return this._createCameraFrame(origin, positions, scale, color);
     }
 
 
@@ -242,7 +276,11 @@ class PanoCameraFrame extends CameraFrameBase {
     private readonly _latitudeVertices: number;
     private readonly _longitudeVertices: number;
 
-    constructor(originalSize: number, transform: Transform, scale: number) {
+    constructor(
+        originalSize: number,
+        transform: Transform,
+        scale: number,
+        color: string) {
         super(originalSize);
 
         this._latitudeVertices = 10;
@@ -251,12 +289,18 @@ class PanoCameraFrame extends CameraFrameBase {
         const latV = this._latitudeVertices;
         const lonV = this._longitudeVertices;
         const origin = transform.unprojectBasic([0, 0], 0, true);
-        const axis = this._createAxis(transform, scale, origin);
-        const lat = this._createLatitude(0.5, latV, transform, scale, origin);
-        const lon1 = this._createLongitude(0, lonV, transform, scale, origin);
-        const lon2 = this._createLongitude(0.25, lonV, transform, scale, origin);
-        const lon3 = this._createLongitude(0.5, lonV, transform, scale, origin);
-        const lon4 = this._createLongitude(0.75, lonV, transform, scale, origin);
+        const axis =
+            this._createAxis(transform, scale, origin, color);
+        const lat =
+            this._createLatitude(0.5, latV, transform, scale, origin, color);
+        const lon1 =
+            this._createLongitude(0, lonV, transform, scale, origin, color);
+        const lon2 =
+            this._createLongitude(0.25, lonV, transform, scale, origin, color);
+        const lon3 =
+            this._createLongitude(0.5, lonV, transform, scale, origin, color);
+        const lon4 =
+            this._createLongitude(0.75, lonV, transform, scale, origin, color);
 
         this.add(axis, lat, lon1, lon2, lon3, lon4);
     }
@@ -311,9 +355,10 @@ class PanoCameraFrame extends CameraFrameBase {
     private _createAxis(
         transform: Transform,
         scale: number,
-        origin: number[]): CameraFrameLine {
+        origin: number[],
+        color: string): CameraFrameLine {
         const positions = this._calculateRelativeAxis(transform, origin);
-        return this._createCameraFrame(origin, positions, scale);
+        return this._createCameraFrame(origin, positions, scale, color);
     }
 
     private _createLatitude(
@@ -321,10 +366,11 @@ class PanoCameraFrame extends CameraFrameBase {
         numVertices: number,
         transform: Transform,
         scale: number,
-        origin: number[]): CameraFrameLine {
+        origin: number[],
+        color: string): CameraFrameLine {
         const positions = this._calculateRelativeLatitude(
             basicY, numVertices, transform, origin);
-        return this._createCameraFrame(origin, positions, scale);
+        return this._createCameraFrame(origin, positions, scale, color);
     }
 
     private _createLongitude(
@@ -332,10 +378,11 @@ class PanoCameraFrame extends CameraFrameBase {
         numVertices: number,
         transform: Transform,
         scale: number,
-        origin: number[]): CameraFrameLine {
+        origin: number[],
+        color: string): CameraFrameLine {
         const positions = this._calculateRelativeLongitude(
             basicX, numVertices, transform, origin);
-        return this._createCameraFrame(origin, positions, scale);
+        return this._createCameraFrame(origin, positions, scale, color);
     }
 }
 
@@ -679,9 +726,18 @@ export class SpatialDataScene {
 
         const scale = this._cameraSize;
         const maxSize = this._originalCameraSize;
+
+        const id = this._getId(
+            clusterKey,
+            connectedComponent,
+            sequenceKey,
+            this._cameraVisualizationMode);
+
+        const color = this._getColor(id, this._cameraVisualizationMode);
+
         const camera = !!transform.gpano ?
-            new PanoCameraFrame(maxSize, transform, scale) :
-            new PerspectiveCameraFrame(maxSize, transform, scale);
+            new PanoCameraFrame(maxSize, transform, scale, color) :
+            new PerspectiveCameraFrame(maxSize, transform, scale, color);
 
         nodeCell.cameras.add(camera);
 
@@ -693,15 +749,6 @@ export class SpatialDataScene {
         nodeCell.connectedComponents[connectedComponent].push(camera);
         nodeCell.clusters[clusterKey].push(camera);
         nodeCell.sequences[sequenceKey].push(camera);
-
-        const id: string = this._getId(
-            clusterKey,
-            connectedComponent,
-            sequenceKey,
-            this._cameraVisualizationMode);
-
-        const color: string = this._getColor(id, this._cameraVisualizationMode);
-        camera.setColor(color);
 
         nodeCell.positions.add(
             new PositionLine(transform, originalPosition));
@@ -938,7 +985,8 @@ export class SpatialDataScene {
             return;
         }
 
-        for (const cellId in this._nodes) {
+        const nodes = this._nodes;
+        for (const cellId in nodes) {
             if (!this._nodes.hasOwnProperty(cellId)) {
                 continue;
             }
@@ -946,14 +994,14 @@ export class SpatialDataScene {
             let cameras: { [id: number]: CameraFrameBase[] } = undefined;
 
             if (mode === CameraVisualizationMode.Cluster) {
-                cameras = this._nodes[cellId].clusters;
+                cameras = nodes[cellId].clusters;
             } else if (mode === CameraVisualizationMode.ConnectedComponent) {
-                cameras = this._nodes[cellId].connectedComponents;
+                cameras = nodes[cellId].connectedComponents;
             } else if (mode === CameraVisualizationMode.Sequence) {
-                cameras = this._nodes[cellId].sequences;
+                cameras = nodes[cellId].sequences;
             } else {
-                for (const child of this._nodes[cellId].cameras.children) {
-                    const color: string = this._getColor("", mode);
+                const color: string = this._getColor("", mode);
+                for (const child of nodes[cellId].cameras.children) {
                     (<CameraFrameBase>child).setColor(color);
                 }
 
