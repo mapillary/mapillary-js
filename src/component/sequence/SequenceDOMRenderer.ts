@@ -1,6 +1,6 @@
-import {merge as observableMerge, Observable, Subject, Subscription} from "rxjs";
+import { merge as observableMerge, Observable, Subject, Subscription } from "rxjs";
 
-import {filter} from "rxjs/operators";
+import { filter } from "rxjs/operators";
 import * as vd from "virtual-dom";
 
 import {
@@ -8,13 +8,13 @@ import {
     ISequenceConfiguration,
     SequenceComponent,
 } from "../../Component";
-import {EdgeDirection} from "../../Edge";
-import {AbortMapillaryError} from "../../Error";
+import { EdgeDirection } from "../../Edge";
+import { AbortMapillaryError } from "../../Error";
 import {
     IEdgeStatus,
     Node,
 } from "../../Graph";
-import {ISize} from "../../Render";
+import { ISize } from "../../Render";
 import {
     Container,
     Navigator,
@@ -102,12 +102,12 @@ export class SequenceDOMRenderer {
         }
 
         this._changingSubscription = observableMerge(
-                this._container.mouseService.documentMouseUp$,
-                this._container.touchService.touchEnd$.pipe(
-                    filter(
-                        (touchEvent: TouchEvent): boolean => {
-                            return touchEvent.touches.length === 0;
-                        })))
+            this._container.mouseService.documentMouseUp$,
+            this._container.touchService.touchEnd$.pipe(
+                filter(
+                    (touchEvent: TouchEvent): boolean => {
+                        return touchEvent.touches.length === 0;
+                    })))
             .subscribe(
                 (event: Event): void => {
                     if (this._changingSpeed) {
@@ -141,6 +141,7 @@ export class SequenceDOMRenderer {
         speed: number,
         index: number,
         max: number,
+        playEnabled: boolean,
         component: SequenceComponent,
         navigator: Navigator): vd.VNode {
 
@@ -149,7 +150,13 @@ export class SequenceDOMRenderer {
         }
 
         const stepper: vd.VNode =
-            this._createStepper(edgeStatus, configuration, containerWidth, component, navigator);
+            this._createStepper(
+                edgeStatus,
+                configuration,
+                playEnabled,
+                containerWidth,
+                component,
+                navigator);
         const controls: vd.VNode = this._createSequenceControls(containerWidth);
         const playback: vd.VNode = this._createPlaybackControls(containerWidth, speed, component, configuration);
         const timeline: vd.VNode = this._createTimelineControls(containerWidth, index, max);
@@ -334,11 +341,14 @@ export class SequenceDOMRenderer {
     private _createPlayingButton(
         nextKey: string,
         prevKey: string,
+        playEnabled: boolean,
         configuration: ISequenceConfiguration,
         component: SequenceComponent): vd.VNode {
 
-        let canPlay: boolean = configuration.direction === EdgeDirection.Next && nextKey != null ||
-            configuration.direction === EdgeDirection.Prev && prevKey != null;
+        let canPlay: boolean =
+            (configuration.direction === EdgeDirection.Next && nextKey != null) ||
+            (configuration.direction === EdgeDirection.Prev && prevKey != null);
+        canPlay = canPlay && playEnabled;
 
         let onclick: (e: Event) => void = configuration.playing ?
             (e: Event): void => { component.stop(); } :
@@ -483,10 +493,11 @@ export class SequenceDOMRenderer {
     private _createStepper(
         edgeStatus: IEdgeStatus,
         configuration: ISequenceConfiguration,
+        playEnabled: boolean,
         containerWidth: number,
         component: SequenceComponent,
         navigator: Navigator,
-        ): vd.VNode {
+    ): vd.VNode {
 
         let nextKey: string = null;
         let prevKey: string = null;
@@ -501,7 +512,8 @@ export class SequenceDOMRenderer {
             }
         }
 
-        const playingButton: vd.VNode = this._createPlayingButton(nextKey, prevKey, configuration, component);
+        const playingButton: vd.VNode = this._createPlayingButton(
+            nextKey, prevKey, playEnabled, configuration, component);
         const buttons: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, containerWidth, configuration, navigator);
         buttons.splice(1, 0, playingButton);
 

@@ -1,5 +1,5 @@
 
-import {of as observableOf, Observable, ReplaySubject, Subject, VirtualTimeScheduler} from "rxjs";
+import { of as observableOf, Observable, ReplaySubject, Subject, VirtualTimeScheduler } from "rxjs";
 
 import {
     SequenceComponent,
@@ -11,16 +11,17 @@ import {
     Node,
     Sequence,
 } from "../../../src/Graph";
-import {ISize} from "../../../src/Render";
+import { ISize } from "../../../src/Render";
 import {
     Container,
     Navigator,
 } from "../../../src/Viewer";
 
-import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
-import {MockCreator} from "../../helper/MockCreator.spec";
-import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
-import {NodeHelper} from "../../helper/NodeHelper.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
+import { MockCreator } from "../../helper/MockCreator.spec";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
+import { NodeHelper } from "../../helper/NodeHelper.spec";
+import State from "../../../src/state/State";
 
 describe("SequenceComponent.ctor", () => {
     it("should be defined", () => {
@@ -273,6 +274,7 @@ describe("SequenceComponent.activate", () => {
         const component: SequenceComponent = createComponent();
         component.activate();
 
+        (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
         (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
@@ -305,6 +307,7 @@ describe("SequenceComponent.activate", () => {
         const component: SequenceComponent = createComponent();
         component.activate();
 
+        (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
         (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
@@ -344,6 +347,7 @@ describe("SequenceComponent.activate", () => {
         const component: SequenceComponent = createComponent();
         component.activate();
 
+        (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
         (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
@@ -397,6 +401,7 @@ describe("SequenceComponent.activate", () => {
         const component: SequenceComponent = createComponent();
         component.activate();
 
+        (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
         (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
@@ -462,6 +467,7 @@ describe("SequenceComponent.activate", () => {
         const component: SequenceComponent = createComponent();
         component.activate();
 
+        (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
         (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
@@ -511,6 +517,7 @@ describe("SequenceComponent.activate", () => {
         const component: SequenceComponent = createComponent();
         component.activate();
 
+        (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
         (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
