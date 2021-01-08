@@ -1,15 +1,21 @@
-import {switchMap, withLatestFrom} from "rxjs/operators";
-import {Observable, Subscription} from "rxjs";
+import {
+    distinctUntilChanged,
+    map,
+    switchMap,
+    withLatestFrom,
+} from "rxjs/operators";
+import { Observable, Subscription } from "rxjs";
 
 import {
     IKeyboardConfiguration,
     HandlerBase,
 } from "../../Component";
-import {EdgeDirection} from "../../Edge";
+import { EdgeDirection } from "../../Edge";
 import {
     IEdgeStatus,
     Node,
 } from "../../Graph";
+import State from "../../state/State";
 
 /**
  * The `KeyPlayHandler` allows the user to control the play behavior
@@ -43,11 +49,17 @@ export class KeyPlayHandler extends HandlerBase<IKeyboardConfiguration> {
                     switchMap(
                         (node: Node): Observable<IEdgeStatus> => {
                             return node.sequenceEdges$;
-                        }))))
+                        })),
+                this._navigator.stateService.state$.pipe(
+                    map(
+                        (state: State): boolean => {
+                            return state === State.Earth;
+                        }),
+                    distinctUntilChanged())))
             .subscribe(
                 (
-                    [event, playing, direction, speed, status]:
-                    [KeyboardEvent, boolean, EdgeDirection, number, IEdgeStatus]): void => {
+                    [event, playing, direction, speed, status, earth]:
+                        [KeyboardEvent, boolean, EdgeDirection, number, IEdgeStatus, boolean]): void => {
 
                     if (event.altKey || event.ctrlKey || event.metaKey) {
                         return;
@@ -61,8 +73,8 @@ export class KeyPlayHandler extends HandlerBase<IKeyboardConfiguration> {
 
                             const newDirection: EdgeDirection = playing ?
                                 null : direction === EdgeDirection.Next ?
-                                EdgeDirection.Prev : direction === EdgeDirection.Prev ?
-                                EdgeDirection.Next : null;
+                                    EdgeDirection.Prev : direction === EdgeDirection.Prev ?
+                                        EdgeDirection.Next : null;
 
                             if (newDirection != null) {
                                 this._navigator.playService.setDirection(newDirection);
@@ -74,12 +86,14 @@ export class KeyPlayHandler extends HandlerBase<IKeyboardConfiguration> {
                                 return;
                             }
 
-                            if (playing) {
-                                this._navigator.playService.stop();
-                            } else {
-                                for (let edge of status.edges) {
-                                    if (edge.data.direction === direction) {
-                                        this._navigator.playService.play();
+                            if (!earth) {
+                                if (playing) {
+                                    this._navigator.playService.stop();
+                                } else {
+                                    for (let edge of status.edges) {
+                                        if (edge.data.direction === direction) {
+                                            this._navigator.playService.play();
+                                        }
                                     }
                                 }
                             }
