@@ -1,8 +1,8 @@
 import {
     of as observableOf,
     combineLatest as observableCombineLatest,
-    merge as observableMerge,
     concat as observableConcat,
+    merge as observableMerge,
     empty as observableEmpty,
     Observable,
     Scheduler,
@@ -15,7 +15,6 @@ import {
     share,
     skip,
     withLatestFrom,
-    first,
     map,
     switchMap,
     publishReplay,
@@ -54,6 +53,7 @@ import {
     Container,
     Navigator,
 } from "../../Viewer";
+import State from "../../state/State";
 
 /**
  * @class SequenceComponent
@@ -420,23 +420,32 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                             }));
                 }));
 
+        const earth$ = this._navigator.stateService.state$.pipe(
+            map(
+                (state: State): boolean => {
+                    return state === State.Earth;
+                }),
+            distinctUntilChanged());
+
         this._renderSubscription = observableCombineLatest(
             edgeStatus$,
             this._configuration$,
             this._containerWidth$,
             this._sequenceDOMRenderer.changed$.pipe(startWith(this._sequenceDOMRenderer)),
             this._navigator.playService.speed$,
-            position$).pipe(
+            position$,
+            earth$).pipe(
                 map(
                     (
-                        [edgeStatus, configuration, containerWidth, renderer, speed, position]:
+                        [edgeStatus, configuration, containerWidth, renderer, speed, position, earth]:
                             [
                                 IEdgeStatus,
                                 ISequenceConfiguration,
                                 number,
                                 SequenceDOMRenderer,
                                 number,
-                                { index: number, max: number }
+                                { index: number, max: number },
+                                boolean,
                             ]): IVNodeHash => {
 
                         const vNode: vd.VNode = this._sequenceDOMRenderer
@@ -447,6 +456,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                                 speed,
                                 position.index,
                                 position.max,
+                                !earth,
                                 this,
                                 this._navigator);
 
