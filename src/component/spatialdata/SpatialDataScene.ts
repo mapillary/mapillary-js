@@ -571,6 +571,9 @@ export class SpatialDataScene {
     private readonly _originalPointSize: number;
     private readonly _originalCameraSize: number;
 
+    private readonly _lineThreshold: number;
+    private readonly _largeLineThreshold: number;
+
     private _hoveredKey: string;
     private _selectedKey: string;
 
@@ -578,6 +581,9 @@ export class SpatialDataScene {
         this._rayNearScale = 1.1;
         this._originalPointSize = 2;
         this._originalCameraSize = 2;
+
+        this._lineThreshold = 0.1;
+        this._largeLineThreshold = 0.4;
 
         this._scene = !!scene ? scene : new THREE.Scene();
         const near = this._getNear(configuration.cameraSize);
@@ -589,7 +595,7 @@ export class SpatialDataScene {
                 undefined,
                 near,
                 far);
-        this._raycaster.params.Line.threshold = 0.1;
+        this._raycaster.params.Line.threshold = this._lineThreshold;
 
         this._cameraColors = {};
         this._needsRender = false;
@@ -857,6 +863,12 @@ export class SpatialDataScene {
 
         this._camerasVisible = visible;
         this._needsRender = true;
+    }
+
+    public setLargeIntersectionThreshold(large: boolean): void {
+        this._raycaster.params.Line.threshold = large ?
+            this._largeLineThreshold :
+            this._lineThreshold;
     }
 
     public setHoveredKey(key?: string): void {

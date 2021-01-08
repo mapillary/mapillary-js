@@ -171,13 +171,22 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 publishReplay(1),
                 refCount());
 
+        const earth$ = this._navigator.stateService.state$.pipe(
+            map(
+                (state: State): boolean => {
+                    return state === State.Earth;
+                }),
+            distinctUntilChanged(),
+            publishReplay(1),
+            refCount());
+
+        earth$.subscribe(
+            (earth: boolean): void => {
+                this._scene.setLargeIntersectionThreshold(earth);
+            });
+
         const hashes$: Observable<string[]> = observableCombineLatest(
-            this._navigator.stateService.state$.pipe(
-                map(
-                    (state: State): boolean => {
-                        return state === State.Earth;
-                    }),
-                distinctUntilChanged()),
+            earth$,
             hash$,
             sequencePlay$,
             direction$).pipe(
@@ -403,10 +412,11 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
         this._setHoveredSubscription = observableCombineLatest(
             this._navigator.playService.playing$,
-            mouseHover$).pipe(
+            mouseHover$,
+            earth$).pipe(
                 switchMap(
                     ([playing, mouseHover]:
-                        [boolean, IntersectEvent])
+                        [boolean, IntersectEvent, boolean])
                         : Observable<[IntersectEvent, RenderCamera, ISpatialDataConfiguration]> => {
                         return !playing && mouseHover.type === "mouseenter" ?
                             observableCombineLatest(
