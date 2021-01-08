@@ -276,6 +276,23 @@ describe("PlayService.play", () => {
         expect(stopSpy.calls.count()).toBe(1);
     });
 
+    it("should stop if earth mode is emitted", () => {
+        const playService: PlayService = new PlayService(graphService, stateService);
+
+        const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
+        spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(observableOf([]));
+
+        playService.setDirection(EdgeDirection.Next);
+
+        playService.play();
+
+        (<Subject<State>>stateService.state$).next(State.Earth);
+
+        expect(stopSpy.calls.count()).toBe(1);
+    });
+
     it("should stop if error occurs", () => {
         spyOn(console, "error").and.stub();
 

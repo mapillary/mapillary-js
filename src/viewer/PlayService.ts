@@ -29,8 +29,8 @@ import {
     mergeMap,
 } from "rxjs/operators";
 
-import {ILatLon} from "../API";
-import {EdgeDirection} from "../Edge";
+import { ILatLon } from "../API";
+import { EdgeDirection } from "../Edge";
 import {
     Graph,
     GraphCalculator,
@@ -44,6 +44,7 @@ import {
     ICurrentState,
     IFrame,
     StateService,
+    State,
 } from "../State";
 
 export class PlayService {
@@ -67,6 +68,7 @@ export class PlayService {
     private _playingSubscription: Subscription;
     private _cacheSubscription: Subscription;
     private _clearSubscription: Subscription;
+    private _earthSubscription: Subscription;
     private _graphModeSubscription: Subscription;
     private _stopSubscription: Subscription;
 
@@ -145,97 +147,97 @@ export class PlayService {
                 });
 
         this._cacheSubscription = observableCombineLatest(
-                this._stateService.currentNode$.pipe(
-                    map(
-                        (node: Node): [string, string] => {
-                            return [node.sequenceKey, node.key];
-                        }),
-                    distinctUntilChanged(
-                        undefined,
-                        ([sequenceKey, nodeKey]: [string, string]): string => {
-                            return sequenceKey;
-                        })),
-                this._graphService.graphMode$,
-                this._direction$).pipe(
-            switchMap(
-                ([[sequenceKey, nodeKey], mode, direction]: [[string, string], GraphMode, EdgeDirection]):
-                    Observable<[Sequence, EdgeDirection]> => {
+            this._stateService.currentNode$.pipe(
+                map(
+                    (node: Node): [string, string] => {
+                        return [node.sequenceKey, node.key];
+                    }),
+                distinctUntilChanged(
+                    undefined,
+                    ([sequenceKey, nodeKey]: [string, string]): string => {
+                        return sequenceKey;
+                    })),
+            this._graphService.graphMode$,
+            this._direction$).pipe(
+                switchMap(
+                    ([[sequenceKey, nodeKey], mode, direction]: [[string, string], GraphMode, EdgeDirection]):
+                        Observable<[Sequence, EdgeDirection]> => {
 
-                    if (direction !== EdgeDirection.Next && direction !== EdgeDirection.Prev) {
-                        return observableOf<[Sequence, EdgeDirection]>([undefined, direction]);
-                    }
+                        if (direction !== EdgeDirection.Next && direction !== EdgeDirection.Prev) {
+                            return observableOf<[Sequence, EdgeDirection]>([undefined, direction]);
+                        }
 
-                    const sequence$: Observable<Sequence> = (mode === GraphMode.Sequence ?
-                        this._graphService.cacheSequenceNodes$(sequenceKey, nodeKey) :
-                        this._graphService.cacheSequence$(sequenceKey)).pipe(
-                            retry(3),
-                            catchError(
-                                (error: Error): Observable<Sequence> => {
-                                    console.error(error);
+                        const sequence$: Observable<Sequence> = (mode === GraphMode.Sequence ?
+                            this._graphService.cacheSequenceNodes$(sequenceKey, nodeKey) :
+                            this._graphService.cacheSequence$(sequenceKey)).pipe(
+                                retry(3),
+                                catchError(
+                                    (error: Error): Observable<Sequence> => {
+                                        console.error(error);
 
-                                    return observableOf(undefined);
-                                }));
+                                        return observableOf(undefined);
+                                    }));
 
-                    return observableCombineLatest(
+                        return observableCombineLatest(
                             sequence$,
                             observableOf(direction));
-                }),
-            switchMap(
-                ([sequence, direction]: [Sequence, EdgeDirection]): Observable<string> => {
-                    if (sequence === undefined) {
-                        return observableEmpty();
-                    }
+                    }),
+                switchMap(
+                    ([sequence, direction]: [Sequence, EdgeDirection]): Observable<string> => {
+                        if (sequence === undefined) {
+                            return observableEmpty();
+                        }
 
-                    const sequenceKeys: string[] = sequence.keys.slice();
-                    if (direction === EdgeDirection.Prev) {
-                        sequenceKeys.reverse();
-                    }
+                        const sequenceKeys: string[] = sequence.keys.slice();
+                        if (direction === EdgeDirection.Prev) {
+                            sequenceKeys.reverse();
+                        }
 
-                    return this._stateService.currentState$.pipe(
-                        map(
-                            (frame: IFrame): [string, number] => {
-                                return [frame.state.trajectory[frame.state.trajectory.length - 1].key, frame.state.nodesAhead];
-                            }),
-                        scan(
-                            (
-                                [lastRequestKey, previousRequestKeys]: [string, string[]],
-                                [lastTrajectoryKey, nodesAhead]: [string, number]):
-                                [string, string[]] => {
+                        return this._stateService.currentState$.pipe(
+                            map(
+                                (frame: IFrame): [string, number] => {
+                                    return [frame.state.trajectory[frame.state.trajectory.length - 1].key, frame.state.nodesAhead];
+                                }),
+                            scan(
+                                (
+                                    [lastRequestKey, previousRequestKeys]: [string, string[]],
+                                    [lastTrajectoryKey, nodesAhead]: [string, number]):
+                                    [string, string[]] => {
 
-                                if (lastRequestKey === undefined) {
-                                    lastRequestKey = lastTrajectoryKey;
-                                }
+                                    if (lastRequestKey === undefined) {
+                                        lastRequestKey = lastTrajectoryKey;
+                                    }
 
-                                const lastIndex: number = sequenceKeys.length - 1;
-                                if (nodesAhead >= this._nodesAhead || sequenceKeys[lastIndex] === lastRequestKey) {
-                                    return [lastRequestKey, []];
-                                }
+                                    const lastIndex: number = sequenceKeys.length - 1;
+                                    if (nodesAhead >= this._nodesAhead || sequenceKeys[lastIndex] === lastRequestKey) {
+                                        return [lastRequestKey, []];
+                                    }
 
-                                const current: number = sequenceKeys.indexOf(lastTrajectoryKey);
-                                const start: number = sequenceKeys.indexOf(lastRequestKey) + 1;
-                                const end: number = Math.min(lastIndex, current + this._nodesAhead - nodesAhead) + 1;
+                                    const current: number = sequenceKeys.indexOf(lastTrajectoryKey);
+                                    const start: number = sequenceKeys.indexOf(lastRequestKey) + 1;
+                                    const end: number = Math.min(lastIndex, current + this._nodesAhead - nodesAhead) + 1;
 
-                                if (end <= start) {
-                                    return [lastRequestKey, []];
-                                }
+                                    if (end <= start) {
+                                        return [lastRequestKey, []];
+                                    }
 
-                                return [sequenceKeys[end - 1], sequenceKeys.slice(start, end)];
-                            },
-                            [undefined, []]),
-                        mergeMap(
-                            ([lastRequestKey, newRequestKeys]: [string, string[]]): Observable<string> => {
-                                return observableFrom(newRequestKeys);
-                            }));
-                }),
-            mergeMap(
-                (key: string): Observable<Node> => {
-                    return this._graphService.cacheNode$(key).pipe(
-                        catchError(
-                            (): Observable<Node> => {
-                                return observableEmpty();
-                            }));
-                },
-                6))
+                                    return [sequenceKeys[end - 1], sequenceKeys.slice(start, end)];
+                                },
+                                [undefined, []]),
+                            mergeMap(
+                                ([lastRequestKey, newRequestKeys]: [string, string[]]): Observable<string> => {
+                                    return observableFrom(newRequestKeys);
+                                }));
+                    }),
+                mergeMap(
+                    (key: string): Observable<Node> => {
+                        return this._graphService.cacheNode$(key).pipe(
+                            catchError(
+                                (): Observable<Node> => {
+                                    return observableEmpty();
+                                }));
+                    },
+                    6))
             .subscribe();
 
         this._playingSubscription = this._stateService.currentState$.pipe(
@@ -272,35 +274,35 @@ export class PlayService {
             switchMap(
                 ([[node, increasingTime], direction]: [[Node, boolean], EdgeDirection]): Observable<Node> => {
                     return observableZip(
-                            ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
-                                    node.sequenceEdges$ :
-                                    node.spatialEdges$).pipe(
+                        ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
+                            node.sequenceEdges$ :
+                            node.spatialEdges$).pipe(
                                 first(
                                     (status: IEdgeStatus): boolean => {
                                         return status.cached;
                                     }),
                                 timeout(15000)),
-                            observableOf<EdgeDirection>(direction)).pipe(
-                        map(
-                            ([s, d]: [IEdgeStatus, EdgeDirection]): string => {
-                                for (let edge of s.edges) {
-                                    if (edge.data.direction === d) {
-                                        return edge.to;
+                        observableOf<EdgeDirection>(direction)).pipe(
+                            map(
+                                ([s, d]: [IEdgeStatus, EdgeDirection]): string => {
+                                    for (let edge of s.edges) {
+                                        if (edge.data.direction === d) {
+                                            return edge.to;
+                                        }
                                     }
-                                }
 
-                                return null;
-                            }),
-                        switchMap(
-                            (key: string): Observable<Node> => {
-                                return key != null ?
-                                    this._graphService.cacheNode$(key) :
-                                    this._bridge$(node, increasingTime).pipe(
-                                        filter(
-                                            (n: Node): boolean => {
-                                                return !!n;
-                                            }));
-                            }));
+                                    return null;
+                                }),
+                            switchMap(
+                                (key: string): Observable<Node> => {
+                                    return key != null ?
+                                        this._graphService.cacheNode$(key) :
+                                        this._bridge$(node, increasingTime).pipe(
+                                            filter(
+                                                (n: Node): boolean => {
+                                                    return !!n;
+                                                }));
+                                }));
                 }))
             .subscribe(
                 (node: Node): void => {
@@ -343,62 +345,62 @@ export class PlayService {
                 }));
 
         this._stopSubscription = observableCombineLatest(
-                currentLastNodes$,
-                this._direction$).pipe(
-            switchMap(
-                ([node, direction]: [Node, EdgeDirection]): Observable<boolean> => {
-                    const edgeStatus$: Observable<IEdgeStatus> = (
-                        [EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
-                            node.sequenceEdges$ :
-                            node.spatialEdges$).pipe(
-                        first(
-                            (status: IEdgeStatus): boolean => {
-                                return status.cached;
-                            }),
-                        timeout(15000),
-                        catchError(
-                            (error: Error): Observable<IEdgeStatus> => {
-                                console.error(error);
+            currentLastNodes$,
+            this._direction$).pipe(
+                switchMap(
+                    ([node, direction]: [Node, EdgeDirection]): Observable<boolean> => {
+                        const edgeStatus$: Observable<IEdgeStatus> = (
+                            [EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
+                                node.sequenceEdges$ :
+                                node.spatialEdges$).pipe(
+                                    first(
+                                        (status: IEdgeStatus): boolean => {
+                                            return status.cached;
+                                        }),
+                                    timeout(15000),
+                                    catchError(
+                                        (error: Error): Observable<IEdgeStatus> => {
+                                            console.error(error);
 
-                                return observableOf<IEdgeStatus>({ cached: false, edges: [] });
-                            }));
+                                            return observableOf<IEdgeStatus>({ cached: false, edges: [] });
+                                        }));
 
-                    return observableCombineLatest(
+                        return observableCombineLatest(
                             observableOf(direction),
                             edgeStatus$).pipe(
-                        map(
-                            ([d, es]: [EdgeDirection, IEdgeStatus]): boolean => {
-                                for (const edge of es.edges) {
-                                    if (edge.data.direction === d) {
-                                        return true;
-                                    }
-                                }
+                                map(
+                                    ([d, es]: [EdgeDirection, IEdgeStatus]): boolean => {
+                                        for (const edge of es.edges) {
+                                            if (edge.data.direction === d) {
+                                                return true;
+                                            }
+                                        }
 
-                                return false;
-                            }));
-                }),
-            mergeMap(
-                (hasEdge: boolean): Observable<boolean> => {
-                    if (hasEdge || !this._bridging$) {
-                        return observableOf(hasEdge);
-                    }
+                                        return false;
+                                    }));
+                    }),
+                mergeMap(
+                    (hasEdge: boolean): Observable<boolean> => {
+                        if (hasEdge || !this._bridging$) {
+                            return observableOf(hasEdge);
+                        }
 
-                    return this._bridging$.pipe(
-                        map(
-                            (node: Node): boolean => {
-                                return node != null;
-                            }),
-                        catchError(
-                            (error: Error): Observable<boolean> => {
-                                console.error(error);
+                        return this._bridging$.pipe(
+                            map(
+                                (node: Node): boolean => {
+                                    return node != null;
+                                }),
+                            catchError(
+                                (error: Error): Observable<boolean> => {
+                                    console.error(error);
 
-                                return observableOf<boolean>(false);
-                            }));
-                }),
-            first(
-                (hasEdge: boolean): boolean => {
-                    return !hasEdge;
-                }))
+                                    return observableOf<boolean>(false);
+                                }));
+                    }),
+                first(
+                    (hasEdge: boolean): boolean => {
+                        return !hasEdge;
+                    }))
             .subscribe(
                 undefined,
                 undefined,
@@ -406,6 +408,26 @@ export class PlayService {
 
         if (this._stopSubscription.closed) {
             this._stopSubscription = null;
+        }
+
+        this._earthSubscription = this._stateService.state$
+            .pipe(
+                map(
+                    (state: State): boolean => {
+                        return state === State.Earth;
+                    }),
+                distinctUntilChanged(),
+                first(
+                    (earth: boolean): boolean => {
+                        return earth;
+                    }))
+            .subscribe(
+                undefined,
+                undefined,
+                (): void => { this.stop(); });
+
+        if (this._earthSubscription.closed) {
+            this._earthSubscription = null;
         }
     }
 
@@ -439,6 +461,14 @@ export class PlayService {
             }
 
             this._stopSubscription = null;
+        }
+
+        if (!!this._earthSubscription) {
+            if (!this._earthSubscription.closed) {
+                this._earthSubscription.unsubscribe();
+            }
+
+            this._earthSubscription = null;
         }
 
         this._graphModeSubscription.unsubscribe();
