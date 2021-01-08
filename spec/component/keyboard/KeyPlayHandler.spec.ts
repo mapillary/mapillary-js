@@ -1,10 +1,10 @@
-import {Subject} from "rxjs";
+import { Subject } from "rxjs";
 
-import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
-import {EventHelper} from "../../helper/EventHelper.spec";
-import {MockCreator} from "../../helper/MockCreator.spec";
-import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
-import {NodeHelper} from "../../helper/NodeHelper.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
+import { EventHelper } from "../../helper/EventHelper.spec";
+import { MockCreator } from "../../helper/MockCreator.spec";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
+import { NodeHelper } from "../../helper/NodeHelper.spec";
 
 import {
     Component,
@@ -20,6 +20,7 @@ import {
     Container,
     Navigator,
 } from "../../../src/Viewer";
+import State from "../../../src/state/State";
 
 interface ITestConfiguration extends IComponentConfiguration {
     test: boolean;
@@ -99,6 +100,7 @@ describe("KeyPlayHandler.enable", () => {
         (<Subject<boolean>>navigatorMock.playService.playing$).next(true);
         (<Subject<EdgeDirection>>navigatorMock.playService.direction$).next(EdgeDirection.Next);
         (<Subject<number>>navigatorMock.playService.speed$).next(0.5);
+        (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
 
         const node: Node = nodeHelper.createNode();
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
@@ -136,6 +138,7 @@ describe("KeyPlayHandler.enable", () => {
         (<Subject<boolean>>navigatorMock.playService.playing$).next(true);
         (<Subject<EdgeDirection>>navigatorMock.playService.direction$).next(EdgeDirection.Next);
         (<Subject<number>>navigatorMock.playService.speed$).next(0.5);
+        (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
 
         const node: Node = nodeHelper.createNode();
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
@@ -148,6 +151,7 @@ describe("KeyPlayHandler.enable", () => {
         const increaseKeyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keyDown", { key: ">" });
         const increasePreventDefaultSpy: jasmine.Spy = spyOn(increaseKeyboardEvent, "preventDefault").and.stub();
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(increaseKeyboardEvent);
+
         expect(increasePreventDefaultSpy.calls.count()).toBe(1);
 
         expect(setSpeedSpy.calls.count()).toBe(1);
@@ -166,6 +170,7 @@ describe("KeyPlayHandler.enable", () => {
         (<Subject<boolean>>navigatorMock.playService.playing$).next(true);
         (<Subject<EdgeDirection>>navigatorMock.playService.direction$).next(EdgeDirection.Next);
         (<Subject<number>>navigatorMock.playService.speed$).next(0.5);
+        (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
 
         const node: Node = nodeHelper.createNode();
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
@@ -199,6 +204,7 @@ describe("KeyPlayHandler.enable", () => {
     it("should play when stopped edge direction exist and stop when playing", () => {
         const playSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.playService.play;
         const stopSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.playService.stop;
+        (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
 
         const node: Node = nodeHelper.createNode();
         const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
@@ -223,7 +229,7 @@ describe("KeyPlayHandler.enable", () => {
             edges: [{
                 data: { direction: EdgeDirection.Next, worldMotionAzimuth: 0 },
                 from: node.key,
-                to:  "toKey",
+                to: "toKey",
             }],
         });
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(spacebarKeyboardEvent);
@@ -237,5 +243,49 @@ describe("KeyPlayHandler.enable", () => {
         expect(spacebarPreventDefaultSpy.calls.count()).toBe(3);
         expect(playSpy.calls.count()).toBe(1);
         expect(stopSpy.calls.count()).toBe(1);
+    });
+
+    it("should not start play when in earth mode", () => {
+        const playSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.playService.play;
+        const stopSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.playService.stop;
+        (<Subject<State>>navigatorMock.stateService.state$).next(State.Earth);
+
+        const node: Node = nodeHelper.createNode();
+        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
+        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
+        sequenceEdgesSubject.next({ cached: false, edges: [] });
+
+        (<Subject<boolean>>navigatorMock.playService.playing$).next(false);
+        (<Subject<EdgeDirection>>navigatorMock.playService.direction$).next(EdgeDirection.Next);
+        (<Subject<number>>navigatorMock.playService.speed$).next(0.5);
+
+        const spacebarKeyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keyDown", { key: " " });
+        const spacebarPreventDefaultSpy: jasmine.Spy = spyOn(spacebarKeyboardEvent, "preventDefault").and.stub();
+        (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(spacebarKeyboardEvent);
+        expect(spacebarPreventDefaultSpy.calls.count()).toBe(1);
+        expect(playSpy.calls.count()).toBe(0);
+        expect(stopSpy.calls.count()).toBe(0);
+
+        (<Subject<EdgeDirection>>navigatorMock.playService.direction$).next(EdgeDirection.Next);
+        sequenceEdgesSubject.next({
+            cached: true,
+            edges: [{
+                data: { direction: EdgeDirection.Next, worldMotionAzimuth: 0 },
+                from: node.key,
+                to: "toKey",
+            }],
+        });
+        (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(spacebarKeyboardEvent);
+        expect(spacebarPreventDefaultSpy.calls.count()).toBe(2);
+        expect(playSpy.calls.count()).toBe(0);
+        expect(stopSpy.calls.count()).toBe(0);
+
+        sequenceEdgesSubject.next({ cached: false, edges: [] });
+        (<Subject<boolean>>navigatorMock.playService.playing$).next(true);
+        (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(spacebarKeyboardEvent);
+        expect(spacebarPreventDefaultSpy.calls.count()).toBe(3);
+        expect(playSpy.calls.count()).toBe(0);
+        expect(stopSpy.calls.count()).toBe(0);
     });
 });
