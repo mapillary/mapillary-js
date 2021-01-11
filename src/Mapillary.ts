@@ -33,3 +33,6 @@ export { SpatialDataComponent };
 
 import * as API from "./api/APIExport";
 export { API };
+
+import * as Geo from "./geo/GeoExport";
+export { Geo };

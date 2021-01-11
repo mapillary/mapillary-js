@@ -71,6 +71,7 @@
         "./src/component/BearingComponent.ts",
         "./src/error/AbortMapillaryError.ts",
         "./src/error/MapillaryError.ts",
+        "./src/geo/GeoCoords.ts",
         "./src/graph/edge/interfaces/IEdge.ts",
         "./src/graph/edge/interfaces/IEdgeData.ts",
         "./src/graph/edge/EdgeDirection.ts",
