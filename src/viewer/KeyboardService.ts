@@ -1,4 +1,4 @@
-import {fromEvent as observableFromEvent, Observable} from "rxjs";
+import { fromEvent as observableFromEvent, Observable } from "rxjs";
 
 export class KeyboardService {
     private _keyDown$: Observable<KeyboardEvent>;

@@ -1,5 +1,5 @@
 import { first, switchMap, distinctUntilChanged } from "rxjs/operators";
-import { Observable } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 
 import { Node } from "../Graph";
 import {
@@ -26,6 +26,7 @@ export class ComponentController {
     private _options: IComponentOptions;
     private _key: string;
     private _navigable: boolean;
+    private _configurationSubscription: Subscription;
 
     constructor(
         container: Container,
@@ -95,6 +96,14 @@ export class ComponentController {
         this._coverComponent.configure({ state: CoverState.Loading });
     }
 
+    public remove(): void {
+        this._componentService.remove();
+
+        if (this._configurationSubscription != null) {
+            this._configurationSubscription.unsubscribe();
+        }
+    }
+
     private _initializeComponents(): void {
         let options: IComponentOptions = this._options;
 
@@ -141,54 +150,55 @@ export class ComponentController {
     }
 
     private _subscribeCoverComponent(): void {
-        this._coverComponent.configuration$.pipe(
-            distinctUntilChanged(
-                undefined,
-                (c: ICoverConfiguration): CoverState => {
-                    return c.state;
-                }))
-            .subscribe((conf: ICoverConfiguration) => {
-                if (conf.state === CoverState.Loading) {
-                    this._navigator.stateService.currentKey$.pipe(
-                        first(),
-                        switchMap(
-                            (key: string): Observable<Node> => {
-                                const keyChanged: boolean = key == null || key !== conf.key;
+        this._configurationSubscription =
+            this._coverComponent.configuration$.pipe(
+                distinctUntilChanged(
+                    undefined,
+                    (c: ICoverConfiguration): CoverState => {
+                        return c.state;
+                    }))
+                .subscribe((conf: ICoverConfiguration) => {
+                    if (conf.state === CoverState.Loading) {
+                        this._navigator.stateService.currentKey$.pipe(
+                            first(),
+                            switchMap(
+                                (key: string): Observable<Node> => {
+                                    const keyChanged: boolean = key == null || key !== conf.key;
 
-                                if (keyChanged) {
-                                    this._setNavigable(false);
-                                }
+                                    if (keyChanged) {
+                                        this._setNavigable(false);
+                                    }
 
-                                return keyChanged ?
-                                    this._navigator.moveToKey$(conf.key) :
-                                    this._navigator.stateService.currentNode$.pipe(
-                                        first());
-                            }))
-                        .subscribe(
-                            (): void => {
-                                this._navigator.stateService.start();
-                                this._navigator.cacheService.start();
-                                this._navigator.panService.start();
-                                this._observer.startEmit();
-                                this._coverComponent.configure({ state: CoverState.Hidden });
-                                this._componentService.deactivateCover();
-                                this._setNavigable(true);
-                            },
-                            (error: Error): void => {
-                                console.error("Failed to deactivate cover.", error);
+                                    return keyChanged ?
+                                        this._navigator.moveToKey$(conf.key) :
+                                        this._navigator.stateService.currentNode$.pipe(
+                                            first());
+                                }))
+                            .subscribe(
+                                (): void => {
+                                    this._navigator.stateService.start();
+                                    this._navigator.cacheService.start();
+                                    this._navigator.panService.start();
+                                    this._observer.startEmit();
+                                    this._coverComponent.configure({ state: CoverState.Hidden });
+                                    this._componentService.deactivateCover();
+                                    this._setNavigable(true);
+                                },
+                                (error: Error): void => {
+                                    console.error("Failed to deactivate cover.", error);
 
-                                this._coverComponent.configure({ state: CoverState.Visible });
-                            });
-                } else if (conf.state === CoverState.Visible) {
-                    this._observer.stopEmit();
-                    this._navigator.stateService.stop();
-                    this._navigator.cacheService.stop();
-                    this._navigator.playService.stop();
-                    this._navigator.panService.stop();
-                    this._componentService.activateCover();
-                    this._setNavigable(conf.key == null);
-                }
-            });
+                                    this._coverComponent.configure({ state: CoverState.Visible });
+                                });
+                    } else if (conf.state === CoverState.Visible) {
+                        this._observer.stopEmit();
+                        this._navigator.stateService.stop();
+                        this._navigator.cacheService.stop();
+                        this._navigator.playService.stop();
+                        this._navigator.panService.stop();
+                        this._componentService.activateCover();
+                        this._setNavigable(conf.key == null);
+                    }
+                });
     }
 
     private _uFalse<TConfiguration extends IComponentConfiguration>(option: boolean | TConfiguration, name: string): void {

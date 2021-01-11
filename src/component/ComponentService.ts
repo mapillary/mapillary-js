@@ -1,6 +1,6 @@
-import {ArgumentMapillaryError} from "../Error";
-import {Container, Navigator} from "../Viewer";
-import {CoverComponent, Component, IComponentConfiguration} from "../Component";
+import { ArgumentMapillaryError } from "../Error";
+import { Container, Navigator } from "../Viewer";
+import { CoverComponent, Component, IComponentConfiguration } from "../Component";
 
 interface IActiveComponent {
     active: boolean;
@@ -9,13 +9,13 @@ interface IActiveComponent {
 
 export class ComponentService {
     public static registeredCoverComponent: typeof CoverComponent;
-    public static registeredComponents: {[key: string]: { new (...args: any[]): Component<IComponentConfiguration>; }} = {};
+    public static registeredComponents: { [key: string]: { new(...args: any[]): Component<IComponentConfiguration>; } } = {};
 
     private _coverActivated: boolean;
     private _coverComponent: CoverComponent;
-    private _components: {[key: string]: IActiveComponent} = {};
+    private _components: { [key: string]: IActiveComponent } = {};
 
-    constructor (container: Container, navigator: Navigator) {
+    constructor(container: Container, navigator: Navigator) {
         for (const componentName in ComponentService.registeredComponents) {
             if (!ComponentService.registeredComponents.hasOwnProperty(componentName)) {
                 continue;
@@ -36,7 +36,7 @@ export class ComponentService {
     }
 
     public static register<T extends Component<IComponentConfiguration>>(
-        component: { componentName: string, new (...args: any[]): T; }): void {
+        component: { componentName: string, new(...args: any[]): T; }): void {
         if (ComponentService.registeredComponents[component.componentName] === undefined) {
             ComponentService.registeredComponents[component.componentName] = component;
         }
@@ -119,6 +119,18 @@ export class ComponentService {
 
     public getCover(): CoverComponent {
         return this._coverComponent;
+    }
+
+    public remove(): void {
+        this._coverComponent.deactivate();
+
+        for (const componentName in this._components) {
+            if (!this._components.hasOwnProperty(componentName)) {
+                continue;
+            }
+
+            this._components[componentName].component.deactivate();
+        }
     }
 
     private _checkName(name: string): void {

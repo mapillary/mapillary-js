@@ -1,10 +1,10 @@
-import {refCount, publishReplay, scan, startWith} from "rxjs/operators";
+import { refCount, publishReplay, scan, startWith } from "rxjs/operators";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {Observable, Subject} from "rxjs";
+import { Observable, Subject, Subscription } from "rxjs";
 
-import {Alignment, ISpriteAtlas} from "../Viewer";
+import { Alignment, ISpriteAtlas } from "../Viewer";
 
 class SpriteAtlas implements ISpriteAtlas {
     private _image: HTMLImageElement;
@@ -170,6 +170,8 @@ export class SpriteService {
     private _spriteAtlasOperation$: Subject<ISpriteAtlasOperation>;
     private _spriteAtlas$: Observable<SpriteAtlas>;
 
+    private _atlasSubscription: Subscription;
+
     constructor(sprite?: string) {
         this._retina = window.devicePixelRatio > 1;
 
@@ -188,7 +190,8 @@ export class SpriteService {
             publishReplay(1),
             refCount());
 
-        this._spriteAtlas$.subscribe(() => { /*noop*/ });
+        this._atlasSubscription = this._spriteAtlas$
+            .subscribe(() => { /*noop*/ });
 
         if (sprite == null) {
             return;
@@ -227,11 +230,11 @@ export class SpriteService {
             let json: ISprites = <ISprites>JSON.parse(jsonXmlHTTP.response);
 
             this._spriteAtlasOperation$.next(
-                    (atlas: SpriteAtlas): SpriteAtlas => {
-                        atlas.json = json;
+                (atlas: SpriteAtlas): SpriteAtlas => {
+                    atlas.json = json;
 
-                        return atlas;
-                    });
+                    return atlas;
+                });
         };
 
         jsonXmlHTTP.onerror = (error: Event) => {
@@ -243,6 +246,10 @@ export class SpriteService {
 
     public get spriteAtlas$(): Observable<ISpriteAtlas> {
         return this._spriteAtlas$;
+    }
+
+    public dispose(): void {
+        this._atlasSubscription.unsubscribe();
     }
 }
 

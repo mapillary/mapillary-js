@@ -46,6 +46,7 @@ import {
     StateService,
     State,
 } from "../State";
+import SubscriptionHolder from "../utils/SubscriptionHolder";
 
 export class PlayService {
     public static readonly sequenceSpeed: number = 0.54;
@@ -71,6 +72,7 @@ export class PlayService {
     private _earthSubscription: Subscription;
     private _graphModeSubscription: Subscription;
     private _stopSubscription: Subscription;
+    private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
     private _bridging$: Observable<Node>;
 
@@ -79,13 +81,15 @@ export class PlayService {
         this._stateService = stateService;
         this._graphCalculator = !!graphCalculator ? graphCalculator : new GraphCalculator();
 
+        const subs = this._subscriptions;
+
         this._directionSubject$ = new Subject<EdgeDirection>();
         this._direction$ = this._directionSubject$.pipe(
             startWith(EdgeDirection.Next),
             publishReplay(1),
             refCount());
 
-        this._direction$.subscribe();
+        subs.push(this._direction$.subscribe());
 
         this._playing = false;
         this._playingSubject$ = new Subject<boolean>();
@@ -94,7 +98,7 @@ export class PlayService {
             publishReplay(1),
             refCount());
 
-        this._playing$.subscribe();
+        subs.push(this._playing$.subscribe());
 
         this._speed = 0.5;
         this._speedSubject$ = new Subject<number>();
@@ -103,7 +107,7 @@ export class PlayService {
             publishReplay(1),
             refCount());
 
-        this._speed$.subscribe();
+        subs.push(this._speed$.subscribe());
 
         this._nodesAhead = this._mapNodesAhead(this._mapSpeed(this._speed));
 
@@ -429,6 +433,11 @@ export class PlayService {
         if (this._earthSubscription.closed) {
             this._earthSubscription = null;
         }
+    }
+
+    public dispose(): void {
+        this.stop();
+        this._subscriptions.unsubscribe();
     }
 
     public setDirection(direction: EdgeDirection): void {

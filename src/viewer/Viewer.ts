@@ -234,6 +234,15 @@ export class Viewer extends EventEmitter {
     public static povchanged: string = "povchanged";
 
     /**
+     * Fired when the viewer is removed. After this event is emitted
+     * you must not call any methods on the viewer.
+     *
+     * @event
+     * @type  {@link IViewerEvent} event - The event object.
+     */
+    public static removed: string = "removed";
+
+    /**
      * Fired every time the sequence edges of the current node changes.
      * @event
      * @type  {@link IEdgeStatus} status - The edge status object.
@@ -775,6 +784,33 @@ export class Viewer extends EventEmitter {
                             reject(error);
                         });
             });
+    }
+
+    /**
+     * Clean up and release all internal resources associated with
+     * this viewer.
+     *
+     * @description This includes DOM elements, event bindings, and
+     * WebGL resources.
+     *
+     * Use this method when you are done using the viewer and wish to
+     * ensure that it no longer consumes browser resources. Afterwards,
+     * you must not call any other methods on the viewer.
+     *
+     * @fires Viewer#removed
+     *
+     * @example
+     * ```
+     * viewer.remove();
+     * ```
+     */
+    public remove(): void {
+        this._observer.dispose();
+        this._componentController.remove();
+        this._navigator.dispose();
+        this._container.remove();
+
+        this.fire(Viewer.removed, { type: Viewer.removed });
     }
 
     /**

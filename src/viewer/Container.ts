@@ -82,6 +82,28 @@ export class Container {
     public get domContainer(): HTMLElement {
         return this._domContainer;
     }
+
+    public remove(): void {
+        this.spriteService.dispose();
+        this.touchService.dispose();
+        this.mouseService.dispose();
+
+        this.glRenderer.remove();
+        this.domRenderer.remove();
+
+        this.renderService.dispose();
+
+        this._removeNode(this._canvasContainer);
+        this._removeNode(this._domContainer);
+
+        this._container.classList.remove('mapillary-js');
+    }
+
+    private _removeNode(node: Node): void {
+        if (node.parentNode) {
+            node.parentNode.removeChild(node);
+        }
+    }
 }
 
 export default Container;

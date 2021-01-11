@@ -1,4 +1,4 @@
-import {combineLatest as observableCombineLatest} from "rxjs";
+import { combineLatest as observableCombineLatest, Subscription } from "rxjs";
 
 import {
     scan,
@@ -12,10 +12,11 @@ import {
 
 import * as vd from "virtual-dom";
 
-import {Observable, Subject} from "rxjs";
+import { Observable, Subject } from "rxjs";
 
-import {ISize, IVNodeHash, RenderMode, RenderService} from "../Render";
-import {IFrame} from "../State";
+import { ISize, IVNodeHash, RenderMode, RenderService } from "../Render";
+import { IFrame } from "../State";
+import SubscriptionHolder from "../utils/SubscriptionHolder";
 
 interface INodePatch {
     vnode: vd.VNode;
@@ -48,7 +49,8 @@ export class DOMRenderer {
     private _renderService: RenderService;
     private _currentFrame$: Observable<IFrame>;
 
-    private _adaptiveOperation$: Subject<IAdaptiveOperation> = new Subject<IAdaptiveOperation>();
+    private _adaptiveOperation$: Subject<IAdaptiveOperation> =
+        new Subject<IAdaptiveOperation>();
     private _offset$: Observable<IOffset>;
 
     private _element$: Observable<Element>;
@@ -57,11 +59,18 @@ export class DOMRenderer {
     private _render$: Subject<IVNodeHash> = new Subject<IVNodeHash>();
     private _renderAdaptive$: Subject<IVNodeHash> = new Subject<IVNodeHash>();
 
-    constructor (element: HTMLElement, renderService: RenderService, currentFrame$: Observable<IFrame>) {
+    private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
+
+    constructor(
+        element: HTMLElement,
+        renderService: RenderService,
+        currentFrame$: Observable<IFrame>) {
         this._renderService = renderService;
         this._currentFrame$ = currentFrame$;
 
-        let rootNode: Element = vd.create(vd.h("div.domRenderer", []));
+        const subs = this._subscriptions;
+
+        const rootNode = vd.create(vd.h("div.domRenderer", []));
         element.appendChild(rootNode);
 
         this._offset$ = this._adaptiveOperation$.pipe(
@@ -81,11 +90,11 @@ export class DOMRenderer {
                 }),
             map(
                 (adaptive: IAdaptive): IOffset => {
-                    let elementAspect: number = adaptive.elementWidth / adaptive.elementHeight;
-                    let ratio: number = adaptive.imageAspect / elementAspect;
+                    const elementAspect = adaptive.elementWidth / adaptive.elementHeight;
+                    const ratio = adaptive.imageAspect / elementAspect;
 
-                    let verticalOffset: number = 0;
-                    let horizontalOffset: number = 0;
+                    let verticalOffset = 0;
+                    let horizontalOffset = 0;
 
                     if (adaptive.renderMode === RenderMode.Letterbox) {
                         if (adaptive.imageAspect > elementAspect) {
@@ -109,7 +118,7 @@ export class DOMRenderer {
                     };
                 }));
 
-        this._currentFrame$.pipe(
+        const imageAspectSubscription = this._currentFrame$.pipe(
             filter(
                 (frame: IFrame): boolean => {
                     return frame.state.currentNode != null;
@@ -126,7 +135,7 @@ export class DOMRenderer {
                     return frame.state.currentTransform.basicAspect;
                 }),
             map(
-                 (aspect: number): IAdaptiveOperation => {
+                (aspect: number): IAdaptiveOperation => {
                     return (adaptive: IAdaptive): IAdaptive => {
                         adaptive.imageAspect = aspect;
 
@@ -135,49 +144,49 @@ export class DOMRenderer {
                 }))
             .subscribe(this._adaptiveOperation$);
 
-        observableCombineLatest(
-                this._renderAdaptive$.pipe(
-                    scan(
-                        (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
-                            if (vNodeHash.vnode == null) {
-                                delete vNodeHashes[vNodeHash.name];
-                            } else {
-                                vNodeHashes[vNodeHash.name] = vNodeHash.vnode;
+        const renderAdaptiveSubscription = observableCombineLatest(
+            this._renderAdaptive$.pipe(
+                scan(
+                    (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
+                        if (vNodeHash.vnode == null) {
+                            delete vNodeHashes[vNodeHash.name];
+                        } else {
+                            vNodeHashes[vNodeHash.name] = vNodeHash.vnode;
+                        }
+                        return vNodeHashes;
+                    },
+                    {})),
+            this._offset$).pipe(
+                map(
+                    (vo: [IVNodeHashes, IOffset]): IVNodeHash => {
+                        const vNodes: vd.VNode[] = [];
+                        const hashes: IVNodeHashes = vo[0];
+                        for (const name in hashes) {
+                            if (!hashes.hasOwnProperty(name)) {
+                                continue;
                             }
-                            return vNodeHashes;
-                        },
-                        {})),
-                this._offset$).pipe(
-            map(
-                (vo: [IVNodeHashes, IOffset]): IVNodeHash => {
-                    let vNodes: vd.VNode[] = [];
-                    let hashes: IVNodeHashes = vo[0];
-                    for (const name in hashes) {
-                        if (!hashes.hasOwnProperty(name)) {
-                            continue;
+
+                            vNodes.push(hashes[name]);
                         }
 
-                        vNodes.push(hashes[name]);
-                    }
+                        const offset = vo[1];
 
-                    let offset: IOffset = vo[1];
+                        const properties: vd.createProperties = {
+                            style: {
+                                bottom: offset.bottom + "px",
+                                left: offset.left + "px",
+                                "pointer-events": "none",
+                                position: "absolute",
+                                right: offset.right + "px",
+                                top: offset.top + "px",
+                            },
+                        };
 
-                    let properties: vd.createProperties = {
-                        style: {
-                            bottom: offset.bottom + "px",
-                            left: offset.left + "px",
-                            "pointer-events": "none",
-                            position: "absolute",
-                            right: offset.right + "px",
-                            top: offset.top + "px",
-                        },
-                    };
-
-                    return {
-                        name: "adaptiveDomRenderer",
-                        vnode: vd.h("div.adaptiveDomRenderer", properties, vNodes),
-                    };
-                }))
+                        return {
+                            name: "adaptiveDomRenderer",
+                            vnode: vd.h("div.adaptiveDomRenderer", properties, vNodes),
+                        };
+                    }))
             .subscribe(this._render$);
 
         this._vNode$ = this._render$.pipe(
@@ -194,7 +203,7 @@ export class DOMRenderer {
                 {}),
             map(
                 (hashes: IVNodeHashes): vd.VNode => {
-                    let vNodes: vd.VNode[] = [];
+                    const vNodes: vd.VNode[] = [];
                     for (const name in hashes) {
                         if (!hashes.hasOwnProperty(name)) {
                             continue;
@@ -213,7 +222,7 @@ export class DOMRenderer {
                     nodePatch.vnode = vNode;
                     return nodePatch;
                 },
-                {vnode: vd.h("div.domRenderer", []), vpatch: null}),
+                { vnode: vd.h("div.domRenderer", []), vpatch: null }),
             pluck<INodePatch, vd.VPatch[]>("vpatch"));
 
         this._element$ = this._vPatch$.pipe(
@@ -225,9 +234,11 @@ export class DOMRenderer {
             publishReplay(1),
             refCount());
 
-        this._element$.subscribe(() => { /*noop*/ });
+        subs.push(imageAspectSubscription);
+        subs.push(renderAdaptiveSubscription);
+        subs.push(this._element$.subscribe(() => { /*noop*/ }));
 
-        this._renderService.size$.pipe(
+        subs.push(this._renderService.size$.pipe(
             map(
                 (size: ISize): IAdaptiveOperation => {
                     return (adaptive: IAdaptive): IAdaptive => {
@@ -237,9 +248,9 @@ export class DOMRenderer {
                         return adaptive;
                     };
                 }))
-            .subscribe(this._adaptiveOperation$);
+            .subscribe(this._adaptiveOperation$));
 
-        this._renderService.renderMode$.pipe(
+        subs.push(this._renderService.renderMode$.pipe(
             map(
                 (renderMode: RenderMode): IAdaptiveOperation => {
                     return (adaptive: IAdaptive): IAdaptive => {
@@ -248,7 +259,7 @@ export class DOMRenderer {
                         return adaptive;
                     };
                 }))
-            .subscribe(this._adaptiveOperation$);
+            .subscribe(this._adaptiveOperation$));
     }
 
     public get element$(): Observable<Element> {
@@ -264,8 +275,12 @@ export class DOMRenderer {
     }
 
     public clear(name: string): void {
-        this._renderAdaptive$.next({name: name, vnode: null});
-        this._render$.next({name: name, vnode: null});
+        this._renderAdaptive$.next({ name: name, vnode: null });
+        this._render$.next({ name: name, vnode: null });
+    }
+
+    public remove(): void {
+        this._subscriptions.unsubscribe();
     }
 }
 

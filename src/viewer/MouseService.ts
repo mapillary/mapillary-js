@@ -7,6 +7,7 @@ import {
     BehaviorSubject,
     Observable,
     Subject,
+    Subscription,
 } from "rxjs";
 
 import {
@@ -30,6 +31,7 @@ import {
     IMouseClaim,
     IMouseDeferPixels,
 } from "../Viewer";
+import SubscriptionHolder from "../utils/SubscriptionHolder";
 
 export class MouseService {
     private _activeSubject$: BehaviorSubject<boolean>;
@@ -76,12 +78,15 @@ export class MouseService {
     private _wheelOwner$: Observable<string>;
 
     private _windowBlur$: Observable<FocusEvent>;
+    private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
     constructor(
         container: EventTarget,
         canvasContainer: EventTarget,
         domContainer: EventTarget,
         doc: EventTarget) {
+
+        const subs = this._subscriptions;
 
         this._activeSubject$ = new BehaviorSubject<boolean>(false);
 
@@ -126,7 +131,7 @@ export class MouseService {
             publishReplay(1),
             refCount());
 
-        this._deferPixels$.subscribe((): void => { /* noop */ });
+        subs.push(this._deferPixels$.subscribe((): void => { /* noop */ }));
 
         this._documentMouseMove$ = observableFromEvent<MouseEvent>(doc, "mousemove");
         this._documentMouseUp$ = observableFromEvent<MouseEvent>(doc, "mouseup");
@@ -168,7 +173,7 @@ export class MouseService {
                     }),
                 share());
 
-        observableMerge(
+        subs.push(observableMerge(
             this._domMouseDown$,
             this._domMouseMove$,
             this._dblClick$,
@@ -176,7 +181,7 @@ export class MouseService {
             .subscribe(
                 (event: MouseEvent): void => {
                     event.preventDefault();
-                });
+                }));
 
         this._mouseWheel$ = observableMerge(
             observableFromEvent<WheelEvent>(canvasContainer, "wheel"),
@@ -244,15 +249,15 @@ export class MouseService {
                 }),
             share());
 
-        this._mouseDragStart$.subscribe();
-        this._mouseDrag$.subscribe();
-        this._mouseDragEnd$.subscribe();
+        subs.push(this._mouseDragStart$.subscribe());
+        subs.push(this._mouseDrag$.subscribe());
+        subs.push(this._mouseDragEnd$.subscribe());
 
-        this._domMouseDragStart$.subscribe();
-        this._domMouseDrag$.subscribe();
-        this._domMouseDragEnd$.subscribe();
+        subs.push(this._domMouseDragStart$.subscribe());
+        subs.push(this._domMouseDrag$.subscribe());
+        subs.push(this._domMouseDragEnd$.subscribe());
 
-        this._staticClick$.subscribe();
+        subs.push(this._staticClick$.subscribe());
 
         this._mouseOwner$ = this._createOwner$(this._claimMouse$).pipe(
             publishReplay(1),
@@ -262,8 +267,8 @@ export class MouseService {
             publishReplay(1),
             refCount());
 
-        this._mouseOwner$.subscribe(() => { /* noop */ });
-        this._wheelOwner$.subscribe(() => { /* noop */ });
+        subs.push(this._mouseOwner$.subscribe(() => { /* noop */ }));
+        subs.push(this._wheelOwner$.subscribe(() => { /* noop */ }));
     }
 
     public get active$(): Observable<boolean> {
@@ -372,6 +377,10 @@ export class MouseService {
 
     public get windowBlur$(): Observable<FocusEvent> {
         return this._windowBlur$;
+    }
+
+    public dispose(): void {
+        this._subscriptions.unsubscribe();
     }
 
     public claimMouse(name: string, zindex: number): void {

@@ -32,6 +32,7 @@ import { StateService } from "../state/StateService";
 import { Transform } from "../geo/Transform";
 import ViewportCoords from "../geo/ViewportCoords";
 import { IFrame } from "../State";
+import SubscriptionHolder from "../utils/SubscriptionHolder";
 
 enum PanMode {
     Disabled,
@@ -50,6 +51,7 @@ export class PanService {
     private _panNodesSubject$: Subject<[Node, Transform, number][]>;
     private _panNodes$: Observable<[Node, Transform, number][]>;
     private _panNodesSubscription: Subscription;
+    private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
     private _mode: PanMode;
 
@@ -77,11 +79,21 @@ export class PanService {
             publishReplay(1),
             refCount());
 
-        this._panNodes$.subscribe();
+        this._subscriptions.push(this._panNodes$.subscribe());
     }
 
     public get panNodes$(): Observable<[Node, Transform, number][]> {
         return this._panNodes$;
+    }
+
+    public dispose(): void {
+        this.stop();
+
+        if (this._panNodesSubscription != null) {
+            this._panNodesSubscription.unsubscribe();
+        }
+
+        this._subscriptions.unsubscribe();
     }
 
     public enable(): void {

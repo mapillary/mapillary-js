@@ -35,6 +35,7 @@ import {
     Projection,
     Viewer,
 } from "../Viewer";
+import SubscriptionHolder from "../utils/SubscriptionHolder";
 
 export class Observer {
     private _started: boolean;
@@ -51,6 +52,8 @@ export class Observer {
     private _spatialEdgesSubscription: Subscription;
     private _viewerMouseEventSubscription: Subscription;
 
+    private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
+
     private _container: Container;
     private _eventEmitter: EventEmitter;
     private _navigator: Navigator;
@@ -66,18 +69,20 @@ export class Observer {
 
         this._navigable$ = new Subject<boolean>();
 
+        const subs = this._subscriptions;
+
         // navigable and loading should always emit, also when cover is activated.
-        this._navigable$
+        subs.push(this._navigable$
             .subscribe(
                 (navigable: boolean): void => {
                     this._eventEmitter.fire(Viewer.navigablechanged, navigable);
-                });
+                }));
 
-        this._navigator.loadingService.loading$
+        subs.push(this._navigator.loadingService.loading$
             .subscribe(
                 (loading: boolean): void => {
                     this._eventEmitter.fire(Viewer.loadingchanged, loading);
-                });
+                }));
     }
 
     public get started(): boolean {
@@ -90,6 +95,11 @@ export class Observer {
 
     public get projection(): Projection {
         return this._projection;
+    }
+
+    public dispose(): void {
+        this.stopEmit();
+        this._subscriptions.unsubscribe();
     }
 
     public project$(latLon: ILatLon): Observable<number[]> {
