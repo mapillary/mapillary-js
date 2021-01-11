@@ -1,6 +1,7 @@
 import {
     combineLatest as observableCombineLatest,
     merge as observableMerge,
+    of as observableOf,
     Observable,
     Subject,
     Subscription,
@@ -31,6 +32,7 @@ import {
     ISize,
 } from "../Render";
 import { DOM } from "../Utils";
+import SubscriptionHolder from "../utils/SubscriptionHolder";
 
 interface IGLRenderer {
     needsRender: boolean;
@@ -78,17 +80,21 @@ export class GLRenderer {
     private _renderService: RenderService;
     private _dom: DOM;
 
-    private _renderFrame$: Subject<RenderCamera> = new Subject<RenderCamera>();
+    private _renderFrame$: Subject<RenderCamera> =
+        new Subject<RenderCamera>();
 
-    private _renderCameraOperation$: Subject<IRenderCameraOperation> = new Subject<IRenderCameraOperation>();
+    private _renderCameraOperation$: Subject<IRenderCameraOperation> =
+        new Subject<IRenderCameraOperation>();
     private _renderCamera$: Observable<IRenderCamera>;
 
     private _render$: Subject<IGLRenderHash> = new Subject<IGLRenderHash>();
     private _clear$: Subject<string> = new Subject<string>();
-    private _renderOperation$: Subject<IGLRenderHashesOperation> = new Subject<IGLRenderHashesOperation>();
+    private _renderOperation$: Subject<IGLRenderHashesOperation> =
+        new Subject<IGLRenderHashesOperation>();
     private _renderCollection$: Observable<IGLRenderHashes>;
 
-    private _rendererOperation$: Subject<IGLRendererOperation> = new Subject<IGLRendererOperation>();
+    private _rendererOperation$: Subject<IGLRendererOperation> =
+        new Subject<IGLRendererOperation>();
     private _renderer$: Observable<IGLRenderer>;
 
     private _eraserOperation$: Subject<IEraserOperation> = new Subject<IEraserOperation>();
@@ -97,10 +103,15 @@ export class GLRenderer {
     private _webGLRenderer$: Observable<THREE.WebGLRenderer>;
 
     private _renderFrameSubscription: Subscription;
+    private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
-    constructor(canvasContainer: HTMLElement, renderService: RenderService, dom?: DOM) {
+    constructor(
+        canvasContainer: HTMLElement,
+        renderService: RenderService,
+        dom?: DOM) {
         this._renderService = renderService;
         this._dom = !!dom ? dom : new DOM();
+        const subs = this._subscriptions;
 
         this._renderer$ = this._rendererOperation$.pipe(
             scan(
@@ -139,14 +150,14 @@ export class GLRenderer {
                 },
                 { needsRender: false }));
 
-        observableCombineLatest(
+        const renderSubscription = observableCombineLatest(
             this._renderer$,
             this._renderCollection$,
             this._renderCamera$,
             this._eraser$).pipe(
                 map(
                     ([renderer, hashes, rc, eraser]: [IGLRenderer, IGLRenderHashes, IRenderCamera, IEraser]): ICombination => {
-                        let renders: IGLRender[] = Object.keys(hashes)
+                        const renders: IGLRender[] = Object.keys(hashes)
                             .map((key: string): IGLRender => {
                                 return hashes[key];
                             });
@@ -160,9 +171,9 @@ export class GLRenderer {
                             co.camera.needsRender ||
                             co.eraser.needsRender;
 
-                        let frameId: number = co.camera.frameId;
+                        const frameId: number = co.camera.frameId;
 
-                        for (let render of co.renders) {
+                        for (const render of co.renders) {
                             if (render.frameId !== frameId) {
                                 return false;
                             }
@@ -185,12 +196,12 @@ export class GLRenderer {
                     co.camera.needsRender = false;
                     co.eraser.needsRender = false;
 
-                    let perspectiveCamera: THREE.PerspectiveCamera = co.camera.perspective;
+                    const perspectiveCamera = co.camera.perspective;
 
-                    let backgroundRenders: IGLRenderFunction[] = [];
-                    let foregroundRenders: IGLRenderFunction[] = [];
+                    const backgroundRenders: IGLRenderFunction[] = [];
+                    const foregroundRenders: IGLRenderFunction[] = [];
 
-                    for (let render of co.renders) {
+                    for (const render of co.renders) {
                         if (render.stage === GLRenderStage.Background) {
                             backgroundRenders.push(render.render);
                         } else if (render.stage === GLRenderStage.Foreground) {
@@ -198,22 +209,22 @@ export class GLRenderer {
                         }
                     }
 
-                    let renderer: THREE.WebGLRenderer = co.renderer.renderer;
-
+                    const renderer = co.renderer.renderer;
                     renderer.clear();
 
-                    for (let render of backgroundRenders) {
+                    for (const render of backgroundRenders) {
                         render(perspectiveCamera, renderer);
                     }
 
                     renderer.clearDepth();
 
-                    for (let render of foregroundRenders) {
+                    for (const render of foregroundRenders) {
                         render(perspectiveCamera, renderer);
                     }
                 });
 
-        this._renderFrame$.pipe(
+        subs.push(renderSubscription);
+        subs.push(this._renderFrame$.pipe(
             map(
                 (rc: RenderCamera): IRenderCameraOperation => {
                     return (irc: IRenderCamera): IRenderCamera => {
@@ -227,11 +238,11 @@ export class GLRenderer {
                         return irc;
                     };
                 }))
-            .subscribe(this._renderCameraOperation$);
+            .subscribe(this._renderCameraOperation$));
 
         this._renderFrameSubscribe();
 
-        let renderHash$: Observable<IGLRenderHashesOperation> = this._render$.pipe(
+        const renderHash$ = this._render$.pipe(
             map(
                 (hash: IGLRenderHash) => {
                     return (hashes: IGLRenderHashes): IGLRenderHashes => {
@@ -241,7 +252,7 @@ export class GLRenderer {
                     };
                 }));
 
-        let clearHash$: Observable<IGLRenderHashesOperation> = this._clear$.pipe(
+        const clearHash$ = this._clear$.pipe(
             map(
                 (name: string) => {
                     return (hashes: IGLRenderHashes): IGLRenderHashes => {
@@ -251,20 +262,21 @@ export class GLRenderer {
                     };
                 }));
 
-        observableMerge(renderHash$, clearHash$)
-            .subscribe(this._renderOperation$);
+        subs.push(observableMerge(renderHash$, clearHash$)
+            .subscribe(this._renderOperation$));
 
         this._webGLRenderer$ = this._render$.pipe(
             first(),
             map(
-                (hash: IGLRenderHash): THREE.WebGLRenderer => {
-                    const canvas: HTMLCanvasElement = this._dom.createElement("canvas", "mapillary-js-canvas");
+                (): THREE.WebGLRenderer => {
+                    const canvas = this._dom
+                        .createElement("canvas", "mapillary-js-canvas");
                     canvas.style.position = "absolute";
                     canvas.setAttribute("tabindex", "0");
                     canvasContainer.appendChild(canvas);
 
-                    const element: HTMLElement = renderService.element;
-                    const webGLRenderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ canvas: canvas });
+                    const element = renderService.element;
+                    const webGLRenderer = new THREE.WebGLRenderer({ canvas: canvas });
                     webGLRenderer.setPixelRatio(window.devicePixelRatio);
                     webGLRenderer.setSize(element.offsetWidth, element.offsetHeight);
                     webGLRenderer.setClearColor(new THREE.Color(0x0F0F0F), 1.0);
@@ -275,9 +287,10 @@ export class GLRenderer {
             publishReplay(1),
             refCount());
 
-        this._webGLRenderer$.subscribe(() => { /*noop*/ });
+        subs.push(this._webGLRenderer$
+            .subscribe(() => { /*noop*/ }));
 
-        let createRenderer$: Observable<IGLRendererOperation> = this._webGLRenderer$.pipe(
+        const createRenderer$ = this._webGLRenderer$.pipe(
             first(),
             map(
                 (webGLRenderer: THREE.WebGLRenderer): IGLRendererOperation => {
@@ -289,7 +302,7 @@ export class GLRenderer {
                     };
                 }));
 
-        let resizeRenderer$: Observable<IGLRendererOperation> = this._renderService.size$.pipe(
+        const resizeRenderer$ = this._renderService.size$.pipe(
             map(
                 (size: ISize): IGLRendererOperation => {
                     return (renderer: IGLRenderer): IGLRenderer => {
@@ -304,9 +317,9 @@ export class GLRenderer {
                     };
                 }));
 
-        let clearRenderer$: Observable<IGLRendererOperation> = this._clear$.pipe(
+        const clearRenderer$ = this._clear$.pipe(
             map(
-                (name: string) => {
+                () => {
                     return (renderer: IGLRenderer): IGLRenderer => {
                         if (renderer.renderer == null) {
                             return renderer;
@@ -318,19 +331,22 @@ export class GLRenderer {
                     };
                 }));
 
-        observableMerge(createRenderer$, resizeRenderer$, clearRenderer$)
-            .subscribe(this._rendererOperation$);
+        subs.push(observableMerge(
+            createRenderer$,
+            resizeRenderer$,
+            clearRenderer$)
+            .subscribe(this._rendererOperation$));
 
-        let renderCollectionEmpty$: Observable<IGLRenderHashes> = this._renderCollection$.pipe(
+        const renderCollectionEmpty$ = this._renderCollection$.pipe(
             filter(
                 (hashes: IGLRenderHashes): boolean => {
                     return Object.keys(hashes).length === 0;
                 }),
             share());
 
-        renderCollectionEmpty$
+        subs.push(renderCollectionEmpty$
             .subscribe(
-                (hashes: IGLRenderHashes): void => {
+                (): void => {
                     if (this._renderFrameSubscription == null) {
                         return;
                     }
@@ -339,18 +355,18 @@ export class GLRenderer {
                     this._renderFrameSubscription = null;
 
                     this._renderFrameSubscribe();
-                });
+                }));
 
-        renderCollectionEmpty$.pipe(
+        subs.push(renderCollectionEmpty$.pipe(
             map(
-                (hashes: IGLRenderHashes): IEraserOperation => {
+                (): IEraserOperation => {
                     return (eraser: IEraser): IEraser => {
                         eraser.needsRender = true;
 
                         return eraser;
                     };
                 }))
-            .subscribe(this._eraserOperation$);
+            .subscribe(this._eraserOperation$));
     }
 
     public get render$(): Subject<IGLRenderHash> {
@@ -365,11 +381,34 @@ export class GLRenderer {
         this._clear$.next(name);
     }
 
+    public remove(): void {
+        this._rendererOperation$.next(
+            (renderer: IGLRenderer): IGLRenderer => {
+                if (renderer.renderer != null) {
+                    const extension = renderer.renderer.context
+                        .getExtension('WEBGL_lose_context');
+                    if (!!extension) {
+                        extension.loseContext();
+                    }
+
+                    renderer.renderer = null;
+                }
+
+                return renderer;
+            });
+
+        if (this._renderFrameSubscription != null) {
+            this._renderFrameSubscription.unsubscribe();
+        }
+
+        this._subscriptions.unsubscribe();
+    }
+
     private _renderFrameSubscribe(): void {
         this._render$.pipe(
             first(),
             map(
-                (renderHash: IGLRenderHash): IRenderCameraOperation => {
+                (): IRenderCameraOperation => {
                     return (irc: IRenderCamera): IRenderCamera => {
                         irc.needsRender = true;
 
@@ -384,7 +423,7 @@ export class GLRenderer {
         this._renderFrameSubscription = this._render$.pipe(
             first(),
             mergeMap(
-                (hash: IGLRenderHash): Observable<RenderCamera> => {
+                (): Observable<RenderCamera> => {
                     return this._renderService.renderCameraFrame$;
                 }))
             .subscribe(this._renderFrame$);

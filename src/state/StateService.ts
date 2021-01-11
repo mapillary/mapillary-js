@@ -2,6 +2,7 @@ import {
     BehaviorSubject,
     Observable,
     Subject,
+    Subscription,
 } from "rxjs";
 
 import {
@@ -21,8 +22,8 @@ import {
     scan,
 } from "rxjs/operators";
 
-import {ILatLon} from "../API";
-import {Node} from "../Graph";
+import { ILatLon } from "../API";
+import { Node } from "../Graph";
 import {
     Camera,
     ILatLonAlt,
@@ -37,6 +38,7 @@ import {
     State,
     TransitionMode,
 } from "../State";
+import SubscriptionHolder from "../utils/SubscriptionHolder";
 
 interface IContextOperation {
     (context: IStateContext): IStateContext;
@@ -74,7 +76,11 @@ export class StateService {
 
     private _fpsSampleRate: number;
 
+    private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
+
     constructor(transitionMode?: TransitionMode) {
+        const subs = this._subscriptions;
+
         this._start$ = new Subject<void>();
         this._frame$ = new Subject<number>();
         this._fpsSampleRate = 30;
@@ -156,17 +162,17 @@ export class StateService {
 
         let nodeChangedSubject$: Subject<IFrame> = new Subject<IFrame>();
 
-        nodeChanged$
-            .subscribe(nodeChangedSubject$);
+        subs.push(nodeChanged$
+            .subscribe(nodeChangedSubject$));
 
         this._currentKey$ = new BehaviorSubject<string>(null);
 
-        nodeChangedSubject$.pipe(
+        subs.push(nodeChangedSubject$.pipe(
             map(
                 (f: IFrame): string => {
                     return f.state.currentNode.key;
                 }))
-            .subscribe(this._currentKey$);
+            .subscribe(this._currentKey$));
 
         this._currentNode$ = nodeChangedSubject$.pipe(
             map(
@@ -215,7 +221,7 @@ export class StateService {
             publishReplay(1),
             refCount());
 
-        this._appendNode$.pipe(
+        subs.push(this._appendNode$.pipe(
             map(
                 (node: Node) => {
                     return (context: IStateContext): IStateContext => {
@@ -224,18 +230,18 @@ export class StateService {
                         return context;
                     };
                 }))
-            .subscribe(this._contextOperation$);
+            .subscribe(this._contextOperation$));
 
         this._inMotionOperation$ = new Subject<boolean>();
 
-        nodeChanged$.pipe(
+        subs.push(nodeChanged$.pipe(
             map(
                 (frame: IFrame): boolean => {
                     return true;
                 }))
-            .subscribe(this._inMotionOperation$);
+            .subscribe(this._inMotionOperation$));
 
-        this._inMotionOperation$.pipe(
+        subs.push(this._inMotionOperation$.pipe(
             distinctUntilChanged(),
             filter(
                 (moving: boolean): boolean => {
@@ -268,7 +274,7 @@ export class StateService {
                                 return !changed;
                             }));
                 }))
-            .subscribe(this._inMotionOperation$);
+            .subscribe(this._inMotionOperation$));
 
         this._inMotion$ = this._inMotionOperation$.pipe(
             distinctUntilChanged(),
@@ -277,14 +283,14 @@ export class StateService {
 
         this._inTranslationOperation$ = new Subject<boolean>();
 
-        nodeChanged$.pipe(
+        subs.push(nodeChanged$.pipe(
             map(
                 (frame: IFrame): boolean => {
                     return true;
                 }))
-            .subscribe(this._inTranslationOperation$);
+            .subscribe(this._inTranslationOperation$));
 
-        this._inTranslationOperation$.pipe(
+        subs.push(this._inTranslationOperation$.pipe(
             distinctUntilChanged(),
             filter(
                 (inTranslation: boolean): boolean => {
@@ -311,22 +317,22 @@ export class StateService {
                                 return !changed;
                             }));
                 }))
-            .subscribe(this._inTranslationOperation$);
+            .subscribe(this._inTranslationOperation$));
 
         this._inTranslation$ = this._inTranslationOperation$.pipe(
             distinctUntilChanged(),
             publishReplay(1),
             refCount());
 
-        this._state$.subscribe(() => { /*noop*/ });
-        this._currentNode$.subscribe(() => { /*noop*/ });
-        this._currentCamera$.subscribe(() => { /*noop*/ });
-        this._currentTransform$.subscribe(() => { /*noop*/ });
-        this._reference$.subscribe(() => { /*noop*/ });
-        this._currentNodeExternal$.subscribe(() => { /*noop*/ });
-        this._lastState$.subscribe(() => { /*noop*/ });
-        this._inMotion$.subscribe(() => { /*noop*/ });
-        this._inTranslation$.subscribe(() => { /*noop*/ });
+        subs.push(this._state$.subscribe(() => { /*noop*/ }));
+        subs.push(this._currentNode$.subscribe(() => { /*noop*/ }));
+        subs.push(this._currentCamera$.subscribe(() => { /*noop*/ }));
+        subs.push(this._currentTransform$.subscribe(() => { /*noop*/ }));
+        subs.push(this._reference$.subscribe(() => { /*noop*/ }));
+        subs.push(this._currentNodeExternal$.subscribe(() => { /*noop*/ }));
+        subs.push(this._lastState$.subscribe(() => { /*noop*/ }));
+        subs.push(this._inMotion$.subscribe(() => { /*noop*/ }));
+        subs.push(this._inTranslation$.subscribe(() => { /*noop*/ }));
 
         this._frameId = null;
         this._frameGenerator = new FrameGenerator(window);
@@ -374,6 +380,11 @@ export class StateService {
 
     public get appendNode$(): Subject<Node> {
         return this._appendNode$;
+    }
+
+    public dispose(): void {
+        this.stop();
+        this._subscriptions.unsubscribe();
     }
 
     public earth(): void {

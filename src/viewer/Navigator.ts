@@ -4,10 +4,18 @@ import {
     BehaviorSubject,
     Observable,
     ReplaySubject,
-    Subscription
+    Subscription,
 } from "rxjs";
 
-import { last, tap, map, mergeAll, finalize, mergeMap, first } from "rxjs/operators";
+import {
+    finalize,
+    first,
+    last,
+    map,
+    mergeAll,
+    mergeMap,
+    tap,
+} from "rxjs/operators";
 
 import {
     FilterExpression,
@@ -133,6 +141,16 @@ export class Navigator {
 
     public get stateService(): StateService {
         return this._stateService;
+    }
+
+    public dispose(): void {
+        this._abortRequest("viewer removed");
+
+        this._cacheService.stop();
+        this._graphService.dispose();
+        this._panService.dispose();
+        this._playService.dispose();
+        this._stateService.dispose();
     }
 
     public moveToKey$(key: string): Observable<Node> {

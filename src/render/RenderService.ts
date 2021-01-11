@@ -1,9 +1,25 @@
-import {withLatestFrom, map, startWith, scan, publishReplay, skip, refCount, tap, filter} from "rxjs/operators";
-import {Observable, Subject, BehaviorSubject} from "rxjs";
+import {
+    filter,
+    map,
+    publishReplay,
+    refCount,
+    scan,
+    skip,
+    startWith,
+    tap,
+    withLatestFrom,
+} from "rxjs/operators";
+import {
+    BehaviorSubject,
+    Observable,
+    Subject,
+    Subscription,
+} from "rxjs";
 
-import {Spatial} from "../Geo";
-import {RenderCamera, RenderMode, ISize} from "../Render";
-import {IFrame} from "../State";
+import { Spatial } from "../Geo";
+import { RenderCamera, RenderMode, ISize } from "../Render";
+import { IFrame } from "../State";
+import SubscriptionHolder from "../utils/SubscriptionHolder";
 
 interface IRenderCameraOperation {
     (rc: RenderCamera): RenderCamera;
@@ -27,6 +43,8 @@ export class RenderService {
 
     private _renderMode$: BehaviorSubject<RenderMode>;
 
+    private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
+
     constructor(element: HTMLElement, currentFrame$: Observable<IFrame>, renderMode: RenderMode, renderCamera?: RenderCamera) {
         this._element = element;
         this._currentFrame$ = currentFrame$;
@@ -45,12 +63,13 @@ export class RenderService {
                     width: this._element.offsetWidth,
                 });
 
-        this._resize$.pipe(
+        const subs = this._subscriptions;
+        subs.push(this._resize$.pipe(
             map(
                 (): ISize => {
                     return { height: this._element.offsetHeight, width: this._element.offsetWidth };
                 }))
-            .subscribe(this._size$);
+            .subscribe(this._size$));
 
         this._renderMode$ = new BehaviorSubject<RenderMode>(renderMode);
 
@@ -100,7 +119,7 @@ export class RenderService {
             publishReplay(1),
             refCount());
 
-        this._size$.pipe(
+        subs.push(this._size$.pipe(
             skip(1),
             map(
                 (size: ISize) => {
@@ -110,9 +129,9 @@ export class RenderService {
                         return rc;
                     };
                 }))
-            .subscribe(this._renderCameraOperation$);
+            .subscribe(this._renderCameraOperation$));
 
-        this._renderMode$.pipe(
+        subs.push(this._renderMode$.pipe(
             skip(1),
             map(
                 (rm: RenderMode) => {
@@ -122,14 +141,14 @@ export class RenderService {
                         return rc;
                     };
                 }))
-            .subscribe(this._renderCameraOperation$);
+            .subscribe(this._renderCameraOperation$));
 
-        this._bearing$.subscribe(() => { /*noop*/ });
-        this._renderCameraHolder$.subscribe(() => { /*noop*/ });
-        this._size$.subscribe(() => { /*noop*/ });
-        this._renderMode$.subscribe(() => { /*noop*/ });
-        this._renderCamera$.subscribe(() => { /*noop*/ });
-        this._renderCameraFrame$.subscribe(() => { /*noop*/ });
+        subs.push(this._bearing$.subscribe(() => { /*noop*/ }));
+        subs.push(this._renderCameraHolder$.subscribe(() => { /*noop*/ }));
+        subs.push(this._size$.subscribe(() => { /*noop*/ }));
+        subs.push(this._renderMode$.subscribe(() => { /*noop*/ }));
+        subs.push(this._renderCamera$.subscribe(() => { /*noop*/ }));
+        subs.push(this._renderCameraFrame$.subscribe(() => { /*noop*/ }));
     }
 
     public get bearing$(): Observable<number> {
@@ -158,6 +177,10 @@ export class RenderService {
 
     public get renderCamera$(): Observable<RenderCamera> {
         return this._renderCamera$;
+    }
+
+    public dispose(): void {
+        this._subscriptions.unsubscribe();
     }
 }
 
