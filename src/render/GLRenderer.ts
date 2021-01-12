@@ -385,7 +385,8 @@ export class GLRenderer {
         this._rendererOperation$.next(
             (renderer: IGLRenderer): IGLRenderer => {
                 if (renderer.renderer != null) {
-                    const extension = renderer.renderer.context
+                    const extension = renderer.renderer
+                        .getContext()
                         .getExtension('WEBGL_lose_context');
                     if (!!extension) {
                         extension.loseContext();
