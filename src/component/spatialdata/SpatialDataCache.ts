@@ -17,43 +17,12 @@ import {
     filter,
 } from "rxjs/operators";
 
-import {
-    IGPano,
-} from "../../API";
-import {
-    AbortMapillaryError,
-} from "../../Error";
-import {
-    GraphService,
-    Node,
-} from "../../Graph";
-import { CameraProjectionType } from "../../api/interfaces/CameraProjectionType";
-import { IDataProvider } from "../../api/interfaces/interfaces";
+import AbortMapillaryError from "../../error/AbortMapillaryError";
+import GraphService from "../../graph/GraphService";
+import IDataProvider from "../../api/interfaces/IDataProvider";
 import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
 import ICellCorners from "../../api/interfaces/ICellCorners";
-
-export type NodeData = {
-    alt: number;
-    cameraProjectionType: CameraProjectionType;
-    clusterKey: string;
-    clusterUrl: string;
-    focal: number;
-    gpano: IGPano;
-    height: number;
-    k1: number;
-    k2: number;
-    key: string,
-    lat: number;
-    lon: number;
-    mergeCC: number;
-    orientation: number;
-    originalLat: number;
-    originalLon: number;
-    rotation: number[];
-    scale: number;
-    sequenceKey: string;
-    width: number;
-};
+import Node from "../../graph/Node";
 
 type ClusterData = {
     key: string;
@@ -65,14 +34,14 @@ export class SpatialDataCache {
     private _data: IDataProvider;
 
     private _cacheRequests: { [hash: string]: Function[] };
-    private _tiles: { [hash: string]: NodeData[] };
+    private _tiles: { [hash: string]: Node[] };
 
     private _clusterReconstructions: { [key: string]: IClusterReconstruction };
     private _clusterReconstructionTiles: { [key: string]: string[] };
     private _tileClusters: { [hash: string]: ClusterData[] };
 
     private _cachingClusterReconstructions$: { [hash: string]: Observable<IClusterReconstruction> };
-    private _cachingTiles$: { [hash: string]: Observable<NodeData[]> };
+    private _cachingTiles$: { [hash: string]: Observable<Node[]> };
 
     constructor(graphService: GraphService, provider: IDataProvider) {
         this._graphService = graphService;
@@ -104,12 +73,12 @@ export class SpatialDataCache {
 
         const duplicatedClusters: ClusterData[] = this.getTile(hash)
             .filter(
-                (nd: NodeData): boolean => {
-                    return !!nd.clusterKey && !!nd.clusterUrl;
+                (n: Node): boolean => {
+                    return !!n.clusterKey && !!n.clusterUrl;
                 })
             .map(
-                (nd: NodeData): ClusterData => {
-                    return { key: nd.clusterKey, url: nd.clusterUrl };
+                (n: Node): ClusterData => {
+                    return { key: n.clusterKey, url: n.clusterUrl };
                 });
 
         const clusters: ClusterData[] = Array
@@ -186,7 +155,7 @@ export class SpatialDataCache {
         return this._cachingClusterReconstructions$[hash];
     }
 
-    public cacheTile$(hash: string): Observable<NodeData[]> {
+    public cacheTile$(hash: string): Observable<Node[]> {
         if (this.hasTile(hash)) {
             throw new Error("Cannot cache tile that already exists.");
         }
@@ -205,22 +174,14 @@ export class SpatialDataCache {
 
                     return observableEmpty();
                 }),
-            map(
-                (nodes: Node[]): NodeData[] => {
-                    return nodes
-                        .map(
-                            (n: Node): NodeData => {
-                                return this._createNodeData(n);
-                            });
-                }),
             filter(
                 (): boolean => {
                     return !(hash in this._tiles);
                 }),
             tap(
-                (nodeData: NodeData[]): void => {
+                (node: Node[]): void => {
                     this._tiles[hash] = [];
-                    this._tiles[hash].push(...nodeData);
+                    this._tiles[hash].push(...node);
 
                     delete this._cachingTiles$[hash];
                 }),
@@ -277,7 +238,7 @@ export class SpatialDataCache {
             [];
     }
 
-    public getTile(hash: string): NodeData[] {
+    public getTile(hash: string): Node[] {
         return hash in this._tiles ? this._tiles[hash] : [];
     }
 
@@ -329,31 +290,6 @@ export class SpatialDataCache {
 
             delete this._tiles[hash];
         }
-    }
-
-    private _createNodeData(node: Node): NodeData {
-        return {
-            alt: node.alt,
-            cameraProjectionType: node.cameraProjectionType,
-            clusterKey: node.clusterKey,
-            clusterUrl: node.clusterUrl,
-            focal: node.focal,
-            gpano: node.gpano,
-            height: node.height,
-            k1: node.ck1,
-            k2: node.ck2,
-            key: node.key,
-            lat: node.latLon.lat,
-            lon: node.latLon.lon,
-            mergeCC: node.mergeCC,
-            orientation: node.orientation,
-            originalLat: node.originalLatLon.lat,
-            originalLon: node.originalLatLon.lon,
-            rotation: [node.rotation[0], node.rotation[1], node.rotation[2]],
-            scale: node.scale,
-            sequenceKey: node.sequenceKey,
-            width: node.width,
-        };
     }
 
     private _getClusterReconstruction(key: string): IClusterReconstruction {
