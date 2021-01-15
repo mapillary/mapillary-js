@@ -387,6 +387,15 @@ export class Node {
     }
 
     /**
+     * Get originalAlt.
+     *
+     * @returns {number} EXIF altitude, in meters, if available.
+     */
+    public get originalAlt(): number {
+        return this._fill.altitude;
+    }
+
+    /**
      * Get originalCA.
      *
      * @returns {number} Original EXIF compass angle, measured in

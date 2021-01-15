@@ -204,6 +204,7 @@ export class FalcorDataProvider extends DataProviderBase {
         ];
 
         this._propertiesSpatial = [
+            "altitude",
             "atomic_scale",
             "cluster_key",
             "c_rotation",
