@@ -8,6 +8,7 @@ import Node from "../../graph/Node";
 
 import { FilterFunction } from "../../graph/FilterCreator";
 import { Transform } from "../../geo/Transform";
+import OriginalPositionMode from "./OriginalPositionMode";
 
 type ClusterReconstructions = {
     [key: string]: {
@@ -485,23 +486,56 @@ class TileLine extends THREE.Line {
 }
 
 class PositionLine extends THREE.Line {
-    constructor(transform: Transform, originalPosition: number[]) {
+    public geometry: THREE.BufferGeometry;
+    public material: THREE.LineBasicMaterial;
+
+    private _adjustedAltitude: number;
+    private _originalAltitude: number;
+
+    constructor(
+        transform: Transform,
+        originalPosition: number[],
+        mode: OriginalPositionMode) {
         super();
 
-        this.geometry = this._createGeometry(transform, originalPosition);
+        this._adjustedAltitude = transform.unprojectSfM([0, 0], 0)[2];
+        this._originalAltitude = originalPosition[2];
+        const altitude = this._getAltitude(mode);
+        this.geometry = this._createGeometry(
+            transform,
+            originalPosition,
+            altitude);
         this.material =
             new THREE.LineBasicMaterial({ color: new THREE.Color(1, 0, 0) });
     }
 
     public dispose(): void {
         this.geometry.dispose();
-        (<THREE.LineBasicMaterial>this.material).dispose();
+        this.material.dispose();
     }
 
-    private _createGeometry(transform: Transform, originalPosition: number[]):
+    public setMode(mode: OriginalPositionMode): void {
+        const positionAttribute =
+            <THREE.BufferAttribute>this.geometry.attributes.position;
+        const positions = <Float32Array>positionAttribute.array;
+
+        positions[2] = this._getAltitude(mode);
+
+        positionAttribute.needsUpdate = true;
+        this.geometry.computeBoundingSphere();
+    }
+
+    private _createGeometry(
+        transform: Transform,
+        originalPosition: number[],
+        altitude: number):
         THREE.BufferGeometry {
         const vertices = [
-            originalPosition,
+            [
+                originalPosition[0],
+                originalPosition[1],
+                altitude,
+            ],
             transform.unprojectBasic([0, 0], 0)];
 
         const positions = new Float32Array(3 * vertices.length);
@@ -518,6 +552,12 @@ class PositionLine extends THREE.Line {
             new THREE.BufferAttribute(positions, 3));
 
         return geometry;
+    }
+
+    private _getAltitude(mode: OriginalPositionMode): number {
+        return mode === OriginalPositionMode.Altitude ?
+            this._originalAltitude :
+            this._adjustedAltitude;
     }
 }
 
@@ -567,7 +607,7 @@ export class SpatialDataScene {
     private _camerasVisible: boolean;
     private _pointSize: number;
     private _pointsVisible: boolean;
-    private _positionsVisible: boolean;
+    private _positionMode: OriginalPositionMode;
     private _tilesVisible: boolean;
 
     private readonly _rayNearScale: number;
@@ -629,7 +669,7 @@ export class SpatialDataScene {
         this._camerasVisible = configuration.camerasVisible;
         this._pointSize = configuration.pointSize;
         this._pointsVisible = configuration.pointsVisible;
-        this._positionsVisible = configuration.positionsVisible;
+        this._positionMode = configuration.originalPositionMode;
         this._tilesVisible = configuration.tilesVisible;
 
         this._hoveredKey = null;
@@ -722,7 +762,8 @@ export class SpatialDataScene {
             };
 
             this._nodes[cellId].cameras.visible = this._camerasVisible;
-            this._nodes[cellId].positions.visible = this._positionsVisible;
+            this._nodes[cellId].positions.visible =
+                this._positionMode !== OriginalPositionMode.Hidden;
 
             this._scene.add(
                 this._nodes[cellId].cameras,
@@ -772,7 +813,7 @@ export class SpatialDataScene {
         nodeCell.sequences[sequenceKey].push(camera);
 
         nodeCell.positions.add(
-            new PositionLine(transform, originalPosition));
+            new PositionLine(transform, originalPosition, this._positionMode));
 
         nodeCell.keys.push(key);
         nodeCell.cameraFrames[key] = camera;
@@ -978,20 +1019,27 @@ export class SpatialDataScene {
 
     }
 
-    public setPositionVisibility(visible: boolean): void {
-        if (visible === this._positionsVisible) {
+    public setPositionMode(mode: OriginalPositionMode): void {
+        if (mode === this._positionMode) {
             return;
         }
 
-        for (const cellId in this._nodes) {
-            if (!this._nodes.hasOwnProperty(cellId)) {
+        const nodes = this._nodes;
+        for (const cellId in nodes) {
+            if (!nodes.hasOwnProperty(cellId)) {
                 continue;
             }
 
-            this._nodes[cellId].positions.visible = visible;
+            const cell = nodes[cellId];
+            cell.positions.visible =
+                mode !== OriginalPositionMode.Hidden;
+
+            for (const position of cell.positions.children) {
+                (<PositionLine>position).setMode(mode);
+            }
         }
 
-        this._positionsVisible = visible;
+        this._positionMode = mode;
         this._needsRender = true;
     }
 

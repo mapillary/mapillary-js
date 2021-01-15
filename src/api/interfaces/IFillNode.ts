@@ -9,6 +9,11 @@ import INodeUrls from "./INodeUrls";
  */
 export interface IFillNode extends INodeUrls {
     /**
+     * Original EXIF altitude above sea level, in meters.
+     */
+    altitude?: number;
+
+    /**
      * Scale of atomic reconstruction.
      */
     atomic_scale?: number;

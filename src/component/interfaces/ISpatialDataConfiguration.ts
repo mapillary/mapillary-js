@@ -1,5 +1,6 @@
 import { IComponentConfiguration } from "../../Component";
-import { CameraVisualizationMode } from "../spatialdata/SpatialDataExport";
+import CameraVisualizationMode from "../spatialdata/CameraVisualizationMode";
+import OriginalPositionMode from "../spatialdata/OriginalPositionMode";
 
 /**
  * Interface for configuration of spatial data component.
@@ -40,6 +41,7 @@ export interface ISpatialDataConfiguration extends IComponentConfiguration {
      * @default false
      */
     camerasVisible?: boolean;
+
     /**
      * Specify the camera visualization mode.
      *
@@ -65,6 +67,16 @@ export interface ISpatialDataConfiguration extends IComponentConfiguration {
     earthControls?: boolean;
 
     /**
+     * Specify the original position visualization mode.
+     *
+     * @description The original positions are hidden
+     * by default.
+     *
+     * @default OriginalPositionMode.Hidden
+     */
+    originalPositionMode?: OriginalPositionMode;
+
+    /**
      * The point size on the interval [0.01, 1].
      *
      * @default 0.1
@@ -79,9 +91,8 @@ export interface ISpatialDataConfiguration extends IComponentConfiguration {
     pointsVisible?: boolean;
 
     /**
-     * Specify if the original GPS positions should be visible or not.
-     *
-     * @default false
+     * @deprecated Deprecated since v3.1.0. Use originalPositionMode
+     * property instead.
      */
     positionsVisible?: boolean;
 

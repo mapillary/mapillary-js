@@ -61,6 +61,7 @@ import CameraVisualizationMode from "./CameraVisualizationMode";
 import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
 import ICellCorners, { ICellNeighbors } from "../../api/interfaces/ICellCorners";
 import Spatial from "../../geo/Spatial";
+import OriginalPositionMode from "./OriginalPositionMode";
 import { FilterFunction } from "../../graph/FilterCreator";
 import SubscriptionHolder from "../../utils/SubscriptionHolder";
 
@@ -310,6 +311,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         cameraVisualizationMode: c.cameraVisualizationMode,
                         camerasVisible: c.camerasVisible,
                         connectedComponents: c.connectedComponents,
+                        originalPositionMode: c.originalPositionMode,
                         pointSize: c.pointSize,
                         pointsVisible: c.pointsVisible,
                         positionsVisible: c.positionsVisible,
@@ -322,6 +324,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         c1.cameraVisualizationMode === c2.cameraVisualizationMode &&
                         c1.camerasVisible === c2.camerasVisible &&
                         c1.connectedComponents === c2.connectedComponents &&
+                        c1.originalPositionMode === c2.originalPositionMode &&
                         c1.pointSize === c2.pointSize &&
                         c1.pointsVisible === c2.pointsVisible &&
                         c1.positionsVisible === c2.positionsVisible &&
@@ -333,12 +336,16 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     this._scene.setCameraVisibility(c.camerasVisible);
                     this._scene.setPointSize(c.pointSize);
                     this._scene.setPointVisibility(c.pointsVisible);
-                    this._scene.setPositionVisibility(c.positionsVisible);
                     this._scene.setTileVisibility(c.tilesVisible);
-                    const cvm: CameraVisualizationMode = c.connectedComponents ?
+                    const cvm = c.connectedComponents ?
                         CameraVisualizationMode.ConnectedComponent :
                         c.cameraVisualizationMode;
                     this._scene.setCameraVisualizationMode(cvm);
+                    const pm = c.positionsVisible ?
+                        OriginalPositionMode.Flat :
+                        c.originalPositionMode;
+                    this._scene.setPositionMode(pm);
+
                 }));
 
         subs.push(hash$
@@ -491,6 +498,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             cameraVisualizationMode: CameraVisualizationMode.Default,
             camerasVisible: false,
             connectedComponents: false,
+            originalPositionMode: OriginalPositionMode.Hidden,
             pointSize: 0.1,
             pointsVisible: true,
             positionsVisible: false,
@@ -547,7 +555,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         return this._geoCoords.geodeticToEnu(
             node.originalLatLon.lat,
             node.originalLatLon.lon,
-            node.alt,
+            node.originalAlt != null ? node.originalAlt : node.alt,
             reference.lat,
             reference.lon,
             reference.alt);

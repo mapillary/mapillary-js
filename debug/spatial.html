@@ -43,17 +43,27 @@
             spatial.defaultConfiguration,
             { imagesVisible: true });
 
-        const mode = Mapillary.SpatialDataComponent.CameraVisualizationMode;
-        const none = mode.Default;
-        const cluster = mode.Cluster;
-        const connectedComponent = mode.ConnectedComponent;
-        const sequence = mode.Sequence;
+        const camMode = Mapillary.SpatialDataComponent.CameraVisualizationMode;
+        const none = camMode.Default;
+        const cluster = camMode.Cluster;
+        const connectedComponent = camMode.ConnectedComponent;
+        const sequence = camMode.Sequence;
 
-        const modeRotation = {};
-        modeRotation[none] = cluster;
-        modeRotation[cluster] = connectedComponent;
-        modeRotation[connectedComponent] = sequence;
-        modeRotation[sequence] = none;
+        const camModeRotation = {};
+        camModeRotation[none] = cluster;
+        camModeRotation[cluster] = connectedComponent;
+        camModeRotation[connectedComponent] = sequence;
+        camModeRotation[sequence] = none;
+
+        const posMode = Mapillary.SpatialDataComponent.OriginalPositionMode;
+        const hidden = posMode.Hidden;
+        const flat = posMode.Flat;
+        const altitude = posMode.Altitude;
+
+        const posModeRotation = {};
+        posModeRotation[hidden] = flat;
+        posModeRotation[flat] = altitude;
+        posModeRotation[altitude] = hidden;
 
         function toggleImages() {
             s.imagesVisible = !s.imagesVisible;
@@ -62,8 +72,15 @@
         }
 
         function rotateCvm() {
-            s.cameraVisualizationMode = modeRotation[s.cameraVisualizationMode];
+            s.cameraVisualizationMode =
+                camModeRotation[s.cameraVisualizationMode];
             configure("cameraVisualizationMode");
+        }
+
+        function rotatePm() {
+            s.originalPositionMode =
+                posModeRotation[s.originalPositionMode];
+            configure("originalPositionMode");
         }
 
         function toggleBooleanSetting(name) {
@@ -105,10 +122,10 @@
                     case 'c': name = 'camerasVisible'; break;
                     case 'e': name = 'earthControls'; break;
                     case 'p': name = 'pointsVisible'; break;
-                    case 'o': name = 'positionsVisible'; break;
                     case 't': name = 'tilesVisible'; break;
                     case 'i': toggleImages(); break;
                     case 'v': rotateCvm(); break;
+                    case 'o': rotatePm(); break;
                     case 'q': changeSize('pointSize', 0.9); break;
                     case 'w': changeSize('pointSize', 1.1); break;
                     case 'a': changeSize('cameraSize', 0.9); break;
