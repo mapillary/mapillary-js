@@ -82,6 +82,21 @@
             spatial.configure(c);
         }
 
+        var filterIndex = 0;
+        var filters = [
+            [],
+            ["==", "fullPano", true],
+            ["==", "sequenceKey", "s5I5m7BvYykB677MpFnOIw"],
+            ["in", "sequenceKey", "s5I5m7BvYykB677MpFnOIw", "-aC4wx-8oOkCp6SFGXoyAg"],
+        ];
+        function setFilter() {
+            filterIndex = (filterIndex + 1) % filters.length;
+            viewer.setFilter(filters[filterIndex]).then(
+                function (n) {
+                    console.log("filter", filters[filterIndex]);
+                });
+        }
+
         window.document.addEventListener(
             "keydown",
             e => {
@@ -98,6 +113,7 @@
                     case 'w': changeSize('pointSize', 1.1); break;
                     case 'a': changeSize('cameraSize', 0.9); break;
                     case 's': changeSize('cameraSize', 1.1); break;
+                    case 'f': setFilter(); break;
                     default: break;
                 }
 

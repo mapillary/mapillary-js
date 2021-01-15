@@ -31,6 +31,7 @@ import {
     Sequence,
 } from "../Graph";
 import SubscriptionHolder from "../utils/SubscriptionHolder";
+import { FilterFunction } from "./FilterCreator";
 
 /**
  * @class GraphService
@@ -49,7 +50,6 @@ export class GraphService {
     private _sequenceSubscriptions: Subscription[];
     private _spatialSubscriptions: Subscription[];
     private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
-
 
     /**
      * Create a new graph service instance.
@@ -81,6 +81,23 @@ export class GraphService {
         this._initializeCacheSubscriptions = [];
         this._sequenceSubscriptions = [];
         this._spatialSubscriptions = [];
+    }
+
+    /**
+     * Get filter observable.
+     *
+     * @desciption Emits the filter every time it has changed.
+     *
+     * @returns {Observable<FilterFunction>} Observable
+     * emitting the filter function every time it is set.
+     */
+    public get filter$(): Observable<FilterFunction> {
+        return this._graph$.pipe(
+            first(),
+            mergeMap(
+                (graph: Graph): Observable<FilterFunction> => {
+                    return graph.filter$;
+                }));
     }
 
     /**
@@ -396,7 +413,13 @@ export class GraphService {
                 }));
     }
 
+    /**
+     * Dispose the graph service and its children.
+     */
     public dispose(): void {
+        this._graph$
+            .pipe(first())
+            .subscribe((graph: Graph) => { graph.unsubscribe(); });
         this._subscriptions.unsubscribe();
     }
 
@@ -420,7 +443,7 @@ export class GraphService {
                     graph.setFilter(filter);
                 }),
             map(
-                (graph: Graph): void => {
+                (): void => {
                     return undefined;
                 }));
     }
@@ -474,7 +497,7 @@ export class GraphService {
                     graph.reset(keepKeys);
                 }),
             map(
-                (graph: Graph): void => {
+                (): void => {
                     return undefined;
                 }));
     }
@@ -502,7 +525,7 @@ export class GraphService {
                     graph.uncache(keepKeys, keepSequenceKey);
                 }),
             map(
-                (graph: Graph): void => {
+                (): void => {
                     return undefined;
                 }));
     }

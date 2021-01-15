@@ -44,7 +44,7 @@ export { RouteComponent } from "./component/RouteComponent";
 export { SequenceComponent } from "./component/sequence/SequenceComponent";
 export { SequenceDOMRenderer } from "./component/sequence/SequenceDOMRenderer";
 export { SequenceMode } from "./component/sequence/SequenceMode";
-export { NodeData, SpatialDataCache } from "./component/spatialdata/SpatialDataCache";
+export { SpatialDataCache } from "./component/spatialdata/SpatialDataCache";
 export { SpatialDataComponent } from "./component/spatialdata/SpatialDataComponent";
 export { SpatialDataScene } from "./component/spatialdata/SpatialDataScene";
 export { ImagePlaneComponent } from "./component/imageplane/ImagePlaneComponent";

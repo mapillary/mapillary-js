@@ -1,11 +1,13 @@
 import * as THREE from "three";
 
 import CameraVisualizationMode from "./CameraVisualizationMode";
-import { NodeData } from "./SpatialDataCache";
 import IClusterReconstruction, { IReconstructionPoint } from "../../api/interfaces/IClusterReconstruction";
-import { Transform } from "../../geo/Transform";
 import ISpatialDataConfiguration from "../interfaces/ISpatialDataConfiguration";
 import MapillaryError from "../../error/MapillaryError";
+import Node from "../../graph/Node";
+
+import { FilterFunction } from "../../graph/FilterCreator";
+import { Transform } from "../../geo/Transform";
 
 type ClusterReconstructions = {
     [key: string]: {
@@ -552,6 +554,7 @@ export class SpatialDataScene {
             keys: string[];
             positions: THREE.Object3D;
             sequences: { [id: string]: CameraFrameBase[] };
+            props: { [id: string]: Node };
         };
     };
 
@@ -577,6 +580,9 @@ export class SpatialDataScene {
     private _hoveredKey: string;
     private _selectedKey: string;
 
+    private _interactiveLayer: number;
+    private _filter: FilterFunction;
+
     constructor(configuration: ISpatialDataConfiguration, scene?: THREE.Scene, raycaster?: THREE.Raycaster) {
         this._rayNearScale = 1.1;
         this._originalPointSize = 2;
@@ -586,6 +592,8 @@ export class SpatialDataScene {
         this._largeLineThreshold = 0.4;
 
         this._scene = !!scene ? scene : new THREE.Scene();
+
+        this._interactiveLayer = 1;
         const near = this._getNear(configuration.cameraSize);
         const far = 3000;
         this._raycaster = !!raycaster ?
@@ -596,6 +604,8 @@ export class SpatialDataScene {
                 near,
                 far);
         this._raycaster.params.Line.threshold = this._lineThreshold;
+        this._raycaster.layers.set(this._interactiveLayer);
+
 
         this._cameraColors = {};
         this._needsRender = false;
@@ -624,6 +634,8 @@ export class SpatialDataScene {
 
         this._hoveredKey = null;
         this._selectedKey = null;
+
+        this._filter = () => true;
     }
 
     public get needsRender(): boolean {
@@ -678,18 +690,18 @@ export class SpatialDataScene {
     }
 
     public addNode(
-        data: NodeData,
+        node: Node,
         transform: Transform,
         originalPosition: number[],
         cellId: string): void {
 
-        const key: string = data.key;
-        const clusterKey: string = !!data.clusterKey ?
-            data.clusterKey : "default_cluster_key";
-        const sequenceKey: string = !!data.sequenceKey ?
-            data.sequenceKey : "default_sequence_key";
-        const connectedComponent: string = !!data.mergeCC ?
-            data.mergeCC.toString() : "default_mergecc_key";
+        const key: string = node.key;
+        const clusterKey: string = !!node.clusterKey ?
+            node.clusterKey : "default_cluster_key";
+        const sequenceKey: string = !!node.sequenceKey ?
+            node.sequenceKey : "default_sequence_key";
+        const connectedComponent: string = !!node.mergeCC ?
+            node.mergeCC.toString() : "default_mergecc_key";
 
         if (this.hasNode(key, cellId)) {
             return;
@@ -706,6 +718,7 @@ export class SpatialDataScene {
                 positions: new THREE.Object3D(),
                 sequences: {},
                 cameraIds: {},
+                props: {},
             };
 
             this._nodes[cellId].cameras.visible = this._camerasVisible;
@@ -744,6 +757,7 @@ export class SpatialDataScene {
         const camera = !!transform.gpano ?
             new PanoCameraFrame(maxSize, transform, scale, color) :
             new PerspectiveCameraFrame(maxSize, transform, scale, color);
+        this._applyFilter(camera, node, this._filter);
 
         nodeCell.cameras.add(camera);
 
@@ -752,6 +766,7 @@ export class SpatialDataScene {
             this._interactiveObjects.push(child);
         }
 
+        nodeCell.props[key] = node;
         nodeCell.connectedComponents[connectedComponent].push(camera);
         nodeCell.clusters[clusterKey].push(camera);
         nodeCell.sequences[sequenceKey].push(camera);
@@ -862,6 +877,30 @@ export class SpatialDataScene {
         }
 
         this._camerasVisible = visible;
+        this._needsRender = true;
+    }
+
+    public setFilter(filter: FilterFunction): void {
+        this._filter = filter;
+
+        const nodes = this._nodes;
+        for (const cellId in nodes) {
+            if (!(nodes.hasOwnProperty(cellId))) {
+                continue;
+            }
+
+            const cell = nodes[cellId];
+            for (const key in cell.props) {
+                if (!(cell.props.hasOwnProperty(key))) {
+                    continue;
+                }
+
+                const node = cell.props[key];
+                const camera = cell.cameraFrames[key];
+                this._applyFilter(camera, node, filter);
+            }
+        }
+
         this._needsRender = true;
     }
 
@@ -1074,6 +1113,24 @@ export class SpatialDataScene {
         }
 
         this._needsRender = true;
+    }
+
+    private _applyFilter(
+        camera: THREE.Object3D,
+        node: Node,
+        filter: FilterFunction): void {
+        const interactiveLayer = this._interactiveLayer;
+
+        camera.visible = filter(node);
+        if (camera.visible) {
+            for (const child of camera.children) {
+                child.layers.enable(interactiveLayer);
+            }
+        } else {
+            for (const child of camera.children) {
+                child.layers.disable(interactiveLayer);
+            }
+        }
     }
 
     private _disposeCameras(cellId: string): void {

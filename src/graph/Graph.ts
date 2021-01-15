@@ -1,6 +1,26 @@
-import { merge as observableMerge, from as observableFrom, of as observableOf, Observable, Subject } from "rxjs";
+import {
+    concat as observableConcat,
+    from as observableFrom,
+    merge as observableMerge,
+    of as observableOf,
+    Observable,
+    Subject,
+    Subscription,
+} from "rxjs";
 
-import { tap, refCount, catchError, publish, finalize, map, reduce, mergeMap, mergeAll, last } from "rxjs/operators";
+import {
+    tap,
+    refCount,
+    catchError,
+    publish,
+    finalize,
+    map,
+    reduce,
+    mergeMap,
+    mergeAll,
+    last,
+    publishReplay,
+} from "rxjs/operators";
 
 import {
     ICoreNode,
@@ -128,10 +148,14 @@ export class Graph {
 
     private _defaultAlt: number;
     private _edgeCalculator: EdgeCalculator;
-    private _filter: FilterFunction;
-    private _filterCreator: FilterCreator;
     private _graphCalculator: GraphCalculator;
     private _configuration: IGraphConfiguration;
+
+    private _filter: FilterFunction;
+    private _filterCreator: FilterCreator;
+    private _filterSubject$: Subject<FilterFunction>;
+    private _filter$: Observable<FilterFunction>;
+    private _filterSubscription: Subscription;
 
     /**
      * All nodes in the graph.
@@ -210,10 +234,19 @@ export class Graph {
 
         this._changed$ = new Subject<Graph>();
 
-        this._defaultAlt = 2;
-        this._edgeCalculator = edgeCalculator != null ? edgeCalculator : new EdgeCalculator();
         this._filterCreator = filterCreator != null ? filterCreator : new FilterCreator();
         this._filter = this._filterCreator.createFilter(undefined);
+        this._filterSubject$ = new Subject<FilterFunction>();
+        this._filter$ =
+            observableConcat(
+                observableOf(this._filter),
+                this._filterSubject$).pipe(
+                    publishReplay(1),
+                    refCount());
+        this._filterSubscription = this._filter$.subscribe(() => { /*noop*/ });
+
+        this._defaultAlt = 2;
+        this._edgeCalculator = edgeCalculator != null ? edgeCalculator : new EdgeCalculator();
         this._graphCalculator = graphCalculator != null ? graphCalculator : new GraphCalculator();
         this._configuration = configuration != null ?
             configuration :
@@ -246,6 +279,16 @@ export class Graph {
      */
     public get changed$(): Observable<Graph> {
         return this._changed$;
+    }
+
+    /**
+     * Get filter$.
+     *
+     * @returns {Observable<FilterFunction>} Observable emitting
+     * the filter every time it has changed.
+     */
+    public get filter$(): Observable<FilterFunction> {
+        return this._filter$;
     }
 
     /**
@@ -1246,11 +1289,15 @@ export class Graph {
     /**
      * Set the spatial node filter.
      *
+     * @emits FilterFunction The filter function to the Graph#filter$
+     * observable.
+     *
      * @param {FilterExpression} filter - Filter expression to be applied
      * when calculating spatial edges.
      */
     public setFilter(filter: FilterExpression): void {
         this._filter = this._filterCreator.createFilter(filter);
+        this._filterSubject$.next(this._filter);
     }
 
     /**
@@ -1428,6 +1475,16 @@ export class Graph {
 
             sequenceAccess.sequence.dispose();
         }
+    }
+
+    /**
+     * Unsubscribes all subscriptions.
+     *
+     * @description Afterwards, you must not call any other methods
+     * on the graph instance.
+     */
+    public unsubscribe(): void {
+        this._filterSubscription.unsubscribe();
     }
 
     private _addNewKeys<T>(keys: { [key: string]: boolean }, dict: { [key: string]: T }): void {
