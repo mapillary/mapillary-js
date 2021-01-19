@@ -4,16 +4,14 @@ on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
 
     - name: Setup Node.js
       uses: actions/setup-node@v1
       with:
-        node-version: '12.x'
+        node-version: '14.x'
 
     - name: Install dependencies
       run: yarn --frozen-lockfile
@@ -25,4 +23,4 @@ jobs:
       run: yarn test
 
     - name: Build documentation
-      run: yarn run build-docs
+      run: yarn build-docs

@@ -6,7 +6,7 @@ Facebook has adopted the [Contributor Covenant](https://www.contributor-covenant
 
 ## Contribution Prerequisites
 - You have [Node](https://nodejs.org) installed at v10.0.0+ and [Yarn](https://classic.yarnpkg.com) at v1.2.0+.
-- You are familiar with Git.
+- You are familiar with [Git](https://git-scm.com/).
 
 ## Sending a Pull Request
 We will review your pull request and either merge it, request changes to it, or close it with an explanation. We’ll do our best to provide updates and feedback throughout the process.
@@ -25,6 +25,23 @@ In order to accept your pull request, we need you to submit a CLA. You only need
 
 [Complete your CLA here.](https://code.facebook.com/cla)
 
+## Develop with Docker
+1. Install [Docker](https://www.docker.com/).
+2. Clone the repository.
+3. Build the mapillary-js image:
+
+```zsh
+docker build -t mapillary-js .
+```
+
+4. Create a mapillary-js container and run it interactively:
+
+```zsh
+docker run -v "$(pwd)":/source/mapillary-js -p 8000:8000 --name mapillary-js-container -it mapillary-js
+
+```
+
+5. [Stop](https://docs.docker.com/engine/reference/commandline/stop/), [start](https://docs.docker.com/engine/reference/commandline/start/), and [attach](https://docs.docker.com/engine/reference/commandline/exec/) to the container.
 
 ## Development Workflow
 After cloning MapillaryJS, run `yarn` to fetch its dependencies. Then, you can run several commands:
