@@ -1,0 +1,599 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<link rel="icon" href="assets/images/favicon-32x32.png" type="image/x-icon">
+	<title>GeoCoords | MapillaryJS
+	</title>
+	<meta name="description" content="Documentation for MapillaryJS">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">MapillaryJS</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="geocoords.html">GeoCoords</a>
+				</li>
+			</ul>
+			<h1>Class GeoCoords</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<dl class="tsd-comment-tags">
+						<dt>classdesc</dt>
+						<dd><p>Converts coordinates between the geodetic (WGS84),
+								Earth-Centered, Earth-Fixed (ECEF) and local topocentric
+							East, North, Up (ENU) reference frames.</p>
+							<p>The WGS84 has latitude (degrees), longitude (degrees) and
+							altitude (meters) values.</p>
+							<p>The ECEF Z-axis pierces the north pole and the
+								XY-axis defines the equatorial plane. The X-axis extends
+								from the geocenter to the intersection of the Equator and
+							the Greenwich Meridian. All values in meters.</p>
+							<p>The WGS84 parameters are:</p>
+							<p>a = 6378137
+								b = a * (1 - f)
+								f = 1 / 298.257223563
+								e = Math.sqrt((a^2 - b^2) / a^2)
+							e&#39; = Math.sqrt((a^2 - b^2) / b^2)</p>
+							<p>The WGS84 to ECEF conversion is performed using the following:</p>
+							<p>X = (N - h) * cos(phi) * cos(lambda)
+								Y = (N + h) * cos(phi) * sin(lambda)
+							Z = (b^2 * N / a^2 + h) * sin(phi)</p>
+							<p>where</p>
+							<p>phi = latitude
+								lambda = longitude
+								h = height above ellipsoid (altitude)
+								N = Radius of curvature (meters)
+							= a / Math.sqrt(1 - e^2 * sin(phi)^2)</p>
+							<p>The ECEF to WGS84 conversion is performed using the following:</p>
+							<p>phi = arctan((Z + e&#39;^2 * b * sin(theta)^3) / (p - e^2 * a * cos(theta)^3))
+								lambda = arctan(Y / X)
+							h = p / cos(phi) - N</p>
+							<p>where</p>
+							<p>p = Math.sqrt(X^2 + Y^2)
+							theta = arctan(Z * a / p * b)</p>
+							<p>In the ENU reference frame the x-axis points to the
+								East, the y-axis to the North and the z-axis Up. All values
+							in meters.</p>
+							<p>The ECEF to ENU conversion is performed using the following:</p>
+							<p>| x |   |       -sin(lambda_r)                cos(lambda_r)             0      | | X - X_r |
+								| y | = | -sin(phi_r) * cos(lambda_r)  -sin(phi_r) * sin(lambda_r)  cos(phi_r) | | Y - Y_r |
+							| z |   |  cos(phi_r) * cos(lambda_r)   cos(phi_r) * sin(lambda_r)  sin(phi_r) | | Z - Z_r |</p>
+							<p>where</p>
+							<p>phi_r = latitude of reference
+								lambda_r = longitude of reference
+							X_r, Y_r, Z_r = ECEF coordinates of reference</p>
+							<p>The ENU to ECEF conversion is performed by solving the above equation for X, Y, Z.</p>
+							<p>WGS84 to ENU and ENU to WGS84 are two step conversions with ECEF calculated in
+							the first step for both conversions.</p>
+						</dd>
+					</dl>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">GeoCoords</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="geocoords.html#eceftoenu" class="tsd-kind-icon">ecef<wbr>ToEnu</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="geocoords.html#eceftogeodetic" class="tsd-kind-icon">ecef<wbr>ToGeodetic</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="geocoords.html#enutoecef" class="tsd-kind-icon">enu<wbr>ToEcef</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="geocoords.html#enutogeodetic" class="tsd-kind-icon">enu<wbr>ToGeodetic</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="geocoords.html#geodetictoecef" class="tsd-kind-icon">geodetic<wbr>ToEcef</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="geocoords.html#geodetictoenu" class="tsd-kind-icon">geodetic<wbr>ToEnu</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="eceftoenu" class="tsd-anchor"></a>
+					<h3>ecef<wbr>ToEnu</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">ecef<wbr>ToEnu<span class="tsd-signature-symbol">(</span>X<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, Y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, Z<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, refLat<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, refLon<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, refAlt<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/geo/GeoCoords.ts#L138">src/geo/GeoCoords.ts:138</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Convert coordinates from Earth-Centered, Earth-Fixed (ECEF) reference
+									to local topocentric (ENU) reference.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>X: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>ECEF X-value.</p>
+									</div>
+								</li>
+								<li>
+									<h5>Y: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>ECEF Y-value.</p>
+									</div>
+								</li>
+								<li>
+									<h5>Z: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>ECEF Z-value.</p>
+									</div>
+								</li>
+								<li>
+									<h5>refLat: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Reference latitude in degrees.</p>
+									</div>
+								</li>
+								<li>
+									<h5>refLon: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Reference longitude in degrees.</p>
+									</div>
+								</li>
+								<li>
+									<h5>refAlt: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Reference altitude in meters.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
+							<p>The x, y, z topocentric ENU coordinates in East, North
+							and Up directions respectively.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="eceftogeodetic" class="tsd-anchor"></a>
+					<h3>ecef<wbr>ToGeodetic</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">ecef<wbr>ToGeodetic<span class="tsd-signature-symbol">(</span>X<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, Y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, Z<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/geo/GeoCoords.ts#L247">src/geo/GeoCoords.ts:247</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Convert coordinates from Earth-Centered, Earth-Fixed (ECEF) reference
+									to geodetic reference (WGS84).</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>X: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>ECEF X-value.</p>
+									</div>
+								</li>
+								<li>
+									<h5>Y: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>ECEF Y-value.</p>
+									</div>
+								</li>
+								<li>
+									<h5>Z: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>ECEF Z-value.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
+							<p>The latitude and longitude in degrees
+							as well as altitude in meters.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="enutoecef" class="tsd-anchor"></a>
+					<h3>enu<wbr>ToEcef</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">enu<wbr>ToEcef<span class="tsd-signature-symbol">(</span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, z<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, refLat<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, refLon<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, refAlt<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/geo/GeoCoords.ts#L177">src/geo/GeoCoords.ts:177</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Convert coordinates from local topocentric (ENU) reference
+									to Earth-Centered, Earth-Fixed (ECEF) reference.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>x: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Topocentric ENU coordinate in East direction.</p>
+									</div>
+								</li>
+								<li>
+									<h5>y: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Topocentric ENU coordinate in North direction.</p>
+									</div>
+								</li>
+								<li>
+									<h5>z: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Topocentric ENU coordinate in Up direction.</p>
+									</div>
+								</li>
+								<li>
+									<h5>refLat: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Reference latitude in degrees.</p>
+									</div>
+								</li>
+								<li>
+									<h5>refLon: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Reference longitude in degrees.</p>
+									</div>
+								</li>
+								<li>
+									<h5>refAlt: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Reference altitude in meters.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
+							<p>The X, Y, Z ECEF coordinates.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="enutogeodetic" class="tsd-anchor"></a>
+					<h3>enu<wbr>ToGeodetic</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">enu<wbr>ToGeodetic<span class="tsd-signature-symbol">(</span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, z<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, refLat<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, refLon<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, refAlt<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/geo/GeoCoords.ts#L112">src/geo/GeoCoords.ts:112</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Convert coordinates from local topocentric (ENU) reference to
+									geodetic (WGS84) reference.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>x: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Topocentric ENU coordinate in East direction.</p>
+									</div>
+								</li>
+								<li>
+									<h5>y: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Topocentric ENU coordinate in North direction.</p>
+									</div>
+								</li>
+								<li>
+									<h5>z: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Topocentric ENU coordinate in Up direction.</p>
+									</div>
+								</li>
+								<li>
+									<h5>refLat: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Reference latitude in degrees.</p>
+									</div>
+								</li>
+								<li>
+									<h5>refLon: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Reference longitude in degrees.</p>
+									</div>
+								</li>
+								<li>
+									<h5>refAlt: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Reference altitude in meters.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
+							<p>The latitude and longitude in degrees
+							as well as altitude in meters.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="geodetictoecef" class="tsd-anchor"></a>
+					<h3>geodetic<wbr>ToEcef</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">geodetic<wbr>ToEcef<span class="tsd-signature-symbol">(</span>lat<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, lon<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, alt<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/geo/GeoCoords.ts#L211">src/geo/GeoCoords.ts:211</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Convert coordinates from geodetic reference (WGS84) to Earth-Centered,
+									Earth-Fixed (ECEF) reference.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>lat: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Latitude in degrees.</p>
+									</div>
+								</li>
+								<li>
+									<h5>lon: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Longitude in degrees.</p>
+									</div>
+								</li>
+								<li>
+									<h5>alt: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Altitude in meters.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
+							<p>The X, Y, Z ECEF coordinates.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="geodetictoenu" class="tsd-anchor"></a>
+					<h3>geodetic<wbr>ToEnu</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">geodetic<wbr>ToEnu<span class="tsd-signature-symbol">(</span>lat<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, lon<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, alt<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, refLat<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, refLon<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, refAlt<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/geo/GeoCoords.ts#L86">src/geo/GeoCoords.ts:86</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Convert coordinates from geodetic (WGS84) reference to local topocentric
+									(ENU) reference.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>lat: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Latitude in degrees.</p>
+									</div>
+								</li>
+								<li>
+									<h5>lon: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Longitude in degrees.</p>
+									</div>
+								</li>
+								<li>
+									<h5>alt: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Altitude in meters.</p>
+									</div>
+								</li>
+								<li>
+									<h5>refLat: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Reference latitude in degrees.</p>
+									</div>
+								</li>
+								<li>
+									<h5>refLon: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Reference longitude in degrees.</p>
+									</div>
+								</li>
+								<li>
+									<h5>refAlt: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Reference altitude in meters.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
+							<p>The x, y, z local topocentric ENU coordinates.</p>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class">
+						<a href="geocoords.html" class="tsd-kind-icon">Geo<wbr>Coords</a>
+						<ul>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="geocoords.html#eceftoenu" class="tsd-kind-icon">ecef<wbr>ToEnu</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="geocoords.html#eceftogeodetic" class="tsd-kind-icon">ecef<wbr>ToGeodetic</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="geocoords.html#enutoecef" class="tsd-kind-icon">enu<wbr>ToEcef</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="geocoords.html#enutogeodetic" class="tsd-kind-icon">enu<wbr>ToGeodetic</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="geocoords.html#geodetictoecef" class="tsd-kind-icon">geodetic<wbr>ToEcef</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="geocoords.html#geodetictoenu" class="tsd-kind-icon">geodetic<wbr>ToEnu</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer>
+	<div>
+		<div class="container">
+			<h2>Legend</h2>
+			<div class="tsd-legend-group">
+				<ul class="tsd-legend">
+					<li class="tsd-kind-constructor tsd-parent-kind-class"><span
+						class="tsd-kind-icon">Constructor</span>
+					</li>
+					<li class="tsd-kind-method tsd-parent-kind-class"><span
+						class="tsd-kind-icon">Method</span>
+					</li>
+					<li class="tsd-kind-accessor tsd-parent-kind-class"><span
+						class="tsd-kind-icon">Accessor</span>
+					</li>
+				</ul>
+				<ul class="tsd-legend">
+					<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span
+						class="tsd-kind-icon">Inherited property</span>
+					</li>
+					<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span
+						class="tsd-kind-icon">Inherited method</span>
+					</li>
+				</ul>
+				<ul class="tsd-legend">
+					<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span
+						class="tsd-kind-icon">Static property</span>
+					</li>
+					<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span
+						class="tsd-kind-icon">Static method</span>
+					</li>
+				</ul>
+				<ul class="tsd-legend">
+					<li class="tsd-kind-property tsd-parent-kind-interface"><span
+						class="tsd-kind-icon">Property</span>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="container tsd-generator">
+		<h2>Legal</h2>
+		<ul class="tsd-legend">
+			<li>
+				<a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">
+					Privacy
+				</a>
+			</li>
+			<li>
+				<a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">
+					Terms
+				</a>
+			</li>
+		</ul>
+	</div>
+</footer>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

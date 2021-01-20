@@ -75,19 +75,23 @@
 						<dt>interface</dt>
 						<dd></dd>
 						<dt>example</dt>
-						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">viewer</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.Viewer(&#x27;&lt;element-id&gt;&#x27;,</span> <span class="hljs-string">&#x27;&lt;client-id&gt;&#x27;</span><span class="hljs-string">,</span> <span class="hljs-string">&#x27;&lt;image-key&gt;&#x27;</span><span class="hljs-string">,</span>
-    {
-        <span class="hljs-attr">component:</span> {
-            <span class="hljs-attr">spatialData:</span> {
-                <span class="hljs-attr">camerasVisible:</span> <span class="hljs-literal">true</span>,
-                <span class="hljs-attr">connectedComponents:</span> <span class="hljs-literal">true</span>,
-                <span class="hljs-attr">earthControls:</span> <span class="hljs-literal">true</span>,
-                <span class="hljs-attr">pointsVisible:</span> <span class="hljs-literal">false</span>,
-                <span class="hljs-attr">positionsVisible:</span> <span class="hljs-literal">true</span>,
-                <span class="hljs-attr">tilesVisible:</span> <span class="hljs-literal">true</span>,
-            },
+						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">mode</span> <span class="hljs-string">=</span> <span class="hljs-string">Mapilary.SpatialDataComponent.CameraVisualizationMode;</span>
+<span class="hljs-string">var</span> <span class="hljs-string">viewer</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.Viewer({</span>
+    <span class="hljs-string">...</span>
+    <span class="hljs-attr">component:</span> {
+        <span class="hljs-attr">spatialData:</span> {
+            <span class="hljs-attr">cameraSize:</span> <span class="hljs-number">0.5</span>,
+            <span class="hljs-attr">camerasVisible:</span> <span class="hljs-literal">true</span>,
+            <span class="hljs-attr">cameraVisualizationMode:</span> <span class="hljs-string">mode.Cluster</span>,
+            <span class="hljs-attr">earthControls:</span> <span class="hljs-literal">true</span>,
+            <span class="hljs-attr">pointSize:</span> <span class="hljs-number">0.5</span>,
+            <span class="hljs-attr">pointsVisible:</span> <span class="hljs-literal">false</span>,
+            <span class="hljs-attr">positionsVisible:</span> <span class="hljs-literal">true</span>,
+            <span class="hljs-attr">tilesVisible:</span> <span class="hljs-literal">true</span>,
         },
-    }<span class="hljs-string">)</span></code></pre></dd>
+    }<span class="hljs-string">,</span>
+    <span class="hljs-string">...</span>
+<span class="hljs-string">});</span></code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -115,19 +119,23 @@
 						<dt>interface</dt>
 						<dd></dd>
 						<dt>example</dt>
-						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">viewer</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.Viewer(&#x27;&lt;element-id&gt;&#x27;,</span> <span class="hljs-string">&#x27;&lt;client-id&gt;&#x27;</span><span class="hljs-string">,</span> <span class="hljs-string">&#x27;&lt;image-key&gt;&#x27;</span><span class="hljs-string">,</span>
-    {
-        <span class="hljs-attr">component:</span> {
-            <span class="hljs-attr">spatialData:</span> {
-                <span class="hljs-attr">camerasVisible:</span> <span class="hljs-literal">true</span>,
-                <span class="hljs-attr">connectedComponents:</span> <span class="hljs-literal">true</span>,
-                <span class="hljs-attr">earthControls:</span> <span class="hljs-literal">true</span>,
-                <span class="hljs-attr">pointsVisible:</span> <span class="hljs-literal">false</span>,
-                <span class="hljs-attr">positionsVisible:</span> <span class="hljs-literal">true</span>,
-                <span class="hljs-attr">tilesVisible:</span> <span class="hljs-literal">true</span>,
-            },
+						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">mode</span> <span class="hljs-string">=</span> <span class="hljs-string">Mapilary.SpatialDataComponent.CameraVisualizationMode;</span>
+<span class="hljs-string">var</span> <span class="hljs-string">viewer</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.Viewer({</span>
+    <span class="hljs-string">...</span>
+    <span class="hljs-attr">component:</span> {
+        <span class="hljs-attr">spatialData:</span> {
+            <span class="hljs-attr">cameraSize:</span> <span class="hljs-number">0.5</span>,
+            <span class="hljs-attr">camerasVisible:</span> <span class="hljs-literal">true</span>,
+            <span class="hljs-attr">cameraVisualizationMode:</span> <span class="hljs-string">mode.Cluster</span>,
+            <span class="hljs-attr">earthControls:</span> <span class="hljs-literal">true</span>,
+            <span class="hljs-attr">pointSize:</span> <span class="hljs-number">0.5</span>,
+            <span class="hljs-attr">pointsVisible:</span> <span class="hljs-literal">false</span>,
+            <span class="hljs-attr">positionsVisible:</span> <span class="hljs-literal">true</span>,
+            <span class="hljs-attr">tilesVisible:</span> <span class="hljs-literal">true</span>,
         },
-    }<span class="hljs-string">)</span></code></pre></dd>
+    }<span class="hljs-string">,</span>
+    <span class="hljs-string">...</span>
+<span class="hljs-string">});</span></code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -138,9 +146,13 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ispatialdataconfiguration.html#camerasize" class="tsd-kind-icon">camera<wbr>Size</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ispatialdataconfiguration.html#cameravisualizationmode" class="tsd-kind-icon">camera<wbr>Visualization<wbr>Mode</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ispatialdataconfiguration.html#camerasvisible" class="tsd-kind-icon">cameras<wbr>Visible</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ispatialdataconfiguration.html#connectedcomponents" class="tsd-kind-icon">connected<wbr>Components</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ispatialdataconfiguration.html#earthcontrols" class="tsd-kind-icon">earth<wbr>Controls</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ispatialdataconfiguration.html#originalpositionmode" class="tsd-kind-icon">original<wbr>Position<wbr>Mode</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ispatialdataconfiguration.html#pointsize" class="tsd-kind-icon">point<wbr>Size</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ispatialdataconfiguration.html#pointsvisible" class="tsd-kind-icon">points<wbr>Visible</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ispatialdataconfiguration.html#positionsvisible" class="tsd-kind-icon">positions<wbr>Visible</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ispatialdataconfiguration.html#tilesvisible" class="tsd-kind-icon">tiles<wbr>Visible</a></li>
@@ -152,12 +164,32 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="camerasize" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> camera<wbr>Size</h3>
+					<div class="tsd-signature tsd-kind-icon">camera<wbr>Size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/ISpatialDataConfiguration.ts#L36">src/component/interfaces/ISpatialDataConfiguration.ts:36</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The camera size on the interval [0.01, 1].</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>0.1</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="cameravisualizationmode" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> camera<wbr>Visualization<wbr>Mode</h3>
 					<div class="tsd-signature tsd-kind-icon">camera<wbr>Visualization<wbr>Mode<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">CameraVisualizationMode</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/ISpatialDataConfiguration.ts#L38">src/component/interfaces/ISpatialDataConfiguration.ts:38</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/ISpatialDataConfiguration.ts#L50">src/component/interfaces/ISpatialDataConfiguration.ts:50</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -177,7 +209,7 @@
 					<div class="tsd-signature tsd-kind-icon">cameras<wbr>Visible<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/ISpatialDataConfiguration.ts#L31">src/component/interfaces/ISpatialDataConfiguration.ts:31</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/ISpatialDataConfiguration.ts#L43">src/component/interfaces/ISpatialDataConfiguration.ts:43</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -197,13 +229,83 @@
 					<div class="tsd-signature tsd-kind-icon">connected<wbr>Components<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/ISpatialDataConfiguration.ts#L55">src/component/interfaces/ISpatialDataConfiguration.ts:55</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/ISpatialDataConfiguration.ts#L56">src/component/interfaces/ISpatialDataConfiguration.ts:56</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<dl class="tsd-comment-tags">
 							<dt>deprecated</dt>
-							<dd><p>since v2.19.0</p>
+							<dd><p>Deprecated since v2.19.0. Use cameraVisualizationMode
+								property instead.</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="earthcontrols" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> earth<wbr>Controls</h3>
+					<div class="tsd-signature tsd-kind-icon">earth<wbr>Controls<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/ISpatialDataConfiguration.ts#L67">src/component/interfaces/ISpatialDataConfiguration.ts:67</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Specify if the camera should be controlled in earth
+							mode.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>This is an experimental configuration property that
+								may be removed in a future minor release.</p>
+							</dd>
+							<dt>default</dt>
+							<dd><p>false</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="originalpositionmode" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> original<wbr>Position<wbr>Mode</h3>
+					<div class="tsd-signature tsd-kind-icon">original<wbr>Position<wbr>Mode<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">OriginalPositionMode</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/ISpatialDataConfiguration.ts#L77">src/component/interfaces/ISpatialDataConfiguration.ts:77</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Specify the original position visualization mode.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>description</dt>
+							<dd><p>The original positions are hidden
+								by default.</p>
+							</dd>
+							<dt>default</dt>
+							<dd><p>OriginalPositionMode.Hidden</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="pointsize" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> point<wbr>Size</h3>
+					<div class="tsd-signature tsd-kind-icon">point<wbr>Size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/ISpatialDataConfiguration.ts#L84">src/component/interfaces/ISpatialDataConfiguration.ts:84</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The point size on the interval [0.01, 1].</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>0.1</p>
 							</dd>
 						</dl>
 					</div>
@@ -214,7 +316,7 @@
 					<div class="tsd-signature tsd-kind-icon">points<wbr>Visible<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/ISpatialDataConfiguration.ts#L62">src/component/interfaces/ISpatialDataConfiguration.ts:62</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/ISpatialDataConfiguration.ts#L91">src/component/interfaces/ISpatialDataConfiguration.ts:91</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -234,16 +336,14 @@
 					<div class="tsd-signature tsd-kind-icon">positions<wbr>Visible<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/ISpatialDataConfiguration.ts#L69">src/component/interfaces/ISpatialDataConfiguration.ts:69</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/ISpatialDataConfiguration.ts#L97">src/component/interfaces/ISpatialDataConfiguration.ts:97</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Specify if the original GPS positions should be visible or not.</p>
-						</div>
 						<dl class="tsd-comment-tags">
-							<dt>default</dt>
-							<dd><p>false</p>
+							<dt>deprecated</dt>
+							<dd><p>Deprecated since v3.1.0. Use originalPositionMode
+								property instead.</p>
 							</dd>
 						</dl>
 					</div>
@@ -254,7 +354,7 @@
 					<div class="tsd-signature tsd-kind-icon">tiles<wbr>Visible<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/ISpatialDataConfiguration.ts#L76">src/component/interfaces/ISpatialDataConfiguration.ts:76</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/ISpatialDataConfiguration.ts#L104">src/component/interfaces/ISpatialDataConfiguration.ts:104</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -286,6 +386,9 @@
 						<a href="ispatialdataconfiguration.html" class="tsd-kind-icon">ISpatial<wbr>Data<wbr>Configuration</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="ispatialdataconfiguration.html#camerasize" class="tsd-kind-icon">camera<wbr>Size</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="ispatialdataconfiguration.html#cameravisualizationmode" class="tsd-kind-icon">camera<wbr>Visualization<wbr>Mode</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
@@ -293,6 +396,15 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="ispatialdataconfiguration.html#connectedcomponents" class="tsd-kind-icon">connected<wbr>Components</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="ispatialdataconfiguration.html#earthcontrols" class="tsd-kind-icon">earth<wbr>Controls</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="ispatialdataconfiguration.html#originalpositionmode" class="tsd-kind-icon">original<wbr>Position<wbr>Mode</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="ispatialdataconfiguration.html#pointsize" class="tsd-kind-icon">point<wbr>Size</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="ispatialdataconfiguration.html#pointsvisible" class="tsd-kind-icon">points<wbr>Visible</a>

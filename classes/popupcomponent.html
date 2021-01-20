@@ -82,13 +82,9 @@
 							<p>To retrive and use the popup component</p>
 						</dd>
 						<dt>example</dt>
-						<dd><pre><code><span class="hljs-keyword">var</span> viewer = <span class="hljs-keyword">new</span> Mapillary.Viewer(
-    <span class="hljs-string">&quot;&lt;element-id&gt;&quot;</span>,
-    <span class="hljs-string">&quot;&lt;client-id&gt;&quot;</span>,
-    <span class="hljs-string">&quot;&lt;my key&gt;&quot;</span>,
-    { component: { popup: <span class="hljs-literal">true</span> } });
+						<dd><pre><code>var viewer = <span class="hljs-keyword">new</span> Mapillary.<span class="hljs-constructor">Viewer({ <span class="hljs-params">component</span>: { <span class="hljs-params">popup</span>: <span class="hljs-params">true</span> }, <span class="hljs-operator">...</span> })</span>;
 
-<span class="hljs-keyword">var</span> popupComponent = viewer.getComponent(<span class="hljs-string">&quot;popup&quot;</span>);</code></pre></dd>
+var popupComponent = viewer.get<span class="hljs-constructor">Component(<span class="hljs-string">&quot;popup&quot;</span>)</span>;</code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -150,7 +146,7 @@
 					<aside class="tsd-sources">
 						<p>Overrides Component.componentName</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/popup/PopupComponent.ts#L65">src/component/popup/PopupComponent.ts:65</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/popup/PopupComponent.ts#L61">src/component/popup/PopupComponent.ts:61</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -168,7 +164,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="bearingcomponent.html">BearingComponent</a>.<a href="bearingcomponent.html#activated">activated</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/Component.ts#L50">src/component/Component.ts:50</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/Component.ts#L50">src/component/Component.ts:50</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -186,7 +182,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="bearingcomponent.html">BearingComponent</a>.<a href="bearingcomponent.html#defaultconfiguration">defaultConfiguration</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/Component.ts#L64">src/component/Component.ts:64</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/Component.ts#L64">src/component/Component.ts:64</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -210,7 +206,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="bearingcomponent.html">BearingComponent</a>.<a href="bearingcomponent.html#name">name</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/Component.ts#L79">src/component/Component.ts:79</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/Component.ts#L79">src/component/Component.ts:79</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -242,7 +238,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="bearingcomponent.html">BearingComponent</a>.<a href="bearingcomponent.html#activate">activate</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/Component.ts#L83">src/component/Component.ts:83</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/Component.ts#L83">src/component/Component.ts:83</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -265,7 +261,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/popup/PopupComponent.ts#L101">src/component/popup/PopupComponent.ts:101</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/popup/PopupComponent.ts#L97">src/component/popup/PopupComponent.ts:97</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -307,7 +303,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="bearingcomponent.html">BearingComponent</a>.<a href="bearingcomponent.html#configure">configure</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/Component.ts#L97">src/component/Component.ts:97</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/Component.ts#L97">src/component/Component.ts:97</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -331,7 +327,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="bearingcomponent.html">BearingComponent</a>.<a href="bearingcomponent.html#deactivate">deactivate</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/Component.ts#L101">src/component/Component.ts:101</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/Component.ts#L101">src/component/Component.ts:101</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -349,7 +345,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="viewer.html">Viewer</a>.<a href="viewer.html#fire">fire</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/utils/EventEmitter.ts#L45">src/utils/EventEmitter.ts:45</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/utils/EventEmitter.ts#L45">src/utils/EventEmitter.ts:45</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -375,7 +371,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/popup/PopupComponent.ts#L123">src/component/popup/PopupComponent.ts:123</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/popup/PopupComponent.ts#L119">src/component/popup/PopupComponent.ts:119</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -403,7 +399,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="viewer.html">Viewer</a>.<a href="viewer.html#off">off</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/utils/EventEmitter.ts#L24">src/utils/EventEmitter.ts:24</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/utils/EventEmitter.ts#L24">src/utils/EventEmitter.ts:24</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -441,7 +437,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="viewer.html">Viewer</a>.<a href="viewer.html#on">on</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/utils/EventEmitter.ts#L13">src/utils/EventEmitter.ts:13</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/utils/EventEmitter.ts#L13">src/utils/EventEmitter.ts:13</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -478,7 +474,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/popup/PopupComponent.ts#L134">src/component/popup/PopupComponent.ts:134</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/popup/PopupComponent.ts#L130">src/component/popup/PopupComponent.ts:130</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -514,7 +510,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/popup/PopupComponent.ts#L147">src/component/popup/PopupComponent.ts:147</a></li>
+									<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/popup/PopupComponent.ts#L143">src/component/popup/PopupComponent.ts:143</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

@@ -75,17 +75,18 @@
 						<dt>interface</dt>
 						<dd></dd>
 						<dt>example</dt>
-						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">viewer</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.Viewer(&#x27;&lt;element-id&gt;&#x27;,</span> <span class="hljs-string">&#x27;&lt;client-id&gt;&#x27;</span><span class="hljs-string">,</span> <span class="hljs-string">&#x27;&lt;image-key&gt;&#x27;</span><span class="hljs-string">,</span>
-    {
-        <span class="hljs-attr">component:</span> {
-            <span class="hljs-attr">mouse:</span> {
-                <span class="hljs-attr">doubleClickZoom:</span> <span class="hljs-literal">false</span>,
-                <span class="hljs-attr">dragPan:</span> <span class="hljs-literal">false</span>,
-                <span class="hljs-attr">scrollZoom:</span> <span class="hljs-literal">false</span>,
-                <span class="hljs-attr">touchZoom:</span> <span class="hljs-literal">false</span>,
-            },
+						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">viewer</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.Viewer({</span>
+    <span class="hljs-string">...</span>
+    <span class="hljs-attr">component:</span> {
+        <span class="hljs-attr">mouse:</span> {
+            <span class="hljs-attr">doubleClickZoom:</span> <span class="hljs-literal">false</span>,
+            <span class="hljs-attr">dragPan:</span> <span class="hljs-literal">false</span>,
+            <span class="hljs-attr">scrollZoom:</span> <span class="hljs-literal">false</span>,
+            <span class="hljs-attr">touchZoom:</span> <span class="hljs-literal">false</span>,
         },
-    }<span class="hljs-string">)</span></code></pre></dd>
+    }<span class="hljs-string">,</span>
+    <span class="hljs-string">...</span>
+<span class="hljs-string">});</span></code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -113,17 +114,18 @@
 						<dt>interface</dt>
 						<dd></dd>
 						<dt>example</dt>
-						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">viewer</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.Viewer(&#x27;&lt;element-id&gt;&#x27;,</span> <span class="hljs-string">&#x27;&lt;client-id&gt;&#x27;</span><span class="hljs-string">,</span> <span class="hljs-string">&#x27;&lt;image-key&gt;&#x27;</span><span class="hljs-string">,</span>
-    {
-        <span class="hljs-attr">component:</span> {
-            <span class="hljs-attr">mouse:</span> {
-                <span class="hljs-attr">doubleClickZoom:</span> <span class="hljs-literal">false</span>,
-                <span class="hljs-attr">dragPan:</span> <span class="hljs-literal">false</span>,
-                <span class="hljs-attr">scrollZoom:</span> <span class="hljs-literal">false</span>,
-                <span class="hljs-attr">touchZoom:</span> <span class="hljs-literal">false</span>,
-            },
+						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">viewer</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.Viewer({</span>
+    <span class="hljs-string">...</span>
+    <span class="hljs-attr">component:</span> {
+        <span class="hljs-attr">mouse:</span> {
+            <span class="hljs-attr">doubleClickZoom:</span> <span class="hljs-literal">false</span>,
+            <span class="hljs-attr">dragPan:</span> <span class="hljs-literal">false</span>,
+            <span class="hljs-attr">scrollZoom:</span> <span class="hljs-literal">false</span>,
+            <span class="hljs-attr">touchZoom:</span> <span class="hljs-literal">false</span>,
         },
-    }<span class="hljs-string">)</span></code></pre></dd>
+    }<span class="hljs-string">,</span>
+    <span class="hljs-string">...</span>
+<span class="hljs-string">});</span></code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -151,7 +153,7 @@
 					<div class="tsd-signature tsd-kind-icon">double<wbr>Click<wbr>Zoom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/IMouseConfiguration.ts#L28">src/component/interfaces/IMouseConfiguration.ts:28</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/IMouseConfiguration.ts#L29">src/component/interfaces/IMouseConfiguration.ts:29</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -171,7 +173,7 @@
 					<div class="tsd-signature tsd-kind-icon">drag<wbr>Pan<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/IMouseConfiguration.ts#L35">src/component/interfaces/IMouseConfiguration.ts:35</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/IMouseConfiguration.ts#L36">src/component/interfaces/IMouseConfiguration.ts:36</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -191,7 +193,7 @@
 					<div class="tsd-signature tsd-kind-icon">scroll<wbr>Zoom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/IMouseConfiguration.ts#L42">src/component/interfaces/IMouseConfiguration.ts:42</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/IMouseConfiguration.ts#L43">src/component/interfaces/IMouseConfiguration.ts:43</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -211,7 +213,7 @@
 					<div class="tsd-signature tsd-kind-icon">touch<wbr>Zoom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/IMouseConfiguration.ts#L49">src/component/interfaces/IMouseConfiguration.ts:49</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/IMouseConfiguration.ts#L50">src/component/interfaces/IMouseConfiguration.ts:50</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">

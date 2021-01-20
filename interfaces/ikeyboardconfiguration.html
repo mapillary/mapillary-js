@@ -75,16 +75,17 @@
 						<dt>interface</dt>
 						<dd></dd>
 						<dt>example</dt>
-						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">viewer</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.Viewer(&#x27;&lt;element-id&gt;&#x27;,</span> <span class="hljs-string">&#x27;&lt;client-id&gt;&#x27;</span><span class="hljs-string">,</span> <span class="hljs-string">&#x27;&lt;image-key&gt;&#x27;</span><span class="hljs-string">,</span>
-    {
-        <span class="hljs-attr">component:</span> {
-            <span class="hljs-attr">keyboard:</span> {
-                <span class="hljs-attr">keyZoom:</span> <span class="hljs-literal">false</span>,
-                <span class="hljs-attr">keySequenceNavigation:</span> <span class="hljs-literal">false</span>,
-                <span class="hljs-attr">keySpatialNavigation:</span> <span class="hljs-literal">false</span>,
-            },
+						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">viewer</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.Viewer({</span>
+    <span class="hljs-string">...</span>
+    <span class="hljs-attr">component:</span> {
+        <span class="hljs-attr">keyboard:</span> {
+            <span class="hljs-attr">keyZoom:</span> <span class="hljs-literal">false</span>,
+            <span class="hljs-attr">keySequenceNavigation:</span> <span class="hljs-literal">false</span>,
+            <span class="hljs-attr">keySpatialNavigation:</span> <span class="hljs-literal">false</span>,
         },
-    }<span class="hljs-string">)</span></code></pre></dd>
+    }<span class="hljs-string">,</span>
+    <span class="hljs-string">...</span>
+<span class="hljs-string">});</span></code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -112,16 +113,17 @@
 						<dt>interface</dt>
 						<dd></dd>
 						<dt>example</dt>
-						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">viewer</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.Viewer(&#x27;&lt;element-id&gt;&#x27;,</span> <span class="hljs-string">&#x27;&lt;client-id&gt;&#x27;</span><span class="hljs-string">,</span> <span class="hljs-string">&#x27;&lt;image-key&gt;&#x27;</span><span class="hljs-string">,</span>
-    {
-        <span class="hljs-attr">component:</span> {
-            <span class="hljs-attr">keyboard:</span> {
-                <span class="hljs-attr">keyZoom:</span> <span class="hljs-literal">false</span>,
-                <span class="hljs-attr">keySequenceNavigation:</span> <span class="hljs-literal">false</span>,
-                <span class="hljs-attr">keySpatialNavigation:</span> <span class="hljs-literal">false</span>,
-            },
+						<dd><pre><code><span class="hljs-string">var</span> <span class="hljs-string">viewer</span> <span class="hljs-string">=</span> <span class="hljs-string">new</span> <span class="hljs-string">Mapillary.Viewer({</span>
+    <span class="hljs-string">...</span>
+    <span class="hljs-attr">component:</span> {
+        <span class="hljs-attr">keyboard:</span> {
+            <span class="hljs-attr">keyZoom:</span> <span class="hljs-literal">false</span>,
+            <span class="hljs-attr">keySequenceNavigation:</span> <span class="hljs-literal">false</span>,
+            <span class="hljs-attr">keySpatialNavigation:</span> <span class="hljs-literal">false</span>,
         },
-    }<span class="hljs-string">)</span></code></pre></dd>
+    }<span class="hljs-string">,</span>
+    <span class="hljs-string">...</span>
+<span class="hljs-string">});</span></code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -149,7 +151,7 @@
 					<div class="tsd-signature tsd-kind-icon">key<wbr>Play<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/IKeyboardConfiguration.ts#L27">src/component/interfaces/IKeyboardConfiguration.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/IKeyboardConfiguration.ts#L28">src/component/interfaces/IKeyboardConfiguration.ts:28</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -169,7 +171,7 @@
 					<div class="tsd-signature tsd-kind-icon">key<wbr>Sequence<wbr>Navigation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/IKeyboardConfiguration.ts#L34">src/component/interfaces/IKeyboardConfiguration.ts:34</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/IKeyboardConfiguration.ts#L35">src/component/interfaces/IKeyboardConfiguration.ts:35</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -189,7 +191,7 @@
 					<div class="tsd-signature tsd-kind-icon">key<wbr>Spatial<wbr>Navigation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/IKeyboardConfiguration.ts#L41">src/component/interfaces/IKeyboardConfiguration.ts:41</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/IKeyboardConfiguration.ts#L42">src/component/interfaces/IKeyboardConfiguration.ts:42</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -209,7 +211,7 @@
 					<div class="tsd-signature tsd-kind-icon">key<wbr>Zoom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/IKeyboardConfiguration.ts#L48">src/component/interfaces/IKeyboardConfiguration.ts:48</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/IKeyboardConfiguration.ts#L49">src/component/interfaces/IKeyboardConfiguration.ts:49</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">

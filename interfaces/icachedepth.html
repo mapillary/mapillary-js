@@ -75,17 +75,18 @@
 						<dt>interface</dt>
 						<dd></dd>
 						<dt>example</dt>
-						<dd><pre><code>var viewer = <span class="hljs-built_in">new</span> Mapillary.Viewer(<span class="hljs-string">&#x27;&lt;element-id&gt;&#x27;</span>, <span class="hljs-string">&#x27;&lt;client-id&gt;&#x27;</span>, <span class="hljs-string">&#x27;&lt;image-key&gt;&#x27;</span>,
-    {
-        component: {
-            <span class="hljs-keyword">cache</span>: {
-                depth: {
-                    pano: <span class="hljs-number">2</span>,
-                    <span class="hljs-keyword">sequence</span>: <span class="hljs-number">3</span>,
-                }
-            },
+						<dd><pre><code>var viewer = new Mapillary.Viewer({
+    ...
+<span class="hljs-symbol">    component:</span> {
+<span class="hljs-symbol">        cache:</span> {
+<span class="hljs-symbol">            depth:</span> {
+<span class="hljs-symbol">                pano:</span> <span class="hljs-number">2</span>,
+<span class="hljs-symbol">                sequence:</span> <span class="hljs-number">3</span>,
+            }
         },
-    })</code></pre></dd>
+    },
+    ...
+});</code></pre></dd>
 					</dl>
 				</div>
 			</section>
@@ -121,7 +122,7 @@
 					<div class="tsd-signature tsd-kind-icon">pano<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/ICacheConfiguration.ts#L39">src/component/interfaces/ICacheConfiguration.ts:39</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/ICacheConfiguration.ts#L40">src/component/interfaces/ICacheConfiguration.ts:40</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -130,7 +131,7 @@
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>description</dt>
-							<dd><p>Max value is 2. Value will be coerced
+							<dd><p>Max value is 2. Value will be clamped
 								to the interval [0, 2].</p>
 							</dd>
 							<dt>default</dt>
@@ -145,7 +146,7 @@
 					<div class="tsd-signature tsd-kind-icon">sequence<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/ICacheConfiguration.ts#L30">src/component/interfaces/ICacheConfiguration.ts:30</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/ICacheConfiguration.ts#L31">src/component/interfaces/ICacheConfiguration.ts:31</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -154,7 +155,7 @@
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>description</dt>
-							<dd><p>Max value is 4. Value will be coerced
+							<dd><p>Max value is 4. Value will be clamped
 								to the interval [0, 4].</p>
 							</dd>
 							<dt>default</dt>
@@ -169,7 +170,7 @@
 					<div class="tsd-signature tsd-kind-icon">step<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/ICacheConfiguration.ts#L48">src/component/interfaces/ICacheConfiguration.ts:48</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/ICacheConfiguration.ts#L49">src/component/interfaces/ICacheConfiguration.ts:49</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -178,7 +179,7 @@
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>description</dt>
-							<dd><p>Max value is 3. Value will be coerced
+							<dd><p>Max value is 3. Value will be clamped
 								to the interval [0, 3].</p>
 							</dd>
 							<dt>default</dt>
@@ -193,7 +194,7 @@
 					<div class="tsd-signature tsd-kind-icon">turn<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/490eea6a/src/component/interfaces/ICacheConfiguration.ts#L57">src/component/interfaces/ICacheConfiguration.ts:57</a></li>
+							<li>Defined in <a href="https://github.com/mapillary/mapillary-js/blob/6c48075c/src/component/interfaces/ICacheConfiguration.ts#L58">src/component/interfaces/ICacheConfiguration.ts:58</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -202,7 +203,7 @@
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>description</dt>
-							<dd><p>Max value is 1. Value will be coerced
+							<dd><p>Max value is 1. Value will be clamped
 								to the interval [0, 1].</p>
 							</dd>
 							<dt>default</dt>
