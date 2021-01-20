@@ -6,14 +6,14 @@ MapillaryJS is a JavaScript & WebGL library that renders street level imagery fr
 
 To use MapillaryJS you must [create an account](https://www.mapillary.com/signup) and [obtain a Client ID by registering an application](https://www.mapillary.com/app/settings/developers).
 
-You can use MapillaryJS as a `<script>` tag from a [CDN](https://unpkg.com/browse/mapillary-js@3.0.0/dist/), or as a `mapillary-js` package on [npm](https://www.npmjs.com/package/mapillary-js).
+You can use MapillaryJS as a `<script>` tag from a [CDN](https://unpkg.com/browse/mapillary-js@3.1.0/dist/), or as a `mapillary-js` package on [npm](https://www.npmjs.com/package/mapillary-js).
 
 ```html
 <!DOCTYPE html>
 <html>
 <head>
-    <script src='https://unpkg.com/mapillary-js@3.0.0/dist/mapillary.min.js'></script>
-    <link href='https://unpkg.com/mapillary-js@3.0.0/dist/mapillary.min.css' rel='stylesheet' />
+    <script src='https://unpkg.com/mapillary-js@3.1.0/dist/mapillary.min.js'></script>
+    <link href='https://unpkg.com/mapillary-js@3.1.0/dist/mapillary.min.css' rel='stylesheet' />
 </head>
 
 <body>
