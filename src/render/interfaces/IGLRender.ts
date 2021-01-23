@@ -1,4 +1,5 @@
-import {GLRenderStage, IGLRenderFunction} from "../../Render";
+import { IGLRenderFunction } from "./IGLRenderFunction";
+import { GLRenderStage } from "../GLRenderStage";
 
 export interface IGLRender {
     frameId: number;
@@ -6,5 +7,3 @@ export interface IGLRender {
     render: IGLRenderFunction;
     stage: GLRenderStage;
 }
-
-export default IGLRender;

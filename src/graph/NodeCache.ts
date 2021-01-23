@@ -1,18 +1,30 @@
-import { of as observableOf, combineLatest as observableCombineLatest, Subject, Observable, Subscriber, Subscription } from "rxjs";
-
-import { map, tap, startWith, publishReplay, refCount, finalize, first } from "rxjs/operators";
-
-import { IEdge } from "../Edge";
 import {
-    IEdgeStatus,
-} from "../Graph";
+    combineLatest as observableCombineLatest,
+    of as observableOf,
+    Observable,
+    Subject,
+    Subscriber,
+    Subscription,
+} from "rxjs";
+
 import {
-    Settings,
-} from "../Utils";
-import { ImageSize } from "../Viewer";
-import IMesh from "../api/interfaces/IMesh";
-import IDataProvider from "../api/interfaces/IDataProvider";
-import INodeUrls from "../api/interfaces/INodeUrls";
+    finalize,
+    first,
+    map,
+    publishReplay,
+    refCount,
+    startWith,
+    tap,
+} from "rxjs/operators";
+
+import { IEdge } from "./edge/interfaces/IEdge";
+import { IEdgeStatus } from "./interfaces/IEdgeStatus";
+
+import { IDataProvider } from "../api/interfaces/IDataProvider";
+import { IMesh } from "../api/interfaces/IMesh";
+import { INodeUrls } from "../api/interfaces/INodeUrls";
+import { Settings } from "../utils/Settings";
+import { ImageSize } from "../viewer/ImageSize";
 
 /**
  * @class NodeCache
@@ -452,5 +464,3 @@ export class NodeCache {
         }
     }
 }
-
-export default NodeCache;

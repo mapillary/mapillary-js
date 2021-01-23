@@ -1,10 +1,7 @@
 import * as THREE from "three";
-
-import {ILatLon} from "../../../API";
-import {
-    ISimpleMarkerOptions,
-    Marker,
-} from "../../../Component";
+import { ILatLon } from "../../../api/interfaces/ILatLon";
+import { ISimpleMarkerOptions } from "../interfaces/ISimpleMarkerOptions";
+import { Marker } from "./Marker";
 
 /**
  * @class SimpleMarker
@@ -165,5 +162,3 @@ export class SimpleMarker extends Marker {
         return geometry;
     }
 }
-
-export default SimpleMarker;

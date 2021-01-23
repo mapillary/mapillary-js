@@ -1,7 +1,8 @@
+import * as THREE from "three";
+
 import {
     combineLatest as observableCombineLatest,
     merge as observableMerge,
-    of as observableOf,
     Observable,
     Subject,
     Subscription,
@@ -20,19 +21,16 @@ import {
     startWith,
 } from "rxjs/operators";
 
-import * as THREE from "three";
+import { GLRenderStage } from "./GLRenderStage";
+import { RenderCamera } from "./RenderCamera";
+import { RenderService } from "./RenderService";
+import { IGLRender } from "./interfaces/IGLRender";
+import { IGLRenderFunction } from "./interfaces/IGLRenderFunction";
+import { IGLRenderHash } from "./interfaces/IGLRenderHash";
+import { ISize } from "./interfaces/ISize";
 
-import {
-    GLRenderStage,
-    IGLRenderFunction,
-    IGLRender,
-    IGLRenderHash,
-    RenderCamera,
-    RenderService,
-    ISize,
-} from "../Render";
-import { DOM } from "../Utils";
-import SubscriptionHolder from "../utils/SubscriptionHolder";
+import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { DOM } from "../utils/DOM";
 
 interface IGLRenderer {
     needsRender: boolean;
@@ -430,5 +428,3 @@ export class GLRenderer {
             .subscribe(this._renderFrame$);
     }
 }
-
-export default GLRenderer;

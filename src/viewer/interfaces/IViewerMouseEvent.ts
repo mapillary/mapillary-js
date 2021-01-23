@@ -1,5 +1,5 @@
-import {ILatLon} from "../../API";
-import {Viewer} from "../../Viewer";
+import { Viewer } from "../Viewer";
+import { ILatLon } from "../../api/interfaces/ILatLon";
 
 /**
  * @interface IViewerMouseEvent
@@ -52,5 +52,3 @@ export interface IViewerMouseEvent {
      */
     type: string;
 }
-
-export default IViewerMouseEvent;

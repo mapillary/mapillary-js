@@ -1,22 +1,23 @@
-import { map, withLatestFrom } from "rxjs/operators";
-import { Observable, Subject } from "rxjs";
+import {
+    Observable,
+    Subject,
+} from "rxjs";
 
 import {
-    Component,
-    Geometry,
-    ITagConfiguration,
-    TagCreator,
-    TagHandlerBase,
-} from "../../../Component";
-import {
-    Transform,
-    ViewportCoords,
-} from "../../../Geo";
-import { RenderCamera } from "../../../Render";
-import {
-    Container,
-    Navigator,
-} from "../../../Viewer";
+    map,
+    withLatestFrom,
+} from "rxjs/operators";
+
+import { Component } from "../../Component";
+import { Transform } from "../../../geo/Transform";
+import { ViewportCoords } from "../../../geo/ViewportCoords";
+import { ITagConfiguration } from "../../interfaces/ITagConfiguration";
+import { RenderCamera } from "../../../render/RenderCamera";
+import { Container } from "../../../viewer/Container";
+import { Navigator } from "../../../viewer/Navigator";
+import { Geometry } from "../geometry/Geometry";
+import { TagCreator } from "../TagCreator";
+import { TagHandlerBase } from "./TagHandlerBase";
 
 export abstract class CreateHandlerBase extends TagHandlerBase {
     protected _tagCreator: TagCreator;
@@ -75,5 +76,3 @@ export abstract class CreateHandlerBase extends TagHandlerBase {
                 }));
     }
 }
-
-export default CreateHandlerBase;

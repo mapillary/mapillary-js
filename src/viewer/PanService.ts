@@ -10,29 +10,30 @@ import {
 } from "rxjs";
 
 import {
-    map,
-    switchMap,
-    withLatestFrom,
-    distinctUntilChanged,
     catchError,
-    startWith,
+    distinctUntilChanged,
+    map,
     publishReplay,
     refCount,
+    startWith,
+    switchMap,
+    withLatestFrom,
 } from "rxjs/operators";
 
 import * as Geo from "../geo/Geo";
-import GeoCoords from "../geo/GeoCoords";
-import GraphService from "../graph/GraphService";
-import GraphCalculator from "../graph/GraphCalculator";
-import ILatLon from "../api/interfaces/ILatLon";
-import ILatLonAlt from "../geo/interfaces/ILatLonAlt";
-import Node from "../graph/Node";
-import Spatial from "../geo/Spatial";
-import { StateService } from "../state/StateService";
+
+import { ILatLon } from "../api/interfaces/ILatLon";
+import { GeoCoords } from "../geo/GeoCoords";
+import { Spatial } from "../geo/Spatial";
 import { Transform } from "../geo/Transform";
-import ViewportCoords from "../geo/ViewportCoords";
-import { IFrame } from "../State";
-import SubscriptionHolder from "../utils/SubscriptionHolder";
+import { ViewportCoords } from "../geo/ViewportCoords";
+import { ILatLonAlt } from "../geo/interfaces/ILatLonAlt";
+import { GraphCalculator } from "../graph/GraphCalculator";
+import { GraphService } from "../graph/GraphService";
+import { Node } from "../graph/Node";
+import { StateService } from "../state/StateService";
+import { IFrame } from "../state/interfaces/IFrame";
+import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
 enum PanMode {
     Disabled,
@@ -370,5 +371,3 @@ export class PanService {
         return 2 * Math.atan(x) * 180 / Math.PI;
     }
 }
-
-export default PanService;

@@ -1,6 +1,5 @@
 import * as THREE from "three";
-
-import {Camera} from "../../src/Geo";
+import { Camera } from "../../src/geo/Camera";
 
 describe("Camera.ctor", () => {
     it("should be initialized to default values", () => {

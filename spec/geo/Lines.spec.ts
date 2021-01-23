@@ -1,4 +1,4 @@
-import {Lines} from "../../src/Geo";
+import * as Lines from "../../src/geo/Lines";
 
 describe("Lines.segmentsIntersect", () => {
     // No intersection

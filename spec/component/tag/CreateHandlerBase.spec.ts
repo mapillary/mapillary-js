@@ -1,17 +1,13 @@
-import {
-    Component,
-    CreateHandlerBase,
-    ITagConfiguration,
-    TagCreator,
-} from "../../../src/Component";
-import {ViewportCoords} from "../../../src/Geo";
-import {
-    Container,
-    Navigator,
-} from "../../../src/Viewer";
+import { Navigator } from "../../../src/viewer/Navigator";
 
-import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
-import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
+import { Component } from "../../../src/component/Component";
+import { ITagConfiguration } from "../../../src/component/interfaces/ITagConfiguration";
+import { CreateHandlerBase } from "../../../src/component/tag/handlers/CreateHandlerBase";
+import { TagCreator } from "../../../src/component/tag/TagCreator";
+import { ViewportCoords } from "../../../src/geo/ViewportCoords";
+import { Container } from "../../../src/viewer/Container";
 
 class CreateTestHandler extends CreateHandlerBase {
     public validateBasic(basicPoint: number[]): boolean {

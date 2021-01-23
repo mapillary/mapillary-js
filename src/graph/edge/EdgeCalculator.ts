@@ -1,23 +1,21 @@
 import * as THREE from "three";
 
-import {
-    Node,
-    Sequence,
-} from "../../Graph";
-import
-{
-    EdgeDirection,
-    IStep,
-    ITurn,
-    IPano,
-    IEdge,
-    IPotentialEdge,
-    EdgeCalculatorSettings,
-    EdgeCalculatorDirections,
-    EdgeCalculatorCoefficients,
-} from "../../Edge";
-import {ArgumentMapillaryError} from "../../Error";
-import {GeoCoords, Spatial} from "../../Geo";
+import { EdgeCalculatorCoefficients } from "./EdgeCalculatorCoefficients";
+import { EdgeCalculatorDirections } from "./EdgeCalculatorDirections";
+import { EdgeCalculatorSettings } from "./EdgeCalculatorSettings";
+import { EdgeDirection } from "./EdgeDirection";
+import { IEdge } from "./interfaces/IEdge";
+import { IPano } from "./interfaces/IPano";
+import { IPotentialEdge } from "./interfaces/IPotentialEdge";
+import { IStep } from "./interfaces/IStep";
+import { ITurn } from "./interfaces/ITurn";
+
+import { Node } from "../Node";
+import { Sequence } from "../Sequence";
+
+import { ArgumentMapillaryError } from "../../error/ArgumentMapillaryError";
+import { GeoCoords } from "../../geo/GeoCoords";
+import { Spatial } from "../../geo/Spatial";
 
 /**
  * @class EdgeCalculator
@@ -133,8 +131,8 @@ export class EdgeCalculator {
                 potential.sequenceKey === node.sequenceKey;
 
             let sameMergeCC: boolean =
-                 (potential.mergeCC == null && node.mergeCC == null) ||
-                 potential.mergeCC === node.mergeCC;
+                (potential.mergeCC == null && node.mergeCC == null) ||
+                potential.mergeCC === node.mergeCC;
 
             let sameUser: boolean =
                 potential.userKey === node.userKey;
@@ -252,7 +250,7 @@ export class EdgeCalculator {
 
             if (potentialEdge.sameUser &&
                 Math.abs(potentialEdge.capturedAt - node.capturedAt) <
-                    this._settings.similarMinTimeDifference) {
+                this._settings.similarMinTimeDifference) {
                 continue;
             }
 
@@ -693,7 +691,7 @@ export class EdgeCalculator {
             }
         }
 
-        let occupiedStepAngles: {[direction: string]: number[] } = {};
+        let occupiedStepAngles: { [direction: string]: number[] } = {};
         occupiedStepAngles[EdgeDirection.Pano] = occupiedAngles;
         occupiedStepAngles[EdgeDirection.StepForward] = [];
         occupiedStepAngles[EdgeDirection.StepLeft] = [];
@@ -776,5 +774,3 @@ export class EdgeCalculator {
         return panoEdges;
     }
 }
-
-export default EdgeCalculator;

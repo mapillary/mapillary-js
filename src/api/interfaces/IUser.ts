@@ -1,4 +1,4 @@
-import {IKey} from "../../API";
+import { IKey } from "./IKey";
 
 /**
  * Interface that describes the raw image user properties.

@@ -1,10 +1,6 @@
-
-import {skip} from "rxjs/operators";
-
-import {
-    Component,
-    IComponentConfiguration,
-} from "../../src/Component";
+import { skip } from "rxjs/operators";
+import { Component } from "../../src/component/Component";
+import { IComponentConfiguration } from "../../src/component/interfaces/IComponentConfiguration";
 
 interface ITestConfiguration extends IComponentConfiguration {
     test?: string;

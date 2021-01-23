@@ -1,17 +1,13 @@
 import { NodeHelper } from "../../helper/NodeHelper.spec";
 
-import {
-    DirectionDOMRenderer,
-    IDirectionConfiguration,
-} from "../../../src/Component";
-import { Node } from "../../../src/Graph";
-import {
-    RenderCamera,
-    RenderMode,
-} from "../../../src/Render";
-import { Navigator } from "../../../src/Viewer";
-import { IFrame } from "../../../src/State";
+import { Navigator } from "../../../src/viewer/Navigator";
+import { Node } from "../../../src/graph/Node";
+import { DirectionDOMRenderer } from "../../../src/component/direction/DirectionDOMRenderer";
+import { IDirectionConfiguration } from "../../../src/component/interfaces/IDirectionConfiguration";
+import { RenderCamera } from "../../../src/render/RenderCamera";
+import { IFrame } from "../../../src/state/interfaces/IFrame";
 import { FrameHelper } from "../../helper/FrameHelper.spec";
+import { RenderMode } from "../../../src/render/RenderMode";
 
 describe("DirectionDOMRenderer.ctor", () => {
     it("should be defined", () => {

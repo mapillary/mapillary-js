@@ -15,5 +15,3 @@ export enum OriginalPositionMode {
    */
   Flat,
 }
-
-export default OriginalPositionMode;

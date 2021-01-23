@@ -1,57 +1,46 @@
+import * as THREE from "three";
+import * as when from "when";
+
 import {
+    combineLatest as observableCombineLatest,
     concat as observableConcat,
     merge as observableMerge,
     of as observableOf,
-    combineLatest as observableCombineLatest,
     Observable,
     Subscription,
 } from "rxjs";
 
 import {
-    startWith,
-    withLatestFrom,
-    skip,
-    first,
-    publishReplay,
-    pairwise,
-    switchMap,
-    refCount,
     distinctUntilChanged,
+    first,
     map,
+    pairwise,
+    publishReplay,
+    refCount,
+    skip,
+    startWith,
+    switchMap,
+    withLatestFrom,
 } from "rxjs/operators";
 
-import * as THREE from "three";
-import * as when from "when";
-
-import { ILatLon } from "../../API";
-import {
-    IMarkerConfiguration,
-    IMarkerEvent,
-    Marker,
-    MarkerScene,
-    MarkerSet,
-    ComponentService,
-    Component,
-} from "../../Component";
-import { IFrame } from "../../State";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
-import {
-    IGLRenderHash,
-    GLRenderStage,
-    RenderCamera,
-} from "../../Render";
-import {
-    GraphCalculator,
-    Node,
-} from "../../Graph";
-import {
-    GeoCoords,
-    ILatLonAlt,
-    ViewportCoords,
-} from "../../Geo";
+import { Component } from "../Component";
+import { Node } from "../../graph/Node";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { ILatLon } from "../../api/interfaces/ILatLon";
+import { GeoCoords } from "../../geo/GeoCoords";
+import { ILatLonAlt } from "../../geo/interfaces/ILatLonAlt";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { GraphCalculator } from "../../graph/GraphCalculator";
+import { GLRenderStage } from "../../render/GLRenderStage";
+import { IGLRenderHash } from "../../render/interfaces/IGLRenderHash";
+import { RenderCamera } from "../../render/RenderCamera";
+import { IFrame } from "../../state/interfaces/IFrame";
+import { IMarkerConfiguration } from "../interfaces/IMarkerConfiguration";
+import { IMarkerEvent } from "./interfaces/IMarkerEvent";
+import { Marker } from "./marker/Marker";
+import { MarkerSet } from "./MarkerSet";
+import { MarkerScene } from "./MarkerScene";
 
 /**
  * @class MarkerComponent
@@ -512,7 +501,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
             this._container.mouseService
                 .filtered$(this._name, this._container.mouseService.mouseDragStart$).pipe(
                     map(
-                        (event: MouseEvent): boolean => {
+                        (): boolean => {
                             return true;
                         }));
 
@@ -520,7 +509,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
             this._container.mouseService
                 .filtered$(this._name, this._container.mouseService.mouseDragEnd$).pipe(
                     map(
-                        (event: Event): boolean => {
+                        (): boolean => {
                             return false;
                         }));
 
@@ -550,9 +539,9 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
         const mouseDown$: Observable<boolean> = observableMerge(
             this._container.mouseService.mouseDown$.pipe(
-                map((event: MouseEvent): boolean => { return true; })),
+                map((): boolean => { return true; })),
             this._container.mouseService.documentMouseUp$.pipe(
-                map((event: MouseEvent): boolean => { return false; }))).pipe(
+                map((): boolean => { return false; }))).pipe(
                     startWith(false));
 
         this._mouseClaimSubscription = observableCombineLatest(
@@ -680,6 +669,3 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         return { visibleBBoxSize: 100 };
     }
 }
-
-ComponentService.register(MarkerComponent);
-export default MarkerComponent;

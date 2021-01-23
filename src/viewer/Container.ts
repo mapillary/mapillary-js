@@ -1,17 +1,14 @@
-import {
-    GLRenderer,
-    DOMRenderer,
-    RenderService,
-} from "../Render";
-import { StateService } from "../State";
-import { DOM } from "../Utils";
-import {
-    IViewerOptions,
-    KeyboardService,
-    MouseService,
-    TouchService,
-    SpriteService,
-} from "../Viewer";
+import { KeyboardService } from "./KeyboardService";
+import { MouseService } from "./MouseService";
+import { SpriteService } from "./SpriteService";
+import { TouchService } from "./TouchService";
+import { IViewerOptions } from "./interfaces/IViewerOptions";
+
+import { DOMRenderer } from "../render/DOMRenderer";
+import { GLRenderer } from "../render/GLRenderer";
+import { RenderService } from "../render/RenderService";
+import { StateService } from "../state/StateService";
+import { DOM } from "../utils/DOM";
 
 export class Container {
     public id: string;
@@ -105,5 +102,3 @@ export class Container {
         }
     }
 }
-
-export default Container;

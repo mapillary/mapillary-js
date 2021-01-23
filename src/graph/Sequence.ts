@@ -1,4 +1,4 @@
-import {ISequence} from "../API";
+import { ISequence } from "../api/interfaces/ISequence";
 
 /**
  * @class Sequence
@@ -81,5 +81,3 @@ export class Sequence {
         }
     }
 }
-
-export default Sequence;

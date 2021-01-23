@@ -1,15 +1,12 @@
 import * as pako from "pako";
 import * as falcor from "falcor";
-
-import {
-    ICoreNode,
-    IFillNode,
-    ISequence,
-    ModelCreator,
-} from "../../src/API";
-import FalcorDataProvider from "../../src/api/FalcorDataProvider";
-import { MapillaryError } from "../../src/Error";
-import IClusterReconstruction from "../../src/api/interfaces/IClusterReconstruction";
+import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
+import { IClusterReconstruction } from "../../src/api/interfaces/IClusterReconstruction";
+import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
+import { IFillNode } from "../../src/api/interfaces/IFillNode";
+import { ISequence } from "../../src/api/interfaces/ISequence";
+import { ModelCreator } from "../../src/api/ModelCreator";
+import { MapillaryError } from "../../src/error/MapillaryError";
 
 describe("FalcorDataProvider.ctor", () => {
     it("should create a data provider", () => {

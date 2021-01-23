@@ -1,1 +1,0 @@
-export { GeoCoords } from "./GeoCoords";

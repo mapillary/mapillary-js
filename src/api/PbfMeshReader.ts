@@ -1,6 +1,6 @@
 import * as Pbf from "pbf";
 
-import IMesh from "./interfaces/IMesh";
+import { IMesh } from "./interfaces/IMesh";
 
 /**
  * @class PbfMeshReader
@@ -32,5 +32,3 @@ export class PbfMeshReader {
         }
     }
 }
-
-export default PbfMeshReader;

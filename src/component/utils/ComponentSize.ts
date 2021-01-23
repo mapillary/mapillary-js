@@ -24,5 +24,3 @@ export enum ComponentSize {
      */
     Small,
 }
-
-export default ComponentSize;

@@ -1,14 +1,12 @@
-import {
-    EdgeCalculator,
-    EdgeCalculatorSettings,
-    EdgeCalculatorDirections,
-    EdgeDirection,
-    IEdge,
-    IPotentialEdge,
-} from "../../../src/Edge";
-import {Node} from "../../../src/Graph";
+import { EdgeCalculator } from "../../../src/graph/edge/EdgeCalculator";
+import { EdgeCalculatorDirections } from "../../../src/graph/edge/EdgeCalculatorDirections";
+import { EdgeCalculatorSettings } from "../../../src/graph/edge/EdgeCalculatorSettings";
+import { EdgeDirection } from "../../../src/graph/edge/EdgeDirection";
+import { IEdge } from "../../../src/graph/edge/interfaces/IEdge";
+import { IPotentialEdge } from "../../../src/graph/edge/interfaces/IPotentialEdge";
+import { Node } from "../../../src/graph/Node";
 
-import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
+import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper.spec";
 
 describe("EdgeCalculator.computeSimilarEdges", () => {
     let edgeCalculator: EdgeCalculator;
@@ -31,7 +29,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
 
     let createNode: (capturedAt: number) => Node =
         (capturedAt: number): Node => {
-            return  helper.createFullNode("key", { alt: 0, lat: 0, lon: 0 }, "skey", [0, 0, 0], 2, null, capturedAt);
+            return helper.createFullNode("key", { alt: 0, lat: 0, lon: 0 }, "skey", [0, 0, 0], 2, null, capturedAt);
         };
 
     beforeEach(() => {

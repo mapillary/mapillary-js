@@ -1,13 +1,11 @@
-import {
-    EdgeCalculator,
-    EdgeCalculatorSettings,
-    EdgeCalculatorDirections,
-    EdgeDirection,
-    IEdge,
-    IPotentialEdge,
-} from "../../../src/Edge";
-import {Node} from "../../../src/Graph";
-import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
+import { EdgeCalculator } from "../../../src/graph/edge/EdgeCalculator";
+import { EdgeCalculatorDirections } from "../../../src/graph/edge/EdgeCalculatorDirections";
+import { EdgeCalculatorSettings } from "../../../src/graph/edge/EdgeCalculatorSettings";
+import { EdgeDirection } from "../../../src/graph/edge/EdgeDirection";
+import { IEdge } from "../../../src/graph/edge/interfaces/IEdge";
+import { IPotentialEdge } from "../../../src/graph/edge/interfaces/IPotentialEdge";
+import { Node } from "../../../src/graph/Node";
+import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper.spec";
 
 describe("EdgeCalculator.computeStepEdges", () => {
     let edgeCalculator: EdgeCalculator;

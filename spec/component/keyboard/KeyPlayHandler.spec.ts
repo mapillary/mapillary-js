@@ -6,21 +6,15 @@ import { MockCreator } from "../../helper/MockCreator.spec";
 import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
 import { NodeHelper } from "../../helper/NodeHelper.spec";
 
-import {
-    Component,
-    IComponentConfiguration,
-    KeyPlayHandler,
-} from "../../../src/Component";
-import { EdgeDirection } from "../../../src/Edge";
-import {
-    IEdgeStatus,
-    Node,
-} from "../../../src/Graph";
-import {
-    Container,
-    Navigator,
-} from "../../../src/Viewer";
-import State from "../../../src/state/State";
+import { Navigator } from "../../../src/viewer/Navigator";
+import { Node } from "../../../src/graph/Node";
+import { Component } from "../../../src/component/Component";
+import { IComponentConfiguration } from "../../../src/component/interfaces/IComponentConfiguration";
+import { KeyPlayHandler } from "../../../src/component/keyboard/KeyPlayHandler";
+import { IEdgeStatus } from "../../../src/graph/interfaces/IEdgeStatus";
+import { State } from "../../../src/state/State";
+import { Container } from "../../../src/viewer/Container";
+import { EdgeDirection } from "../../../src/graph/edge/EdgeDirection";
 
 interface ITestConfiguration extends IComponentConfiguration {
     test: boolean;

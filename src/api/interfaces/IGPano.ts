@@ -34,5 +34,3 @@ export interface IGPano {
      */
     FullPanoWidthPixels: number;
 }
-
-export default IGPano;

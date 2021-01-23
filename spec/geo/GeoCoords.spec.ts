@@ -1,4 +1,5 @@
-import {GeoCoords, ILatLonAlt} from "../../src/Geo";
+import { GeoCoords } from "../../src/geo/GeoCoords";
+import { ILatLonAlt } from "../../src/geo/interfaces/ILatLonAlt";
 
 let precision: number = 8;
 

@@ -1,5 +1,6 @@
-import {skip} from "rxjs/operators";
-import {ISpriteAtlas, SpriteService} from "../../src/Viewer";
+import { skip } from "rxjs/operators";
+import { ISpriteAtlas } from "../../src/viewer/interfaces/ISpriteAtlas";
+import { SpriteService } from "../../src/viewer/SpriteService";
 
 class XMLHTTPRequestMock {
     public response: string;

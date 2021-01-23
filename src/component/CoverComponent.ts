@@ -1,34 +1,36 @@
+import * as vd from "virtual-dom";
+
 import {
-    of as observableOf,
     combineLatest as observableCombineLatest,
     empty as observableEmpty,
+    of as observableOf,
     Observable,
     Subscription,
     Subscriber,
 } from "rxjs";
 
-import { map, distinctUntilChanged, switchMap, first, filter, catchError, publishReplay, refCount } from "rxjs/operators";
-import * as vd from "virtual-dom";
+import {
+    catchError,
+    distinctUntilChanged,
+    filter,
+    first,
+    map,
+    publishReplay,
+    refCount,
+    switchMap,
+} from "rxjs/operators";
 
-import {
-    CoverState,
-    ICoverConfiguration,
-    ComponentService,
-    Component,
-} from "../Component";
-import { Node } from "../Graph";
-import {
-    IVNodeHash,
-    ISize,
-} from "../Render";
-import { Urls } from "../Utils";
-import {
-    Container,
-    ImageSize,
-    Navigator,
-} from "../Viewer";
-import IFullNode from "../api/interfaces/IFullNode";
-import MapillaryError from "../error/MapillaryError";
+import { Component } from "./Component";
+import { CoverState, ICoverConfiguration } from "./interfaces/ICoverConfiguration";
+
+import { IFullNode } from "../api/interfaces/IFullNode";
+import { MapillaryError } from "../error/MapillaryError";
+import { Node } from "../graph/Node";
+import { ISize } from "../render/interfaces/ISize";
+import { IVNodeHash } from "../render/interfaces/IVNodeHash";
+import { Urls } from "../utils/Urls";
+import { Container } from "../viewer/Container";
+import { Navigator } from "../viewer/Navigator";
 
 export class CoverComponent extends Component<ICoverConfiguration> {
     public static componentName: string = "cover";
@@ -42,7 +44,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
         super(name, container, navigator);
     }
 
-    public _activate(): void {
+    protected _activate(): void {
         const originalSrc$: Observable<string> = this.configuration$.pipe(
             first(
                 (c: ICoverConfiguration): boolean => {
@@ -84,7 +86,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
                     }),
                 first())
             .subscribe(
-                ([c, src]: [ICoverConfiguration, string]): void => {
+                ([, src]: [ICoverConfiguration, string]): void => {
                     window.URL.revokeObjectURL(src);
                 });
 
@@ -154,7 +156,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
             .subscribe(this._container.domRenderer.render$);
     }
 
-    public _deactivate(): void {
+    protected _deactivate(): void {
         this._renderSubscription.unsubscribe();
         this._keySubscription.unsubscribe();
         this._configureSrcSubscription.unsubscribe();
@@ -240,6 +242,3 @@ export class CoverComponent extends Component<ICoverConfiguration> {
             });
     }
 }
-
-ComponentService.registerCover(CoverComponent);
-export default CoverComponent;

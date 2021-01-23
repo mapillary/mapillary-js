@@ -1,6 +1,6 @@
-import {Geometry, GeometryTagError} from "../../../Component";
-import {Transform} from "../../../Geo";
-
+import { Transform } from "../../../geo/Transform";
+import { GeometryTagError } from "../error/GeometryTagError";
+import { Geometry } from "./Geometry";
 /**
  * @class PointGeometry
  *
@@ -87,5 +87,3 @@ export class PointGeometry extends Geometry {
         this._notifyChanged$.next(this);
     }
 }
-
-export default PointGeometry;

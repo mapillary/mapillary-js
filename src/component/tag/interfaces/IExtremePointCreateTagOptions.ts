@@ -19,5 +19,3 @@ export interface IExtremePointCreateTagOptions {
      */
     indicateCompleter?: boolean;
 }
-
-export default IExtremePointCreateTagOptions;

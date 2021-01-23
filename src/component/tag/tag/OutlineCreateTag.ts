@@ -1,21 +1,16 @@
-import {map} from "rxjs/operators";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {Observable, Subject, Subscription} from "rxjs";
+import { CreateTag } from "./CreateTag";
 
-import {
-    CreateTag,
-    IOutlineCreateTagOptions,
-    PolygonGeometry,
-    RectGeometry,
-    VertexGeometry,
-} from "../../../Component";
-import {
-    Transform,
-    ViewportCoords,
-} from "../../../Geo";
-import {ISize} from "../../../Render";
+import { PolygonGeometry } from "../geometry/PolygonGeometry";
+import { RectGeometry } from "../geometry/RectGeometry";
+import { VertexGeometry } from "../geometry/VertexGeometry";
+import { IOutlineCreateTagOptions } from "../interfaces/IOutlineCreateTagOptions";
+
+import { Transform } from "../../../geo/Transform";
+import { ViewportCoords } from "../../../geo/ViewportCoords";
+import { ISize } from "../../../render/interfaces/ISize";
 
 export class OutlineCreateTag extends CreateTag<VertexGeometry> {
     private _outline: THREE.Line;
@@ -207,12 +202,10 @@ export class OutlineCreateTag extends CreateTag<VertexGeometry> {
 
     private _createGlObjects(): void {
         const polygon3d: number[][] = this._geometry instanceof RectGeometry ?
-        this._geometry.getPoints3d(this._transform) :
-        (<PolygonGeometry>this._geometry).getVertices3d(this._transform);
+            this._geometry.getPoints3d(this._transform) :
+            (<PolygonGeometry>this._geometry).getVertices3d(this._transform);
 
         this._outline = this._createOutine(polygon3d, this._options.color);
         this._glObjects = [this._outline];
     }
 }
-
-export default OutlineCreateTag;

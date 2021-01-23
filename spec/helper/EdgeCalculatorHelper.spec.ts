@@ -1,7 +1,9 @@
-import {ICoreNode, IFillNode, IGPano} from "../../src/API";
-import {IPotentialEdge} from "../../src/Edge";
-import {Node} from "../../src/Graph";
-import {ILatLonAlt} from "../../src/Geo";
+import { Node } from "../../src/graph/Node";
+import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
+import { IFillNode } from "../../src/api/interfaces/IFillNode";
+import { IGPano } from "../../src/api/interfaces/IGPano";
+import { ILatLonAlt } from "../../src/geo/interfaces/ILatLonAlt";
+import { IPotentialEdge } from "../../src/graph/edge/interfaces/IPotentialEdge";
 
 export class EdgeCalculatorHelper {
     public createPotentialEdge(key: string = "pkey"): IPotentialEdge {
@@ -40,14 +42,14 @@ export class EdgeCalculatorHelper {
     }
 
     public createFullNode(
-            key: string = "key",
-            latLonAlt: ILatLonAlt = { alt: 0, lat: 0, lon: 0 },
-            sequenceKey: string = "skey",
-            r: number[] = [0, 0, 0],
-            mergeCC: number = 2,
-            gpano: IGPano = null,
-            capturedAt: number = 0,
-            mergeVersion: number = 1): Node {
+        key: string = "key",
+        latLonAlt: ILatLonAlt = { alt: 0, lat: 0, lon: 0 },
+        sequenceKey: string = "skey",
+        r: number[] = [0, 0, 0],
+        mergeCC: number = 2,
+        gpano: IGPano = null,
+        capturedAt: number = 0,
+        mergeVersion: number = 1): Node {
 
         let node: Node = this.createCoreNode(key, latLonAlt, sequenceKey);
 
@@ -94,5 +96,3 @@ export class EdgeCalculatorHelper {
         return this.createFullNode(key, latLonAlt, sequenceKey, [0, 0, 0], 2, gpano, 0);
     }
 }
-
-export default EdgeCalculatorHelper;

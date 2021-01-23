@@ -2,26 +2,18 @@ import { of as observableOf, Subject } from "rxjs";
 
 import { NodeHelper } from "../helper/NodeHelper.spec";
 
-import {
-    ICoreNode,
-} from "../../src/API";
-import {
-    Graph,
-    GraphMode,
-    GraphService,
-    Node,
-} from "../../src/Graph";
-import {
-    ICurrentState,
-    IFrame,
-    StateService,
-    State,
-} from "../../src/State";
-import {
-    CacheService,
-} from "../../src/Viewer";
-import API from "../../src/api/API";
-import FalcorDataProvider from "../../src/api/FalcorDataProvider";
+import { Node } from "../../src/graph/Node";
+import { API } from "../../src/api/API";
+import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
+import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
+import { Graph } from "../../src/graph/Graph";
+import { GraphMode } from "../../src/graph/GraphMode";
+import { GraphService } from "../../src/graph/GraphService";
+import { ICurrentState } from "../../src/state/interfaces/ICurrentState";
+import { IFrame } from "../../src/state/interfaces/IFrame";
+import { State } from "../../src/state/State";
+import { StateService } from "../../src/state/StateService";
+import { CacheService } from "../../src/viewer/CacheService";
 
 describe("CacheService.ctor", () => {
     it("should be defined when constructed", () => {

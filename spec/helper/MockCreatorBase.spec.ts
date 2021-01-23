@@ -9,5 +9,3 @@ export abstract class MockCreatorBase<T> {
         this._mockCreator.mockProperty(instance, propertyName, propertyValue);
     }
 }
-
-export default MockCreatorBase;

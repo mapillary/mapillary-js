@@ -1,8 +1,10 @@
 import * as vd from "virtual-dom";
 
-import {Container, Navigator} from "../Viewer";
+import { Component } from "./Component";
+import { IComponentConfiguration } from "./interfaces/IComponentConfiguration";
 
-import {ComponentService, Component, IComponentConfiguration} from "../Component";
+import { Container } from "../viewer/Container";
+import { Navigator } from "../viewer/Navigator";
 
 export class BackgroundComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "background";
@@ -13,7 +15,7 @@ export class BackgroundComponent extends Component<IComponentConfiguration> {
 
     protected _activate(): void {
         this._container.domRenderer.render$
-            .next({name: this._name, vnode: this._getBackgroundNode("The viewer can't display the given image.")});
+            .next({ name: this._name, vnode: this._getBackgroundNode("The viewer can't display the given image.") });
     }
 
     protected _deactivate(): void {
@@ -27,10 +29,7 @@ export class BackgroundComponent extends Component<IComponentConfiguration> {
     private _getBackgroundNode(notice: string): vd.VNode {
         // todo: add condition for when to display the DOM node
         return vd.h("div.BackgroundWrapper", {}, [
-            vd.h("p", {textContent: notice}, []),
+            vd.h("p", { textContent: notice }, []),
         ]);
     }
 }
-
-ComponentService.register(BackgroundComponent);
-export default BackgroundComponent;

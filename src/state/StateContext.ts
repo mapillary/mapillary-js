@@ -1,20 +1,17 @@
-import {
-    EarthState,
-    InteractiveWaitingState,
-    IStateContext,
-    StateBase,
-    State,
-    TransitionMode,
-    TraversingState,
-    WaitingState,
-    IRotation,
-} from "../State";
-import {Node} from "../Graph";
-import {
-    Camera,
-    ILatLonAlt,
-    Transform,
-} from "../Geo";
+import { State } from "./State";
+import { TransitionMode } from "./TransitionMode";
+import { IRotation } from "./interfaces/IRotation";
+import { IStateContext } from "./interfaces/IStateContext";
+import { EarthState } from "./states/EarthState";
+import { InteractiveWaitingState } from "./states/InteractiveWaitingState";
+import { StateBase } from "./states/StateBase";
+import { TraversingState } from "./states/TraversingState";
+import { WaitingState } from "./states/WaitingState";
+
+import { Camera } from "../geo/Camera";
+import { Transform } from "../geo/Transform";
+import { ILatLonAlt } from "../geo/interfaces/ILatLonAlt";
+import { Node } from "../graph/Node";
 
 export class StateContext implements IStateContext {
     private _state: StateBase;

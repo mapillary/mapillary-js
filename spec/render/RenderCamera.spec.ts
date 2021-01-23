@@ -1,7 +1,7 @@
-import {Camera, Spatial} from "../../src/Geo";
-import {RenderCamera, RenderMode} from "../../src/Render";
-import {FrameHelper} from "../helper/FrameHelper.spec";
-import {IFrame} from "../../src/State";
+import { RenderCamera } from "../../src/render/RenderCamera";
+import { RenderMode } from "../../src/render/RenderMode";
+import { IFrame } from "../../src/state/interfaces/IFrame";
+import { FrameHelper } from "../helper/FrameHelper.spec";
 
 describe("RenderCamera.ctor", () => {
     it("should be defined", () => {
@@ -43,7 +43,7 @@ describe("RenderCamera.setSize", () => {
     it("should handle zero width and height", () => {
         let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
-        renderCamera.setSize({ width: 0, height: 0});
+        renderCamera.setSize({ width: 0, height: 0 });
 
         expect(renderCamera.perspective.aspect).toBe(0);
     });

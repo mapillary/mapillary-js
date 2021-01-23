@@ -1,6 +1,5 @@
 import * as THREE from "three";
-
-import {Spatial} from "../../src/Geo";
+import { Spatial } from "../../src/geo/Spatial";
 
 export class GeoHelper {
     private spatial: Spatial = new Spatial();

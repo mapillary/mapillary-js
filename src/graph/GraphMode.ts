@@ -25,5 +25,3 @@ export enum GraphMode {
      */
     Spatial,
 }
-
-export default GraphMode;

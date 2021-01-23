@@ -1,75 +1,59 @@
 import * as THREE from "three";
 
 import {
-    empty as observableEmpty,
-    of as observableOf,
-    from as observableFrom,
     combineLatest as observableCombineLatest,
+    empty as observableEmpty,
+    from as observableFrom,
+    of as observableOf,
     Observable,
     Subscription,
     Subject,
 } from "rxjs";
 
 import {
-    switchMap,
-    pairwise,
-    debounceTime,
-    refCount,
-    publishReplay,
-    withLatestFrom,
-    scan,
+    catchError,
+    distinctUntilChanged,
     filter,
     first,
-    catchError,
-    takeUntil,
-    startWith,
-    skipWhile,
+    debounceTime,
     map,
-    publish,
-    distinctUntilChanged,
     mergeMap,
+    pairwise,
+    publish,
+    publishReplay,
+    refCount,
+    scan,
     share,
+    skipWhile,
+    startWith,
+    switchMap,
+    takeUntil,
+    withLatestFrom,
 } from "rxjs/operators";
 
-import {
-    ComponentService,
-    Component,
-    IComponentConfiguration,
-    ImagePlaneGLRenderer,
-} from "../../Component";
-import {
-    Transform,
-} from "../../Geo";
-import {
-    ICurrentState,
-    IFrame,
-} from "../../State";
-import {
-    Container,
-    Navigator,
-    ImageSize,
-} from "../../Viewer";
-import {
-    GLRenderStage,
-    IGLRenderHash,
-    ISize,
-    RenderCamera,
-} from "../../Render";
-import {
-    Node as GraphNode,
-} from "../../Graph";
-import {
-    ImageTileLoader,
-    ImageTileStore,
-    IRegionOfInterest,
-    RegionOfInterestCalculator,
-    TextureProvider,
-} from "../../Tiles";
-import {
-    Settings,
-} from "../../Utils";
-import ViewportCoords from "../../geo/ViewportCoords";
-import Spatial from "../../geo/Spatial";
+import { Component } from "../Component";
+import { Node as GraphNode } from "../../graph/Node";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { ImagePlaneGLRenderer } from "./ImagePlaneGLRenderer";
+import { Spatial } from "../../geo/Spatial";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { GLRenderStage } from "../../render/GLRenderStage";
+import { IGLRenderHash } from "../../render/interfaces/IGLRenderHash";
+import { ISize } from "../../render/interfaces/ISize";
+import { RenderCamera } from "../../render/RenderCamera";
+import { ICurrentState } from "../../state/interfaces/ICurrentState";
+import { IFrame } from "../../state/interfaces/IFrame";
+import { ImageTileLoader } from "../../tiles/ImageTileLoader";
+import { ImageTileStore } from "../../tiles/ImageTileStore";
+import { IRegionOfInterest } from "../../tiles/interfaces/IRegionOfInterest";
+import { RegionOfInterestCalculator } from "../../tiles/RegionOfInterestCalculator";
+import { TextureProvider } from "../../tiles/TextureProvider";
+import { Settings } from "../../utils/Settings";
+import { IComponentConfiguration } from "../interfaces/IComponentConfiguration";
+import { Transform } from "../../geo/Transform";
+import { ImageSize } from "../../viewer/ImageSize";
+
 
 interface IImagePlaneGLRendererOperation {
     (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer;
@@ -601,6 +585,3 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
         return {};
     }
 }
-
-ComponentService.register(ImagePlaneComponent);
-export default ImagePlaneComponent;

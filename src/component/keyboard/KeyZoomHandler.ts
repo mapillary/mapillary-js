@@ -1,20 +1,14 @@
-import {withLatestFrom} from "rxjs/operators";
-import {Subscription} from "rxjs";
+import { withLatestFrom } from "rxjs/operators";
+import { Subscription } from "rxjs";
 
-import {
-    Component,
-    IKeyboardConfiguration,
-    HandlerBase,
-} from "../../Component";
-import {
-    Transform,
-    ViewportCoords,
-} from "../../Geo";
-import {RenderCamera} from "../../Render";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
+import { Transform } from "../../geo/Transform";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { RenderCamera } from "../../render/RenderCamera";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { Component } from "../Component";
+import { IKeyboardConfiguration } from "../interfaces/IKeyboardConfiguration";
+import { HandlerBase } from "../utils/HandlerBase";
 
 /**
  * The `KeyZoomHandler` allows the user to zoom in and out using the
@@ -89,5 +83,3 @@ export class KeyZoomHandler extends HandlerBase<IKeyboardConfiguration> {
         return { keyZoom: enable };
     }
 }
-
-export default KeyZoomHandler;

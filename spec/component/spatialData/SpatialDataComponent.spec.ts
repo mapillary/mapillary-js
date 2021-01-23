@@ -1,5 +1,5 @@
-import SpatialDataComponent from "../../../src/component/spatialdata/SpatialDataComponent";
 
+import { SpatialDataComponent } from "../../../src/component/spatialdata/SpatialDataComponent";
 import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
 import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
 

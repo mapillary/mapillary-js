@@ -1,26 +1,85 @@
 import { skip, first, take } from "rxjs/operators";
 import { Subject } from "rxjs";
 
-import {
-    ComponentService,
-    CoverComponent,
-    CoverState,
-    ICoverConfiguration,
-} from "../../src/Component";
-import { Node } from "../../src/Graph";
-import { EventEmitter } from "../../src/Utils";
-import {
-    ComponentController,
-    Container,
-    Navigator,
-    Observer,
-    Viewer,
-} from "../../src/Viewer";
+import { Navigator } from "../../src/viewer/Navigator";
+import { Node } from "../../src/graph/Node";
 
 import { ContainerMockCreator } from "../helper/ContainerMockCreator.spec";
 import { NavigatorMockCreator } from "../helper/NavigatorMockCreator.spec";
 import { NodeMockCreator } from "../helper/NodeMockCreator.spec";
 import { MockCreator } from "../helper/MockCreator.spec";
+import { ComponentService } from "../../src/component/ComponentService";
+import { CoverComponent } from "../../src/component/CoverComponent";
+import { ICoverConfiguration, CoverState } from "../../src/component/interfaces/ICoverConfiguration";
+import { Container } from "../../src/viewer/Container";
+import { Observer } from "../../src/viewer/Observer";
+import { EventEmitter } from "../../src/utils/EventEmitter";
+import { ComponentController } from "../../src/viewer/ComponentController";
+import { Viewer } from "../../src/viewer/Viewer";
+import { Component } from "../../src/component/Component";
+import { IComponentConfiguration } from "../../src/component/interfaces/IComponentConfiguration";
+
+class ComponentMock extends Component<IComponentConfiguration> {
+    protected static _cn: string = "mock";
+    public static get componentName(): string {
+        return this._cn;
+    };
+    protected _activate(): void { /*noop*/ }
+    protected _deactivate(): void { /*noop*/ }
+    protected _getDefaultConfiguration(): IComponentConfiguration {
+        return {};
+    }
+}
+
+class AC extends ComponentMock { protected static _cn: string = "attribution"; };
+class BaC extends ComponentMock { protected static _cn: string = "background"; }
+class BeC extends ComponentMock { protected static _cn: string = "bearing"; }
+class CC extends ComponentMock { protected static _cn: string = "cache"; }
+class DiC extends ComponentMock { protected static _cn: string = "direction"; }
+class DeC extends ComponentMock { protected static _cn: string = "debug"; }
+class IC extends ComponentMock { protected static _cn: string = "image"; }
+class IPC extends ComponentMock { protected static _cn: string = "imagePlane"; }
+class KC extends ComponentMock { protected static _cn: string = "keyboard"; }
+class MaC extends ComponentMock { protected static _cn: string = "marker"; }
+class MoC extends ComponentMock { protected static _cn: string = "mouse"; }
+class NC extends ComponentMock { protected static _cn: string = "navigation"; }
+class PC extends ComponentMock { protected static _cn: string = "popup"; }
+class RC extends ComponentMock { protected static _cn: string = "route"; }
+class SeC extends ComponentMock { protected static _cn: string = "sequence"; }
+class SlC extends ComponentMock { protected static _cn: string = "slider"; }
+class SDC extends ComponentMock { protected static _cn: string = "spatialData"; }
+class TC extends ComponentMock { protected static _cn: string = "tag"; }
+class ZC extends ComponentMock { protected static _cn: string = "zoom"; }
+
+ComponentService.register(AC);
+ComponentService.register(BaC);
+ComponentService.register(BeC);
+ComponentService.register(CC);
+ComponentService.register(DiC);
+ComponentService.register(DeC);
+ComponentService.register(IC);
+ComponentService.register(IPC);
+ComponentService.register(KC);
+ComponentService.register(MaC);
+ComponentService.register(MoC);
+ComponentService.register(NC);
+ComponentService.register(PC);
+ComponentService.register(RC);
+ComponentService.register(SeC);
+ComponentService.register(SlC);
+ComponentService.register(SDC);
+ComponentService.register(TC);
+ComponentService.register(ZC);
+
+class CoverComponentMock extends CoverComponent {
+    protected _activate(): void { /*noop*/ }
+    protected _deactivate(): void { /*noop*/ }
+    protected _getDefaultConfiguration(): IComponentConfiguration {
+        return {};
+    }
+}
+
+ComponentService.registerCover(CoverComponentMock);
 
 describe("ComponentController.ctor", () => {
     it("should be defined", () => {
@@ -28,10 +87,10 @@ describe("ComponentController.ctor", () => {
         const navigator: Navigator = new NavigatorMockCreator().create();
         (<jasmine.Spy>navigator.api.imageByKeyFull$)
             .and.returnValue(new Subject());
-        const componentService: ComponentService = new ComponentService(container, navigator);
         const eventEmitter: EventEmitter = new EventEmitter();
         const observer: Observer = new Observer(eventEmitter, navigator, container);
 
+        const componentService = new ComponentService(container, navigator);
         const componentController: ComponentController =
             new ComponentController(
                 container,
@@ -52,37 +111,20 @@ describe("ComponentController.ctor", () => {
         const eventEmitter: EventEmitter = new EventEmitter();
         const observer: Observer = new Observer(eventEmitter, navigator, container);
 
-        const componentService1: ComponentService = new ComponentService(container, navigator);
-        const componentController1: ComponentController =
-            new ComponentController(container, navigator, observer, "key", {}, componentService1);
-        expect(componentService1.coverActivated).toBe(true);
+        const controllers: ComponentController[] = [];
+        for (let i = 0; i < 5; i++) {
+            const componentService = new ComponentService(container, navigator);
+            const componentController: ComponentController =
+                new ComponentController(container, navigator, observer, "key", { cover: false }, componentService);
 
-        const componentService2: ComponentService = new ComponentService(container, navigator);
-        const componentController2: ComponentController =
-            new ComponentController(container, navigator, observer, "key", { cover: true }, componentService2);
-        expect(componentService2.coverActivated).toBe(true);
+            expect(componentService.coverActivated).toBeTrue();
 
-        const componentService3: ComponentService = new ComponentService(container, navigator);
-        const componentController3: ComponentController =
-            new ComponentController(container, navigator, observer, "key", { cover: false }, componentService3);
-        expect(componentService3.coverActivated).toBe(true);
+            controllers.push(componentController);
+        }
 
-        const componentService4: ComponentService = new ComponentService(container, navigator);
-        const componentController4: ComponentController =
-            new ComponentController(container, navigator, observer, null, {}, componentService4);
-        expect(componentService4.coverActivated).toBe(true);
-
-        const componentService5: ComponentService = new ComponentService(container, navigator);
-        const componentController5: ComponentController =
-            new ComponentController(container, navigator, observer, null, { cover: false }, componentService5);
-        expect(componentService5.coverActivated).toBe(true);
-
-        expect(
-            !!componentController1 &&
-            !!componentController2 &&
-            !!componentController3 &&
-            !!componentController4 &&
-            !!componentController5).toBe(true);
+        for (const controller of controllers) {
+            expect(controller).toBeDefined();
+        }
     });
 });
 
@@ -92,11 +134,12 @@ describe("ComponentController.navigable", () => {
         const navigator: Navigator = new NavigatorMockCreator().create();
         (<jasmine.Spy>navigator.api.imageByKeyFull$)
             .and.returnValue(new Subject());
+
         const componentService: ComponentService = new ComponentService(container, navigator);
         const eventEmitter: EventEmitter = new EventEmitter();
         const observer: Observer = new Observer(eventEmitter, navigator, container);
 
-        const componentController: ComponentController =
+        const componentController =
             new ComponentController(
                 container,
                 navigator,
@@ -167,7 +210,7 @@ describe("ComponentController.navigable", () => {
         let navigableChangedCount: number = 0;
         eventEmitter.on(
             Viewer.navigablechanged,
-            (navigable: boolean): void => {
+            (): void => {
                 navigableChangedCount++;
             });
 
@@ -267,7 +310,7 @@ describe("ComponentController.navigable", () => {
         let navigableChangedCount: number = 0;
         eventEmitter.on(
             Viewer.navigablechanged,
-            (navigable: boolean): void => {
+            (): void => {
                 navigableChangedCount++;
             });
 

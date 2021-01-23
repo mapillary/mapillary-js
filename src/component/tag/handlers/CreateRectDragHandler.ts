@@ -8,22 +8,20 @@ import {
 } from "rxjs";
 
 import {
-    withLatestFrom,
-    map,
-    skip,
     filter,
-    switchMap,
+    map,
     share,
+    skip,
+    switchMap,
+    withLatestFrom,
 } from "rxjs/operators";
 
-import {
-    CreateHandlerBase,
-    Geometry,
-    OutlineCreateTag,
-    RectGeometry,
-} from "../../../Component";
-import { Transform } from "../../../Geo";
-import { RenderCamera } from "../../../Render";
+import { Transform } from "../../../geo/Transform";
+import { RenderCamera } from "../../../render/RenderCamera";
+import { Geometry } from "../geometry/Geometry";
+import { RectGeometry } from "../geometry/RectGeometry";
+import { OutlineCreateTag } from "../tag/OutlineCreateTag";
+import { CreateHandlerBase } from "./CreateHandlerBase";
 
 export class CreateRectDragHandler extends CreateHandlerBase {
     private _addPointSubscription: Subscription;
@@ -145,5 +143,3 @@ export class CreateRectDragHandler extends CreateHandlerBase {
         return "create-rect-drag";
     }
 }
-
-export default CreateRectDragHandler;

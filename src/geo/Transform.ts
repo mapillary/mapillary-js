@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import { IGPano } from "../API";
 import { CameraProjectionType } from "../api/interfaces/CameraProjectionType";
+import { IGPano } from "../api/interfaces/IGPano";
 
 /**
  * @class Transform

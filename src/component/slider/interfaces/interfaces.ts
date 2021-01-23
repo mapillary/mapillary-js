@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
-import {SliderGLRenderer} from "../../../Component";
-import {Node} from "../../../Graph";
-import {ICurrentState} from "../../../State";
+import { Node } from "../../../graph/Node";
+import { ICurrentState } from "../../../state/interfaces/ICurrentState";
+import { SliderGLRenderer } from "../SliderGLRenderer";
 
 export interface ISliderNodes {
     background: Node;

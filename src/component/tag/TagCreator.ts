@@ -1,19 +1,28 @@
-import {scan, share, withLatestFrom, map, publishReplay, refCount} from "rxjs/operators";
-import {Observable, Subject} from "rxjs";
+import {
+    map,
+    publishReplay,
+    refCount,
+    scan,
+    share,
+    withLatestFrom,
+} from "rxjs/operators";
 
 import {
-    Component,
-    ITagConfiguration,
-    PolygonGeometry,
-    RectGeometry,
-    PointsGeometry,
-    ExtremePointCreateTag,
-    OutlineCreateTag,
-} from "../../Component";
-import {Transform} from "../../Geo";
-import {Navigator} from "../../Viewer";
-import CreateTag from "./tag/CreateTag";
-import Geometry from "./geometry/Geometry";
+    Observable,
+    Subject,
+} from "rxjs";
+import { CreateTag } from "./tag/CreateTag";
+import { Geometry } from "./geometry/Geometry";
+import { Component } from "../Component";
+import { ITagConfiguration } from "../interfaces/ITagConfiguration";
+
+import { Navigator } from "../../viewer/Navigator";
+import { Transform } from "../../geo/Transform";
+import { PointsGeometry } from "./geometry/PointsGeometry";
+import { ExtremePointCreateTag } from "./tag/ExtremePointCreateTag";
+import { RectGeometry } from "./geometry/RectGeometry";
+import { OutlineCreateTag } from "./tag/OutlineCreateTag";
+import { PolygonGeometry } from "./geometry/PolygonGeometry";
 
 interface ICreateTagOperation {
     (tag: CreateTag<Geometry>): CreateTag<Geometry>;
@@ -150,5 +159,3 @@ export class TagCreator {
         return this._replayedTag$;
     }
 }
-
-export default TagCreator;

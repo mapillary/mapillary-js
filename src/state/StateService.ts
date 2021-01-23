@@ -2,43 +2,39 @@ import {
     BehaviorSubject,
     Observable,
     Subject,
-    Subscription,
 } from "rxjs";
 
 import {
-    first,
-    tap,
-    filter,
-    withLatestFrom,
-    startWith,
-    pairwise,
+    bufferCount,
     distinctUntilChanged,
+    filter,
+    first,
+    map,
+    pairwise,
     publishReplay,
     refCount,
-    bufferCount,
-    share,
-    switchMap,
-    map,
     scan,
+    share,
+    startWith,
+    switchMap,
+    tap,
+    withLatestFrom,
 } from "rxjs/operators";
 
-import { ILatLon } from "../API";
-import { Node } from "../Graph";
-import {
-    Camera,
-    ILatLonAlt,
-    Transform,
-} from "../Geo";
-import {
-    FrameGenerator,
-    IStateContext,
-    IFrame,
-    IRotation,
-    StateContext,
-    State,
-    TransitionMode,
-} from "../State";
-import SubscriptionHolder from "../utils/SubscriptionHolder";
+import { FrameGenerator } from "./FrameGenerator";
+import { State } from "./State";
+import { StateContext } from "./StateContext";
+import { TransitionMode } from "./TransitionMode";
+import { IFrame } from "./interfaces/IFrame";
+import { IRotation } from "./interfaces/IRotation";
+import { IStateContext } from "./interfaces/IStateContext";
+
+import { ILatLon } from "../api/interfaces/ILatLon";
+import { Camera } from "../geo/Camera";
+import { Node } from "../graph/Node";
+import { Transform } from "../geo/Transform";
+import { ILatLonAlt } from "../geo/interfaces/ILatLonAlt";
+import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
 interface IContextOperation {
     (context: IStateContext): IStateContext;
@@ -114,7 +110,7 @@ export class StateService {
                     return this._frame$.pipe(
                         bufferCount(1, this._fpsSampleRate),
                         map(
-                            (frameIds: number[]): number => {
+                            (): number => {
                                 return new Date().getTime();
                             }),
                         pairwise(),
@@ -236,7 +232,7 @@ export class StateService {
 
         subs.push(nodeChanged$.pipe(
             map(
-                (frame: IFrame): boolean => {
+                (): boolean => {
                     return true;
                 }))
             .subscribe(this._inMotionOperation$));
@@ -248,7 +244,7 @@ export class StateService {
                     return moving;
                 }),
             switchMap(
-                (moving: boolean): Observable<boolean> => {
+                (): Observable<boolean> => {
                     return this._currentState$.pipe(
                         filter(
                             (frame: IFrame): boolean => {
@@ -285,7 +281,7 @@ export class StateService {
 
         subs.push(nodeChanged$.pipe(
             map(
-                (frame: IFrame): boolean => {
+                (): boolean => {
                     return true;
                 }))
             .subscribe(this._inTranslationOperation$));
@@ -297,7 +293,7 @@ export class StateService {
                     return inTranslation;
                 }),
             switchMap(
-                (inTranslation: boolean): Observable<boolean> => {
+                (): Observable<boolean> => {
                     return this._currentState$.pipe(
                         filter(
                             (frame: IFrame): boolean => {
@@ -565,7 +561,7 @@ export class StateService {
                 });
     }
 
-    private _frame(time: number): void {
+    private _frame(): void {
         this._frameId = this._frameGenerator.requestAnimationFrame(this._frame.bind(this));
         this._frame$.next(this._frameId);
     }

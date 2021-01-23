@@ -1,17 +1,11 @@
-import {
-    Component,
-    HandlerBase,
-    ITagConfiguration,
-} from "../../../Component";
-import {
-    Transform,
-    ViewportCoords,
-} from "../../../Geo";
-import {RenderCamera} from "../../../Render";
-import {
-    Container,
-    Navigator,
-} from "../../../Viewer";
+import { Transform } from "../../../geo/Transform";
+import { ViewportCoords } from "../../../geo/ViewportCoords";
+import { RenderCamera } from "../../../render/RenderCamera";
+import { Container } from "../../../viewer/Container";
+import { Navigator } from "../../../viewer/Navigator";
+import { Component } from "../../Component";
+import { ITagConfiguration } from "../../interfaces/ITagConfiguration";
+import { HandlerBase } from "../../utils/HandlerBase";
 
 export abstract class TagHandlerBase extends HandlerBase<ITagConfiguration> {
     protected _name: string;
@@ -60,5 +54,3 @@ export abstract class TagHandlerBase extends HandlerBase<ITagConfiguration> {
         return basic;
     }
 }
-
-export default TagHandlerBase;

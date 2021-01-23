@@ -53,5 +53,3 @@ export interface IExtremePointTagOptions {
      */
     lineWidth?: number;
 }
-
-export default IExtremePointTagOptions;

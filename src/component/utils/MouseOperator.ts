@@ -14,7 +14,7 @@ import {
     takeWhile,
 } from "rxjs/operators";
 
-import {MouseService} from "../../Viewer";
+import { MouseService } from "../../viewer/MouseService";
 
 export class MouseOperator {
     public static filteredPairwiseMouseDrag$(
@@ -23,33 +23,31 @@ export class MouseOperator {
 
         return mouseService
             .filtered$(name, mouseService.mouseDragStart$).pipe(
-            switchMap(
-                (mouseDragStart: MouseEvent): Observable<MouseEvent> => {
-                    const mouseDragging$: Observable<MouseEvent> = observableConcat(
-                        observableOf(mouseDragStart),
-                        mouseService
-                            .filtered$(name, mouseService.mouseDrag$));
+                switchMap(
+                    (mouseDragStart: MouseEvent): Observable<MouseEvent> => {
+                        const mouseDragging$: Observable<MouseEvent> = observableConcat(
+                            observableOf(mouseDragStart),
+                            mouseService
+                                .filtered$(name, mouseService.mouseDrag$));
 
-                    const mouseDragEnd$: Observable<MouseEvent> = mouseService
-                        .filtered$(name, mouseService.mouseDragEnd$).pipe(
-                        map(
-                            (): MouseEvent => {
-                                return null;
-                            }));
+                        const mouseDragEnd$: Observable<MouseEvent> = mouseService
+                            .filtered$(name, mouseService.mouseDragEnd$).pipe(
+                                map(
+                                    (): MouseEvent => {
+                                        return null;
+                                    }));
 
-                    return observableMerge(mouseDragging$, mouseDragEnd$).pipe(
-                        takeWhile(
-                            (e: MouseEvent): boolean => {
-                                return !!e;
-                            }),
-                        startWith(null));
-                }),
-            pairwise(),
-            filter(
-                (pair: [MouseEvent, MouseEvent]): boolean => {
-                    return pair[0] != null && pair[1] != null;
-                }));
+                        return observableMerge(mouseDragging$, mouseDragEnd$).pipe(
+                            takeWhile(
+                                (e: MouseEvent): boolean => {
+                                    return !!e;
+                                }),
+                            startWith(null));
+                    }),
+                pairwise(),
+                filter(
+                    (pair: [MouseEvent, MouseEvent]): boolean => {
+                        return pair[0] != null && pair[1] != null;
+                    }));
     }
 }
-
-export default MouseOperator;

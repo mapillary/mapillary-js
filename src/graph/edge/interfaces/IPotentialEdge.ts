@@ -102,5 +102,3 @@ export interface IPotentialEdge {
      */
     worldMotionAzimuth: number;
 }
-
-export default IPotentialEdge;

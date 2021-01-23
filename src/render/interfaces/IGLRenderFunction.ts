@@ -6,5 +6,3 @@ export interface IGLRenderFunction extends Function {
         renderer: THREE.WebGLRenderer,
     ): void;
 }
-
-export default IGLRenderFunction;

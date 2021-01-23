@@ -1,10 +1,7 @@
 import * as THREE from "three";
-
-import {ILatLon} from "../../../API";
-import {
-    ICircleMarkerOptions,
-    Marker,
-} from "../../../Component";
+import { ILatLon } from "../../../api/interfaces/ILatLon";
+import { ICircleMarkerOptions } from "../interfaces/ICircleMarkerOptions";
+import { Marker } from "./Marker";
 
 /**
  * @class CircleMarker
@@ -79,5 +76,3 @@ export class CircleMarker extends Marker {
         return [];
     }
 }
-
-export default CircleMarker;

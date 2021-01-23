@@ -1,4 +1,4 @@
-import {EdgeDirection} from "../../../Edge";
+import { EdgeDirection } from "../EdgeDirection";
 
 /**
  * Interface that describes additional properties of an edge.
@@ -18,5 +18,3 @@ export interface IEdgeData {
      */
     worldMotionAzimuth: number;
 }
-
-export default IEdgeData;

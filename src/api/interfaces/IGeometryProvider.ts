@@ -1,5 +1,5 @@
-import ILatLon from "./ILatLon";
-import ICellCorners, { ICellNeighbors } from "./ICellCorners";
+import { ICellCorners, ICellNeighbors } from "./ICellCorners";
+import { ILatLon } from "./ILatLon";
 
 export interface IGeometryProvider {
     getNeighbors(cellId: string): ICellNeighbors;
@@ -8,5 +8,3 @@ export interface IGeometryProvider {
     latLonToCellId(latLon: ILatLon, relativeLevel?: number): string;
     latLonToCellIds(latLon: ILatLon, threshold: number, relativeLevel?: number): string[];
 }
-
-export default IGeometryProvider;

@@ -1,14 +1,11 @@
 import { empty as observableEmpty, Observable } from "rxjs";
 
 import { catchError } from "rxjs/operators";
-
-import {
-    ICoreNode,
-    IFillNode,
-    ISequence,
-} from "../../src/API";
-import API from "../../src/api/API";
-import FalcorDataProvider from "../../src/api/FalcorDataProvider";
+import { API } from "../../src/api/API";
+import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
+import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
+import { IFillNode } from "../../src/api/interfaces/IFillNode";
+import { ISequence } from "../../src/api/interfaces/ISequence";
 
 describe("API.ctor", () => {
     it("should create an API instance", () => {

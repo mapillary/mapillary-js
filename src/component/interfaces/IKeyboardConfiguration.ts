@@ -1,4 +1,4 @@
-import { IComponentConfiguration } from "../../Component";
+import { IComponentConfiguration } from "./IComponentConfiguration";
 
 /**
  * Interface for configuration of keyboard component.
@@ -48,5 +48,3 @@ export interface IKeyboardConfiguration extends IComponentConfiguration {
      */
     keyZoom?: boolean;
 }
-
-export default IKeyboardConfiguration;

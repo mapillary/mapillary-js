@@ -1,3 +1,4 @@
+import { Container } from "../../src/viewer/Container";
 import { DOMRendererMockCreator } from "./DOMRendererMockCreator.spec";
 import { GLRendererMockCreator } from "./GLRendererMockCreator.spec";
 import { KeyboardServiceMockCreator } from "./KeyboardServiceMockCreator.spec";
@@ -7,8 +8,6 @@ import { MouseServiceMockCreator } from "./MouseServiceMockCreator.spec";
 import { RenderServiceMockCreator } from "./RenderServiceMockCreator.spec";
 import { SpriteServiceMockCreator } from "./SpriteServiceMockCreator.spec";
 import { TouchServiceMockCreator } from "./TouchServiceMockCreator.spec";
-
-import { Container } from "../../src/Viewer";
 
 export class ContainerMockCreator extends MockCreatorBase<Container> {
     public create(): Container {
@@ -27,5 +26,3 @@ export class ContainerMockCreator extends MockCreatorBase<Container> {
         return mock;
     }
 }
-
-export default ContainerMockCreator;

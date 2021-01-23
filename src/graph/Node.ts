@@ -1,19 +1,16 @@
-import { map } from "rxjs/operators";
 import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
 
-import {
-    ICoreNode,
-    IFillNode,
-    IGPano,
-    ILatLon,
-} from "../API";
-import { IEdge } from "../Edge";
-import {
-    IEdgeStatus,
-    NodeCache,
-} from "../Graph";
-import { ImageSize } from "../Viewer";
-import IMesh from "../api/interfaces/IMesh";
+import { NodeCache } from "./NodeCache";
+import { IEdge } from "./edge/interfaces/IEdge";
+import { IEdgeStatus } from "./interfaces/IEdgeStatus";
+
+import { ICoreNode } from "../api/interfaces/ICoreNode";
+import { IFillNode } from "../api/interfaces/IFillNode";
+import { IGPano } from "../api/interfaces/IGPano";
+import { ILatLon } from "../api/interfaces/ILatLon";
+import { IMesh } from "../api/interfaces/IMesh";
+import { ImageSize } from "../viewer/ImageSize";
 
 /**
  * @class Node
@@ -735,5 +732,3 @@ export class Node {
         this._cache = null;
     }
 }
-
-export default Node;

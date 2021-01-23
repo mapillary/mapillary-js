@@ -1,24 +1,17 @@
 import * as THREE from "three";
+import { Subscription } from "rxjs";
 
-import {Subscription} from "rxjs";
-
-import {
-    IBBoxShaderMaterial,
-    IShaderMaterial,
-    MeshFactory,
-    MeshScene,
-    SliderMode,
-} from "../../Component";
-import {
-    Transform,
-    Spatial,
-} from "../../Geo";
-import { Node } from "../../Graph";
-import {
-    ICurrentState,
-    IFrame,
-} from "../../State";
-import { TextureProvider } from "../../Tiles";
+import { Spatial } from "../../geo/Spatial";
+import { Transform } from "../../geo/Transform";
+import { Node } from "../../graph/Node";
+import { ICurrentState } from "../../state/interfaces/ICurrentState";
+import { IFrame } from "../../state/interfaces/IFrame";
+import { TextureProvider } from "../../tiles/TextureProvider";
+import { IBBoxShaderMaterial } from "../imageplane/interfaces/IBBoxShaderMaterial";
+import { IShaderMaterial } from "../imageplane/interfaces/IShaderMaterial";
+import { SliderMode } from "../interfaces/ISliderConfiguration";
+import { MeshFactory } from "../utils/MeshFactory";
+import { MeshScene } from "../utils/MeshScene";
 
 export class SliderGLRenderer {
     private _factory: MeshFactory;
@@ -257,7 +250,7 @@ export class SliderGLRenderer {
             }
 
             const plane: THREE.Mesh = planes[key];
-            let shaderMaterial: IBBoxShaderMaterial = <IBBoxShaderMaterial>plane.material;
+            let shaderMaterial = <IBBoxShaderMaterial>plane.material;
 
             if (!!shaderMaterial.uniforms.curtain) {
                 shaderMaterial.uniforms.curtain.value = this._curtain;
@@ -440,5 +433,3 @@ export class SliderGLRenderer {
         }
     }
 }
-
-export default SliderGLRenderer;

@@ -23,5 +23,3 @@ export interface IUrlOptions {
      */
     scheme?: string;
 }
-
-export default IUrlOptions;

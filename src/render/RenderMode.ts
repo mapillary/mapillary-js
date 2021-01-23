@@ -30,5 +30,3 @@ export enum RenderMode {
      */
     Fill,
 }
-
-export default RenderMode;

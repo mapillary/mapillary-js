@@ -4,5 +4,3 @@ export enum State {
     Waiting,
     WaitingInteractively,
 }
-
-export default State;

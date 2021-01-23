@@ -1,9 +1,6 @@
 import * as THREE from "three";
-
-import {ILatLon} from "../../../src/API";
-import {
-    Marker,
-} from "../../../src/Component";
+import { ILatLon } from "../../../src/api/interfaces/ILatLon";
+import { Marker } from "../../../src/component/marker/marker/Marker";
 
 class TestMarker extends Marker {
     constructor(id: string, latLon: ILatLon) { super(id, latLon); }

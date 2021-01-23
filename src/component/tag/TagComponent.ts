@@ -1,3 +1,5 @@
+import * as when from "when";
+
 import {
     combineLatest as observableCombineLatest,
     empty as observableEmpty,
@@ -8,61 +10,52 @@ import {
 } from "rxjs";
 
 import {
-    startWith,
+    distinctUntilChanged,
+    filter,
     first,
-    tap,
     map,
+    mergeMap,
+    publishReplay,
+    refCount,
     share,
     skipWhile,
-    filter,
-    mergeMap,
-    refCount,
-    publishReplay,
+    startWith,
     switchMap,
-    distinctUntilChanged,
+    tap,
 } from "rxjs/operators";
 
-import * as when from "when";
+import { TagCreator } from "./TagCreator";
+import { TagDOMRenderer } from "./TagDOMRenderer";
+import { TagScene } from "./TagScene";
+import { TagMode } from "./TagMode";
+import { TagSet } from "./TagSet";
+import { Geometry } from "./geometry/Geometry";
+import { PointsGeometry } from "./geometry/PointsGeometry";
+import { CreateHandlerBase } from "./handlers/CreateHandlerBase";
+import { CreatePointHandler } from "./handlers/CreatePointHandler";
+import { CreatePointsHandler } from "./handlers/CreatePointsHandler";
+import { CreatePolygonHandler } from "./handlers/CreatePolygonHandler";
+import { CreateRectHandler } from "./handlers/CreateRectHandler";
+import { CreateRectDragHandler } from "./handlers/CreateRectDragHandler";
+import { EditVertexHandler } from "./handlers/EditVertexHandler";
+import { Tag } from "./tag/Tag";
+import { RenderTag } from "./tag/RenderTag";
+import { CreateTag } from "./tag/CreateTag";
 
-import {
-    ComponentService,
-    Component,
-    CreateHandlerBase,
-    CreatePointHandler,
-    CreatePolygonHandler,
-    CreateRectHandler,
-    CreateRectDragHandler,
-    CreateTag,
-    EditVertexHandler,
-    Geometry,
-    ITagConfiguration,
-    RenderTag,
-    Tag,
-    TagCreator,
-    TagDOMRenderer,
-    TagMode,
-    TagScene,
-    TagSet,
-    CreatePointsHandler,
-} from "../../Component";
-import {
-    Transform,
-    ViewportCoords,
-} from "../../Geo";
-import {
-    GLRenderStage,
-    IGLRenderHash,
-    ISize,
-    IVNodeHash,
-    RenderCamera,
-} from "../../Render";
-import { IFrame } from "../../State";
-import {
-    Container,
-    ISpriteAtlas,
-    Navigator,
-} from "../../Viewer";
-import PointsGeometry from "./geometry/PointsGeometry";
+import { Component } from "../Component";
+import { ITagConfiguration } from "../interfaces/ITagConfiguration";
+
+import { Transform } from "../../geo/Transform";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { Navigator } from "../../viewer/Navigator";
+import { GLRenderStage } from "../../render/GLRenderStage";
+import { RenderCamera } from "../../render/RenderCamera";
+import { IGLRenderHash } from "../../render/interfaces/IGLRenderHash";
+import { ISize } from "../../render/interfaces/ISize";
+import { IVNodeHash } from "../../render/interfaces/IVNodeHash";
+import { IFrame } from "../../state/interfaces/IFrame";
+import { Container } from "../../viewer/Container";
+import { ISpriteAtlas } from "../../viewer/interfaces/ISpriteAtlas";
 
 /**
  * @class TagComponent
@@ -784,6 +777,3 @@ export class TagComponent extends Component<ITagConfiguration> {
         }
     }
 }
-
-ComponentService.register(TagComponent);
-export default TagComponent;

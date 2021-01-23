@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 import {
     empty as observableEmpty,
     merge as observableMerge,
@@ -6,45 +8,32 @@ import {
 } from "rxjs";
 
 import {
+    distinctUntilChanged,
+    filter,
+    map,
+    pairwise,
     sample,
     scan,
-    map,
     share,
     switchMap,
     withLatestFrom,
-    pairwise,
-    filter,
-    distinctUntilChanged,
-    startWith,
 } from "rxjs/operators";
 
-import * as THREE from "three";
-
-import {
-    Component,
-    ImageBoundary,
-    IMouseConfiguration,
-    HandlerBase,
-    MouseTouchPair,
-    MouseOperator,
-} from "../../Component";
-import {
-    Spatial,
-    Transform,
-    ViewportCoords,
-} from "../../Geo";
-import {
-    RenderCamera,
-} from "../../Render";
-import {
-    IFrame,
-    IRotation,
-} from "../../State";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
-import Node from "../../graph/Node";
+import { Transform } from "../../geo/Transform";
+import { Node } from "../../graph/Node";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { RenderCamera } from "../../render/RenderCamera";
+import { IFrame } from "../../state/interfaces/IFrame";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { Component } from "../Component";
+import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
+import { HandlerBase } from "../utils/HandlerBase";
+import { Spatial } from "../../geo/Spatial";
+import { IRotation } from "../../state/interfaces/IRotation";
+import { MouseTouchPair } from "./HandlerTypes";
+import { MouseOperator } from "../utils/MouseOperator";
+import * as ImageBoundary from "./ImageBoundary";
 
 /**
  * The `DragPanHandler` allows the user to pan the viewer image by clicking and dragging the cursor.
@@ -332,5 +321,3 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
         return buffer;
     }
 }
-
-export default DragPanHandler;

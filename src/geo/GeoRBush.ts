@@ -1,6 +1,6 @@
 import * as RBush from "rbush";
 
-import { ILatLon } from "../API";
+import { ILatLon } from "../api/interfaces/ILatLon";
 
 export class GeoRBush<T extends ILatLon> extends RBush<T> {
     public compareMinX(a: T, b: T): number { return a.lat - b.lat; }
@@ -11,5 +11,3 @@ export class GeoRBush<T extends ILatLon> extends RBush<T> {
         return { minX: item.lat, minY: item.lon, maxX: item.lat, maxY: item.lon };
     }
 }
-
-export default GeoRBush;

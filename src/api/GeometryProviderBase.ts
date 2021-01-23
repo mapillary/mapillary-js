@@ -1,8 +1,9 @@
-import IGeometryProvider from "./interfaces/IGeometryProvider";
-import ILatLon from "./interfaces/ILatLon";
-import MapillaryError from "../error/MapillaryError";
-import GeoCoords from "../geo/GeoCoords";
-import ICellCorners, { ICellNeighbors } from "./interfaces/ICellCorners";
+import { ICellCorners, ICellNeighbors } from "./interfaces/ICellCorners";
+import { IGeometryProvider } from "./interfaces/IGeometryProvider";
+import { ILatLon } from "./interfaces/ILatLon";
+
+import { MapillaryError } from "../error/MapillaryError";
+import { GeoCoords } from "../geo/GeoCoords";
 
 /**
  * @class GeometryProviderBase
@@ -116,5 +117,3 @@ export class GeometryProviderBase implements IGeometryProvider {
             threshold);
     }
 }
-
-export default GeometryProviderBase;

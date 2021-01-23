@@ -9,5 +9,3 @@ export interface IKey {
      */
     key: string;
 }
-
-export default IKey;

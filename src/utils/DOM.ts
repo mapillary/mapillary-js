@@ -24,5 +24,3 @@ export class DOM {
         return element;
     }
 }
-
-export default DOM;

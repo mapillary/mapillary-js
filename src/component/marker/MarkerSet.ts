@@ -1,8 +1,10 @@
-import {Observable, Subject} from "rxjs";
-
-import {ILatLon} from "../../API";
-import {Marker} from "../../Component";
-import { GeoRBush } from "../../Geo";
+import {
+    Observable,
+    Subject,
+} from "rxjs";
+import { ILatLon } from "../../api/interfaces/ILatLon";
+import { GeoRBush } from "../../geo/GeoRBush";
+import { Marker } from "./marker/Marker";
 
 type MarkerIndexItem = {
     lat: number;
@@ -145,5 +147,3 @@ export class MarkerSet {
         index.insert(item);
     }
 }
-
-export default MarkerSet;

@@ -1,17 +1,17 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {Subscription} from "rxjs";
+import { Subscription } from "rxjs";
 
-import {
-    InteractionCursor,
-    RenderTag,
-    TagOperation,
-    Tag,
-} from "../../../Component";
-import {Transform} from "../../../Geo";
-import {ISize} from "../../../Render";
-import {ISpriteAtlas} from "../../../Viewer";
+import { TagOperation } from "../TagOperation";
+import { RenderTag } from "./RenderTag";
+import { Tag } from "./Tag";
+
+import { InteractionCursor } from "../interfaces/IInteraction";
+
+import { Transform } from "../../../geo/Transform";
+import { ISize } from "../../../render/interfaces/ISize";
+import { ISpriteAtlas } from "../../../viewer/interfaces/ISpriteAtlas";
 
 export abstract class OutlineRenderTagBase<T extends Tag> extends RenderTag<T> {
     protected _fill: THREE.Mesh;
@@ -189,5 +189,3 @@ export abstract class OutlineRenderTagBase<T extends Tag> extends RenderTag<T> {
         this._updateLine(this._outline, this._getPoints3d());
     }
 }
-
-export default OutlineRenderTagBase;

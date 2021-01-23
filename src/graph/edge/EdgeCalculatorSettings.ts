@@ -57,5 +57,3 @@ export class EdgeCalculatorSettings {
             this.turnMaxDistance);
     }
 }
-
-export default EdgeCalculatorSettings;

@@ -1,10 +1,7 @@
 import { Subject } from "rxjs";
-
-import {
-    ExtremePointCreateTag,
-    CreateVertexHandler,
-} from "../../../Component";
-import {Transform} from "../../../Geo";
+import { Transform } from "../../../geo/Transform";
+import { ExtremePointCreateTag } from "../tag/ExtremePointCreateTag";
+import { CreateVertexHandler } from "./CreateVertexHandler";
 
 export class CreatePointsHandler extends CreateVertexHandler {
     protected get _create$(): Subject<number[]> {
@@ -23,5 +20,3 @@ export class CreatePointsHandler extends CreateVertexHandler {
         tag.geometry.setPoint2d((tag.geometry).points.length - 1, basicPoint, transform);
     }
 }
-
-export default CreatePointsHandler;

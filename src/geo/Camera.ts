@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import {Transform} from "../Geo";
+import { Transform } from "./Transform";
 
 /**
  * @class Camera
@@ -31,41 +31,41 @@ export class Camera {
         }
     }
 
-   /**
-    * Get position.
-    * @returns {THREE.Vector3} The position vector.
-    */
+    /**
+     * Get position.
+     * @returns {THREE.Vector3} The position vector.
+     */
     public get position(): THREE.Vector3 {
         return this._position;
     }
 
-   /**
-    * Get lookat.
-    * @returns {THREE.Vector3} The lookat vector.
-    */
+    /**
+     * Get lookat.
+     * @returns {THREE.Vector3} The lookat vector.
+     */
     public get lookat(): THREE.Vector3 {
         return this._lookat;
     }
 
-   /**
-    * Get up.
-    * @returns {THREE.Vector3} The up vector.
-    */
+    /**
+     * Get up.
+     * @returns {THREE.Vector3} The up vector.
+     */
     public get up(): THREE.Vector3 {
         return this._up;
     }
 
-   /**
-    * Get focal.
-    * @returns {number} The focal length.
-    */
+    /**
+     * Get focal.
+     * @returns {number} The focal length.
+     */
     public get focal(): number {
         return this._focal;
     }
 
-   /**
-    * Set focal.
-    */
+    /**
+     * Set focal.
+     */
     public set focal(value: number) {
         this._focal = value;
     }
@@ -78,10 +78,10 @@ export class Camera {
      * @param {number} alpha - Interpolation value on the interval [0, 1].
      */
     public lerpCameras(a: Camera, b: Camera, alpha: number): void {
-      this._position.subVectors(b.position, a.position).multiplyScalar(alpha).add(a.position);
-      this._lookat.subVectors(b.lookat, a.lookat).multiplyScalar(alpha).add(a.lookat);
-      this._up.subVectors(b.up, a.up).multiplyScalar(alpha).add(a.up);
-      this._focal = (1 - alpha) * a.focal + alpha * b.focal;
+        this._position.subVectors(b.position, a.position).multiplyScalar(alpha).add(a.position);
+        this._lookat.subVectors(b.lookat, a.lookat).multiplyScalar(alpha).add(a.lookat);
+        this._up.subVectors(b.up, a.up).multiplyScalar(alpha).add(a.up);
+        this._focal = (1 - alpha) * a.focal + alpha * b.focal;
     }
 
     /**

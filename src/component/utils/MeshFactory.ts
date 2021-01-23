@@ -1,9 +1,12 @@
 import * as THREE from "three";
 
-import {IGPano} from "../../API";
-import {Transform} from "../../Geo";
-import {Node} from "../../Graph";
-import {Shaders} from "../../Component";
+import { Shaders } from "../shaders/Shaders";
+
+import { IGPano } from "../../api/interfaces/IGPano";
+import { Transform } from "../../geo/Transform";
+import { Node } from "../../graph/Node";
+
+
 
 export class MeshFactory {
     private _imagePlaneDepth: number;
@@ -587,5 +590,3 @@ export class MeshFactory {
         return geometry;
     }
 }
-
-export default MeshFactory;

@@ -1,5 +1,5 @@
-import {Alignment} from "../../../Viewer";
-import {TagDomain} from "../../../Component";
+import { TagDomain } from "../tag/TagDomain";
+import { Alignment } from "../../../viewer/Alignment";
 
 /**
  * Interface for the options that define the behavior and
@@ -108,5 +108,3 @@ export interface IOutlineTagOptions {
      */
     textColor?: number;
 }
-
-export default IOutlineTagOptions;

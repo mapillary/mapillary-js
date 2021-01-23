@@ -1,30 +1,32 @@
-import { from as observableFrom, of as observableOf, merge as observableMerge, Observable, Subject } from "rxjs";
-
-import { first, mergeAll } from "rxjs/operators";
-
+import {
+    from as observableFrom,
+    merge as observableMerge,
+    of as observableOf,
+    Observable,
+    Subject,
+} from "rxjs";
+import {
+    first,
+    mergeAll,
+} from "rxjs/operators";
 import { NodeHelper } from "../helper/NodeHelper.spec";
-
-import {
-    ICoreNode,
-    IFillNode,
-    IFullNode,
-    ISequence,
-    IDataProvider,
-} from "../../src/API";
-import { EdgeCalculator } from "../../src/Edge";
-import { GraphMapillaryError } from "../../src/Error";
-import { GeoRBush } from "../../src/Geo";
-import {
-    GraphCalculator,
-    Graph,
-    IGraphConfiguration,
-    Node,
-    Sequence,
-} from "../../src/Graph";
-import API from "../../src/api/API";
-import FalcorDataProvider from "../../src/api/FalcorDataProvider";
-import IGeometryProvider from "../../src/api/interfaces/IGeometryProvider";
-import GeohashGeometryProvider from "../../src/api/GeohashGeometryProvider";
+import { Node } from "../../src/graph/Node";
+import { API } from "../../src/api/API";
+import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
+import { GeohashGeometryProvider } from "../../src/api/GeohashGeometryProvider";
+import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
+import { IDataProvider } from "../../src/api/interfaces/IDataProvider";
+import { IFillNode } from "../../src/api/interfaces/IFillNode";
+import { IFullNode } from "../../src/api/interfaces/IFullNode";
+import { IGeometryProvider } from "../../src/api/interfaces/IGeometryProvider";
+import { ISequence } from "../../src/api/interfaces/ISequence";
+import { GraphMapillaryError } from "../../src/error/GraphMapillaryError";
+import { GeoRBush } from "../../src/geo/GeoRBush";
+import { EdgeCalculator } from "../../src/graph/edge/EdgeCalculator";
+import { Graph } from "../../src/graph/Graph";
+import { GraphCalculator } from "../../src/graph/GraphCalculator";
+import { IGraphConfiguration } from "../../src/graph/interfaces/IGraphConfiguration";
+import { Sequence } from "../../src/graph/Sequence";
 
 describe("Graph.ctor", () => {
     it("should create a graph", () => {
@@ -359,8 +361,8 @@ describe("Graph.cacheFull$", () => {
 
         graph.cacheFull$(fullNode.key)
             .subscribe(
-                (g: Graph): void => { return; },
-                (e: GraphMapillaryError): void => {
+                (): void => { return; },
+                (): void => {
                     done();
                 });
 
@@ -1424,7 +1426,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequenceNodes$(sequenceKey)
             .subscribe(
                 (): void => { /*noop*/ },
-                (e: Error): void => { /*noop*/ });
+                (): void => { /*noop*/ });
 
         imageByKey.error(new Error("404"));
 
@@ -1449,7 +1451,6 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
-        const key: string = "key";
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
@@ -1487,7 +1488,6 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
-        const key: string = "key";
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
@@ -1526,7 +1526,6 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
-        const key: string = "key";
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
@@ -1570,7 +1569,6 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
-        const key: string = "key";
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
@@ -1615,7 +1613,6 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
-        const key: string = "key";
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
@@ -1661,7 +1658,6 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
-        const key: string = "key";
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
@@ -1696,7 +1692,6 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
-        const key: string = "key";
 
         graph.cacheSequence$(sequenceKey).subscribe();
 

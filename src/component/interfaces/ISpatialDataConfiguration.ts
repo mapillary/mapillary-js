@@ -1,6 +1,6 @@
-import { IComponentConfiguration } from "../../Component";
-import CameraVisualizationMode from "../spatialdata/CameraVisualizationMode";
-import OriginalPositionMode from "../spatialdata/OriginalPositionMode";
+import { IComponentConfiguration } from "./IComponentConfiguration";
+import { CameraVisualizationMode } from "../spatialdata/CameraVisualizationMode";
+import { OriginalPositionMode } from "../spatialdata/OriginalPositionMode";
 
 /**
  * Interface for configuration of spatial data component.
@@ -102,7 +102,4 @@ export interface ISpatialDataConfiguration extends IComponentConfiguration {
      * @default false
      */
     tilesVisible?: boolean;
-
 }
-
-export default ISpatialDataConfiguration;

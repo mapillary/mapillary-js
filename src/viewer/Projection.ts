@@ -1,15 +1,14 @@
 import * as THREE from "three";
 
-import {ILatLon} from "../API";
-import {
-    GeoCoords,
-    ILatLonAlt,
-    Transform,
-    ViewportCoords,
-} from "../Geo";
-import {RenderCamera} from "../Render";
-import {IUnprojection} from "../Viewer";
-import Spatial from "../geo/Spatial";
+import { IUnprojection } from "./interfaces/IUnprojection";
+
+import { ILatLon } from "../api/interfaces/ILatLon";
+import { GeoCoords } from "../geo/GeoCoords";
+import { Spatial } from "../geo/Spatial";
+import { Transform } from "../geo/Transform";
+import { ViewportCoords } from "../geo/ViewportCoords";
+import { ILatLonAlt } from "../geo/interfaces/ILatLonAlt";
+import { RenderCamera } from "../render/RenderCamera";
 
 export class Projection {
     private _geoCoords: GeoCoords;
@@ -152,5 +151,3 @@ export class Projection {
             latLon2.lon);
     }
 }
-
-export default Projection;

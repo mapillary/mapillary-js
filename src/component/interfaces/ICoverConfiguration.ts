@@ -1,4 +1,4 @@
-import {IComponentConfiguration} from "../../Component";
+import { IComponentConfiguration } from "./IComponentConfiguration";
 
 export enum CoverState {
     Hidden,
@@ -11,5 +11,3 @@ export interface ICoverConfiguration extends IComponentConfiguration {
     src?: string;
     state?: CoverState;
 }
-
-export default ICoverConfiguration;

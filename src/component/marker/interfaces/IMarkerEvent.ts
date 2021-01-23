@@ -1,7 +1,5 @@
-import {
-    Marker,
-    MarkerComponent,
-} from "../../../Component";
+import { Marker } from "../marker/Marker";
+import { MarkerComponent } from "../MarkerComponent";
 
 /**
  * @interface IMarkerEvent
@@ -24,5 +22,3 @@ export interface IMarkerEvent {
      */
     type: string;
 }
-
-export default IMarkerEvent;

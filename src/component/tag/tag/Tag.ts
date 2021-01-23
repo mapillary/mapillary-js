@@ -1,8 +1,17 @@
-import {share, map} from "rxjs/operators";
-import {Observable, Subject} from "rxjs";
+import {
+    share,
+    map,
+} from "rxjs/operators";
 
-import {Geometry} from "../../../Component";
-import {EventEmitter} from "../../../Utils";
+import {
+    Observable,
+    Subject,
+} from "rxjs";
+
+import { Geometry } from "../geometry/Geometry";
+
+import { EventEmitter } from "../../../utils/EventEmitter";
+
 
 /**
  * @class Tag
@@ -99,5 +108,3 @@ export abstract class Tag extends EventEmitter {
             share());
     }
 }
-
-export default Tag;

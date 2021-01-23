@@ -1,6 +1,9 @@
-import {Observable, Subject} from "rxjs";
+import {
+    Observable,
+    Subject,
+} from "rxjs";
 
-import {Transform} from "../../../Geo";
+import { Transform } from "../../../geo/Transform";
 
 /**
  * @class Geometry
@@ -59,5 +62,3 @@ export abstract class Geometry {
      */
     public abstract setCentroid2d(value: number[], transform: Transform): void;
 }
-
-export default Geometry;

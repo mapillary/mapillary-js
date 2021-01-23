@@ -1,29 +1,20 @@
-
-import {empty as observableEmpty, Observable, Subject} from "rxjs";
+import { empty as observableEmpty, Subject } from "rxjs";
 import * as THREE from "three";
 
-import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
-import {EventHelper} from "../../helper/EventHelper.spec";
-import {MockCreator} from "../../helper/MockCreator.spec";
-import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
-import {TestComponent} from "../../helper/TestComponent.spec";
-import {TransformHelper} from "../../helper/TransformHelper.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
+import { EventHelper } from "../../helper/EventHelper.spec";
+import { MockCreator } from "../../helper/MockCreator.spec";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
+import { TestComponent } from "../../helper/TestComponent.spec";
+import { TransformHelper } from "../../helper/TransformHelper.spec";
 
-import {
-    DoubleClickZoomHandler,
-} from "../../../src/Component";
-import {
-    Transform,
-    ViewportCoords,
-} from "../../../src/Geo";
-import {
-    RenderCamera,
-    RenderMode,
-} from "../../../src/Render";
-import {
-    Container,
-    Navigator,
-} from "../../../src/Viewer";
+import { Navigator } from "../../../src/viewer/Navigator";
+import { Transform } from "../../../src/geo/Transform";
+import { DoubleClickZoomHandler } from "../../../src/component/mouse/DoubleClickZoomHandler";
+import { ViewportCoords } from "../../../src/geo/ViewportCoords";
+import { RenderCamera } from "../../../src/render/RenderCamera";
+import { Container } from "../../../src/viewer/Container";
+import { RenderMode } from "../../../src/render/RenderMode";
 
 describe("DoubleClickZoomHandler.ctor", () => {
     it("should be defined", () => {

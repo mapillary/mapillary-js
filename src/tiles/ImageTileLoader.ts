@@ -1,5 +1,9 @@
-import { Observable, Subscriber } from "rxjs";
-import { IDataProvider } from "../api/interfaces/interfaces";
+import {
+    Observable,
+    Subscriber,
+} from "rxjs";
+
+import { IDataProvider } from "../api/interfaces/IDataProvider";
 
 /**
  * @class ImageTileLoader
@@ -96,5 +100,3 @@ export class ImageTileLoader {
         ];
     }
 }
-
-export default ImageTileLoader;

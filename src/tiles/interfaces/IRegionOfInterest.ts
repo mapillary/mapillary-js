@@ -1,4 +1,4 @@
-import {IBoundingBox} from "../../Tiles";
+import { IBoundingBox } from "./IBoundingBox";
 
 /**
  * Interface that describes a region of interest..
@@ -21,5 +21,3 @@ export interface IRegionOfInterest {
      */
     pixelHeight: number;
 }
-
-export default IRegionOfInterest;

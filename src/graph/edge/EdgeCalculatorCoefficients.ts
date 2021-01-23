@@ -39,5 +39,3 @@ export class EdgeCalculatorCoefficients {
         this.turnMergeCCPenalty = 4;
     }
 }
-
-export default EdgeCalculatorCoefficients;

@@ -1,4 +1,4 @@
-import {StateService} from "../../src/State";
+import { StateService } from "../../src/state/StateService";
 
 describe("StateService.ctor", () => {
     it("should be contructed", () => {

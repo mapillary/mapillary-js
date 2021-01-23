@@ -4,5 +4,3 @@ export interface IVNodeHash {
     name: string;
     vnode: vd.VNode;
 }
-
-export default IVNodeHash;

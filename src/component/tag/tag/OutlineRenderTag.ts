@@ -1,18 +1,18 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {
-    InteractionCursor,
-    OutlineTag,
-    PolygonGeometry,
-    RectGeometry,
-    TagDomain,
-    TagOperation,
-    OutlineRenderTagBase,
-} from "../../../Component";
-import {Transform} from "../../../Geo";
-import {ISize} from "../../../Render";
-import {ISpriteAtlas} from "../../../Viewer";
+import { OutlineRenderTagBase } from "./OutlineRenderTagBase";
+import { OutlineTag } from "./OutlineTag";
+import { TagDomain } from "./TagDomain";
+import { TagOperation } from "../TagOperation";
+
+import { PolygonGeometry } from "../geometry/PolygonGeometry";
+import { RectGeometry } from "../geometry/RectGeometry";
+import { InteractionCursor } from "../interfaces/IInteraction";
+
+import { Transform } from "../../../geo/Transform";
+import { ISize } from "../../../render/interfaces/ISize";
+import { ISpriteAtlas } from "../../../viewer/interfaces/ISpriteAtlas";
 
 /**
  * @class OutlineRenderTag
@@ -27,8 +27,8 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
         this._fill = !transform.gpano ?
             this._createFill() :
             transform.fullPano &&
-            tag.domain === TagDomain.TwoDimensional &&
-            tag.geometry instanceof PolygonGeometry ?
+                tag.domain === TagDomain.TwoDimensional &&
+                tag.geometry instanceof PolygonGeometry ?
                 this._createFill() :
                 null;
 
@@ -168,7 +168,7 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
         for (let i: number = 0; i < vertices2d.length - 1; i++) {
             if (isRect &&
                 ((this._tag.icon != null && i === this._tag.iconIndex) ||
-                (this._tag.icon == null && this._tag.text != null && i === 3))) {
+                    (this._tag.icon == null && this._tag.text != null && i === 3))) {
                 continue;
             }
 
@@ -186,8 +186,8 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
             }
 
             const cursor: InteractionCursor = isRect ?
-                 i % 2 === 0 ? "nesw-resize" : "nwse-resize" :
-                 "crosshair";
+                i % 2 === 0 ? "nesw-resize" : "nwse-resize" :
+                "crosshair";
 
             const interact: (e: MouseEvent) => void = this._interact(TagOperation.Vertex, cursor, i);
             const vertexCanvasX: number = Math.round(vertexCanvas[0]);

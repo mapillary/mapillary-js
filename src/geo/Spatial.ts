@@ -16,7 +16,7 @@ export class Spatial {
      * @returns {number} Bearing in radians.
      */
     public azimuthalToBearing(phi: number): number {
-         return -phi + Math.PI / 2;
+        return -phi + Math.PI / 2;
     }
 
     /**
@@ -266,5 +266,3 @@ export class Spatial {
         return d;
     }
 }
-
-export default Spatial;

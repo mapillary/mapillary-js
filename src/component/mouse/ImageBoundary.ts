@@ -1,10 +1,8 @@
 import * as THREE from "three";
 
-import {
-    Lines,
-    Transform,
-    ViewportCoords,
-} from "../../../src/Geo";
+import * as Lines from "../../geo/Lines";
+import { Transform } from "../../geo/Transform";
+import { ViewportCoords } from "../../geo/ViewportCoords";
 
 function basicBoundaryPoints(pointsPerSide: number): number[][] {
     let points: number[][] = [];
@@ -17,7 +15,7 @@ function basicBoundaryPoints(pointsPerSide: number): number[][] {
 
         for (let i: number = 0; i < pointsPerSide; ++i) {
             points.push([o[0] + d[0] * i / pointsPerSide,
-                            o[1] + d[1] * i / pointsPerSide]);
+            o[1] + d[1] * i / pointsPerSide]);
         }
     }
 

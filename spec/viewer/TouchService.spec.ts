@@ -1,6 +1,5 @@
-import {TouchService} from "../../src/Viewer";
-
-import {EventHelper} from "../helper/EventHelper.spec";
+import { TouchService } from "../../src/viewer/TouchService";
+import { EventHelper } from "../helper/EventHelper.spec";
 
 describe("TouchService.ctor", () => {
     it("should be definded", () => {

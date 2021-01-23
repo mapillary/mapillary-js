@@ -1,13 +1,25 @@
-import {combineLatest as observableCombineLatest, Observable, Subscription} from "rxjs";
-
-import {distinctUntilChanged, filter, map} from "rxjs/operators";
 import * as vd from "virtual-dom";
 
-import {ComponentService, Component, IComponentConfiguration} from "../Component";
-import {Node} from "../Graph";
-import {ISize} from "../Render";
-import {DOM} from "../Utils";
-import {Container, Navigator} from "../Viewer";
+import {
+    combineLatest as observableCombineLatest,
+    Observable,
+    Subscription,
+} from "rxjs";
+
+import {
+    distinctUntilChanged,
+    filter,
+    map,
+} from "rxjs/operators";
+
+import { Component } from "./Component";
+import { IComponentConfiguration } from "./interfaces/IComponentConfiguration";
+
+import { Node } from "../graph/Node";
+import { Container } from "../viewer/Container";
+import { Navigator } from "../viewer/Navigator";
+import { ISize } from "../render/interfaces/ISize";
+import { DOM } from "../utils/DOM";
 
 export class ImageComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "image";
@@ -26,7 +38,7 @@ export class ImageComponent extends Component<IComponentConfiguration> {
     protected _activate(): void {
         const canvasSize$: Observable<[HTMLCanvasElement, ISize]> = this._container.domRenderer.element$.pipe(
             map(
-                (element: HTMLElement): HTMLCanvasElement => {
+                (): HTMLCanvasElement => {
                     return <HTMLCanvasElement>this._dom.document.getElementById(this._canvasId);
                 }),
             filter(
@@ -45,13 +57,13 @@ export class ImageComponent extends Component<IComponentConfiguration> {
                 (s1: ISize, s2: ISize): boolean => {
                     return s1.height === s2.height && s1.width === s2.width;
                 },
-                ([canvas, size]: [HTMLCanvasElement, ISize]): ISize => {
+                ([, size]: [HTMLCanvasElement, ISize]): ISize => {
                     return size;
                 }));
 
         this.drawSubscription = observableCombineLatest(
-                canvasSize$,
-                this._navigator.stateService.currentNode$)
+            canvasSize$,
+            this._navigator.stateService.currentNode$)
             .subscribe(
                 ([[canvas, size], node]: [[HTMLCanvasElement, ISize], Node]): void => {
                     canvas.width = size.width;
@@ -61,7 +73,7 @@ export class ImageComponent extends Component<IComponentConfiguration> {
                         .drawImage(node.image, 0, 0, size.width, size.height);
                 });
 
-        this._container.domRenderer.renderAdaptive$.next({name: this._name, vnode: vd.h(`canvas#${this._canvasId}`, [])});
+        this._container.domRenderer.renderAdaptive$.next({ name: this._name, vnode: vd.h(`canvas#${this._canvasId}`, []) });
     }
 
     protected _deactivate(): void {
@@ -72,6 +84,3 @@ export class ImageComponent extends Component<IComponentConfiguration> {
         return {};
     }
 }
-
-ComponentService.register(ImageComponent);
-export default ImageComponent;

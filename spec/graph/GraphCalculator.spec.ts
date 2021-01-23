@@ -1,6 +1,6 @@
-import GraphCalculator from "../../src/graph/GraphCalculator";
-import GeoCoords from "../../src/geo/GeoCoords";
-import ILatLon from "../../src/api/interfaces/ILatLon";
+import { ILatLon } from "../../src/api/interfaces/ILatLon";
+import { GeoCoords } from "../../src/geo/GeoCoords";
+import { GraphCalculator } from "../../src/graph/GraphCalculator";
 
 describe("GraphCalculator.ctor", () => {
     it("should be defined", () => {

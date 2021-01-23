@@ -7,22 +7,21 @@ import {
 } from "rxjs";
 
 import {
-    mergeMap,
     catchError,
-    tap,
+    finalize,
+    filter,
+    mergeMap,
     publish,
     refCount,
-    finalize,
-    map,
-    filter,
+    tap,
 } from "rxjs/operators";
 
-import AbortMapillaryError from "../../error/AbortMapillaryError";
-import GraphService from "../../graph/GraphService";
-import IDataProvider from "../../api/interfaces/IDataProvider";
-import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
-import ICellCorners from "../../api/interfaces/ICellCorners";
-import Node from "../../graph/Node";
+import { ICellCorners } from "../../api/interfaces/ICellCorners";
+import { IClusterReconstruction } from "../../api/interfaces/IClusterReconstruction";
+import { IDataProvider } from "../../api/interfaces/IDataProvider";
+import { AbortMapillaryError } from "../../error/AbortMapillaryError";
+import { GraphService } from "../../graph/GraphService";
+import { Node } from "../../graph/Node";
 
 type ClusterData = {
     key: string;
@@ -316,5 +315,3 @@ export class SpatialDataCache {
         return key in this._clusterReconstructions;
     }
 }
-
-export default SpatialDataCache;

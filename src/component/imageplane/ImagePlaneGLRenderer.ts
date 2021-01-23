@@ -1,19 +1,14 @@
 import * as THREE from "three";
+import { Subscription } from "rxjs";
 
-import {Subscription} from "rxjs";
-
-import {
-    MeshFactory,
-    MeshScene,
-    IShaderMaterial,
-} from "../../Component";
-import {Node} from "../../Graph";
-import {
-    ICurrentState,
-    IFrame,
-} from "../../State";
-import {TextureProvider} from "../../Tiles";
+import { ICurrentState } from "../../state/interfaces/ICurrentState";
+import { IFrame } from "../../state/interfaces/IFrame";
+import { Node } from "../../graph/Node";
 import { Transform } from "../../geo/Transform";
+import { TextureProvider } from "../../tiles/TextureProvider";
+import { MeshFactory } from "../utils/MeshFactory";
+import { MeshScene } from "../utils/MeshScene";
+import { IShaderMaterial } from "./interfaces/IShaderMaterial";
 
 export class ImagePlaneGLRenderer {
     private _factory: MeshFactory;
@@ -302,5 +297,3 @@ export class ImagePlaneGLRenderer {
         return dest;
     }
 }
-
-export default ImagePlaneGLRenderer;

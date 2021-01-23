@@ -1,22 +1,18 @@
 import * as THREE from "three";
 
-import {
-    Camera,
-    Spatial,
-    Transform,
-    ViewportCoords,
-    Geo,
-} from "../Geo";
-import {
-    RenderMode,
-    ISize,
-} from "../Render";
-import {
-    IRotation,
-    IFrame,
-    State,
-} from "../State";
-import { ICurrentState } from "../state/interfaces/interfaces";
+import * as Geo from "../geo/Geo";
+
+import { RenderMode } from "./RenderMode";
+import { ISize } from "./interfaces/ISize";
+
+import { Camera } from "../geo/Camera";
+import { Spatial } from "../geo/Spatial";
+import { Transform } from "../geo/Transform";
+import { ViewportCoords } from "../geo/ViewportCoords";
+import { State } from "../state/State";
+import { ICurrentState } from "../state/interfaces/ICurrentState";
+import { IFrame } from "../state/interfaces/IFrame";
+import { IRotation } from "../state/interfaces/IRotation";
 
 export class RenderCamera {
     private _spatial: Spatial;
@@ -343,5 +339,3 @@ export class RenderCamera {
         }
     }
 }
-
-export default RenderCamera;

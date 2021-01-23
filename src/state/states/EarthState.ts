@@ -1,16 +1,13 @@
 import * as THREE from "three";
 
-import {
-    InteractiveWaitingState,
-    IRotation,
-    IState,
-    StateBase,
-    TraversingState,
-    WaitingState,
-} from "../../State";
-import {
-    Camera,
-} from "../../Geo";
+import { InteractiveWaitingState } from "./InteractiveWaitingState";
+import { StateBase } from "./StateBase";
+import { TraversingState } from "./TraversingState";
+import { WaitingState } from "./WaitingState";
+
+import { IRotation } from "../interfaces/IRotation";
+import { IState } from "../interfaces/IState";
+import { Camera } from "../../geo/Camera";
 
 export class EarthState extends StateBase {
     constructor(state: IState) {
@@ -58,7 +55,7 @@ export class EarthState extends StateBase {
 
     public orbit(rotation: IRotation): void {
         const camera: Camera = this._camera;
-        const q: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3( 0, 0, 1 ));
+        const q: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3(0, 0, 1));
         const qInverse: THREE.Quaternion = q.clone().inverse();
 
         const offset: THREE.Vector3 = new THREE.Vector3();
@@ -88,5 +85,3 @@ export class EarthState extends StateBase {
 
     public update(): void { /*noop*/ }
 }
-
-export default EarthState;

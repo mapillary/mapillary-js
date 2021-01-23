@@ -1,5 +1,17 @@
-import {map, distinctUntilChanged, debounceTime, refCount, publishReplay, scan, startWith} from "rxjs/operators";
-import {Observable, Subject} from "rxjs";
+import {
+    debounceTime,
+    distinctUntilChanged,
+    map,
+    publishReplay,
+    refCount,
+    scan,
+    startWith,
+} from "rxjs/operators";
+
+import {
+    Observable,
+    Subject,
+} from "rxjs";
 
 interface ILoader {
     task: string;
@@ -7,13 +19,13 @@ interface ILoader {
 }
 
 export class LoadingService {
-    private _loaders$: Observable<{[key: string]: boolean}>;
+    private _loaders$: Observable<{ [key: string]: boolean }>;
     private _loadersSubject$: Subject<any> = new Subject<any>();
 
-    constructor () {
+    constructor() {
         this._loaders$ = this._loadersSubject$.pipe(
             scan(
-                (loaders: {[key: string]: boolean}, loader: ILoader): {[key: string]: boolean} => {
+                (loaders: { [key: string]: boolean }, loader: ILoader): { [key: string]: boolean } => {
                     if (loader.task !== undefined) {
                         loaders[loader.task] = loader.loading;
                     }
@@ -28,7 +40,7 @@ export class LoadingService {
     public get loading$(): Observable<boolean> {
         return this._loaders$.pipe(
             map(
-                (loaders: {[key: string]: boolean}): boolean => {
+                (loaders: { [key: string]: boolean }): boolean => {
                     for (const key in loaders) {
                         if (!loaders.hasOwnProperty(key)) {
                             continue;
@@ -48,7 +60,7 @@ export class LoadingService {
     public taskLoading$(task: string): Observable<boolean> {
         return this._loaders$.pipe(
             map(
-                (loaders: {[key: string]: boolean}): boolean => {
+                (loaders: { [key: string]: boolean }): boolean => {
                     return !!loaders[task];
                 }),
             debounceTime(100),
@@ -56,12 +68,10 @@ export class LoadingService {
     }
 
     public startLoading(task: string): void {
-        this._loadersSubject$.next({loading: true, task: task});
+        this._loadersSubject$.next({ loading: true, task: task });
     }
 
     public stopLoading(task: string): void {
-        this._loadersSubject$.next({loading: false, task: task});
+        this._loadersSubject$.next({ loading: false, task: task });
     }
 }
-
-export default LoadingService;

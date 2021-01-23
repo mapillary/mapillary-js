@@ -1,14 +1,11 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
-
-import {
-    RectGeometry,
-    RenderTag,
-    Tag,
-    TagScene,
-} from "../../../src/Component";
-import {ISize} from "../../../src/Render";
-import {ISpriteAtlas} from "../../../src/Viewer";
+import { RectGeometry } from "../../../src/component/tag/geometry/RectGeometry";
+import { RenderTag } from "../../../src/component/tag/tag/RenderTag";
+import { Tag } from "../../../src/component/tag/tag/Tag";
+import { TagScene } from "../../../src/component/tag/TagScene";
+import { ISize } from "../../../src/render/interfaces/ISize";
+import { ISpriteAtlas } from "../../../src/viewer/interfaces/ISpriteAtlas";
 
 describe("TagScene.ctor", () => {
     it("should be defined", () => {
@@ -35,7 +32,7 @@ class TestTag extends Tag {
         this._testProp = value;
         this._notifyChanged$.next(this);
     }
- }
+}
 
 class TestRenderTag extends RenderTag<Tag> {
     public dispose(): void { /*noop*/ }

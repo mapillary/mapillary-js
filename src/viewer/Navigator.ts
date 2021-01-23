@@ -17,29 +17,24 @@ import {
     tap,
 } from "rxjs/operators";
 
-import {
-    FilterExpression,
-    Graph,
-    GraphService,
-    IEdgeStatus,
-    Node,
-} from "../Graph";
-import { EdgeDirection } from "../Edge";
-import { AbortMapillaryError } from "../Error";
-import {
-    StateService,
-    IFrame,
-} from "../State";
-import {
-    CacheService,
-    IViewerOptions,
-    LoadingService,
-    PlayService,
-} from "../Viewer";
-import PanService from "./PanService";
-import API from "../api/API";
-import FalcorDataProvider from "../api/FalcorDataProvider";
-import DataProviderBase from "../api/DataProviderBase";
+import { CacheService } from "./CacheService";
+import { LoadingService } from "./LoadingService";
+import { PanService } from "./PanService";
+import { PlayService } from "./PlayService";
+import { IViewerOptions } from "./interfaces/IViewerOptions";
+
+import { API } from "../api/API";
+import { DataProviderBase } from "../api/DataProviderBase";
+import { FalcorDataProvider } from "../api/FalcorDataProvider";
+import { AbortMapillaryError } from "../error/AbortMapillaryError";
+import { FilterExpression } from "../graph/FilterExpression";
+import { Graph } from "../graph/Graph";
+import { GraphService } from "../graph/GraphService";
+import { Node } from "../graph/Node";
+import { EdgeDirection } from "../graph/edge/EdgeDirection";
+import { IEdgeStatus } from "../graph/interfaces/IEdgeStatus";
+import { StateService } from "../state/StateService";
+import { IFrame } from "../state/interfaces/IFrame";
 
 export class Navigator {
     private _api: API;
@@ -361,5 +356,3 @@ export class Navigator {
                 }));
     }
 }
-
-export default Navigator;

@@ -1,4 +1,4 @@
-import {IShaderMaterial} from "../../../Component";
+import { IShaderMaterial } from "./IShaderMaterial";
 
 export interface IBBoxShaderMaterial extends IShaderMaterial {
     uniforms: {

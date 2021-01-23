@@ -1,4 +1,4 @@
-import { IComponentConfiguration } from "../../Component";
+import { IComponentConfiguration } from "./IComponentConfiguration";
 
 /**
  * Interface for configuration of cache depth.
@@ -69,5 +69,3 @@ export interface ICacheConfiguration extends IComponentConfiguration {
      */
     depth?: ICacheDepth;
 }
-
-export default ICacheConfiguration;

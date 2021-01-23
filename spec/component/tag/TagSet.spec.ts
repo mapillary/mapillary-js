@@ -1,19 +1,16 @@
-import {
-    OutlineRenderTag,
-    OutlineTag,
-    PointGeometry,
-    RectGeometry,
-    RenderTag,
-    SpotRenderTag,
-    SpotTag,
-    Tag,
-    TagSet,
-} from "../../../src/Component";
-import {Transform} from "../../../src/Geo";
+import { Transform } from "../../../src/geo/Transform";
+import { TransformHelper } from "../../helper/TransformHelper.spec";
+import { PointGeometry } from "../../../src/component/tag/geometry/PointGeometry";
+import { RectGeometry } from "../../../src/component/tag/geometry/RectGeometry";
+import { OutlineRenderTag } from "../../../src/component/tag/tag/OutlineRenderTag";
+import { OutlineTag } from "../../../src/component/tag/tag/OutlineTag";
+import { RenderTag } from "../../../src/component/tag/tag/RenderTag";
+import { SpotRenderTag } from "../../../src/component/tag/tag/SpotRenderTag";
+import { SpotTag } from "../../../src/component/tag/tag/SpotTag";
+import { Tag } from "../../../src/component/tag/tag/Tag";
+import { TagSet } from "../../../src/component/tag/TagSet";
 
-import {TransformHelper} from "../../helper/TransformHelper.spec";
-
-class UnsupportedTag extends Tag {}
+class UnsupportedTag extends Tag { }
 
 describe("TagSet.ctor", () => {
     it("should be defined", () => {

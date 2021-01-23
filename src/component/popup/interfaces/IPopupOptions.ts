@@ -1,5 +1,5 @@
-import {IPopupOffset} from "../../../Component";
-import {Alignment} from "../../../Viewer";
+import { Alignment } from "../../../viewer/Alignment";
+import { IPopupOffset } from "./IPopupOffset";
 
 /**
  * Interface for the options that define behavior and
@@ -77,5 +77,3 @@ export interface IPopupOptions {
      */
     position?: Alignment;
 }
-
-export default IPopupOptions;

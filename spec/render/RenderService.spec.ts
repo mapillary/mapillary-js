@@ -1,23 +1,25 @@
-import {empty as observableEmpty, Subject} from "rxjs";
+import { empty as observableEmpty, Subject } from "rxjs";
 
-import {skip, first, take, count} from "rxjs/operators";
-
-import {ISize, RenderCamera, RenderMode, RenderService} from "../../src/Render";
-import {IFrame} from "../../src/State";
-import {Camera} from "../../src/Geo";
+import { skip, first, take, count } from "rxjs/operators";
+import { Camera } from "../../src/geo/Camera";
+import { ISize } from "../../src/render/interfaces/ISize";
+import { RenderCamera } from "../../src/render/RenderCamera";
+import { RenderMode } from "../../src/render/RenderMode";
+import { RenderService } from "../../src/render/RenderService";
+import { IFrame } from "../../src/state/interfaces/IFrame";
 import { FrameHelper } from "../helper/FrameHelper.spec";
 
 const createFrame: (frameId: number, alpha?: number, camera?: Camera) => IFrame =
-(frameId: number, alpha?: number, camera?: Camera): IFrame => {
-    const frame: IFrame = new FrameHelper().createFrame();
+    (frameId: number, alpha?: number, camera?: Camera): IFrame => {
+        const frame: IFrame = new FrameHelper().createFrame();
 
-    frame.id = frameId;
-    frame.state.alpha =  alpha != null ? alpha : 0;
-    frame.state.camera = camera != null ? camera : new Camera();
-    frame.state.currentCamera = camera != null ? camera : new Camera();
+        frame.id = frameId;
+        frame.state.alpha = alpha != null ? alpha : 0;
+        frame.state.camera = camera != null ? camera : new Camera();
+        frame.state.currentCamera = camera != null ? camera : new Camera();
 
-    return frame;
-};
+        return frame;
+    };
 
 describe("RenderService.ctor", () => {
     it("should be contructed", () => {

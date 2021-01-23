@@ -1,13 +1,20 @@
-import {startWith, publishReplay, refCount} from "rxjs/operators";
 import * as THREE from "three";
 
-import {Observable, Subject, Subscription} from "rxjs";
+import {
+    publishReplay,
+    refCount,
+    startWith,
+} from "rxjs/operators";
 
 import {
-    ImageTileLoader,
-    ImageTileStore,
-    IRegionOfInterest,
-} from "../Tiles";
+    Observable,
+    Subject,
+    Subscription,
+} from "rxjs";
+
+import { ImageTileLoader } from "./ImageTileLoader";
+import { ImageTileStore } from "./ImageTileStore";
+import { IRegionOfInterest } from "./interfaces/IRegionOfInterest";
 
 /**
  * @class TextureProvider
@@ -56,7 +63,7 @@ export class TextureProvider {
      * @param {ImageTileStore} imageTileStore - Store for saving tiles.
      * @param {THREE.WebGLRenderer} renderer - Renderer used for rendering tiles to texture.
      */
-    constructor (
+    constructor(
         key: string,
         width: number,
         height: number,
@@ -605,5 +612,3 @@ export class TextureProvider {
         return tileSize + "-" + tile[0] + "-" + tile[1];
     }
 }
-
-export default TextureProvider;

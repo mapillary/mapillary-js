@@ -5,7 +5,6 @@
  * @description Image sizes in pixels for the long side of the image.
  */
 export enum ImageSize {
-
     /**
      * 320 pixels image size
      */
@@ -26,5 +25,3 @@ export enum ImageSize {
      */
     Size2048 = 2048,
 }
-
-export default ImageSize;

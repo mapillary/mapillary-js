@@ -1,36 +1,30 @@
-import { of as observableOf, zip as observableZip, Observable, Subject } from "rxjs";
-
+import {
+    of as observableOf,
+    zip as observableZip,
+    Observable,
+    Subject,
+} from "rxjs";
 import { take, first, skip } from "rxjs/operators";
-
-import {
-    IFullNode,
-} from "../../src/API";
-import { EdgeDirection } from "../../src/Edge";
-import {
-    Graph,
-    GraphMode,
-    GraphService,
-    IEdgeStatus,
-    Node,
-    NodeCache,
-    Sequence,
-} from "../../src/Graph";
-import {
-    ICurrentState,
-    IFrame,
-    StateService,
-    State,
-} from "../../src/State";
-import {
-    PlayService,
-} from "../../src/Viewer";
-
 import { MockCreator } from "../helper/MockCreator.spec";
 import { NodeHelper } from "../helper/NodeHelper.spec";
 import { StateServiceMockCreator } from "../helper/StateServiceMockCreator.spec";
 import { FrameHelper } from "../helper/FrameHelper.spec";
-import FalcorDataProvider from "../../src/api/FalcorDataProvider";
-import API from "../../src/api/API";
+import { Node } from "../../src/graph/Node";
+import { API } from "../../src/api/API";
+import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
+import { IFullNode } from "../../src/api/interfaces/IFullNode";
+import { Graph } from "../../src/graph/Graph";
+import { GraphMode } from "../../src/graph/GraphMode";
+import { GraphService } from "../../src/graph/GraphService";
+import { IEdgeStatus } from "../../src/graph/interfaces/IEdgeStatus";
+import { NodeCache } from "../../src/graph/NodeCache";
+import { Sequence } from "../../src/graph/Sequence";
+import { ICurrentState } from "../../src/state/interfaces/ICurrentState";
+import { IFrame } from "../../src/state/interfaces/IFrame";
+import { State } from "../../src/state/State";
+import { StateService } from "../../src/state/StateService";
+import { PlayService } from "../../src/viewer/PlayService";
+import { EdgeDirection } from "../../src/graph/edge/EdgeDirection";
 
 describe("PlayService.ctor", () => {
     it("should be defined when constructed", () => {

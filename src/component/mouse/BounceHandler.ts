@@ -1,29 +1,32 @@
 import * as THREE from "three";
 
-import {empty as observableEmpty, combineLatest as observableCombineLatest, Observable, Subscription} from "rxjs";
+import {
+    empty as observableEmpty,
+    combineLatest as observableCombineLatest,
+    Observable,
+    Subscription,
+} from "rxjs";
 
-import {first, map, distinctUntilChanged, switchMap, withLatestFrom, startWith} from "rxjs/operators";
+import {
+    first,
+    map,
+    distinctUntilChanged,
+    switchMap,
+    withLatestFrom,
+} from "rxjs/operators";
 
-import {
-    Component,
-    ImageBoundary,
-    IMouseConfiguration,
-    HandlerBase,
-} from "../../Component";
-import {
-    Spatial,
-    Transform,
-    ViewportCoords,
-} from "../../Geo";
-import {
-    RenderCamera,
-} from "../../Render";
-import {IFrame} from "../../State";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
-import Node from "../../graph/Node";
+import { Transform } from "../../geo/Transform";
+import { Node } from "../../graph/Node";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { RenderCamera } from "../../render/RenderCamera";
+import { IFrame } from "../../state/interfaces/IFrame";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { Component } from "../Component";
+import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
+import { HandlerBase } from "../utils/HandlerBase";
+import { Spatial } from "../../geo/Spatial";
+import * as ImageBoundary from "./ImageBoundary";
 
 /**
  * The `BounceHandler` ensures that the viewer bounces back to the image
@@ -56,24 +59,24 @@ export class BounceHandler extends HandlerBase<IMouseConfiguration> {
             distinctUntilChanged());
 
         this._bounceSubscription = observableCombineLatest(
-                inTransition$,
-                this._navigator.stateService.inTranslation$,
-                this._container.mouseService.active$,
-                this._container.touchService.active$).pipe(
-            map(
-                (noForce: boolean[]): boolean => {
-                    return noForce[0] || noForce[1] || noForce[2] || noForce[3];
-                }),
-            distinctUntilChanged(),
-            switchMap(
-                (noForce: boolean): Observable<[RenderCamera, Transform]> => {
-                    return noForce ?
-                        observableEmpty() :
-                        observableCombineLatest(
-                            this._container.renderService.renderCamera$,
-                            this._navigator.stateService.currentTransform$.pipe(first()));
-                }),
-            withLatestFrom(this._navigator.panService.panNodes$))
+            inTransition$,
+            this._navigator.stateService.inTranslation$,
+            this._container.mouseService.active$,
+            this._container.touchService.active$).pipe(
+                map(
+                    (noForce: boolean[]): boolean => {
+                        return noForce[0] || noForce[1] || noForce[2] || noForce[3];
+                    }),
+                distinctUntilChanged(),
+                switchMap(
+                    (noForce: boolean): Observable<[RenderCamera, Transform]> => {
+                        return noForce ?
+                            observableEmpty() :
+                            observableCombineLatest(
+                                this._container.renderService.renderCamera$,
+                                this._navigator.stateService.currentTransform$.pipe(first()));
+                    }),
+                withLatestFrom(this._navigator.panService.panNodes$))
             .subscribe(
                 ([[render, transform], nts]: [[RenderCamera, Transform], [Node, Transform, number][]]): void => {
                     if (!transform.hasValidScale && render.camera.focal < 0.1) {
@@ -114,8 +117,8 @@ export class BounceHandler extends HandlerBase<IMouseConfiguration> {
                         .sub(render.perspective.position);
 
                     const directionPhi: THREE.Vector3 = this._viewportCoords
-                            .unprojectFromViewport(horizontalDistance, 0, render.perspective)
-                            .sub(render.perspective.position);
+                        .unprojectFromViewport(horizontalDistance, 0, render.perspective)
+                        .sub(render.perspective.position);
 
                     const directionTheta: THREE.Vector3 = this._viewportCoords
                         .unprojectFromViewport(0, verticalDistance, render.perspective)
@@ -139,8 +142,6 @@ export class BounceHandler extends HandlerBase<IMouseConfiguration> {
     }
 
     protected _getConfiguration(): IMouseConfiguration {
-        return { };
+        return {};
     }
 }
-
-export default BounceHandler;

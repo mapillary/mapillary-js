@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import {Transform} from "../Geo";
+import { Transform } from "./Transform";
 
 /**
  * @class ViewportCoords
@@ -572,5 +572,3 @@ export class ViewportCoords {
         return pointCamera.toArray();
     }
 }
-
-export default ViewportCoords;

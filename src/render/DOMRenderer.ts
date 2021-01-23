@@ -1,22 +1,28 @@
-import { combineLatest as observableCombineLatest, Subscription } from "rxjs";
-
-import {
-    scan,
-    filter,
-    map,
-    distinctUntilChanged,
-    pluck,
-    refCount,
-    publishReplay,
-} from "rxjs/operators";
-
 import * as vd from "virtual-dom";
 
-import { Observable, Subject } from "rxjs";
+import {
+    combineLatest as observableCombineLatest,
+    Observable,
+    Subject,
+} from "rxjs";
 
-import { ISize, IVNodeHash, RenderMode, RenderService } from "../Render";
-import { IFrame } from "../State";
-import SubscriptionHolder from "../utils/SubscriptionHolder";
+import {
+    distinctUntilChanged,
+    filter,
+    map,
+    pluck,
+    publishReplay,
+    refCount,
+    scan,
+} from "rxjs/operators";
+
+import { RenderMode } from "./RenderMode";
+import { RenderService } from "./RenderService";
+import { ISize } from "./interfaces/ISize";
+import { IVNodeHash } from "./interfaces/IVNodeHash";
+
+import { IFrame } from "../state/interfaces/IFrame";
+import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
 interface INodePatch {
     vnode: vd.VNode;
@@ -283,5 +289,3 @@ export class DOMRenderer {
         this._subscriptions.unsubscribe();
     }
 }
-
-export default DOMRenderer;

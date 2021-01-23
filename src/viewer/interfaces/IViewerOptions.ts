@@ -1,9 +1,10 @@
-import DataProviderBase from "../../api/DataProviderBase";
-import RenderMode from "../../render/RenderMode";
-import TransitionMode from "../../state/TransitionMode";
-import ImageSize from "../ImageSize";
-import IComponentOptions from "./IComponentOptions";
-import IUrlOptions from "./IUrlOptions";
+import { IComponentOptions } from "./IComponentOptions";
+import { IUrlOptions } from "./IUrlOptions";
+
+import { ImageSize } from "../ImageSize";
+import { DataProviderBase } from "../../api/DataProviderBase";
+import { RenderMode } from "../../render/RenderMode";
+import { TransitionMode } from "../../state/TransitionMode";
 
 /**
  * Interface for the options that can be provided to the {@link Viewer}.
@@ -95,5 +96,3 @@ export interface IViewerOptions {
      */
     url?: IUrlOptions;
 }
-
-export default IViewerOptions;

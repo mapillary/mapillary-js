@@ -1,14 +1,8 @@
-import {NodeHelper} from "../helper/NodeHelper.spec";
-
-import {
-    ICoreNode,
-    IFillNode,
-} from "../../src/API";
-import {
-    FilterCreator,
-    FilterFunction,
-    Node,
-} from "../../src/Graph";
+import { NodeHelper } from "../helper/NodeHelper.spec";
+import { Node } from "../../src/graph/Node";
+import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
+import { IFillNode } from "../../src/api/interfaces/IFillNode";
+import { FilterCreator, FilterFunction } from "../../src/graph/FilterCreator";
 
 /**
  * Implementation based on https://github.com/mapbox/feature-filter.

@@ -1,18 +1,16 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {
-    InteractionCursor,
-    RenderTag,
-    SpotTag,
-    Tag,
-    TagOperation,
-} from "../../../Component";
-import {ISize} from "../../../Render";
-import {
-    Alignment,
-    ISpriteAtlas,
-} from "../../../Viewer";
+import { TagOperation } from "../TagOperation";
+import { RenderTag } from "./RenderTag";
+import { SpotTag } from "./SpotTag";
+import { Tag } from "./Tag";
+
+import { InteractionCursor } from "../interfaces/IInteraction";
+
+import { ISize } from "../../../render/interfaces/ISize";
+import { Alignment } from "../../../viewer/Alignment";
+import { ISpriteAtlas } from "../../../viewer/interfaces/ISpriteAtlas";
 
 /**
  * @class SpotRenderTag

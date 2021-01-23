@@ -1,24 +1,22 @@
-import { merge as observableMerge, Observable, Subject, Subscription } from "rxjs";
-
-import { filter } from "rxjs/operators";
 import * as vd from "virtual-dom";
 
 import {
-    SequenceMode,
-    ISequenceConfiguration,
-    SequenceComponent,
-} from "../../Component";
-import { EdgeDirection } from "../../Edge";
-import { AbortMapillaryError } from "../../Error";
-import {
-    IEdgeStatus,
-    Node,
-} from "../../Graph";
-import { ISize } from "../../Render";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
+    merge as observableMerge,
+    Observable,
+    Subject,
+    Subscription,
+} from "rxjs";
+import { filter } from "rxjs/operators";
+
+import { AbortMapillaryError } from "../../error/AbortMapillaryError";
+import { EdgeDirection } from "../../graph/edge/EdgeDirection";
+import { IEdgeStatus } from "../../graph/interfaces/IEdgeStatus";
+import { ISize } from "../../render/interfaces/ISize";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { ISequenceConfiguration } from "../interfaces/ISequenceConfiguration";
+import { SequenceMode } from "./SequenceMode";
+import { SequenceComponent } from "./SequenceComponent";
 
 export class SequenceDOMRenderer {
     private _container: Container;
@@ -109,7 +107,7 @@ export class SequenceDOMRenderer {
                         return touchEvent.touches.length === 0;
                     })))
             .subscribe(
-                (event: Event): void => {
+                (): void => {
                     if (this._changingSpeed) {
                         this._changingSpeed = false;
                     }
@@ -351,8 +349,8 @@ export class SequenceDOMRenderer {
         canPlay = canPlay && playEnabled;
 
         let onclick: (e: Event) => void = configuration.playing ?
-            (e: Event): void => { component.stop(); } :
-            canPlay ? (e: Event): void => { component.play(); } : null;
+            (): void => { component.stop(); } :
+            canPlay ? (): void => { component.play(); } : null;
 
         let buttonProperties: vd.createProperties = { onclick: onclick };
 
@@ -441,7 +439,7 @@ export class SequenceDOMRenderer {
 
         let nextProperties: vd.createProperties = {
             onclick: nextKey != null ?
-                (e: Event): void => {
+                (): void => {
                     navigator.moveDir$(EdgeDirection.Next)
                         .subscribe(
                             undefined,
@@ -452,14 +450,14 @@ export class SequenceDOMRenderer {
                             });
                 } :
                 null,
-            onmouseenter: (e: MouseEvent): void => { this._mouseEnterDirection$.next(EdgeDirection.Next); },
-            onmouseleave: (e: MouseEvent): void => { this._mouseLeaveDirection$.next(EdgeDirection.Next); },
+            onmouseenter: (): void => { this._mouseEnterDirection$.next(EdgeDirection.Next); },
+            onmouseleave: (): void => { this._mouseLeaveDirection$.next(EdgeDirection.Next); },
         };
 
         const borderRadius: number = Math.round(8 / this._stepperDefaultWidth * containerWidth);
         let prevProperties: vd.createProperties = {
             onclick: prevKey != null ?
-                (e: Event): void => {
+                (): void => {
                     navigator.moveDir$(EdgeDirection.Prev)
                         .subscribe(
                             undefined,
@@ -470,8 +468,8 @@ export class SequenceDOMRenderer {
                             });
                 } :
                 null,
-            onmouseenter: (e: MouseEvent): void => { this._mouseEnterDirection$.next(EdgeDirection.Prev); },
-            onmouseleave: (e: MouseEvent): void => { this._mouseLeaveDirection$.next(EdgeDirection.Prev); },
+            onmouseenter: (): void => { this._mouseEnterDirection$.next(EdgeDirection.Prev); },
+            onmouseleave: (): void => { this._mouseLeaveDirection$.next(EdgeDirection.Prev); },
             style: {
                 "border-bottom-left-radius": `${borderRadius}px`,
                 "border-top-left-radius": `${borderRadius}px`,
@@ -572,5 +570,3 @@ export class SequenceDOMRenderer {
         this._notifyChangingPositionChanged$.next(value);
     }
 }
-
-export default SequenceDOMRenderer;

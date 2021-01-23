@@ -1,7 +1,7 @@
-import {IGPano} from "../../../src/API";
-import {PointGeometry} from "../../../src/Component";
-import {Transform} from "../../../src/Geo";
-import {Node} from "../../../src/Graph";
+import { Node } from "../../../src/graph/Node";
+import { Transform } from "../../../src/geo/Transform";
+import { IGPano } from "../../../src/api/interfaces/IGPano";
+import { PointGeometry } from "../../../src/component/tag/geometry/PointGeometry";
 
 describe("PointGeometry.ctor", () => {
     it("should be defined", () => {
@@ -31,7 +31,7 @@ describe("PointGeometry.ctor", () => {
 describe("PointGeometry.setVertex2d", () => {
     let createNode: (gpano: IGPano) => Node = (gpano: IGPano): Node => {
         let node: Node = new Node({
-            cl: { lat: 0, lon: 0},
+            cl: { lat: 0, lon: 0 },
             key: "key",
             l: { lat: 0, lon: 0 },
             sequence_key: "skey",
@@ -52,7 +52,7 @@ describe("PointGeometry.setVertex2d", () => {
             merge_version: 0,
             orientation: 0,
             private: false,
-            user: { key: "key", username: "username"},
+            user: { key: "key", username: "username" },
             width: 0,
         });
 

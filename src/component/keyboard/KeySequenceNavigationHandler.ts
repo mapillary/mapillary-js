@@ -1,16 +1,18 @@
-import {withLatestFrom, switchMap} from "rxjs/operators";
-import {Observable, Subscription} from "rxjs";
+import {
+    Observable,
+    Subscription,
+} from "rxjs";
+import {
+    switchMap,
+    withLatestFrom,
+} from "rxjs/operators";
 
-import {
-    IKeyboardConfiguration,
-    HandlerBase,
-} from "../../Component";
-import {EdgeDirection} from "../../Edge";
-import {AbortMapillaryError} from "../../Error";
-import {
-    IEdgeStatus,
-    Node,
-} from "../../Graph";
+import { Node } from "../../graph/Node";
+import { IEdgeStatus } from "../../graph/interfaces/IEdgeStatus";
+import { IKeyboardConfiguration } from "../interfaces/IKeyboardConfiguration";
+import { HandlerBase } from "../utils/HandlerBase";
+import { EdgeDirection } from "../../graph/edge/EdgeDirection";
+import { AbortMapillaryError } from "../../error/AbortMapillaryError";
 
 /**
  * The `KeySequenceNavigationHandler` allows the user to navigate through a sequence using the
@@ -86,5 +88,3 @@ export class KeySequenceNavigationHandler extends HandlerBase<IKeyboardConfigura
         return { keySequenceNavigation: enable };
     }
 }
-
-export default KeySequenceNavigationHandler;

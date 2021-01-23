@@ -1,6 +1,6 @@
-import {KeyboardService} from "../../src/Viewer";
 
-import {EventHelper} from "../helper/EventHelper.spec";
+import { KeyboardService } from "../../src/viewer/KeyboardService";
+import { EventHelper } from "../helper/EventHelper.spec";
 
 describe("KeyboardService.ctor", () => {
     it("should be definded", () => {

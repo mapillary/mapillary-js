@@ -1,11 +1,9 @@
-import {Subject} from "rxjs";
+import { Subject } from "rxjs";
+import { RenderCamera } from "../../src/render/RenderCamera";
+import { RenderService } from "../../src/render/RenderService";
 
-import {MockCreator} from "./MockCreator.spec";
-import {MockCreatorBase} from "./MockCreatorBase.spec";
-import {
-    RenderService,
-    RenderCamera,
-} from "../../src/Render";
+import { MockCreator } from "./MockCreator.spec";
+import { MockCreatorBase } from "./MockCreatorBase.spec";
 
 export class RenderServiceMockCreator extends MockCreatorBase<RenderService> {
     public create(): RenderService {
@@ -19,5 +17,3 @@ export class RenderServiceMockCreator extends MockCreatorBase<RenderService> {
         return mock;
     }
 }
-
-export default RenderServiceMockCreator;

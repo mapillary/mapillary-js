@@ -1,10 +1,9 @@
-import {Subject} from "rxjs";
+import { Subject } from "rxjs";
+import { EdgeDirection } from "../../src/graph/edge/EdgeDirection";
+import { PlayService } from "../../src/viewer/PlayService";
 
-import {MockCreator} from "./MockCreator.spec";
-import {MockCreatorBase} from "./MockCreatorBase.spec";
-
-import {EdgeDirection} from "../../src/Edge";
-import {PlayService} from "../../src/Viewer";
+import { MockCreator } from "./MockCreator.spec";
+import { MockCreatorBase } from "./MockCreatorBase.spec";
 
 export class PlayServiceMockCreator extends MockCreatorBase<PlayService> {
     public create(): PlayService {
@@ -17,5 +16,3 @@ export class PlayServiceMockCreator extends MockCreatorBase<PlayService> {
         return mock;
     }
 }
-
-export default PlayServiceMockCreator;

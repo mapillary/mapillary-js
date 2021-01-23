@@ -1,13 +1,10 @@
-import {empty as observableEmpty} from "rxjs";
+import { empty as observableEmpty } from "rxjs";
 
-import {SliderComponent} from "../../../src/Component";
-import {
-    Container,
-    Navigator,
-} from "../../../src/Viewer";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
 
-import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
-import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
+import { SliderComponent } from "../../../src/component/slider/SliderComponent";
+import { Container } from "../../../src/viewer/Container";
 
 describe("SliderComponent.ctor", () => {
     it("should be defined", () => {

@@ -1,4 +1,4 @@
-import { IComponentConfiguration } from "../../Component";
+import { IComponentConfiguration } from "./IComponentConfiguration";
 
 /**
  * Interface for configuration of marker component.
@@ -28,5 +28,3 @@ export interface IMarkerConfiguration extends IComponentConfiguration {
      */
     visibleBBoxSize?: number;
 }
-
-export default IMarkerConfiguration;

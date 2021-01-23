@@ -1,5 +1,5 @@
-import {ISequence} from "../../src/API";
-import {Sequence} from "../../src/Graph";
+import { ISequence } from "../../src/api/interfaces/ISequence";
+import { Sequence } from "../../src/graph/Sequence";
 
 describe("Sequence", () => {
     let sequence: Sequence;

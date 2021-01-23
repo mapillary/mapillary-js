@@ -1,6 +1,5 @@
 import * as THREE from "three";
-
-import {Spatial} from "../../src/Geo";
+import { Spatial } from "../../src/geo/Spatial";
 
 let precision: number = 5;
 let epsilon: number = 1e-8;

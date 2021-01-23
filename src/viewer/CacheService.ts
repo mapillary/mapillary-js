@@ -6,28 +6,24 @@ import {
 } from "rxjs";
 
 import {
-    catchError,
-    timeout,
-    first,
-    distinctUntilChanged,
-    map,
     bufferCount,
-    withLatestFrom,
-    switchMap,
-    skip,
+    catchError,
+    distinctUntilChanged,
+    first,
+    map,
     mergeMap,
+    skip,
+    switchMap,
+    timeout,
+    withLatestFrom,
 } from "rxjs/operators";
 
-import {
-    GraphMode,
-    GraphService,
-    IEdgeStatus,
-    Node,
-} from "../Graph";
-import {
-    IFrame,
-    StateService,
-} from "../State";
+import { GraphMode } from "../graph/GraphMode";
+import { GraphService } from "../graph/GraphService";
+import { Node } from "../graph/Node";
+import { IEdgeStatus } from "../graph/interfaces/IEdgeStatus";
+import { StateService } from "../state/StateService";
+import { IFrame } from "../state/interfaces/IFrame";
 
 export class CacheService {
     private _graphService: GraphService;
@@ -97,20 +93,20 @@ export class CacheService {
                                 return node.sequenceEdges$;
                             }) :
                         observableFrom(frame.state.trajectory
-                                .map(
-                                    (node: Node): string => {
-                                        return node.key;
-                                    })
-                                .slice(frame.state.currentIndex)).pipe(
-                            mergeMap(
-                                (key: string): Observable<IEdgeStatus> => {
-                                    return this._keyToEdges(
-                                        key,
-                                        (node: Node): Observable<IEdgeStatus> => {
-                                            return node.spatialEdges$;
-                                        });
-                                },
-                                6));
+                            .map(
+                                (node: Node): string => {
+                                    return node.key;
+                                })
+                            .slice(frame.state.currentIndex)).pipe(
+                                mergeMap(
+                                    (key: string): Observable<IEdgeStatus> => {
+                                        return this._keyToEdges(
+                                            key,
+                                            (node: Node): Observable<IEdgeStatus> => {
+                                                return node.spatialEdges$;
+                                            });
+                                    },
+                                    6));
                 }))
             .subscribe(() => { /*noop*/ });
 
@@ -147,5 +143,3 @@ export class CacheService {
                 }));
     }
 }
-
-export default CacheService;

@@ -1,24 +1,18 @@
 import { Subscription } from "rxjs";
 
-import {
-    BounceHandler,
-    ComponentService,
-    Component,
-    DoubleClickZoomHandler,
-    DragPanHandler,
-    EarthControlHandler,
-    IMouseConfiguration,
-    ScrollZoomHandler,
-    TouchZoomHandler,
-} from "../../Component";
-import {
-    ViewportCoords,
-    Spatial,
-} from "../../Geo";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
+import { Component } from "../Component";
+
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { Spatial } from "../../geo/Spatial";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
+import { BounceHandler } from "./BounceHandler";
+import { DoubleClickZoomHandler } from "./DoubleClickZoomHandler";
+import { DragPanHandler } from "./DragPanHandler";
+import { EarthControlHandler } from "./EarthControlHandler";
+import { ScrollZoomHandler } from "./ScrollZoomHandler";
+import { TouchZoomHandler } from "./TouchZoomHandler";
 
 /**
  * @class MouseComponent
@@ -150,6 +144,3 @@ export class MouseComponent extends Component<IMouseConfiguration> {
         return { doubleClickZoom: false, dragPan: true, scrollZoom: true, touchZoom: true };
     }
 }
-
-ComponentService.register(MouseComponent);
-export default MouseComponent;

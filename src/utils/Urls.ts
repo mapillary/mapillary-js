@@ -1,4 +1,4 @@
-import { IUrlOptions } from "../Viewer";
+import { IUrlOptions } from "../viewer/interfaces/IUrlOptions";
 
 export class Urls {
     private static _exploreHost: string = "www.mapillary.com";
@@ -30,5 +30,3 @@ export class Urls {
         }
     }
 }
-
-export default Urls;

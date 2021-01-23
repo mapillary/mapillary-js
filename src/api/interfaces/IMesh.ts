@@ -17,5 +17,3 @@ export interface IMesh {
      */
     vertices: number[];
 }
-
-export default IMesh;

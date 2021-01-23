@@ -24,5 +24,3 @@ export enum TransitionMode {
      */
     Instantaneous,
 }
-
-export default TransitionMode;

@@ -1,22 +1,16 @@
 import { Subscription } from "rxjs";
 
-import {
-    ComponentService,
-    Component,
-    IKeyboardConfiguration,
-    KeyPlayHandler,
-    KeySequenceNavigationHandler,
-    KeySpatialNavigationHandler,
-    KeyZoomHandler,
-} from "../../Component";
-import {
-    Spatial,
-    ViewportCoords,
-} from "../../Geo";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
+import { Component } from "../Component";
+
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { Spatial } from "../../geo/Spatial";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { IKeyboardConfiguration } from "../interfaces/IKeyboardConfiguration";
+import { KeySequenceNavigationHandler } from "./KeySequenceNavigationHandler";
+import { KeySpatialNavigationHandler } from "./KeySpatialNavigationHandler";
+import { KeyZoomHandler } from "./KeyZoomHandler";
+import { KeyPlayHandler } from "./KeyPlayHandler";
 
 /**
  * @class KeyboardComponent
@@ -131,6 +125,3 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
         return { keyPlay: true, keySequenceNavigation: true, keySpatialNavigation: true, keyZoom: true };
     }
 }
-
-ComponentService.register(KeyboardComponent);
-export default KeyboardComponent;

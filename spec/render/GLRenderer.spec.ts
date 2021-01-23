@@ -1,21 +1,19 @@
-import {empty as observableEmpty, BehaviorSubject, Subscription, Subject} from "rxjs";
+import { empty as observableEmpty, BehaviorSubject, Subscription, Subject } from "rxjs";
 
-import {map} from "rxjs/operators";
+import { map } from "rxjs/operators";
 import * as THREE from "three";
-
-import {
-    GLRenderer,
-    GLRenderStage,
-    RenderMode,
-    RenderCamera,
-    IGLRender,
-    IGLRenderFunction,
-    IGLRenderHash,
-    RenderService,
-    ISize,
-} from "../../src/Render";
-import {IFrame} from "../../src/State";
+import { GLRenderer } from "../../src/render/GLRenderer";
+import { GLRenderStage } from "../../src/render/GLRenderStage";
+import { IGLRender } from "../../src/render/interfaces/IGLRender";
+import { IGLRenderFunction } from "../../src/render/interfaces/IGLRenderFunction";
+import { IGLRenderHash } from "../../src/render/interfaces/IGLRenderHash";
+import { ISize } from "../../src/render/interfaces/ISize";
+import { RenderCamera } from "../../src/render/RenderCamera";
+import { RenderMode } from "../../src/render/RenderMode";
+import { RenderService } from "../../src/render/RenderService";
+import { IFrame } from "../../src/state/interfaces/IFrame";
 import { FrameHelper } from "../helper/FrameHelper.spec";
+
 
 class RendererMock implements THREE.Renderer {
     public domElement: HTMLCanvasElement = document.createElement("canvas");
@@ -338,7 +336,7 @@ describe("GLRenderer.renderer", () => {
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
 
-        renderServiceMock.size$.next({ height: 1, width: 1});
+        renderServiceMock.size$.next({ height: 1, width: 1 });
 
         frame.id = 2;
         renderCamera.setFrame(frame);

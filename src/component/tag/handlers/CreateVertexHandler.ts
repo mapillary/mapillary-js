@@ -1,8 +1,8 @@
 import {
-    of as observableOf,
-    empty as observableEmpty,
     combineLatest as observableCombineLatest,
+    empty as observableEmpty,
     merge as observableMerge,
+    of as observableOf,
     Observable,
     Subject,
     Subscription,
@@ -10,22 +10,20 @@ import {
 
 import {
     filter,
+    map,
+    publishReplay,
     refCount,
     switchMap,
     skip,
     share,
     take,
-    map,
-    publishReplay,
 } from "rxjs/operators";
 
-import {
-    CreateHandlerBase,
-    Geometry,
-    CreateTag,
-} from "../../../Component";
-import { Transform } from "../../../Geo";
-import { RenderCamera } from "../../../Render";
+import { Transform } from "../../../geo/Transform";
+import { RenderCamera } from "../../../render/RenderCamera";
+import { Geometry } from "../geometry/Geometry";
+import { CreateTag } from "../tag/CreateTag";
+import { CreateHandlerBase } from "./CreateHandlerBase";
 
 export abstract class CreateVertexHandler extends CreateHandlerBase {
     private _addPointSubscription: Subscription;
@@ -127,5 +125,3 @@ export abstract class CreateVertexHandler extends CreateHandlerBase {
         this._setVertexSubscription.unsubscribe();
     }
 }
-
-export default CreateVertexHandler;

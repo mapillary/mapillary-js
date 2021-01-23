@@ -1,10 +1,10 @@
-import {merge as observableMerge,  Observable ,  Subject ,  Subscription } from "rxjs";
+import { merge as observableMerge, Observable, Subject, Subscription } from "rxjs";
 
-import {filter} from "rxjs/operators";
+import { filter } from "rxjs/operators";
 import * as vd from "virtual-dom";
 
-import { SliderMode } from "../../Component";
-import { Container } from "../../Viewer";
+import { Container } from "../../viewer/Container";
+import { SliderMode } from "../interfaces/ISliderConfiguration";
 
 export class SliderDOMRenderer {
     private _container: Container;
@@ -37,12 +37,12 @@ export class SliderDOMRenderer {
         }
 
         this._stopInteractionSubscription = observableMerge(
-                this._container.mouseService.documentMouseUp$,
-                this._container.touchService.touchEnd$.pipe(
-                    filter(
-                        (touchEvent: TouchEvent): boolean => {
-                            return touchEvent.touches.length === 0;
-                        })))
+            this._container.mouseService.documentMouseUp$,
+            this._container.touchService.touchEnd$.pipe(
+                filter(
+                    (touchEvent: TouchEvent): boolean => {
+                        return touchEvent.touches.length === 0;
+                    })))
             .subscribe(
                 (event: Event): void => {
                     if (this._interacting) {
@@ -168,5 +168,3 @@ export class SliderDOMRenderer {
         return vd.h("div.SliderPositionContainer", [positionInput]);
     }
 }
-
-export default SliderDOMRenderer;

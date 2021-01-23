@@ -1,21 +1,15 @@
-import {Subject} from "rxjs";
+import { Subject } from "rxjs";
 
-import {
-    Popup,
-    PopupComponent,
-} from "../../../src/Component";
-import {Transform} from "../../../src/Geo";
-import {
-    ISize,
-    RenderCamera,
-} from "../../../src/Render";
-import {
-    Container,
-    Navigator,
-} from "../../../src/Viewer";
+import { Navigator } from "../../../src/viewer/Navigator";
+import { Transform } from "../../../src/geo/Transform";
 
-import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
-import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
+import { Popup } from "../../../src/component/popup/popup/Popup";
+import { PopupComponent } from "../../../src/component/popup/PopupComponent";
+import { ISize } from "../../../src/render/interfaces/ISize";
+import { RenderCamera } from "../../../src/render/RenderCamera";
+import { Container } from "../../../src/viewer/Container";
 
 describe("PopupComponent.ctor", () => {
     it("should be defined", () => {

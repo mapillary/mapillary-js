@@ -1,21 +1,20 @@
 import {
+    Observable,
+    Subscription,
+} from "rxjs";
+import {
     distinctUntilChanged,
     map,
     switchMap,
     withLatestFrom,
 } from "rxjs/operators";
-import { Observable, Subscription } from "rxjs";
 
-import {
-    IKeyboardConfiguration,
-    HandlerBase,
-} from "../../Component";
-import { EdgeDirection } from "../../Edge";
-import {
-    IEdgeStatus,
-    Node,
-} from "../../Graph";
-import State from "../../state/State";
+import { EdgeDirection } from "../../graph/edge/EdgeDirection";
+import { IEdgeStatus } from "../../graph/interfaces/IEdgeStatus";
+import { Node } from "../../graph/Node";
+import { State } from "../../state/State";
+import { IKeyboardConfiguration } from "../interfaces/IKeyboardConfiguration";
+import { HandlerBase } from "../utils/HandlerBase";
 
 /**
  * The `KeyPlayHandler` allows the user to control the play behavior
@@ -121,5 +120,3 @@ export class KeyPlayHandler extends HandlerBase<IKeyboardConfiguration> {
         return { keyZoom: enable };
     }
 }
-
-export default KeyPlayHandler;
