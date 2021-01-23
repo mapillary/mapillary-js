@@ -1,11 +1,8 @@
 import * as THREE from "three";
 
-import {TransformHelper} from "../helper/TransformHelper.spec";
-
-import {
-    Transform,
-    ViewportCoords,
-} from "../../src/Geo";
+import { TransformHelper } from "../helper/TransformHelper.spec";
+import { Transform } from "../../src/geo/Transform";
+import { ViewportCoords } from "../../src/geo/ViewportCoords";
 
 let precision: number = 8;
 
@@ -166,7 +163,7 @@ describe("ViewportCoords.getBasicDistances", () => {
             });
 
         spyOn(vector3, "unproject").and.callFake(
-            (pc: THREE.PerspectiveCamera): THREE.Vector3 => {
+            (): THREE.Vector3 => {
                 return vector3;
             });
 
@@ -203,7 +200,7 @@ describe("ViewportCoords.getBasicDistances", () => {
             });
 
         spyOn(vector3, "unproject").and.callFake(
-            (pc: THREE.PerspectiveCamera): THREE.Vector3 => {
+            (): THREE.Vector3 => {
                 return vector3;
             });
 
@@ -245,7 +242,7 @@ describe("ViewportCoords.getBasicDistances", () => {
             });
 
         spyOn(vector3, "unproject").and.callFake(
-            (pc: THREE.PerspectiveCamera): THREE.Vector3 => {
+            (): THREE.Vector3 => {
                 return vector3;
             });
 
@@ -296,7 +293,7 @@ describe("ViewportCoords.getPixelDistances", () => {
             });
 
         spyOn(vector3, "unproject").and.callFake(
-            (pc: THREE.PerspectiveCamera): THREE.Vector3 => {
+            (): THREE.Vector3 => {
                 return vector3;
             });
 
@@ -314,7 +311,7 @@ describe("ViewportCoords.getPixelDistances", () => {
             });
 
         spyOn(vector3, "project").and.callFake(
-            (pc: THREE.PerspectiveCamera): THREE.Vector3 => {
+            (): THREE.Vector3 => {
                 return vector3;
             });
 
@@ -344,7 +341,7 @@ describe("ViewportCoords.getPixelDistances", () => {
             });
 
         spyOn(vector3, "unproject").and.callFake(
-            (pc: THREE.PerspectiveCamera): THREE.Vector3 => {
+            (): THREE.Vector3 => {
                 return vector3;
             });
 
@@ -367,7 +364,7 @@ describe("ViewportCoords.getPixelDistances", () => {
             });
 
         spyOn(vector3, "project").and.callFake(
-            (pc: THREE.PerspectiveCamera): THREE.Vector3 => {
+            (): THREE.Vector3 => {
                 return vector3;
             });
 
@@ -397,7 +394,7 @@ describe("ViewportCoords.getPixelDistances", () => {
             });
 
         spyOn(vector3, "unproject").and.callFake(
-            (pc: THREE.PerspectiveCamera): THREE.Vector3 => {
+            (): THREE.Vector3 => {
                 return vector3;
             });
 
@@ -432,7 +429,7 @@ describe("ViewportCoords.getPixelDistances", () => {
             });
 
         spyOn(vector3, "project").and.callFake(
-            (pc: THREE.PerspectiveCamera): THREE.Vector3 => {
+            (): THREE.Vector3 => {
                 return vector3;
             });
 

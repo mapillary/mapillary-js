@@ -1,13 +1,12 @@
 import { first, skip } from "rxjs/operators";
-import { EdgeDirection, IEdge } from "../../src/Edge";
-import {
-    IEdgeStatus,
-    NodeCache,
-} from "../../src/Graph";
-import { ImageSize } from "../../src/Viewer";
+import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
+import { IDataProvider } from "../../src/api/interfaces/IDataProvider";
+import { EdgeDirection } from "../../src/graph/edge/EdgeDirection";
+import { IEdge } from "../../src/graph/edge/interfaces/IEdge";
+import { IEdgeStatus } from "../../src/graph/interfaces/IEdgeStatus";
+import { NodeCache } from "../../src/graph/NodeCache";
+import { ImageSize } from "../../src/viewer/ImageSize";
 import { MockCreator } from "../helper/MockCreator.spec";
-import { IDataProvider } from "../../src/API";
-import FalcorDataProvider from "../../src/api/FalcorDataProvider";
 
 describe("NodeCache.ctor", () => {
     it("should create a node cache", () => {

@@ -1,4 +1,4 @@
-import {IKey} from "../../API";
+import { IKey } from "./IKey";
 
 /**
  * Interface that describes the raw image sequence properties.
@@ -11,5 +11,3 @@ export interface ISequence extends IKey {
      */
     keys: string[];
 }
-
-export default ISequence;

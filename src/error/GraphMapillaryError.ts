@@ -1,7 +1,7 @@
-import {MapillaryError} from "./MapillaryError";
+import { MapillaryError } from "./MapillaryError";
 
 export class GraphMapillaryError extends MapillaryError {
-    constructor (message: string) {
+    constructor(message: string) {
         super(message);
 
         Object.setPrototypeOf(this, GraphMapillaryError.prototype);
@@ -9,5 +9,3 @@ export class GraphMapillaryError extends MapillaryError {
         this.name = "GraphMapillaryError";
     }
 }
-
-export default GraphMapillaryError;

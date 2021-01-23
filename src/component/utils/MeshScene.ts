@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import {IShaderMaterial} from "../../Component";
+import { IShaderMaterial } from "../imageplane/interfaces/IShaderMaterial";
 
 export class MeshScene {
     private _planes: { [key: string]: THREE.Mesh };
@@ -159,5 +159,3 @@ export class MeshScene {
         }
     }
 }
-
-export default MeshScene;

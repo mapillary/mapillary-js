@@ -1,24 +1,20 @@
-import { map, filter, withLatestFrom } from "rxjs/operators";
+import {
+    map,
+    filter,
+    withLatestFrom,
+} from "rxjs/operators";
 import { Subscription } from "rxjs";
 
-import {
-    Component,
-    IMouseConfiguration,
-    HandlerBase,
-} from "../../Component";
-import {
-    Transform,
-    ViewportCoords,
-} from "../../Geo";
-import { RenderCamera } from "../../Render";
-import {
-    ICurrentState,
-    IFrame,
-} from "../../State";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
+import { Transform } from "../../geo/Transform";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { RenderCamera } from "../../render/RenderCamera";
+import { ICurrentState } from "../../state/interfaces/ICurrentState";
+import { IFrame } from "../../state/interfaces/IFrame";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { Component } from "../Component";
+import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
+import { HandlerBase } from "../utils/HandlerBase";
 
 /**
  * The `ScrollZoomHandler` allows the user to zoom the viewer image by scrolling.
@@ -129,5 +125,3 @@ export class ScrollZoomHandler extends HandlerBase<IMouseConfiguration> {
         return { scrollZoom: enable };
     }
 }
-
-export default ScrollZoomHandler;

@@ -6,64 +6,50 @@ import {
     merge as observableMerge,
     of as observableOf,
     Observable,
-    Subscription,
 } from "rxjs";
 
 import {
     catchError,
-    withLatestFrom,
-    map,
-    distinctUntilChanged,
     concatMap,
-    switchMap,
-    tap,
-    last,
-    mergeMap,
+    distinctUntilChanged,
     first,
-    refCount,
+    last,
+    map,
+    mergeMap,
     publishReplay,
     publish,
+    refCount,
+    switchMap,
     take,
+    tap,
+    withLatestFrom,
 } from "rxjs/operators";
 
-import {
-    ComponentService,
-    Component,
-    ISpatialDataConfiguration,
-    SpatialDataCache,
-    SpatialDataScene,
-} from "../../Component";
-import {
-    Geo,
-    GeoCoords,
-    ILatLonAlt,
-    Transform,
-    ViewportCoords,
-} from "../../Geo";
-import {
-    Node,
-} from "../../Graph";
-import {
-    IGLRenderHash,
-    GLRenderStage,
-    RenderCamera,
-} from "../../Render";
-import {
-    IFrame,
-} from "../../State";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
-import PlayService from "../../viewer/PlayService";
-import State from "../../state/State";
-import CameraVisualizationMode from "./CameraVisualizationMode";
-import IClusterReconstruction from "../../api/interfaces/IClusterReconstruction";
-import ICellCorners, { ICellNeighbors } from "../../api/interfaces/ICellCorners";
-import Spatial from "../../geo/Spatial";
-import OriginalPositionMode from "./OriginalPositionMode";
+import { Node } from "../../graph/Node";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { ICellNeighbors, ICellCorners } from "../../api/interfaces/ICellCorners";
+import { IClusterReconstruction } from "../../api/interfaces/IClusterReconstruction";
+import { GeoCoords } from "../../geo/GeoCoords";
+import { ILatLonAlt } from "../../geo/interfaces/ILatLonAlt";
+import { Spatial } from "../../geo/Spatial";
+import { Transform } from "../../geo/Transform";
+import { ViewportCoords } from "../../geo/ViewportCoords";
 import { FilterFunction } from "../../graph/FilterCreator";
-import SubscriptionHolder from "../../utils/SubscriptionHolder";
+import * as Geo from "../../geo/Geo";
+import { GLRenderStage } from "../../render/GLRenderStage";
+import { IGLRenderHash } from "../../render/interfaces/IGLRenderHash";
+import { RenderCamera } from "../../render/RenderCamera";
+import { IFrame } from "../../state/interfaces/IFrame";
+import { State } from "../../state/State";
+import { SubscriptionHolder } from "../../utils/SubscriptionHolder";
+import { PlayService } from "../../viewer/PlayService";
+import { Component } from "../Component";
+import { ISpatialDataConfiguration } from "../interfaces/ISpatialDataConfiguration";
+import { CameraVisualizationMode } from "./CameraVisualizationMode";
+import { OriginalPositionMode } from "./OriginalPositionMode";
+import { SpatialDataScene } from "./SpatialDataScene";
+import { SpatialDataCache } from "./SpatialDataCache";
 
 type IntersectEvent = MouseEvent | FocusEvent;
 
@@ -672,6 +658,3 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         return a;
     }
 }
-
-ComponentService.register(SpatialDataComponent);
-export default SpatialDataComponent;

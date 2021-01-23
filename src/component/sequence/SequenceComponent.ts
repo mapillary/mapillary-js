@@ -1,9 +1,11 @@
+import * as vd from "virtual-dom";
+
 import {
-    of as observableOf,
     combineLatest as observableCombineLatest,
     concat as observableConcat,
     merge as observableMerge,
     empty as observableEmpty,
+    of as observableOf,
     Observable,
     Scheduler,
     Subject,
@@ -11,49 +13,38 @@ import {
 } from "rxjs";
 
 import {
-    takeUntil,
+    auditTime,
+    catchError,
+    debounceTime,
+    distinctUntilChanged,
+    filter,
+    map,
+    publish,
+    publishReplay,
+    refCount,
+    retry,
     share,
     skip,
-    withLatestFrom,
-    map,
-    switchMap,
-    publishReplay,
-    auditTime,
-    distinctUntilChanged,
     startWith,
-    retry,
-    catchError,
-    filter,
-    publish,
-    debounceTime,
+    switchMap,
     take,
-    refCount,
+    takeUntil,
+    withLatestFrom,
 } from "rxjs/operators";
 
-import * as vd from "virtual-dom";
-
-import {
-    Component,
-    ComponentService,
-    ISequenceConfiguration,
-    SequenceDOMRenderer,
-} from "../../Component";
-import { EdgeDirection } from "../../Edge";
-import {
-    IEdgeStatus,
-    GraphMode,
-    Node,
-    Sequence,
-} from "../../Graph";
-import {
-    ISize,
-    IVNodeHash,
-} from "../../Render";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
-import State from "../../state/State";
+import { Node } from "../../graph/Node";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { GraphMode } from "../../graph/GraphMode";
+import { IEdgeStatus } from "../../graph/interfaces/IEdgeStatus";
+import { Sequence } from "../../graph/Sequence";
+import { ISize } from "../../render/interfaces/ISize";
+import { IVNodeHash } from "../../render/interfaces/IVNodeHash";
+import { State } from "../../state/State";
+import { ISequenceConfiguration } from "../interfaces/ISequenceConfiguration";
+import { SequenceDOMRenderer } from "./SequenceDOMRenderer";
+import { EdgeDirection } from "../../graph/edge/EdgeDirection";
+import { Component } from "../Component";
 
 /**
  * @class SequenceComponent
@@ -302,7 +293,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     (key: string): Observable<Node> => {
                         return this._navigator.moveToKey$(key).pipe(
                             catchError(
-                                (e: Error): Observable<Node> => {
+                                (): Observable<Node> => {
                                     return observableEmpty();
                                 }));
                     }))
@@ -344,7 +335,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                 (node: Node): Observable<Node> => {
                     return this._navigator.graphService.cacheNode$(node.key).pipe(
                         catchError(
-                            (e: Error): Observable<Node> => {
+                            (): Observable<Node> => {
                                 return observableEmpty();
                             }));
                 }))
@@ -437,7 +428,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             earth$).pipe(
                 map(
                     (
-                        [edgeStatus, configuration, containerWidth, renderer, speed, position, earth]:
+                        [edgeStatus, configuration, containerWidth, , speed, position, earth]:
                             [
                                 IEdgeStatus,
                                 ISequenceConfiguration,
@@ -570,6 +561,3 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         };
     }
 }
-
-ComponentService.register(SequenceComponent);
-export default SequenceComponent;

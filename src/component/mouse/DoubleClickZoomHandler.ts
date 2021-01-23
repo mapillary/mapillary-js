@@ -1,22 +1,22 @@
-import { merge as observableMerge, Subscription } from "rxjs";
+import {
+    merge as observableMerge,
+    Subscription,
+} from "rxjs";
 
-import { map, withLatestFrom } from "rxjs/operators";
+import {
+    map,
+    withLatestFrom,
+} from "rxjs/operators";
 
-import {
-    Component,
-    IMouseConfiguration,
-    HandlerBase,
-    ClientTouch,
-} from "../../Component";
-import {
-    Transform,
-    ViewportCoords,
-} from "../../Geo";
-import { RenderCamera } from "../../Render";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
+import { Transform } from "../../geo/Transform";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { RenderCamera } from "../../render/RenderCamera";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { Component } from "../Component";
+import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
+import { HandlerBase } from "../utils/HandlerBase";
+import { ClientTouch } from "./HandlerTypes";
 
 /**
  * The `DoubleClickZoomHandler` allows the user to zoom the viewer image at a point by double clicking.
@@ -88,5 +88,3 @@ export class DoubleClickZoomHandler extends HandlerBase<IMouseConfiguration> {
         return { doubleClickZoom: enable };
     }
 }
-
-export default DoubleClickZoomHandler;

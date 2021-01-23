@@ -1,7 +1,7 @@
 export class EventEmitter {
-    private _events: {[eventType: string]: any[]};
+    private _events: { [eventType: string]: any[] };
 
-    constructor () {
+    constructor() {
         this._events = {};
     }
 
@@ -57,5 +57,3 @@ export class EventEmitter {
         return !!(this._events && this._events[eventType]);
     }
 }
-
-export default EventEmitter;

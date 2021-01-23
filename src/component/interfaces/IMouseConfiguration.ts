@@ -1,4 +1,4 @@
-import { IComponentConfiguration } from "../../Component";
+import { IComponentConfiguration } from "./IComponentConfiguration";
 
 /**
  * Interface for configuration of mouse component.
@@ -49,5 +49,3 @@ export interface IMouseConfiguration extends IComponentConfiguration {
      */
     touchZoom?: boolean;
 }
-
-export default IMouseConfiguration;

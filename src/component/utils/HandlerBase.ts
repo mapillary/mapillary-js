@@ -1,11 +1,8 @@
-import {
-    Component,
-    IComponentConfiguration,
-} from "../../Component";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
+import { Component } from "../Component";
+import { IComponentConfiguration } from "../interfaces/IComponentConfiguration";
+
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
 
 export abstract class HandlerBase<TConfiguration extends IComponentConfiguration> {
     protected _component: Component<TConfiguration>;
@@ -68,5 +65,3 @@ export abstract class HandlerBase<TConfiguration extends IComponentConfiguration
 
     protected abstract _getConfiguration(enable: boolean): TConfiguration;
 }
-
-export default HandlerBase;

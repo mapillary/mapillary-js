@@ -1,6 +1,8 @@
-import { IGPano, IProject, IUser } from "../../API";
 import { CameraProjectionType } from "./CameraProjectionType";
-import INodeUrls from "./INodeUrls";
+import { IGPano } from "./IGPano";
+import { INodeUrls } from "./INodeUrls";
+import { IProject } from "./IProject";
+import { IUser } from "./IUser";
 
 /**
  * Interface that describes the raw filling node properties.
@@ -133,5 +135,3 @@ export interface IFillNode extends INodeUrls {
      */
     width: number;
 }
-
-export default IFillNode;

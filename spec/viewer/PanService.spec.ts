@@ -1,15 +1,17 @@
 import { Subject } from "rxjs";
-
-import { PanService } from "../../src/viewer/PanService";
-import GraphServiceMockCreator from "../helper/GraphServiceMockCreator.spec";
-import StateServiceMockCreator from "../helper/StateServiceMockCreator.spec";
-import { Transform } from "../../src/geo/Transform";
-import { GraphService, Node } from "../../src/Graph";
-import { StateService, IFrame } from "../../src/State";
-import NodeHelper from "../helper/NodeHelper.spec";
-import { FrameHelper } from "../helper/FrameHelper.spec";
-import { ILatLonAlt } from "../../src/Geo";
 import { skip } from "rxjs/operators";
+
+import { Node } from "../../src/graph/Node";
+import { Transform } from "../../src/geo/Transform";
+import { ILatLonAlt } from "../../src/geo/interfaces/ILatLonAlt";
+import { GraphService } from "../../src/graph/GraphService";
+import { IFrame } from "../../src/state/interfaces/IFrame";
+import { StateService } from "../../src/state/StateService";
+import { PanService } from "../../src/viewer/PanService";
+import { FrameHelper } from "../helper/FrameHelper.spec";
+import { GraphServiceMockCreator } from "../helper/GraphServiceMockCreator.spec";
+import { NodeHelper } from "../helper/NodeHelper.spec";
+import { StateServiceMockCreator } from "../helper/StateServiceMockCreator.spec";
 
 describe("PanService.ctor", () => {
     it("should be defined when constructed", () => {
@@ -56,10 +58,10 @@ describe("PanService.panNodes$", () => {
         panService.panNodes$.pipe(
             skip(1))
             .subscribe(
-            (nodes: [Node, Transform, number][]): void => {
-                expect(nodes.length).toBe(0);
-                done();
-            });
+                (nodes: [Node, Transform, number][]): void => {
+                    expect(nodes.length).toBe(0);
+                    done();
+                });
 
         (<Subject<IFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
         (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());
@@ -80,10 +82,10 @@ describe("PanService.panNodes$", () => {
         panService.panNodes$.pipe(
             skip(1))
             .subscribe(
-            (nodes: [Node, Transform, number][]): void => {
-                expect(nodes.length).toBe(0);
-                done();
-            });
+                (nodes: [Node, Transform, number][]): void => {
+                    expect(nodes.length).toBe(0);
+                    done();
+                });
 
         (<Subject<IFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
         (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createUnmergedNode());
@@ -143,10 +145,10 @@ describe("PanService.panNodes$", () => {
         panService.panNodes$.pipe(
             skip(1))
             .subscribe(
-            (nodes: [Node, Transform, number][]): void => {
-                expect(nodes.length).toBe(0);
-                done();
-            });
+                (nodes: [Node, Transform, number][]): void => {
+                    expect(nodes.length).toBe(0);
+                    done();
+                });
 
         (<Subject<IFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
         (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());

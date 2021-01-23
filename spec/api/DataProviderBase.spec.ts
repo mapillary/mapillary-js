@@ -1,8 +1,8 @@
-import DataProviderBase from "../../src/api/DataProviderBase";
-import MapillaryError from "../../src/error/MapillaryError";
-import GeometryProviderBase from "../../src/api/GeometryProviderBase";
-import IGeometryProvider from "../../src/api/interfaces/IGeometryProvider";
-import BufferFetcher from "../../src/api/BufferFetcher";
+import { BufferFetcher } from "../../src/api/BufferFetcher";
+import { DataProviderBase } from "../../src/api/DataProviderBase";
+import { GeometryProviderBase } from "../../src/api/GeometryProviderBase";
+import { IGeometryProvider } from "../../src/api/interfaces/IGeometryProvider";
+import { MapillaryError } from "../../src/error/MapillaryError";
 
 describe("DataProviderBase.ctor", () => {
     it("should create a data provider base", () => {

@@ -1,32 +1,29 @@
-import { combineLatest as observableCombineLatest, Subject, Subscription } from "rxjs";
-
-import { withLatestFrom, map } from "rxjs/operators";
 import * as vd from "virtual-dom";
 
 import {
-    ComponentService,
-    Component,
-} from "../../Component";
-import {
-    Transform,
-    ViewportCoords,
-} from "../../Geo";
-import {
-    IVNodeHash,
-    RenderCamera,
-} from "../../Render";
-import {
-    IFrame,
-    State,
-} from "../../State";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
-import IZoomConfiguration from "../interfaces/IZoomConfiguration";
-import ISize from "../../render/interfaces/ISize";
-import ComponentSize from "../utils/ComponentSize";
+    combineLatest as observableCombineLatest,
+    Subject,
+    Subscription,
+} from "rxjs";
 
+import {
+    map,
+    withLatestFrom,
+} from "rxjs/operators";
+
+import { Component } from "../Component";
+import { IZoomConfiguration } from "../interfaces/IZoomConfiguration";
+
+import { Transform } from "../../geo/Transform";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { RenderCamera } from "../../render/RenderCamera";
+import { ISize } from "../../render/interfaces/ISize";
+import { IVNodeHash } from "../../render/interfaces/IVNodeHash";
+import { State } from "../../state/State";
+import { IFrame } from "../../state/interfaces/IFrame";
+import { ComponentSize } from "../utils/ComponentSize";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
 /**
  * @class ZoomComponent
  *
@@ -114,6 +111,3 @@ export class ZoomComponent extends Component<IZoomConfiguration> {
         return { size: ComponentSize.Automatic };
     }
 }
-
-ComponentService.register(ZoomComponent);
-export default ZoomComponent;

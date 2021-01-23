@@ -1,8 +1,6 @@
-import {
-    Geometry,
-    ISpotTagOptions,
-    Tag,
-} from "../../../Component";
+import { Tag } from "./Tag";
+import { Geometry } from "../geometry/Geometry";
+import { ISpotTagOptions } from "../interfaces/ISpotTagOptions";
 
 /**
  * @class SpotTag
@@ -165,5 +163,3 @@ export class SpotTag extends Tag {
         this._notifyChanged$.next(this);
     }
 }
-
-export default SpotTag;

@@ -1,20 +1,17 @@
-import {Observable, Subject} from "rxjs";
+import {
+    Observable,
+    Subject,
+} from "rxjs";
 
-import {
-    IPopupOffset,
-    IPopupOptions,
-    PopupAlignment,
-} from "../../../Component";
-import {
-    Transform,
-    ViewportCoords,
-} from "../../../Geo";
-import {
-    ISize,
-    RenderCamera,
-} from "../../../Render";
-import {DOM} from "../../../Utils";
-import {Alignment} from "../../../Viewer";
+import { Transform } from "../../../geo/Transform";
+import { ViewportCoords } from "../../../geo/ViewportCoords";
+import { ISize } from "../../../render/interfaces/ISize";
+import { RenderCamera } from "../../../render/RenderCamera";
+import { DOM } from "../../../utils/DOM";
+import { Alignment } from "../../../viewer/Alignment";
+import { IPopupOffset } from "../interfaces/IPopupOffset";
+import { IPopupOptions } from "../interfaces/IPopupOptions";
+import { PopupAlignment } from "./PopupAlignment";
 
 /**
  * @class Popup
@@ -366,7 +363,7 @@ export class Popup {
         pointPixel = [pointPixel[0] + offset[float][0], pointPixel[1] + offset[float][1]];
         pointPixel = [Math.round(pointPixel[0]), Math.round(pointPixel[1])];
 
-        const floatTranslate: {[key in PopupAlignment]: string } = {
+        const floatTranslate: { [key in PopupAlignment]: string } = {
             "bottom": "translate(-50%,0)",
             "bottom-left": "translate(-100%,0)",
             "bottom-right": "translate(0,0)",
@@ -540,7 +537,7 @@ export class Popup {
                 "top": offset.top || [0, 0],
                 "top-left": offset.topLeft || [0, 0],
                 "top-right": offset.topRight || [0, 0],
-               };
+            };
         }
     }
 
@@ -592,5 +589,3 @@ export class Popup {
         }
     }
 }
-
-export default Popup;

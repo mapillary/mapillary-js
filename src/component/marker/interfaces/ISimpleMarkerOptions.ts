@@ -50,5 +50,3 @@ export interface ISimpleMarkerOptions {
      */
     radius?: number;
 }
-
-export default ISimpleMarkerOptions;

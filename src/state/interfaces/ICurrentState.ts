@@ -1,6 +1,8 @@
-import {Camera, ILatLonAlt, Transform} from "../../Geo";
-import {Node} from "../../Graph";
-import {State} from "../../State";
+import { State } from "../State";
+import { Camera } from "../../geo/Camera";
+import { Transform } from "../../geo/Transform";
+import { ILatLonAlt } from "../../geo/interfaces/ILatLonAlt";
+import { Node } from "../../graph/Node";
 
 export interface ICurrentState {
     reference: ILatLonAlt;

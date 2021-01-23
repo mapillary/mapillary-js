@@ -8,11 +8,9 @@ import { PanServiceMockCreator } from "./PanServiceMockCreator.spec";
 import { PlayServiceMockCreator } from "./PlayServiceMockCreator.spec";
 import { StateServiceMockCreator } from "./StateServiceMockCreator.spec";
 
-import {
-    CacheService,
-    Navigator,
-} from "../../src/Viewer";
-import API from "../../src/api/API";
+import { Navigator } from "../../src/viewer/Navigator";
+import { API } from "../../src/api/API";
+import { CacheService } from "../../src/viewer/CacheService";
 
 export class NavigatorMockCreator extends MockCreatorBase<Navigator> {
     public create(): Navigator {
@@ -30,5 +28,3 @@ export class NavigatorMockCreator extends MockCreatorBase<Navigator> {
         return mock;
     }
 }
-
-export default NavigatorMockCreator;

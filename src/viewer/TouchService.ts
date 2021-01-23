@@ -5,7 +5,6 @@ import {
     BehaviorSubject,
     Observable,
     Subject,
-    Subscription,
 } from "rxjs";
 
 import {
@@ -25,8 +24,8 @@ import {
     takeUntil,
 } from "rxjs/operators";
 
-import { IPinch } from "../Viewer";
-import SubscriptionHolder from "../utils/SubscriptionHolder";
+import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { IPinch } from "./interfaces/IPinch";
 
 interface IPinchOperation {
     (pinch: IPinch): IPinch;
@@ -90,7 +89,7 @@ export class TouchService {
                     return tapStart$.pipe(
                         first(),
                         switchMap(
-                            (event: TouchEvent): Observable<number | TouchEvent> => {
+                            (): Observable<number | TouchEvent> => {
                                 return observableMerge(
                                     observableTimer(300),
                                     tapStart$).pipe(
@@ -148,7 +147,7 @@ export class TouchService {
 
         this._singleTouchDragStart$ = singleTouchStart$.pipe(
             mergeMap(
-                (e: TouchEvent): Observable<TouchEvent> => {
+                (): Observable<TouchEvent> => {
                     return this._singleTouchMove$.pipe(
                         takeUntil(
                             observableMerge(
@@ -159,7 +158,7 @@ export class TouchService {
 
         this._singleTouchDragEnd$ = singleTouchStart$.pipe(
             mergeMap(
-                (e: TouchEvent): Observable<TouchEvent> => {
+                (): Observable<TouchEvent> => {
                     return observableMerge(
                         touchStop$,
                         multipleTouchStart$).pipe(
@@ -168,7 +167,7 @@ export class TouchService {
 
         this._singleTouchDrag$ = singleTouchStart$.pipe(
             switchMap(
-                (te: TouchEvent): Observable<TouchEvent> => {
+                (): Observable<TouchEvent> => {
                     return this._singleTouchMove$.pipe(
                         skip(1),
                         takeUntil(
@@ -282,7 +281,7 @@ export class TouchService {
 
         this._pinchChange$ = this._pinchStart$.pipe(
             switchMap(
-                (te: TouchEvent): Observable<IPinch> => {
+                (): Observable<IPinch> => {
                     return this._pinch$.pipe(
                         skip(1),
                         takeUntil(this._pinchEnd$));

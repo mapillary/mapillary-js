@@ -1,9 +1,7 @@
-import {Node} from "../../Graph";
-import {
-    Camera,
-    ILatLonAlt,
-} from "../../Geo";
-import {TransitionMode} from "../../State";
+import { Camera } from "../../geo/Camera";
+import { ILatLonAlt } from "../../geo/interfaces/ILatLonAlt";
+import { TransitionMode } from "../TransitionMode";
+import { Node } from "../../graph/Node";
 
 export interface IState {
     alpha: number;

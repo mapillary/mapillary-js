@@ -1,11 +1,9 @@
-import {Subject} from "rxjs";
+import { Subject } from "rxjs";
+import { DOMRenderer } from "../../src/render/DOMRenderer";
+import { IVNodeHash } from "../../src/render/interfaces/IVNodeHash";
 
-import {MockCreator} from "./MockCreator.spec";
-import {MockCreatorBase} from "./MockCreatorBase.spec";
-import {
-    DOMRenderer,
-    IVNodeHash,
-} from "../../src/Render";
+import { MockCreator } from "./MockCreator.spec";
+import { MockCreatorBase } from "./MockCreatorBase.spec";
 
 export class DOMRendererMockCreator extends MockCreatorBase<DOMRenderer> {
     public create(): DOMRenderer {
@@ -17,5 +15,3 @@ export class DOMRendererMockCreator extends MockCreatorBase<DOMRenderer> {
         return mock;
     }
 }
-
-export default DOMRendererMockCreator;

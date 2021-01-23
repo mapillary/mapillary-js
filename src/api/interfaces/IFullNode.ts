@@ -1,4 +1,5 @@
-import {ICoreNode, IFillNode} from "../../API";
+import { IFillNode } from "./IFillNode";
+import { ICoreNode } from "./ICoreNode";
 
 /**
  * Interface that describes the raw full image properties.
@@ -6,5 +7,3 @@ import {ICoreNode, IFillNode} from "../../API";
  * @interface IFullNode
  */
 export interface IFullNode extends ICoreNode, IFillNode { }
-
-export default IFullNode;

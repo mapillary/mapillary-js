@@ -1,6 +1,6 @@
-import {IDirectionConfiguration} from "../../Component";
-import {Spatial} from "../../Geo";
-import {ISize} from "../../Render";
+import { Spatial } from "../../geo/Spatial";
+import { ISize } from "../../render/interfaces/ISize";
+import { IDirectionConfiguration } from "../interfaces/IDirectionConfiguration";
 
 /**
  * @class DirectionDOMCalculator
@@ -239,5 +239,3 @@ export class DirectionDOMCalculator {
         return value > minWidth ? value : minWidth;
     }
 }
-
-export default DirectionDOMCalculator;

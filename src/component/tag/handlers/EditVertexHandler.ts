@@ -1,47 +1,40 @@
 import {
+    combineLatest as observableCombineLatest,
     concat as observableConcat,
     empty as observableEmpty,
-    combineLatest as observableCombineLatest,
-    of as observableOf,
-    merge as observableMerge,
     from as observableFrom,
+    merge as observableMerge,
+    of as observableOf,
     Observable,
     Subscription,
 } from "rxjs";
 
 import {
     distinctUntilChanged,
-    share,
-    switchMap,
     filter,
-    withLatestFrom,
     first,
     map,
     mergeMap,
+    share,
+    switchMap,
+    withLatestFrom,
 } from "rxjs/operators";
 
-import {
-    Component,
-    TagHandlerBase,
-    Geometry,
-    IInteraction,
-    InteractionCursor,
-    ITagConfiguration,
-    RenderTag,
-    Tag,
-    TagOperation,
-    TagSet,
-    VertexGeometry,
-} from "../../../Component";
-import {
-    Transform,
-    ViewportCoords,
-} from "../../../Geo";
-import { RenderCamera } from "../../../Render";
-import {
-    Container,
-    Navigator,
-} from "../../../Viewer";
+import { Transform } from "../../../geo/Transform";
+import { ViewportCoords } from "../../../geo/ViewportCoords";
+import { RenderCamera } from "../../../render/RenderCamera";
+import { Container } from "../../../viewer/Container";
+import { Component } from "../../Component";
+import { Navigator } from "../../../viewer/Navigator";
+import { ITagConfiguration } from "../../interfaces/ITagConfiguration";
+import { Geometry } from "../geometry/Geometry";
+import { VertexGeometry } from "../geometry/VertexGeometry";
+import { IInteraction, InteractionCursor } from "../interfaces/IInteraction";
+import { RenderTag } from "../tag/RenderTag";
+import { Tag } from "../tag/Tag";
+import { TagOperation } from "../TagOperation";
+import { TagSet } from "../TagSet";
+import { TagHandlerBase } from "./TagHandlerBase";
 
 export class EditVertexHandler extends TagHandlerBase {
     private _tagSet: TagSet;
@@ -204,5 +197,3 @@ export class EditVertexHandler extends TagHandlerBase {
         return "edit-vertex";
     }
 }
-
-export default EditVertexHandler;

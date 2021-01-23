@@ -1,41 +1,36 @@
 import {
-    merge as observableMerge,
-    empty as observableEmpty,
     combineLatest as observableCombineLatest,
+    empty as observableEmpty,
+    merge as observableMerge,
     Observable,
     Subject,
     Subscription,
 } from "rxjs";
 
 import {
-    distinctUntilChanged,
-    withLatestFrom,
-    switchMap,
     auditTime,
+    distinctUntilChanged,
     first,
     map,
+    switchMap,
+    withLatestFrom,
 } from "rxjs/operators";
 
-import { ILatLon } from "../API";
-import {
-    ILatLonAlt,
-    Transform,
-} from "../Geo";
-import {
-    IEdgeStatus,
-    Node,
-} from "../Graph";
-import { RenderCamera } from "../Render";
-import { EventEmitter } from "../Utils";
-import {
-    Container,
-    IUnprojection,
-    IViewerMouseEvent,
-    Navigator,
-    Projection,
-    Viewer,
-} from "../Viewer";
-import SubscriptionHolder from "../utils/SubscriptionHolder";
+import { Container } from "./Container";
+import { Navigator } from "./Navigator";
+import { Projection } from "./Projection";
+import { Viewer } from "./Viewer";
+import { IUnprojection } from "./interfaces/IUnprojection";
+import { IViewerMouseEvent } from "./interfaces/IViewerMouseEvent";
+
+import { ILatLon } from "../api/interfaces/ILatLon";
+import { Transform } from "../geo/Transform";
+import { ILatLonAlt } from "../geo/interfaces/ILatLonAlt";
+import { Node } from "../graph/Node";
+import { IEdgeStatus } from "../graph/interfaces/IEdgeStatus";
+import { RenderCamera } from "../render/RenderCamera";
+import { EventEmitter } from "../utils/EventEmitter";
+import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
 export class Observer {
     private _started: boolean;
@@ -383,5 +378,3 @@ export class Observer {
             }));
     }
 }
-
-export default Observer;

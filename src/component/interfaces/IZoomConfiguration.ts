@@ -1,5 +1,5 @@
-import { IComponentConfiguration } from "./interfaces";
-import ComponentSize from "../utils/ComponentSize";
+import { IComponentConfiguration } from "./IComponentConfiguration";
+import { ComponentSize } from "../utils/ComponentSize";
 
 export interface IZoomConfiguration extends IComponentConfiguration {
     /**
@@ -9,5 +9,3 @@ export interface IZoomConfiguration extends IComponentConfiguration {
      */
     size?: ComponentSize;
 }
-
-export default IZoomConfiguration;

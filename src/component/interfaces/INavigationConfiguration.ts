@@ -1,4 +1,4 @@
-import { IComponentConfiguration } from "../../Component";
+import { IComponentConfiguration } from "./IComponentConfiguration";
 
 /**
  * Interface for configuration of navigation component.
@@ -32,5 +32,3 @@ export interface INavigationConfiguration extends IComponentConfiguration {
      */
     spatial?: boolean;
 }
-
-export default INavigationConfiguration;

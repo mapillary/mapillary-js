@@ -1,22 +1,15 @@
-import {throwError as observableThrowError, of as observableOf, Subject} from "rxjs";
+import { throwError as observableThrowError, of as observableOf, Subject } from "rxjs";
+import { DirectionComponent } from "../../../src/component/direction/DirectionComponent";
+import { DirectionDOMRenderer } from "../../../src/component/direction/DirectionDOMRenderer";
+import { NodeCache } from "../../../src/graph/NodeCache";
+import { Sequence } from "../../../src/graph/Sequence";
+import { Container } from "../../../src/viewer/Container";
+import { Navigator } from "../../../src/viewer/Navigator";
+import { Node } from "../../../src/graph/Node";
 
-import {
-    DirectionComponent,
-    DirectionDOMRenderer,
-} from "../../../src/Component";
-import {
-    Node,
-    NodeCache,
-    Sequence,
-} from "../../../src/Graph";
-import {
-    Container,
-    Navigator,
-} from "../../../src/Viewer";
-
-import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
-import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
-import {NodeHelper} from "../../helper/NodeHelper.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
+import { NodeHelper } from "../../helper/NodeHelper.spec";
 
 describe("DirectionComponent.ctor", () => {
     it("should be defined", () => {

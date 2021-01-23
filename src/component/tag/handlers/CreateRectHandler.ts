@@ -1,12 +1,13 @@
-import {filter} from "rxjs/operators";
-import {Subject, Subscription} from "rxjs";
-
 import {
-    CreateVertexHandler,
-    OutlineCreateTag,
-    RectGeometry,
-} from "../../../Component";
-import {Transform} from "../../../Geo";
+    Subject,
+    Subscription,
+} from "rxjs";
+import { filter } from "rxjs/operators";
+
+import { Transform } from "../../../geo/Transform";
+import { RectGeometry } from "../geometry/RectGeometry";
+import { OutlineCreateTag } from "../tag/OutlineCreateTag";
+import { CreateVertexHandler } from "./CreateVertexHandler";
 
 export class CreateRectHandler extends CreateVertexHandler {
     private _initializeAnchorIndexingSubscription: Subscription;
@@ -52,5 +53,3 @@ export class CreateRectHandler extends CreateVertexHandler {
         (<RectGeometry>tag.geometry).setOppositeVertex2d(basicPoint, transform);
     }
 }
-
-export default CreateRectHandler;

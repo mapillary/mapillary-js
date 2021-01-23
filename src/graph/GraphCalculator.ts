@@ -1,8 +1,7 @@
 import * as THREE from "three";
 
-import { ILatLon } from "../API";
-import { GraphMapillaryError } from "../Error";
-import { GeoCoords } from "../Geo";
+import { ILatLon } from "../api/interfaces/ILatLon";
+import { GeoCoords } from "../geo/GeoCoords";
 
 /**
  * @class GraphCalculator
@@ -98,5 +97,3 @@ export class GraphCalculator {
         return rotation.multiplyScalar(rotation.w).toArray().slice(0, 3);
     }
 }
-
-export default GraphCalculator;

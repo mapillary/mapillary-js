@@ -1,14 +1,13 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {
-    RenderTag,
-    Tag,
-    CreateTag,
-    Geometry,
-} from "../../Component";
-import {ISize} from "../../Render";
-import {ISpriteAtlas} from "../../Viewer";
+import { Geometry } from "./geometry/Geometry";
+import { CreateTag } from "./tag/CreateTag";
+import { RenderTag } from "./tag/RenderTag";
+import { Tag } from "./tag/Tag";
+
+import { ISize } from "../../render/interfaces/ISize";
+import { ISpriteAtlas } from "../../viewer/interfaces/ISpriteAtlas";
 
 export class TagDOMRenderer {
     public render(

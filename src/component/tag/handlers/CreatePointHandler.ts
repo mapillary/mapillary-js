@@ -1,10 +1,10 @@
-import {map, filter} from "rxjs/operators";
-import {Subscription} from "rxjs";
-
 import {
-    CreateHandlerBase,
-    PointGeometry,
-} from "../../../Component";
+    map,
+    filter,
+} from "rxjs/operators";
+import { Subscription } from "rxjs";
+import { PointGeometry } from "../geometry/PointGeometry";
+import { CreateHandlerBase } from "./CreateHandlerBase";
 
 export class CreatePointHandler extends CreateHandlerBase {
     private _geometryCreatedSubscription: Subscription;
@@ -31,5 +31,3 @@ export class CreatePointHandler extends CreateHandlerBase {
         return "create-point";
     }
 }
-
-export default CreatePointHandler;

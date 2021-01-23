@@ -12,5 +12,3 @@ export class MapillaryError extends Error {
         this.name = "MapillaryError";
     }
 }
-
-export default MapillaryError;

@@ -1,14 +1,12 @@
 import * as THREE from "three";
 
-import {NodeHelper} from "../helper/NodeHelper.spec";
-import {GeoHelper} from "../helper/GeoHelper.spec";
+import { NodeHelper } from "../helper/NodeHelper.spec";
+import { GeoHelper } from "../helper/GeoHelper.spec";
 
-import {
-    IGPano,
-    IFillNode,
-} from "../../src/API";
-import {Transform} from "../../src/Geo";
-import {Node} from "../../src/Graph";
+import { Node } from "../../src/graph/Node";
+import { Transform } from "../../src/geo/Transform";
+import { IFillNode } from "../../src/api/interfaces/IFillNode";
+import { IGPano } from "../../src/api/interfaces/IGPano";
 
 describe("Transform.rt", () => {
     let epsilon: number = 10e-9;

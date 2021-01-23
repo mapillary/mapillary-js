@@ -1,7 +1,5 @@
-import {
-    IKey,
-    ILatLon,
-} from "../../API";
+import { IKey } from "./IKey";
+import { ILatLon } from "./ILatLon";
 
 /**
  * Interface that describes the raw core node properties.
@@ -24,5 +22,3 @@ export interface ICoreNode extends IKey {
      */
     sequence_key?: string;
 }
-
-export default ICoreNode;

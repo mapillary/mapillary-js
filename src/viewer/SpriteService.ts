@@ -1,12 +1,23 @@
-import { refCount, publishReplay, scan, startWith } from "rxjs/operators";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import { Observable, Subject, Subscription } from "rxjs";
+import {
+    publishReplay,
+    refCount,
+    scan,
+    startWith,
+} from "rxjs/operators";
 
-import { Alignment, ISpriteAtlas } from "../Viewer";
+import {
+    Observable,
+    Subject,
+    Subscription,
+} from "rxjs";
 
-class SpriteAtlas implements ISpriteAtlas {
+import { Alignment } from "./Alignment";
+import { ISpriteAtlas } from "./interfaces/ISpriteAtlas";
+
+export class SpriteAtlas implements ISpriteAtlas {
     private _image: HTMLImageElement;
     private _texture: THREE.Texture;
     private _json: ISprites;
@@ -252,5 +263,3 @@ export class SpriteService {
         this._atlasSubscription.unsubscribe();
     }
 }
-
-export default SpriteService;

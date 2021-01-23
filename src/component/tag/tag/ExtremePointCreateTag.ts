@@ -1,10 +1,15 @@
 import * as vd from "virtual-dom";
 import * as THREE from "three";
 
-import { ViewportCoords, Transform } from "../../../Geo";
-import { ISize } from "../../../Render";
-import { RectGeometry, PointsGeometry } from "../TagExport";
-import { CreateTag, IExtremePointCreateTagOptions } from "../../../Component";
+import { CreateTag } from "./CreateTag";
+
+import { PointsGeometry } from "../geometry/PointsGeometry";
+import { RectGeometry } from "../geometry/RectGeometry";
+import { IExtremePointCreateTagOptions } from "../interfaces/IExtremePointCreateTagOptions";
+
+import { Transform } from "../../../geo/Transform";
+import { ViewportCoords } from "../../../geo/ViewportCoords";
+import { ISize } from "../../../render/interfaces/ISize";
 
 export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
     private _rectGeometry: RectGeometry;

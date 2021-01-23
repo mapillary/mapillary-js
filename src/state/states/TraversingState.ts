@@ -1,18 +1,14 @@
 import * as THREE from "three";
 import * as UnitBezier from "@mapbox/unitbezier";
 
-import {
-    EarthState,
-    IState,
-    InteractiveStateBase,
-    InteractiveWaitingState,
-    StateBase,
-    WaitingState,
-} from "../../State";
-import {
-    Node,
-} from "../../Graph";
-import { Camera } from "../../Geo";
+import { EarthState } from "./EarthState";
+import { InteractiveStateBase } from "./InteractiveStateBase";
+import { InteractiveWaitingState } from "./InteractiveWaitingState";
+import { StateBase } from "./StateBase";
+import { WaitingState } from "./WaitingState";
+
+import { IState } from "../interfaces/IState";
+import { Node } from "../../graph/Node";
 
 export class TraversingState extends InteractiveStateBase {
     private _baseAlpha: number;
@@ -22,7 +18,7 @@ export class TraversingState extends InteractiveStateBase {
     private _unitBezier: UnitBezier;
     private _useBezier: boolean;
 
-    constructor (state: IState) {
+    constructor(state: IState) {
         super(state);
 
         this._adjustCameras();
@@ -168,5 +164,3 @@ export class TraversingState extends InteractiveStateBase {
         this._motionless = this._motionlessTransition();
     }
 }
-
-export default TraversingState;

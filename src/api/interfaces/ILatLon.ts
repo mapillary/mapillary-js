@@ -15,5 +15,3 @@ export interface ILatLon {
      */
     lon: number;
 }
-
-export default ILatLon;

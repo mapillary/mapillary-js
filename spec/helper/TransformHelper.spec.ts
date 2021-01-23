@@ -1,8 +1,8 @@
-import {NodeHelper} from "./NodeHelper.spec";
+import { NodeHelper } from "./NodeHelper.spec";
 
-import {IGPano} from "../../src/API";
-import {Transform} from "../../src/Geo";
-import {Node} from "../../src/Graph";
+import { Node } from "../../src/graph/Node";
+import { Transform } from "../../src/geo/Transform";
+import { IGPano } from "../../src/api/interfaces/IGPano";
 
 export class TransformHelper {
     private _nodeHelper: NodeHelper = new NodeHelper();
@@ -33,5 +33,3 @@ export class TransformHelper {
         };
     }
 }
-
-export default TransformHelper;

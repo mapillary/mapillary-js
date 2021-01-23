@@ -24,5 +24,3 @@ export interface IBoundingBox {
      */
     maxY: number;
 }
-
-export default IBoundingBox;

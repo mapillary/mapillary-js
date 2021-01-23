@@ -1,19 +1,19 @@
-import {map} from "rxjs/operators";
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {Observable, Subject, Subscription} from "rxjs";
+import {
+    Observable,
+    Subject,
+    Subscription,
+} from "rxjs";
+import { map } from "rxjs/operators";
 
-import {
-    Geometry,
-    PolygonGeometry,
-    RectGeometry,
-} from "../../../Component";
-import {
-    Transform,
-    ViewportCoords,
-} from "../../../Geo";
-import { ISize } from "../../../Render";
+import { Geometry } from "../geometry/Geometry";
+
+import { Transform } from "../../../geo/Transform";
+import { ViewportCoords } from "../../../geo/ViewportCoords";
+import { ISize } from "../../../render/interfaces/ISize";
+
 
 export abstract class CreateTag<T extends Geometry> {
     protected _geometry: T;
@@ -140,5 +140,3 @@ export abstract class CreateTag<T extends Geometry> {
         return positions;
     }
 }
-
-export default CreateTag;

@@ -1,10 +1,9 @@
 import { S2 } from "s2-geometry";
-
-import GeoCoords from "../../src/geo/GeoCoords";
-import MapillaryError from "../../src/error/MapillaryError";
-import S2GeometryProvider from "../../src/api/S2GeometryProvider";
-import { ILatLon } from "../../src/API";
-import ICellCorners from "../../src/api/interfaces/ICellCorners";
+import { ICellCorners } from "../../src/api/interfaces/ICellCorners";
+import { ILatLon } from "../../src/api/interfaces/ILatLon";
+import { S2GeometryProvider } from "../../src/api/S2GeometryProvider";
+import { MapillaryError } from "../../src/error/MapillaryError";
+import { GeoCoords } from "../../src/geo/GeoCoords";
 
 describe("S2GeometryProvider.ctor", () => {
     it("should be defined", () => {

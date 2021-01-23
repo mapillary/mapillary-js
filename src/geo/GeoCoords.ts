@@ -263,9 +263,9 @@ export class GeoCoords {
         let cosTheta: number = Math.cos(theta);
 
         let lon: number = Math.atan2(Y, X);
-        let lat: number =
-            Math.atan2(Z + eb * eb * b * sinTheta * sinTheta * sinTheta,
-                       p - ea * ea * a * cosTheta * cosTheta * cosTheta);
+        let lat: number = Math.atan2(
+            Z + eb * eb * b * sinTheta * sinTheta * sinTheta,
+            p - ea * ea * a * cosTheta * cosTheta * cosTheta);
 
         let sinLat: number = Math.sin(lat);
         let cosLat: number = Math.cos(lat);
@@ -276,5 +276,3 @@ export class GeoCoords {
         return [lat * 180.0 / Math.PI, lon * 180.0 / Math.PI, alt];
     }
 }
-
-export default GeoCoords;

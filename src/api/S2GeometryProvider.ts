@@ -1,9 +1,10 @@
 import { S2 } from "s2-geometry";
 
-import ILatLon from "./interfaces/ILatLon";
-import GeoCoords from "../geo/GeoCoords";
-import GeometryProviderBase from "./GeometryProviderBase";
-import ICellCorners, { ICellNeighbors } from "./interfaces/ICellCorners";
+import { GeometryProviderBase } from "./GeometryProviderBase";
+import { ICellCorners, ICellNeighbors } from "./interfaces/ICellCorners";
+import { ILatLon } from "./interfaces/ILatLon";
+
+import { GeoCoords } from "../geo/GeoCoords";
 
 /**
  * @class S2GeometryProvider
@@ -162,5 +163,3 @@ export class S2GeometryProvider extends GeometryProviderBase {
         return S2.keyToId(key);
     }
 }
-
-export default S2GeometryProvider;

@@ -1,18 +1,15 @@
 import { Subject } from "rxjs";
 
-import { SpatialDataCache } from "../../../src/Component";
-import {
-    GraphService,
-    Node,
-} from "../../../src/Graph";
-
-import GraphServiceMockCreator from "../../helper/GraphServiceMockCreator.spec";
-import NodeHelper from "../../helper/NodeHelper.spec";
-import IDataProvider from "../../../src/api/interfaces/IDataProvider";
-import FalcorDataProvider from "../../../src/api/FalcorDataProvider";
-import IClusterReconstruction from "../../../src/api/interfaces/IClusterReconstruction";
-import IGeometryProvider from "../../../src/api/interfaces/IGeometryProvider";
-import GeohashGeometryProvider from "../../../src/api/GeohashGeometryProvider";
+import { Node } from "../../../src/graph/Node";
+import { FalcorDataProvider } from "../../../src/api/FalcorDataProvider";
+import { GeohashGeometryProvider } from "../../../src/api/GeohashGeometryProvider";
+import { IClusterReconstruction } from "../../../src/api/interfaces/IClusterReconstruction";
+import { IDataProvider } from "../../../src/api/interfaces/IDataProvider";
+import { IGeometryProvider } from "../../../src/api/interfaces/IGeometryProvider";
+import { SpatialDataCache } from "../../../src/component/spatialdata/SpatialDataCache";
+import { GraphService } from "../../../src/graph/GraphService";
+import { GraphServiceMockCreator } from "../../helper/GraphServiceMockCreator.spec";
+import { NodeHelper } from "../../helper/NodeHelper.spec";
 
 describe("SpatialDataCache.ctor", () => {
     it("should be defined", () => {

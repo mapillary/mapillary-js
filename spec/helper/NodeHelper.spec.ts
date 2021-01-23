@@ -1,10 +1,8 @@
-import {
-    ICoreNode,
-    IFillNode,
-    IFullNode,
-    IGPano,
-} from "../../src/API";
-import { Node } from "../../src/Graph";
+import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
+import { IFillNode } from "../../src/api/interfaces/IFillNode";
+import { IFullNode } from "../../src/api/interfaces/IFullNode";
+import { IGPano } from "../../src/api/interfaces/IGPano";
+import { Node } from "../../src/graph/Node";
 
 export class NodeHelper {
     private _clusterKey: string = "ckey";
@@ -99,5 +97,3 @@ export class NodeHelper {
         return node;
     }
 }
-
-export default NodeHelper;

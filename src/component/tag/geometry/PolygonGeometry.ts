@@ -1,5 +1,6 @@
-import {GeometryTagError, VertexGeometry} from "../../../Component";
-import {Transform} from "../../../Geo";
+import { VertexGeometry } from "./VertexGeometry";
+import { GeometryTagError } from "../error/GeometryTagError";
+import { Transform } from "../../../geo/Transform";
 
 /**
  * @class PolygonGeometry
@@ -353,5 +354,3 @@ export class PolygonGeometry extends VertexGeometry {
                 });
     }
 }
-
-export default PolygonGeometry;

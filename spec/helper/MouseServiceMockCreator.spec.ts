@@ -1,10 +1,8 @@
 import { Subject } from "rxjs";
+import { MouseService } from "../../src/viewer/MouseService";
 
 import { MockCreator } from "./MockCreator.spec";
 import { MockCreatorBase } from "./MockCreatorBase.spec";
-import {
-    MouseService,
-} from "../../src/Viewer";
 
 export class MouseServiceMockCreator extends MockCreatorBase<MouseService> {
     public create(): MouseService {
@@ -40,5 +38,3 @@ export class MouseServiceMockCreator extends MockCreatorBase<MouseService> {
         return mock;
     }
 }
-
-export default MouseServiceMockCreator;

@@ -1,9 +1,7 @@
-import {switchMap} from "rxjs/operators";
-import {Observable} from "rxjs";
-
-import {MouseService} from "../../src/Viewer";
-
-import {EventHelper} from "../helper/EventHelper.spec";
+import { switchMap } from "rxjs/operators";
+import { Observable } from "rxjs";
+import { EventHelper } from "../helper/EventHelper.spec";
+import { MouseService } from "../../src/viewer/MouseService";
 
 describe("MouseService.ctor", () => {
     it("should be definded", () => {
@@ -188,10 +186,10 @@ describe("MouseService.mouseDrag$", () => {
         let emitCount: number = 0;
         mouseService
             .filtered$("test", mouseService.mouseDragStart$).pipe(
-            switchMap(
-                (e: MouseEvent): Observable<MouseEvent> => {
-                    return mouseService.filtered$("test", mouseService.mouseDrag$);
-                }))
+                switchMap(
+                    (e: MouseEvent): Observable<MouseEvent> => {
+                        return mouseService.filtered$("test", mouseService.mouseDrag$);
+                    }))
             .subscribe(
                 (event: MouseEvent): void => {
                     emitCount++;
@@ -432,10 +430,10 @@ describe("MouseService.domMouseDrag$", () => {
         let emitCount: number = 0;
         mouseService
             .filtered$("test", mouseService.domMouseDragStart$).pipe(
-            switchMap(
-                (e: MouseEvent): Observable<MouseEvent> => {
-                    return mouseService.filtered$("test", mouseService.domMouseDrag$);
-                }))
+                switchMap(
+                    (e: MouseEvent): Observable<MouseEvent> => {
+                        return mouseService.filtered$("test", mouseService.domMouseDrag$);
+                    }))
             .subscribe(
                 (event: MouseEvent): void => {
                     emitCount++;
@@ -1096,7 +1094,7 @@ describe("MouseService.staticClick$", () => {
         const mouseDownEvent: MouseEvent =
             EventHelper.createMouseEvent("mousedown", { button: 0 }, canvasContainer);
         const clickEvent: MouseEvent =
-            EventHelper.createMouseEvent("click", { }, document);
+            EventHelper.createMouseEvent("click", {}, document);
 
         canvasContainer.dispatchEvent(mouseDownEvent);
         expect(staticClickCount).toBe(0);
@@ -1123,7 +1121,7 @@ describe("MouseService.staticClick$", () => {
         const mouseDownEvent: MouseEvent =
             EventHelper.createMouseEvent("mousedown", { button: 0 }, canvasContainer);
         const mouseMoveEvent: MouseEvent =
-            EventHelper.createMouseEvent("mousemove", { }, document);
+            EventHelper.createMouseEvent("mousemove", {}, document);
         const clickEvent: MouseEvent =
             EventHelper.createMouseEvent("click", {}, document);
 

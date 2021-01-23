@@ -66,5 +66,3 @@ export class ImageTileStore {
         return level in this._images && key in this._images[level];
     }
 }
-
-export default ImageTileStore;

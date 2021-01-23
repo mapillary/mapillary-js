@@ -1,21 +1,15 @@
+import { empty as observableEmpty, Subject } from "rxjs";
 
-import {empty as observableEmpty, Observable, Subject} from "rxjs";
-
-import {
-    PointGeometry,
-    SpotTag,
-    Tag,
-    TagComponent,
-} from "../../../src/Component";
-import {Transform} from "../../../src/Geo";
-import {
-    Container,
-    Navigator,
-} from "../../../src/Viewer";
-
-import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
-import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
-import {TransformHelper} from "../../helper/TransformHelper.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
+import { TransformHelper } from "../../helper/TransformHelper.spec";
+import { Navigator } from "../../../src/viewer/Navigator";
+import { Transform } from "../../../src/geo/Transform";
+import { TagComponent } from "../../../src/component/tag/TagComponent";
+import { PointGeometry } from "../../../src/component/tag/geometry/PointGeometry";
+import { SpotTag } from "../../../src/component/tag/tag/SpotTag";
+import { Tag } from "../../../src/component/tag/tag/Tag";
+import { Container } from "../../../src/viewer/Container";
 
 describe("TagComponent.ctor", () => {
     it("should be defined", () => {

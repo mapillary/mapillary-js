@@ -1,7 +1,5 @@
-import {
-    IComponentConfiguration,
-    TagMode,
-} from "../../Component";
+import { IComponentConfiguration } from "./IComponentConfiguration";
+import { TagMode } from "../tag/TagMode";
 
 /**
  * Interface for configuration of tag component.
@@ -44,5 +42,3 @@ export interface ITagConfiguration extends IComponentConfiguration {
      */
     mode?: TagMode;
 }
-
-export default ITagConfiguration;

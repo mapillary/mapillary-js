@@ -1,21 +1,14 @@
 import * as THREE from "three";
 
-import {
-    IGPano,
-} from "../../API";
-import {
-    Camera,
-    Transform,
-} from "../../Geo";
-import {
-    Node,
-} from "../../Graph";
-import {
-    IRotation,
-    IState,
-    RotationDelta,
-    StateBase,
-} from "../../State";
+import { StateBase } from "./StateBase";
+
+import { RotationDelta } from "../RotationDelta";
+import { IRotation } from "../interfaces/IRotation";
+import { IState } from "../interfaces/IState";
+import { IGPano } from "../../api/interfaces/IGPano";
+import { Camera } from "../../geo/Camera";
+import { Transform } from "../../geo/Transform";
+import { Node } from "../../graph/Node";
 
 export abstract class InteractiveStateBase extends StateBase {
     /**
@@ -555,8 +548,6 @@ export abstract class InteractiveStateBase extends StateBase {
     protected _setDesiredZoom(): void {
         this._desiredZoom =
             this._currentNode.fullPano || this._previousNode == null ?
-            this._zoom : 0;
+                this._zoom : 0;
     }
 }
-
-export default InteractiveStateBase;

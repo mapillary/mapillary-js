@@ -1,34 +1,30 @@
-import {withLatestFrom, switchMap} from "rxjs/operators";
 import * as THREE from "three";
 
-import {Observable, Subscription} from "rxjs";
+import {
+    Observable,
+    Subscription,
+} from "rxjs";
 
 import {
-    Component,
-    IKeyboardConfiguration,
-    HandlerBase,
-} from "../../Component";
-import {
-    EdgeDirection,
-    IEdge,
-} from "../../Edge";
-import {AbortMapillaryError} from "../../Error";
-import {
-    Camera,
-    Spatial,
-} from "../../Geo";
-import {
-    IEdgeStatus,
-    Node,
-} from "../../Graph";
-import {
-    IFrame,
-    IRotation,
-} from "../../State";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
+    withLatestFrom,
+    switchMap,
+} from "rxjs/operators";
+
+import { Node } from "../../graph/Node";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { Component } from "../Component";
+import { IKeyboardConfiguration } from "../interfaces/IKeyboardConfiguration";
+import { HandlerBase } from "../utils/HandlerBase";
+import { Spatial } from "../../geo/Spatial";
+import { IEdge } from "../../graph/edge/interfaces/IEdge";
+import { IEdgeStatus } from "../../graph/interfaces/IEdgeStatus";
+import { IFrame } from "../../state/interfaces/IFrame";
+import { IRotation } from "../../state/interfaces/IRotation";
+import { Camera } from "../../geo/Camera";
+import { EdgeDirection } from "../../graph/edge/EdgeDirection";
+import { AbortMapillaryError } from "../../error/AbortMapillaryError";
+
 
 /**
  * The `KeySpatialNavigationHandler` allows the user to navigate through a sequence using the
@@ -184,5 +180,3 @@ export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfigurat
         return { phi: phi, theta: theta };
     }
 }
-
-export default KeySpatialNavigationHandler;

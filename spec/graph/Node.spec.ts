@@ -1,7 +1,9 @@
-import {NodeHelper} from "../helper/NodeHelper.spec";
-import {ICoreNode, IFillNode} from "../../src/API";
-import {Node, NodeCache} from "../../src/Graph";
-import IMesh from "../../src/api/interfaces/IMesh";
+import { NodeHelper } from "../helper/NodeHelper.spec";
+import { Node } from "../../src/graph/Node";
+import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
+import { IFillNode } from "../../src/api/interfaces/IFillNode";
+import { IMesh } from "../../src/api/interfaces/IMesh";
+import { NodeCache } from "../../src/graph/NodeCache";
 
 describe("Node", () => {
     let helper: NodeHelper;

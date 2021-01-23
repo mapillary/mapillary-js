@@ -1,4 +1,4 @@
-import {MapillaryError} from "./MapillaryError";
+import { MapillaryError } from "./MapillaryError";
 
 /**
  * @class AbortMapillaryError
@@ -7,7 +7,7 @@ import {MapillaryError} from "./MapillaryError";
  * aborted before completing because of a subsequent request.
  */
 export class AbortMapillaryError extends MapillaryError {
-    constructor (message?: string) {
+    constructor(message?: string) {
         super(message != null ? message : "The request was aborted.");
 
         Object.setPrototypeOf(this, AbortMapillaryError.prototype);
@@ -15,5 +15,3 @@ export class AbortMapillaryError extends MapillaryError {
         this.name = "AbortMapillaryError";
     }
 }
-
-export default AbortMapillaryError;

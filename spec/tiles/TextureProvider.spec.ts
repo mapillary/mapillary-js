@@ -1,14 +1,12 @@
-import {empty as observableEmpty, Observable} from "rxjs";
+import { empty as observableEmpty } from "rxjs";
 import * as THREE from "three";
+import { ImageTileLoader } from "../../src/tiles/ImageTileLoader";
+import { ImageTileStore } from "../../src/tiles/ImageTileStore";
+import { IRegionOfInterest } from "../../src/tiles/interfaces/IRegionOfInterest";
+import { TextureProvider } from "../../src/tiles/TextureProvider";
 
-import {MockCreator} from "../helper/MockCreator.spec";
+import { MockCreator } from "../helper/MockCreator.spec";
 
-import {
-    ImageTileLoader,
-    ImageTileStore,
-    IRegionOfInterest,
-    TextureProvider,
-} from "../../src/Tiles";
 
 class RendererMock implements THREE.Renderer {
     public domElement: HTMLCanvasElement = document.createElement("canvas");
@@ -16,7 +14,7 @@ class RendererMock implements THREE.Renderer {
     public getContext(): void { return; }
     public render(s: THREE.Scene, c: THREE.Camera, t?: THREE.WebGLRenderTarget): void { return; }
     public getRenderTarget(): THREE.RenderTarget { return; }
-    public setRenderTarget(t?: THREE.WebGLRenderTarget): void { return; }
+    public setRenderTarget(): void { return; }
     public setSize(w: number, h: number, updateStyle?: boolean): void { return; }
 }
 
@@ -29,7 +27,7 @@ describe("TextureProvider.ctor", () => {
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
-        let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
+        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
         spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
 
         let textureProvider: TextureProvider =
@@ -57,7 +55,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
-        let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
+        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue(
             <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
@@ -79,7 +77,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 rendererMock);
 
         let roi: IRegionOfInterest = {
-            bbox: { maxX: 0, maxY: 0, minX: 0, minY: 0},
+            bbox: { maxX: 0, maxY: 0, minX: 0, minY: 0 },
             pixelHeight: 1 / height,
             pixelWidth: 1 / width,
         };
@@ -109,7 +107,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
-        let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
+        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue(
             <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
@@ -131,7 +129,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 rendererMock);
 
         let roi: IRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0},
+            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0 },
             pixelHeight: 1 / height / 4,
             pixelWidth: 1 / width / 4,
         };
@@ -161,7 +159,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
-        let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
+        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue(
             <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
@@ -183,7 +181,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 rendererMock);
 
         let roi: IRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0},
+            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0 },
             pixelHeight: 2 / height,
             pixelWidth: 2 / width,
         };
@@ -213,7 +211,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
-        let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
+        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue(
             <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
@@ -235,7 +233,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 rendererMock);
 
         let roi: IRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0},
+            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0 },
             pixelHeight: 2,
             pixelWidth: 2,
         };
@@ -265,7 +263,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
-        let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
+        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue(
             <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
@@ -287,7 +285,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 rendererMock);
 
         let roi: IRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 1, minY: 0},
+            bbox: { maxX: 1, maxY: 1, minX: 1, minY: 0 },
             pixelHeight: 1 / height / 2,
             pixelWidth: 1 / width / 2,
         };
@@ -317,7 +315,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
-        let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
+        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue(
             <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
@@ -339,7 +337,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 rendererMock);
 
         let roi: IRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 1},
+            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 1 },
             pixelHeight: 1 / height / 2,
             pixelWidth: 1 / width / 2,
         };
@@ -369,7 +367,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
-        let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
+        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue(
             <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
@@ -391,7 +389,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 rendererMock);
 
         let roi: IRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 1, minY: 1},
+            bbox: { maxX: 1, maxY: 1, minX: 1, minY: 1 },
             pixelHeight: 1 / height / 2,
             pixelWidth: 1 / width / 2,
         };
@@ -421,7 +419,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
-        let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
+        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue(
             <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
@@ -443,7 +441,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 rendererMock);
 
         let roi: IRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0},
+            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0 },
             pixelHeight: 1 / tileSize,
             pixelWidth: 1 / tileSize,
         };
@@ -473,7 +471,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
-        let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
+        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue(
             <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
@@ -495,7 +493,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 rendererMock);
 
         let roi: IRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0},
+            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0 },
             pixelHeight: 2 / tileSize,
             pixelWidth: 2 / tileSize,
         };
@@ -525,7 +523,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
-        let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
+        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue(
             <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 
@@ -547,7 +545,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 rendererMock);
 
         let roi: IRegionOfInterest = {
-            bbox: { maxX: 0.75, maxY: 0.25, minX: 0.25, minY: 0},
+            bbox: { maxX: 0.75, maxY: 0.25, minX: 0.25, minY: 0 },
             pixelHeight: 1 / width,
             pixelWidth: 1 / height,
         };
@@ -586,7 +584,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
-        let rendererMock: THREE.WebGLRenderer = <THREE.WebGLRenderer>new RendererMock();
+        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
         spyOn(rendererMock, "getContext").and.returnValue(
             <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
 

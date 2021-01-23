@@ -1,11 +1,13 @@
 import * as THREE from "three";
 
-import {NodeHelper} from "../helper/NodeHelper.spec";
+import { NodeHelper } from "../helper/NodeHelper.spec";
 
-import {IFillNode} from "../../src/API";
-import {Camera} from "../../src/Geo";
-import {Node} from "../../src/Graph";
-import {IState, TransitionMode, TraversingState} from "../../src/State";
+import { Node } from "../../src/graph/Node";
+import { IFillNode } from "../../src/api/interfaces/IFillNode";
+import { IState } from "../../src/state/interfaces/IState";
+import { TraversingState } from "../../src/state/states/TraversingState";
+import { Camera } from "../../src/geo/Camera";
+import { TransitionMode } from "../../src/state/TransitionMode";
 
 describe("TraversingState.ctor", () => {
     it("should be defined", () => {

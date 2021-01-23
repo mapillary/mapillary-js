@@ -1,4 +1,4 @@
-import MapillaryError from "../../../error/MapillaryError";
+import { MapillaryError } from "../../../error/MapillaryError";
 
 export class GeometryTagError extends MapillaryError {
     constructor(message?: string) {
@@ -9,5 +9,3 @@ export class GeometryTagError extends MapillaryError {
         this.name = "GeometryTagError";
     }
 }
-
-export default GeometryTagError;

@@ -1,26 +1,17 @@
-import {
-    empty as observableEmpty,
-    of as observableOf,
-    Observable,
-    Subject,
-} from "rxjs";
+import { Subject } from "rxjs";
 
-import {
-    Component,
-    CreatePointHandler,
-    Geometry,
-    ITagConfiguration,
-    PointGeometry,
-    TagCreator,
-} from "../../../src/Component";
-import {ViewportCoords} from "../../../src/Geo";
-import {
-    Container,
-    Navigator,
-} from "../../../src/Viewer";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
 
-import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
-import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
+import { Navigator } from "../../../src/viewer/Navigator";
+import { Component } from "../../../src/component/Component";
+import { ITagConfiguration } from "../../../src/component/interfaces/ITagConfiguration";
+import { PointGeometry } from "../../../src/component/tag/geometry/PointGeometry";
+import { CreatePointHandler } from "../../../src/component/tag/handlers/CreatePointHandler";
+import { TagCreator } from "../../../src/component/tag/TagCreator";
+import { ViewportCoords } from "../../../src/geo/ViewportCoords";
+import { Container } from "../../../src/viewer/Container";
+import { Geometry } from "../../../src/component/tag/geometry/Geometry";
 
 class TestComponent extends Component<ITagConfiguration> {
     protected _activate(): void { /*noop*/ }
@@ -114,7 +105,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
         let geometryCreatedCount: number = 0;
         createPointHandler.geometryCreated$
             .subscribe(
-                (geometry: Geometry): void => {
+                (): void => {
                     geometryCreatedCount++;
                 });
 
@@ -142,7 +133,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
         let geometryCreatedCount: number = 0;
         createPointHandler.geometryCreated$
             .subscribe(
-                (geometry: Geometry): void => {
+                (): void => {
                     geometryCreatedCount++;
                 });
 
@@ -176,7 +167,7 @@ describe("CreatePointHandler.geometryCreated$", () => {
         let geometryCreatedCount: number = 0;
         createPointHandler.geometryCreated$
             .subscribe(
-                (geometry: Geometry): void => {
+                (): void => {
                     geometryCreatedCount++;
                 });
 

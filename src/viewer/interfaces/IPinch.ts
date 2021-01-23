@@ -77,5 +77,3 @@ export interface IPinch {
      */
     touch2: Touch;
 }
-
-export default IPinch;

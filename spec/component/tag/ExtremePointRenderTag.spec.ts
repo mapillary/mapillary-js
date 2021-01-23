@@ -1,12 +1,9 @@
 import * as THREE from "three";
+import { PointsGeometry } from "../../../src/component/tag/geometry/PointsGeometry";
+import { ExtremePointRenderTag } from "../../../src/component/tag/tag/ExtremePointRenderTag";
+import { ExtremePointTag } from "../../../src/component/tag/tag/ExtremePointTag";
 
-import {
-    ExtremePointTag,
-    ExtremePointRenderTag,
-    PointsGeometry,
-} from "../../../src/Component";
-
-import {TransformHelper} from "../../helper/TransformHelper.spec";
+import { TransformHelper } from "../../helper/TransformHelper.spec";
 
 describe("ExtremePointRenderTag.ctor", () => {
     it("should be defined", () => {

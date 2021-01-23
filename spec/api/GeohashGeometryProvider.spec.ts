@@ -1,8 +1,7 @@
 import * as geohash from "latlon-geohash";
-
-import GeohashGeometryProvider from "../../src/api/GeohashGeometryProvider";
-import GeoCoords from "../../src/geo/GeoCoords";
-import MapillaryError from "../../src/error/MapillaryError";
+import { GeohashGeometryProvider } from "../../src/api/GeohashGeometryProvider";
+import { MapillaryError } from "../../src/error/MapillaryError";
+import { GeoCoords } from "../../src/geo/GeoCoords";
 
 describe("GeohashGeometryProvider.ctor", () => {
     it("should be defined", () => {

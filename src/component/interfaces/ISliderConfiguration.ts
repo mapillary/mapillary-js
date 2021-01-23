@@ -1,4 +1,4 @@
-import { IComponentConfiguration } from "../../Component";
+import { IComponentConfiguration } from "./IComponentConfiguration";
 
 /**
  * Enumeration for slider mode.
@@ -100,5 +100,3 @@ export interface ISliderConfiguration extends IComponentConfiguration {
      */
     mode?: SliderMode;
 }
-
-export default ISliderConfiguration;

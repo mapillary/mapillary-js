@@ -1,9 +1,7 @@
-import {
-    EdgeDirection,
-    IPano,
-    IStep,
-    ITurn,
-} from "../../Edge";
+import { EdgeDirection } from "./EdgeDirection";
+import { IPano } from "./interfaces/IPano";
+import { IStep } from "./interfaces/IStep";
+import { ITurn } from "./interfaces/ITurn";
 
 export class EdgeCalculatorDirections {
 

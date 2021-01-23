@@ -1,37 +1,34 @@
 import {
-    concat as observableConcat,
-    merge as observableMerge,
     combineLatest as observableCombineLatest,
+    concat as observableConcat,
     fromEvent as observableFromEvent,
+    merge as observableMerge,
     of as observableOf,
     BehaviorSubject,
     Observable,
     Subject,
-    Subscription,
 } from "rxjs";
 
 import {
-    switchMap,
+    bufferCount,
     distinctUntilChanged,
+    filter,
+    first,
+    map,
     publishReplay,
     refCount,
     scan,
-    map,
-    startWith,
-    filter,
     share,
-    takeUntil,
+    startWith,
+    switchMap,
     take,
+    takeUntil,
     withLatestFrom,
-    first,
-    bufferCount,
 } from "rxjs/operators";
 
-import {
-    IMouseClaim,
-    IMouseDeferPixels,
-} from "../Viewer";
-import SubscriptionHolder from "../utils/SubscriptionHolder";
+import { IMouseClaim } from "./interfaces/IMouseClaim";
+import { IMouseDeferPixels } from "./interfaces/IMouseDeferPixels";
+import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
 export class MouseService {
     private _activeSubject$: BehaviorSubject<boolean>;
@@ -242,7 +239,7 @@ export class MouseService {
 
         this._staticClick$ = this._mouseDown$.pipe(
             switchMap(
-                (e: MouseEvent): Observable<MouseEvent> => {
+                (): Observable<MouseEvent> => {
                     return this._click$.pipe(
                         takeUntil(this._documentMouseMove$),
                         take(1));
@@ -428,11 +425,11 @@ export class MouseService {
                 }),
             withLatestFrom(this._deferPixels$),
             filter(
-                ([[mouseMove, delta], deferPixels]: [[MouseEvent, number], number]): boolean => {
+                ([[, delta], deferPixels]: [[MouseEvent, number], number]): boolean => {
                     return delta > deferPixels;
                 }),
             map(
-                ([[mouseMove, delta], deferPixels]: [[MouseEvent, number], number]): MouseEvent => {
+                ([[mouseMove]]: [[MouseEvent, number], number]): MouseEvent => {
                     return mouseMove;
                 }));
     }
@@ -443,7 +440,7 @@ export class MouseService {
 
         return mouseDragStartInitiate$.pipe(
             map(
-                ([mouseDown, mouseMove]: [MouseEvent, MouseEvent]): MouseEvent => {
+                ([, mouseMove]: [MouseEvent, MouseEvent]): MouseEvent => {
                     return mouseMove;
                 }),
             switchMap(
@@ -458,7 +455,7 @@ export class MouseService {
     private _createMouseDragEnd$<T>(mouseDragStart$: Observable<MouseEvent>, stop$: Observable<T>): Observable<T> {
         return mouseDragStart$.pipe(
             switchMap(
-                (event: MouseEvent): Observable<T> => {
+                (): Observable<T> => {
                     return stop$.pipe(first());
                 }));
     }
@@ -466,7 +463,7 @@ export class MouseService {
     private _createMouseDragStart$(mouseDragStartInitiate$: Observable<[MouseEvent, MouseEvent]>): Observable<MouseEvent> {
         return mouseDragStartInitiate$.pipe(
             map(
-                ([mouseDown, mouseMove]: [MouseEvent, MouseEvent]): MouseEvent => {
+                ([mouseDown]: [MouseEvent, MouseEvent]): MouseEvent => {
                     return mouseDown;
                 }));
     }
@@ -531,14 +528,12 @@ export class MouseService {
         return observable$.pipe(
             withLatestFrom(owner$),
             filter(
-                ([item, owner]: [T, string]): boolean => {
+                ([, owner]: [T, string]): boolean => {
                     return owner === name;
                 }),
             map(
-                ([item, owner]: [T, string]): T => {
+                ([item]: [T, string]): T => {
                     return item;
                 }));
     }
 }
-
-export default MouseService;

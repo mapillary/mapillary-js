@@ -1,13 +1,10 @@
 import * as THREE from "three";
+import { PolygonGeometry } from "../../../src/component/tag/geometry/PolygonGeometry";
+import { RectGeometry } from "../../../src/component/tag/geometry/RectGeometry";
+import { OutlineRenderTag } from "../../../src/component/tag/tag/OutlineRenderTag";
+import { OutlineTag } from "../../../src/component/tag/tag/OutlineTag";
 
-import {
-    OutlineTag,
-    OutlineRenderTag,
-    PolygonGeometry,
-    RectGeometry,
-} from "../../../src/Component";
-
-import {TransformHelper} from "../../helper/TransformHelper.spec";
+import { TransformHelper } from "../../helper/TransformHelper.spec";
 
 describe("OutlineRenderTag.ctor", () => {
     it("should be defined", () => {
@@ -49,10 +46,10 @@ describe("OutlineRenderTag.getRetrievableObjects", () => {
             new OutlineRenderTag(outlineTag, new TransformHelper().createTransform({
                 CroppedAreaImageHeightPixels: 1,
                 CroppedAreaImageWidthPixels: 1,
-                 CroppedAreaLeftPixels: 0,
-                 CroppedAreaTopPixels: 0,
-                 FullPanoHeightPixels: 1,
-                 FullPanoWidthPixels: 1,
+                CroppedAreaLeftPixels: 0,
+                CroppedAreaTopPixels: 0,
+                FullPanoHeightPixels: 1,
+                FullPanoWidthPixels: 1,
             }));
 
         const retrievableObjects: THREE.Object3D[] = outlineRenderTag.getRetrievableObjects();
@@ -73,10 +70,10 @@ describe("OutlineRenderTag.getRetrievableObjects", () => {
             new OutlineRenderTag(outlineTag, new TransformHelper().createTransform({
                 CroppedAreaImageHeightPixels: 1,
                 CroppedAreaImageWidthPixels: 1,
-                 CroppedAreaLeftPixels: 0,
-                 CroppedAreaTopPixels: 0,
-                 FullPanoHeightPixels: 1,
-                 FullPanoWidthPixels: 1,
+                CroppedAreaLeftPixels: 0,
+                CroppedAreaTopPixels: 0,
+                FullPanoHeightPixels: 1,
+                FullPanoWidthPixels: 1,
             }));
 
         const retrievableObjects: THREE.Object3D[] = outlineRenderTag.getRetrievableObjects();

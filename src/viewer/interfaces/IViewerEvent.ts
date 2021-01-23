@@ -1,4 +1,4 @@
-import {Viewer} from "../../Viewer";
+import { Viewer } from "../Viewer";
 
 /**
  * @interface IViewerEvent
@@ -16,5 +16,3 @@ export interface IViewerEvent {
      */
     type: string;
 }
-
-export default IViewerEvent;

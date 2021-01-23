@@ -1,10 +1,7 @@
-import {
-    ICurrentState,
-    IRotation,
-    State,
-    TransitionMode,
-} from "../../State";
-import {Node} from "../../Graph";
+import { ICurrentState } from "./ICurrentState";
+import { IRotation } from "./IRotation";
+import { TransitionMode } from "../TransitionMode";
+import { Node } from "../../graph/Node";
 
 export interface IStateContext extends ICurrentState {
     earth(): void;

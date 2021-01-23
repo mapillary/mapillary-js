@@ -1,11 +1,12 @@
+import { Node } from "./Node";
 import {
     FilterExpression,
     FilterOperation,
     FilterOperator,
     FilterValue,
-    Node,
-} from "../Graph";
-import {Func} from "../Utils";
+} from "./FilterExpression";
+
+import { Func } from "../utils/Func";
 
 export type FilterFunction = Func<Node, boolean>;
 
@@ -53,18 +54,18 @@ export class FilterCreator {
         const operator: FilterOperator = <FilterOperator>filter[0];
         const operation: string =
             operator === "==" ? this._compileComparisonOp("===", <string>filter[1], filter[2], false) :
-            operator === "!=" ? this._compileComparisonOp("!==", <string>filter[1], filter[2], false) :
-            operator === ">" ||
-            operator === ">=" ||
-            operator === "<" ||
-            operator === "<=" ? this._compileComparisonOp(operator, <string>filter[1], filter[2], true) :
-            operator === "in" ?
-                this._compileInOp<FilterValue>(<string>filter[1], <FilterValue[]>filter.slice(2)) :
-            operator === "!in" ?
-                this._compileNegation(
-                    this._compileInOp<FilterValue>(<string>filter[1], <FilterValue[]>filter.slice(2))) :
-            operator === "all" ? this._compileLogicalOp(<FilterOperation[]>filter.slice(1), "&&") :
-            "true";
+                operator === "!=" ? this._compileComparisonOp("!==", <string>filter[1], filter[2], false) :
+                    operator === ">" ||
+                        operator === ">=" ||
+                        operator === "<" ||
+                        operator === "<=" ? this._compileComparisonOp(operator, <string>filter[1], filter[2], true) :
+                        operator === "in" ?
+                            this._compileInOp<FilterValue>(<string>filter[1], <FilterValue[]>filter.slice(2)) :
+                            operator === "!in" ?
+                                this._compileNegation(
+                                    this._compileInOp<FilterValue>(<string>filter[1], <FilterValue[]>filter.slice(2))) :
+                                operator === "all" ? this._compileLogicalOp(<FilterOperation[]>filter.slice(1), "&&") :
+                                    "true";
 
         return "(" + operation + ")";
     }
@@ -102,5 +103,3 @@ export class FilterCreator {
         return "node[" + JSON.stringify(property) + "]";
     }
 }
-
-export default FilterCreator;

@@ -1,16 +1,18 @@
-import {Observable, Subject} from "rxjs";
-
 import {
-    OutlineRenderTag,
-    OutlineTag,
-    RenderTag,
-    SpotRenderTag,
-    SpotTag,
-    Tag,
-} from "../../Component";
-import {Transform} from "../../Geo";
-import ExtremePointTag from "./tag/ExtremePointTag";
-import ExtremePointRenderTag from "./tag/ExtremePointRenderTag";
+    Observable,
+    Subject,
+} from "rxjs";
+
+import { ExtremePointRenderTag } from "./tag/ExtremePointRenderTag";
+import { ExtremePointTag } from "./tag/ExtremePointTag";
+import { OutlineRenderTag } from "./tag/OutlineRenderTag";
+import { OutlineTag } from "./tag/OutlineTag";
+import { RenderTag } from "./tag/RenderTag";
+import { SpotRenderTag } from "./tag/SpotRenderTag";
+import { SpotTag } from "./tag/SpotTag";
+import { Tag } from "./tag/Tag";
+
+import { Transform } from "../../geo/Transform";
 
 export class TagSet {
     private _active: boolean;
@@ -90,7 +92,7 @@ export class TagSet {
                 tag instanceof OutlineTag ||
                 tag instanceof SpotTag ||
                 tag instanceof ExtremePointTag
-                )) {
+            )) {
                 throw new Error("Tag type not supported");
             }
 
@@ -194,5 +196,3 @@ export class TagSet {
         }
     }
 }
-
-export default TagSet;

@@ -1,11 +1,8 @@
-import {Subject} from "rxjs";
-
-import {
-    CreateVertexHandler,
-    OutlineCreateTag,
-    PolygonGeometry,
-} from "../../../Component";
-import {Transform} from "../../../Geo";
+import { Subject } from "rxjs";
+import { Transform } from "../../../geo/Transform";
+import { PolygonGeometry } from "../geometry/PolygonGeometry";
+import { OutlineCreateTag } from "../tag/OutlineCreateTag";
+import { CreateVertexHandler } from "./CreateVertexHandler";
 
 export class CreatePolygonHandler extends CreateVertexHandler {
     protected get _create$(): Subject<number[]> {
@@ -24,5 +21,3 @@ export class CreatePolygonHandler extends CreateVertexHandler {
         tag.geometry.setVertex2d((<PolygonGeometry>tag.geometry).polygon.length - 2, basicPoint, transform);
     }
 }
-
-export default CreatePolygonHandler;

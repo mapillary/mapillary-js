@@ -1,4 +1,4 @@
-import ILatLon from "./ILatLon";
+import { ILatLon } from "./ILatLon";
 
 /**
  * Interface that describes a cell neighbors object.
@@ -73,5 +73,3 @@ export interface ICellCorners {
      */
     sw: ILatLon;
 }
-
-export default ICellCorners;

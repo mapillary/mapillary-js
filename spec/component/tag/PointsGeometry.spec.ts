@@ -1,6 +1,7 @@
-import {PointsGeometry, GeometryTagError} from "../../../src/Component";
-import {Transform} from "../../../src/Geo";
-import TransformHelper from "../../helper/FrameHelper.spec";
+import { Transform } from "../../../src/geo/Transform";
+import { GeometryTagError } from "../../../src/component/tag/error/GeometryTagError";
+import { PointsGeometry } from "../../../src/component/tag/geometry/PointsGeometry";
+import { TransformHelper } from "../../helper/TransformHelper.spec";
 
 describe("PointsGeometry.ctor", () => {
     it("should be defined", () => {

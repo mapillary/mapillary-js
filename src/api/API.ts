@@ -1,12 +1,14 @@
-import { Observable, Subscriber, throwError as observableThrowError } from "rxjs";
-
 import {
-    ICoreNode,
-    IFillNode,
-    IFullNode,
-    ISequence,
-} from "../API";
-import { IDataProvider } from "./interfaces/interfaces";
+    Observable,
+    Subscriber,
+} from "rxjs";
+
+import { ICoreNode } from "./interfaces/ICoreNode";
+import { IDataProvider } from "./interfaces/IDataProvider";
+import { IFillNode } from "./interfaces/IFillNode";
+import { IFullNode } from "./interfaces/IFullNode";
+import { ISequence } from "./interfaces/ISequence";
+
 
 /**
  * @class API
@@ -56,5 +58,3 @@ export class API {
                 });
     }
 }
-
-export default API;

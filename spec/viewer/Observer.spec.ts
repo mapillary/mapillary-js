@@ -1,14 +1,12 @@
-import {Subject} from "rxjs";
+import { Subject } from "rxjs";
 
-import {EventEmitter} from "../../src/Utils";
-import {
-    Navigator,
-    Observer,
-    Viewer,
-} from "../../src/Viewer";
+import { Navigator } from "../../src/viewer/Navigator";
 
-import {ContainerMockCreator} from "../helper/ContainerMockCreator.spec";
-import {NavigatorMockCreator} from "../helper/NavigatorMockCreator.spec";
+import { ContainerMockCreator } from "../helper/ContainerMockCreator.spec";
+import { NavigatorMockCreator } from "../helper/NavigatorMockCreator.spec";
+import { EventEmitter } from "../../src/utils/EventEmitter";
+import { Observer } from "../../src/viewer/Observer";
+import { Viewer } from "../../src/viewer/Viewer";
 
 describe("Observer.ctor", () => {
     it("should be defined", () => {

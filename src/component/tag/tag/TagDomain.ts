@@ -25,5 +25,3 @@ export enum TagDomain {
      */
     ThreeDimensional,
 }
-
-export default TagDomain;

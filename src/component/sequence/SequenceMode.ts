@@ -3,5 +3,3 @@ export enum SequenceMode {
     Playback,
     Timeline,
 }
-
-export default SequenceMode;

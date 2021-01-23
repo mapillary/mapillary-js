@@ -1,35 +1,38 @@
-import {distinctUntilChanged, map, switchMap, takeWhile, scan, skip} from "rxjs/operators";
 import * as vd from "virtual-dom";
 import * as UnitBezier from "@mapbox/unitbezier";
 
 import {
-    Observable,
-    Subscription,
     combineLatest as observableCombineLatest,
+    Observable,
     Subject,
+    Subscription,
 } from "rxjs";
 
 import {
-    Component,
-    ComponentService,
-} from "../Component";
-import {
-    Spatial, Transform, Geo,
-} from "../Geo";
-import {Node} from "../Graph";
-import {
-    IVNodeHash,
-    RenderCamera,
-} from "../Render";
-import {
-    Container,
-    Navigator,
-} from "../Viewer";
+    distinctUntilChanged,
+    map,
+    scan,
+    skip,
+    switchMap,
+    takeWhile,
+} from "rxjs/operators";
+
+import * as Geo from "../geo/Geo";
+
+import { Component } from "./Component";
+import { IBearingConfiguration } from "./interfaces/IBearingConfiguration";
+
+import { Spatial } from "../geo/Spatial";
+import { Transform } from "../geo/Transform";
+import { ViewportCoords } from "../geo/ViewportCoords";
+import { Node } from "../graph/Node";
+import { RenderCamera } from "../render/RenderCamera";
+import { ISize } from "../render/interfaces/ISize";
+import { IVNodeHash } from "../render/interfaces/IVNodeHash";
 import { IFrame } from "../state/interfaces/IFrame";
-import ViewportCoords from "../geo/ViewportCoords";
-import IBearingConfiguration from "./interfaces/IBearingConfiguration";
-import ISize from "../render/interfaces/ISize";
-import ComponentSize from "./utils/ComponentSize";
+import { ComponentSize } from "./utils/ComponentSize";
+import { Container } from "../viewer/Container";
+import { Navigator } from "../viewer/Navigator";
 
 type NodeFov = [number, number];
 
@@ -255,33 +258,33 @@ export class BearingComponent extends Component<IBearingConfiguration> {
             nodeBearingFov$,
             this._configuration$,
             this._container.renderService.size$).pipe(
-            map(
-                ([[cb, cf], [no, nfl, nfr], configuration, size]:
-                    [[number, number], [number, number, number], IBearingConfiguration, ISize]): IVNodeHash => {
+                map(
+                    ([[cb, cf], [no, nfl, nfr], configuration, size]:
+                        [[number, number], [number, number, number], IBearingConfiguration, ISize]): IVNodeHash => {
 
-                    const background: vd.VNode = this._createBackground(cb);
-                    const fovIndicator: vd.VNode = this._createFovIndicator(nfl, nfr, no);
-                    const north: vd.VNode = this._createNorth(cb);
-                    const cameraSector: vd.VNode = this._createCircleSectorCompass(
+                        const background: vd.VNode = this._createBackground(cb);
+                        const fovIndicator: vd.VNode = this._createFovIndicator(nfl, nfr, no);
+                        const north: vd.VNode = this._createNorth(cb);
+                        const cameraSector: vd.VNode = this._createCircleSectorCompass(
                             this._createCircleSector(Math.max(Math.PI / 20, cf), "#FFF"));
 
-                    const compact: string = configuration.size === ComponentSize.Small ||
-                        configuration.size === ComponentSize.Automatic && size.width < 640 ?
-                        ".BearingCompact" : "";
+                        const compact: string = configuration.size === ComponentSize.Small ||
+                            configuration.size === ComponentSize.Automatic && size.width < 640 ?
+                            ".BearingCompact" : "";
 
-                    return {
-                        name: this._name,
-                        vnode: vd.h(
-                            "div.BearingIndicatorContainer" + compact,
-                            { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
-                            [
-                                background,
-                                fovIndicator,
-                                north,
-                                cameraSector,
-                            ]),
-                    };
-                }))
+                        return {
+                            name: this._name,
+                            vnode: vd.h(
+                                "div.BearingIndicatorContainer" + compact,
+                                { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
+                                [
+                                    background,
+                                    fovIndicator,
+                                    north,
+                                    cameraSector,
+                                ]),
+                        };
+                    }))
             .subscribe(this._container.domRenderer.render$);
     }
 
@@ -343,7 +346,7 @@ export class BearingComponent extends Component<IBearingConfiguration> {
                         r: `${radius}`,
                         stroke: "#FFF",
                         "stroke-width":
-                        `${strokeWidth}`,
+                            `${strokeWidth}`,
                     },
                     namespace: this._svgNamespace,
                 },
@@ -409,12 +412,12 @@ export class BearingComponent extends Component<IBearingConfiguration> {
     private _createCircleSector(fov: number, fill: string): vd.VNode {
         if (fov > 2 * Math.PI - Math.PI / 90) {
             return vd.h(
-            "circle",
-            {
-                attributes: { cx: "0", cy: "0", fill: fill, r: "1" },
-                namespace: this._svgNamespace,
-            },
-            []);
+                "circle",
+                {
+                    attributes: { cx: "0", cy: "0", fill: fill, r: "1" },
+                    namespace: this._svgNamespace,
+                },
+                []);
         }
 
         let arcStart: number = -Math.PI / 2 - fov / 2;
@@ -491,6 +494,3 @@ export class BearingComponent extends Component<IBearingConfiguration> {
         return (1 - alpha) * x1 + alpha * x2;
     }
 }
-
-ComponentService.register(BearingComponent);
-export default BearingComponent;

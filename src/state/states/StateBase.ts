@@ -1,18 +1,15 @@
-import { ArgumentMapillaryError } from "../../Error";
-import { Node } from "../../Graph";
-import {
-    Camera,
-    Geo,
-    GeoCoords,
-    ILatLonAlt,
-    Transform,
-    Spatial,
-} from "../../Geo";
-import {
-    IRotation,
-    IState,
-    TransitionMode,
-} from "../../State";
+import * as Geo from "../../geo/Geo";
+
+import { TransitionMode } from "../TransitionMode";
+import { IRotation } from "../interfaces/IRotation";
+import { IState } from "../interfaces/IState";
+import { ArgumentMapillaryError } from "../../error/ArgumentMapillaryError";
+import { Camera } from "../../geo/Camera";
+import { GeoCoords } from "../../geo/GeoCoords";
+import { Spatial } from "../../geo/Spatial";
+import { Transform } from "../../geo/Transform";
+import { ILatLonAlt } from "../../geo/interfaces/ILatLonAlt";
+import { Node } from "../../graph/Node";
 
 export abstract class StateBase implements IState {
     protected _spatial: Spatial;

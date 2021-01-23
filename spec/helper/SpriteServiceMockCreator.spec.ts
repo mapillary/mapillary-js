@@ -1,11 +1,9 @@
-import {Subject} from "rxjs";
+import { Subject } from "rxjs";
+import { ISpriteAtlas } from "../../src/viewer/interfaces/ISpriteAtlas";
+import { SpriteService } from "../../src/viewer/SpriteService";
 
-import {MockCreator} from "./MockCreator.spec";
-import {MockCreatorBase} from "./MockCreatorBase.spec";
-import {
-    ISpriteAtlas,
-    SpriteService,
-} from "../../src/Viewer";
+import { MockCreator } from "./MockCreator.spec";
+import { MockCreatorBase } from "./MockCreatorBase.spec";
 
 export class SpriteServiceMockCreator extends MockCreatorBase<SpriteService> {
     public create(): SpriteService {
@@ -16,5 +14,3 @@ export class SpriteServiceMockCreator extends MockCreatorBase<SpriteService> {
         return mock;
     }
 }
-
-export default SpriteServiceMockCreator;

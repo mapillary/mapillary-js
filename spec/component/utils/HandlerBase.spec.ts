@@ -1,16 +1,12 @@
-import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
-import {MockCreator} from "../../helper/MockCreator.spec";
-import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
+import { MockCreator } from "../../helper/MockCreator.spec";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
 
-import {
-    Component,
-    IComponentConfiguration,
-    HandlerBase,
-} from "../../../src/Component";
-import {
-    Container,
-    Navigator,
-} from "../../../src/Viewer";
+import { Navigator } from "../../../src/viewer/Navigator";
+import { Component } from "../../../src/component/Component";
+import { IComponentConfiguration } from "../../../src/component/interfaces/IComponentConfiguration";
+import { HandlerBase } from "../../../src/component/utils/HandlerBase";
+import { Container } from "../../../src/viewer/Container";
 
 interface ITestConfiguration extends IComponentConfiguration {
     test: boolean;

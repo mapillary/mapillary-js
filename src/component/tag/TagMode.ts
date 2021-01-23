@@ -38,5 +38,3 @@ export enum TagMode {
      */
     CreateRectDrag,
 }
-
-export default TagMode;

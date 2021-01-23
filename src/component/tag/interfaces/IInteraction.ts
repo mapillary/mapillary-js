@@ -1,6 +1,7 @@
-import {Tag, TagOperation} from "../../../Component";
+import { Tag } from "../tag/Tag";
+import { TagOperation } from "../TagOperation";
 
-export type InteractionCursor = "crosshair" | "move" |"nesw-resize" | "nwse-resize";
+export type InteractionCursor = "crosshair" | "move" | "nesw-resize" | "nwse-resize";
 
 export interface IInteraction {
     cursor?: InteractionCursor;
@@ -10,5 +11,3 @@ export interface IInteraction {
     tag: Tag;
     vertexIndex?: number;
 }
-
-export default IInteraction;

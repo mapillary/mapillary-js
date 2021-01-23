@@ -49,5 +49,3 @@ export enum Alignment {
      */
     TopRight,
 }
-
-export default Alignment;

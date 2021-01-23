@@ -1,16 +1,16 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {
-    InteractionCursor,
-    RectGeometry,
-    TagOperation,
-    ExtremePointTag,
-    OutlineRenderTagBase,
-} from "../../../Component";
-import {Transform} from "../../../Geo";
-import {ISize} from "../../../Render";
-import {ISpriteAtlas} from "../../../Viewer";
+import { TagOperation } from "../TagOperation";
+import { ExtremePointTag } from "./ExtremePointTag";
+import { OutlineRenderTagBase } from "./OutlineRenderTagBase";
+
+import { RectGeometry } from "../geometry/RectGeometry";
+import { InteractionCursor } from "../interfaces/IInteraction";
+
+import { Transform } from "../../../geo/Transform";
+import { ISize } from "../../../render/interfaces/ISize";
+import { ISpriteAtlas } from "../../../viewer/interfaces/ISpriteAtlas";
 
 /**
  * @class OutlineRenderTag
@@ -173,5 +173,3 @@ export class ExtremePointRenderTag extends OutlineRenderTagBase<ExtremePointTag>
         this._updateLineBasicMaterial(material);
     }
 }
-
-export default ExtremePointRenderTag;

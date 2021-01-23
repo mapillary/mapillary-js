@@ -1,34 +1,30 @@
-import { of as observableOf, throwError as observableThrowError, empty as observableEmpty, Observable, Subject } from "rxjs";
-
+import {
+    empty as observableEmpty,
+    of as observableOf,
+    throwError as observableThrowError,
+    Observable,
+    Subject,
+} from "rxjs";
 import { first } from "rxjs/operators";
 
 import { NodeHelper } from "../helper/NodeHelper.spec";
 import { StateServiceMockCreator } from "../helper/StateServiceMockCreator.spec";
 
-import {
-    ICoreNode,
-    IFullNode,
-} from "../../src/API";
+import { Navigator } from "../../src/viewer/Navigator";
+import { Node } from "../../src/graph/Node";
+import { API } from "../../src/api/API";
+import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
+import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
+import { Graph } from "../../src/graph/Graph";
+import { GraphService } from "../../src/graph/GraphService";
+import { ICurrentState } from "../../src/state/interfaces/ICurrentState";
+import { IFrame } from "../../src/state/interfaces/IFrame";
+import { State } from "../../src/state/State";
+import { StateService } from "../../src/state/StateService";
+import { CacheService } from "../../src/viewer/CacheService";
+import { LoadingService } from "../../src/viewer/LoadingService";
+import { AbortMapillaryError } from "../../src/error/AbortMapillaryError";
 import { EdgeDirection } from "../../src/graph/edge/EdgeDirection";
-import { AbortMapillaryError } from "../../src/Error";
-import {
-    Graph,
-    GraphService,
-    Node,
-} from "../../src/Graph";
-import {
-    ICurrentState,
-    IFrame,
-    StateService,
-    State,
-} from "../../src/State";
-import {
-    CacheService,
-    LoadingService,
-    Navigator,
-} from "../../src/Viewer";
-import API from "../../src/api/API";
-import FalcorDataProvider from "../../src/api/FalcorDataProvider";
 
 const createState: () => ICurrentState = (): ICurrentState => {
     return {
@@ -176,8 +172,8 @@ describe("Navigator.moveToKey$", () => {
 
         navigator.moveToKey$(key)
             .subscribe(
-                (n: Node): void => { return; },
-                (e: Error): void => { return; });
+                (): void => { return; },
+                (): void => { return; });
 
         expect(stateSpy.calls.count()).toBe(0);
 
@@ -525,7 +521,7 @@ describe("Navigator.setFilter$", () => {
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
         let firstEmit: boolean = true;
         cacheNodeSpy.and.callFake(
-            (key: string): Observable<Node> => {
+            (): Observable<Node> => {
                 if (firstEmit) {
                     firstEmit = false;
                     return new Subject<Node>();
@@ -594,7 +590,7 @@ describe("Navigator.setFilter$", () => {
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
         let firstEmit: boolean = true;
         cacheNodeSpy.and.callFake(
-            (key: string): Observable<Node> => {
+            (): Observable<Node> => {
                 if (firstEmit) {
                     firstEmit = false;
                     return cacheNodeSubject1$;
@@ -739,7 +735,7 @@ describe("Navigator.setToken$", () => {
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
         let firstEmit: boolean = true;
         cacheNodeSpy.and.callFake(
-            (key: string): Observable<Node> => {
+            (): Observable<Node> => {
                 if (firstEmit) {
                     firstEmit = false;
                     return cacheNodeSubject1$;

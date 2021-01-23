@@ -9,17 +9,20 @@ import {
     tap,
     withLatestFrom,
 } from "rxjs/operators";
+
 import {
     BehaviorSubject,
     Observable,
     Subject,
-    Subscription,
 } from "rxjs";
 
-import { Spatial } from "../Geo";
-import { RenderCamera, RenderMode, ISize } from "../Render";
-import { IFrame } from "../State";
-import SubscriptionHolder from "../utils/SubscriptionHolder";
+import { RenderCamera } from "./RenderCamera";
+import { RenderMode } from "./RenderMode";
+import { ISize } from "./interfaces/ISize";
+
+import { Spatial } from "../geo/Spatial";
+import { IFrame } from "../state/interfaces/IFrame";
+import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
 interface IRenderCameraOperation {
     (rc: RenderCamera): RenderCamera;
@@ -183,5 +186,3 @@ export class RenderService {
         this._subscriptions.unsubscribe();
     }
 }
-
-export default RenderService;

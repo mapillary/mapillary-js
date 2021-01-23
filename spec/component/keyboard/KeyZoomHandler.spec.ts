@@ -1,30 +1,22 @@
 import * as THREE from "three";
 
-import {Subject} from "rxjs";
+import { Subject } from "rxjs";
 
-import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
-import {EventHelper} from "../../helper/EventHelper.spec";
-import {MockCreator} from "../../helper/MockCreator.spec";
-import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
-import {TransformHelper} from "../../helper/TransformHelper.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
+import { EventHelper } from "../../helper/EventHelper.spec";
+import { MockCreator } from "../../helper/MockCreator.spec";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
+import { TransformHelper } from "../../helper/TransformHelper.spec";
 
-import {
-    Component,
-    IComponentConfiguration,
-    KeyZoomHandler,
-} from "../../../src/Component";
-import {
-    Transform,
-    ViewportCoords,
-} from "../../../src/Geo";
-import {
-    RenderCamera,
-    RenderMode,
-} from "../../../src/Render";
-import {
-    Container,
-    Navigator,
-} from "../../../src/Viewer";
+import { Navigator } from "../../../src/viewer/Navigator";
+import { Transform } from "../../../src/geo/Transform";
+import { Component } from "../../../src/component/Component";
+import { IComponentConfiguration } from "../../../src/component/interfaces/IComponentConfiguration";
+import { KeyZoomHandler } from "../../../src/component/keyboard/KeyZoomHandler";
+import { ViewportCoords } from "../../../src/geo/ViewportCoords";
+import { RenderCamera } from "../../../src/render/RenderCamera";
+import { Container } from "../../../src/viewer/Container";
+import { RenderMode } from "../../../src/render/RenderMode";
 
 interface ITestConfiguration extends IComponentConfiguration {
     test: boolean;

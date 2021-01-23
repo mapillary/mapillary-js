@@ -1,17 +1,15 @@
-import {
-    IBearingConfiguration,
-    ICacheConfiguration,
-    IDirectionConfiguration,
-    IKeyboardConfiguration,
-    IMarkerConfiguration,
-    IMouseConfiguration,
-    INavigationConfiguration,
-    ISequenceConfiguration,
-    ISliderConfiguration,
-    ISpatialDataConfiguration,
-    ITagConfiguration,
-    IZoomConfiguration,
-} from "../../Component";
+import { IBearingConfiguration } from "../../component/interfaces/IBearingConfiguration";
+import { ICacheConfiguration } from "../../component/interfaces/ICacheConfiguration";
+import { IDirectionConfiguration } from "../../component/interfaces/IDirectionConfiguration";
+import { IKeyboardConfiguration } from "../../component/interfaces/IKeyboardConfiguration";
+import { IMarkerConfiguration } from "../../component/interfaces/IMarkerConfiguration";
+import { IMouseConfiguration } from "../../component/interfaces/IMouseConfiguration";
+import { INavigationConfiguration } from "../../component/interfaces/INavigationConfiguration";
+import { ISequenceConfiguration } from "../../component/interfaces/ISequenceConfiguration";
+import { ISliderConfiguration } from "../../component/interfaces/ISliderConfiguration";
+import { ISpatialDataConfiguration } from "../../component/interfaces/ISpatialDataConfiguration";
+import { ITagConfiguration } from "../../component/interfaces/ITagConfiguration";
+import { IZoomConfiguration } from "../../component/interfaces/IZoomConfiguration";
 
 /**
  * Interface for the component options that can be provided to the viewer.
@@ -185,5 +183,3 @@ export interface IComponentOptions {
      */
     zoom?: boolean | IZoomConfiguration;
 }
-
-export default IComponentOptions;

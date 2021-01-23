@@ -1,7 +1,6 @@
 import * as THREE from "three";
-
-import {ILatLon} from "../../API";
-import {Marker} from "../../Component";
+import { ILatLon } from "../../api/interfaces/ILatLon";
+import { Marker } from "./marker/Marker";
 
 export class MarkerScene {
     private _needsRender: boolean;
@@ -142,5 +141,3 @@ export class MarkerScene {
         delete this._markers[id];
     }
 }
-
-export default MarkerScene;

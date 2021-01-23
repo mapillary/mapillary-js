@@ -1,7 +1,5 @@
-import {
-    ImageSize,
-    IViewerOptions,
-} from "../Viewer";
+import { ImageSize } from "../viewer/ImageSize";
+import { IViewerOptions } from "../viewer/interfaces/IViewerOptions";
 
 export class Settings {
     private static _baseImageSize: number;
@@ -34,5 +32,3 @@ export class Settings {
             ImageSize.Size2048;
     }
 }
-
-export default Settings;

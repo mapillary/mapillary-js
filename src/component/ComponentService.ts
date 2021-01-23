@@ -1,6 +1,10 @@
-import { ArgumentMapillaryError } from "../Error";
-import { Container, Navigator } from "../Viewer";
-import { CoverComponent, Component, IComponentConfiguration } from "../Component";
+import { Component } from "./Component";
+import { CoverComponent } from "./CoverComponent";
+import { IComponentConfiguration } from "./interfaces/IComponentConfiguration";
+
+import { ArgumentMapillaryError } from "../error/ArgumentMapillaryError";
+import { Container } from "../viewer/Container";
+import { Navigator } from "../viewer/Navigator";
 
 interface IActiveComponent {
     active: boolean;
@@ -139,5 +143,3 @@ export class ComponentService {
         }
     }
 }
-
-export default ComponentService;

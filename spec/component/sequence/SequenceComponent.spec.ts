@@ -1,27 +1,21 @@
 
-import { of as observableOf, Observable, ReplaySubject, Subject, VirtualTimeScheduler } from "rxjs";
-
-import {
-    SequenceComponent,
-    SequenceDOMRenderer,
-} from "../../../src/Component";
-import {
-    GraphMode,
-    IEdgeStatus,
-    Node,
-    Sequence,
-} from "../../../src/Graph";
-import { ISize } from "../../../src/Render";
-import {
-    Container,
-    Navigator,
-} from "../../../src/Viewer";
+import { of as observableOf, ReplaySubject, Subject, VirtualTimeScheduler } from "rxjs";
 
 import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
 import { MockCreator } from "../../helper/MockCreator.spec";
 import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
 import { NodeHelper } from "../../helper/NodeHelper.spec";
-import State from "../../../src/state/State";
+
+import { Navigator } from "../../../src/viewer/Navigator";
+import { Node } from "../../../src/graph/Node";
+import { SequenceComponent } from "../../../src/component/sequence/SequenceComponent";
+import { SequenceDOMRenderer } from "../../../src/component/sequence/SequenceDOMRenderer";
+import { GraphMode } from "../../../src/graph/GraphMode";
+import { IEdgeStatus } from "../../../src/graph/interfaces/IEdgeStatus";
+import { Sequence } from "../../../src/graph/Sequence";
+import { ISize } from "../../../src/render/interfaces/ISize";
+import { State } from "../../../src/state/State";
+import { Container } from "../../../src/viewer/Container";
 
 describe("SequenceComponent.ctor", () => {
     it("should be defined", () => {

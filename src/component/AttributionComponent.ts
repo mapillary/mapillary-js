@@ -1,23 +1,21 @@
-import { combineLatest as observableCombineLatest, Observable, Subscription } from "rxjs";
-
-import { map } from "rxjs/operators";
 import * as vd from "virtual-dom";
 
 import {
-    ComponentService,
-    Component,
-    IComponentConfiguration,
-} from "../Component";
-import { Node } from "../Graph";
-import {
-    IVNodeHash,
-    ISize,
-} from "../Render";
-import { Urls } from "../Utils";
-import {
-    Container,
-    Navigator,
-} from "../Viewer";
+    combineLatest as observableCombineLatest,
+    Subscription,
+} from "rxjs";
+
+import { map } from "rxjs/operators";
+
+import { Component } from "./Component";
+import { IComponentConfiguration } from "./interfaces/IComponentConfiguration";
+
+import { Node } from "../graph/Node";
+import { ISize } from "../render/interfaces/ISize";
+import { IVNodeHash } from "../render/interfaces/IVNodeHash";
+import { Urls } from "../utils/Urls";
+import { Container } from "../viewer/Container";
+import { Navigator } from "../viewer/Navigator";
 
 export class AttributionComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "attribution";
@@ -81,6 +79,3 @@ export class AttributionComponent extends Component<IComponentConfiguration> {
         return vd.h("div.AttributionContainer" + compactClass, {}, [mapillaryLink, imageLink]);
     }
 }
-
-ComponentService.register(AttributionComponent);
-export default AttributionComponent;

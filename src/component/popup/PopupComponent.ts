@@ -1,36 +1,29 @@
 import {
-    merge as observableMerge,
-    from as observableFrom,
     combineLatest as observableCombineLatest,
+    from as observableFrom,
+    merge as observableMerge,
     Observable,
     Subject,
     Subscription,
 } from "rxjs";
 
 import {
-    withLatestFrom,
-    startWith,
-    switchMap,
     map,
     mergeMap,
+    startWith,
+    switchMap,
+    withLatestFrom,
 } from "rxjs/operators";
 
-import {
-    ComponentService,
-    Component,
-    IComponentConfiguration,
-    Popup,
-} from "../../Component";
-import { Transform } from "../../Geo";
-import {
-    ISize,
-    RenderCamera,
-} from "../../Render";
-import { DOM } from "../../Utils";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
+import { Transform } from "../../geo/Transform";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { ISize } from "../../render/interfaces/ISize";
+import { RenderCamera } from "../../render/RenderCamera";
+import { DOM } from "../../utils/DOM";
+import { IComponentConfiguration } from "../interfaces/IComponentConfiguration";
+import { Component } from "../Component";
+import { Popup } from "./popup/Popup";
 
 /**
  * @class PopupComponent
@@ -222,6 +215,3 @@ export class PopupComponent extends Component<IComponentConfiguration> {
         }
     }
 }
-
-ComponentService.register(PopupComponent);
-export default PopupComponent;

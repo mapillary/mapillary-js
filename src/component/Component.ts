@@ -1,12 +1,21 @@
-import {refCount, publishReplay, scan, startWith} from "rxjs/operators";
-import {BehaviorSubject, Observable, Subject} from "rxjs";
-
-import {IComponentConfiguration} from "../Component";
 import {
-    Container,
-    Navigator,
-} from "../Viewer";
-import {EventEmitter} from "../Utils";
+    publishReplay,
+    refCount,
+    scan,
+    startWith,
+} from "rxjs/operators";
+
+import {
+    BehaviorSubject,
+    Observable,
+    Subject,
+} from "rxjs";
+
+import { IComponentConfiguration } from "./interfaces/IComponentConfiguration";
+
+import { Container } from "../viewer/Container";
+import { Navigator } from "../viewer/Navigator";
+import { EventEmitter } from "../utils/EventEmitter";
 
 export abstract class Component<TConfiguration extends IComponentConfiguration> extends EventEmitter {
     public static componentName: string = "not_worthy";
@@ -20,7 +29,7 @@ export abstract class Component<TConfiguration extends IComponentConfiguration> 
     protected _configuration$: Observable<TConfiguration>;
     protected _configurationSubject$: Subject<TConfiguration> = new Subject<TConfiguration>();
 
-    constructor (name: string, container: Container, navigator: Navigator) {
+    constructor(name: string, container: Container, navigator: Navigator) {
         super();
 
         this._activated = false;
@@ -124,5 +133,3 @@ export abstract class Component<TConfiguration extends IComponentConfiguration> 
 
     protected abstract _getDefaultConfiguration(): TConfiguration;
 }
-
-export default Component;

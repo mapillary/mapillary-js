@@ -34,5 +34,3 @@ export interface IPopupOffset {
     topLeft: number[];
     topRight: number[];
 }
-
-export default IPopupOffset;

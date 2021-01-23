@@ -1,13 +1,14 @@
-import IDataProvider from "./interfaces/IDataProvider";
-import MapillaryError from "../error/MapillaryError";
-import ICoreNode from "./interfaces/ICoreNode";
-import IClusterReconstruction from "./interfaces/IClusterReconstruction";
-import IFillNode from "./interfaces/IFillNode";
-import IFullNode from "./interfaces/IFullNode";
-import IMesh from "./interfaces/IMesh";
-import ISequence from "./interfaces/ISequence";
-import IGeometryProvider from "./interfaces/IGeometryProvider";
-import GeometryProviderBase from "./GeometryProviderBase";
+import { GeometryProviderBase } from "./GeometryProviderBase";
+import { IClusterReconstruction } from "./interfaces/IClusterReconstruction";
+import { ICoreNode } from "./interfaces/ICoreNode";
+import { IDataProvider } from "./interfaces/IDataProvider";
+import { IFillNode } from "./interfaces/IFillNode";
+import { IFullNode } from "./interfaces/IFullNode";
+import { IGeometryProvider } from "./interfaces/IGeometryProvider";
+import { IMesh } from "./interfaces/IMesh";
+import { ISequence } from "./interfaces/ISequence";
+
+import { MapillaryError } from "../error/MapillaryError";
 
 /**
  * @class DataProviderBase
@@ -185,5 +186,3 @@ export class DataProviderBase implements IDataProvider {
         throw new MapillaryError("Not implemented");
     }
 }
-
-export default DataProviderBase;

@@ -1,5 +1,6 @@
-import {Geometry, GeometryTagError} from "../../../Component";
-import {Transform} from "../../../Geo";
+import { Geometry } from "./Geometry";
+import { GeometryTagError } from "../error/GeometryTagError";
+import { Transform } from "../../../geo/Transform";
 
 /**
  * @class PointsGeometry
@@ -232,5 +233,3 @@ export class PointsGeometry extends Geometry {
                 });
     }
 }
-
-export default PointsGeometry;

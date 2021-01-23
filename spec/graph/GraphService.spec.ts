@@ -4,16 +4,14 @@ import { take, first, skip } from "rxjs/operators";
 
 import { NodeHelper } from "../helper/NodeHelper.spec";
 
-import { ICoreNode } from "../../src/API";
-import {
-    Graph,
-    GraphMode,
-    GraphService,
-    IEdgeStatus,
-    Node,
-    Sequence,
-} from "../../src/Graph";
-import API from "../../src/api/API";
+import { Node } from "../../src/graph/Node";
+import { API } from "../../src/api/API";
+import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
+import { Graph } from "../../src/graph/Graph";
+import { GraphMode } from "../../src/graph/GraphMode";
+import { GraphService } from "../../src/graph/GraphService";
+import { IEdgeStatus } from "../../src/graph/interfaces/IEdgeStatus";
+import { Sequence } from "../../src/graph/Sequence";
 
 describe("GraphService.ctor", () => {
     it("should create a graph service", () => {
@@ -38,7 +36,7 @@ describe("GraphService.cacheBoundingBox$", () => {
 
         graphService.cacheBoundingBox$({ lat: 0, lon: 1 }, { lat: 2, lon: 3 })
             .subscribe(
-                (nodes: Node[]): void => {
+                (): void => {
                     expect(cacheBoundingBoxSpy.calls.count()).toBe(1);
                     expect(cacheBoundingBoxSpy.calls.argsFor(0)[0].lat).toBe(0);
                     expect(cacheBoundingBoxSpy.calls.argsFor(0)[0].lon).toBe(1);
@@ -428,7 +426,7 @@ describe("GraphService.cacheNode$", () => {
 
         graphService.cacheNode$(node.key)
             .subscribe(
-                (n: Node): void => {
+                (): void => {
                     expect(cacheFullSpy.calls.count()).toBe(1);
                     expect(initializeCacheSpy.calls.count()).toBe(1);
                     expect(cacheAssetsSpy.calls.count()).toBe(1);
@@ -480,7 +478,7 @@ describe("GraphService.cacheNode$", () => {
 
         graphService.cacheNode$(node.key)
             .subscribe(
-                (n: Node): void => {
+                (): void => {
                     expect(cacheFillSpy.calls.count()).toBe(1);
 
                     done();
@@ -707,7 +705,7 @@ describe("GraphService.reset$", () => {
 
         graphService.cacheNode$(node.key)
             .subscribe(
-                (n: Node): void => { return; },
+                (): void => { return; },
                 (e: Error): void => {
                     expect(e).toBeDefined();
                 });

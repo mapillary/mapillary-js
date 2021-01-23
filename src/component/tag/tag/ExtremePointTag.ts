@@ -1,8 +1,6 @@
-import {
-    Tag,
-    IExtremePointTagOptions,
-} from "../../../Component";
-import PointsGeometry from "../geometry/PointsGeometry";
+import { Tag } from "./Tag";
+import { PointsGeometry } from "../geometry/PointsGeometry";
+import { IExtremePointTagOptions } from "../interfaces/IExtremePointTagOptions";
 
 /**
  * @class ExtremePointTag
@@ -215,5 +213,3 @@ export class ExtremePointTag extends Tag {
         this._notifyChanged$.next(this);
     }
 }
-
-export default ExtremePointTag;

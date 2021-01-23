@@ -33,5 +33,3 @@ export interface ISpotTagOptions {
      */
     textColor?: number;
 }
-
-export default ISpotTagOptions;

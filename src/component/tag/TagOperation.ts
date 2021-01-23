@@ -3,5 +3,3 @@ export enum TagOperation {
     Centroid,
     Vertex,
 }
-
-export default TagOperation;

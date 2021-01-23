@@ -1,1 +1,0 @@
-export {ILatLonAlt} from "./ILatLonAlt";

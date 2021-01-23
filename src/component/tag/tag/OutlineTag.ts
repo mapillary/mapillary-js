@@ -1,14 +1,13 @@
-import {Subject} from "rxjs";
+import { Subject } from "rxjs";
+import { Alignment } from "../../../viewer/Alignment";
 
-import {
-    IOutlineTagOptions,
-    PolygonGeometry,
-    RectGeometry,
-    Tag,
-    TagDomain,
-    VertexGeometry,
-} from "../../../Component";
-import {Alignment} from "../../../Viewer";
+import { PolygonGeometry } from "../geometry/PolygonGeometry";
+import { VertexGeometry } from "../geometry/VertexGeometry";
+import { IOutlineTagOptions } from "../interfaces/IOutlineTagOptions";
+
+import { Tag } from "./Tag";
+import { TagDomain } from "./TagDomain";
+
 
 /**
  * @class OutlineTag
@@ -91,7 +90,7 @@ export class OutlineTag extends Tag {
 
         this._click$
             .subscribe(
-                (t: Tag): void => {
+                (): void => {
                     this.fire(OutlineTag.click, this);
                 });
     }
@@ -388,5 +387,3 @@ export class OutlineTag extends Tag {
         return domain !== TagDomain.ThreeDimensional && geometry instanceof PolygonGeometry;
     }
 }
-
-export default OutlineTag;

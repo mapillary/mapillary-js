@@ -1,4 +1,4 @@
-import MapillaryError from "../error/MapillaryError";
+import { MapillaryError } from "../error/MapillaryError";
 
 /**
  * @class BufferFetcher
@@ -62,5 +62,3 @@ export class BufferFetcher {
         return promise;
     }
 }
-
-export default BufferFetcher;

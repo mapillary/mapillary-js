@@ -28,5 +28,3 @@ export interface IGraphConfiguration {
      */
     maxUnusedTiles: number;
 }
-
-export default IGraphConfiguration;

@@ -1,27 +1,28 @@
-import { merge as observableMerge, Observable, Subscription } from "rxjs";
-
-import { filter, withLatestFrom, map } from "rxjs/operators";
 import * as THREE from "three";
 
 import {
-    Component,
-    IMouseConfiguration,
-    HandlerBase,
-} from "../../Component";
+    merge as observableMerge,
+    Observable,
+    Subscription,
+} from "rxjs";
+
 import {
-    Transform,
-    ViewportCoords,
-} from "../../Geo";
-import { RenderCamera } from "../../Render";
-import {
-    ICurrentState,
-    IFrame,
-} from "../../State";
-import {
-    Container,
-    IPinch,
-    Navigator,
-} from "../../Viewer";
+    filter,
+    map,
+    withLatestFrom,
+} from "rxjs/operators";
+
+import { Transform } from "../../geo/Transform";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { RenderCamera } from "../../render/RenderCamera";
+import { ICurrentState } from "../../state/interfaces/ICurrentState";
+import { IFrame } from "../../state/interfaces/IFrame";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { IPinch } from "../../viewer/interfaces/IPinch";
+import { Component } from "../Component";
+import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
+import { HandlerBase } from "../utils/HandlerBase";
 
 /**
  * The `TouchZoomHandler` allows the user to zoom the viewer image by pinching on a touchscreen.
@@ -129,5 +130,3 @@ export class TouchZoomHandler extends HandlerBase<IMouseConfiguration> {
         return { touchZoom: enable };
     }
 }
-
-export default TouchZoomHandler;

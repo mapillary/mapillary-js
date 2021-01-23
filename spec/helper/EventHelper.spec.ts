@@ -89,5 +89,3 @@ export class EventHelper {
         return <WheelEvent>wheelEvent;
     }
 }
-
-export default EventHelper;

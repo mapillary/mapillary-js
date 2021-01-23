@@ -1,4 +1,4 @@
-import {IEdge} from "../../Edge";
+import { IEdge } from "../edge/interfaces/IEdge";
 
 /**
  * Interface that indicates edge status.
@@ -21,5 +21,3 @@ export interface IEdgeStatus {
      */
     edges: IEdge[];
 }
-
-export default IEdgeStatus;

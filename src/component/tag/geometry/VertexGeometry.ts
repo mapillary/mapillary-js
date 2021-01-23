@@ -3,8 +3,8 @@ import * as martinez from "martinez-polygon-clipping";
 import * as polylabel from "@mapbox/polylabel";
 import * as THREE from "three";
 
-import {Geometry} from "../../../Component";
-import {Transform} from "../../../Geo";
+import { Geometry } from "./Geometry";
+import { Transform } from "../../../geo/Transform";
 
 /**
  * @class VertexGeometry
@@ -331,5 +331,3 @@ export abstract class VertexGeometry extends Geometry {
         return triangles;
     }
 }
-
-export default VertexGeometry;

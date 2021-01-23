@@ -1,13 +1,10 @@
-
-import {take} from "rxjs/operators";
-import {
-    IPopupOffset,
-    Popup,
-} from "../../../src/Component";
-import {ViewportCoords} from "../../../src/Geo";
-import {RenderCamera} from "../../../src/Render";
-import {DOM} from "../../../src/Utils";
-import {Alignment} from "../../../src/Viewer";
+import { take } from "rxjs/operators";
+import { IPopupOffset } from "../../../src/component/popup/interfaces/IPopupOffset";
+import { Popup } from "../../../src/component/popup/popup/Popup";
+import { ViewportCoords } from "../../../src/geo/ViewportCoords";
+import { RenderCamera } from "../../../src/render/RenderCamera";
+import { DOM } from "../../../src/utils/DOM";
+import { Alignment } from "../../../src/viewer/Alignment";
 
 describe("Popup.ctor", () => {
     it("should be defined", () => {
@@ -48,7 +45,7 @@ describe("Popup.update", () => {
         popup.setBasicPoint([0.5, 0.5]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup").length).toBe(1);
     });
@@ -64,7 +61,7 @@ describe("Popup.update", () => {
         popup.setBasicPoint([0.5, 0.5]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-capture-pointer").length)
             .toBeGreaterThanOrEqual(1);
@@ -81,7 +78,7 @@ describe("Popup.update", () => {
         popup.setBasicPoint([0.5, 0.5]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-capture-pointer").length).toBe(0);
     });
@@ -97,7 +94,7 @@ describe("Popup.update", () => {
         popup.setBasicPoint([0.4, 0.6]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         const transform: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.transform;
 
@@ -115,7 +112,7 @@ describe("Popup.update", () => {
         popup.setBasicRect([0.3, 0.5, 0.5, 0.7]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         const transform: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.transform;
 
@@ -133,7 +130,7 @@ describe("Popup.update", () => {
         popup.setBasicPoint([0.4, 0.6]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         const display: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.display;
 
@@ -151,7 +148,7 @@ describe("Popup.update", () => {
         popup.setBasicPoint([0.4, 0.6]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         const display: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.display;
 
@@ -169,7 +166,7 @@ describe("Popup.update", () => {
         popup.setBasicPoint([0.5, 0.5]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-top").length)
             .toBe(1);
@@ -188,7 +185,7 @@ describe("Popup.setText", () => {
         popup.setBasicPoint([0.5, 0.5]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelector(".mapillaryjs-popup-content").textContent).toBe("Test");
     });
@@ -204,7 +201,7 @@ describe("Popup.setText", () => {
         popup.setBasicPoint([0.5, 0.5]);
         popup.setText("<script>alert('XSS')</script>");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelector(".mapillaryjs-popup-content").textContent)
             .toBe("<script>alert('XSS')</script>");
@@ -223,7 +220,7 @@ describe("Popup.setHTML", () => {
         popup.setBasicPoint([0.5, 0.5]);
         popup.setHTML("<span>Test</span>");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelector(".mapillaryjs-popup-content").innerHTML)
             .toBe("<span>Test</span>");
@@ -244,7 +241,7 @@ describe("Popup.setDOMContent", () => {
         const content: HTMLSpanElement = document.createElement("span");
         popup.setDOMContent(content);
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelector(".mapillaryjs-popup-content").firstChild)
             .toEqual(content);
@@ -261,17 +258,17 @@ describe("Popup.setDOMContent", () => {
         popup.setBasicPoint([0.5, 0.5]);
 
         popup.setText("Test 1");
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
         expect(parentContainer.querySelector(".mapillaryjs-popup-content").textContent)
             .toBe("Test 1");
 
         popup.setHTML("Test 2");
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
         expect(parentContainer.querySelector(".mapillaryjs-popup-content").textContent)
             .toBe("Test 2");
 
         popup.setDOMContent(document.createTextNode("Test 3"));
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
         expect(parentContainer.querySelector(".mapillaryjs-popup-content").textContent)
             .toBe("Test 3");
     });
@@ -289,7 +286,7 @@ describe("Popup.float", () => {
         popup.setBasicPoint([0.5, 0.5]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-top-left").length)
             .toBe(1);
@@ -306,7 +303,7 @@ describe("Popup.float", () => {
         popup.setBasicPoint([0.5, 0.5]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-tip").length).toBe(0);
     });
@@ -322,7 +319,7 @@ describe("Popup.float", () => {
         popup.setBasicPoint([0.5, 0.5]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-tip").length).toBe(1);
     });
@@ -338,7 +335,7 @@ describe("Popup.float", () => {
         popup.setBasicRect([0.5, 0.5]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-float-bottom-right").length)
             .toBe(1);
@@ -490,7 +487,7 @@ describe("Popup.opacity", () => {
         popup.setBasicPoint([0.5, 0.5]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         const opacity: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup"))
             .style.opacity;
@@ -511,7 +508,7 @@ describe("Popup.offset", () => {
         popup.setBasicPoint([0.4, 0.6]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         const transform: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.transform;
 
@@ -540,7 +537,7 @@ describe("Popup.offset", () => {
         popup.setBasicPoint([0.4, 0.6]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         const transform: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.transform;
 
@@ -569,7 +566,7 @@ describe("Popup.offset", () => {
         popup.setBasicPoint([0.4, 0.6]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         const transform: string = (<HTMLElement>parentContainer.querySelector(".mapillaryjs-popup")).style.transform;
 
@@ -589,7 +586,7 @@ describe("Popup.clean", () => {
         popup.setBasicPoint([0.5, 0.5]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-content-clean").length).toBe(1);
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-content").length).toBe(0);
@@ -606,7 +603,7 @@ describe("Popup.clean", () => {
         popup.setBasicPoint([0.5, 0.5]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-content-clean").length).toBe(0);
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-content").length).toBe(1);
@@ -623,7 +620,7 @@ describe("Popup.clean", () => {
         popup.setBasicPoint([0.5, 0.5]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-tip").length).toBe(0);
     });
@@ -639,7 +636,7 @@ describe("Popup.clean", () => {
         popup.setBasicPoint([0.5, 0.5]);
         popup.setText("Test");
 
-        popup.update(<RenderCamera>{}, { height: 100, width: 100}, undefined);
+        popup.update(<RenderCamera>{}, { height: 100, width: 100 }, undefined);
 
         expect(parentContainer.querySelectorAll(".mapillaryjs-popup-tip").length).toBe(1);
     });

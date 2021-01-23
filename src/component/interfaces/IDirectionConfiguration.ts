@@ -1,4 +1,4 @@
-import { IComponentConfiguration } from "../../Component";
+import { IComponentConfiguration } from "./IComponentConfiguration";
 
 /**
  * Interface for configuration of direction component.
@@ -60,5 +60,3 @@ export interface IDirectionConfiguration extends IComponentConfiguration {
      */
     maxWidth?: number;
 }
-
-export default IDirectionConfiguration;

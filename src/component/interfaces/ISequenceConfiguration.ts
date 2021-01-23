@@ -1,5 +1,5 @@
-import { IComponentConfiguration } from "../../Component";
-import { EdgeDirection } from "../../Edge";
+import { IComponentConfiguration } from "./IComponentConfiguration";
+import { EdgeDirection } from "../../graph/edge/EdgeDirection";
 
 /**
  * Interface for configuration of sequence component.
@@ -69,5 +69,3 @@ export interface ISequenceConfiguration extends IComponentConfiguration {
      */
     visible?: boolean;
 }
-
-export default ISequenceConfiguration;

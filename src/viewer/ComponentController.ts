@@ -1,21 +1,28 @@
-import { first, switchMap, distinctUntilChanged } from "rxjs/operators";
-import { Observable, Subscription } from "rxjs";
+import {
+    distinctUntilChanged,
+    first,
+    switchMap,
+} from "rxjs/operators";
 
-import { Node } from "../Graph";
 import {
-    Component,
-    ComponentService,
-    CoverComponent,
+    Observable,
+    Subscription,
+} from "rxjs";
+
+import { Container } from "./Container";
+import { Navigator } from "./Navigator";
+import { Observer } from "./Observer";
+import { IComponentOptions } from "./interfaces/IComponentOptions";
+
+import { Component } from "../component/Component";
+import { ComponentService } from "../component/ComponentService";
+import { CoverComponent } from "../component/CoverComponent";
+import { IComponentConfiguration } from "../component/interfaces/IComponentConfiguration";
+import {
     CoverState,
-    IComponentConfiguration,
     ICoverConfiguration,
-} from "../Component";
-import {
-    Container,
-    IComponentOptions,
-    Navigator,
-    Observer,
-} from "../Viewer";
+} from "../component/interfaces/ICoverConfiguration";
+import { Node } from "../graph/Node";
 
 export class ComponentController {
     private _container: Container;

@@ -1,4 +1,4 @@
-import {LoadingService} from "../../src/Viewer";
+import { LoadingService } from "../../src/viewer/LoadingService";
 
 describe("LoadingService", () => {
     let loadingService: LoadingService;

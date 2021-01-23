@@ -1,10 +1,7 @@
 import * as THREE from "three";
 
 import {
-    combineLatest as observableCombinLatest,
     empty as observableEmpty,
-    merge as observableMerge,
-    of as observableOf,
     Subscription,
     Observable,
 } from "rxjs";
@@ -15,32 +12,21 @@ import {
     withLatestFrom,
     share,
     switchMap,
-    startWith,
-    distinctUntilChanged,
 } from "rxjs/operators";
 
-import {
-    Component,
-    IMouseConfiguration,
-    HandlerBase,
-    MouseOperator,
-} from "../../Component";
-import {
-    Spatial,
-    Transform,
-    ViewportCoords,
-} from "../../Geo";
-import {
-    RenderCamera,
-} from "../../Render";
-import {
-    IRotation,
-    State,
-} from "../../State";
-import {
-    Container,
-    Navigator,
-} from "../../Viewer";
+import { Transform } from "../../geo/Transform";
+import { Spatial } from "../../geo/Spatial";
+import { IRotation } from "../../state/interfaces/IRotation";
+import { State } from "../../state/State";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { RenderCamera } from "../../render/RenderCamera";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { Component } from "../Component";
+import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
+import { HandlerBase } from "../utils/HandlerBase";
+import { MouseOperator } from "../utils/MouseOperator";
+
 
 export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
     private _viewportCoords: ViewportCoords;
@@ -251,5 +237,3 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
         return intersection;
     }
 }
-
-export default EarthControlHandler;

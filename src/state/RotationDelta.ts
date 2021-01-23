@@ -1,6 +1,4 @@
-import {
-    IRotation,
-} from "../State";
+import { IRotation } from "./interfaces/IRotation";
 
 export class RotationDelta implements IRotation {
     private _phi: number;
@@ -37,8 +35,8 @@ export class RotationDelta implements IRotation {
     }
 
     public lerp(other: IRotation, alpha: number): void {
-        this._phi =  (1 - alpha) * this._phi + alpha * other.phi;
-        this._theta =  (1 - alpha) * this._theta + alpha * other.theta;
+        this._phi = (1 - alpha) * this._phi + alpha * other.phi;
+        this._theta = (1 - alpha) * this._theta + alpha * other.theta;
     }
 
     public multiply(value: number): void {
@@ -60,5 +58,3 @@ export class RotationDelta implements IRotation {
         this._theta = 0;
     }
 }
-
-export default RotationDelta;

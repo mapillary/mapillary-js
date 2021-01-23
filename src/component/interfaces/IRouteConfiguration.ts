@@ -1,4 +1,4 @@
-import {IComponentConfiguration} from "../../Component";
+import { IComponentConfiguration } from "./IComponentConfiguration";
 
 export interface IRouteInfoKey {
     key: string;
@@ -16,5 +16,3 @@ export interface IRouteConfiguration extends IComponentConfiguration {
     paths?: IRoutePath[];
     playing?: boolean;
 }
-
-export default IRouteConfiguration;

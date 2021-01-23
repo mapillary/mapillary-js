@@ -1,11 +1,7 @@
-import {
-    Component,
-    IComponentConfiguration,
-} from "../../src/Component";
-import {
-    Container,
-    Navigator,
-} from "../../src/Viewer";
+import { Component } from "../../src/component/Component";
+import { IComponentConfiguration } from "../../src/component/interfaces/IComponentConfiguration";
+import { Container } from "../../src/viewer/Container";
+import { Navigator } from "../../src/viewer/Navigator";
 
 export interface ITestConfiguration extends IComponentConfiguration {
     test: boolean;
@@ -19,5 +15,3 @@ export class TestComponent extends Component<ITestConfiguration> {
     protected _deactivate(): void { /* noop */ }
     protected _getDefaultConfiguration(): ITestConfiguration { return { test: false }; }
 }
-
-export default TestComponent;

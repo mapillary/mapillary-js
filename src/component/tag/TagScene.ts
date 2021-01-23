@@ -1,6 +1,9 @@
 import * as THREE from "three";
 
-import {RenderTag, Tag, CreateTag, Geometry} from "../../Component";
+import { Geometry } from "./geometry/Geometry";
+import { CreateTag } from "./tag/CreateTag";
+import { RenderTag } from "./tag/RenderTag";
+import { Tag } from "./tag/Tag";
 
 type TagObjects = {
     tag: RenderTag<Tag>;
@@ -39,7 +42,7 @@ export class TagScene {
 
     public add(tags: RenderTag<Tag>[]): void {
         for (let tag of tags) {
-            if (tag.tag.id in this._tags) {
+            if (tag.tag.id in this._tags) {
                 this._remove(tag.tag.id);
             }
 
@@ -213,5 +216,3 @@ export class TagScene {
         }
     }
 }
-
-export default TagScene;

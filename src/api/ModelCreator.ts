@@ -40,5 +40,3 @@ export class ModelCreator {
         });
     }
 }
-
-export default ModelCreator;

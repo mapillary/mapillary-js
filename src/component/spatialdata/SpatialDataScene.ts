@@ -1,14 +1,13 @@
 import * as THREE from "three";
 
-import CameraVisualizationMode from "./CameraVisualizationMode";
-import IClusterReconstruction, { IReconstructionPoint } from "../../api/interfaces/IClusterReconstruction";
-import ISpatialDataConfiguration from "../interfaces/ISpatialDataConfiguration";
-import MapillaryError from "../../error/MapillaryError";
-import Node from "../../graph/Node";
-
-import { FilterFunction } from "../../graph/FilterCreator";
+import { IClusterReconstruction, IReconstructionPoint } from "../../api/interfaces/IClusterReconstruction";
+import { MapillaryError } from "../../error/MapillaryError";
 import { Transform } from "../../geo/Transform";
-import OriginalPositionMode from "./OriginalPositionMode";
+import { FilterFunction } from "../../graph/FilterCreator";
+import { Node } from "../../graph/Node";
+import { ISpatialDataConfiguration } from "../interfaces/ISpatialDataConfiguration";
+import { CameraVisualizationMode } from "./CameraVisualizationMode";
+import { OriginalPositionMode } from "./OriginalPositionMode";
 
 type ClusterReconstructions = {
     [key: string]: {
@@ -1355,5 +1354,3 @@ export class SpatialDataScene {
         this._nodes[cellId].cameraFrames[key].setColor(color);
     }
 }
-
-export default SpatialDataScene;

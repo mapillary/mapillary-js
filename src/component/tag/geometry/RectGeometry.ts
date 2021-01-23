@@ -1,5 +1,6 @@
-import {GeometryTagError, VertexGeometry} from "../../../Component";
-import {Transform} from "../../../Geo";
+import { VertexGeometry } from "./VertexGeometry";
+import { GeometryTagError } from "../error/GeometryTagError";
+import { Transform } from "../../../geo/Transform";
 
 /**
  * @class RectGeometry
@@ -131,8 +132,8 @@ export class RectGeometry extends VertexGeometry {
         const original: number[] = this._rect.slice();
         const anchor: number[] = this._anchorIndex === 0 ? [original[0], original[3]] :
             this._anchorIndex === 1 ? [original[0], original[1]] :
-            this._anchorIndex === 2 ? [original[2], original[1]] :
-            [original[2], original[3]];
+                this._anchorIndex === 2 ? [original[2], original[1]] :
+                    [original[2], original[3]];
 
         if (transform.fullPano) {
             const deltaX: number = this._anchorIndex < 2 ?
@@ -685,5 +686,3 @@ export class RectGeometry extends VertexGeometry {
         ];
     }
 }
-
-export default RectGeometry;

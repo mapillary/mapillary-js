@@ -1,10 +1,10 @@
-import IFillNode from "./IFillNode";
-import IFullNode from "./IFullNode";
-import ICoreNode from "./ICoreNode";
-import ISequence from "./ISequence";
-import IMesh from "./IMesh";
-import IClusterReconstruction from "./IClusterReconstruction";
-import IGeometryProvider from "./IGeometryProvider";
+import { IClusterReconstruction } from "./IClusterReconstruction";
+import { ICoreNode } from "./ICoreNode";
+import { IFillNode } from "./IFillNode";
+import { IFullNode } from "./IFullNode";
+import { IGeometryProvider } from "./IGeometryProvider";
+import { IMesh } from "./IMesh";
+import { ISequence } from "./ISequence";
 
 /**
  * Interface that describes the data provider functionality.
@@ -38,5 +38,3 @@ export interface IDataProvider {
         Promise<{ [sequenceKey: string]: ISequence }>;
     setUserToken(userToken?: string): void;
 }
-
-export default IDataProvider;

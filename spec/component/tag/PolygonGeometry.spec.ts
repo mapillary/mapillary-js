@@ -1,9 +1,9 @@
-import {IGPano} from "../../../src/API";
-import {PolygonGeometry} from "../../../src/Component";
-import {Transform} from "../../../src/Geo";
-import {Node} from "../../../src/Graph";
+import { Node } from "../../../src/graph/Node";
+import { Transform } from "../../../src/geo/Transform";
 
-import {MockCreator} from "../../helper/MockCreator.spec";
+import { MockCreator } from "../../helper/MockCreator.spec";
+import { IGPano } from "../../../src/api/interfaces/IGPano";
+import { PolygonGeometry } from "../../../src/component/tag/geometry/PolygonGeometry";
 
 describe("PolygonGeometry.ctor", () => {
     it("should be defined", () => {
@@ -277,7 +277,7 @@ describe("PolygonGeometry.removeVertex2d", () => {
 describe("RectGeometry.setVertex2d", () => {
     let createNode: (gpano: IGPano) => Node = (gpano: IGPano): Node => {
         let node: Node = new Node({
-            cl: { lat: 0, lon: 0},
+            cl: { lat: 0, lon: 0 },
             key: "key",
             l: { lat: 0, lon: 0 },
             sequence_key: "skey",
@@ -298,7 +298,7 @@ describe("RectGeometry.setVertex2d", () => {
             merge_version: 0,
             orientation: 0,
             private: false,
-            user: { key: "key", username: "username"},
+            user: { key: "key", username: "username" },
             width: 0,
         });
 
@@ -407,7 +407,7 @@ describe("RectGeometry.setCentroid2d", () => {
 
     let createNode: (gpano: IGPano) => Node = (gpano: IGPano): Node => {
         let node: Node = new Node({
-            cl: { lat: 0, lon: 0},
+            cl: { lat: 0, lon: 0 },
             key: "key",
             l: { lat: 0, lon: 0 },
             sequence_key: "skey",
@@ -428,7 +428,7 @@ describe("RectGeometry.setCentroid2d", () => {
             merge_version: 0,
             orientation: 0,
             private: false,
-            user: { key: "key", username: "username"},
+            user: { key: "key", username: "username" },
             width: 0,
         });
 

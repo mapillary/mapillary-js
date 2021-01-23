@@ -1,4 +1,4 @@
-import {EventEmitter} from "../../src/Utils";
+import { EventEmitter } from "../../src/utils/EventEmitter";
 
 describe("EventEmitter", () => {
     let eventEmitter: EventEmitter;

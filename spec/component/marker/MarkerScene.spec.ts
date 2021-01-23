@@ -1,10 +1,7 @@
 import * as THREE from "three";
-
-import {ILatLon} from "../../../src/API";
-import {
-    Marker,
-    MarkerScene,
-} from "../../../src/Component";
+import { ILatLon } from "../../../src/api/interfaces/ILatLon";
+import { Marker } from "../../../src/component/marker/marker/Marker";
+import { MarkerScene } from "../../../src/component/marker/MarkerScene";
 
 class TestMarker extends Marker {
     constructor(id: string, latLon: ILatLon) { super(id, latLon); }
@@ -201,7 +198,7 @@ describe("MarkerScene.intersectObjects", () => {
         let interactiveObjectId: string = "interactive-id";
         let interactiveObject: THREE.Object3D = <THREE.Object3D>{ uuid: interactiveObjectId };
         let intersection: THREE.Intersection =
-            <THREE.Intersection>{ object: { uuid: interactiveObjectId }};
+            <THREE.Intersection>{ object: { uuid: interactiveObjectId } };
 
         let raycaster: THREE.Raycaster = new THREE.Raycaster();
         spyOn(raycaster, "intersectObjects").and.returnValue([intersection]);

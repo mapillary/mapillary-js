@@ -9,29 +9,28 @@ import {
 } from "rxjs";
 
 import {
-    first,
+    catchError,
     expand,
+    finalize,
+    first,
     map,
-    last,
     mergeMap,
-    startWith,
+    last,
     publishReplay,
     refCount,
-    catchError,
-    finalize,
+    startWith,
     tap,
 } from "rxjs/operators";
 
-import { ILatLon } from "../API";
-import {
-    FilterExpression,
-    Graph,
-    GraphMode,
-    Node,
-    Sequence,
-} from "../Graph";
-import SubscriptionHolder from "../utils/SubscriptionHolder";
 import { FilterFunction } from "./FilterCreator";
+import { FilterExpression } from "./FilterExpression";
+import { Graph } from "./Graph";
+import { GraphMode } from "./GraphMode";
+import { Node } from "./Node";
+import { Sequence } from "./Sequence";
+
+import { ILatLon } from "../api/interfaces/ILatLon";
+import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
 /**
  * @class GraphService
@@ -555,5 +554,3 @@ export class GraphService {
         }
     }
 }
-
-export default GraphService;

@@ -1,6 +1,5 @@
 import * as THREE from "three";
-
-import {ILatLon} from "../../../API";
+import { ILatLon } from "../../../api/interfaces/ILatLon";
 
 /**
  * @class Marker
@@ -105,5 +104,3 @@ export abstract class Marker {
 
     protected abstract _getInteractiveObjects(): THREE.Object3D[];
 }
-
-export default Marker;

@@ -1,15 +1,17 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import {Observable, Subject} from "rxjs";
-
-import {IInteraction} from "../../../Component";
 import {
-    Transform,
-    ViewportCoords,
-} from "../../../Geo";
-import {ISize} from "../../../Render";
-import {ISpriteAtlas} from "../../../Viewer";
+    Observable,
+    Subject,
+} from "rxjs";
+
+import { IInteraction } from "../interfaces/IInteraction";
+
+import { Transform } from "../../../geo/Transform";
+import { ViewportCoords } from "../../../geo/ViewportCoords";
+import { ISize } from "../../../render/interfaces/ISize";
+import { ISpriteAtlas } from "../../../viewer/interfaces/ISpriteAtlas";
 
 export abstract class RenderTag<T> {
     protected _tag: T;
@@ -48,5 +50,3 @@ export abstract class RenderTag<T> {
 
     public abstract getRetrievableObjects(): THREE.Object3D[];
 }
-
-export default RenderTag;

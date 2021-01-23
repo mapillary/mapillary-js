@@ -1,13 +1,10 @@
-import {empty as observableEmpty} from "rxjs";
+import { empty as observableEmpty } from "rxjs";
 
-import {skip} from "rxjs/operators";
+import { skip } from "rxjs/operators";
 import * as vd from "virtual-dom";
-
-import {
-    DOMRenderer,
-    RenderMode,
-    RenderService,
-} from "../../src/Render";
+import { DOMRenderer } from "../../src/render/DOMRenderer";
+import { RenderMode } from "../../src/render/RenderMode";
+import { RenderService } from "../../src/render/RenderService";
 
 describe("DOMRenderer.ctor", () => {
     it("should be contructed", () => {

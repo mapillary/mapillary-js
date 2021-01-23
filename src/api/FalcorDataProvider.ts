@@ -1,21 +1,23 @@
 import * as falcor from "falcor";
 
-import MapillaryError from "../error/MapillaryError";
-import IMesh from "./interfaces/IMesh";
-import PbfMeshReader from "./PbfMeshReader";
-import ModelCreator from "./ModelCreator";
-import ICoreNode from "./interfaces/ICoreNode";
-import IFillNode from "./interfaces/IFillNode";
-import IFullNode from "./interfaces/IFullNode";
-import ISequence from "./interfaces/ISequence";
-import IClusterReconstruction from "./interfaces/IClusterReconstruction";
-import DataProviderBase from "./DataProviderBase";
-import IFalcorDataProviderOptions from "./interfaces/IFalcorDataProviderOptions";
-import IGeometryProvider from "./interfaces/IGeometryProvider";
-import GeohashGeometryProvider from "./GeohashGeometryProvider";
+import { BufferFetcher } from "./BufferFetcher";
+import { DataProviderBase } from "./DataProviderBase";
+import { GeohashGeometryProvider } from "./GeohashGeometryProvider";
+import { JsonInflator } from "./JsonInflator";
+import { ModelCreator } from "./ModelCreator";
+import { PbfMeshReader } from "./PbfMeshReader";
+import { IClusterReconstruction } from "./interfaces/IClusterReconstruction";
+import { ICoreNode } from "./interfaces/ICoreNode";
+import { IFalcorDataProviderOptions } from "./interfaces/IFalcorDataProviderOptions";
+import { IFillNode } from "./interfaces/IFillNode";
+import { IFullNode } from "./interfaces/IFullNode";
+import { IGeometryProvider } from "./interfaces/IGeometryProvider";
+import { IMesh } from "./interfaces/IMesh";
+import { ISequence } from "./interfaces/ISequence";
+
+import { MapillaryError } from "../error/MapillaryError";
 import { ImageSize } from "../viewer/ImageSize";
-import JsonInflator from "./JsonInflator";
-import BufferFetcher from "./BufferFetcher";
+
 
 interface IImageByKey<T> {
     imageByKey: { [key: string]: T };
@@ -447,5 +449,3 @@ export class FalcorDataProvider extends DataProviderBase {
         return ibk;
     }
 }
-
-export default FalcorDataProvider;

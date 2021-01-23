@@ -1,12 +1,9 @@
-import {
-    Node,
-} from "../../Graph";
-import {
-    IState,
-    StateBase,
-    InteractiveWaitingState,
-    TraversingState,
-} from "../../State";
+import { InteractiveWaitingState } from "./InteractiveWaitingState";
+import { StateBase } from "./StateBase";
+import { TraversingState } from "./TraversingState";
+
+import { IState } from "../interfaces/IState";
+import { Node } from "../../graph/Node";
 
 export class WaitingState extends StateBase {
     constructor(state: IState) {
@@ -77,5 +74,3 @@ export class WaitingState extends StateBase {
         }
     }
 }
-
-export default WaitingState;

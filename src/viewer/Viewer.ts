@@ -1,40 +1,31 @@
+import * as when from "when";
 import {
-    throwError as observableThrowError,
     combineLatest as observableCombineLatest,
+    throwError as observableThrowError,
     Observable,
 } from "rxjs";
-
 import { first } from "rxjs/operators";
-import * as when from "when";
 
-import { ILatLon } from "../API";
-import { EdgeDirection } from "../Edge";
-import {
-    FilterExpression,
-    Node,
-} from "../Graph";
-import {
-    ComponentController,
-    Container,
-    IViewerOptions,
-    Navigator,
-    Observer,
-} from "../Viewer";
-import {
-    Component,
-    IComponentConfiguration,
-} from "../Component";
-import {
-    EventEmitter,
-    Settings,
-    Urls,
-} from "../Utils";
-import { RenderMode } from "../Render";
-import { TransitionMode } from "../State";
-import { IPointOfView } from "./interfaces/interfaces";
-import RenderCamera from "../render/RenderCamera";
-import ILatLonAlt from "../geo/interfaces/ILatLonAlt";
+import { ILatLon } from "../api/interfaces/ILatLon";
+import { Component } from "../component/Component";
+import { IComponentConfiguration } from "../component/interfaces/IComponentConfiguration";
+import { ILatLonAlt } from "../geo/interfaces/ILatLonAlt";
+import { FilterExpression } from "../graph/FilterExpression";
+import { Node } from "../graph/Node";
+import { EdgeDirection } from "../graph/edge/EdgeDirection";
+import { RenderCamera } from "../render/RenderCamera";
+import { RenderMode } from "../render/RenderMode";
+import { TransitionMode } from "../state/TransitionMode";
+import { EventEmitter } from "../utils/EventEmitter";
+import { Settings } from "../utils/Settings";
+import { Urls } from "../utils/Urls";
 
+import { IPointOfView } from "./interfaces/IPointOfView";
+import { IViewerOptions } from "./interfaces/IViewerOptions";
+import { ComponentController } from "./ComponentController";
+import { Container } from "./Container";
+import { Navigator } from "./Navigator";
+import { Observer } from "./Observer";
 /**
  * @class Viewer
  *

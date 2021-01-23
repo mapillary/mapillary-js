@@ -11,5 +11,3 @@ export interface IOutlineCreateTagOptions {
      */
     color?: number;
 }
-
-export default IOutlineCreateTagOptions;

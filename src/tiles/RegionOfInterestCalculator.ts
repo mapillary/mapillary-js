@@ -1,15 +1,10 @@
-import {
-    RenderCamera,
-    ISize,
-} from "../Render";
-import {
-    Transform,
-    ViewportCoords,
-} from "../Geo";
-import {
-    IBoundingBox,
-    IRegionOfInterest,
-} from "../Tiles";
+import { IBoundingBox } from "./interfaces/IBoundingBox";
+import { IRegionOfInterest } from "./interfaces/IRegionOfInterest";
+
+import { Transform } from "../geo/Transform";
+import { ViewportCoords } from "../geo/ViewportCoords";
+import { RenderCamera } from "../render/RenderCamera";
+import { ISize } from "../render/interfaces/ISize";
 
 /**
  * @class RegionOfInterestCalculator
@@ -29,7 +24,10 @@ export class RegionOfInterestCalculator {
      *
      * @returns {IRegionOfInterest} A region of interest.
      */
-    public computeRegionOfInterest(renderCamera: RenderCamera, size: ISize, transform: Transform): IRegionOfInterest {
+    public computeRegionOfInterest(
+        renderCamera: RenderCamera,
+        size: ISize,
+        transform: Transform): IRegionOfInterest {
         let viewportBoundaryPoints: number[][] = this._viewportBoundaryPoints(4);
         let bbox: IBoundingBox = this._viewportPointsBoundingBox(viewportBoundaryPoints, renderCamera, transform);
         this._clipBoundingBox(bbox);
@@ -37,9 +35,9 @@ export class RegionOfInterestCalculator {
         const viewportPixelWidth: number = 2 / size.width;
         const viewportPixelHeight: number = 2 / size.height;
         let centralViewportPixel: number[][] = [
-            [-0.5 * viewportPixelWidth,  0.5 * viewportPixelHeight],
-            [ 0.5 * viewportPixelWidth,  0.5 * viewportPixelHeight],
-            [ 0.5 * viewportPixelWidth, -0.5 * viewportPixelHeight],
+            [-0.5 * viewportPixelWidth, 0.5 * viewportPixelHeight],
+            [0.5 * viewportPixelWidth, 0.5 * viewportPixelHeight],
+            [0.5 * viewportPixelWidth, -0.5 * viewportPixelHeight],
             [-0.5 * viewportPixelWidth, -0.5 * viewportPixelHeight],
         ];
 
@@ -61,7 +59,7 @@ export class RegionOfInterestCalculator {
             let d: number[] = ds[side];
             for (let i: number = 0; i < pointsPerSide; ++i) {
                 points.push([o[0] + d[0] * i / pointsPerSide,
-                             o[1] + d[1] * i / pointsPerSide]);
+                o[1] + d[1] * i / pointsPerSide]);
             }
         }
         return points;
@@ -70,7 +68,7 @@ export class RegionOfInterestCalculator {
     private _viewportPointsBoundingBox(viewportPoints: number[][], renderCamera: RenderCamera, transform: Transform): IBoundingBox {
         let basicPoints: number[][] = viewportPoints
             .map(
-                (point: number []): number[] => {
+                (point: number[]): number[] => {
                     return this._viewportCoords
                         .viewportToBasic(point[0], point[1], transform, renderCamera.perspective);
                 });
@@ -154,5 +152,3 @@ export class RegionOfInterestCalculator {
         return n > 0 ? 1 : n < 0 ? -1 : 0;
     }
 }
-
-export default RegionOfInterestCalculator;

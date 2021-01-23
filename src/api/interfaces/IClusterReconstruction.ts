@@ -1,4 +1,4 @@
-import CameraProjectionType from "./CameraProjectionType";
+import { CameraProjectionType } from "./CameraProjectionType";
 
 /**
  * Interface that represents a camera type in a cluster
@@ -122,5 +122,3 @@ export interface IClusterReconstruction {
      */
     shots: { [key: string]: IShot };
 }
-
-export default IClusterReconstruction;

@@ -1,4 +1,4 @@
-import {EdgeDirection} from "../../../Edge";
+import { EdgeDirection } from "../EdgeDirection";
 
 export interface IStep {
     direction: EdgeDirection;

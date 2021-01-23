@@ -1,34 +1,34 @@
+import * as THREE from "three";
+
 import {
+    combineLatest as observableCombineLatest,
     concat as observableConcat,
+    empty as observableEmpty,
     of as observableOf,
     zip as observableZip,
-    combineLatest as observableCombineLatest,
-    empty as observableEmpty,
     Observable,
     Subscription,
     Subject,
 } from "rxjs";
 
 import {
-    publishReplay,
-    pairwise,
     catchError,
-    takeUntil,
-    publish,
-    skipWhile,
-    scan,
-    filter,
     debounceTime,
-    startWith,
-    map,
-    switchMap,
-    withLatestFrom,
-    refCount,
-    first,
     distinctUntilChanged,
+    filter,
+    first,
+    map,
+    pairwise,
+    publish,
+    publishReplay,
+    refCount,
+    scan,
+    skipWhile,
+    startWith,
+    switchMap,
+    takeUntil,
+    withLatestFrom,
 } from "rxjs/operators";
-
-import * as THREE from "three";
 
 import {
     ISliderNodes,
@@ -37,49 +37,32 @@ import {
     PositionLookat,
 } from "./interfaces/interfaces";
 
-import {
-    Component,
-    ComponentService,
-    ISliderConfiguration,
-    ISliderKeys,
-    SliderDOMRenderer,
-    SliderGLRenderer,
-    SliderMode,
-} from "../../Component";
-import {
-    Spatial,
-    Transform,
-    ViewportCoords,
-} from "../../Geo";
-import { Node } from "../../Graph";
-import {
-    ICurrentState,
-    IFrame,
-    State,
-} from "../../State";
-import {
-    Container,
-    ImageSize,
-    Navigator,
-} from "../../Viewer";
-import {
-    GLRenderStage,
-    IGLRenderHash,
-    ISize,
-    IVNodeHash,
-    RenderCamera,
-} from "../../Render";
-import {
-    IBoundingBox,
-    ImageTileLoader,
-    ImageTileStore,
-    IRegionOfInterest,
-    RegionOfInterestCalculator,
-    TextureProvider,
-} from "../../Tiles";
-import {
-    Settings,
-} from "../../Utils";
+import { Node } from "../../graph/Node";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { Spatial } from "../../geo/Spatial";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { GLRenderStage } from "../../render/GLRenderStage";
+import { IGLRenderHash } from "../../render/interfaces/IGLRenderHash";
+import { ISize } from "../../render/interfaces/ISize";
+import { IVNodeHash } from "../../render/interfaces/IVNodeHash";
+import { RenderCamera } from "../../render/RenderCamera";
+import { ICurrentState } from "../../state/interfaces/ICurrentState";
+import { IFrame } from "../../state/interfaces/IFrame";
+import { State } from "../../state/State";
+import { ImageTileLoader } from "../../tiles/ImageTileLoader";
+import { ImageTileStore } from "../../tiles/ImageTileStore";
+import { IBoundingBox } from "../../tiles/interfaces/IBoundingBox";
+import { IRegionOfInterest } from "../../tiles/interfaces/IRegionOfInterest";
+import { RegionOfInterestCalculator } from "../../tiles/RegionOfInterestCalculator";
+import { TextureProvider } from "../../tiles/TextureProvider";
+import { Settings } from "../../utils/Settings";
+import { Component } from "../Component";
+import { ISliderConfiguration, ISliderKeys, SliderMode } from "../interfaces/ISliderConfiguration";
+import { SliderGLRenderer } from "./SliderGLRenderer";
+import { Transform } from "../../geo/Transform";
+import { ImageSize } from "../../viewer/ImageSize";
+import { SliderDOMRenderer } from "./SliderDOMRenderer";
 
 /**
  * @class SliderComponent
@@ -353,7 +336,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             fullPano$,
             sliderVisible$)
             .subscribe(
-                ([position, mode, motionless, fullPano, sliderVisible]: [number, SliderMode, boolean, boolean, boolean]): void => {
+                ([position, mode, motionless, fullPano]: [number, SliderMode, boolean, boolean, boolean]): void => {
                     if (motionless || mode === SliderMode.Stationary || fullPano) {
                         this._navigator.stateService.moveTo(1);
                     } else {
@@ -369,7 +352,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             sliderVisible$,
             this._container.renderService.size$).pipe(
                 map(
-                    ([position, mode, motionless, fullPano, sliderVisible, size]:
+                    ([position, mode, motionless, fullPano, sliderVisible]:
                         [number, SliderMode, boolean, boolean, boolean, ISize]): IVNodeHash => {
                         return {
                             name: this._name,
@@ -471,20 +454,6 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     console.error(e);
                 });
 
-        let previousNode$: Observable<Node> = this._navigator.stateService.currentState$.pipe(
-            map(
-                (frame: IFrame): Node => {
-                    return frame.state.previousNode;
-                }),
-            filter(
-                (node: Node): boolean => {
-                    return node != null;
-                }),
-            distinctUntilChanged(
-                undefined,
-                (node: Node): string => {
-                    return node.key;
-                }));
 
         const textureProvider$: Observable<TextureProvider> = this._navigator.stateService.currentState$.pipe(
             distinctUntilChanged(
@@ -587,7 +556,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                         return stalled;
                     }),
                 switchMap(
-                    (stalled: boolean): Observable<RenderCamera> => {
+                    (): Observable<RenderCamera> => {
                         return this._container.renderService.renderCameraFrame$.pipe(
                             first());
                     }),
@@ -687,7 +656,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                                         return hasTexture;
                                     }))),
                         catchError(
-                            (error: Error, caught: Observable<[HTMLImageElement, Node]>):
+                            (error: Error):
                                 Observable<[HTMLImageElement, Node]> => {
                                 console.error(`Failed to fetch high res image (${node.key})`, error);
 
@@ -825,7 +794,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                         return stalled;
                     }),
                 switchMap(
-                    (stalled: boolean): Observable<RenderCamera> => {
+                    (): Observable<RenderCamera> => {
                         return this._container.renderService.renderCameraFrame$.pipe(
                             first());
                     }),
@@ -1044,7 +1013,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                                         return hasTexture;
                                     }))),
                         catchError(
-                            (error: Error, caught: Observable<[HTMLImageElement, Node]>):
+                            (error: Error):
                                 Observable<[HTMLImageElement, Node]> => {
                                 console.error(`Failed to fetch high res image (${node.key})`, error);
 
@@ -1133,7 +1102,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     private _catchCacheNode$(key: string): Observable<Node> {
         return this._navigator.graphService.cacheNode$(key).pipe(
             catchError(
-                (error: Error, caught: Observable<Node>): Observable<Node> => {
+                (error: Error): Observable<Node> => {
                     console.error(`Failed to cache slider node (${key})`, error);
 
                     return observableEmpty();
@@ -1162,6 +1131,3 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         bbox.maxY = Math.max(0, Math.min(1, bbox.maxY));
     }
 }
-
-ComponentService.register(SliderComponent);
-export default SliderComponent;

@@ -26,5 +26,3 @@ export class JsonInflator {
         return <T>JSON.parse(inflated);
     }
 }
-
-export default JsonInflator;

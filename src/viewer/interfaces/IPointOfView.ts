@@ -17,5 +17,3 @@ export interface IPointOfView {
      */
     tilt: number;
 }
-
-export default IPointOfView;

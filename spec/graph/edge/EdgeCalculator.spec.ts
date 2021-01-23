@@ -1,8 +1,11 @@
-import {IGPano} from "../../../src/API";
-import {EdgeCalculator, IPotentialEdge} from "../../../src/Edge";
-import {GeoCoords, ILatLonAlt, Spatial} from "../../../src/Geo";
-import {Node} from "../../../src/Graph";
-import {EdgeCalculatorHelper} from "../../helper/EdgeCalculatorHelper.spec";
+import { IGPano } from "../../../src/api/interfaces/IGPano";
+import { GeoCoords } from "../../../src/geo/GeoCoords";
+import { ILatLonAlt } from "../../../src/geo/interfaces/ILatLonAlt";
+import { Spatial } from "../../../src/geo/Spatial";
+import { EdgeCalculator } from "../../../src/graph/edge/EdgeCalculator";
+import { IPotentialEdge } from "../../../src/graph/edge/interfaces/IPotentialEdge";
+import { Node } from "../../../src/graph/Node";
+import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper.spec";
 
 describe("EdgeCalculator.getPotentialEdges", () => {
     let precision: number = 7;

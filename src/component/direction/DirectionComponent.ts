@@ -1,38 +1,37 @@
 import * as vd from "virtual-dom";
 
 import {
-    of as observableOf,
     combineLatest as observableCombineLatest,
+    of as observableOf,
     Observable,
     Subscription,
     Subject,
 } from "rxjs";
 
 import {
-    switchMap,
+    catchError,
+    distinctUntilChanged,
+    filter,
+    map,
     share,
     startWith,
-    withLatestFrom,
-    map,
-    filter,
-    distinctUntilChanged,
+    switchMap,
     tap,
-    catchError,
+    withLatestFrom,
 } from "rxjs/operators";
 
-import {
-    ComponentService,
-    Component,
-    DirectionDOMRenderer,
-    IDirectionConfiguration,
-} from "../../Component";
-import { IEdgeStatus, Node, Sequence } from "../../Graph";
-import {
-    ISize,
-    IVNodeHash,
-    RenderCamera,
-} from "../../Render";
-import { Container, Navigator } from "../../Viewer";
+import { Component } from "../Component";
+
+import { Node } from "../../graph/Node";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { IEdgeStatus } from "../../graph/interfaces/IEdgeStatus";
+import { Sequence } from "../../graph/Sequence";
+import { ISize } from "../../render/interfaces/ISize";
+import { IVNodeHash } from "../../render/interfaces/IVNodeHash";
+import { RenderCamera } from "../../render/RenderCamera";
+import { IDirectionConfiguration } from "../interfaces/IDirectionConfiguration";
+import { DirectionDOMRenderer } from "./DirectionDOMRenderer";
 
 /**
  * @class DirectionComponent
@@ -166,7 +165,7 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                             this._navigator.graphService
                                 .cacheSequence$(node.sequenceKey).pipe(
                                     catchError(
-                                        (error: Error, caught: Observable<Sequence>): Observable<Sequence> => {
+                                        (error: Error): Observable<Sequence> => {
                                             console.error(`Failed to cache sequence (${node.sequenceKey})`, error);
 
                                             return observableOf<Sequence>(null);
@@ -233,6 +232,7 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
         this._hoveredKeySubscription.unsubscribe();
         this._nodeSubscription.unsubscribe();
         this._renderCameraSubscription.unsubscribe();
+        this._resizeSubscription.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): IDirectionConfiguration {
@@ -243,6 +243,3 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
         };
     }
 }
-
-ComponentService.register(DirectionComponent);
-export default DirectionComponent;

@@ -1,9 +1,13 @@
-import {NodeHelper} from "../helper/NodeHelper.spec";
+import { NodeHelper } from "../helper/NodeHelper.spec";
 
-import {ICoreNode, IFullNode} from "../../src/API";
-import {Camera} from "../../src/Geo";
-import {Node} from "../../src/Graph";
-import {IRotation, IState, StateBase, TransitionMode} from "../../src/State";
+import { Node } from "../../src/graph/Node";
+import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
+import { IFullNode } from "../../src/api/interfaces/IFullNode";
+import { IRotation } from "../../src/state/interfaces/IRotation";
+import { IState } from "../../src/state/interfaces/IState";
+import { StateBase } from "../../src/state/states/StateBase";
+import { Camera } from "../../src/geo/Camera";
+import { TransitionMode } from "../../src/state/TransitionMode";
 
 class TestStateBase extends StateBase {
     public traverse(): StateBase { return null; }

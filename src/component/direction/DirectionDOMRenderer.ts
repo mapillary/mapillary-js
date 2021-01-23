@@ -1,26 +1,18 @@
 import * as vd from "virtual-dom";
+import { AbortMapillaryError } from "../../error/AbortMapillaryError";
 
-import {
-    DirectionDOMCalculator,
-    IDirectionConfiguration,
-} from "../../Component";
-import {
-    EdgeDirection,
-    IEdge,
-} from "../../Edge";
-import {AbortMapillaryError} from "../../Error";
-import {Spatial} from "../../Geo";
-import {
-    IEdgeStatus,
-    Node,
-    Sequence,
-} from "../../Graph";
-import {
-    ISize,
-    RenderCamera,
-} from "../../Render";
-import {IRotation} from "../../State";
-import {Navigator} from "../../Viewer";
+import { Spatial } from "../../geo/Spatial";
+import { Node } from "../../graph/Node";
+import { Navigator } from "../../viewer/Navigator";
+import { EdgeDirection } from "../../graph/edge/EdgeDirection";
+import { IEdge } from "../../graph/edge/interfaces/IEdge";
+import { IEdgeStatus } from "../../graph/interfaces/IEdgeStatus";
+import { Sequence } from "../../graph/Sequence";
+import { ISize } from "../../render/interfaces/ISize";
+import { RenderCamera } from "../../render/RenderCamera";
+import { IRotation } from "../../state/interfaces/IRotation";
+import { IDirectionConfiguration } from "../interfaces/IDirectionConfiguration";
+import { DirectionDOMCalculator } from "./DirectionDOMCalculator";
 
 /**
  * @class DirectionDOMRenderer
@@ -47,7 +39,7 @@ export class DirectionDOMRenderer {
 
     private _stepDirections: EdgeDirection[];
     private _turnDirections: EdgeDirection[];
-    private _turnNames: {[dir: number]: string};
+    private _turnNames: { [dir: number]: string };
 
     private _isEdge: boolean = false;
 
@@ -591,5 +583,3 @@ export class DirectionDOMRenderer {
         return vd.h("div.DirectionsPerspective", properties, turns.concat(steps));
     }
 }
-
-export default DirectionDOMRenderer;

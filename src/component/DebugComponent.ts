@@ -1,10 +1,17 @@
-import { combineLatest as observableCombineLatest, BehaviorSubject, Subscription } from "rxjs";
-import { map } from "rxjs/operators";
 import * as vd from "virtual-dom";
 
-import { Component, ComponentService, IComponentConfiguration } from "../Component";
-import { IVNodeHash } from "../Render";
-import { IFrame } from "../State";
+import {
+    combineLatest as observableCombineLatest,
+    BehaviorSubject,
+    Subscription,
+} from "rxjs";
+import { map } from "rxjs/operators";
+
+import { Component } from "./Component";
+import { IComponentConfiguration } from "./interfaces/IComponentConfiguration";
+
+import { IVNodeHash } from "../render/interfaces/IVNodeHash";
+import { IFrame } from "../state/interfaces/IFrame";
 
 export class DebugComponent extends Component<IComponentConfiguration> {
     public static componentName: string = "debug";
@@ -99,6 +106,3 @@ export class DebugComponent extends Component<IComponentConfiguration> {
         this._open$.next(true);
     }
 }
-
-ComponentService.register(DebugComponent);
-export default DebugComponent;

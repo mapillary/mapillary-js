@@ -1,8 +1,6 @@
-import {IGLRender} from "../../Render";
+import { IGLRender } from "./IGLRender";
 
 export interface IGLRenderHash {
     name: string;
     render: IGLRender;
 }
-
-export default IGLRenderHash;

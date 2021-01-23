@@ -1,33 +1,25 @@
 import * as THREE from "three";
 
-import {Observable, Subject} from "rxjs";
+import { Observable, Subject } from "rxjs";
 
-import {ContainerMockCreator} from "../../helper/ContainerMockCreator.spec";
-import {EventHelper} from "../../helper/EventHelper.spec";
-import {FrameHelper} from "../../helper/FrameHelper.spec";
-import {MockCreator} from "../../helper/MockCreator.spec";
-import {NavigatorMockCreator} from "../../helper/NavigatorMockCreator.spec";
-import {TestComponent} from "../../helper/TestComponent.spec";
-import {TransformHelper} from "../../helper/TransformHelper.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
+import { EventHelper } from "../../helper/EventHelper.spec";
+import { FrameHelper } from "../../helper/FrameHelper.spec";
+import { MockCreator } from "../../helper/MockCreator.spec";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
+import { TestComponent } from "../../helper/TestComponent.spec";
+import { TransformHelper } from "../../helper/TransformHelper.spec";
 
-import {
-    DragPanHandler,
-} from "../../../src/Component";
-import {
-    Spatial,
-    Transform,
-    ViewportCoords,
-} from "../../../src/Geo";
-import { Node as GraphNode } from "../../../src/Graph";
-import {
-    RenderCamera,
-    RenderMode,
-} from "../../../src/Render";
-import {IFrame} from "../../../src/State";
-import {
-    Container,
-    Navigator,
-} from "../../../src/Viewer";
+import { Navigator } from "../../../src/viewer/Navigator";
+import { Node as GraphNode } from "../../../src/graph/Node";
+import { Transform } from "../../../src/geo/Transform";
+import { DragPanHandler } from "../../../src/component/mouse/DragPanHandler";
+import { Spatial } from "../../../src/geo/Spatial";
+import { ViewportCoords } from "../../../src/geo/ViewportCoords";
+import { RenderCamera } from "../../../src/render/RenderCamera";
+import { IFrame } from "../../../src/state/interfaces/IFrame";
+import { Container } from "../../../src/viewer/Container";
+import { RenderMode } from "../../../src/render/RenderMode";
 
 describe("DragPanHandler.ctor", () => {
     it("should be defined", () => {
@@ -233,7 +225,7 @@ describe("DragPanHandler.enable", () => {
         (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
-        .next(new RenderCamera(1, 1, RenderMode.Fill));
+            .next(new RenderCamera(1, 1, RenderMode.Fill));
 
         const transform: Transform = new TransformHelper().createTransform();
         spyOn(transform, "projectBasic").and.returnValue([1, 1]);
@@ -271,7 +263,7 @@ describe("DragPanHandler.enable", () => {
         (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
-        .next(new RenderCamera(1, 1, RenderMode.Fill));
+            .next(new RenderCamera(1, 1, RenderMode.Fill));
 
         const transform: Transform = new TransformHelper().createTransform();
         spyOn(transform, "projectBasic").and.returnValue([1, 1]);
@@ -310,7 +302,7 @@ describe("DragPanHandler.enable", () => {
         (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
-        .next(new RenderCamera(1, 1, RenderMode.Fill));
+            .next(new RenderCamera(1, 1, RenderMode.Fill));
 
         const transform: Transform = new TransformHelper().createTransform();
         spyOn(transform, "projectBasic").and.returnValue([1, 1]);
@@ -350,7 +342,7 @@ describe("DragPanHandler.enable", () => {
         (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
-        .next(new RenderCamera(1, 1, RenderMode.Fill));
+            .next(new RenderCamera(1, 1, RenderMode.Fill));
 
         const transform: Transform = new TransformHelper().createTransform();
         spyOn(transform, "projectBasic").and.returnValue([1, 1]);

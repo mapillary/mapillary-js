@@ -34,5 +34,3 @@ export interface INodeUrls {
    */
   thumb2048_url?: string;
 }
-
-export default INodeUrls;

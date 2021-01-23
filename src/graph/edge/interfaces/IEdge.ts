@@ -1,4 +1,4 @@
-import {IEdgeData} from "../../../Edge";
+import { IEdgeData } from "./IEdgeData";
 
 /**
  * Interface that describes the properties for an edge from
@@ -22,5 +22,3 @@ export interface IEdge {
      */
     data: IEdgeData;
 }
-
-export default IEdge;

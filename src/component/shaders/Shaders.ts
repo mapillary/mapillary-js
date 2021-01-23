@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import {IShader} from "../../Component";
+import { IShader } from "../interfaces/IShader";
 
 export class Shaders {
     public static equirectangular: IShader = {

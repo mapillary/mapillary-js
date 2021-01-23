@@ -24,13 +24,11 @@ export class FrameGenerator {
         }
     }
 
-     public get cancelAnimationFrame(): (handle: number) => void {
-         return this._cancelAnimationFrame;
-     }
+    public get cancelAnimationFrame(): (handle: number) => void {
+        return this._cancelAnimationFrame;
+    }
 
-     public get requestAnimationFrame(): (cb: () => void) => number {
-         return this._requestAnimationFrame;
-     }
+    public get requestAnimationFrame(): (cb: () => void) => number {
+        return this._requestAnimationFrame;
+    }
 }
-
-export default FrameGenerator;

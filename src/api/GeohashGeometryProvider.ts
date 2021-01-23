@@ -1,9 +1,10 @@
 import * as geohash from "latlon-geohash";
 
-import ILatLon from "./interfaces/ILatLon";
-import GeoCoords from "../geo/GeoCoords";
-import GeometryProviderBase from "./GeometryProviderBase";
-import ICellCorners, { ICellNeighbors } from "./interfaces/ICellCorners";
+import { GeometryProviderBase } from "./GeometryProviderBase";
+import { ICellCorners, ICellNeighbors } from "./interfaces/ICellCorners";
+import { ILatLon } from "./interfaces/ILatLon";
+
+import { GeoCoords } from "../geo/GeoCoords";
 
 /**
  * @class GeohashGeometryProvider
@@ -195,5 +196,3 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
         return cellIds;
     }
 }
-
-export default GeohashGeometryProvider;

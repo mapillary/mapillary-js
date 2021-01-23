@@ -1,12 +1,10 @@
 import * as THREE from "three";
 
-import {
-    GeoCoords,
-    ILatLonAlt,
-    Spatial,
-    Transform,
-} from "../Geo";
-import ViewportCoords from "./ViewportCoords";
+import { GeoCoords } from "./GeoCoords";
+import { Spatial } from "./Spatial";
+import { Transform } from "./Transform";
+import { ViewportCoords } from "./ViewportCoords";
+import { ILatLonAlt } from "./interfaces/ILatLonAlt";
 
 const geoCoords: GeoCoords = new GeoCoords();
 const spatial: Spatial = new Spatial();
@@ -41,7 +39,7 @@ export function computeProjectedPoints(
 
         for (let i: number = 0; i <= pointsPerLine; ++i) {
             basicPoints.push([v[0] + d[0] * i / pointsPerLine,
-                            v[1] + d[1] * i / pointsPerLine]);
+            v[1] + d[1] * i / pointsPerLine]);
         }
     }
 

@@ -10,43 +10,38 @@ import {
 } from "rxjs";
 
 import {
-    publish,
+    bufferCount,
+    catchError,
+    distinctUntilChanged,
+    filter,
     finalize,
-    startWith,
+    first,
+    map,
+    mergeMap,
+    publish,
     publishReplay,
     refCount,
-    map,
-    distinctUntilChanged,
-    switchMap,
     retry,
-    catchError,
     scan,
-    filter,
-    withLatestFrom,
-    first,
+    startWith,
+    switchMap,
     timeout,
-    bufferCount,
-    mergeMap,
+    withLatestFrom,
 } from "rxjs/operators";
 
-import { ILatLon } from "../API";
-import { EdgeDirection } from "../Edge";
-import {
-    Graph,
-    GraphCalculator,
-    GraphMode,
-    GraphService,
-    IEdgeStatus,
-    Node,
-    Sequence,
-} from "../Graph";
-import {
-    ICurrentState,
-    IFrame,
-    StateService,
-    State,
-} from "../State";
-import SubscriptionHolder from "../utils/SubscriptionHolder";
+import { ILatLon } from "../api/interfaces/ILatLon";
+import { GraphCalculator } from "../graph/GraphCalculator";
+import { GraphMode } from "../graph/GraphMode";
+import { GraphService } from "../graph/GraphService";
+import { Node } from '../graph/Node';
+import { Sequence } from "../graph/Sequence";
+import { EdgeDirection } from "../graph/edge/EdgeDirection";
+import { IEdgeStatus } from "../graph/interfaces/IEdgeStatus";
+import { State } from "../state/State";
+import { StateService } from "../state/StateService";
+import { ICurrentState } from "../state/interfaces/ICurrentState";
+import { IFrame } from "../state/interfaces/IFrame";
+import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
 export class PlayService {
     public static readonly sequenceSpeed: number = 0.54;
@@ -567,5 +562,3 @@ export class PlayService {
         return stateSpeed;
     }
 }
-
-export default PlayService;

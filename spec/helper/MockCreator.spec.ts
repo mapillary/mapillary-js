@@ -24,5 +24,3 @@ export class MockCreator {
         return instance;
     }
 }
-
-export default MockCreator;

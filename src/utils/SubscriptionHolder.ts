@@ -1,6 +1,6 @@
 import { Subscription } from "rxjs";
 
-export default class SubscriptionHolder {
+export class SubscriptionHolder {
     private _subscriptions: Subscription[] = [];
 
     public push(subscription: Subscription): void {

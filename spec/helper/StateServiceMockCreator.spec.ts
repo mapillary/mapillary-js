@@ -1,18 +1,14 @@
-import {Subject} from "rxjs";
+import { Subject } from "rxjs";
 
-import {MockCreator} from "./MockCreator.spec";
-import {MockCreatorBase} from "./MockCreatorBase.spec";
+import { MockCreator } from "./MockCreator.spec";
+import { MockCreatorBase } from "./MockCreatorBase.spec";
 
-import {
-    ILatLonAlt,
-    Transform,
-} from "../../src/Geo";
-import {Node} from "../../src/Graph";
-import {
-    IFrame,
-    StateService,
-    State,
-} from "../../src/State";
+import { Node } from "../../src/graph/Node";
+import { Transform } from "stream";
+import { ILatLonAlt } from "../../src/geo/interfaces/ILatLonAlt";
+import { IFrame } from "../../src/state/interfaces/IFrame";
+import { State } from "../../src/state/State";
+import { StateService } from "../../src/state/StateService";
 
 export class StateServiceMockCreator extends MockCreatorBase<StateService> {
     public create(): StateService {
@@ -32,5 +28,3 @@ export class StateServiceMockCreator extends MockCreatorBase<StateService> {
         return mock;
     }
 }
-
-export default StateServiceMockCreator;

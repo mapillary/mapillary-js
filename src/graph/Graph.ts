@@ -9,45 +9,39 @@ import {
 } from "rxjs";
 
 import {
-    tap,
-    refCount,
     catchError,
-    publish,
     finalize,
     map,
-    reduce,
-    mergeMap,
     mergeAll,
+    mergeMap,
     last,
+    publish,
     publishReplay,
+    reduce,
+    refCount,
+    tap,
 } from "rxjs/operators";
 
-import {
-    ICoreNode,
-    IFillNode,
-    IFullNode,
-    ILatLon,
-    ISequence,
-} from "../API";
-import {
-    IEdge,
-    IPotentialEdge,
-    EdgeCalculator,
-} from "../Edge";
-import { GraphMapillaryError } from "../Error";
-import {
-    FilterCreator,
-    FilterExpression,
-    FilterFunction,
-    IGraphConfiguration,
-    Node,
-    NodeCache,
-    Sequence,
-    GraphCalculator,
-} from "../Graph";
-import { GeoRBush } from "../Geo";
-import API from "../api/API";
-import { IDataProvider } from "../api/interfaces/interfaces";
+import { FilterCreator, FilterFunction } from "./FilterCreator";
+import { FilterExpression } from "./FilterExpression";
+import { GraphCalculator } from "./GraphCalculator";
+import { Node } from "./Node";
+import { NodeCache } from "./NodeCache";
+import { Sequence } from "./Sequence";
+import { IGraphConfiguration } from "./interfaces/IGraphConfiguration";
+import { EdgeCalculator } from "./edge/EdgeCalculator";
+import { IEdge } from "./edge/interfaces/IEdge";
+import { IPotentialEdge } from "./edge/interfaces/IPotentialEdge";
+
+import { API } from "../api/API";
+import { ICoreNode } from "../api/interfaces/ICoreNode";
+import { IDataProvider } from "../api/interfaces/IDataProvider";
+import { IFillNode } from "../api/interfaces/IFillNode";
+import { IFullNode } from "../api/interfaces/IFullNode";
+import { ISequence } from "../api/interfaces/ISequence";
+import { ILatLon } from "../api/interfaces/ILatLon";
+import { GraphMapillaryError } from "../error/GraphMapillaryError";
+import { GeoRBush } from "../geo/GeoRBush";
 
 type NodeIndexItem = {
     lat: number;
@@ -309,7 +303,7 @@ export class Graph {
                     return !(h in this._cachedTiles);
                 })
             .map(
-                (h): Observable<Graph> => {
+                (h: string): Observable<Graph> => {
                     return h in this._cachingTiles$ ?
                         this._cachingTiles$[h] :
                         this._cacheTile$(h);
@@ -1748,5 +1742,3 @@ export class Graph {
         }
     }
 }
-
-export default Graph;

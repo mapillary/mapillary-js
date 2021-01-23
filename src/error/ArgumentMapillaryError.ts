@@ -1,7 +1,7 @@
-import {MapillaryError} from "./MapillaryError";
+import { MapillaryError } from "./MapillaryError";
 
 export class ArgumentMapillaryError extends MapillaryError {
-    constructor (message?: string) {
+    constructor(message?: string) {
         super(message != null ? message : "The argument is not valid.");
 
         Object.setPrototypeOf(this, ArgumentMapillaryError.prototype);
@@ -9,5 +9,3 @@ export class ArgumentMapillaryError extends MapillaryError {
         this.name = "ArgumentMapillaryError";
     }
 }
-
-export default ArgumentMapillaryError;

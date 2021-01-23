@@ -1,10 +1,12 @@
-import {NodeHelper} from "./NodeHelper.spec";
-import {TransformHelper} from "./TransformHelper.spec";
+import { NodeHelper } from "./NodeHelper.spec";
+import { TransformHelper } from "./TransformHelper.spec";
 
-import {IGPano} from "../../src/API";
-import {Transform, Camera} from "../../src/Geo";
-import {Node} from "../../src/Graph";
-import {IFrame, State} from "../../src/State";
+import { Node } from "../../src/graph/Node";
+import { Transform } from "../../src/geo/Transform";
+import { IGPano } from "../../src/api/interfaces/IGPano";
+import { IFrame } from "../../src/state/interfaces/IFrame";
+import { State } from "../../src/state/State";
+import { Camera } from "../../src/geo/Camera";
 
 export class FrameHelper {
     private _nodeHelper: NodeHelper = new NodeHelper();
@@ -37,5 +39,3 @@ export class FrameHelper {
         };
     }
 }
-
-export default TransformHelper;

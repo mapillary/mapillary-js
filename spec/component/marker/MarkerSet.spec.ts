@@ -1,11 +1,8 @@
-import {first} from "rxjs/operators";
-import {Subscription} from "rxjs";
-
-import {ILatLon} from "../../../src/API";
-import {
-    Marker,
-    MarkerSet,
-} from "../../../src/Component";
+import { first } from "rxjs/operators";
+import { Subscription } from "rxjs";
+import { ILatLon } from "../../../src/api/interfaces/ILatLon";
+import { Marker } from "../../../src/component/marker/marker/Marker";
+import { MarkerSet } from "../../../src/component/marker/MarkerSet";
 
 class TestMarker extends Marker {
     constructor(id: string, latLon: ILatLon) { super(id, latLon); }

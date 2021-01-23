@@ -1,4 +1,3 @@
-
 /**
  * @interface ICircleMarkerOptions
  *
@@ -26,5 +25,3 @@ export interface ICircleMarkerOptions {
      */
     radius?: number;
 }
-
-export default ICircleMarkerOptions;
