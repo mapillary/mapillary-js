@@ -5,10 +5,19 @@ export function isBrowser(): boolean {
 export function isArraySupported(): boolean {
     return !!(
         Array.prototype &&
+        Array.prototype.concat &&
         Array.prototype.filter &&
         Array.prototype.indexOf &&
+        Array.prototype.join &&
         Array.prototype.map &&
-        Array.prototype.reverse
+        Array.prototype.push &&
+        Array.prototype.pop &&
+        Array.prototype.reverse &&
+        Array.prototype.shift &&
+        Array.prototype.slice &&
+        Array.prototype.splice &&
+        Array.prototype.sort &&
+        Array.prototype.unshift
     );
 }
 
@@ -72,4 +81,39 @@ export function isWebGLSupported(): boolean {
     }
 
     return true;
+}
+
+/**
+ * Test whether the current browser supports the full
+ * functionality of MapillaryJS.
+ *
+ * @description The full functionality includes WebGL rendering.
+ *
+ * @return {boolean}
+ *
+ * @example `var supported = Mapillary.isSupported();`
+ */
+export function isSupported(): boolean {
+    return isFallbackSupported() &&
+        isWebGLSupportedCached();
+}
+
+/**
+ * Test whether the current browser supports the fallback
+ * functionality of MapillaryJS.
+ *
+ * @description The fallback functionality does not include WebGL
+ * rendering, only 2D canvas rendering.
+ *
+ * @return {boolean}
+ *
+ * @example `var fallbackSupported = Mapillary.isFallbackSupported();`
+ */
+export function isFallbackSupported(): boolean {
+    return isBrowser() &&
+        isBlobSupported() &&
+        isArraySupported() &&
+        isFunctionSupported() &&
+        isJSONSupported() &&
+        isObjectSupported();
 }

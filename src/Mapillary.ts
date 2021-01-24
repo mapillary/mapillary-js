@@ -48,8 +48,8 @@ ComponentService.register(SliderComponent);
 ComponentService.register(RouteComponent);
 ComponentService.register(ZoomComponent);
 
-// Mapillary root module
-export * from "./Support";
+// Mapillary module
+export { isFallbackSupported, isSupported } from "./utils/Support";
 export { SliderMode } from "./component/interfaces/ISliderConfiguration";
 export { ComponentSize } from "./component/utils/ComponentSize";
 export { AbortMapillaryError } from "./error/AbortMapillaryError";
