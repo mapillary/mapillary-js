@@ -195,7 +195,7 @@ describe("TagSet.add", () => {
         const transform: Transform = new TransformHelper().createTransform();
         tagSet.activate(transform);
 
-        const tag: OutlineTag = new OutlineTag("id-1", new RectGeometry([0.5, 0.5]));
+        const tag: OutlineTag = new OutlineTag("id-1", new RectGeometry([0, 0, 1, 1]));
 
         tagSet.add([tag], transform);
 

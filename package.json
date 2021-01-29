@@ -23,12 +23,12 @@
     "falcor-http-datasource": "^0.1.3",
     "latlon-geohash": "^1.1.0",
     "martinez-polygon-clipping": "^0.7.0",
-    "pako": "^1.0.11",
+    "pako": "^2.0.3",
     "pbf": "^3.2.1",
     "rbush": "^3.0.1",
     "rxjs": "^6.5.5",
     "s2-geometry": "^1.2.10",
-    "three": "^0.117.1",
+    "three": "^0.125.2",
     "virtual-dom": "^2.1.1",
     "when": "^3.7.8"
   },
@@ -71,7 +71,8 @@
   },
   "browser": {
     "falcor": "./node_modules/falcor/dist/falcor.browser.min.js",
-    "three": "./node_modules/three/build/three.min.js"
+    "three": "./node_modules/three/build/three.min.js",
+    "pako": "./node_modules/pako/dist/pako.es5.min.js"
   },
   "browserslist": [
     "last 2 versions",

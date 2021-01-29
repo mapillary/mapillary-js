@@ -58,37 +58,38 @@ export class SimpleMarker extends Marker {
     }
 
     protected _createGeometry(position: number[]): void {
-        const radius: number = this._radius;
-        const cone: THREE.Mesh = new THREE.Mesh(
-            this._markerGeometry(radius, 8, 8),
-            new THREE.MeshBasicMaterial({
-                color: this._color,
-                opacity: this._opacity,
-                transparent: true,
-            }));
+        const radius = this._radius;
+        const height = this._markerHeight(radius);
+        const markerMaterial = new THREE.MeshBasicMaterial({
+            color: this._color,
+            opacity: this._opacity,
+            transparent: true,
+            depthWrite: false,
+        });
 
-        cone.renderOrder = 1;
+        const marker = new THREE.Mesh(
+            this._createMarkerGeometry(radius, 8, 8),
+            markerMaterial);
 
-        const ball: THREE.Mesh = new THREE.Mesh(
+        const interactive = new THREE.Mesh(
             new THREE.SphereGeometry(radius / 2, 8, 8),
             new THREE.MeshBasicMaterial({
                 color: this._ballColor,
                 opacity: this._ballOpacity,
                 transparent: true,
             }));
+        interactive.position.z = height;
 
-        ball.position.z = this._markerHeight(radius);
-
-        const group: THREE.Object3D = new THREE.Object3D();
-        group.add(ball);
-        group.add(cone);
+        const group = new THREE.Object3D();
+        group.add(interactive);
+        group.add(marker);
         group.position.fromArray(position);
 
         this._geometry = group;
     }
 
     protected _disposeGeometry(): void {
-        for (let mesh of <THREE.Mesh[]>this._geometry.children) {
+        for (const mesh of <THREE.Mesh[]>this._geometry.children) {
             mesh.geometry.dispose();
             (<THREE.Material>mesh.material).dispose();
         }
@@ -99,66 +100,67 @@ export class SimpleMarker extends Marker {
     }
 
     private _markerHeight(radius: number): number {
-        let t: number = Math.tan(Math.PI - this._circleToRayAngle);
+        const t = Math.tan(Math.PI - this._circleToRayAngle);
         return radius * Math.sqrt(1 + t * t);
     }
 
-    private _markerGeometry(radius: number, widthSegments: number, heightSegments: number): THREE.Geometry {
-        let geometry: THREE.Geometry = new THREE.Geometry();
+    private _createMarkerGeometry(
+        radius: number,
+        widthSegments: number,
+        heightSegments: number): THREE.BufferGeometry {
 
-        widthSegments = Math.max(3, Math.floor(widthSegments) || 8);
-        heightSegments = Math.max(2, Math.floor(heightSegments) || 6);
-        let height: number = this._markerHeight(radius);
+        const height = this._markerHeight(radius);
+        const circleToRayAngle = this._circleToRayAngle;
 
-        let vertices: any[] = [];
+        const indexRows: number[][] = [];
+        const positions =
+            new Float32Array(3 * (widthSegments + 1) * (heightSegments + 1));
+        let positionIndex = 0;
+        for (let y = 0; y <= heightSegments; ++y) {
+            const indexRow: number[] = [];
+            for (let x = 0; x <= widthSegments; ++x) {
+                const u = x / widthSegments * Math.PI * 2;
+                const v = y / heightSegments * Math.PI;
 
-        for (let y: number = 0; y <= heightSegments; ++y) {
-
-            let verticesRow: any[] = [];
-
-            for (let x: number = 0; x <= widthSegments; ++x) {
-                let u: number = x / widthSegments * Math.PI * 2;
-                let v: number = y / heightSegments * Math.PI;
-
-                let r: number;
-                if (v < this._circleToRayAngle) {
-                    r = radius;
-                } else {
-                    let t: number = Math.tan(v - this._circleToRayAngle);
+                let r = radius;
+                if (v > circleToRayAngle) {
+                    const t = Math.tan(v - circleToRayAngle);
                     r = radius * Math.sqrt(1 + t * t);
                 }
 
-                let vertex: THREE.Vector3 = new THREE.Vector3();
-                vertex.x = r * Math.cos(u) * Math.sin(v);
-                vertex.y = r * Math.sin(u) * Math.sin(v);
-                vertex.z = r * Math.cos(v) + height;
-
-                geometry.vertices.push(vertex);
-                verticesRow.push(geometry.vertices.length - 1);
+                const arrayIndex = 3 * positionIndex;
+                const sinv = Math.sin(v);
+                positions[arrayIndex + 0] = r * Math.cos(u) * sinv;
+                positions[arrayIndex + 1] = r * Math.sin(u) * sinv;
+                positions[arrayIndex + 2] = r * Math.cos(v) + height;
+                indexRow.push(positionIndex++);
             }
-            vertices.push(verticesRow);
+
+            indexRows.push(indexRow);
         }
 
-        for (let y: number = 0; y < heightSegments; ++y) {
-            for (let x: number = 0; x < widthSegments; ++x) {
-                let v1: number = vertices[y][x + 1];
-                let v2: number = vertices[y][x];
-                let v3: number = vertices[y + 1][x];
-                let v4: number = vertices[y + 1][x + 1];
+        const indices = new Uint16Array(6 * widthSegments * heightSegments);
+        let index = 0;
+        for (let y = 0; y < heightSegments; ++y) {
+            for (let x = 0; x < widthSegments; ++x) {
+                const pi1 = indexRows[y][x + 1];
+                const pi2 = indexRows[y][x];
+                const pi3 = indexRows[y + 1][x];
+                const pi4 = indexRows[y + 1][x + 1];
 
-                let n1: THREE.Vector3 = geometry.vertices[v1].clone().normalize();
-                let n2: THREE.Vector3 = geometry.vertices[v2].clone().normalize();
-                let n3: THREE.Vector3 = geometry.vertices[v3].clone().normalize();
-                let n4: THREE.Vector3 = geometry.vertices[v4].clone().normalize();
-
-                geometry.faces.push(new THREE.Face3(v1, v2, v4, [n1, n2, n4]));
-                geometry.faces.push(new THREE.Face3(v2, v3, v4, [n2.clone(), n3, n4.clone()]));
+                indices[index++] = pi1;
+                indices[index++] = pi2;
+                indices[index++] = pi4;
+                indices[index++] = pi2;
+                indices[index++] = pi3;
+                indices[index++] = pi4;
             }
         }
 
-        geometry.computeFaceNormals();
-        geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(), radius + height);
-
+        const geometry = new THREE.BufferGeometry();
+        const positionAttribute = new THREE.BufferAttribute(positions, 3);
+        geometry.setAttribute("position", positionAttribute);
+        geometry.setIndex(new THREE.BufferAttribute(indices, 1));
         return geometry;
     }
 }

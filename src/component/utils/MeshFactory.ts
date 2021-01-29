@@ -356,7 +356,7 @@ export class MeshFactory {
     }
 
     private _getImageSphereGeo(transform: Transform, node: Node): THREE.BufferGeometry {
-        let t: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
+        let t: THREE.Matrix4 = new THREE.Matrix4().copy(transform.srt).invert();
 
         // push everything at least 5 meters in front of the camera
         let minZ: number = 5.0 * transform.scale;
@@ -399,7 +399,7 @@ export class MeshFactory {
 
     private _getImagePlaneGeo(transform: Transform, node: Node): THREE.BufferGeometry {
         const undistortionMarginFactor: number = 3;
-        let t: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
+        let t: THREE.Matrix4 = new THREE.Matrix4().copy(transform.srt).invert();
 
         // push everything at least 5 meters in front of the camera
         let minZ: number = 5.0 * transform.scale;
@@ -445,7 +445,7 @@ export class MeshFactory {
     }
 
     private _getImagePlaneGeoFisheye(transform: Transform, node: Node): THREE.BufferGeometry {
-        let t: THREE.Matrix4 = new THREE.Matrix4().getInverse(transform.srt);
+        let t: THREE.Matrix4 = new THREE.Matrix4().copy(transform.srt).invert();
 
         // push everything at least 5 meters in front of the camera
         let minZ: number = 5.0 * transform.scale;
@@ -486,7 +486,7 @@ export class MeshFactory {
         return geometry;
     }
 
-    private _getFlatImageSphereGeo(transform: Transform): THREE.Geometry {
+    private _getFlatImageSphereGeo(transform: Transform): THREE.BufferGeometry {
         let gpano: IGPano = transform.gpano;
         let phiStart: number = 2 * Math.PI * gpano.CroppedAreaLeftPixels / gpano.FullPanoWidthPixels;
         let phiLength: number = 2 * Math.PI * gpano.CroppedAreaImageWidthPixels / gpano.FullPanoWidthPixels;
@@ -503,7 +503,7 @@ export class MeshFactory {
             thetaStart,
             thetaLength);
 
-        geometry.applyMatrix4(new THREE.Matrix4().getInverse(transform.rt));
+        geometry.applyMatrix4(new THREE.Matrix4().copy(transform.rt).invert());
 
         return geometry;
     }

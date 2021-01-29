@@ -361,7 +361,7 @@ export class Transform {
                 distance * bearing[2],
                 1);
 
-        v.applyMatrix4(new THREE.Matrix4().getInverse(this._rt));
+        v.applyMatrix4(new THREE.Matrix4().copy(this._rt).invert());
         return [v.x / v.w, v.y / v.w, v.z / v.w];
     }
 
