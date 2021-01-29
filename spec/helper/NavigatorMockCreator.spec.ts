@@ -9,14 +9,14 @@ import { PlayServiceMockCreator } from "./PlayServiceMockCreator.spec";
 import { StateServiceMockCreator } from "./StateServiceMockCreator.spec";
 
 import { Navigator } from "../../src/viewer/Navigator";
-import { API } from "../../src/api/API";
+import { APIWrapper } from "../../src/api/APIWrapper";
 import { CacheService } from "../../src/viewer/CacheService";
 
 export class NavigatorMockCreator extends MockCreatorBase<Navigator> {
     public create(): Navigator {
         const mock: Navigator = new MockCreator().create(Navigator, "Navigator");
 
-        this._mockProperty(mock, "api", new MockCreator().create(API, "API"));
+        this._mockProperty(mock, "api", new MockCreator().create(APIWrapper, "APIWrapper"));
         this._mockProperty(mock, "cacheService", new MockCreator().create(CacheService, "CacheService"));
         this._mockProperty(mock, "graphService", new GraphServiceMockCreator().create());
         this._mockProperty(mock, "loadingService", new LoadingServiceMockCreator().create());

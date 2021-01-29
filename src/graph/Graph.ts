@@ -33,7 +33,7 @@ import { EdgeCalculator } from "./edge/EdgeCalculator";
 import { IEdge } from "./edge/interfaces/IEdge";
 import { IPotentialEdge } from "./edge/interfaces/IPotentialEdge";
 
-import { API } from "../api/API";
+import { APIWrapper } from "../api/APIWrapper";
 import { ICoreNode } from "../api/interfaces/ICoreNode";
 import { IDataProvider } from "../api/interfaces/IDataProvider";
 import { IFillNode } from "../api/interfaces/IFillNode";
@@ -81,7 +81,7 @@ type SequenceAccess = {
  * @classdesc Represents a graph of nodes with edges.
  */
 export class Graph {
-    private _api: API;
+    private _api: APIWrapper;
 
     /**
      * Nodes that have initialized cache with a timestamp of last access.
@@ -196,7 +196,7 @@ export class Graph {
     /**
      * Create a new graph instance.
      *
-     * @param {API} [api] - API instance for retrieving data.
+     * @param {APIWrapper} [api] - API instance for retrieving data.
      * @param {rbush.RBush<NodeIndexItem>} [nodeIndex] - Node index for fast spatial retreival.
      * @param {GraphCalculator} [graphCalculator] - Instance for graph calculations.
      * @param {EdgeCalculator} [edgeCalculator] - Instance for edge calculations.
@@ -204,7 +204,7 @@ export class Graph {
      * @param {IGraphConfiguration} [configuration] - Configuration struct.
      */
     constructor(
-        api: API,
+        api: APIWrapper,
         nodeIndex?: GeoRBush<NodeIndexItem>,
         graphCalculator?: GraphCalculator,
         edgeCalculator?: EdgeCalculator,

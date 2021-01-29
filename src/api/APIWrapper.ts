@@ -9,13 +9,12 @@ import { IFillNode } from "./interfaces/IFillNode";
 import { IFullNode } from "./interfaces/IFullNode";
 import { ISequence } from "./interfaces/ISequence";
 
-
 /**
  * @class API
  *
  * @classdesc Provides methods for access to the API.
  */
-export class API {
+export class APIWrapper {
     constructor(private _data: IDataProvider) { }
 
     public get data(): IDataProvider {
