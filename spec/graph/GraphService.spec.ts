@@ -5,7 +5,7 @@ import { take, first, skip } from "rxjs/operators";
 import { NodeHelper } from "../helper/NodeHelper.spec";
 
 import { Node } from "../../src/graph/Node";
-import { API } from "../../src/api/API";
+import { APIWrapper } from "../../src/api/APIWrapper";
 import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
 import { Graph } from "../../src/graph/Graph";
 import { GraphMode } from "../../src/graph/GraphMode";
@@ -15,7 +15,7 @@ import { Sequence } from "../../src/graph/Sequence";
 
 describe("GraphService.ctor", () => {
     it("should create a graph service", () => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         const graphService: GraphService = new GraphService(graph);
@@ -26,7 +26,7 @@ describe("GraphService.ctor", () => {
 
 describe("GraphService.cacheBoundingBox$", () => {
     it("should call cache bounding box on graph", (done: Function) => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         const cacheBoundingBoxSpy: jasmine.Spy = spyOn(graph, "cacheBoundingBox$");
@@ -50,7 +50,7 @@ describe("GraphService.cacheBoundingBox$", () => {
 
 describe("GraphService.cacheSequence$", () => {
     it("should cache sequence when graph does not have sequence", () => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingSequence").and.returnValue(false);
@@ -74,7 +74,7 @@ describe("GraphService.cacheSequence$", () => {
     });
 
     it("should cache sequence when graph is caching sequence", () => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingSequence").and.returnValue(true);
@@ -98,7 +98,7 @@ describe("GraphService.cacheSequence$", () => {
     });
 
     it("should not cache sequence when graph have sequence", () => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingSequence").and.returnValue(false);
@@ -124,7 +124,7 @@ describe("GraphService.cacheSequence$", () => {
 
 describe("GraphService.cacheSequenceNodes$", () => {
     it("should cache sequence nodes when graph does not have sequence nodes", () => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingSequence").and.returnValue(false);
@@ -150,7 +150,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
     });
 
     it("should cache sequence nodes when graph is caching sequence nodes", () => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingSequence").and.returnValue(false);
@@ -176,7 +176,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
     });
 
     it("should not cache sequence nodes when graph has sequence nodes", () => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingSequence").and.returnValue(false);
@@ -202,7 +202,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
     });
 
     it("should supply reference node key if present", () => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingSequence").and.returnValue(false);
@@ -234,7 +234,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
 
 describe("GraphService.graphMode$", () => {
     it("should start in spatial graph mode", (done: () => void) => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         const graphService: GraphService = new GraphService(graph);
@@ -249,7 +249,7 @@ describe("GraphService.graphMode$", () => {
     });
 
     it("should set sequence mode", (done: () => void) => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         const graphService: GraphService = new GraphService(graph);
@@ -267,7 +267,7 @@ describe("GraphService.graphMode$", () => {
     });
 
     it("should not apply mode if same as current", (done: () => void) => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         const graphService: GraphService = new GraphService(graph);
@@ -295,7 +295,7 @@ describe("GraphService.graphMode$", () => {
     it("should cancel spatial edge caching when setting graph mode to sequence", () => {
         spyOn(console, "error").and.stub();
 
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
@@ -390,7 +390,7 @@ describe("GraphService.cacheNode$", () => {
     });
 
     it("should cache and return node", (done: Function) => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
@@ -441,7 +441,7 @@ describe("GraphService.cacheNode$", () => {
     });
 
     it("should fill and return node", (done: Function) => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
@@ -491,7 +491,7 @@ describe("GraphService.cacheNode$", () => {
     });
 
     it("should cache node sequence and sequence edges", () => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
@@ -542,7 +542,7 @@ describe("GraphService.cacheNode$", () => {
     });
 
     it("should cache spatial edges", () => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
@@ -581,7 +581,7 @@ describe("GraphService.cacheNode$", () => {
     });
 
     it("should cache spatial edges if in spatial mode", () => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
@@ -623,7 +623,7 @@ describe("GraphService.cacheNode$", () => {
     });
 
     it("should not cache spatial edges if in sequence mode", () => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
@@ -669,7 +669,7 @@ describe("GraphService.reset$", () => {
     it("should abort node caching and throw", () => {
         spyOn(console, "error").and.stub();
 
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
@@ -725,7 +725,7 @@ describe("GraphService.reset$", () => {
     it("should cancel sequence edge caching", () => {
         spyOn(console, "error").and.stub();
 
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
@@ -783,7 +783,7 @@ describe("GraphService.reset$", () => {
     it("should cancel spatial edge caching", () => {
         spyOn(console, "error").and.stub();
 
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
@@ -847,7 +847,7 @@ describe("GraphService.setFilter$", () => {
     });
 
     it("should reset spatial edges and set filter", () => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         const resetSpatialEdgesSpy: jasmine.Spy = spyOn(graph, "resetSpatialEdges").and.stub();
@@ -868,7 +868,7 @@ describe("GraphService.setFilter$", () => {
     });
 
     it("should cancel spatial subscriptions", () => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
@@ -929,7 +929,7 @@ describe("GraphService.setFilter$", () => {
 
 describe("GraphService.uncache$", () => {
     it("should call graph uncache", () => {
-        const api: API = new API(undefined);
+        const api: APIWrapper = new APIWrapper(undefined);
         const graph: Graph = new Graph(api);
 
         const uncacheSpy: jasmine.Spy = spyOn(graph, "uncache").and.stub();

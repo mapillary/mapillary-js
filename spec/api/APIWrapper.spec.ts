@@ -1,20 +1,20 @@
 import { empty as observableEmpty, Observable } from "rxjs";
 
 import { catchError } from "rxjs/operators";
-import { API } from "../../src/api/API";
+import { APIWrapper } from "../../src/api/APIWrapper";
 import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
 import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
 import { IFillNode } from "../../src/api/interfaces/IFillNode";
 import { ISequence } from "../../src/api/interfaces/ISequence";
 
-describe("API.ctor", () => {
-    it("should create an API instance", () => {
-        const api: API = new API(undefined);
+describe("APIWrapperctor", () => {
+    it("should create an APIWrapper instance", () => {
+        const api: APIWrapper = new APIWrapper(undefined);
         expect(api).toBeDefined();
     });
 });
 
-describe("API.imageByKeyFill$", () => {
+describe("APIWrapperimageByKeyFill$", () => {
     it("should call data provider correctly", (done: Function) => {
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -26,7 +26,7 @@ describe("API.imageByKeyFill$", () => {
         const providerSpy: jasmine.Spy = spyOn(provider, "getFillImages");
         providerSpy.and.returnValue(promise);
 
-        const api: API = new API(provider);
+        const api: APIWrapper = new APIWrapper(provider);
 
         const key: string = "key";
 
@@ -54,7 +54,7 @@ describe("API.imageByKeyFill$", () => {
         const providerSpy: jasmine.Spy = spyOn(provider, "getFillImages");
         providerSpy.and.returnValue(promise);
 
-        const api: API = new API(provider);
+        const api: APIWrapper = new APIWrapper(provider);
 
         const key: string = "key";
 
@@ -73,7 +73,7 @@ describe("API.imageByKeyFill$", () => {
     });
 });
 
-describe("API.imageByKeyFull$", () => {
+describe("APIWrapperimageByKeyFull$", () => {
     it("should call provider correctly", (done: Function) => {
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -85,7 +85,7 @@ describe("API.imageByKeyFull$", () => {
         const providerSpy: jasmine.Spy = spyOn(provider, "getFullImages");
         providerSpy.and.returnValue(promise);
 
-        const api: API = new API(provider);
+        const api: APIWrapper = new APIWrapper(provider);
 
         const key: string = "key";
 
@@ -113,7 +113,7 @@ describe("API.imageByKeyFull$", () => {
         const providerSpy: jasmine.Spy = spyOn(provider, "getFullImages");
         providerSpy.and.returnValue(promise);
 
-        const api: API = new API(provider);
+        const api: APIWrapper = new APIWrapper(provider);
 
         const key: string = "key";
 
@@ -132,7 +132,7 @@ describe("API.imageByKeyFull$", () => {
     });
 });
 
-describe("API.imagesByH$", () => {
+describe("APIWrapperimagesByH$", () => {
     it("should call provider correctly", (done: Function) => {
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -144,7 +144,7 @@ describe("API.imagesByH$", () => {
         const providerSpy: jasmine.Spy = spyOn(provider, "getCoreImages");
         providerSpy.and.returnValue(promise);
 
-        const api: API = new API(provider);
+        const api: APIWrapper = new APIWrapper(provider);
 
         const h: string = "h";
 
@@ -172,7 +172,7 @@ describe("API.imagesByH$", () => {
         const providerSpy: jasmine.Spy = spyOn(provider, "getCoreImages");
         providerSpy.and.returnValue(promise);
 
-        const api: API = new API(provider);
+        const api: APIWrapper = new APIWrapper(provider);
 
         const h: string = "h";
 
@@ -191,7 +191,7 @@ describe("API.imagesByH$", () => {
     });
 });
 
-describe("API.sequenceByKey$", () => {
+describe("APIWrappersequenceByKey$", () => {
     it("should call provider correctly", (done: Function) => {
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -203,7 +203,7 @@ describe("API.sequenceByKey$", () => {
         const providerSpy: jasmine.Spy = spyOn(provider, "getSequences");
         providerSpy.and.returnValue(promise);
 
-        const api: API = new API(provider);
+        const api: APIWrapper = new APIWrapper(provider);
 
         const skey: string = "skey";
 
@@ -231,7 +231,7 @@ describe("API.sequenceByKey$", () => {
         const providerSpy: jasmine.Spy = spyOn(provider, "getSequences");
         providerSpy.and.returnValue(promise);
 
-        const api: API = new API(provider);
+        const api: APIWrapper = new APIWrapper(provider);
 
         const skey: string = "skey";
 
@@ -250,12 +250,12 @@ describe("API.sequenceByKey$", () => {
     });
 });
 
-describe("API.setToken", () => {
+describe("APIWrappersetToken", () => {
     it("should call provider correctly", () => {
         const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
         const providerSpy: jasmine.Spy = spyOn(provider, "setUserToken");
 
-        const api: API = new API(provider);
+        const api: APIWrapper = new APIWrapper(provider);
 
         api.setUserToken("token");
 

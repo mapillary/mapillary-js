@@ -11,7 +11,7 @@ import {
 } from "rxjs/operators";
 import { NodeHelper } from "../helper/NodeHelper.spec";
 import { Node } from "../../src/graph/Node";
-import { API } from "../../src/api/API";
+import { APIWrapper } from "../../src/api/APIWrapper";
 import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
 import { GeohashGeometryProvider } from "../../src/api/GeohashGeometryProvider";
 import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
@@ -30,7 +30,7 @@ import { Sequence } from "../../src/graph/Sequence";
 
 describe("Graph.ctor", () => {
     it("should create a graph", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
 
         const graph: Graph = new Graph(api);
 
@@ -38,7 +38,7 @@ describe("Graph.ctor", () => {
     });
 
     it("should create a graph with all ctor params", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -60,7 +60,7 @@ describe("Graph.cacheBoundingBox$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -111,7 +111,7 @@ describe("Graph.cacheBoundingBox$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -188,7 +188,7 @@ describe("Graph.cacheBoundingBox$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -254,7 +254,7 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should be fetching", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -272,7 +272,7 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should fetch", (done: Function) => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -305,7 +305,7 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should not make additional calls when fetching same node twice", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -324,7 +324,7 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should throw when fetching node already in graph", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -347,7 +347,7 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should throw if sequence key is missing", (done: Function) => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -377,7 +377,7 @@ describe("Graph.cacheFull$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -458,7 +458,7 @@ describe("Graph.cacheFill$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -511,7 +511,7 @@ describe("Graph.cacheFill$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -569,7 +569,7 @@ describe("Graph.cacheFill$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -623,7 +623,7 @@ describe("Graph.cacheFill$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -649,7 +649,7 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should throw if node does not exist", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -662,7 +662,7 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should throw if already full", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -697,7 +697,7 @@ describe("Graph.cacheTiles$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -728,7 +728,7 @@ describe("Graph.cacheTiles$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -771,7 +771,7 @@ describe("Graph.cacheTiles$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -801,7 +801,7 @@ describe("Graph.cacheTiles$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -849,7 +849,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should throw when sequence does not exist", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -860,7 +860,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not be cached", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -887,7 +887,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -916,7 +916,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should be cached and not caching", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -958,7 +958,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
@@ -1011,7 +1011,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
@@ -1066,7 +1066,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
@@ -1119,7 +1119,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
@@ -1172,7 +1172,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const h: string = "h";
@@ -1252,7 +1252,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const h: string = "h";
@@ -1328,7 +1328,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should throw if caching already cached sequence nodes", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1363,7 +1363,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should only call API once if caching multiple times before response", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1400,7 +1400,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not be cached and not caching on error", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1436,7 +1436,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching in with single batch when lass than or equal to 200 nodes", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1473,7 +1473,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching in batches when more than 200 nodes", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1511,7 +1511,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching prioritized batch when reference node key is specified at start", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1554,7 +1554,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching prioritized batch when reference node key is specified at end", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1598,7 +1598,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching in prioritized batches when reference node key is specified in middle", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1643,7 +1643,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not corrupt sequence when caching in batches", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1677,7 +1677,7 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should create single batch when fewer than or equal to 50 nodes", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1733,7 +1733,7 @@ describe("Graph.cacheSpatialArea$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1764,7 +1764,7 @@ describe("Graph.cacheSpatialArea$", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1823,7 +1823,7 @@ describe("Graph.cacheSpatialEdges", () => {
     });
 
     it("should use fallback keys", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1879,7 +1879,7 @@ describe("Graph.cacheSpatialEdges", () => {
     });
 
     it("should apply filter", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -1940,7 +1940,7 @@ describe("Graph.cacheSpatialEdges", () => {
     });
 
     it("should apply remove by filtering", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -2008,7 +2008,7 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should not be cached", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2029,7 +2029,7 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should be caching", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2057,7 +2057,7 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should be cached", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2095,7 +2095,7 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should throw if node not in graph", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2114,7 +2114,7 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should throw if already cached", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2148,7 +2148,7 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should call api only once when caching the same sequence twice in succession", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2177,7 +2177,7 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should emit to changed stream", (done: Function) => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2219,7 +2219,7 @@ describe("Graph.cacheNodeSequence$", () => {
 
 describe("Graph.cacheSequence$", () => {
     it("should not be cached", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2231,7 +2231,7 @@ describe("Graph.cacheSequence$", () => {
     });
 
     it("should not be caching", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2243,7 +2243,7 @@ describe("Graph.cacheSequence$", () => {
     });
 
     it("should be caching", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2261,7 +2261,7 @@ describe("Graph.cacheSequence$", () => {
     });
 
     it("should cache", (done: Function) => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2293,7 +2293,7 @@ describe("Graph.cacheSequence$", () => {
     });
 
     it("should call api only once when caching the same sequence twice in succession", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2320,7 +2320,7 @@ describe("Graph.resetSpatialEdges", () => {
     });
 
     it("should use fallback keys", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -2389,7 +2389,7 @@ describe("Graph.resetSpatialEdges", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
@@ -2490,7 +2490,7 @@ describe("Graph.reset", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2528,7 +2528,7 @@ describe("Graph.reset", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2567,7 +2567,7 @@ describe("Graph.reset", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2620,7 +2620,7 @@ describe("Graph.uncache", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2666,7 +2666,7 @@ describe("Graph.uncache", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2713,7 +2713,7 @@ describe("Graph.uncache", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2759,7 +2759,7 @@ describe("Graph.uncache", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2807,7 +2807,7 @@ describe("Graph.uncache", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2855,7 +2855,7 @@ describe("Graph.uncache", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -2936,7 +2936,7 @@ describe("Graph.uncache", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3000,7 +3000,7 @@ describe("Graph.uncache", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3066,7 +3066,7 @@ describe("Graph.uncache", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3131,7 +3131,7 @@ describe("Graph.uncache", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3192,7 +3192,7 @@ describe("Graph.uncache", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3288,7 +3288,7 @@ describe("Graph.uncache", () => {
     });
 
     it("should uncache sequence", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3328,7 +3328,7 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache sequence if specified to keep", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3368,7 +3368,7 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache sequence if number below threshold", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3408,7 +3408,7 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache sequence accessed last", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3480,7 +3480,7 @@ describe("Graph.uncache", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3543,7 +3543,7 @@ describe("Graph.uncache", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3608,7 +3608,7 @@ describe("Graph.uncache", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
@@ -3672,7 +3672,7 @@ describe("Graph.uncache", () => {
         const dataProvider: IDataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: API = new API(dataProvider);
+        const api: APIWrapper = new APIWrapper(dataProvider);
         const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 

@@ -10,7 +10,7 @@ import { NodeHelper } from "../helper/NodeHelper.spec";
 import { StateServiceMockCreator } from "../helper/StateServiceMockCreator.spec";
 import { FrameHelper } from "../helper/FrameHelper.spec";
 import { Node } from "../../src/graph/Node";
-import { API } from "../../src/api/API";
+import { APIWrapper } from "../../src/api/APIWrapper";
 import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
 import { IFullNode } from "../../src/api/interfaces/IFullNode";
 import { Graph } from "../../src/graph/Graph";
@@ -28,7 +28,7 @@ import { EdgeDirection } from "../../src/graph/edge/EdgeDirection";
 
 describe("PlayService.ctor", () => {
     it("should be defined when constructed", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
@@ -38,7 +38,7 @@ describe("PlayService.ctor", () => {
     });
 
     it("should emit default values", (done: () => void) => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
@@ -62,7 +62,7 @@ describe("PlayService.ctor", () => {
 
 describe("PlayService.playing", () => {
     it("should be playing after calling play", (done: () => void) => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
@@ -82,7 +82,7 @@ describe("PlayService.playing", () => {
     });
 
     it("should not be playing after calling stop", (done: () => void) => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
@@ -118,7 +118,7 @@ describe("PlayService.playing", () => {
 
 describe("PlayService.speed$", () => {
     it("should emit when changing speed", (done: () => void) => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
@@ -137,7 +137,7 @@ describe("PlayService.speed$", () => {
     });
 
     it("should not emit when setting current speed", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
@@ -170,7 +170,7 @@ describe("PlayService.speed$", () => {
     });
 
     it("should clamp speed values to 0, 1 interval", (done: () => void) => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
@@ -219,14 +219,14 @@ let createState: () => ICurrentState = (): ICurrentState => {
 describe("PlayService.play", () => {
     let nodeHelper: NodeHelper;
 
-    let api: API;
+    let api: APIWrapper;
     let graphService: GraphService;
     let stateService: StateService;
 
     beforeEach(() => {
         nodeHelper = new NodeHelper();
 
-        api = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         graphService = new GraphService(new Graph(api));
         stateService = new StateServiceMockCreator().create();
     });

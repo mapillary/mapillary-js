@@ -23,7 +23,7 @@ import { PanService } from "./PanService";
 import { PlayService } from "./PlayService";
 import { IViewerOptions } from "./interfaces/IViewerOptions";
 
-import { API } from "../api/API";
+import { APIWrapper } from "../api/APIWrapper";
 import { DataProviderBase } from "../api/DataProviderBase";
 import { FalcorDataProvider } from "../api/FalcorDataProvider";
 import { AbortMapillaryError } from "../error/AbortMapillaryError";
@@ -37,7 +37,7 @@ import { StateService } from "../state/StateService";
 import { IFrame } from "../state/interfaces/IFrame";
 
 export class Navigator {
-    private _api: API;
+    private _api: APIWrapper;
 
     private _cacheService: CacheService;
     private _graphService: GraphService;
@@ -56,7 +56,7 @@ export class Navigator {
 
     constructor(
         options: IViewerOptions,
-        api?: API,
+        api?: APIWrapper,
         graphService?: GraphService,
         loadingService?: LoadingService,
         stateService?: StateService,
@@ -67,12 +67,12 @@ export class Navigator {
         if (!!api) {
             this._api = api;
         } else if (typeof options.apiClient === 'string') {
-            this._api = new API(new FalcorDataProvider({
+            this._api = new APIWrapper(new FalcorDataProvider({
                 clientToken: options.apiClient,
                 userToken: options.userToken,
             }));
         } else if (options.apiClient instanceof DataProviderBase) {
-            this._api = new API(options.apiClient);
+            this._api = new APIWrapper(options.apiClient);
         } else {
             throw new Error(`Invalid type: 'apiClient' must be a String or an object instance extending the DataProvderBase class.`);
         }
@@ -106,7 +106,7 @@ export class Navigator {
         this._nodeRequestSubscription = null;
     }
 
-    public get api(): API {
+    public get api(): APIWrapper {
         return this._api;
     }
 

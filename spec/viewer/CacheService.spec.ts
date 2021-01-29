@@ -3,7 +3,7 @@ import { of as observableOf, Subject } from "rxjs";
 import { NodeHelper } from "../helper/NodeHelper.spec";
 
 import { Node } from "../../src/graph/Node";
-import { API } from "../../src/api/API";
+import { APIWrapper } from "../../src/api/APIWrapper";
 import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
 import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
 import { Graph } from "../../src/graph/Graph";
@@ -17,7 +17,7 @@ import { CacheService } from "../../src/viewer/CacheService";
 
 describe("CacheService.ctor", () => {
     it("should be defined when constructed", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
@@ -29,7 +29,7 @@ describe("CacheService.ctor", () => {
 
 describe("CacheService.started", () => {
     it("should not be started", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
@@ -39,7 +39,7 @@ describe("CacheService.started", () => {
     });
 
     it("should be started after calling start", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
@@ -51,7 +51,7 @@ describe("CacheService.started", () => {
     });
 
     it("should not be started after calling stop", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService();
 
@@ -106,7 +106,7 @@ describe("CacheService.start", () => {
     });
 
     it("should call graph service uncache method", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         graphService.setGraphMode(GraphMode.Spatial);
@@ -148,7 +148,7 @@ describe("CacheService.start", () => {
     });
 
     it("should call graph service uncache method with sequence key of last trajectory node", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         graphService.setGraphMode(GraphMode.Sequence);
@@ -191,7 +191,7 @@ describe("CacheService.start", () => {
     });
 
     it("should cache current node if switching to sequence graph mode", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
 
@@ -234,7 +234,7 @@ describe("CacheService.start", () => {
     });
 
     it("should cache all trajectory nodes ahead if switching to spatial graph mode", () => {
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
 
@@ -286,7 +286,7 @@ describe("CacheService.start", () => {
     it("should keep the subscription open if caching a node fails", () => {
         spyOn(console, "error").and.stub();
 
-        const api: API = new API(new FalcorDataProvider({ clientToken: "cid" }));
+        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
 
