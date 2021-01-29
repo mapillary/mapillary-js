@@ -97,7 +97,7 @@ describe("OutlineRenderTag.dispose", () => {
 
         const disposeSpies: jasmine.Spy[] = [];
         for (const glObject of glObjects) {
-            disposeSpies.push(spyOn(<THREE.Geometry>glObject.geometry, "dispose").and.stub());
+            disposeSpies.push(spyOn(<THREE.BufferGeometry>glObject.geometry, "dispose").and.stub());
             disposeSpies.push(spyOn(<THREE.Material>glObject.material, "dispose").and.stub());
         }
 

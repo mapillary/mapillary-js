@@ -30,6 +30,10 @@ export class RectGeometry extends VertexGeometry {
     constructor(rect: number[]) {
         super();
 
+        if (rect.length !== 4) {
+            throw new GeometryTagError("Rectangle needs to have four values.");
+        }
+
         if (rect[1] > rect[3]) {
             throw new GeometryTagError("Basic Y coordinates values can not be inverted.");
         }

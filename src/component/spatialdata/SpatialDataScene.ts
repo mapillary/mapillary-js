@@ -468,17 +468,30 @@ class TileLine extends THREE.Line {
         (<THREE.Material>this.material).dispose();
     }
 
-    private _createGeometry(bbox: number[][]): THREE.Geometry {
+    private _createGeometry(bbox: number[][]): THREE.BufferGeometry {
         const sw: number[] = bbox[0];
         const ne: number[] = bbox[1];
 
-        const geometry: THREE.Geometry = new THREE.Geometry();
-        geometry.vertices.push(
-            new THREE.Vector3().fromArray(sw),
-            new THREE.Vector3(sw[0], ne[1], (sw[2] + ne[2]) / 2),
-            new THREE.Vector3().fromArray(ne),
-            new THREE.Vector3(ne[0], sw[1], (sw[2] + ne[2]) / 2),
-            new THREE.Vector3().fromArray(sw));
+        const vertices = [
+            sw.slice(),
+            [sw[0], ne[1], (sw[2] + ne[2]) / 2],
+            ne.slice(),
+            [ne[0], sw[1], (sw[2] + ne[2]) / 2],
+            sw.slice(),
+        ];
+
+        const positions = new Float32Array(3 * vertices.length);
+        let index = 0;
+        for (const vertex of vertices) {
+            positions[index++] = vertex[0];
+            positions[index++] = vertex[1];
+            positions[index++] = vertex[2];
+        }
+
+        const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+        geometry.setAttribute(
+            "position",
+            new THREE.BufferAttribute(positions, 3));
 
         return geometry;
     }

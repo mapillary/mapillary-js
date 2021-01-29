@@ -101,7 +101,7 @@ export abstract class InteractiveStateBase extends StateBase {
         }
 
         const q: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(this._currentCamera.up, new THREE.Vector3(0, 0, 1));
-        const qInverse: THREE.Quaternion = q.clone().inverse();
+        const qInverse: THREE.Quaternion = q.clone().invert();
 
         const offset: THREE.Vector3 = new THREE.Vector3()
             .copy(this._desiredLookat)
@@ -315,7 +315,7 @@ export abstract class InteractiveStateBase extends StateBase {
         }
 
         let q: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3(0, 0, 1));
-        let qInverse: THREE.Quaternion = q.clone().inverse();
+        let qInverse: THREE.Quaternion = q.clone().invert();
 
         let offset: THREE.Vector3 = new THREE.Vector3();
         offset.copy(camera.lookat).sub(camera.position);

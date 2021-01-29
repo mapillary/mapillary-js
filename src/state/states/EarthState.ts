@@ -56,7 +56,7 @@ export class EarthState extends StateBase {
     public orbit(rotation: IRotation): void {
         const camera: Camera = this._camera;
         const q: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3(0, 0, 1));
-        const qInverse: THREE.Quaternion = q.clone().inverse();
+        const qInverse: THREE.Quaternion = q.clone().invert();
 
         const offset: THREE.Vector3 = new THREE.Vector3();
         offset.copy(camera.position).sub(camera.lookat);
