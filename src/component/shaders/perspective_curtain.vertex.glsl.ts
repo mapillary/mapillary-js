@@ -1,3 +1,4 @@
+export const perspectiveCurtainVert = `
 #ifdef GL_ES
 precision highp float;
 #endif
@@ -11,3 +12,4 @@ void main()
     vRstq = projectorMat * vec4(position, 1.0);
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }
+`

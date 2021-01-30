@@ -1,3 +1,4 @@
+export const fisheyeFrag = `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
@@ -12,26 +13,31 @@ uniform float k2;
 uniform float scale_x;
 uniform float scale_y;
 uniform float radial_peak;
-uniform float curtain;
 
 varying vec4 vRstq;
 
 void main()
 {
-    float x = vRstq.x / vRstq.z;
-    float y = vRstq.y / vRstq.z;
-    float r2 = x * x + y * y;
+    float x = vRstq.x;
+    float y = vRstq.y;
+    float z = vRstq.z;
 
-    if (radial_peak > 0. && r2 > radial_peak * sqrt(r2)) {
-        r2 = radial_peak * radial_peak;
+    float r = sqrt(x * x + y * y);
+    float theta = atan(r, z);
+
+    if (radial_peak > 0. && theta > radial_peak) {
+        theta = radial_peak;
     }
 
-    float d = 1.0 + k1 * r2 + k2 * r2 * r2;
-    float u = scale_x * focal * d * x + 0.5;
-    float v = - scale_y * focal * d * y + 0.5;
+    float theta2 = theta * theta;
+    float theta_d = theta * (1.0 + theta2 * (k1 + theta2 * k2));
+    float s = focal * theta_d / r;
+
+    float u = scale_x * s * x + 0.5;
+    float v = -scale_y * s * y + 0.5;
 
     vec4 baseColor;
-    if ((u < curtain || curtain >= 1.0) && u >= 0. && u <= 1. && v >= 0. && v <= 1.) {
+    if (u >= 0. && u <= 1. && v >= 0. && v <= 1.) {
         baseColor = texture2D(projectorTex, vec2(u, v));
         baseColor.a = opacity;
     } else {
@@ -40,3 +46,4 @@ void main()
 
     gl_FragColor = baseColor;
 }
+`

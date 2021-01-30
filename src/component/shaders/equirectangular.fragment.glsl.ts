@@ -1,3 +1,4 @@
+export const equirectangularFrag = `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
@@ -24,3 +25,4 @@ void main()
     baseColor.a = opacity;
     gl_FragColor = baseColor;
 }
+`
