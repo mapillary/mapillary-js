@@ -1,0 +1,15 @@
+{
+    "entryPoints": [
+        "./src/Mapillary.ts"
+    ],
+    "excludeExternals": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "hideGenerator": true,
+    "includeVersion": true,
+    "name": "MapillaryJS",
+    "out": "./docs/build/",
+    "readme": "./docs/landing.md",
+    "theme": "./docs/theme/",
+    "tsconfig": "./tsconfig.json"
+}
