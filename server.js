@@ -1,12 +1,12 @@
 'use strict';
 
 const autoprefixer = require('autoprefixer');
-const express = require('express');
 const brfs = require('brfs');
 const browserify = require('browserify-middleware');
+const express = require('express');
 const fs = require('fs')
 const path = require('path');
-const postcss = require('postcss-middleware');
+const postcss = require('postcss');
 const tsify = require('tsify');
 const inline = require('postcss-inline-svg')({
     paths: ['./styles'],
@@ -40,14 +40,38 @@ app.get('/dist/mapillary.js', browserify('./src/Mapillary.ts', {
     transform: ['brfs'],
 }));
 
-app.get('/dist/mapillary.min.css', postcss({
-    src: () => { return path.join(__dirname, 'styles', '*.css'); },
-    plugins: [
+app.get('/dist/mapillary.min.css', (_, res) => {
+    const styles = path.join(__dirname, 'styles');
+    const css = fs.readdirSync(styles)
+        .map(filename => path.join(styles, filename))
+        .filter(
+            filepath => {
+                const isFile = fs.statSync(filepath).isFile();
+                if (!isFile) { return false; }
+                const isCss = path.extname(filepath) === '.css';
+                if (!isCss) { return false; }
+                return true;
+            })
+        .map(
+            filepath => {
+                return fs.readFileSync(filepath, { encoding: 'utf8' });
+            })
+        .reduce((acc, curr) => acc + curr, '');
+
+    const from = path.join(__dirname, 'styles', 'mapillary-js.css');
+    const map = false;
+    const processor = postcss([
         autoprefixer,
         inline,
         cssnano,
-    ]
-}));
+    ]);
+    processor.process(css, { from, map }).then(result => {
+        res.writeHead(200, {
+            'Content-Type': 'text/css'
+        });
+        res.end(result.css);
+    });
+});
 
 app.get('/debug', (_, res) => { res.redirect('/'); });
 app.use(express.static(path.join(__dirname, 'debug')));
