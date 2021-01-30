@@ -1,3 +1,4 @@
+export const equirectangularCurtainFrag = `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
@@ -41,3 +42,4 @@ void main()
 
     gl_FragColor = baseColor;
 }
+`

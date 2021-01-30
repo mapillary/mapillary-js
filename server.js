@@ -1,7 +1,6 @@
 'use strict';
 
 const autoprefixer = require('autoprefixer');
-const brfs = require('brfs');
 const browserify = require('browserify-middleware');
 const express = require('express');
 const fs = require('fs')
@@ -37,7 +36,6 @@ app.get('/dist/mapillary.js', browserify('./src/Mapillary.ts', {
     }],
     precompile: true,
     standalone: 'Mapillary',
-    transform: ['brfs'],
 }));
 
 app.get('/dist/mapillary.min.css', (_, res) => {
