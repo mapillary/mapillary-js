@@ -1,8 +1,8 @@
 import { Subject } from "rxjs";
 import { TouchService } from "../../src/viewer/TouchService";
 
-import { MockCreator } from "./MockCreator.spec";
-import { MockCreatorBase } from "./MockCreatorBase.spec";
+import { MockCreator } from "./MockCreator";
+import { MockCreatorBase } from "./MockCreatorBase";
 
 export class TouchServiceMockCreator extends MockCreatorBase<TouchService> {
     public create(): TouchService {

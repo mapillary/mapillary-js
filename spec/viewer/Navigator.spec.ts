@@ -1,3 +1,6 @@
+import { bootstrap } from "../Bootstrap";
+bootstrap();
+
 import {
     empty as observableEmpty,
     of as observableOf,
@@ -7,8 +10,8 @@ import {
 } from "rxjs";
 import { first } from "rxjs/operators";
 
-import { NodeHelper } from "../helper/NodeHelper.spec";
-import { StateServiceMockCreator } from "../helper/StateServiceMockCreator.spec";
+import { NodeHelper } from "../helper/NodeHelper";
+import { StateServiceMockCreator } from "../helper/StateServiceMockCreator";
 
 import { Navigator } from "../../src/viewer/Navigator";
 import { Node } from "../../src/graph/Node";

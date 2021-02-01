@@ -1,6 +1,6 @@
 import { switchMap } from "rxjs/operators";
 import { Observable } from "rxjs";
-import { EventHelper } from "../helper/EventHelper.spec";
+import { EventHelper } from "../helper/EventHelper";
 import { MouseService } from "../../src/viewer/MouseService";
 
 describe("MouseService.ctor", () => {

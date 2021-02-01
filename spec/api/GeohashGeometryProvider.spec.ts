@@ -3,8 +3,11 @@ import { GeohashGeometryProvider } from "../../src/api/GeohashGeometryProvider";
 import { MapillaryError } from "../../src/error/MapillaryError";
 import { GeoCoords } from "../../src/geo/GeoCoords";
 
+jest.mock("latlon-geohash");
+const mockedGeohash = geohash as jest.Mocked<typeof geohash>;
+
 describe("GeohashGeometryProvider.ctor", () => {
-    it("should be defined", () => {
+    test("should be defined", () => {
         const geometry: GeohashGeometryProvider = new GeohashGeometryProvider();
 
         expect(geometry).toBeDefined();
@@ -12,20 +15,21 @@ describe("GeohashGeometryProvider.ctor", () => {
 });
 
 describe("GeohashGeometryProvider.latLonToCellId", () => {
-    it("should call encoder correctly", () => {
-        const encodeSpy: jasmine.Spy = spyOn(geohash, "encode");
-        encodeSpy.and.returnValue("0,0");
+    beforeEach(() => { mockedGeohash.encode.mockClear(); });
 
-        const geometry: GeohashGeometryProvider = new GeohashGeometryProvider();
+    test("should call encoder correctly", () => {
+        const mockEncode = mockedGeohash.encode.mockReturnValueOnce("0,0");
+
+        const level = 7;
+        const geometry = new GeohashGeometryProvider();
 
         const lat: number = -1;
         const lon: number = 1;
 
         geometry.latLonToCellId({ lat: -1, lon: 1 });
 
-        expect(encodeSpy.calls.count()).toBe(1);
-        expect(encodeSpy.calls.first().args[0]).toBe(lat);
-        expect(encodeSpy.calls.first().args[1]).toBe(lon);
+        expect(mockEncode).toHaveBeenCalledTimes(1);
+        expect(mockEncode).toHaveBeenCalledWith(lat, lon, level);
     });
 });
 
@@ -57,7 +61,7 @@ describe("GeohashGeometryProvider.latLonToCellIds", () => {
                 });
         };
 
-    it("should return h of position only", () => {
+    test("should return h of position only", () => {
         const geoCoords: GeoCoords = new GeoCoords();
         const geometry: GeohashGeometryProvider = new GeohashGeometryProvider(geoCoords);
 
@@ -72,7 +76,7 @@ describe("GeohashGeometryProvider.latLonToCellIds", () => {
         expect(hs[0]).toBe("0,0");
     });
 
-    it("should return h of position and north neighbour", () => {
+    test("should return h of position and north neighbour", () => {
         const geoCoords: GeoCoords = new GeoCoords();
         const geometry: GeohashGeometryProvider = new GeohashGeometryProvider(geoCoords);
 
@@ -88,7 +92,7 @@ describe("GeohashGeometryProvider.latLonToCellIds", () => {
         expect(hs.indexOf("0,1")).not.toBe(-1);
     });
 
-    it("should return h of position and east neighbour", () => {
+    test("should return h of position and east neighbour", () => {
         const geoCoords: GeoCoords = new GeoCoords();
         const geometry: GeohashGeometryProvider = new GeohashGeometryProvider(geoCoords);
 
@@ -104,7 +108,7 @@ describe("GeohashGeometryProvider.latLonToCellIds", () => {
         expect(hs.indexOf("1,0")).not.toBe(-1);
     });
 
-    it("should return h of position and south neighbour", () => {
+    test("should return h of position and south neighbour", () => {
         const geoCoords: GeoCoords = new GeoCoords();
         const geometry: GeohashGeometryProvider = new GeohashGeometryProvider(geoCoords);
 
@@ -120,7 +124,7 @@ describe("GeohashGeometryProvider.latLonToCellIds", () => {
         expect(hs.indexOf("0,-1")).not.toBe(-1);
     });
 
-    it("should return h of position and west neighbour", () => {
+    test("should return h of position and west neighbour", () => {
         const geoCoords: GeoCoords = new GeoCoords();
         const geometry: GeohashGeometryProvider = new GeohashGeometryProvider(geoCoords);
 
@@ -136,7 +140,7 @@ describe("GeohashGeometryProvider.latLonToCellIds", () => {
         expect(hs.indexOf("-1,0")).not.toBe(-1);
     });
 
-    it("should return h of position and north east neighbours", () => {
+    test("should return h of position and north east neighbours", () => {
         const geoCoords: GeoCoords = new GeoCoords();
         const geometry: GeohashGeometryProvider = new GeohashGeometryProvider(geoCoords);
 
@@ -154,7 +158,7 @@ describe("GeohashGeometryProvider.latLonToCellIds", () => {
         expect(hs.indexOf("1,0")).not.toBe(-1);
     });
 
-    it("should return h of position and south east neighbours", () => {
+    test("should return h of position and south east neighbours", () => {
         const geoCoords: GeoCoords = new GeoCoords();
         const geometry: GeohashGeometryProvider = new GeohashGeometryProvider(geoCoords);
 
@@ -172,7 +176,7 @@ describe("GeohashGeometryProvider.latLonToCellIds", () => {
         expect(hs.indexOf("0,-1")).not.toBe(-1);
     });
 
-    it("should return h of position and south west neighbours", () => {
+    test("should return h of position and south west neighbours", () => {
         const geoCoords: GeoCoords = new GeoCoords();
         const geometry: GeohashGeometryProvider = new GeohashGeometryProvider(geoCoords);
 
@@ -190,7 +194,7 @@ describe("GeohashGeometryProvider.latLonToCellIds", () => {
         expect(hs.indexOf("-1,0")).not.toBe(-1);
     });
 
-    it("should return h of position and north west neighbours", () => {
+    test("should return h of position and north west neighbours", () => {
         const geoCoords: GeoCoords = new GeoCoords();
         const geometry: GeohashGeometryProvider = new GeohashGeometryProvider(geoCoords);
 
@@ -208,7 +212,7 @@ describe("GeohashGeometryProvider.latLonToCellIds", () => {
         expect(hs.indexOf("0,1")).not.toBe(-1);
     });
 
-    it("should return h of position and all neighbours", () => {
+    test("should return h of position and all neighbours", () => {
         const geoCoords: GeoCoords = new GeoCoords();
         const geometry: GeohashGeometryProvider = new GeohashGeometryProvider(geoCoords);
 
@@ -233,7 +237,7 @@ describe("GeohashGeometryProvider.latLonToCellIds", () => {
 });
 
 describe("GeohashGeometryProvider.bboxToCellIds", () => {
-    it("should throw if north east is not larger than south west", () => {
+    test("should throw if north east is not larger than south west", () => {
         const geometry: GeohashGeometryProvider = new GeohashGeometryProvider();
 
         expect(() => { geometry.bboxToCellIds({ lat: 0, lon: 0 }, { lat: -1, lon: 1 }); })
@@ -244,7 +248,7 @@ describe("GeohashGeometryProvider.bboxToCellIds", () => {
             .toThrowError(MapillaryError);
     });
 
-    it("should call latLonToCellIds with center and correct threshold", () => {
+    test("should call latLonToCellIds with center and correct threshold", () => {
         const geoCoords: GeoCoords = new GeoCoords();
         const geometry: GeohashGeometryProvider = new GeohashGeometryProvider(geoCoords);
 

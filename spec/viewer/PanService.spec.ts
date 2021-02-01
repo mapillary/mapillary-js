@@ -8,10 +8,10 @@ import { GraphService } from "../../src/graph/GraphService";
 import { IFrame } from "../../src/state/interfaces/IFrame";
 import { StateService } from "../../src/state/StateService";
 import { PanService } from "../../src/viewer/PanService";
-import { FrameHelper } from "../helper/FrameHelper.spec";
-import { GraphServiceMockCreator } from "../helper/GraphServiceMockCreator.spec";
-import { NodeHelper } from "../helper/NodeHelper.spec";
-import { StateServiceMockCreator } from "../helper/StateServiceMockCreator.spec";
+import { FrameHelper } from "../helper/FrameHelper";
+import { GraphServiceMockCreator } from "../helper/GraphServiceMockCreator";
+import { NodeHelper } from "../helper/NodeHelper";
+import { StateServiceMockCreator } from "../helper/StateServiceMockCreator";
 
 describe("PanService.ctor", () => {
     it("should be defined when constructed", () => {

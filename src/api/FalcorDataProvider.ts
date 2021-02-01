@@ -1,4 +1,7 @@
-import * as falcor from "falcor";
+import {
+    JSONEnvelope,
+    Model,
+} from "falcor";
 
 import { BufferFetcher } from "./BufferFetcher";
 import { DataProviderBase } from "./DataProviderBase";
@@ -134,7 +137,7 @@ export class FalcorDataProviderUrls {
 export class FalcorDataProvider extends DataProviderBase {
     private _urls: FalcorDataProviderUrls;
 
-    private _model: falcor.Model;
+    private _model: Model;
     private _modelCreator: ModelCreator;
 
     private _pageCount: number;
@@ -235,7 +238,7 @@ export class FalcorDataProvider extends DataProviderBase {
      */
     public getCoreImages(cellId: string):
         Promise<{ [cellId: string]: { [imageKey: string]: ICoreNode } }> {
-        return Promise.resolve(<PromiseLike<falcor.JSONEnvelope<IImagesByH<ICoreNode>>>>this._model
+        return Promise.resolve(<PromiseLike<JSONEnvelope<IImagesByH<ICoreNode>>>>this._model
             .get([
                 this._pathImagesByH,
                 [cellId],
@@ -243,7 +246,7 @@ export class FalcorDataProvider extends DataProviderBase {
                 this._propertiesKey
                     .concat(this._propertiesCore)]))
             .then(
-                (value: falcor.JSONEnvelope<IImagesByH<ICoreNode>>): { [h: string]: { [index: string]: ICoreNode } } => {
+                (value: JSONEnvelope<IImagesByH<ICoreNode>>): { [h: string]: { [index: string]: ICoreNode } } => {
                     if (!value) {
                         value = { json: { imagesByH: {} } };
                         for (const h of [cellId]) {
@@ -287,7 +290,7 @@ export class FalcorDataProvider extends DataProviderBase {
      * @inheritdoc
      */
     public getFillImages(keys: string[]): Promise<{ [key: string]: IFillNode }> {
-        return Promise.resolve(<PromiseLike<falcor.JSONEnvelope<IImageByKey<IFillNode>>>>this._model
+        return Promise.resolve(<PromiseLike<JSONEnvelope<IImageByKey<IFillNode>>>>this._model
             .get([
                 this._pathImageByKey,
                 keys,
@@ -297,7 +300,7 @@ export class FalcorDataProvider extends DataProviderBase {
                 this._propertiesKey
                     .concat(this._propertiesUser)]))
             .then(
-                (value: falcor.JSONEnvelope<IImageByKey<IFillNode>>): { [key: string]: IFillNode } => {
+                (value: JSONEnvelope<IImageByKey<IFillNode>>): { [key: string]: IFillNode } => {
                     if (!value) {
                         this._invalidateGet(this._pathImageByKey, keys);
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
@@ -315,7 +318,7 @@ export class FalcorDataProvider extends DataProviderBase {
      * @inheritdoc
      */
     public getFullImages(keys: string[]): Promise<{ [key: string]: IFullNode }> {
-        return Promise.resolve(<PromiseLike<falcor.JSONEnvelope<IImageByKey<IFullNode>>>>this._model
+        return Promise.resolve(<PromiseLike<JSONEnvelope<IImageByKey<IFullNode>>>>this._model
             .get([
                 this._pathImageByKey,
                 keys,
@@ -326,7 +329,7 @@ export class FalcorDataProvider extends DataProviderBase {
                 this._propertiesKey
                     .concat(this._propertiesUser)]))
             .then(
-                (value: falcor.JSONEnvelope<IImageByKey<IFullNode>>): { [key: string]: IFullNode } => {
+                (value: JSONEnvelope<IImageByKey<IFullNode>>): { [key: string]: IFullNode } => {
                     if (!value) {
                         this._invalidateGet(this._pathImageByKey, keys);
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
@@ -385,14 +388,14 @@ export class FalcorDataProvider extends DataProviderBase {
      */
     public getSequences(sequenceKeys: string[]):
         Promise<{ [sequenceKey: string]: ISequence }> {
-        return Promise.resolve(<PromiseLike<falcor.JSONEnvelope<ISequenceByKey<ISequence>>>>this._model
+        return Promise.resolve(<PromiseLike<JSONEnvelope<ISequenceByKey<ISequence>>>>this._model
             .get([
                 this._pathSequenceByKey,
                 sequenceKeys,
                 this._propertiesKey
                     .concat(this._propertiesSequence)]))
             .then(
-                (value: falcor.JSONEnvelope<ISequenceByKey<ISequence>>): { [sequenceKey: string]: ISequence } => {
+                (value: JSONEnvelope<ISequenceByKey<ISequence>>): { [sequenceKey: string]: ISequence } => {
                     if (!value) {
                         value = { json: { sequenceByKey: {} } };
                     }

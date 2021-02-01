@@ -1,18 +1,22 @@
+import { bootstrap } from "../Bootstrap";
+bootstrap();
+
 import { Subject } from "rxjs";
 import { WebGLRenderer } from "three";
 
-import * as Viewer from "../../src/viewer/Viewer";
 import * as Container from "../../src/viewer/Container";
 import * as Navigator from "../../src/viewer/Navigator";
 
 import { CustomRenderer } from "../../src/viewer/CustomRenderer";
-import { ContainerMockCreator } from "../helper/ContainerMockCreator.spec";
-import { MockCreator } from "../helper/MockCreator.spec";
-import { NavigatorMockCreator } from "../helper/NavigatorMockCreator.spec";
-import { RendererMock } from "../helper/WebGLRenderer.spec";
+import { ContainerMockCreator } from "../helper/ContainerMockCreator";
+import { MockCreator } from "../helper/MockCreator";
+import { NavigatorMockCreator } from "../helper/NavigatorMockCreator";
+import { RendererMock } from "../helper/WebGLRenderer";
 import { ILatLonAlt } from "../../src/geo/interfaces/ILatLonAlt";
 import { RenderCamera } from "../../src/render/RenderCamera";
-import { RenderMode } from "../../src/Mapillary";
+import { RenderMode } from "../../src/render/RenderMode";
+
+global.WebGL2RenderingContext = <any>jest.fn();
 
 describe("CustomRenderer.ctor", () => {
     it("should be definded", () => {
@@ -35,16 +39,14 @@ describe("CustomRenderer.add", () => {
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
         spyOn(Container, "Container").and.returnValue(container);
-        spyOn(Viewer, "Viewer").and.stub();
 
         const customRenderer = new CustomRenderer(
             container,
             navigator);
 
-        const viewer = new Viewer.Viewer({ apiClient: "", container: "" });
         const id = "id";
 
-        expect(customRenderer.has(id)).toBeFalse();
+        expect(customRenderer.has(id)).toBe(false);
 
         customRenderer.add(
             {
@@ -54,9 +56,9 @@ describe("CustomRenderer.add", () => {
                 onRemove: () => { /* noop */ },
                 render: () => { /* noop */ },
             },
-            viewer);
+            <any>{});
 
-        expect(customRenderer.has(id)).toBeTrue();
+        expect(customRenderer.has(id)).toBe(true);
     });
 });
 
@@ -71,7 +73,7 @@ describe("CustomRenderer.add", () => {
             container,
             navigator);
 
-        const viewerMock = new Viewer.Viewer({ apiClient: "", container: "" });
+        const viewerMock = <any>{};
         const referenceMock = { alt: 1, lat: 2, lon: 2 };
         const rendererId = "id";
 
@@ -82,7 +84,7 @@ describe("CustomRenderer.add", () => {
                     expect(viewer).toBe(viewerMock);
                     expect(reference).toBe(referenceMock);
                     expect(context).toBe(contextMock);
-                    expect(customRenderer.has(rendererId)).toBeTrue();
+                    expect(customRenderer.has(rendererId)).toBe(true);
                     done();
                 },
                 onReferenceChanged: () => { /* noop */ },
@@ -111,7 +113,7 @@ describe("CustomRenderer.add", () => {
             container,
             navigator);
 
-        const viewerMock = new Viewer.Viewer({ apiClient: "", container: "" });
+        const viewerMock = <any>{};
         const referenceMock = { alt: 1, lat: 2, lon: 2 };
         const rendererId = "id";
 
@@ -148,7 +150,7 @@ describe("CustomRenderer.add", () => {
             container,
             navigator);
 
-        const viewerMock = new Viewer.Viewer({ apiClient: "", container: "" });
+        const viewerMock = <any>{};
         const referenceMock = { alt: 1, lat: 2, lon: 2 };
         const rendererId = "id";
 
@@ -188,7 +190,7 @@ describe("CustomRenderer.add", () => {
             container,
             navigator);
 
-        const viewerMock = new Viewer.Viewer({ apiClient: "", container: "" });
+        const viewerMock = <any>{};
         const referenceMock = { alt: 1, lat: 2, lon: 2 };
         const rendererId = "id";
 
@@ -246,13 +248,12 @@ describe("CustomRenderer.remove", () => {
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
         spyOn(Container, "Container").and.returnValue(container);
-        spyOn(Viewer, "Viewer").and.stub();
 
         const customRenderer = new CustomRenderer(
             container,
             navigator);
 
-        const viewer = new Viewer.Viewer({ apiClient: "", container: "" });
+        const viewer = <any>{};
         const id = "id";
 
         customRenderer.add(
@@ -266,7 +267,7 @@ describe("CustomRenderer.remove", () => {
             viewer);
         customRenderer.remove(id, viewer);
 
-        expect(customRenderer.has(id)).toBeFalse();
+        expect(customRenderer.has(id)).toBe(false);
     });
 
     it("should invoke onRemove after dispose", done => {
@@ -279,7 +280,7 @@ describe("CustomRenderer.remove", () => {
             container,
             navigator);
 
-        const viewerMock = new Viewer.Viewer({ apiClient: "", container: "" });
+        const viewerMock = <any>{};
         const referenceMock = { alt: 1, lat: 2, lon: 2 };
         const rendererId = "id";
 
@@ -291,7 +292,7 @@ describe("CustomRenderer.remove", () => {
                 onRemove: (viewer, context) => {
                     expect(viewer).toBe(viewerMock);
                     expect(context).toBe(contextMock);
-                    expect(customRenderer.has(rendererId)).toBeFalse();
+                    expect(customRenderer.has(rendererId)).toBe(false);
                     done();
                 },
                 render: () => { /* noop */ },
@@ -316,13 +317,12 @@ describe("CustomRenderer.dispose", () => {
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
         spyOn(Container, "Container").and.returnValue(container);
-        spyOn(Viewer, "Viewer").and.stub();
 
         const customRenderer = new CustomRenderer(
             container,
             navigator);
 
-        const viewer = new Viewer.Viewer({ apiClient: "", container: "" });
+        const viewer = <any>{}
         const id = "id";
 
         customRenderer.add(
@@ -336,7 +336,7 @@ describe("CustomRenderer.dispose", () => {
             viewer);
         customRenderer.dispose(viewer);
 
-        expect(customRenderer.has(id)).toBeFalse();
+        expect(customRenderer.has(id)).toBe(false);
     });
 
     it("should invoke onRemove after dispose", done => {
@@ -349,7 +349,7 @@ describe("CustomRenderer.dispose", () => {
             container,
             navigator);
 
-        const viewerMock = new Viewer.Viewer({ apiClient: "", container: "" });
+        const viewerMock = <any>{};
         const rendererId = "id";
 
         customRenderer.add(
@@ -360,7 +360,7 @@ describe("CustomRenderer.dispose", () => {
                 onRemove: (viewer, context) => {
                     expect(viewer).toBe(viewerMock);
                     expect(context).toBe(contextMock);
-                    expect(customRenderer.has(rendererId)).toBeFalse();
+                    expect(customRenderer.has(rendererId)).toBe(false);
                     done();
                 },
                 render: () => { /* noop */ },

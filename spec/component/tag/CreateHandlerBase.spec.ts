@@ -1,7 +1,7 @@
 import { Navigator } from "../../../src/viewer/Navigator";
 
-import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
-import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
 import { Component } from "../../../src/component/Component";
 import { ITagConfiguration } from "../../../src/component/interfaces/ITagConfiguration";
 import { CreateHandlerBase } from "../../../src/component/tag/handlers/CreateHandlerBase";

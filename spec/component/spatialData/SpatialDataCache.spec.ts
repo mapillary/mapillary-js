@@ -6,8 +6,8 @@ import { GeohashGeometryProvider } from "../../../src/api/GeohashGeometryProvide
 import { IClusterReconstruction } from "../../../src/api/interfaces/IClusterReconstruction";
 import { SpatialDataCache } from "../../../src/component/spatialdata/SpatialDataCache";
 import { GraphService } from "../../../src/graph/GraphService";
-import { GraphServiceMockCreator } from "../../helper/GraphServiceMockCreator.spec";
-import { NodeHelper } from "../../helper/NodeHelper.spec";
+import { GraphServiceMockCreator } from "../../helper/GraphServiceMockCreator";
+import { NodeHelper } from "../../helper/NodeHelper";
 
 const cacheTile: (
     hash: string,

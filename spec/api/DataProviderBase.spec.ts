@@ -1,7 +1,7 @@
 import { BufferFetcher } from "../../src/api/BufferFetcher";
 import { DataProviderBase } from "../../src/api/DataProviderBase";
 import { MapillaryError } from "../../src/error/MapillaryError";
-import { GeometryProvider } from "../helper/ProviderHelper.spec";
+import { GeometryProvider } from "../helper/ProviderHelper";
 
 class XMLHTTPRequestMock {
     public response: {};
@@ -27,7 +27,7 @@ export class DataProvider extends DataProviderBase {
 }
 
 describe("DataProviderBase.ctor", () => {
-    it("should create a data provider base", () => {
+    test("should create a data provider base", () => {
         const provider = new DataProvider();
 
         expect(provider).toBeDefined();
@@ -37,7 +37,7 @@ describe("DataProviderBase.ctor", () => {
 });
 
 describe("DataProviderBase.getArrayBuffer", () => {
-    it(
+    test(
         "should resolve array buffer with undefined abort parameter",
         (done: Function) => {
 
@@ -51,7 +51,7 @@ describe("DataProviderBase.getArrayBuffer", () => {
             provider.getArrayBuffer(undefined)
                 .then(
                     (buffer: ArrayBuffer): void => {
-                        expect(buffer instanceof ArrayBuffer).toBeTrue();
+                        expect(buffer instanceof ArrayBuffer).toBe(true);
                         expect(buffer).toEqual(response);
                         done();
                     });
@@ -61,7 +61,7 @@ describe("DataProviderBase.getArrayBuffer", () => {
             requestMock.onload(undefined);
         });
 
-    it(
+    test(
         "should resolve array buffer with defined abort parameter",
         (done: Function) => {
 
@@ -75,7 +75,7 @@ describe("DataProviderBase.getArrayBuffer", () => {
             provider.getArrayBuffer(abort)
                 .then(
                     (buffer: ArrayBuffer): void => {
-                        expect(buffer instanceof ArrayBuffer).toBeTrue();
+                        expect(buffer instanceof ArrayBuffer).toBe(true);
                         expect(buffer).toEqual(response);
                         done();
                     });
@@ -85,7 +85,7 @@ describe("DataProviderBase.getArrayBuffer", () => {
             requestMock.onload(undefined);
         });
 
-    it("should reject with abort", (done: Function) => {
+    test("should reject with abort", (done: Function) => {
         const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
@@ -101,7 +101,7 @@ describe("DataProviderBase.getArrayBuffer", () => {
             .then(
                 undefined,
                 (reason: Error): void => {
-                    expect(reason instanceof MapillaryError).toBeTrue();
+                    expect(reason instanceof MapillaryError).toBe(true);
                     expect(reason.message).toContain("abort");
 
                     done();
@@ -110,7 +110,7 @@ describe("DataProviderBase.getArrayBuffer", () => {
         aborter();
     });
 
-    it("should reject with status", (done: Function) => {
+    test("should reject with status", (done: Function) => {
         const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
@@ -123,7 +123,7 @@ describe("DataProviderBase.getArrayBuffer", () => {
             .then(
                 undefined,
                 (reason: Error): void => {
-                    expect(reason instanceof MapillaryError).toBeTrue();
+                    expect(reason instanceof MapillaryError).toBe(true);
                     expect(reason.message).toContain("status");
 
                     done();
@@ -134,7 +134,7 @@ describe("DataProviderBase.getArrayBuffer", () => {
         requestMock.onload(undefined);
     });
 
-    it("should reject with empty", (done: Function) => {
+    test("should reject with empty", (done: Function) => {
         const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
@@ -147,7 +147,7 @@ describe("DataProviderBase.getArrayBuffer", () => {
             .then(
                 undefined,
                 (reason: Error): void => {
-                    expect(reason instanceof MapillaryError).toBeTrue();
+                    expect(reason instanceof MapillaryError).toBe(true);
                     expect(reason.message).toContain("empty");
 
                     done();
@@ -158,7 +158,7 @@ describe("DataProviderBase.getArrayBuffer", () => {
         requestMock.onload(undefined);
     });
 
-    it("should reject with error", (done: Function) => {
+    test("should reject with error", (done: Function) => {
         const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
@@ -171,7 +171,7 @@ describe("DataProviderBase.getArrayBuffer", () => {
             .then(
                 undefined,
                 (reason: Error): void => {
-                    expect(reason instanceof MapillaryError).toBeTrue();
+                    expect(reason instanceof MapillaryError).toBe(true);
                     expect(reason.message).toContain("error");
 
                     done();
@@ -180,7 +180,7 @@ describe("DataProviderBase.getArrayBuffer", () => {
         requestMock.onerror(undefined);
     });
 
-    it("should reject with timeout", (done: Function) => {
+    test("should reject with timeout", (done: Function) => {
         const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
@@ -193,7 +193,7 @@ describe("DataProviderBase.getArrayBuffer", () => {
             .then(
                 undefined,
                 (reason: Error): void => {
-                    expect(reason instanceof MapillaryError).toBeTrue();
+                    expect(reason instanceof MapillaryError).toBe(true);
                     expect(reason.message).toContain("timeout");
 
                     done();

@@ -4,7 +4,7 @@ import { RectGeometry } from "../../../src/component/tag/geometry/RectGeometry";
 import { OutlineRenderTag } from "../../../src/component/tag/tag/OutlineRenderTag";
 import { OutlineTag } from "../../../src/component/tag/tag/OutlineTag";
 
-import { TransformHelper } from "../../helper/TransformHelper.spec";
+import { TransformHelper } from "../../helper/TransformHelper";
 
 describe("OutlineRenderTag.ctor", () => {
     it("should be defined", () => {

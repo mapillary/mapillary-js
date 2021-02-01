@@ -1,4 +1,4 @@
-import { NodeHelper } from "./NodeHelper.spec";
+import { NodeHelper } from "./NodeHelper";
 
 import { Node } from "../../src/graph/Node";
 import { Transform } from "../../src/geo/Transform";

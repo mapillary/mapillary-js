@@ -1,7 +1,7 @@
 import { RenderCamera } from "../../src/render/RenderCamera";
 import { RenderMode } from "../../src/render/RenderMode";
 import { IFrame } from "../../src/state/interfaces/IFrame";
-import { FrameHelper } from "../helper/FrameHelper.spec";
+import { FrameHelper } from "../helper/FrameHelper";
 
 describe("RenderCamera.ctor", () => {
     it("should be defined", () => {

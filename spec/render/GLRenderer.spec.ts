@@ -12,8 +12,8 @@ import { RenderCamera } from "../../src/render/RenderCamera";
 import { RenderMode } from "../../src/render/RenderMode";
 import { RenderService } from "../../src/render/RenderService";
 import { IFrame } from "../../src/state/interfaces/IFrame";
-import { FrameHelper } from "../helper/FrameHelper.spec";
-import { RendererMock } from "../helper/WebGLRenderer.spec";
+import { FrameHelper } from "../helper/FrameHelper";
+import { RendererMock } from "../helper/WebGLRenderer";
 
 
 class RenderServiceMock extends RenderService {

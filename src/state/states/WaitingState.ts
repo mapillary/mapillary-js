@@ -1,7 +1,4 @@
-import { InteractiveWaitingState } from "./InteractiveWaitingState";
 import { StateBase } from "./StateBase";
-import { TraversingState } from "./TraversingState";
-
 import { IState } from "../interfaces/IState";
 import { Node } from "../../graph/Node";
 
@@ -14,14 +11,6 @@ export class WaitingState extends StateBase {
         this._adjustCameras();
 
         this._motionless = this._motionlessTransition();
-    }
-
-    public traverse(): StateBase {
-        return new TraversingState(this);
-    }
-
-    public waitInteractively(): StateBase {
-        return new InteractiveWaitingState(this);
     }
 
     public prepend(nodes: Node[]): void {

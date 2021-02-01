@@ -1,5 +1,5 @@
 import { Transform } from "../../../src/geo/Transform";
-import { TransformHelper } from "../../helper/TransformHelper.spec";
+import { TransformHelper } from "../../helper/TransformHelper";
 import { PointGeometry } from "../../../src/component/tag/geometry/PointGeometry";
 import { RectGeometry } from "../../../src/component/tag/geometry/RectGeometry";
 import { OutlineRenderTag } from "../../../src/component/tag/tag/OutlineRenderTag";

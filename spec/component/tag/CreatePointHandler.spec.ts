@@ -1,7 +1,7 @@
 import { Subject } from "rxjs";
 
-import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
-import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
 
 import { Navigator } from "../../../src/viewer/Navigator";
 import { Component } from "../../../src/component/Component";

@@ -13,10 +13,67 @@ import { Transform } from "../geo/Transform";
 import { ILatLonAlt } from "../geo/interfaces/ILatLonAlt";
 import { Node } from "../graph/Node";
 
+type StateCreators = Map<string, new (state: StateBase) => StateBase>;
+
+class TransitionMatrix {
+    private readonly _creators: StateCreators;
+    private readonly _transitions: Map<string, string[]>;
+
+    constructor() {
+        const earth = State[State.Earth];
+        const traverse = State[State.Traversing];
+        const wait = State[State.Waiting];
+        const waitInteractively = State[State.WaitingInteractively];
+
+        this._creators = new Map();
+        const creator = this._creators;
+        creator.set(earth, EarthState);
+        creator.set(traverse, TraversingState);
+        creator.set(wait, WaitingState);
+        creator.set(waitInteractively, InteractiveWaitingState);
+
+        this._transitions = new Map();
+        const transitions = this._transitions;
+        transitions.set(earth, [traverse, wait, waitInteractively]);
+        transitions.set(traverse, [earth, wait, waitInteractively]);
+        transitions.set(wait, [traverse, waitInteractively]);
+        transitions.set(waitInteractively, [traverse, wait]);
+    }
+
+    public transition(state: StateBase, to: State): StateBase {
+        const source = State[this.getState(state)];
+        const target = State[to];
+        const transitions = this._transitions;
+
+        if (!transitions.has(source) ||
+            !transitions.get(source).includes(target)) {
+            throw new Error("Invalid transition");
+        }
+
+        const stateImplementation = this._creators.get(target);
+        return new stateImplementation(state);
+    }
+
+    public getState(state: StateBase): State {
+        if (state instanceof EarthState) {
+            return State.Earth;
+        } else if (state instanceof TraversingState) {
+            return State.Traversing;
+        } else if (state instanceof WaitingState) {
+            return State.Waiting;
+        } else if (state instanceof InteractiveWaitingState) {
+            return State.WaitingInteractively;
+        }
+        throw new Error("Invalid state instance");
+    }
+}
+
 export class StateContext implements IStateContext {
     private _state: StateBase;
+    private _transitions: TransitionMatrix;
 
     constructor(transitionMode?: TransitionMode) {
+        this._transitions = new TransitionMatrix();
         this._state = new TraversingState({
             alpha: 1,
             camera: new Camera(),
@@ -29,17 +86,7 @@ export class StateContext implements IStateContext {
     }
 
     public get state(): State {
-        if (this._state instanceof EarthState) {
-            return State.Earth;
-        } else if (this._state instanceof TraversingState) {
-            return State.Traversing;
-        } else if (this._state instanceof WaitingState) {
-            return State.Waiting;
-        } else if (this._state instanceof InteractiveWaitingState) {
-            return State.WaitingInteractively;
-        }
-
-        throw new Error("Invalid state");
+        return this._transitions.getState(this._state);
     }
 
     public get reference(): ILatLonAlt {
@@ -99,19 +146,19 @@ export class StateContext implements IStateContext {
     }
 
     public earth(): void {
-        this._state = this._state.earth();
+        this._transition(State.Earth);
     }
 
     public traverse(): void {
-        this._state = this._state.traverse();
+        this._transition(State.Traversing);
     }
 
     public wait(): void {
-        this._state = this._state.wait();
+        this._transition(State.Waiting);
     }
 
     public waitInteractively(): void {
-        this._state = this._state.waitInteractively();
+        this._transition(State.WaitingInteractively);
     }
 
     public getCenter(): number[] {
@@ -216,5 +263,10 @@ export class StateContext implements IStateContext {
 
     public truck(direction: number[]): void {
         this._state.truck(direction);
+    }
+
+    private _transition(to: State): void {
+        const state = this._transitions.transition(this._state, to);
+        this._state = state;
     }
 }

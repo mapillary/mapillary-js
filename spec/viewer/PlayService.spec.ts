@@ -1,3 +1,6 @@
+import { bootstrap } from "../Bootstrap";
+bootstrap();
+
 import {
     of as observableOf,
     zip as observableZip,
@@ -5,10 +8,10 @@ import {
     Subject,
 } from "rxjs";
 import { take, first, skip } from "rxjs/operators";
-import { MockCreator } from "../helper/MockCreator.spec";
-import { NodeHelper } from "../helper/NodeHelper.spec";
-import { StateServiceMockCreator } from "../helper/StateServiceMockCreator.spec";
-import { FrameHelper } from "../helper/FrameHelper.spec";
+import { MockCreator } from "../helper/MockCreator";
+import { NodeHelper } from "../helper/NodeHelper";
+import { StateServiceMockCreator } from "../helper/StateServiceMockCreator";
+import { FrameHelper } from "../helper/FrameHelper";
 import { Node } from "../../src/graph/Node";
 import { APIWrapper } from "../../src/api/APIWrapper";
 import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";

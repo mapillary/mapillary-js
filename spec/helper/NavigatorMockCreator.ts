@@ -1,12 +1,12 @@
 import { Subject } from "rxjs";
 
-import { GraphServiceMockCreator } from "./GraphServiceMockCreator.spec";
-import { LoadingServiceMockCreator } from "./LoadingServiceMockCreator.spec";
-import { MockCreator } from "./MockCreator.spec";
-import { MockCreatorBase } from "./MockCreatorBase.spec";
-import { PanServiceMockCreator } from "./PanServiceMockCreator.spec";
-import { PlayServiceMockCreator } from "./PlayServiceMockCreator.spec";
-import { StateServiceMockCreator } from "./StateServiceMockCreator.spec";
+import { GraphServiceMockCreator } from "./GraphServiceMockCreator";
+import { LoadingServiceMockCreator } from "./LoadingServiceMockCreator";
+import { MockCreator } from "./MockCreator";
+import { MockCreatorBase } from "./MockCreatorBase";
+import { PanServiceMockCreator } from "./PanServiceMockCreator";
+import { PlayServiceMockCreator } from "./PlayServiceMockCreator";
+import { StateServiceMockCreator } from "./StateServiceMockCreator";
 
 import { Navigator } from "../../src/viewer/Navigator";
 import { APIWrapper } from "../../src/api/APIWrapper";

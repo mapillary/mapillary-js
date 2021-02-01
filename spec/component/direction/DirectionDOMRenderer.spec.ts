@@ -1,4 +1,7 @@
-import { NodeHelper } from "../../helper/NodeHelper.spec";
+import { bootstrap } from "../../Bootstrap";
+bootstrap();
+
+import { NodeHelper } from "../../helper/NodeHelper";
 
 import { Navigator } from "../../../src/viewer/Navigator";
 import { Node } from "../../../src/graph/Node";
@@ -6,7 +9,7 @@ import { DirectionDOMRenderer } from "../../../src/component/direction/Direction
 import { IDirectionConfiguration } from "../../../src/component/interfaces/IDirectionConfiguration";
 import { RenderCamera } from "../../../src/render/RenderCamera";
 import { IFrame } from "../../../src/state/interfaces/IFrame";
-import { FrameHelper } from "../../helper/FrameHelper.spec";
+import { FrameHelper } from "../../helper/FrameHelper";
 import { RenderMode } from "../../../src/render/RenderMode";
 
 describe("DirectionDOMRenderer.ctor", () => {

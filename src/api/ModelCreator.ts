@@ -1,4 +1,4 @@
-import * as falcor from "falcor";
+import { Model } from "falcor";
 import XmlHttpSource from "falcor-http-datasource";
 
 type HttpDataSourceConfiguration = {
@@ -22,9 +22,9 @@ export class ModelCreator {
      * @param {number} url - Json graph URL for API requests.
      * @param {number} [userToken] - Optional user bearer token for API requests of
      * protected resources.
-     * @returns {falcor.Model} Falcor model for HTTP requests.
+     * @returns {Model} Falcor model for HTTP requests.
      */
-    public createModel(url: string, userToken?: string): falcor.Model {
+    public createModel(url: string, userToken?: string): Model {
         const configuration: HttpDataSourceConfiguration = {
             crossDomain: true,
             withCredentials: false,
@@ -34,7 +34,7 @@ export class ModelCreator {
             configuration.headers = { "Authorization": `Bearer ${userToken}` };
         }
 
-        return new falcor.Model({
+        return new Model({
             maxSize: 16 * 1024 * 1024,
             source: new XmlHttpSource(url, configuration),
         });

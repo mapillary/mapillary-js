@@ -2,8 +2,8 @@ import { Subject } from "rxjs";
 import { ISpriteAtlas } from "../../src/viewer/interfaces/ISpriteAtlas";
 import { SpriteService } from "../../src/viewer/SpriteService";
 
-import { MockCreator } from "./MockCreator.spec";
-import { MockCreatorBase } from "./MockCreatorBase.spec";
+import { MockCreator } from "./MockCreator";
+import { MockCreatorBase } from "./MockCreatorBase";
 
 export class SpriteServiceMockCreator extends MockCreatorBase<SpriteService> {
     public create(): SpriteService {

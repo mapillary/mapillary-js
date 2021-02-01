@@ -1,5 +1,5 @@
-import { NodeHelper } from "./NodeHelper.spec";
-import { TransformHelper } from "./TransformHelper.spec";
+import { NodeHelper } from "./NodeHelper";
+import { TransformHelper } from "./TransformHelper";
 
 import { Node } from "../../src/graph/Node";
 import { Transform } from "../../src/geo/Transform";

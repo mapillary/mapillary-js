@@ -1,13 +1,13 @@
 import { Container } from "../../src/viewer/Container";
-import { DOMRendererMockCreator } from "./DOMRendererMockCreator.spec";
-import { GLRendererMockCreator } from "./GLRendererMockCreator.spec";
-import { KeyboardServiceMockCreator } from "./KeyboardServiceMockCreator.spec";
-import { MockCreator } from "./MockCreator.spec";
-import { MockCreatorBase } from "./MockCreatorBase.spec";
-import { MouseServiceMockCreator } from "./MouseServiceMockCreator.spec";
-import { RenderServiceMockCreator } from "./RenderServiceMockCreator.spec";
-import { SpriteServiceMockCreator } from "./SpriteServiceMockCreator.spec";
-import { TouchServiceMockCreator } from "./TouchServiceMockCreator.spec";
+import { DOMRendererMockCreator } from "./DOMRendererMockCreator";
+import { GLRendererMockCreator } from "./GLRendererMockCreator";
+import { KeyboardServiceMockCreator } from "./KeyboardServiceMockCreator";
+import { MockCreator } from "./MockCreator";
+import { MockCreatorBase } from "./MockCreatorBase";
+import { MouseServiceMockCreator } from "./MouseServiceMockCreator";
+import { RenderServiceMockCreator } from "./RenderServiceMockCreator";
+import { SpriteServiceMockCreator } from "./SpriteServiceMockCreator";
+import { TouchServiceMockCreator } from "./TouchServiceMockCreator";
 
 export class ContainerMockCreator extends MockCreatorBase<Container> {
     public create(): Container {

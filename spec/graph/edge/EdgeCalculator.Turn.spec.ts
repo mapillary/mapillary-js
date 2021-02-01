@@ -5,7 +5,7 @@ import { EdgeDirection } from "../../../src/graph/edge/EdgeDirection";
 import { IEdge } from "../../../src/graph/edge/interfaces/IEdge";
 import { IPotentialEdge } from "../../../src/graph/edge/interfaces/IPotentialEdge";
 import { Node } from "../../../src/graph/Node";
-import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper.spec";
+import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper";
 
 describe("EdgeCalculator.computeTurnEdges", () => {
     let edgeCalculator: EdgeCalculator;

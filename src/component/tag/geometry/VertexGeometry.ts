@@ -1,6 +1,6 @@
 import earcut from "earcut";
+import polylabel from "polylabel";
 import * as martinez from "martinez-polygon-clipping";
-import * as polylabel from "@mapbox/polylabel";
 import * as THREE from "three";
 
 import { Geometry } from "./Geometry";

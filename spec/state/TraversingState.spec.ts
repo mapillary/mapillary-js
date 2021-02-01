@@ -1,6 +1,9 @@
+import { bootstrap } from "../Bootstrap";
+bootstrap();
+
 import * as THREE from "three";
 
-import { NodeHelper } from "../helper/NodeHelper.spec";
+import { NodeHelper } from "../helper/NodeHelper";
 
 import { Node } from "../../src/graph/Node";
 import { IFillNode } from "../../src/api/interfaces/IFillNode";
