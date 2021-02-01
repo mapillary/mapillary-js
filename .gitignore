@@ -16,6 +16,7 @@ node_modules/*
 # Build artifacts
 dist/*
 spec/*.js
+build/*
 
 # Documentation artifacts
 docs/build/*

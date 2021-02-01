@@ -1,5 +1,3 @@
-import * as when from "when";
-
 import {
     combineLatest as observableCombineLatest,
     empty as observableEmpty,
@@ -361,8 +359,8 @@ export class TagComponent extends Component<ITagConfiguration> {
      * on the format specified for the {@link RectGeometry} in basic
      * coordinates.
      */
-    public calculateRect(geometry: PointsGeometry): when.Promise<number[]> {
-        return when.promise<number[]>((resolve: (value: number[]) => void, reject: (reason: Error) => void): void => {
+    public calculateRect(geometry: PointsGeometry): Promise<number[]> {
+        return new Promise<number[]>((resolve: (value: number[]) => void, reject: (reason: Error) => void): void => {
             this._navigator.stateService.currentTransform$.pipe(
                 first(),
                 map(
@@ -500,8 +498,8 @@ export class TagComponent extends Component<ITagConfiguration> {
      *     .then((tagIds) => { console.log(tagIds); });
      * ```
      */
-    public getTagIdsAt(pixelPoint: number[]): when.Promise<string[]> {
-        return when.promise<string[]>((resolve: (value: string[]) => void, reject: (reason: Error) => void): void => {
+    public getTagIdsAt(pixelPoint: number[]): Promise<string[]> {
+        return new Promise<string[]>((resolve: (value: string[]) => void, reject: (reason: Error) => void): void => {
             this._container.renderService.renderCamera$.pipe(
                 first(),
                 map(

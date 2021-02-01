@@ -29,12 +29,14 @@
     "rxjs": "^6.5.5",
     "s2-geometry": "^1.2.10",
     "three": "^0.125.2",
-    "virtual-dom": "^2.1.1",
-    "when": "^3.7.8"
+    "virtual-dom": "^2.1.1"
   },
   "devDependencies": {
     "@mapbox/polylabel": "^1.0.2",
     "@mapbox/unitbezier": "0.0.0",
+    "@rollup/plugin-commonjs": "^17.1.0",
+    "@rollup/plugin-node-resolve": "^11.1.1",
+    "@rollup/plugin-virtual": "^2.0.3",
     "@types/earcut": "^2.1.1",
     "@types/falcor": "^0.1.22",
     "@types/falcor-http-datasource": "^0.1.19",
@@ -59,17 +61,16 @@
     "postcss": "^8.2.6",
     "postcss-cli": "^8.3.1",
     "postcss-inline-svg": "^5.0.0",
+    "rollup": "^2.38.1",
+    "rollup-plugin-dts": "^2.0.1",
+    "rollup-plugin-sourcemaps": "^0.6.3",
+    "rollup-plugin-terser": "^7.0.2",
     "tsify": "^5.0.2",
     "tslint": "^6.1.2",
     "typedoc": "^0.20.28",
     "typedoc-default-themes": "^0.12.7",
     "typescript": "^4.2.2",
     "uglify-js": "^3.12.8"
-  },
-  "browser": {
-    "falcor": "./node_modules/falcor/dist/falcor.browser.min.js",
-    "three": "./node_modules/three/build/three.min.js",
-    "pako": "./node_modules/pako/dist/pako.es5.min.js"
   },
   "browserslist": [
     "last 2 versions",
@@ -91,6 +92,9 @@
     "prepare": "yarn clean && yarn lint && yarn build-min && yarn build-dev && yarn build-css",
     "start": "node server.js",
     "test": "karma start --single-run",
-    "test-watch": "karma start"
+    "test-watch": "karma start",
+    "build-module": "tsc -p tsconfig.rollup.json && rollup -c",
+    "rollup": "rollup",
+    "tsc": "tsc"
   }
 }

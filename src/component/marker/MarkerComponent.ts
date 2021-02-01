@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import * as when from "when";
 
 import {
     combineLatest as observableCombineLatest,
@@ -209,8 +208,8 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
      *     .then((markerId) => { console.log(markerId); });
      * ```
      */
-    public getMarkerIdAt(pixelPoint: number[]): when.Promise<string> {
-        return when.promise<string>((resolve: (value: string) => void, reject: (reason: Error) => void): void => {
+    public getMarkerIdAt(pixelPoint: number[]): Promise<string> {
+        return new Promise<string>((resolve: (value: string) => void, reject: (reason: Error) => void): void => {
             this._container.renderService.renderCamera$.pipe(
                 first(),
                 map(

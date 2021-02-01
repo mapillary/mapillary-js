@@ -1,0 +1,14 @@
+{
+    "extends": "./tsconfig",
+    "compilerOptions": {
+        "declaration": true,
+        "module": "es6",
+        "moduleResolution": "node",
+        "outDir": "build/esm/src",
+        "sourceMap": true,
+        "target": "es6",
+    },
+    "files": [
+        "./src/Mapillary.ts"
+    ]
+}

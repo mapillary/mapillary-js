@@ -1,4 +1,4 @@
-import * as RBush from "rbush";
+import RBush from "rbush";
 
 import { ILatLon } from "../api/interfaces/ILatLon";
 

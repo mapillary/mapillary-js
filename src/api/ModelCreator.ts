@@ -1,4 +1,4 @@
-import * as falcor from "falcor";
+import { Model } from "falcor";
 import XmlHttpSource from "falcor-http-datasource";
 
 type HttpDataSourceConfiguration = {
@@ -34,7 +34,7 @@ export class ModelCreator {
             configuration.headers = { "Authorization": `Bearer ${userToken}` };
         }
 
-        return new falcor.Model({
+        return new Model({
             maxSize: 16 * 1024 * 1024,
             source: new XmlHttpSource(url, configuration),
         });

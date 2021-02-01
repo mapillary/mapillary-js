@@ -220,7 +220,8 @@ export class GraphService {
                 console.error(`Failed to cache node (${key})`, error);
             });
 
-        const initializeCacheSubscription: Subscription = this._graph$.pipe(
+        let initializeCacheSubscription: Subscription;
+        initializeCacheSubscription = this._graph$.pipe(
             first(),
             mergeMap(
                 (graph: Graph): Observable<Graph> => {
@@ -274,7 +275,8 @@ export class GraphService {
             publishReplay(1),
             refCount());
 
-        const sequenceSubscription: Subscription = graphSequence$.pipe(
+        let sequenceSubscription: Subscription;
+        sequenceSubscription = graphSequence$.pipe(
             tap(
                 (graph: Graph): void => {
                     if (!graph.getNode(key).sequenceEdges.cached) {
@@ -300,7 +302,8 @@ export class GraphService {
         }
 
         if (this._graphMode === GraphMode.Spatial) {
-            const spatialSubscription: Subscription = firstGraph$.pipe(
+            let spatialSubscription: Subscription;
+            spatialSubscription = firstGraph$.pipe(
                 expand(
                     (graph: Graph): Observable<Graph> => {
                         if (graph.hasTiles(key)) {

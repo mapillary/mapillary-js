@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import * as UnitBezier from "@mapbox/unitbezier";
+import UnitBezier from "@mapbox/unitbezier";
 
 import { EarthState } from "./EarthState";
 import { InteractiveStateBase } from "./InteractiveStateBase";

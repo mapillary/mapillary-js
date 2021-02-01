@@ -1,4 +1,4 @@
-import * as Pbf from "pbf";
+import Pbf from "pbf";
 
 import { IMesh } from "./interfaces/IMesh";
 
