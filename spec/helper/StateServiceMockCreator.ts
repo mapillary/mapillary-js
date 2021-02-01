@@ -1,7 +1,7 @@
 import { Subject } from "rxjs";
 
-import { MockCreator } from "./MockCreator.spec";
-import { MockCreatorBase } from "./MockCreatorBase.spec";
+import { MockCreator } from "./MockCreator";
+import { MockCreatorBase } from "./MockCreatorBase";
 
 import { Node } from "../../src/graph/Node";
 import { Transform } from "stream";

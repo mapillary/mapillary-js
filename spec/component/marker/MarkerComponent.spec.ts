@@ -1,11 +1,14 @@
+import { bootstrap } from "../../Bootstrap";
+bootstrap();
+
 import { empty as observableEmpty } from "rxjs";
 import { Marker } from "../../../src/component/marker/marker/Marker";
 import { SimpleMarker } from "../../../src/component/marker/marker/SimpleMarker";
 import { MarkerComponent } from "../../../src/component/marker/MarkerComponent";
 import { Container } from "../../../src/viewer/Container";
 
-import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
-import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
 
 describe("MarkerComponent.ctor", () => {
     it("should be defined", () => {

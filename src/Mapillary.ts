@@ -4,6 +4,20 @@
  * @name Mapillary
  */
 
+// Bootstrap spatial index.
+//
+// This is a workaround to make the CommonJS unit testing
+// work with Jest. Once Jest/Node supports ES6 modules
+// fully this should be removed.
+import { Graph } from "./graph/Graph";
+import { MarkerSet } from "./component/marker/MarkerSet";
+import { GeoRBush } from "./geo/GeoRBush";
+Graph.register(GeoRBush);
+MarkerSet.register(GeoRBush);
+import UnitBezier from "@mapbox/unitbezier";
+import { TraversingState } from "./state/states/TraversingState";
+TraversingState.register(UnitBezier);
+
 // Bootstrap components
 import { ComponentService } from "./component/ComponentService";
 

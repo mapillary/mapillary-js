@@ -3,7 +3,6 @@ import {
     Subject,
 } from "rxjs";
 import { ILatLon } from "../../api/interfaces/ILatLon";
-import { GeoRBush } from "../../geo/GeoRBush";
 import { Marker } from "./marker/Marker";
 
 type MarkerIndexItem = {
@@ -13,18 +12,24 @@ type MarkerIndexItem = {
 };
 
 export class MarkerSet {
+    private static _spatialIndex: new (...args: any[]) => any;
+
     private _hash: { [id: string]: MarkerIndexItem };
-    private _index: GeoRBush<MarkerIndexItem>;
+    private _index: any;
 
     private _indexChanged$: Subject<MarkerSet>;
     private _updated$: Subject<Marker[]>;
 
     constructor() {
         this._hash = {};
-        this._index = new GeoRBush<MarkerIndexItem>(16);
+        this._index = new MarkerSet._spatialIndex(16);
 
         this._indexChanged$ = new Subject<MarkerSet>();
         this._updated$ = new Subject<Marker[]>();
+    }
+
+    public static register(spatialIndex: new (...args: any[]) => any): void {
+        MarkerSet._spatialIndex = spatialIndex;
     }
 
     public get changed$(): Observable<MarkerSet> {
@@ -38,7 +43,7 @@ export class MarkerSet {
     public add(markers: Marker[]): void {
         const updated: Marker[] = [];
         const hash: { [id: string]: MarkerIndexItem } = this._hash;
-        const index: GeoRBush<MarkerIndexItem> = this._index;
+        const index = this._index;
 
         for (const marker of markers) {
             const id: string = marker.id;
@@ -86,7 +91,7 @@ export class MarkerSet {
 
     public remove(ids: string[]): void {
         const hash: { [id: string]: MarkerIndexItem } = this._hash;
-        const index: GeoRBush<MarkerIndexItem> = this._index;
+        const index = this._index;
 
         let changed: boolean = false;
         for (const id of ids) {
@@ -128,7 +133,7 @@ export class MarkerSet {
 
     public update(marker: Marker): void {
         const hash: { [id: string]: MarkerIndexItem } = this._hash;
-        const index: GeoRBush<MarkerIndexItem> = this._index;
+        const index = this._index;
         const id: string = marker.id;
 
         if (!(id in hash)) {

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>MapillaryJS Module</title>
+    <link rel="icon" href="data:,">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="dist/mapillary.css" />
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        #mly {
+            width: 90%;
+            height: 90%;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        import { Viewer } from './dist/mapillary.module.js';
+
+        const container = document.createElement('div');
+        container.id = 'mly';
+        document.body.appendChild(container);
+
+        var viewer = new Viewer({
+            apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
+            component: { cover: false },
+            container: container,
+            imageKey: "zarcRdNFZwg3FkXNcsFeGw",
+        });
+
+        window.addEventListener("resize", function () { viewer.resize(); });
+    </script>
+</body>
+
+</html>

@@ -3,8 +3,8 @@ import { Subject } from "rxjs";
 import { Navigator } from "../../../src/viewer/Navigator";
 import { Transform } from "../../../src/geo/Transform";
 
-import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
-import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
 import { Popup } from "../../../src/component/popup/popup/Popup";
 import { PopupComponent } from "../../../src/component/popup/PopupComponent";
 import { ISize } from "../../../src/render/interfaces/ISize";

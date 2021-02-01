@@ -1,5 +1,5 @@
 import * as vd from "virtual-dom";
-import * as UnitBezier from "@mapbox/unitbezier";
+import UnitBezier from "@mapbox/unitbezier";
 
 import {
     combineLatest as observableCombineLatest,

@@ -2,8 +2,8 @@ import { Subject } from "rxjs";
 
 import { Navigator } from "../../src/viewer/Navigator";
 
-import { ContainerMockCreator } from "../helper/ContainerMockCreator.spec";
-import { NavigatorMockCreator } from "../helper/NavigatorMockCreator.spec";
+import { ContainerMockCreator } from "../helper/ContainerMockCreator";
+import { NavigatorMockCreator } from "../helper/NavigatorMockCreator";
 import { EventEmitter } from "../../src/utils/EventEmitter";
 import { Observer } from "../../src/viewer/Observer";
 import { Viewer } from "../../src/viewer/Viewer";

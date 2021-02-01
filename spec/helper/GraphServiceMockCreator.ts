@@ -1,7 +1,7 @@
 import { Subject } from "rxjs";
 
-import { MockCreator } from "./MockCreator.spec";
-import { MockCreatorBase } from "./MockCreatorBase.spec";
+import { MockCreator } from "./MockCreator";
+import { MockCreatorBase } from "./MockCreatorBase";
 
 import { FilterFunction } from "../../src/graph/FilterCreator";
 import { GraphMode } from "../../src/graph/GraphMode";

@@ -2,8 +2,8 @@ import { Subject } from "rxjs";
 import { GLRenderer } from "../../src/render/GLRenderer";
 import { IGLRenderHash } from "../../src/render/interfaces/IGLRenderHash";
 
-import { MockCreator } from "./MockCreator.spec";
-import { MockCreatorBase } from "./MockCreatorBase.spec";
+import { MockCreator } from "./MockCreator";
+import { MockCreatorBase } from "./MockCreatorBase";
 
 export class GLRendererMockCreator extends MockCreatorBase<GLRenderer> {
     public create(): GLRenderer {

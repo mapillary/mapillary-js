@@ -5,7 +5,7 @@ import { ImageTileStore } from "../../src/tiles/ImageTileStore";
 import { IRegionOfInterest } from "../../src/tiles/interfaces/IRegionOfInterest";
 import { TextureProvider } from "../../src/tiles/TextureProvider";
 
-import { MockCreator } from "../helper/MockCreator.spec";
+import { MockCreator } from "../helper/MockCreator";
 
 
 class RendererMock implements THREE.Renderer {
@@ -87,7 +87,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
+        let callInfo = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -139,7 +139,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
+        let callInfo = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -191,7 +191,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
+        let callInfo = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -243,7 +243,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
+        let callInfo = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -295,7 +295,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
+        let callInfo = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -347,7 +347,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
+        let callInfo = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -399,7 +399,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
+        let callInfo = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -451,7 +451,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
+        let callInfo = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 
@@ -503,7 +503,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         expect(getTileSpy.calls.count()).toBe(1);
 
-        let callInfo: jasmine.CallInfo<jasmine.Func> = getTileSpy.calls.first();
+        let callInfo = getTileSpy.calls.first();
 
         expect(callInfo.args.length).toBe(7);
 

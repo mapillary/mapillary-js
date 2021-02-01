@@ -1,10 +1,10 @@
 
 import { of as observableOf, ReplaySubject, Subject, VirtualTimeScheduler } from "rxjs";
 
-import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
-import { MockCreator } from "../../helper/MockCreator.spec";
-import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
-import { NodeHelper } from "../../helper/NodeHelper.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
+import { MockCreator } from "../../helper/MockCreator";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
+import { NodeHelper } from "../../helper/NodeHelper";
 
 import { Navigator } from "../../../src/viewer/Navigator";
 import { Node } from "../../../src/graph/Node";

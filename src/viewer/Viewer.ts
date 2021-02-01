@@ -1,4 +1,3 @@
-import * as when from "when";
 import {
     combineLatest as observableCombineLatest,
     throwError as observableThrowError,
@@ -448,8 +447,8 @@ export class Viewer extends EventEmitter {
      * viewer.getBearing().then((b) => { console.log(b); });
      * ```
      */
-    public getBearing(): when.Promise<number> {
-        return when.promise<number>(
+    public getBearing(): Promise<number> {
+        return new Promise<number>(
             (resolve: (value: number) => void, reject: (reason: Error) => void): void => {
                 this._container.renderService.bearing$.pipe(
                     first())
@@ -506,8 +505,8 @@ export class Viewer extends EventEmitter {
      * viewer.getCenter().then((c) => { console.log(c); });
      * ```
      */
-    public getCenter(): when.Promise<number[]> {
-        return when.promise<number[]>(
+    public getCenter(): Promise<number[]> {
+        return new Promise<number[]>(
             (resolve: (value: number[]) => void, reject: (reason: Error) => void): void => {
                 this._navigator.stateService.getCenter()
                     .subscribe(
@@ -558,8 +557,8 @@ export class Viewer extends EventEmitter {
      * viewer.getFieldOfView().then((fov) => { console.log(fov); });
      * ```
      */
-    public getFieldOfView(): when.Promise<number> {
-        return when.promise<number>(
+    public getFieldOfView(): Promise<number> {
+        return new Promise<number>(
             (resolve: (value: number) => void, reject: (reason: Error) => void): void => {
                 this._container.renderService.renderCamera$.pipe(
                     first())
@@ -584,8 +583,8 @@ export class Viewer extends EventEmitter {
      * viewer.getPointOfView().then((pov) => { console.log(pov); });
      * ```
      */
-    public getPointOfView(): when.Promise<IPointOfView> {
-        return when.promise<IPointOfView>(
+    public getPointOfView(): Promise<IPointOfView> {
+        return new Promise<IPointOfView>(
             (resolve: (value: IPointOfView) => void, reject: (reason: Error) => void): void => {
                 observableCombineLatest(
                     this._container.renderService.renderCamera$,
@@ -615,8 +614,8 @@ export class Viewer extends EventEmitter {
      * viewer.getPosition().then((pos) => { console.log(pos); });
      * ```
      */
-    public getPosition(): when.Promise<ILatLon> {
-        return when.promise<ILatLon>(
+    public getPosition(): Promise<ILatLon> {
+        return new Promise<ILatLon>(
             (resolve: (value: ILatLon) => void, reject: (reason: Error) => void): void => {
                 observableCombineLatest(
                     this._container.renderService.renderCamera$,
@@ -643,8 +642,8 @@ export class Viewer extends EventEmitter {
      * viewer.getZoom().then((z) => { console.log(z); });
      * ```
      */
-    public getZoom(): when.Promise<number> {
-        return when.promise<number>(
+    public getZoom(): Promise<number> {
+        return new Promise<number>(
             (resolve: (value: number) => void, reject: (reason: Error) => void): void => {
                 this._navigator.stateService.getZoom()
                     .subscribe(
@@ -691,12 +690,12 @@ export class Viewer extends EventEmitter {
      *     (e) => { console.error(e); });
      * ```
      */
-    public moveDir(dir: EdgeDirection): when.Promise<Node> {
+    public moveDir(dir: EdgeDirection): Promise<Node> {
         const moveDir$: Observable<Node> = this.isNavigable ?
             this._navigator.moveDir$(dir) :
             observableThrowError(new Error("Calling moveDir is not supported when viewer is not navigable."));
 
-        return when.promise<Node>(
+        return new Promise<Node>(
             (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
                 moveDir$.subscribe(
                     (node: Node): void => {
@@ -725,12 +724,12 @@ export class Viewer extends EventEmitter {
      *     (e) => { console.error(e); });
      * ```
      */
-    public moveToKey(key: string): when.Promise<Node> {
+    public moveToKey(key: string): Promise<Node> {
         const moveToKey$: Observable<Node> = this.isNavigable ?
             this._navigator.moveToKey$(key) :
             observableThrowError(new Error("Calling moveToKey is not supported when viewer is not navigable."));
 
-        return when.promise<Node>(
+        return new Promise<Node>(
             (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
                 moveToKey$.subscribe(
                     (node: Node): void => {
@@ -777,8 +776,8 @@ export class Viewer extends EventEmitter {
      *     });
      * ```
      */
-    public project(latLon: ILatLon): when.Promise<number[]> {
-        return when.promise<number[]>(
+    public project(latLon: ILatLon): Promise<number[]> {
+        return new Promise<number[]>(
             (resolve: (value: number[]) => void, reject: (reason: Error) => void): void => {
                 this._observer.project$(latLon)
                     .subscribe(
@@ -810,8 +809,8 @@ export class Viewer extends EventEmitter {
      *     .then((pixelPoint) => { console.log(pixelPoint); });
      * ```
      */
-    public projectFromBasic(basicPoint: number[]): when.Promise<number[]> {
-        return when.promise<number[]>(
+    public projectFromBasic(basicPoint: number[]): Promise<number[]> {
+        return new Promise<number[]>(
             (resolve: (value: number[]) => void, reject: (reason: Error) => void): void => {
                 this._observer.projectBasic$(basicPoint)
                     .subscribe(
@@ -903,12 +902,12 @@ export class Viewer extends EventEmitter {
      *     .then(() => { console.log("user token set"); });
      * ```
      */
-    public setUserToken(userToken?: string): when.Promise<void> {
+    public setUserToken(userToken?: string): Promise<void> {
         const setUserToken$: Observable<void> = this.isNavigable ?
             this._navigator.setUserToken$(userToken) :
             observableThrowError(new Error("Calling setUserToken is not supported when viewer is not navigable."));
 
-        return when.promise<void>(
+        return new Promise<void>(
             (resolve: (value: void) => void, reject: (reason: Error) => void): void => {
                 setUserToken$
                     .subscribe(
@@ -1005,8 +1004,8 @@ export class Viewer extends EventEmitter {
      * // viewer.setFilter([">=", "capturedAt", <my time stamp>]);
      * ```
      */
-    public setFilter(filter: FilterExpression): when.Promise<void> {
-        return when.promise<void>(
+    public setFilter(filter: FilterExpression): Promise<void> {
+        return new Promise<void>(
             (resolve: (value: void) => void, reject: (reason: Error) => void): void => {
                 this._navigator.setFilter$(filter)
                     .subscribe(
@@ -1124,8 +1123,8 @@ export class Viewer extends EventEmitter {
      *     .then((latLon) => { console.log(latLon); });
      * ```
      */
-    public unproject(pixelPoint: number[]): when.Promise<ILatLon> {
-        return when.promise<ILatLon>(
+    public unproject(pixelPoint: number[]): Promise<ILatLon> {
+        return new Promise<ILatLon>(
             (resolve: (value: ILatLon) => void, reject: (reason: Error) => void): void => {
                 this._observer.unproject$(pixelPoint)
                     .subscribe(
@@ -1156,8 +1155,8 @@ export class Viewer extends EventEmitter {
      *     .then((basicPoint) => { console.log(basicPoint); });
      * ```
      */
-    public unprojectToBasic(pixelPoint: number[]): when.Promise<number[]> {
-        return when.promise<number[]>(
+    public unprojectToBasic(pixelPoint: number[]): Promise<number[]> {
+        return new Promise<number[]>(
             (resolve: (value: number[]) => void, reject: (reason: Error) => void): void => {
                 this._observer.unprojectBasic$(pixelPoint)
                     .subscribe(

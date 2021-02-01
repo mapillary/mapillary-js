@@ -4,7 +4,7 @@ import { EdgeCalculatorDirections } from "../../../src/graph/edge/EdgeCalculator
 import { EdgeCalculatorSettings } from "../../../src/graph/edge/EdgeCalculatorSettings";
 import { IEdge } from "../../../src/graph/edge/interfaces/IEdge";
 import { IPotentialEdge } from "../../../src/graph/edge/interfaces/IPotentialEdge";
-import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper.spec";
+import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper";
 import { EdgeDirection } from "../../../src/graph/edge/EdgeDirection";
 
 describe("EdgeCalculator.computePanoEdges", () => {

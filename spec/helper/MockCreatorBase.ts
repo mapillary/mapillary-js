@@ -1,4 +1,4 @@
-import { MockCreator } from "./MockCreator.spec";
+import { MockCreator } from "./MockCreator";
 
 export abstract class MockCreatorBase<T> {
     private _mockCreator: MockCreator = new MockCreator();

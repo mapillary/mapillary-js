@@ -5,7 +5,7 @@ import { EdgeDirection } from "../../../src/graph/edge/EdgeDirection";
 import { IEdge } from "../../../src/graph/edge/interfaces/IEdge";
 import { Node } from "../../../src/graph/Node";
 import { Sequence } from "../../../src/graph/Sequence";
-import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper.spec";
+import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper";
 
 describe("EdgeCalculator.computeSequenceEdges", () => {
     let edgeCalculator: EdgeCalculator;

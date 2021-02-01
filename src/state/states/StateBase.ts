@@ -149,14 +149,6 @@ export abstract class StateBase implements IState {
         return this._transitionMode;
     }
 
-    public earth(): StateBase { throw new Error("Not implemented"); }
-
-    public traverse(): StateBase { throw new Error("Not implemented"); }
-
-    public wait(): StateBase { throw new Error("Not implemented"); }
-
-    public waitInteractively(): StateBase { throw new Error("Not implemented"); }
-
     public move(delta: number): void { /*noop*/ }
 
     public moveTo(position: number): void { /*noop*/ }

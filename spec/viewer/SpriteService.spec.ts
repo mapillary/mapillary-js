@@ -2,6 +2,8 @@ import { skip } from "rxjs/operators";
 import { ISpriteAtlas } from "../../src/viewer/interfaces/ISpriteAtlas";
 import { SpriteService } from "../../src/viewer/SpriteService";
 
+global.URL.createObjectURL = jest.fn();
+
 class XMLHTTPRequestMock {
     public response: string;
     public responseType: string;
@@ -32,11 +34,10 @@ describe("SpriteService.ctor", () => {
     it("should be initialized without retrieving sprite", () => {
         let xmlHTTPRequestSpy: jasmine.Spy = spyOn(window, <keyof Window>"XMLHttpRequest");
 
-        let spriteService: SpriteService = new SpriteService();
+        const spriteService = new SpriteService();
 
+        expect(spriteService).toBeDefined();
         expect(xmlHTTPRequestSpy.calls.count()).toBe(0);
-
-        return spriteService;
     });
 });
 

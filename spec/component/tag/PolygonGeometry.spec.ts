@@ -1,7 +1,7 @@
 import { Node } from "../../../src/graph/Node";
 import { Transform } from "../../../src/geo/Transform";
 
-import { MockCreator } from "../../helper/MockCreator.spec";
+import { MockCreator } from "../../helper/MockCreator";
 import { IGPano } from "../../../src/api/interfaces/IGPano";
 import { PolygonGeometry } from "../../../src/component/tag/geometry/PolygonGeometry";
 

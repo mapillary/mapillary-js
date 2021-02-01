@@ -1,7 +1,7 @@
 
 import { SpatialDataComponent } from "../../../src/component/spatialdata/SpatialDataComponent";
-import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
-import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
 
 describe("SpatialDataComponent.ctor", () => {
     it("should be defined", () => {
