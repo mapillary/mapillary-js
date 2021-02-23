@@ -528,6 +528,7 @@ export class TextureProvider {
 
         const target: THREE.RenderTarget = this._renderer.getRenderTarget();
 
+        this._renderer.resetState();
         this._renderer.setRenderTarget(this._renderTarget)
         this._renderer.render(scene, this._camera);
         this._renderer.setRenderTarget(target);

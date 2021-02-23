@@ -18,6 +18,7 @@ import {
     refCount,
     scan,
     share,
+    skip,
     startWith,
 } from "rxjs/operators";
 
@@ -30,7 +31,6 @@ import { IGLRenderHash } from "./interfaces/IGLRenderHash";
 import { ISize } from "./interfaces/ISize";
 
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
-import { DOM } from "../utils/DOM";
 
 interface IGLRenderer {
     needsRender: boolean;
@@ -47,7 +47,7 @@ interface IGLRenderHashes {
     [name: string]: IGLRender;
 }
 
-interface IEraser {
+interface IForce {
     needsRender: boolean;
 }
 
@@ -63,20 +63,20 @@ interface IGLRenderHashesOperation extends Function {
     (hashes: IGLRenderHashes): IGLRenderHashes;
 }
 
-interface IEraserOperation {
-    (eraser: IEraser): IEraser;
+interface IForceOperation {
+    (forcer: IForce): IForce;
 }
 
 interface ICombination {
     camera: IRenderCamera;
-    eraser: IEraser;
+    eraser: IForce;
+    trigger: IForce;
     renderer: IGLRenderer;
     renders: IGLRender[];
 }
 
 export class GLRenderer {
     private _renderService: RenderService;
-    private _dom: DOM;
 
     private _renderFrame$: Subject<RenderCamera> =
         new Subject<RenderCamera>();
@@ -95,20 +95,23 @@ export class GLRenderer {
         new Subject<IGLRendererOperation>();
     private _renderer$: Observable<IGLRenderer>;
 
-    private _eraserOperation$: Subject<IEraserOperation> = new Subject<IEraserOperation>();
-    private _eraser$: Observable<IEraser>;
+    private _eraserOperation$: Subject<IForceOperation> = new Subject<IForceOperation>();
+    private _eraser$: Observable<IForce>;
+
+    private _triggerOperation$: Subject<IForceOperation> = new Subject<IForceOperation>();
 
     private _webGLRenderer$: Observable<THREE.WebGLRenderer>;
 
     private _renderFrameSubscription: Subscription;
     private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
+    private _postrender$: Subject<void> = new Subject<void>();
+
     constructor(
+        canvas: HTMLCanvasElement,
         canvasContainer: HTMLElement,
-        renderService: RenderService,
-        dom?: DOM) {
+        renderService: RenderService) {
         this._renderService = renderService;
-        this._dom = !!dom ? dom : new DOM();
         const subs = this._subscriptions;
 
         this._renderer$ = this._rendererOperation$.pipe(
@@ -139,35 +142,50 @@ export class GLRenderer {
 
         this._eraser$ = this._eraserOperation$.pipe(
             startWith(
-                (eraser: IEraser): IEraser => {
+                (eraser: IForce): IForce => {
                     return eraser;
                 }),
             scan(
-                (eraser: IEraser, operation: IEraserOperation): IEraser => {
+                (eraser: IForce, operation: IForceOperation): IForce => {
                     return operation(eraser);
                 },
                 { needsRender: false }));
 
+        const trigger$ = this._triggerOperation$.pipe(
+            startWith(
+                (trigger: IForce): IForce => {
+                    return trigger;
+                }),
+            scan(
+                (trigger: IForce, operation: IForceOperation): IForce => {
+                    return operation(trigger);
+                },
+                { needsRender: false }));
+
+        const clearColor = new THREE.Color(0x0F0F0F);
         const renderSubscription = observableCombineLatest(
             this._renderer$,
             this._renderCollection$,
             this._renderCamera$,
-            this._eraser$).pipe(
+            this._eraser$,
+            trigger$).pipe(
                 map(
-                    ([renderer, hashes, rc, eraser]: [IGLRenderer, IGLRenderHashes, IRenderCamera, IEraser]): ICombination => {
+                    ([renderer, hashes, rc, eraser, trigger]:
+                        [IGLRenderer, IGLRenderHashes, IRenderCamera, IForce, IForce]): ICombination => {
                         const renders: IGLRender[] = Object.keys(hashes)
                             .map((key: string): IGLRender => {
                                 return hashes[key];
                             });
 
-                        return { camera: rc, eraser: eraser, renderer: renderer, renders: renders };
+                        return { camera: rc, eraser: eraser, trigger: trigger, renderer: renderer, renders: renders };
                     }),
                 filter(
                     (co: ICombination): boolean => {
                         let needsRender: boolean =
                             co.renderer.needsRender ||
                             co.camera.needsRender ||
-                            co.eraser.needsRender;
+                            co.eraser.needsRender ||
+                            co.trigger.needsRender;
 
                         const frameId: number = co.camera.frameId;
 
@@ -186,13 +204,15 @@ export class GLRenderer {
                         return n1 === n2;
                     },
                     (co: ICombination): number => {
-                        return co.eraser.needsRender ? -1 : co.camera.frameId;
+                        return co.eraser.needsRender ||
+                            co.trigger.needsRender ? -co.camera.frameId : co.camera.frameId;
                     }))
             .subscribe(
                 (co: ICombination): void => {
                     co.renderer.needsRender = false;
                     co.camera.needsRender = false;
                     co.eraser.needsRender = false;
+                    co.trigger.needsRender = false;
 
                     const perspectiveCamera = co.camera.perspective;
 
@@ -208,6 +228,8 @@ export class GLRenderer {
                     }
 
                     const renderer = co.renderer.renderer;
+                    renderer.resetState();
+                    renderer.setClearColor(clearColor, 1.0);
                     renderer.clear();
 
                     for (const render of backgroundRenders) {
@@ -219,6 +241,8 @@ export class GLRenderer {
                     for (const render of foregroundRenders) {
                         render(perspectiveCamera, renderer);
                     }
+
+                    this._postrender$.next();
                 });
 
         subs.push(renderSubscription);
@@ -267,17 +291,11 @@ export class GLRenderer {
             first(),
             map(
                 (): THREE.WebGLRenderer => {
-                    const canvas = this._dom
-                        .createElement("canvas", "mapillary-js-canvas");
-                    canvas.style.position = "absolute";
-                    canvas.setAttribute("tabindex", "0");
                     canvasContainer.appendChild(canvas);
-
                     const element = renderService.element;
                     const webGLRenderer = new THREE.WebGLRenderer({ canvas: canvas });
                     webGLRenderer.setPixelRatio(window.devicePixelRatio);
                     webGLRenderer.setSize(element.offsetWidth, element.offsetHeight);
-                    webGLRenderer.setClearColor(new THREE.Color(0x0F0F0F), 1.0);
                     webGLRenderer.autoClear = false;
 
                     return webGLRenderer;
@@ -357,8 +375,8 @@ export class GLRenderer {
 
         subs.push(renderCollectionEmpty$.pipe(
             map(
-                (): IEraserOperation => {
-                    return (eraser: IEraser): IEraser => {
+                (): IForceOperation => {
+                    return (eraser: IForce): IForce => {
                         eraser.needsRender = true;
 
                         return eraser;
@@ -369,6 +387,10 @@ export class GLRenderer {
 
     public get render$(): Subject<IGLRenderHash> {
         return this._render$;
+    }
+
+    public get postrender$(): Observable<void> {
+        return this._postrender$;
     }
 
     public get webGLRenderer$(): Observable<THREE.WebGLRenderer> {
@@ -401,6 +423,21 @@ export class GLRenderer {
         }
 
         this._subscriptions.unsubscribe();
+    }
+
+    public triggerRerender(): void {
+        this._renderService.renderCameraFrame$
+            .pipe(
+                skip(1),
+                first())
+            .subscribe(
+                (): void => {
+                    this._triggerOperation$.next(
+                        (trigger: IForce): IForce => {
+                            trigger.needsRender = true;
+                            return trigger;
+                        });
+                });
     }
 
     private _renderFrameSubscribe(): void {

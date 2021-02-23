@@ -61,6 +61,7 @@ export { ImageSize } from "./viewer/ImageSize";
 export { Viewer } from "./viewer/Viewer";
 export { IComponentOptions } from "./viewer/interfaces/IComponentOptions";
 export { ComponentSize } from "./component/utils/ComponentSize";
+export { ICustomRenderer } from "./viewer/interfaces/ICustomRenderer";
 export { IPointOfView } from "./viewer/interfaces/IPointOfView";
 export { IUrlOptions } from "./viewer/interfaces/IUrlOptions";
 export { IViewerEvent } from "./viewer/interfaces/IViewerEvent";
