@@ -20,24 +20,49 @@ export class MouseOperator {
     public static filteredPairwiseMouseDrag$(
         name: string,
         mouseService: MouseService): Observable<[MouseEvent, MouseEvent]> {
+        return this._filteredPairwiseMouseDrag$(
+            name,
+            mouseService,
+            mouseService.mouseDragStart$,
+            mouseService.mouseDrag$,
+            mouseService.mouseDragEnd$);
+    }
 
+    public static filteredPairwiseMouseRightDrag$(
+        name: string,
+        mouseService: MouseService): Observable<[MouseEvent, MouseEvent]> {
+        return this._filteredPairwiseMouseDrag$(
+            name,
+            mouseService,
+            mouseService.mouseRightDragStart$,
+            mouseService.mouseRightDrag$,
+            mouseService.mouseRightDragEnd$);
+    }
+
+    private static _filteredPairwiseMouseDrag$(
+        name: string,
+        mouseService: MouseService,
+        mouseDragStart$: Observable<MouseEvent>,
+        mouseDrag$: Observable<MouseEvent>,
+        mouseDragEnd$: Observable<MouseEvent | FocusEvent>):
+        Observable<[MouseEvent, MouseEvent]> {
         return mouseService
-            .filtered$(name, mouseService.mouseDragStart$).pipe(
+            .filtered$(name, mouseDragStart$).pipe(
                 switchMap(
                     (mouseDragStart: MouseEvent): Observable<MouseEvent> => {
-                        const mouseDragging$: Observable<MouseEvent> = observableConcat(
+                        const dragging$: Observable<MouseEvent> = observableConcat(
                             observableOf(mouseDragStart),
                             mouseService
-                                .filtered$(name, mouseService.mouseDrag$));
+                                .filtered$(name, mouseDrag$));
 
-                        const mouseDragEnd$: Observable<MouseEvent> = mouseService
-                            .filtered$(name, mouseService.mouseDragEnd$).pipe(
+                        const dragEnd$: Observable<MouseEvent> = mouseService
+                            .filtered$(name, mouseDragEnd$).pipe(
                                 map(
                                     (): MouseEvent => {
                                         return null;
                                     }));
 
-                        return observableMerge(mouseDragging$, mouseDragEnd$).pipe(
+                        return observableMerge(dragging$, dragEnd$).pipe(
                             takeWhile(
                                 (e: MouseEvent): boolean => {
                                     return !!e;

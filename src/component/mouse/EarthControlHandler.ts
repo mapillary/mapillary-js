@@ -33,7 +33,8 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
     private _spatial: Spatial;
 
     private _dollySubscription: Subscription;
-    private _orbitSubscription: Subscription;
+    private _ctrlOrbitSubscription: Subscription;
+    private _rightOrbitSubscription: Subscription;
     private _preventDefaultSubscription: Subscription;
     private _truckSubscription: Subscription;
 
@@ -125,7 +126,7 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                     this._navigator.stateService.truck(direction);
                 });
 
-        this._orbitSubscription = earth$.pipe(
+        this._ctrlOrbitSubscription = earth$.pipe(
             switchMap(
                 (earth: boolean): Observable<[MouseEvent, MouseEvent]> => {
                     if (!earth) {
@@ -140,13 +141,29 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                 }),
             map(
                 ([previous, current]: [MouseEvent, MouseEvent]): IRotation => {
-                    const [currentX, currentY]: number[] = this._eventToViewport(current, this._container.container);
-                    const [previousX, previousY]: number[] = this._eventToViewport(previous, this._container.container);
+                    return this._mousePairToRotation(previous, current);
+                }))
+            .subscribe(
+                (rotation: IRotation): void => {
+                    this._navigator.stateService.orbit(rotation);
+                });
 
-                    const phi: number = (previousX - currentX) * Math.PI;
-                    const theta: number = (currentY - previousY) * Math.PI / 2;
+        this._rightOrbitSubscription = earth$.pipe(
+            switchMap(
+                (earth: boolean): Observable<[MouseEvent, MouseEvent]> => {
+                    if (!earth) {
+                        return observableEmpty();
+                    }
 
-                    return { phi: phi, theta: theta };
+                    return MouseOperator.filteredPairwiseMouseRightDrag$(this._component.name, this._container.mouseService).pipe(
+                        filter(
+                            ([e1, e2]: [MouseEvent, MouseEvent]): boolean => {
+                                return !e1.ctrlKey && !e2.ctrlKey;
+                            }));
+                }),
+            map(
+                ([previous, current]: [MouseEvent, MouseEvent]): IRotation => {
+                    return this._mousePairToRotation(previous, current);
                 }))
             .subscribe(
                 (rotation: IRotation): void => {
@@ -185,7 +202,8 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
 
     protected _disable(): void {
         this._dollySubscription.unsubscribe();
-        this._orbitSubscription.unsubscribe();
+        this._ctrlOrbitSubscription.unsubscribe();
+        this._rightOrbitSubscription.unsubscribe();
         this._preventDefaultSubscription.unsubscribe();
         this._truckSubscription.unsubscribe();
     }
@@ -198,6 +216,19 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
         const previousCanvas: number[] = this._viewportCoords.canvasPosition(event, element);
 
         return this._viewportCoords.canvasToViewport(previousCanvas[0], previousCanvas[1], element);
+    }
+
+    private _mousePairToRotation(
+        previous: MouseEvent, current: MouseEvent): IRotation {
+        const [currentX, currentY] =
+            this._eventToViewport(current, this._container.container);
+        const [previousX, previousY]: number[] =
+            this._eventToViewport(previous, this._container.container);
+
+        const phi: number = (previousX - currentX) * Math.PI;
+        const theta: number = (currentY - previousY) * Math.PI / 2;
+
+        return { phi: phi, theta: theta };
     }
 
     private _planeIntersection(

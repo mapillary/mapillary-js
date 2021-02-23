@@ -70,6 +70,10 @@ export class MouseService {
     private _mouseDrag$: Observable<MouseEvent>;
     private _mouseDragEnd$: Observable<MouseEvent | FocusEvent>;
 
+    private _mouseRightDragStart$: Observable<MouseEvent>;
+    private _mouseRightDrag$: Observable<MouseEvent>;
+    private _mouseRightDragEnd$: Observable<MouseEvent | FocusEvent>;
+
     private _deferPixelClaims$: Subject<IMouseDeferPixels>;
     private _deferPixels$: Observable<number>;
     private _proximateClick$: Observable<MouseEvent>;
@@ -240,6 +244,34 @@ export class MouseService {
         this._domMouseDrag$ = this._createMouseDrag$(domMouseDragInitiate$, dragStop$).pipe(share());
         this._domMouseDragEnd$ = this._createMouseDragEnd$(this._domMouseDragStart$, dragStop$).pipe(share());
 
+        const rightDragStop$: Observable<MouseEvent | FocusEvent> =
+            observableMerge(
+                this._windowBlur$,
+                this._documentMouseUp$.pipe(
+                    filter(
+                        (e: MouseEvent): boolean => {
+                            return this._mouseButton(e) === RIGHT_BUTTON;
+                        }))).pipe(
+                            share());
+
+        const mouseRightDragInitiate$: Observable<[MouseEvent, MouseEvent]> =
+            this._createMouseDragInitiate$(
+                RIGHT_BUTTON,
+                this._mouseDown$,
+                rightDragStop$,
+                true)
+                .pipe(share());
+
+        this._mouseRightDragStart$ =
+            this._createMouseDragStart$(mouseRightDragInitiate$)
+                .pipe(share());
+        this._mouseRightDrag$ =
+            this._createMouseDrag$(mouseRightDragInitiate$, rightDragStop$)
+                .pipe(share());
+        this._mouseRightDragEnd$ =
+            this._createMouseDragEnd$(this._mouseRightDragStart$, rightDragStop$)
+                .pipe(share());
+
         this._proximateClick$ = this._mouseDown$.pipe(
             switchMap(
                 (mouseDown: MouseEvent): Observable<MouseEvent> => {
@@ -265,6 +297,10 @@ export class MouseService {
         subs.push(this._domMouseDragStart$.subscribe());
         subs.push(this._domMouseDrag$.subscribe());
         subs.push(this._domMouseDragEnd$.subscribe());
+
+        subs.push(this._mouseRightDragStart$.subscribe());
+        subs.push(this._mouseRightDrag$.subscribe());
+        subs.push(this._mouseRightDragEnd$.subscribe());
 
         subs.push(this._staticClick$.subscribe());
 
@@ -374,6 +410,18 @@ export class MouseService {
 
     public get mouseDragEnd$(): Observable<MouseEvent | FocusEvent> {
         return this._mouseDragEnd$;
+    }
+
+    public get mouseRightDragStart$(): Observable<MouseEvent> {
+        return this._mouseRightDragStart$;
+    }
+
+    public get mouseRightDrag$(): Observable<MouseEvent> {
+        return this._mouseRightDrag$;
+    }
+
+    public get mouseRightDragEnd$(): Observable<MouseEvent | FocusEvent> {
+        return this._mouseRightDragEnd$;
     }
 
     public get proximateClick$(): Observable<MouseEvent> {
