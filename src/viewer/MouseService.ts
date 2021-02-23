@@ -30,6 +30,13 @@ import { IMouseClaim } from "./interfaces/IMouseClaim";
 import { IMouseDeferPixels } from "./interfaces/IMouseDeferPixels";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
+interface FirefoxBrowser {
+    InstallTrigger: undefined;
+}
+
+const LEFT_BUTTON = 0;
+const RIGHT_BUTTON = 2;
+
 export class MouseService {
     private _activeSubject$: BehaviorSubject<boolean>;
     private _active$: Observable<boolean>;
@@ -210,19 +217,24 @@ export class MouseService {
             this._documentMouseUp$.pipe(
                 filter(
                     (e: MouseEvent): boolean => {
-                        return e.button === 0;
+                        return this._mouseButton(e) === LEFT_BUTTON;
                     }))).pipe(
                         share());
 
         const mouseDragInitiate$: Observable<[MouseEvent, MouseEvent]> =
-            this._createMouseDragInitiate$(this._mouseDown$, dragStop$, true).pipe(share());
+            this._createMouseDragInitiate$(LEFT_BUTTON, this._mouseDown$, dragStop$, true).pipe(share());
 
         this._mouseDragStart$ = this._createMouseDragStart$(mouseDragInitiate$).pipe(share());
         this._mouseDrag$ = this._createMouseDrag$(mouseDragInitiate$, dragStop$).pipe(share());
         this._mouseDragEnd$ = this._createMouseDragEnd$(this._mouseDragStart$, dragStop$).pipe(share());
 
         const domMouseDragInitiate$: Observable<[MouseEvent, MouseEvent]> =
-            this._createMouseDragInitiate$(this._domMouseDown$, dragStop$, false).pipe(share());
+            this._createMouseDragInitiate$(
+                LEFT_BUTTON,
+                this._domMouseDown$,
+                dragStop$,
+                false)
+                .pipe(share());
 
         this._domMouseDragStart$ = this._createMouseDragStart$(domMouseDragInitiate$).pipe(share());
         this._domMouseDrag$ = this._createMouseDrag$(domMouseDragInitiate$, dragStop$).pipe(share());
@@ -469,6 +481,7 @@ export class MouseService {
     }
 
     private _createMouseDragInitiate$(
+        button: number,
         mouseDown$: Observable<MouseEvent>,
         stop$: Observable<Event>,
         defer: boolean): Observable<[MouseEvent, MouseEvent]> {
@@ -476,7 +489,7 @@ export class MouseService {
         return mouseDown$.pipe(
             filter(
                 (mouseDown: MouseEvent): boolean => {
-                    return mouseDown.button === 0;
+                    return this._mouseButton(mouseDown) === button;
                 }),
             switchMap(
                 (mouseDown: MouseEvent): Observable<[MouseEvent, MouseEvent]> => {
@@ -535,5 +548,19 @@ export class MouseService {
                 ([item]: [T, string]): T => {
                     return item;
                 }));
+    }
+
+    private _mouseButton(event: MouseEvent): number {
+        const upOrDown = event.type === "mousedown" || event.type === "mouseup";
+        const InstallTrigger = (<FirefoxBrowser><unknown>window).InstallTrigger;
+        if (upOrDown &&
+            typeof InstallTrigger !== 'undefined' &&
+            event.button === RIGHT_BUTTON && event.ctrlKey &&
+            window.navigator.platform.toUpperCase().indexOf('MAC') >= 0) {
+            // Fix for the fact that Firefox (detected by InstallTrigger)
+            // on Mac determines e.button = 2 when using Control + left click.
+            return LEFT_BUTTON;
+        }
+        return event.button;
     }
 }
