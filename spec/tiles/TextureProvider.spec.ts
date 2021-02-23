@@ -11,11 +11,12 @@ import { MockCreator } from "../helper/MockCreator.spec";
 class RendererMock implements THREE.Renderer {
     public domElement: HTMLCanvasElement = document.createElement("canvas");
 
-    public getContext(): void { return; }
-    public render(s: THREE.Scene, c: THREE.Camera, t?: THREE.WebGLRenderTarget): void { return; }
+    public getContext(): void { /* noop */ }
+    public render(s: THREE.Scene, c: THREE.Camera, t?: THREE.WebGLRenderTarget): void { /* noop */ }
+    public resetState(): void { /* noop */ }
     public getRenderTarget(): THREE.RenderTarget { return; }
-    public setRenderTarget(): void { return; }
-    public setSize(w: number, h: number, updateStyle?: boolean): void { return; }
+    public setRenderTarget(): void { /* noop */ }
+    public setSize(w: number, h: number, updateStyle?: boolean): void { /* noop */ }
 }
 
 describe("TextureProvider.ctor", () => {
@@ -23,7 +24,7 @@ describe("TextureProvider.ctor", () => {
         spyOn(console, "warn").and.stub();
 
         let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
-        (<jasmine.Spy>imageTileLoader.getTile).and.returnValue([observableEmpty(), (): void => { return; }]);
+        (<jasmine.Spy>imageTileLoader.getTile).and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
@@ -51,7 +52,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { return; }]);
+        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
@@ -155,7 +156,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { return; }]);
+        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
@@ -207,7 +208,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { return; }]);
+        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
@@ -259,7 +260,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { return; }]);
+        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
@@ -311,7 +312,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { return; }]);
+        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
@@ -363,7 +364,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { return; }]);
+        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
@@ -415,7 +416,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { return; }]);
+        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
@@ -467,7 +468,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { return; }]);
+        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
@@ -519,7 +520,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { return; }]);
+        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 
@@ -580,7 +581,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
         let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { return; }]);
+        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
 
         let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
 

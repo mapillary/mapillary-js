@@ -24,9 +24,10 @@ export class Container {
 
     public spriteService: SpriteService;
 
-    private _canvasContainer: HTMLElement;
+    private _canvasContainer: HTMLDivElement;
+    private _canvas: HTMLCanvasElement;
     private _container: HTMLElement;
-    private _domContainer: HTMLElement;
+    private _domContainer: HTMLDivElement;
 
     private _dom: DOM;
 
@@ -52,31 +53,57 @@ export class Container {
         this.id = !!this._container.id ? this._container.id : "mapillary-js-fallback-container-id";
 
         this._container.classList.add("mapillary-js");
-
-        this._canvasContainer = this._dom.createElement("div", "mapillary-js-interactive", this._container);
         this._domContainer = this._dom.createElement("div", "mapillary-js-dom", this._container);
 
-        this.renderService = new RenderService(this._container, stateService.currentState$, options.renderMode);
+        this._canvasContainer = this._dom.createElement("div", "mapillary-js-interactive", this._container);
 
-        this.glRenderer = new GLRenderer(this._canvasContainer, this.renderService, this._dom);
-        this.domRenderer = new DOMRenderer(this._domContainer, this.renderService, stateService.currentState$);
+        this._canvas = this._dom.createElement("canvas", "mapillary-js-canvas");
+        this._canvas.style.position = "absolute";
+        this._canvas.setAttribute("tabindex", "0");
+
+        this.renderService = new RenderService(
+            this._container,
+            stateService.currentState$,
+            options.renderMode);
+
+        this.glRenderer = new GLRenderer(
+            this._canvas,
+            this._canvasContainer,
+            this.renderService);
+
+        this.domRenderer = new DOMRenderer(
+            this._domContainer,
+            this.renderService,
+            stateService.currentState$);
 
         this.keyboardService = new KeyboardService(this._canvasContainer);
-        this.mouseService = new MouseService(this._container, this._canvasContainer, this._domContainer, document);
-        this.touchService = new TouchService(this._canvasContainer, this._domContainer);
+        this.mouseService = new MouseService(
+            this._container,
+            this._canvasContainer,
+            this._domContainer,
+            document);
+
+        this.touchService = new TouchService(
+            this._canvasContainer,
+            this._domContainer);
 
         this.spriteService = new SpriteService(options.sprite);
+    }
+
+    public get canvas(): HTMLCanvasElement {
+        return !!this._canvas.parentNode ?
+            this._canvas : null;
+    }
+
+    public get canvasContainer(): HTMLDivElement {
+        return this._canvasContainer;
     }
 
     public get container(): HTMLElement {
         return this._container;
     }
 
-    public get canvasContainer(): HTMLElement {
-        return this._canvasContainer;
-    }
-
-    public get domContainer(): HTMLElement {
+    public get domContainer(): HTMLDivElement {
         return this._domContainer;
     }
 

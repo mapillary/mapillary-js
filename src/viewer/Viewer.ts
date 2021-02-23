@@ -4,7 +4,9 @@ import {
     throwError as observableThrowError,
     Observable,
 } from "rxjs";
-import { first } from "rxjs/operators";
+import {
+    first,
+} from "rxjs/operators";
 
 import { ILatLon } from "../api/interfaces/ILatLon";
 import { Component } from "../component/Component";
@@ -20,12 +22,14 @@ import { EventEmitter } from "../utils/EventEmitter";
 import { Settings } from "../utils/Settings";
 import { Urls } from "../utils/Urls";
 
+import { ICustomRenderer } from "./interfaces/ICustomRenderer";
 import { IPointOfView } from "./interfaces/IPointOfView";
 import { IViewerOptions } from "./interfaces/IViewerOptions";
 import { ComponentController } from "./ComponentController";
 import { Container } from "./Container";
 import { Navigator } from "./Navigator";
 import { Observer } from "./Observer";
+import { CustomRenderer } from "./CustomRenderer";
 /**
  * @class Viewer
  *
@@ -271,6 +275,12 @@ export class Viewer extends EventEmitter {
     private _navigator: Navigator;
 
     /**
+     * Private custom renderer object which controls WebGL custom
+     * rendering subscriptions.
+     */
+    private _customRenderer: CustomRenderer;
+
+    /**
      * Create a new viewer instance.
      *
      * @description It is possible to initialize the viewer with or
@@ -329,6 +339,7 @@ export class Viewer extends EventEmitter {
             this._observer,
             options.imageKey,
             options.component);
+        this._customRenderer = new CustomRenderer(this._container, this._navigator);
     }
 
     /**
@@ -376,6 +387,15 @@ export class Viewer extends EventEmitter {
      */
     public activateCover(): void {
         this._componentController.activateCover();
+    }
+
+    /**
+     * Add a custom renderer to the viewer's rendering pipeline.
+     *
+     * @param renderer - The custom renderer implementation.
+     */
+    public addCustomRenderer(renderer: ICustomRenderer): void {
+        this._customRenderer.addCustomRenderer(renderer, this);
     }
 
     /**
@@ -444,14 +464,28 @@ export class Viewer extends EventEmitter {
     }
 
     /**
+     * Returns the viewer's <canvas> element.
+     *
+     * @description This is the element onto which the viewer renders
+     * the WebGL content.
+     *
+     * @returns {HTMLCanvasElement} The viewer's <canvas> element, or
+     * null or not initialized.
+     */
+    public getCanvas(): HTMLCanvasElement {
+        return <HTMLCanvasElement>this._container.canvas;
+    }
+
+    /**
      * Returns the HTML element containing the viewer's <canvas> element.
      *
      * @description This is the element to which event bindings for viewer
      * interactivity (such as panning and zooming) are attached.
      *
-     * @returns {HTMLElement} The container viewer's <canvas> element.
+     * @returns {HTMLDivElement} The container for the viewer's
+     * <canvas> element.
      */
-    public getCanvasContainer(): HTMLElement {
+    public getCanvasContainer(): HTMLDivElement {
         return this._container.canvasContainer;
     }
 
@@ -621,6 +655,19 @@ export class Viewer extends EventEmitter {
                             reject(error);
                         });
             });
+    }
+
+
+    /**
+     * Check if a custom renderer has been added to the viewer's
+     * rendering pipeline.
+     *
+     * @param {string} id - Unique id of the custom renderer.
+     * @returns {boolean} Value indicating whether the customer
+     * renderer has been added.
+     */
+    public hasCustomRenderer(id: string): boolean {
+        return this._customRenderer.hasCustomRenderer(id);
     }
 
     /**
@@ -796,12 +843,22 @@ export class Viewer extends EventEmitter {
      * ```
      */
     public remove(): void {
+        this._customRenderer.dispose(this);
         this._observer.dispose();
         this._componentController.remove();
         this._navigator.dispose();
         this._container.remove();
 
         this.fire(Viewer.removed, { type: Viewer.removed });
+    }
+
+    /**
+     * Remove a custom renderer from the viewer's rendering pipeline.
+     *
+     * @param id - Unique id of the custom renderer.
+     */
+    public removeCustomRenderer(id: string): void {
+        this._customRenderer.removeCustomRenderer(id, this);
     }
 
     /**
@@ -1032,6 +1089,19 @@ export class Viewer extends EventEmitter {
      */
     public setZoom(zoom: number): void {
         this._navigator.stateService.setZoom(zoom);
+    }
+
+    /**
+     * Trigger the rendering of a single frame.
+     *
+     * @description Use this method with custom renderers to
+     * force the viewer to rerender when the custom content
+     * changes. Calling this multiple times before the next
+     * frame is rendered will still result in only a single
+     * frame being rendered.
+     */
+    public triggerRerender(): void {
+        this._container.glRenderer.triggerRerender();
     }
 
     /**
