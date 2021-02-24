@@ -51,7 +51,6 @@
     "cssnano": "^4.1.10",
     "exorcist": "^1.0.1",
     "express": "^4.17.1",
-    "husky": "^4.3.8",
     "jasmine-core": "^3.5.0",
     "karma": "^6.1.1",
     "karma-browserify": "^8.0.0",
@@ -93,11 +92,5 @@
     "start": "node server.js",
     "test": "karma start --single-run",
     "test-watch": "karma start"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "yarn lint",
-      "pre-push": "yarn test"
-    }
   }
 }
