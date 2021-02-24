@@ -104,16 +104,16 @@ Refer to the [Examples](#examples) section below and the [Index](./globals.html)
 
 ## Migrating
 
-Learn how to [migrate](https://github.com/mapillary/mapillary-js/blob/master/MIGRATING.md) between major MapillaryJS releases.
+Learn how to [migrate](https://github.com/mapillary/mapillary-js/blob/main/MIGRATING.md) between major MapillaryJS releases.
 
 ## Contribute to MapillaryJS
 
-Learn how to [contribute](https://github.com/mapillary/mapillary-js/blob/master/.github/CONTRIBUTING.md).
+Learn how to [contribute](https://github.com/mapillary/mapillary-js/blob/main/.github/CONTRIBUTING.md).
 
 ### [Code of Conduct](https://code.facebook.com/codeofconduct)
 
-Facebook has adopted a Code of Conduct that we expect project participants to adhere to. Please read [the full text](https://github.com/mapillary/mapillary-js/blob/master/.github/CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
+Facebook has adopted a Code of Conduct that we expect project participants to adhere to. Please read [the full text](https://github.com/mapillary/mapillary-js/blob/main/.github/CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
 
 ## License
 
-MapillaryJS is [MIT licensed](https://github.com/mapillary/mapillary-js/blob/master/LICENSE).
+MapillaryJS is [MIT licensed](https://github.com/mapillary/mapillary-js/blob/main/LICENSE).

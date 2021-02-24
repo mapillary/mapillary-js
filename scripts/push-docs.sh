@@ -12,4 +12,4 @@ git add globals.html
 git add index.html
 git commit -m "Update documentation"
 git push origin gh-pages
-git checkout master
+git checkout main

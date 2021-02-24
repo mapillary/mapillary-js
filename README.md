@@ -1,4 +1,4 @@
-![yarn workflow](https://github.com/mapillary/mapillary-js/workflows/Build/badge.svg) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mapillary/mapillary-js/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/mapillary-js.svg?style=flat)](https://www.npmjs.com/package/mapillary-js)
+![yarn workflow](https://github.com/mapillary/mapillary-js/workflows/Build/badge.svg) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mapillary/mapillary-js/blob/main/LICENSE) [![npm version](https://img.shields.io/npm/v/mapillary-js.svg?style=flat)](https://www.npmjs.com/package/mapillary-js)
 
 # MapillaryJS
 

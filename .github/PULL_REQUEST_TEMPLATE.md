@@ -3,7 +3,7 @@ Thank you for sending the PR! We appreciate you spending the time to work on the
 
 Help us understand your motivation by explaining why you decided to make this change.
 
-You can learn more about contributing to MapillaryJS here: https://github.com/mapillary/mapillary-js/blob/master/CONTRIBUTING.md
+You can learn more about contributing to MapillaryJS here: https://github.com/mapillary/mapillary-js/blob/main/CONTRIBUTING.md
 
 Happy contributing!
 
@@ -13,7 +13,7 @@ Happy contributing!
 
 (Write your motivation here.)
 
-### Have you read the [Contributing Guidelines](https://github.com/mapillary/mapillary-js/blob/master/CONTRIBUTING.md)?
+### Have you read the [Contributing Guidelines](https://github.com/mapillary/mapillary-js/blob/main/CONTRIBUTING.md)?
 
 (Write your answer here.)
 
