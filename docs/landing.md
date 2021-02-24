@@ -32,7 +32,7 @@ You can use MapillaryJS as a `<script>` tag from a [CDN](https://unpkg.com/brows
 
 ## Documentation
 
-Refer to the [Examples](#examples) section below and the [Index](./globals.html).
+Refer to the [Examples](#examples) section below and the [Index](./modules.html).
 
 ## Examples
 
