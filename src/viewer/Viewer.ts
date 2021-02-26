@@ -395,7 +395,7 @@ export class Viewer extends EventEmitter {
      * @param renderer - The custom renderer implementation.
      */
     public addCustomRenderer(renderer: ICustomRenderer): void {
-        this._customRenderer.addCustomRenderer(renderer, this);
+        this._customRenderer.add(renderer, this);
     }
 
     /**
@@ -667,7 +667,7 @@ export class Viewer extends EventEmitter {
      * renderer has been added.
      */
     public hasCustomRenderer(id: string): boolean {
-        return this._customRenderer.hasCustomRenderer(id);
+        return this._customRenderer.has(id);
     }
 
     /**
@@ -858,7 +858,7 @@ export class Viewer extends EventEmitter {
      * @param id - Unique id of the custom renderer.
      */
     public removeCustomRenderer(id: string): void {
-        this._customRenderer.removeCustomRenderer(id, this);
+        this._customRenderer.remove(id, this);
     }
 
     /**

@@ -13,19 +13,8 @@ import { RenderMode } from "../../src/render/RenderMode";
 import { RenderService } from "../../src/render/RenderService";
 import { IFrame } from "../../src/state/interfaces/IFrame";
 import { FrameHelper } from "../helper/FrameHelper.spec";
+import { RendererMock } from "../helper/WebGLRenderer.spec";
 
-
-class RendererMock implements THREE.Renderer {
-    public domElement: HTMLCanvasElement = document.createElement("canvas");
-
-    public render(s: THREE.Scene, c: THREE.Camera): void { /* noop */ }
-    public resetState(): void { /* noop */ }
-    public setSize(w: number, h: number, updateStyle?: boolean): void { /* noop */ }
-    public setClearColor(color: THREE.Color | string | number, alpha?: number): void { /* noop */ }
-    public setPixelRatio(ratio: number): void { /* noop */ }
-    public clear(): void { /* noop */; }
-    public clearDepth(): void { /* noop */ }
-}
 
 class RenderServiceMock extends RenderService {
     private _sizeMock$: Subject<ISize> = new Subject<ISize>();
@@ -297,6 +286,147 @@ describe("GLRenderer.renderer", () => {
         glRenderer.render$.next(createGLRenderHash(frame.id, false));
 
         expect((<jasmine.Spy>rendererMock.render).calls.count()).toBe(1);
+    });
+
+    it("should not render again on same frame if triggered", () => {
+        let rendererMock: RendererMock = new RendererMock();
+        spyOn(rendererMock, "clear");
+        spyOn(rendererMock, "resetState");
+        spyOn(rendererMock, "setClearColor");
+        spyOn(THREE, "WebGLRenderer").and.returnValue(<THREE.WebGLRenderer>rendererMock);
+
+        const frame: IFrame = new FrameHelper().createFrame();
+        frame.id = 1;
+
+        let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        renderCamera.setFrame(frame);
+        renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
+
+        let canvas = document.createElement("canvas");
+        let glRenderer: GLRenderer = new GLRenderer(canvas, document.createElement("div"), renderServiceMock);
+
+        glRenderer.render$.next(createGLRenderHash(frame.id, true));
+
+        expect((<jasmine.Spy>rendererMock.resetState).calls.count()).toBe(1);
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(1);
+        expect((<jasmine.Spy>rendererMock.setClearColor).calls.count()).toBe(1);
+
+        glRenderer.triggerRerender();
+
+        expect((<jasmine.Spy>rendererMock.resetState).calls.count()).toBe(1);
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(1);
+        expect((<jasmine.Spy>rendererMock.setClearColor).calls.count()).toBe(1);
+    });
+
+    it("should render on next frame if triggered", () => {
+        let rendererMock: RendererMock = new RendererMock();
+        spyOn(rendererMock, "clear");
+        spyOn(rendererMock, "resetState");
+        spyOn(rendererMock, "setClearColor");
+        spyOn(THREE, "WebGLRenderer").and.returnValue(<THREE.WebGLRenderer>rendererMock);
+
+        const frame: IFrame = new FrameHelper().createFrame();
+        frame.id = 1;
+
+        let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        renderCamera.setFrame(frame);
+        renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
+
+        let canvas = document.createElement("canvas");
+        let glRenderer: GLRenderer = new GLRenderer(canvas, document.createElement("div"), renderServiceMock);
+
+        glRenderer.render$.next(createGLRenderHash(frame.id, true));
+
+        expect((<jasmine.Spy>rendererMock.resetState).calls.count()).toBe(1);
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(1);
+        expect((<jasmine.Spy>rendererMock.setClearColor).calls.count()).toBe(1);
+
+        glRenderer.triggerRerender();
+
+        frame.id = 2;
+        renderCamera.setFrame(frame)
+        renderServiceMock.renderCameraFrame$.next(renderCamera);
+        glRenderer.render$.next(createGLRenderHash(frame.id, false));
+
+        expect((<jasmine.Spy>rendererMock.resetState).calls.count()).toBe(2);
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(2);
+        expect((<jasmine.Spy>rendererMock.setClearColor).calls.count()).toBe(2);
+    });
+
+    it("should only render on next frame, not subsequent if triggered", () => {
+        let rendererMock: RendererMock = new RendererMock();
+        spyOn(rendererMock, "clear");
+        spyOn(rendererMock, "resetState");
+        spyOn(rendererMock, "setClearColor");
+        spyOn(THREE, "WebGLRenderer").and.returnValue(<THREE.WebGLRenderer>rendererMock);
+
+        const frame: IFrame = new FrameHelper().createFrame();
+        frame.id = 1;
+
+        let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        renderCamera.setFrame(frame);
+        renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
+
+        let canvas = document.createElement("canvas");
+        let glRenderer: GLRenderer = new GLRenderer(canvas, document.createElement("div"), renderServiceMock);
+
+        glRenderer.render$.next(createGLRenderHash(frame.id, true));
+
+        expect((<jasmine.Spy>rendererMock.resetState).calls.count()).toBe(1);
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(1);
+        expect((<jasmine.Spy>rendererMock.setClearColor).calls.count()).toBe(1);
+
+        glRenderer.triggerRerender();
+
+        frame.id = 2;
+        renderCamera.setFrame(frame)
+        renderServiceMock.renderCameraFrame$.next(renderCamera);
+        glRenderer.render$.next(createGLRenderHash(frame.id, false));
+
+        frame.id = 3;
+        renderCamera.setFrame(frame)
+        renderServiceMock.renderCameraFrame$.next(renderCamera);
+        glRenderer.render$.next(createGLRenderHash(frame.id, false));
+
+        expect((<jasmine.Spy>rendererMock.resetState).calls.count()).toBe(2);
+        expect((<jasmine.Spy>rendererMock.clear).calls.count()).toBe(2);
+        expect((<jasmine.Spy>rendererMock.setClearColor).calls.count()).toBe(2);
+    });
+
+    it("should emit to post render after render cycle", done => {
+        let rendererMock: RendererMock = new RendererMock();
+        spyOn(rendererMock, "clear");
+        spyOn(rendererMock, "resetState");
+        spyOn(rendererMock, "setClearColor");
+        spyOn(THREE, "WebGLRenderer").and.returnValue(<THREE.WebGLRenderer>rendererMock);
+
+        const frame: IFrame = new FrameHelper().createFrame();
+        frame.id = 1;
+
+        let renderServiceMock: RenderServiceMock = new RenderServiceMock(document.createElement("div"));
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        renderCamera.setFrame(frame);
+        renderServiceMock.renderCameraFrame$ = new BehaviorSubject<RenderCamera>(renderCamera);
+
+        let canvas = document.createElement("canvas");
+        let glRenderer: GLRenderer = new GLRenderer(canvas, document.createElement("div"), renderServiceMock);
+
+        glRenderer.postrender$.subscribe(
+            () => {
+                expect((<jasmine.Spy>rendererMock.resetState)
+                    .calls.count()).toBe(1);
+                expect((<jasmine.Spy>rendererMock.clear)
+                    .calls.count()).toBe(1);
+                expect((<jasmine.Spy>rendererMock.setClearColor)
+                    .calls.count()).toBe(1);
+
+                done();
+            })
+
+        glRenderer.render$.next(createGLRenderHash(frame.id, true));
     });
 
     it("should render frame if camera has changed", () => {
