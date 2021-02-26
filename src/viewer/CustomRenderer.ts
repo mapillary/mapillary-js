@@ -1,5 +1,6 @@
 import { combineLatest as observableCombineLatest } from "rxjs";
 import {
+    skip,
     take,
     withLatestFrom,
 } from "rxjs/operators";
@@ -27,7 +28,7 @@ export class CustomRenderer {
         this._renderers = {};
     }
 
-    public addCustomRenderer(renderer: ICustomRenderer, viewer: Viewer): void {
+    public add(renderer: ICustomRenderer, viewer: Viewer): void {
         const subs = new SubscriptionHolder();
         this._renderers[renderer.id] = { subs, renderer };
 
@@ -64,6 +65,7 @@ export class CustomRenderer {
                 }));
 
         subs.push(this._navigator.stateService.reference$
+            .pipe(skip(1))
             .subscribe(
                 (reference: ILatLonAlt): void => {
                     renderer.onReferenceChanged(viewer, reference);
@@ -72,15 +74,15 @@ export class CustomRenderer {
 
     public dispose(viewer: Viewer): void {
         for (const id of Object.keys(this._renderers)) {
-            this.removeCustomRenderer(id, viewer);
+            this.remove(id, viewer);
         }
     }
 
-    public hasCustomRenderer(id: string): boolean {
+    public has(id: string): boolean {
         return id in this._renderers;
     }
 
-    public removeCustomRenderer(id: string, viewer: Viewer): void {
+    public remove(id: string, viewer: Viewer): void {
         this._renderers[id].subs.unsubscribe();
 
         const renderer = this._renderers[id].renderer;
