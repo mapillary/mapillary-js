@@ -35,7 +35,6 @@ import { IPotentialEdge } from "./edge/interfaces/IPotentialEdge";
 
 import { APIWrapper } from "../api/APIWrapper";
 import { ICoreNode } from "../api/interfaces/ICoreNode";
-import { IDataProvider } from "../api/interfaces/IDataProvider";
 import { IFillNode } from "../api/interfaces/IFillNode";
 import { IFullNode } from "../api/interfaces/IFullNode";
 import { ISequence } from "../api/interfaces/ISequence";
@@ -930,7 +929,7 @@ export class Graph {
         }
 
         const node: Node = this.getNode(key);
-        const provider: IDataProvider = this._api.data;
+        const provider = this._api.data;
         node.initializeCache(new NodeCache(provider));
 
         const accessed: number = new Date().getTime();

@@ -1,14 +1,11 @@
-import { GeometryProviderBase } from "./GeometryProviderBase";
+import { MapillaryError } from "../error/MapillaryError";
 import { IClusterReconstruction } from "./interfaces/IClusterReconstruction";
 import { ICoreNode } from "./interfaces/ICoreNode";
-import { IDataProvider } from "./interfaces/IDataProvider";
 import { IFillNode } from "./interfaces/IFillNode";
 import { IFullNode } from "./interfaces/IFullNode";
-import { IGeometryProvider } from "./interfaces/IGeometryProvider";
 import { IMesh } from "./interfaces/IMesh";
 import { ISequence } from "./interfaces/ISequence";
-
-import { MapillaryError } from "../error/MapillaryError";
+import { GeometryProviderBase } from "./GeometryProviderBase";
 
 /**
  * @class DataProviderBase
@@ -26,14 +23,14 @@ import { MapillaryError } from "../error/MapillaryError";
  * }
  * ```
  */
-export class DataProviderBase implements IDataProvider {
+export abstract class DataProviderBase {
     /**
      * Create a new data provider base instance.
      *
-     * @param {IGeometryProvider} geometry - Geometry
+     * @param {GeometryProviderBase} geometry - Geometry
      * provider instance.
      */
-    constructor(protected _geometry: IGeometryProvider) {
+    constructor(protected _geometry: GeometryProviderBase) {
         if (!(this._geometry instanceof GeometryProviderBase)) {
             throw new MapillaryError(
                 "The data provider requires a geometry provider base instance.");
@@ -43,9 +40,9 @@ export class DataProviderBase implements IDataProvider {
     /**
      * Get geometry property.
      *
-     * @returns {IGeometryProvider} Geometry provider instance.
+     * @returns {GeometryProviderBase} Geometry provider instance.
      */
-    public get geometry(): IGeometryProvider {
+    public get geometry(): GeometryProviderBase {
         return this._geometry;
     }
 

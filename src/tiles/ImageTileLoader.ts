@@ -2,8 +2,7 @@ import {
     Observable,
     Subscriber,
 } from "rxjs";
-
-import { IDataProvider } from "../api/interfaces/IDataProvider";
+import { DataProviderBase } from "../api/DataProviderBase";
 
 /**
  * @class ImageTileLoader
@@ -11,14 +10,14 @@ import { IDataProvider } from "../api/interfaces/IDataProvider";
  * @classdesc Represents a loader of image tiles.
  */
 export class ImageTileLoader {
-    private _provider: IDataProvider;
+    private _provider: DataProviderBase;
 
     /**
      * Create a new node image tile loader instance.
      *
      * @param {IDataProvider} provider - The data provider.
      */
-    constructor(provider: IDataProvider) {
+    constructor(provider: DataProviderBase) {
         this._provider = provider;
     }
 

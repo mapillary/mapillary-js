@@ -16,9 +16,9 @@ import {
     tap,
 } from "rxjs/operators";
 
+import { DataProviderBase } from "../../api/DataProviderBase";
 import { ICellCorners } from "../../api/interfaces/ICellCorners";
 import { IClusterReconstruction } from "../../api/interfaces/IClusterReconstruction";
-import { IDataProvider } from "../../api/interfaces/IDataProvider";
 import { AbortMapillaryError } from "../../error/AbortMapillaryError";
 import { GraphService } from "../../graph/GraphService";
 import { Node } from "../../graph/Node";
@@ -30,7 +30,7 @@ type ClusterData = {
 
 export class SpatialDataCache {
     private _graphService: GraphService;
-    private _data: IDataProvider;
+    private _data: DataProviderBase;
 
     private _cacheRequests: { [hash: string]: Function[] };
     private _tiles: { [hash: string]: Node[] };
@@ -42,7 +42,7 @@ export class SpatialDataCache {
     private _cachingClusterReconstructions$: { [hash: string]: Observable<IClusterReconstruction> };
     private _cachingTiles$: { [hash: string]: Observable<Node[]> };
 
-    constructor(graphService: GraphService, provider: IDataProvider) {
+    constructor(graphService: GraphService, provider: DataProviderBase) {
         this._graphService = graphService;
         this._data = provider;
 

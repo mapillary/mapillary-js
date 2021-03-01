@@ -17,6 +17,9 @@ export interface IViewerOptions {
      * resource requests or a `Mapillary API ClientID`
      * client token string. A client id be obtained from
      * https://www.mapillary.com/app/settings/developers.
+     *
+     * @description A data provider instance must extend
+     * the data provider base class.
      */
     apiClient: string | DataProviderBase;
 

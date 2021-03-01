@@ -15,10 +15,8 @@ import { APIWrapper } from "../../src/api/APIWrapper";
 import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
 import { GeohashGeometryProvider } from "../../src/api/GeohashGeometryProvider";
 import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
-import { IDataProvider } from "../../src/api/interfaces/IDataProvider";
 import { IFillNode } from "../../src/api/interfaces/IFillNode";
 import { IFullNode } from "../../src/api/interfaces/IFullNode";
-import { IGeometryProvider } from "../../src/api/interfaces/IGeometryProvider";
 import { ISequence } from "../../src/api/interfaces/ISequence";
 import { GraphMapillaryError } from "../../src/error/GraphMapillaryError";
 import { GeoRBush } from "../../src/geo/GeoRBush";
@@ -56,8 +54,8 @@ describe("Graph.cacheBoundingBox$", () => {
     });
 
     it("should cache one node in the bounding box", (done: Function) => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -107,8 +105,8 @@ describe("Graph.cacheBoundingBox$", () => {
     });
 
     it("should not cache tile of fill node if already cached", (done: Function) => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -184,8 +182,8 @@ describe("Graph.cacheBoundingBox$", () => {
     });
 
     it("should only cache tile once for two similar calls", (done: Function) => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -373,8 +371,8 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should make full when fetched node has been retrieved in tile in parallell", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -454,8 +452,8 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should be filling", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -507,8 +505,8 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should fill", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -565,8 +563,8 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should not make additional calls when filling same node twice", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -619,8 +617,8 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should throw if already fetching", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -693,8 +691,8 @@ describe("Graph.cacheTiles$", () => {
     });
 
     it("should be caching tiles", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -724,8 +722,8 @@ describe("Graph.cacheTiles$", () => {
     });
 
     it("should cache tiles", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -767,8 +765,8 @@ describe("Graph.cacheTiles$", () => {
     });
 
     it("should encode hs only once when checking tiles cache", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -797,8 +795,8 @@ describe("Graph.cacheTiles$", () => {
     });
 
     it("should encode hs only once when caching tiles", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -954,8 +952,8 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not be cached after uncaching sequence node", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -1007,8 +1005,8 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not be cached after uncaching sequence", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -1062,8 +1060,8 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should be cached after uncaching if sequence is kept", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -1115,8 +1113,8 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should be cached after uncaching if all nodes are kept", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -1168,8 +1166,8 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not be cached after uncaching tile", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -1248,8 +1246,8 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should be cached after uncaching tile if sequence is kept", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -1729,8 +1727,8 @@ describe("Graph.cacheSpatialArea$", () => {
     });
 
     it("should be cached", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -1760,8 +1758,8 @@ describe("Graph.cacheSpatialArea$", () => {
     });
 
     it("should not be cached", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -2385,8 +2383,8 @@ describe("Graph.resetSpatialEdges", () => {
     });
 
     it("should have to re-encode hs after spatial edges reset", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -2486,8 +2484,8 @@ describe("Graph.reset", () => {
     });
 
     it("should remove node", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -2524,8 +2522,8 @@ describe("Graph.reset", () => {
     });
 
     it("should dispose cache initialized node", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -2563,8 +2561,8 @@ describe("Graph.reset", () => {
     });
 
     it("should keep supplied node", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -2616,8 +2614,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should remove prestored node if not cache initialized", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -2662,8 +2660,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should not remove prestored node if in kept sequence", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -2709,8 +2707,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should remove prestored node if cache initialized", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -2755,8 +2753,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should not remove prestored node when in keys to keep", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -2803,8 +2801,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should not remove prestored node if below threshold", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -2851,8 +2849,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should remove prestored node accessed earliest", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -2932,8 +2930,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should uncache cache initialized node", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -2996,8 +2994,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache cache initialized node if below threshold", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -3062,8 +3060,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache cache initialized node if key should be kept", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -3127,8 +3125,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache cache initialized node if key in use", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -3188,8 +3186,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should uncache cache initialized node accessed earliest", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -3476,8 +3474,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should uncache node by uncaching tile", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -3539,8 +3537,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should not dispose node by uncaching tile if in specified sequence", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -3604,8 +3602,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache node by uncaching tile when number below threshold", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
@@ -3668,8 +3666,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache and dispose node by uncaching tile when tile is related to kept key", () => {
-        const geometryProvider: IGeometryProvider = new GeohashGeometryProvider();
-        const dataProvider: IDataProvider = new FalcorDataProvider(
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);

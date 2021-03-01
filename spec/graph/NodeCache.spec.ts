@@ -1,6 +1,5 @@
 import { first, skip } from "rxjs/operators";
 import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
-import { IDataProvider } from "../../src/api/interfaces/IDataProvider";
 import { EdgeDirection } from "../../src/graph/edge/EdgeDirection";
 import { IEdge } from "../../src/graph/edge/interfaces/IEdge";
 import { IEdgeStatus } from "../../src/graph/interfaces/IEdgeStatus";
@@ -218,7 +217,7 @@ describe("NodeCache.cacheImage$", () => {
             },
         };
 
-        const dataProvider: IDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const dataProvider = new FalcorDataProvider({ clientToken: "cid" });
         spyOn(dataProvider, "getImage").and.returnValue(promise);
 
         const imageMock: HTMLImageElement = new Image();
@@ -252,7 +251,7 @@ describe("NodeCache.cacheImage$", () => {
             },
         };
 
-        const dataProvider: IDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const dataProvider = new FalcorDataProvider({ clientToken: "cid" });
         spyOn(dataProvider, "getImage").and.returnValue(promise);
 
         const imageMock: HTMLImageElement = new Image();
@@ -282,7 +281,7 @@ describe("NodeCache.cacheImage$", () => {
             },
         };
 
-        const dataProvider: IDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const dataProvider = new FalcorDataProvider({ clientToken: "cid" });
         spyOn(dataProvider, "getImage").and.returnValue(promise);
 
         const imageMock: HTMLImageElement = new Image();
