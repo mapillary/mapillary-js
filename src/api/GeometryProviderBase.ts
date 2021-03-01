@@ -1,5 +1,4 @@
 import { ICellCorners, ICellNeighbors } from "./interfaces/ICellCorners";
-import { IGeometryProvider } from "./interfaces/IGeometryProvider";
 import { ILatLon } from "./interfaces/ILatLon";
 
 import { MapillaryError } from "../error/MapillaryError";
@@ -18,7 +17,7 @@ import { GeoCoords } from "../geo/GeoCoords";
  * }
  * ```
  */
-export class GeometryProviderBase implements IGeometryProvider {
+export abstract class GeometryProviderBase {
     protected _geoCoords: GeoCoords;
     /**
      * Create a new geometry provider base instance.

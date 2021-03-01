@@ -2,9 +2,9 @@ import {
     Observable,
     Subscriber,
 } from "rxjs";
+import { DataProviderBase } from "./DataProviderBase";
 
 import { ICoreNode } from "./interfaces/ICoreNode";
-import { IDataProvider } from "./interfaces/IDataProvider";
 import { IFillNode } from "./interfaces/IFillNode";
 import { IFullNode } from "./interfaces/IFullNode";
 import { ISequence } from "./interfaces/ISequence";
@@ -15,9 +15,9 @@ import { ISequence } from "./interfaces/ISequence";
  * @classdesc Provides methods for access to the API.
  */
 export class APIWrapper {
-    constructor(private _data: IDataProvider) { }
+    constructor(private _data: DataProviderBase) { }
 
-    public get data(): IDataProvider {
+    public get data(): DataProviderBase {
         return this._data;
     }
 

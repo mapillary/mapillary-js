@@ -1,17 +1,7 @@
 import { BufferFetcher } from "../../src/api/BufferFetcher";
 import { DataProviderBase } from "../../src/api/DataProviderBase";
 import { GeometryProviderBase } from "../../src/api/GeometryProviderBase";
-import { IGeometryProvider } from "../../src/api/interfaces/IGeometryProvider";
 import { MapillaryError } from "../../src/error/MapillaryError";
-
-describe("DataProviderBase.ctor", () => {
-    it("should create a data provider base", () => {
-        const geometry: IGeometryProvider = new GeometryProviderBase();
-        const provider: DataProviderBase = new DataProviderBase(geometry);
-
-        expect(provider).toBeDefined();
-    });
-});
 
 class XMLHTTPRequestMock {
     public response: {};
@@ -29,12 +19,24 @@ class XMLHTTPRequestMock {
     public send(...args: any[]): void { return; }
 };
 
+class GeometryProvider extends GeometryProviderBase { }
+
 class DataProvider extends DataProviderBase {
-    constructor() { super(new GeometryProviderBase()); }
+    constructor() { super(new GeometryProvider()); }
     public getArrayBuffer(abort?: Promise<void>): Promise<ArrayBuffer> {
         return BufferFetcher.getArrayBuffer("", abort);
     }
 }
+
+describe("DataProviderBase.ctor", () => {
+    it("should create a data provider base", () => {
+        const provider = new DataProvider();
+
+        expect(provider).toBeDefined();
+        expect(provider).toBeInstanceOf(DataProvider);
+        expect(provider).toBeInstanceOf(DataProviderBase);
+    });
+});
 
 describe("DataProviderBase.getArrayBuffer", () => {
     it(

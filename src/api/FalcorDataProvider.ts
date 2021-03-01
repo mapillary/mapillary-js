@@ -11,12 +11,12 @@ import { ICoreNode } from "./interfaces/ICoreNode";
 import { IFalcorDataProviderOptions } from "./interfaces/IFalcorDataProviderOptions";
 import { IFillNode } from "./interfaces/IFillNode";
 import { IFullNode } from "./interfaces/IFullNode";
-import { IGeometryProvider } from "./interfaces/IGeometryProvider";
 import { IMesh } from "./interfaces/IMesh";
 import { ISequence } from "./interfaces/ISequence";
 
 import { MapillaryError } from "../error/MapillaryError";
 import { ImageSize } from "../viewer/ImageSize";
+import { GeometryProviderBase } from "./GeometryProviderBase";
 
 
 interface IImageByKey<T> {
@@ -154,12 +154,12 @@ export class FalcorDataProvider extends DataProviderBase {
      * Create a new Falcor data provider instance.
      *
      * @param {IFalcorDataProviderOptions} options - Options struct.
-     * @param {IGeometryProvider} [geometry] - Optional geometry
+     * @param {GeometryProviderBase} [geometry] - Optional geometry
      * provider instance.
      */
     constructor(
         options: IFalcorDataProviderOptions,
-        geometry?: IGeometryProvider) {
+        geometry?: GeometryProviderBase) {
 
         super(!!geometry ? geometry : new GeohashGeometryProvider());
 

@@ -20,11 +20,11 @@ import {
 import { IEdge } from "./edge/interfaces/IEdge";
 import { IEdgeStatus } from "./interfaces/IEdgeStatus";
 
-import { IDataProvider } from "../api/interfaces/IDataProvider";
 import { IMesh } from "../api/interfaces/IMesh";
 import { INodeUrls } from "../api/interfaces/INodeUrls";
 import { Settings } from "../utils/Settings";
 import { ImageSize } from "../viewer/ImageSize";
+import { DataProviderBase } from "../api/DataProviderBase";
 
 /**
  * @class NodeCache
@@ -34,7 +34,7 @@ import { ImageSize } from "../viewer/ImageSize";
 export class NodeCache {
     private _disposed: boolean;
 
-    private _provider: IDataProvider;
+    private _provider: DataProviderBase;
 
     private _image: HTMLImageElement;
     private _mesh: IMesh;
@@ -60,7 +60,7 @@ export class NodeCache {
     /**
      * Create a new node cache instance.
      */
-    constructor(provider: IDataProvider) {
+    constructor(provider: DataProviderBase) {
         this._disposed = false;
 
         this._provider = provider;
