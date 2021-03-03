@@ -21,11 +21,6 @@ export interface IFillNode extends INodeUrls {
     atomic_scale?: number;
 
     /**
-     * Key of SfM cluster that the node is part of.
-     */
-    cluster_key: string;
-
-    /**
      * Rotation vector in angle axis representation.
      */
     c_rotation?: number[];
@@ -73,6 +68,11 @@ export interface IFillNode extends INodeUrls {
      * SfM computed radial distortion parameter.
      */
     ck2?: number;
+
+    /**
+     * Key of SfM cluster that the node is part of.
+     */
+    cluster_key?: string;
 
     /**
      * Panorama information for panorama images.

@@ -1,5 +1,6 @@
 import {
     concat as observableConcat,
+    empty as observableEmpty,
     from as observableFrom,
     merge as observableMerge,
     of as observableOf,
@@ -265,6 +266,16 @@ export class Graph {
     }
 
     /**
+     * Get api.
+     *
+     * @returns {APIWrapper} The API instance used by
+     * the graph.
+     */
+    public get api(): APIWrapper {
+        return this._api;
+    }
+
+    /**
      * Get changed$.
      *
      * @returns {Observable<Graph>} Observable emitting
@@ -380,6 +391,71 @@ export class Graph {
                         observableFrom(fillNodes$).pipe(
                             mergeAll()));
                 }),
+            reduce(
+                (acc: Node[], value: Node[]): Node[] => {
+                    return acc.concat(value);
+                }));
+    }
+
+    public cacheCell$(cellId: string): Observable<Node[]> {
+        const cacheCell$ = cellId in this._cachedTiles ?
+            observableOf(this) :
+            cellId in this._cachingTiles$ ?
+                this._cachingTiles$[cellId] :
+                this._cacheTile$(cellId);
+
+        return cacheCell$.pipe(
+            mergeMap((): Observable<Node[]> => {
+                const cachedCell = this._cachedTiles[cellId];
+                cachedCell.accessed = new Date().getTime();
+                const cellNodes = cachedCell.nodes;
+
+                const fullNodes: Node[] = [];
+                const coreNodes: string[] = [];
+                for (const node of cellNodes) {
+                    if (node.full) {
+                        fullNodes.push(node);
+                    } else {
+                        coreNodes.push(node.key);
+                    }
+                }
+
+                const coreNodeBatches: string[][] = [];
+                const batchSize: number = 400;
+                while (coreNodes.length > 0) {
+                    coreNodeBatches.push(coreNodes.splice(0, batchSize));
+                }
+
+                const fullNodes$ = observableOf(fullNodes);
+                const fillNodes$ = coreNodeBatches
+                    .map((batch: string[]): Observable<Node[]> => {
+                        return this._api.imageByKeyFill$(batch).pipe(
+                            map((nodes: { [key: string]: IFillNode }):
+                                Node[] => {
+                                const filled: Node[] = [];
+                                for (const key in nodes) {
+                                    if (!nodes.hasOwnProperty(key)) {
+                                        continue;
+                                    }
+
+                                    if (!this.hasNode(key)) { continue; }
+
+                                    const node = this.getNode(key);
+                                    if (!node.full) {
+                                        this._makeFull(node, nodes[key]);
+                                    }
+                                    filled.push(node);
+                                }
+
+                                return filled;
+                            }));
+                    });
+
+                return observableMerge(
+                    fullNodes$,
+                    observableFrom(fillNodes$).pipe(
+                        mergeAll()));
+            }),
             reduce(
                 (acc: Node[], value: Node[]): Node[] => {
                     return acc.concat(value);
@@ -1470,6 +1546,29 @@ export class Graph {
         }
     }
 
+    public updateCells$(cellIds: string[]): Observable<string> {
+        const cachedCells = this._cachedTiles;
+        const cachingCells = this._cachingTiles$;
+        return observableFrom(cellIds)
+            .pipe(
+                mergeMap(
+                    (cellId: string): Observable<string> => {
+                        if (cellId in cachedCells) {
+                            return this._updateCell$(cellId);
+                        }
+                        if (cellId in cachingCells) {
+                            return cachingCells[cellId]
+                                .pipe(
+                                    catchError((): Observable<Graph> => {
+                                        return observableOf(this);
+                                    }),
+                                    mergeMap(() => this._updateCell$(cellId)));
+                        }
+                        return observableEmpty();
+                    }
+                ));
+    }
+
     /**
      * Unsubscribes all subscriptions.
      *
@@ -1739,5 +1838,62 @@ export class Graph {
         if (key in this._cachedNodes) {
             this._cachedNodes[key].accessed = accessed;
         }
+    }
+
+    private _updateCell$(cellId: string): Observable<string> {
+        return this._api.imagesByH$(cellId).pipe(
+            mergeMap(
+                (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): Observable<string> => {
+                    if (!(cellId in this._cachedTiles)) {
+                        return observableEmpty();
+                    }
+
+                    const nodeIndex = this._nodeIndex;
+                    const nodeIndexCell = this._nodeIndexTiles[cellId];
+                    const nodeToCell = this._nodeToTile;
+                    const cell = this._cachedTiles[cellId];
+                    cell.accessed = new Date().getTime();
+                    const cellNodes = cell.nodes;
+
+                    const coreNodes = imagesByH[cellId];
+                    for (const index in coreNodes) {
+                        if (!coreNodes.hasOwnProperty(index)) {
+                            continue;
+                        }
+
+                        const coreNode = coreNodes[index];
+                        if (coreNode == null) {
+                            break;
+                        }
+
+                        if (this.hasNode(coreNode.key)) {
+                            continue;
+                        }
+
+                        if (coreNode.sequence_key == null) {
+                            console.warn(`Sequence missing, discarding node ` +
+                                `(${coreNode.key})`);
+                            continue;
+                        }
+
+                        const node = new Node(coreNode);
+                        cellNodes.push(node);
+                        const nodeIndexItem: NodeIndexItem = {
+                            lat: node.latLon.lat,
+                            lon: node.latLon.lon,
+                            node: node,
+                        };
+                        nodeIndex.insert(nodeIndexItem);
+                        nodeIndexCell.push(nodeIndexItem);
+                        nodeToCell[node.key] = cellId;
+                        this._setNode(node);
+                    }
+                    return observableOf(cellId);
+                }),
+            catchError(
+                (error: Error): Observable<string> => {
+                    console.error(error);
+                    return observableEmpty()
+                }));
     }
 }
