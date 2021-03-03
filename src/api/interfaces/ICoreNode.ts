@@ -8,14 +8,14 @@ import { ILatLon } from "./ILatLon";
  */
 export interface ICoreNode extends IKey {
     /**
-     * Original EXIF latitude longitude in WGS84 datum, measured in degrees.
-     */
-    l: ILatLon;
-
-    /**
      * SfM computed latitude longitude in WGS84 datum, measured in degrees.
      */
     cl?: ILatLon;
+
+    /**
+     * Original EXIF latitude longitude in WGS84 datum, measured in degrees.
+     */
+    l: ILatLon;
 
     /**
      * Key of sequence that the node is part of.

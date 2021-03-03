@@ -1,4 +1,5 @@
 import { MapillaryError } from "../error/MapillaryError";
+import { EventEmitter } from "../utils/EventEmitter";
 import { IClusterReconstruction } from "./interfaces/IClusterReconstruction";
 import { ICoreNode } from "./interfaces/ICoreNode";
 import { IFillNode } from "./interfaces/IFillNode";
@@ -23,7 +24,7 @@ import { GeometryProviderBase } from "./GeometryProviderBase";
  * }
  * ```
  */
-export abstract class DataProviderBase {
+export abstract class DataProviderBase extends EventEmitter {
     /**
      * Create a new data provider base instance.
      *
@@ -31,6 +32,7 @@ export abstract class DataProviderBase {
      * provider instance.
      */
     constructor(protected _geometry: GeometryProviderBase) {
+        super();
         if (!(this._geometry instanceof GeometryProviderBase)) {
             throw new MapillaryError(
                 "The data provider requires a geometry provider base instance.");

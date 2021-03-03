@@ -31,6 +31,7 @@ import { Sequence } from "./Sequence";
 
 import { ILatLon } from "../api/interfaces/ILatLon";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { IDataAddedEvent } from "../api/interfaces/IDataAddedEvent";
 
 /**
  * @class GraphService
@@ -44,6 +45,8 @@ export class GraphService {
     private _graphModeSubject$: Subject<GraphMode>;
 
     private _firstGraphSubjects$: Subject<Graph>[];
+
+    private _dataAdded$: Subject<string> = new Subject<string>();
 
     private _initializeCacheSubscriptions: Subscription[];
     private _sequenceSubscriptions: Subscription[];
@@ -80,6 +83,18 @@ export class GraphService {
         this._initializeCacheSubscriptions = [];
         this._sequenceSubscriptions = [];
         this._spatialSubscriptions = [];
+
+        graph.api.data.on("dataadded", this._onDataAdded);
+    }
+
+    /**
+     * Get dataAdded$.
+     *
+     * @returns {Observable<string>} Observable emitting
+     * a cell id every time data has been added to a cell.
+     */
+    public get dataAdded$(): Observable<string> {
+        return this._dataAdded$;
     }
 
     /**
@@ -132,6 +147,29 @@ export class GraphService {
             mergeMap(
                 (graph: Graph): Observable<Node[]> => {
                     return graph.cacheBoundingBox$(sw, ne);
+                }));
+    }
+
+    /**
+     * Cache full nodes in a cell.
+     *
+     * @description When called, the full properties of
+     * the node are retrieved. The node cache is not initialized
+     * for any new nodes retrieved and the node assets are not
+     * retrieved, {@link cacheNode$} needs to be called for caching
+     * assets.
+     *
+     * @param {string} cellId - Id of the cell.
+     * @return {Observable<Array<Node>>} Observable emitting a single item,
+     * the nodes of the cell, when they have all been retrieved.
+     * @throws {Error} Propagates any IO node caching errors to the caller.
+     */
+    public cacheCell$(cellId: string): Observable<Node[]> {
+        return this._graph$.pipe(
+            first(),
+            mergeMap(
+                (graph: Graph): Observable<Node[]> => {
+                    return graph.cacheCell$(cellId);
                 }));
     }
 
@@ -282,7 +320,7 @@ export class GraphService {
                                                 return observableOf<Graph>(g);
                                             }),
                                         catchError(
-                                            (error: Error, caught$: Observable<Graph>): Observable<Graph> => {
+                                            (error: Error): Observable<Graph> => {
                                                 console.error(`Failed to cache tile data (${key}).`, error);
 
                                                 return observableEmpty();
@@ -301,7 +339,7 @@ export class GraphService {
                                 (graph$: Observable<Graph>): Observable<Graph> => {
                                     return graph$.pipe(
                                         catchError(
-                                            (error: Error, caught$: Observable<Graph>): Observable<Graph> => {
+                                            (error: Error): Observable<Graph> => {
                                                 console.error(`Failed to cache spatial nodes (${key}).`, error);
 
                                                 return observableEmpty();
@@ -535,6 +573,18 @@ export class GraphService {
 
             subject.error(new Error("Cache node request was aborted."));
         }
+    }
+
+    private _onDataAdded = (event: IDataAddedEvent): void => {
+        this._graph$
+            .pipe(
+                first(),
+                mergeMap(
+                    graph => {
+                        return graph.updateCells$(event.cellIds).pipe(
+                            tap(() => { graph.resetSpatialEdges(); }));
+                    }))
+            .subscribe(cellId => { this._dataAdded$.next(cellId); });
     }
 
     private _removeFromArray<T>(object: T, objects: T[]): void {
