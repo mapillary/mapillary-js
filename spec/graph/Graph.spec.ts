@@ -21,10 +21,14 @@ import { ISequence } from "../../src/api/interfaces/ISequence";
 import { GraphMapillaryError } from "../../src/error/GraphMapillaryError";
 import { GeoRBush } from "../../src/geo/GeoRBush";
 import { EdgeCalculator } from "../../src/graph/edge/EdgeCalculator";
-import { Graph } from "../../src/graph/Graph";
+import {
+    Graph,
+    NodeIndexItem,
+} from "../../src/graph/Graph";
 import { GraphCalculator } from "../../src/graph/GraphCalculator";
 import { IGraphConfiguration } from "../../src/graph/interfaces/IGraphConfiguration";
 import { Sequence } from "../../src/graph/Sequence";
+import { ImageSize } from "../../src/Mapillary";
 
 describe("Graph.ctor", () => {
     it("should create a graph", () => {
@@ -3727,5 +3731,497 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
         expect(graph.hasTiles(fullNode.key)).toBe(true);
+    });
+});
+
+describe("Graph.cacheCell$", () => {
+    it("should cache one node in the cell", (done: Function) => {
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
+            { clientToken: "token" },
+            geometryProvider);
+        const api = new APIWrapper(dataProvider);
+        const index = new GeoRBush<NodeIndexItem>(16);
+        const calculator = new GraphCalculator(null);
+
+        const cellId = "cellId";
+        const imagesByH =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByHSpy =
+            spyOn(api, "imagesByH$").and.returnValue(imagesByH);
+
+        const imageByKeyFill = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFillSpy =
+            spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+
+        const key = "full-key";
+        const fullNode = new NodeHelper().createFullNode();
+        fullNode.key = key;
+
+        const graph = new Graph(api, index, calculator);
+
+        graph.cacheCell$(cellId)
+            .subscribe(
+                (nodes: Node[]): void => {
+                    expect(nodes.length).toBe(1);
+                    expect(nodes[0].key).toBe(key);
+                    expect(nodes[0].full).toBeTrue();
+
+                    expect(graph.hasNode(key)).toBeTrue();
+
+                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    expect(imageByKeyFillSpy.calls.count()).toBe(1);
+
+                    done();
+                });
+
+        const tileResult: { [key: string]: { [index: string]: ICoreNode } } =
+            {};
+        tileResult[cellId] = {};
+        tileResult[cellId]["0"] = fullNode;
+        imagesByH.next(tileResult);
+        imagesByH.complete();
+
+        const fillResult: { [key: string]: IFillNode } = {};
+        fillResult[key] = fullNode;
+        imageByKeyFill.next(fillResult);
+        imageByKeyFill.complete();
+    });
+
+    it("should not cache again if all cell nodes cached", (done: Function) => {
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
+            { clientToken: "token" },
+            geometryProvider);
+        const api = new APIWrapper(dataProvider);
+        const index = new GeoRBush<NodeIndexItem>(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
+
+        const cellId = "cell-id";
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([cellId]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(cellId);
+
+        const imagesByH =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByHSpy =
+            spyOn(api, "imagesByH$").and.returnValue(imagesByH);
+
+        const imageByKeyFull = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFullSpy =
+            spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        const imageByKeyFillSpy =
+            spyOn(api, "imageByKeyFill$").and.stub();
+
+        const key = "full-key";
+        const fullNode: IFullNode = new NodeHelper().createFullNode();
+        fullNode.key = key;
+
+        const graph: Graph = new Graph(api, index, calculator);
+
+        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+
+        const fullResult: { [key: string]: IFullNode } = {};
+        fullResult[fullNode.key] = fullNode;
+        imageByKeyFull.next(fullResult);
+        imageByKeyFull.complete();
+
+        graph.hasTiles(fullNode.key);
+        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
+            .subscribe(() => { /*noop*/ });
+
+        const tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        tileResult[cellId] = {};
+        tileResult[cellId]["0"] = fullNode;
+        imagesByH.next(tileResult);
+
+        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasTiles(fullNode.key)).toBe(true);
+
+        expect(imagesByHSpy.calls.count()).toBe(1);
+        expect(imageByKeyFullSpy.calls.count()).toBe(1);
+
+        graph.cacheCell$(cellId)
+            .subscribe(
+                (nodes: Node[]): void => {
+                    expect(nodes.length).toBe(1);
+                    expect(nodes[0].key).toBe(key);
+                    expect(nodes[0].full).toBeTrue();
+
+                    expect(graph.hasNode(key)).toBeTrue();
+
+                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    expect(imageByKeyFullSpy.calls.count()).toBe(1);
+                    expect(imageByKeyFillSpy.calls.count()).toBe(0);
+
+                    done();
+                });
+    });
+
+    it("should cache core cell node", (done: Function) => {
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
+            { clientToken: "token" },
+            geometryProvider);
+        const api = new APIWrapper(dataProvider);
+        const index = new GeoRBush<NodeIndexItem>(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
+
+        const cellId = "cell-id";
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([cellId]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(cellId);
+
+        const imagesByH =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByHSpy =
+            spyOn(api, "imagesByH$").and.returnValue(imagesByH);
+
+        const imageByKeyFull = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFullSpy =
+            spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
+
+        const imageByKeyFill = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFillSpy =
+            spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+
+        const key1 = "full-key-1";
+        const key2 = "full-key-2";
+        const fullNode1 = new NodeHelper().createFullNode();
+        fullNode1.key = key1;
+
+        const graph = new Graph(api, index, calculator);
+
+        graph.cacheFull$(fullNode1.key).subscribe(() => { /*noop*/ });
+
+        const fullResult: { [key: string]: IFullNode } = {};
+        fullResult[fullNode1.key] = fullNode1;
+        imageByKeyFull.next(fullResult);
+        imageByKeyFull.complete();
+
+        graph.hasTiles(fullNode1.key);
+        observableFrom(graph.cacheTiles$(fullNode1.key)).pipe(
+            mergeAll())
+            .subscribe(() => { /*noop*/ });
+
+        const fullNode2 = new NodeHelper().createFullNode();
+        fullNode2.key = key2;
+        const tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        tileResult[cellId] = {};
+        tileResult[cellId]["0"] = fullNode1;
+        tileResult[cellId]["1"] = fullNode2;
+        imagesByH.next(tileResult);
+
+        expect(graph.hasNode(fullNode1.key)).toBeTrue();
+        expect(graph.hasNode(fullNode2.key)).toBeTrue();
+        expect(graph.hasTiles(fullNode1.key)).toBeTrue();
+        expect(graph.hasTiles(fullNode2.key)).toBeTrue();
+
+
+        expect(graph.getNode(fullNode1.key).full).toBeTrue();
+        expect(graph.getNode(fullNode2.key).full).toBeFalse();
+
+        expect(imagesByHSpy.calls.count()).toBe(1);
+        expect(imageByKeyFullSpy.calls.count()).toBe(1);
+
+        graph.cacheCell$(cellId)
+            .subscribe(
+                (nodes: Node[]): void => {
+                    expect(nodes.length).toBe(2);
+                    expect([key1, key2].includes(nodes[0].key)).toBeTrue();
+                    expect([key1, key2].includes(nodes[1].key)).toBeTrue();
+                    expect(nodes[0].full).toBeTrue();
+                    expect(nodes[1].full).toBeTrue();
+
+                    expect(graph.hasNode(key1)).toBeTrue();
+                    expect(graph.hasNode(key2)).toBeTrue();
+
+                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    expect(imageByKeyFullSpy.calls.count()).toBe(1);
+                    expect(imageByKeyFillSpy.calls.count()).toBe(1);
+
+                    done();
+                });
+
+        const fillResult: { [key: string]: IFillNode } = {};
+        fillResult[fullNode2.key] = fullNode2;
+        imageByKeyFill.next(fillResult);
+        imageByKeyFill.complete();
+    });
+
+    it("should cache cache tile once for the same cell", (done: Function) => {
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
+            { clientToken: "token" },
+            geometryProvider);
+        const api = new APIWrapper(dataProvider);
+        const index = new GeoRBush<NodeIndexItem>(16);
+        const calculator: GraphCalculator = new GraphCalculator(null);
+
+        const cellId = "cell-id";
+        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([cellId]);
+        spyOn(geometryProvider, "latLonToCellId").and.returnValue(cellId);
+
+        const imagesByH =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByHSpy =
+            spyOn(api, "imagesByH$").and.returnValue(imagesByH);
+
+        const imageByKeyFill = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFillSpy =
+            spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+
+        const key = "full-key";
+        const fullNode = new NodeHelper().createFullNode();
+        fullNode.key = key;
+
+        const graph = new Graph(api, index, calculator);
+
+        let count: number = 0;
+        observableMerge(
+            graph.cacheCell$(cellId),
+            graph.cacheCell$(cellId))
+            .subscribe(
+                (nodes: Node[]): void => {
+                    count++;
+
+                    expect(nodes.length).toBe(1);
+                    expect(nodes[0].key).toBe(fullNode.key);
+                    expect(nodes[0].full).toBe(true);
+
+                    expect(graph.hasNode(key)).toBeTrue();
+                    expect(graph.hasTiles(fullNode.key)).toBeTrue();
+                    expect(graph.getNode(fullNode.key).full).toBeTrue();
+                },
+                undefined,
+                (): void => {
+                    expect(count).toBe(2);
+                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    expect(imageByKeyFillSpy.calls.count()).toBe(2);
+
+                    done();
+                });
+
+        const tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        tileResult[cellId] = {};
+        tileResult[cellId]["0"] = fullNode;
+        imagesByH.next(tileResult);
+        imagesByH.complete();
+
+        const fillResult: { [key: string]: IFillNode } = {};
+        fillResult[fullNode.key] = fullNode;
+        imageByKeyFill.next(fillResult);
+        imageByKeyFill.complete();
+    });
+});
+
+describe("Graph.updateCells$", () => {
+    it("should not update non-existing cell", (done: Function) => {
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
+            { clientToken: "token" },
+            geometryProvider);
+        const api = new APIWrapper(dataProvider);
+        const index = new GeoRBush<NodeIndexItem>(16);
+        const calculator = new GraphCalculator(null);
+
+        const imagesByHSpy = spyOn(api, "imagesByH$").and.stub();
+
+        const graph = new Graph(api, index, calculator);
+
+        const cellId = "cellId";
+        let count = 0;
+        graph.updateCells$([cellId])
+            .subscribe(
+                (id: string): void => { count++; },
+                undefined,
+                (): void => {
+                    expect(count).toBe(0);
+                    expect(imagesByHSpy.calls.count()).toBe(0);
+                    done();
+                });
+    });
+
+    it("should update existing cell", (done: Function) => {
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
+            { clientToken: "token" },
+            geometryProvider);
+        const api = new APIWrapper(dataProvider);
+        const index = new GeoRBush<NodeIndexItem>(16);
+        const calculator = new GraphCalculator(null);
+
+        const imagesByH =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByHSpy =
+            spyOn(api, "imagesByH$").and.returnValue(imagesByH);
+
+        const imageByKeyFill = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+
+        const key = "full-key";
+        const fullNode = new NodeHelper().createFullNode();
+        fullNode.key = key;
+
+        const graph = new Graph(api, index, calculator);
+
+        const cellId = "cellId";
+        graph.cacheCell$(cellId).subscribe();
+
+        const tileResult: { [key: string]: { [index: string]: ICoreNode } } =
+            {};
+        tileResult[cellId] = {};
+        tileResult[cellId]["0"] = fullNode;
+        imagesByH.next(tileResult);
+        imagesByH.complete();
+
+        const fillResult: { [key: string]: IFillNode } = {};
+        fillResult[key] = fullNode;
+        imageByKeyFill.next(fillResult);
+        imageByKeyFill.complete();
+
+        expect(graph.hasNode(key)).toBeTrue();
+
+        const imagesByHUpdate =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        imagesByHSpy.calls.reset();
+        imagesByHSpy.and.returnValue(imagesByHUpdate);
+
+        graph.updateCells$([cellId])
+            .subscribe(
+                (id: string): void => {
+                    expect(id).toBe(cellId);
+                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    done();
+                });
+
+        imagesByHUpdate.next(tileResult);
+        imagesByHUpdate.complete();
+    });
+
+    it("should update currently caching cell", (done: Function) => {
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
+            { clientToken: "token" },
+            geometryProvider);
+        const api = new APIWrapper(dataProvider);
+        const index = new GeoRBush<NodeIndexItem>(16);
+        const calculator = new GraphCalculator(null);
+
+        const imagesByH =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByHSpy =
+            spyOn(api, "imagesByH$").and.returnValue(imagesByH);
+
+        const imageByKeyFill = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+
+        const key = "full-key";
+        const fullNode = new NodeHelper().createFullNode();
+        fullNode.key = key;
+
+        const graph = new Graph(api, index, calculator);
+
+        const cellId = "cellId";
+        graph.cacheCell$(cellId).subscribe();
+
+        expect(graph.hasNode(key)).toBeFalse();
+
+        const imagesByHUpdate =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        imagesByHSpy.calls.reset();
+        imagesByHSpy.and.returnValue(imagesByHUpdate);
+
+        graph.updateCells$([cellId])
+            .subscribe(
+                (id: string): void => {
+                    expect(id).toBe(cellId);
+                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    done();
+                });
+
+        const tileResult: { [key: string]: { [index: string]: ICoreNode } } =
+            {};
+        tileResult[cellId] = {};
+        tileResult[cellId]["0"] = fullNode;
+        imagesByH.next(tileResult);
+        imagesByH.complete();
+
+        const fillResult: { [key: string]: IFillNode } = {};
+        fillResult[key] = fullNode;
+        imageByKeyFill.next(fillResult);
+        imageByKeyFill.complete();
+
+        expect(graph.hasNode(key)).toBeTrue();
+
+        imagesByHUpdate.next(tileResult);
+        imagesByHUpdate.complete();
+    });
+
+    it("should add new nodes to existing cell", (done: Function) => {
+        const geometryProvider = new GeohashGeometryProvider();
+        const dataProvider = new FalcorDataProvider(
+            { clientToken: "token" },
+            geometryProvider);
+        const api = new APIWrapper(dataProvider);
+        const index = new GeoRBush<NodeIndexItem>(16);
+        const calculator = new GraphCalculator(null);
+
+        const imagesByH =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByHSpy =
+            spyOn(api, "imagesByH$").and.returnValue(imagesByH);
+
+        const imageByKeyFill = new Subject<{ [key: string]: IFillNode }>();
+        spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
+
+        const key1 = "full-key-1";
+        const fullNode1 = new NodeHelper().createFullNode();
+        fullNode1.key = key1;
+
+        const graph = new Graph(api, index, calculator);
+
+        const cellId = "cellId";
+        graph.cacheCell$(cellId).subscribe();
+
+        const tileResult: { [key: string]: { [index: string]: ICoreNode } } =
+            {};
+        tileResult[cellId] = {};
+        tileResult[cellId]["0"] = fullNode1;
+        imagesByH.next(tileResult);
+        imagesByH.complete();
+
+        const fillResult: { [key: string]: IFillNode } = {};
+        fillResult[key1] = fullNode1;
+        imageByKeyFill.next(fillResult);
+        imageByKeyFill.complete();
+
+        expect(graph.hasNode(key1)).toBeTrue();
+
+        const imagesByHUpdate =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        imagesByHSpy.calls.reset();
+        imagesByHSpy.and.returnValue(imagesByHUpdate);
+
+        graph.updateCells$([cellId])
+            .subscribe(
+                (id: string): void => {
+                    expect(id).toBe(cellId);
+
+                    expect(graph.hasNode(key1)).toBeTrue();
+                    expect(graph.hasNode(key2)).toBeTrue();
+
+                    expect(graph.getNode(key2).full).toBeFalse();
+
+                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    done();
+                });
+
+        const key2 = "full-key-2";
+        const fullNode2 = new NodeHelper().createFullNode();
+        fullNode2.key = key2;
+        tileResult[cellId]["1"] = fullNode2;
+        imagesByHUpdate.next(tileResult);
+        imagesByHUpdate.complete();
     });
 });

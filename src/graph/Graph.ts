@@ -43,12 +43,6 @@ import { ILatLon } from "../api/interfaces/ILatLon";
 import { GraphMapillaryError } from "../error/GraphMapillaryError";
 import { GeoRBush } from "../geo/GeoRBush";
 
-type NodeIndexItem = {
-    lat: number;
-    lon: number;
-    node: Node;
-};
-
 type NodeTiles = {
     cache: string[];
     caching: string[];
@@ -73,6 +67,12 @@ type TileAccess = {
 type SequenceAccess = {
     sequence: Sequence;
     accessed: number;
+};
+
+export type NodeIndexItem = {
+    lat: number;
+    lon: number;
+    node: Node;
 };
 
 /**
@@ -303,8 +303,8 @@ export class Graph {
      *
      * @param {ILatLon} sw - South west corner of bounding box.
      * @param {ILatLon} ne - North east corner of bounding box.
-     * @returns {Observable<Graph>} Observable emitting the full
-     * nodes in the bounding box.
+     * @returns {Observable<Array<Node>>} Observable emitting
+     * the full nodes in the bounding box.
      */
     public cacheBoundingBox$(sw: ILatLon, ne: ILatLon): Observable<Node[]> {
         const cacheTiles$: Observable<Graph>[] = this._api.data.geometry.bboxToCellIds(sw, ne)
@@ -397,6 +397,15 @@ export class Graph {
                 }));
     }
 
+    /**
+     * Caches the full node data for all images of a cell.
+     *
+     * @description The node assets are not cached.
+     *
+     * @param {string} cellId - Cell id.
+     * @returns {Observable<Array<Node>>} Observable
+     * emitting the full nodes of the cell.
+     */
     public cacheCell$(cellId: string): Observable<Node[]> {
         const cacheCell$ = cellId in this._cachedTiles ?
             observableOf(this) :
@@ -1546,6 +1555,21 @@ export class Graph {
         }
     }
 
+    /**
+     * Updates existing cells with new core nodes.
+     *
+     * @description Non-existing cells are discarded
+     * and not requested at all.
+     *
+     * Existing nodes are not changed.
+     *
+     * New nodes are not made full or getting assets
+     * cached.
+     *
+     * @param {Array<string>} cellIds - Cell ids.
+     * @returns {Observable<Array<Node>>} Observable
+     * emitting the updated cells.
+     */
     public updateCells$(cellIds: string[]): Observable<string> {
         const cachedCells = this._cachedTiles;
         const cachingCells = this._cachingTiles$;
