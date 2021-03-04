@@ -1,6 +1,14 @@
-import { of as observableOf, Subject } from "rxjs";
+import {
+    from as observableFrom,
+    of as observableOf,
+    Subject,
+} from "rxjs";
 
-import { take, first, skip } from "rxjs/operators";
+import {
+    take,
+    first,
+    skip,
+} from "rxjs/operators";
 
 import { NodeHelper } from "../helper/NodeHelper.spec";
 
@@ -46,6 +54,95 @@ describe("GraphService.cacheBoundingBox$", () => {
 
                     done();
                 });
+    });
+});
+
+describe("GraphService.cacheCell$", () => {
+    it("should call cache cell on graph", (done: Function) => {
+        const api = new APIWrapper(new DataProvider());
+        const graph = new Graph(api);
+
+        const cacheCellSpy = spyOn(graph, "cacheCell$");
+        cacheCellSpy.and.returnValue(observableOf([]));
+
+        const graphService = new GraphService(graph);
+
+        graphService.cacheCell$("cellId")
+            .subscribe(
+                (): void => {
+                    expect(cacheCellSpy.calls.count()).toBe(1);
+                    expect(cacheCellSpy.calls.argsFor(0)[0]).toBe("cellId");
+
+                    done();
+                });
+    });
+});
+
+
+describe("GraphService.dataAdded$", () => {
+    it("should call graph", (done: Function) => {
+        const dataProvider = new DataProvider();
+        const api = new APIWrapper(dataProvider);
+        const graph = new Graph(api);
+
+        const updateCellsSpy = spyOn(graph, "updateCells$");
+        updateCellsSpy.and.returnValue(observableOf("cellId"));
+
+        const resetSpatialEdgesSpy =
+            spyOn(graph, "resetSpatialEdges").and.stub();
+
+        const graphService = new GraphService(graph);
+
+        graphService.dataAdded$
+            .subscribe(
+                (cellId): void => {
+                    expect(cellId).toBe("cellId");
+
+                    expect(updateCellsSpy.calls.count()).toBe(1);
+                    expect(resetSpatialEdgesSpy.calls.count()).toBe(1);
+
+                    done();
+                });
+
+        dataProvider.fire("dataadded", {
+            type: "dataadded",
+            target: dataProvider,
+            cellIds: ["cellId"],
+        })
+    });
+
+    it("should reset spatial edges for each updated cell", (done: Function) => {
+        const dataProvider = new DataProvider();
+        const api = new APIWrapper(dataProvider);
+        const graph = new Graph(api);
+
+        const updateCellsSpy = spyOn(graph, "updateCells$");
+        const cellIds = ["cellId1", "cellId2"];
+        updateCellsSpy.and.returnValue(observableFrom(cellIds.slice()));
+
+        const resetSpatialEdgesSpy =
+            spyOn(graph, "resetSpatialEdges").and.stub();
+
+        const graphService = new GraphService(graph);
+
+        let count = 0;
+        graphService.dataAdded$
+            .subscribe(
+                (cellId): void => {
+                    count++;
+                    expect(cellIds.includes(cellId)).toBeTrue();
+
+                    expect(updateCellsSpy.calls.count()).toBe(1);
+                    expect(resetSpatialEdgesSpy.calls.count()).toBe(count);
+
+                    if (count === 2) { done(); }
+                });
+
+        dataProvider.fire("dataadded", {
+            type: "dataadded",
+            target: dataProvider,
+            cellIds: cellIds.slice(),
+        })
     });
 });
 
