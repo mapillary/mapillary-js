@@ -573,6 +573,26 @@ class PositionLine extends THREE.Line {
     }
 }
 
+type Cell = {
+    cameraFrames: { [key: string]: CameraFrameBase };
+    cameraIds: {
+        [key: string]: {
+            clusterKey: string;
+            connectedComponent: string;
+            sequenceKey: string;
+        };
+    };
+    cameraKeys: { [id: string]: string };
+    cameras: THREE.Object3D;
+    clusters: { [id: string]: CameraFrameBase[] };
+    connectedComponents: { [id: string]: CameraFrameBase[] };
+    keys: string[];
+    positionLines: { [key: string]: PositionLine };
+    positions: THREE.Object3D;
+    props: { [id: string]: Node }
+    sequences: { [id: string]: CameraFrameBase[] };
+};
+
 export class SpatialDataScene {
     private _scene: THREE.Scene;
     private _raycaster: THREE.Raycaster;
@@ -589,26 +609,7 @@ export class SpatialDataScene {
 
     private _clusterReconstructions: ClusterReconstructions;
 
-    private _nodes: {
-        [cellId: string]: {
-            cameraFrames: { [key: string]: CameraFrameBase };
-            cameraIds: {
-                [key: string]: {
-                    clusterKey: string;
-                    connectedComponent: string;
-                    sequenceKey: string;
-                };
-            };
-            cameraKeys: { [id: string]: string };
-            cameras: THREE.Object3D;
-            clusters: { [id: string]: CameraFrameBase[] };
-            connectedComponents: { [id: string]: CameraFrameBase[] };
-            keys: string[];
-            positions: THREE.Object3D;
-            sequences: { [id: string]: CameraFrameBase[] };
-            props: { [id: string]: Node };
-        };
-    };
+    private _nodes: { [cellId: string]: Cell };
 
     private _keyToCellId: { [key: string]: string };
 
@@ -762,15 +763,16 @@ export class SpatialDataScene {
         if (!(cellId in this._nodes)) {
             this._nodes[cellId] = {
                 cameraFrames: {},
+                cameraIds: {},
                 cameraKeys: {},
                 cameras: new THREE.Object3D(),
                 clusters: {},
                 connectedComponents: {},
                 keys: [],
+                positionLines: {},
                 positions: new THREE.Object3D(),
-                sequences: {},
-                cameraIds: {},
                 props: {},
+                sequences: {},
             };
 
             this._nodes[cellId].cameras.visible = this._camerasVisible;
@@ -810,7 +812,8 @@ export class SpatialDataScene {
         const camera = !!transform.gpano ?
             new PanoCameraFrame(maxSize, transform, scale, color) :
             new PerspectiveCameraFrame(maxSize, transform, scale, color);
-        this._applyFilter(camera, node, this._filter);
+        const visible = this._filter(node);
+        this._setCameraVisibility(camera, visible);
 
         nodeCell.cameras.add(camera);
 
@@ -824,8 +827,13 @@ export class SpatialDataScene {
         nodeCell.clusters[clusterKey].push(camera);
         nodeCell.sequences[sequenceKey].push(camera);
 
-        nodeCell.positions.add(
-            new PositionLine(transform, originalPosition, this._positionMode));
+        const positionLine = new PositionLine(
+            transform,
+            originalPosition,
+            this._positionMode);
+        positionLine.visible = visible;
+        nodeCell.positions.add(positionLine);
+        nodeCell.positionLines[key] = positionLine;
 
         nodeCell.keys.push(key);
         nodeCell.cameraFrames[key] = camera;
@@ -949,8 +957,10 @@ export class SpatialDataScene {
                 }
 
                 const node = cell.props[key];
+                const visible = filter(node);
                 const camera = cell.cameraFrames[key];
-                this._applyFilter(camera, node, filter);
+                this._setCameraVisibility(camera, visible);
+                cell.positionLines[key].visible = visible;
             }
         }
 
@@ -1175,14 +1185,13 @@ export class SpatialDataScene {
         this._needsRender = true;
     }
 
-    private _applyFilter(
+    private _setCameraVisibility(
         camera: THREE.Object3D,
-        node: Node,
-        filter: FilterFunction): void {
+        visible: boolean): void {
         const interactiveLayer = this._interactiveLayer;
 
-        camera.visible = filter(node);
-        if (camera.visible) {
+        camera.visible = visible;
+        if (visible) {
             for (const child of camera.children) {
                 child.layers.enable(interactiveLayer);
             }
