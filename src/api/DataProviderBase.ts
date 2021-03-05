@@ -14,6 +14,8 @@ import { GeometryProviderBase } from "./GeometryProviderBase";
  * @classdesc Base class to extend if implementing a data provider
  * class.
  *
+ * @fires IDataAddedEvent
+ *
  * @example
  * ```
  * class MyDataProvider extends Mapillary.API.DataProviderBase {

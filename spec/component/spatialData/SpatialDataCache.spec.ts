@@ -23,19 +23,11 @@ describe("SpatialDataCache.ctor", () => {
 describe("SpatialDataCache.cacheTile$", () => {
     it("should call cache bounding box", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cacheBoundingBox$: Subject<Node[]> = new Subject<Node[]>();
-        const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
-        cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
+        const cacheCell$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
+        cacheCellSpy.and.returnValue(cacheCell$);
 
         const geometryProvider = new GeohashGeometryProvider();
-
-        const getCornersSpy: jasmine.Spy = spyOn(geometryProvider, "getCorners");
-        getCornersSpy.and.returnValue({
-            nw: { lat: 1, lon: 0 },
-            ne: { lat: 1, lon: 2 },
-            se: { lat: -1, lon: 2 },
-            sw: { lat: -1, lon: 0 },
-        });
 
         const dataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
         const cache: SpatialDataCache = new SpatialDataCache(
@@ -44,20 +36,15 @@ describe("SpatialDataCache.cacheTile$", () => {
         const hash: string = "12345678";
         cache.cacheTile$(hash);
 
-        expect(getCornersSpy.calls.count()).toBe(1);
-
-        expect(cacheBoundingBoxSpy.calls.count()).toBe(1);
-        expect(cacheBoundingBoxSpy.calls.first().args[0].lat).toBe(-1);
-        expect(cacheBoundingBoxSpy.calls.first().args[0].lon).toBe(0);
-        expect(cacheBoundingBoxSpy.calls.first().args[1].lat).toBe(1);
-        expect(cacheBoundingBoxSpy.calls.first().args[1].lon).toBe(2);
+        expect(cacheCellSpy.calls.count()).toBe(1);
+        expect(cacheCellSpy.calls.first().args[0]).toBe(hash);
     });
 
     it("should be caching tile", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cacheBoundingBox$: Subject<Node[]> = new Subject<Node[]>();
-        const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
-        cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
+        const cacheCell$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
+        cacheCellSpy.and.returnValue(cacheCell$);
 
         const geometryProvider = new GeohashGeometryProvider();
 
@@ -84,9 +71,9 @@ describe("SpatialDataCache.cacheTile$", () => {
 
     it("should cache tile", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cacheBoundingBox$: Subject<Node[]> = new Subject<Node[]>();
-        const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
-        cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
+        const cacheCell$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
+        cacheCellSpy.and.returnValue(cacheCell$);
 
         const geometryProvider = new GeohashGeometryProvider();
 
@@ -110,7 +97,7 @@ describe("SpatialDataCache.cacheTile$", () => {
             .subscribe();
 
         const node: Node = new NodeHelper().createNode();
-        cacheBoundingBox$.next([node]);
+        cacheCell$.next([node]);
 
         expect(cache.isCachingTile(hash)).toBe(false);
         expect(cache.hasTile(hash)).toBe(true);
@@ -122,9 +109,9 @@ describe("SpatialDataCache.cacheTile$", () => {
         spyOn(console, "error").and.stub();
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cacheBoundingBox$: Subject<Node[]> = new Subject<Node[]>();
-        const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
-        cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
+        const cacheCell$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
+        cacheCellSpy.and.returnValue(cacheCell$);
 
         const geometryProvider = new GeohashGeometryProvider();
 
@@ -145,7 +132,7 @@ describe("SpatialDataCache.cacheTile$", () => {
         cache.cacheTile$(hash)
             .subscribe();
 
-        cacheBoundingBox$.error(new Error());
+        cacheCell$.error(new Error());
 
         expect(cache.isCachingTile(hash)).toBe(false);
         expect(cache.hasTile(hash)).toBe(false);
@@ -176,14 +163,14 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
             graphService: GraphService,
             nodes: Node[]): void => {
 
-            const cacheBoundingBox$: Subject<Node[]> = new Subject<Node[]>();
-            const cacheBoundingBoxSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheBoundingBox$;
-            cacheBoundingBoxSpy.and.returnValue(cacheBoundingBox$);
+            const cacheCell$: Subject<Node[]> = new Subject<Node[]>();
+            const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
+            cacheCellSpy.and.returnValue(cacheCell$);
 
             cache.cacheTile$(hash)
                 .subscribe();
 
-            cacheBoundingBox$.next(nodes);
+            cacheCell$.next(nodes);
 
             expect(cache.hasTile(hash)).toBe(true);
         };

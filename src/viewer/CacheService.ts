@@ -2,7 +2,6 @@ import {
     empty as observableEmpty,
     from as observableFrom,
     Observable,
-    Subscription,
 } from "rxjs";
 
 import {
@@ -24,20 +23,20 @@ import { Node } from "../graph/Node";
 import { IEdgeStatus } from "../graph/interfaces/IEdgeStatus";
 import { StateService } from "../state/StateService";
 import { IFrame } from "../state/interfaces/IFrame";
+import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
 export class CacheService {
     private _graphService: GraphService;
     private _stateService: StateService;
 
+    private _subscriptions: SubscriptionHolder;
     private _started: boolean;
-
-    private _uncacheSubscription: Subscription;
-    private _cacheNodeSubscription: Subscription;
 
     constructor(graphService: GraphService, stateService: StateService) {
         this._graphService = graphService;
         this._stateService = stateService;
 
+        this._subscriptions = new SubscriptionHolder()
         this._started = false;
     }
 
@@ -46,11 +45,11 @@ export class CacheService {
     }
 
     public start(): void {
-        if (this._started) {
-            return;
-        }
+        if (this._started) { return; }
 
-        this._uncacheSubscription = this._stateService.currentState$.pipe(
+        const subs = this._subscriptions;
+
+        subs.push(this._stateService.currentState$.pipe(
             distinctUntilChanged(
                 undefined,
                 (frame: IFrame): string => {
@@ -79,9 +78,9 @@ export class CacheService {
 
                     return this._graphService.uncache$(keepKeys, keepSequenceKey);
                 }))
-            .subscribe(() => { /*noop*/ });
+            .subscribe(() => { /*noop*/ }));
 
-        this._cacheNodeSubscription = this._graphService.graphMode$.pipe(
+        subs.push(this._graphService.graphMode$.pipe(
             skip(1),
             withLatestFrom(this._stateService.currentState$),
             switchMap(
@@ -108,22 +107,23 @@ export class CacheService {
                                     },
                                     6));
                 }))
-            .subscribe(() => { /*noop*/ });
+            .subscribe(() => { /*noop*/ }));
+
+        subs.push(this._graphService.dataAdded$.pipe(
+            withLatestFrom(this._stateService.currentKey$),
+            switchMap(
+                ([_, imageKey]: [string, string]): Observable<Node> => {
+                    return this._graphService.cacheNode$(imageKey)
+                }))
+            .subscribe(() => { /*noop*/ }))
 
         this._started = true;
     }
 
     public stop(): void {
-        if (!this._started) {
-            return;
-        }
+        if (!this._started) { return; }
 
-        this._uncacheSubscription.unsubscribe();
-        this._uncacheSubscription = null;
-
-        this._cacheNodeSubscription.unsubscribe();
-        this._cacheNodeSubscription = null;
-
+        this._subscriptions.unsubscribe();
         this._started = false;
     }
 

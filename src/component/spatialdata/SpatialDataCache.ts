@@ -92,64 +92,27 @@ export class SpatialDataCache {
         this._tileClusters[hash] = clusters;
         this._cacheRequests[hash] = [];
 
-        this._cachingClusterReconstructions$[hash] = observableFrom(clusters).pipe(
-            mergeMap(
-                (cd: ClusterData): Observable<IClusterReconstruction> => {
-                    if (this._hasClusterReconstruction(cd.key)) {
-                        return observableOf(this._getClusterReconstruction(cd.key));
-                    }
+        let aborter: Function;
+        const abort: Promise<void> = new Promise(
+            (_, reject): void => {
+                aborter = reject;
+            });
+        this._cacheRequests[hash].push(aborter);
 
-                    let aborter: Function;
-                    const abort: Promise<void> = new Promise(
-                        (_, reject): void => {
-                            aborter = reject;
-                        });
-                    this._cacheRequests[hash].push(aborter);
+        this._cachingClusterReconstructions$[hash] =
+            this._cacheClusterReconstructions$(clusters, hash, abort).pipe(
+                finalize(
+                    (): void => {
+                        if (hash in this._cachingClusterReconstructions$) {
+                            delete this._cachingClusterReconstructions$[hash];
+                        }
 
-                    return this._getClusterReconstruction$(cd.url, cd.key, abort)
-                        .pipe(
-                            catchError(
-                                (error: Error): Observable<IClusterReconstruction> => {
-                                    if (error instanceof AbortMapillaryError) {
-                                        return observableEmpty();
-                                    }
-
-                                    console.error(error);
-
-                                    return observableEmpty();
-                                }));
-                },
-                6),
-            filter(
-                (): boolean => {
-                    return hash in this._tileClusters;
-                }),
-            tap(
-                (reconstruction: IClusterReconstruction): void => {
-                    if (!this._hasClusterReconstruction(reconstruction.key)) {
-                        this._clusterReconstructions[reconstruction.key] = reconstruction;
-                    }
-
-                    if (!(reconstruction.key in this._clusterReconstructionTiles)) {
-                        this._clusterReconstructionTiles[reconstruction.key] = [];
-                    }
-
-                    if (this._clusterReconstructionTiles[reconstruction.key].indexOf(hash) === -1) {
-                        this._clusterReconstructionTiles[reconstruction.key].push(hash);
-                    }
-                }),
-            finalize(
-                (): void => {
-                    if (hash in this._cachingClusterReconstructions$) {
-                        delete this._cachingClusterReconstructions$[hash];
-                    }
-
-                    if (hash in this._cacheRequests) {
-                        delete this._cacheRequests[hash];
-                    }
-                }),
-            publish(),
-            refCount());
+                        if (hash in this._cacheRequests) {
+                            delete this._cacheRequests[hash];
+                        }
+                    }),
+                publish(),
+                refCount());
 
         return this._cachingClusterReconstructions$[hash];
     }
@@ -163,10 +126,7 @@ export class SpatialDataCache {
             return this._cachingTiles$[hash];
         }
 
-        const corners: ICellCorners =
-            this._data.geometry.getCorners(hash);
-
-        this._cachingTiles$[hash] = this._graphService.cacheBoundingBox$(corners.sw, corners.ne).pipe(
+        this._cachingTiles$[hash] = this._graphService.cacheCell$(hash).pipe(
             catchError(
                 (error: Error): Observable<Node[]> => {
                     console.error(error);
@@ -289,6 +249,116 @@ export class SpatialDataCache {
 
             delete this._tiles[hash];
         }
+    }
+
+    public updateCell$(hash: string): Observable<Node[]> {
+        if (!this.hasTile(hash)) {
+            throw new Error("Cannot update tile that does not exists.");
+        }
+
+        return this._graphService.cacheCell$(hash).pipe(
+            catchError(
+                (error: Error): Observable<Node[]> => {
+                    console.error(error);
+
+                    return observableEmpty();
+                }),
+            filter(
+                (): boolean => {
+                    return hash in this._tiles;
+                }),
+            tap(
+                (node: Node[]): void => {
+                    this._tiles[hash] = [];
+                    this._tiles[hash].push(...node);
+                }),
+            publish(),
+            refCount());
+    }
+
+    public updateClusterReconstructions$(hash: string):
+        Observable<IClusterReconstruction> {
+        if (!this.hasTile(hash)) {
+            throw new Error("Cannot update reconstructions of a non-existing tile.");
+        }
+
+        if (!this.hasClusterReconstructions(hash)) {
+            throw new Error("Cannot update reconstructions for cell that is not cached.");
+        }
+
+        const duplicatedClusters: ClusterData[] = this.getTile(hash)
+            .filter(
+                (n: Node): boolean => {
+                    return !!n.clusterKey && !!n.clusterUrl;
+                })
+            .map(
+                (n: Node): ClusterData => {
+                    return { key: n.clusterKey, url: n.clusterUrl };
+                });
+
+        const clusters: ClusterData[] = Array
+            .from<ClusterData>(
+                new Map(
+                    duplicatedClusters.map(
+                        (cd: ClusterData): [string, ClusterData] => {
+                            return [cd.key, cd];
+                        }))
+                    .values())
+            .filter(cd => {
+                return !(cd.key in this._clusterReconstructions);
+            });
+
+        this._tileClusters[hash].push(...clusters);
+
+        return this._cacheClusterReconstructions$(clusters, hash, null);
+    }
+
+    private _cacheClusterReconstructions$(
+        clusters: ClusterData[],
+        cellId: string,
+        cancellation: Promise<void>): Observable<IClusterReconstruction> {
+        return observableFrom(clusters).pipe(
+            mergeMap(
+                (cd: ClusterData): Observable<IClusterReconstruction> => {
+                    if (this._hasClusterReconstruction(cd.key)) {
+                        return observableOf(
+                            this._getClusterReconstruction(cd.key));
+                    }
+
+                    return this._getClusterReconstruction$(
+                        cd.url,
+                        cd.key,
+                        cancellation)
+                        .pipe(
+                            catchError(
+                                (error: Error): Observable<IClusterReconstruction> => {
+                                    if (error instanceof AbortMapillaryError) {
+                                        return observableEmpty();
+                                    }
+
+                                    console.error(error);
+                                    return observableEmpty();
+                                }));
+                },
+                6),
+            filter(
+                (): boolean => {
+                    return cellId in this._tileClusters;
+                }),
+            tap(
+                (reconstruction: IClusterReconstruction): void => {
+                    if (!this._hasClusterReconstruction(reconstruction.key)) {
+                        this._clusterReconstructions[reconstruction.key] = reconstruction;
+                    }
+
+                    if (!(reconstruction.key in this._clusterReconstructionTiles)) {
+                        this._clusterReconstructionTiles[reconstruction.key] = [];
+                    }
+
+                    if (this._clusterReconstructionTiles[reconstruction.key].indexOf(cellId) === -1) {
+                        this._clusterReconstructionTiles[reconstruction.key].push(cellId);
+                    }
+                }))
     }
 
     private _getClusterReconstruction(key: string): IClusterReconstruction {

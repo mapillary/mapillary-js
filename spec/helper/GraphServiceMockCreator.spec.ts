@@ -11,6 +11,7 @@ export class GraphServiceMockCreator extends MockCreatorBase<GraphService> {
     public create(): GraphService {
         const mock: GraphService = new MockCreator().create(GraphService, "GraphService");
 
+        this._mockProperty(mock, "dataAdded$", new Subject<string>());
         this._mockProperty(mock, "graphMode$", new Subject<GraphMode>());
         this._mockProperty(mock, "filter$", new Subject<FilterFunction>());
 
