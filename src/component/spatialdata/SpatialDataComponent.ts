@@ -23,12 +23,16 @@ import {
     take,
     tap,
     withLatestFrom,
+    filter,
 } from "rxjs/operators";
 
 import { Node } from "../../graph/Node";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
-import { ICellNeighbors, ICellCorners } from "../../api/interfaces/ICellCorners";
+import {
+    ICellNeighbors,
+    ICellCorners,
+} from "../../api/interfaces/ICellCorners";
 import { IClusterReconstruction } from "../../api/interfaces/IClusterReconstruction";
 import { GeoCoords } from "../../geo/GeoCoords";
 import { ILatLonAlt } from "../../geo/interfaces/ILatLonAlt";
@@ -52,6 +56,11 @@ import { SpatialDataScene } from "./SpatialDataScene";
 import { SpatialDataCache } from "./SpatialDataCache";
 
 type IntersectEvent = MouseEvent | FocusEvent;
+
+type Cell = {
+    id: string;
+    nodes: Node[];
+}
 
 export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
     public static componentName: string = "spatialData";
@@ -96,9 +105,9 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 }));
 
         subs.push(this._navigator.graphService.filter$
-            .subscribe(filter => { this._scene.setFilter(filter); }));
+            .subscribe(nodeFilter => { this._scene.setFilter(nodeFilter); }));
 
-        const direction$: Observable<string> = this._container.renderService.bearing$.pipe(
+        const direction$ = this._container.renderService.bearing$.pipe(
             map(
                 (bearing: number): string => {
                     let direction: string = "";
@@ -125,18 +134,15 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             publishReplay(1),
             refCount());
 
-        const hash$: Observable<string> = this._navigator.stateService.reference$.pipe(
-            tap(
-                (): void => {
-                    this._scene.uncache();
-                }),
+        const hash$ = this._navigator.stateService.reference$.pipe(
+            tap((): void => { this._scene.uncache(); }),
             switchMap(
                 (): Observable<string> => {
                     return this._navigator.stateService.currentNode$.pipe(
                         map(
                             (node: Node): string => {
                                 return this._navigator.api.data.geometry
-                                    .latLonToCellId(node.latLon, 1);
+                                    .latLonToCellId(node.latLon);
                             }),
                         distinctUntilChanged());
                 }),
@@ -168,7 +174,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 this._scene.setLargeIntersectionThreshold(earth);
             }));
 
-        const hashes$: Observable<string[]> = observableCombineLatest(
+        const hashes$ = observableCombineLatest(
             earth$,
             hash$,
             sequencePlay$,
@@ -203,21 +209,21 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                                     .getNeighbors(hash)[<keyof ICellNeighbors>direction]]) :
                             observableOf(this._computeTiles(hash, direction));
                     }),
-                publish(),
+                publish<string[]>(),
                 refCount());
 
-        const tile$: Observable<[string, Node[]]> = hashes$.pipe(
+        const tile$: Observable<Cell> = hashes$.pipe(
             switchMap(
-                (hashes: string[]): Observable<[string, Node[]]> => {
-                    return observableFrom(hashes).pipe(
+                (cellIds: string[]): Observable<Cell> => {
+                    return observableFrom(cellIds).pipe(
                         mergeMap(
-                            (h: string): Observable<[string, Node[]]> => {
-                                const t$: Observable<Node[]> =
-                                    this._cache.hasTile(h) ?
-                                        observableOf(this._cache.getTile(h)) :
-                                        this._cache.cacheTile$(h);
+                            (cellId: string): Observable<Cell> => {
+                                const t$ = this._cache.hasTile(cellId) ?
+                                    observableOf(this._cache.getTile(cellId)) :
+                                    this._cache.cacheTile$(cellId);
 
-                                return observableCombineLatest(observableOf(h), t$);
+                                return t$.pipe(
+                                    map((nodes: Node[]) => ({ id: cellId, nodes })));
                             },
                             6));
                 }),
@@ -227,52 +233,44 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         subs.push(tile$.pipe(
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([[hash], reference]: [[string, Node[]], ILatLonAlt]): void => {
-                    if (this._scene.hasTile(hash)) {
+                ([cell, reference]: [Cell, ILatLonAlt]): void => {
+                    if (this._scene.hasTile(cell.id)) {
                         return;
                     }
 
-                    this._scene.addTile(this._computeTileBBox(hash, reference), hash);
+                    this._scene.addTile(
+                        this._computeTileBBox(cell.id, reference),
+                        cell.id);
                 }));
 
         subs.push(tile$.pipe(
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([[hash, datas], reference]: [[string, [Node]], ILatLonAlt]): void => {
-                    for (const data of datas) {
-                        if (this._scene.hasNode(data.key, hash)) {
-                            continue;
-                        }
-
-                        this._scene.addNode(
-                            data,
-                            this._createTransform(data, reference),
-                            this._computeOriginalPosition(data, reference),
-                            hash);
-                    }
+                ([cell, reference]: [Cell, ILatLonAlt]): void => {
+                    this._addSceneNodes(cell, reference);
                 }));
 
         subs.push(tile$.pipe(
             concatMap(
-                ([hash]: [string, Node[]]): Observable<[string, IClusterReconstruction]> => {
+                (cell: Cell): Observable<[string, IClusterReconstruction]> => {
+                    const cellId = cell.id;
                     let reconstructions$: Observable<IClusterReconstruction>;
-
-                    if (this._cache.hasClusterReconstructions(hash)) {
-                        reconstructions$ = observableFrom(this._cache.getClusterReconstructions(hash));
-                    } else if (this._cache.isCachingClusterReconstructions(hash)) {
-                        reconstructions$ = this._cache.cacheClusterReconstructions$(hash).pipe(
+                    if (this._cache.hasClusterReconstructions(cellId)) {
+                        reconstructions$ = observableFrom(this._cache.getClusterReconstructions(cellId));
+                    } else if (this._cache.isCachingClusterReconstructions(cellId)) {
+                        reconstructions$ = this._cache.cacheClusterReconstructions$(cellId).pipe(
                             last(null, {}),
                             switchMap(
                                 (): Observable<IClusterReconstruction> => {
-                                    return observableFrom(this._cache.getClusterReconstructions(hash));
+                                    return observableFrom(this._cache.getClusterReconstructions(cellId));
                                 }));
-                    } else if (this._cache.hasTile(hash)) {
-                        reconstructions$ = this._cache.cacheClusterReconstructions$(hash);
+                    } else if (this._cache.hasTile(cellId)) {
+                        reconstructions$ = this._cache.cacheClusterReconstructions$(cellId);
                     } else {
                         reconstructions$ = observableEmpty();
                     }
 
-                    return observableCombineLatest(observableOf(hash), reconstructions$);
+                    return observableCombineLatest(observableOf(cellId), reconstructions$);
                 }),
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
@@ -428,14 +426,14 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         return;
                     }
 
-                    const element: HTMLElement = this._container.container;
-                    const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(<MouseEvent>event, element);
-                    const viewport: number[] = this._viewportCoords.canvasToViewport(
+                    const element = this._container.container;
+                    const [canvasX, canvasY] = this._viewportCoords.canvasPosition(<MouseEvent>event, element);
+                    const viewport = this._viewportCoords.canvasToViewport(
                         canvasX,
                         canvasY,
                         element);
 
-                    const key: string = this._scene.intersectObjects(viewport, render.perspective);
+                    const key = this._scene.intersectObjects(viewport, render.perspective);
 
                     this._scene.setHoveredKey(key);
                 }));
@@ -449,7 +447,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         subs.push(this._navigator.stateService.currentState$
             .pipe(
                 map((frame: IFrame): IGLRenderHash => {
-                    const scene: SpatialDataScene = this._scene;
+                    const scene = this._scene;
 
                     return {
                         name: this._name,
@@ -462,6 +460,69 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     };
                 }))
             .subscribe(this._container.glRenderer.render$));
+
+        const updatedCell$ = this._navigator.graphService.dataAdded$
+            .pipe(
+                filter(
+                    (cellId: string) => {
+                        return this._cache.hasTile(cellId);
+                    }),
+                mergeMap(
+                    (cellId: string): Observable<[Cell, ILatLonAlt]> => {
+                        return this._cache.updateCell$(cellId).pipe(
+                            map((nodes: Node[]) => ({ id: cellId, nodes })),
+                            withLatestFrom(
+                                this._navigator.stateService.reference$
+                            )
+                        );
+                    }),
+                publish<[Cell, ILatLonAlt]>(),
+                refCount())
+
+        subs.push(updatedCell$
+            .subscribe(
+                ([cell, reference]: [Cell, ILatLonAlt]): void => {
+                    this._addSceneNodes(cell, reference);
+                }));
+
+        subs.push(updatedCell$
+            .pipe(
+                concatMap(
+                    ([cell]: [Cell, ILatLonAlt]): Observable<[string, IClusterReconstruction]> => {
+                        const cellId = cell.id;
+                        const cache = this._cache;
+                        let reconstructions$: Observable<IClusterReconstruction>;
+                        if (cache.hasClusterReconstructions(cellId)) {
+                            reconstructions$ =
+                                cache.updateClusterReconstructions$(cellId);
+                        } else if (cache.isCachingClusterReconstructions(cellId)) {
+                            reconstructions$ = this._cache.cacheClusterReconstructions$(cellId).pipe(
+                                last(null, {}),
+                                switchMap(
+                                    (): Observable<IClusterReconstruction> => {
+                                        return observableFrom(
+                                            cache.updateClusterReconstructions$(cellId));
+                                    }));
+                        } else {
+                            reconstructions$ = observableEmpty();
+                        }
+
+                        return observableCombineLatest(
+                            observableOf(cellId),
+                            reconstructions$);
+                    }),
+                withLatestFrom(this._navigator.stateService.reference$))
+            .subscribe(
+                ([[hash, reconstruction], reference]: [[string, IClusterReconstruction], ILatLonAlt]): void => {
+                    if (this._scene.hasClusterReconstruction(reconstruction.key, hash)) {
+                        return;
+                    }
+
+                    this._scene.addClusterReconstruction(
+                        reconstruction,
+                        this._computeTranslation(reconstruction, reference),
+                        hash);
+                }));
     }
 
     protected _deactivate(): void {
@@ -490,6 +551,20 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             positionsVisible: false,
             tilesVisible: false,
         };
+    }
+
+    private _addSceneNodes(cell: Cell, reference: ILatLonAlt): void {
+        const cellId = cell.id;
+        const nodes = cell.nodes;
+        for (const node of nodes) {
+            if (this._scene.hasNode(node.key, cellId)) { continue; }
+
+            this._scene.addNode(
+                node,
+                this._createTransform(node, reference),
+                this._computeOriginalPosition(node, reference),
+                cellId);
+        }
     }
 
     private _adjacentComponent(hash: string, depth: number): string[] {
