@@ -15,6 +15,7 @@ uniform float scale_y;
 uniform float radial_peak;
 
 varying vec4 vRstq;
+varying vec4 depthColor;
 
 void main()
 {
@@ -33,6 +34,7 @@ void main()
     vec4 baseColor;
     if (u >= 0. && u <= 1. && v >= 0. && v <= 1.) {
         baseColor = texture2D(projectorTex, vec2(u, v));
+        baseColor = mix(baseColor, depthColor, 0.75);
         baseColor.a = opacity;
     } else {
         baseColor = vec4(0.0, 0.0, 0.0, 0.0);

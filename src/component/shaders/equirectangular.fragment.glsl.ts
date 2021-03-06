@@ -13,15 +13,16 @@ uniform float thetaLength;
 uniform float thetaShift;
 
 varying vec4 vRstq;
+varying vec4 depthColor;
 
-void main()
-{
+void main() {
     vec3 b = normalize(vRstq.xyz);
     float lat = -asin(b.y);
     float lon = atan(b.x, b.z);
     float x = (lon - phiShift) / phiLength + 0.5;
     float y = (lat - thetaShift) / thetaLength + 0.5;
     vec4 baseColor = texture2D(projectorTex, vec2(x, y));
+    baseColor = mix(baseColor, depthColor, 0.75);
     baseColor.a = opacity;
     gl_FragColor = baseColor;
 }
