@@ -3,6 +3,8 @@ import * as THREE from "three";
 import { CameraProjectionType } from "../api/interfaces/CameraProjectionType";
 import { IGPano } from "../api/interfaces/IGPano";
 
+const EPSILON = 1e-8;
+
 /**
  * @class Transform
  *
@@ -400,8 +402,9 @@ export class Transform {
             let theta: number = dTheta / d;
             let z: number = Math.cos(theta);
             let r: number = Math.sin(theta);
-            let x: number = r * dxn / dTheta;
-            let y: number = r * dyn / dTheta;
+            const denomTheta = dTheta > EPSILON ? 1 / dTheta : 1;
+            let x: number = r * dxn * denomTheta;
+            let y: number = r * dyn * denomTheta;
             return [x, y, z];
         } else {
             let [dxn, dyn]: number[] = [sfm[0] / this._focal, sfm[1] / this._focal];
