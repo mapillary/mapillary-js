@@ -171,7 +171,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
         subs.push(earth$.subscribe(
             (earth: boolean): void => {
-                this._scene.setLargeIntersectionThreshold(earth);
+                this._scene.setNavigationState(earth);
             }));
 
         const hashes$ = observableCombineLatest(
@@ -199,7 +199,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         if (earth) {
                             return sequencePlay ?
                                 observableOf([hash]) :
-                                observableOf(this._adjacentComponent(hash, 4));
+                                observableOf(this._adjacentComponent(hash, 1));
                         }
 
                         return sequencePlay ?
@@ -335,7 +335,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         subs.push(hash$
             .subscribe(
                 (hash: string): void => {
-                    const keepHashes: string[] = this._adjacentComponent(hash, 4);
+                    const keepHashes = this._adjacentComponent(hash, 1);
                     this._scene.uncache(keepHashes);
                     this._cache.uncache(keepHashes);
                 }));
@@ -357,7 +357,8 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         canvasY,
                         element);
 
-                    const key: string = this._scene.intersectObjects(viewport, render.perspective);
+                    const key = this._scene.intersection
+                        .intersectObjects(viewport, render.perspective);
 
                     return !!key ?
                         this._navigator.moveToKey$(key).pipe(
@@ -422,7 +423,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 ([event, render]
                     : [IntersectEvent, RenderCamera, ISpatialDataConfiguration]): void => {
                     if (event.type !== "mousemove") {
-                        this._scene.setHoveredKey(null);
+                        this._scene.setHoveredNode(null);
                         return;
                     }
 
@@ -433,15 +434,16 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         canvasY,
                         element);
 
-                    const key = this._scene.intersectObjects(viewport, render.perspective);
+                    const key = this._scene.intersection
+                        .intersectObjects(viewport, render.perspective);
 
-                    this._scene.setHoveredKey(key);
+                    this._scene.setHoveredNode(key);
                 }));
 
         subs.push(this._navigator.stateService.currentKey$
             .subscribe(
                 (key: string): void => {
-                    this._scene.setSelectedKey(key);
+                    this._scene.setSelectedNode(key);
                 }));
 
         subs.push(this._navigator.stateService.currentState$
@@ -673,7 +675,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         const hashSet: Set<string> = new Set<string>();
         const directions: string[] = ["n", "ne", "e", "se", "s", "sw", "w", "nw"];
 
-        this._computeTilesRecursive(hashSet, hash, direction, directions, 0, 2);
+        this._computeTilesRecursive(hashSet, hash, direction, directions, 0, 1);
 
         return this._setToArray(hashSet);
     }

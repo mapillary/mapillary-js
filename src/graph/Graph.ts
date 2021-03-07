@@ -430,7 +430,7 @@ export class Graph {
                 }
 
                 const coreNodeBatches: string[][] = [];
-                const batchSize: number = 400;
+                const batchSize: number = 200;
                 while (coreNodes.length > 0) {
                     coreNodeBatches.push(coreNodes.splice(0, batchSize));
                 }
