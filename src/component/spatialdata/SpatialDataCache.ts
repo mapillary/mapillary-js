@@ -17,7 +17,6 @@ import {
 } from "rxjs/operators";
 
 import { DataProviderBase } from "../../api/DataProviderBase";
-import { ICellCorners } from "../../api/interfaces/ICellCorners";
 import { IClusterReconstruction } from "../../api/interfaces/IClusterReconstruction";
 import { AbortMapillaryError } from "../../error/AbortMapillaryError";
 import { GraphService } from "../../graph/GraphService";
