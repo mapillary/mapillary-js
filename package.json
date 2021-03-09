@@ -50,6 +50,7 @@
     "autoprefixer": "^10.2.4",
     "browserify": "^17.0.0",
     "browserify-middleware": "^8.1.1",
+    "concurrently": "^6.0.0",
     "cssnano": "^4.1.10",
     "exorcist": "^1.0.1",
     "express": "^4.17.1",
@@ -83,18 +84,21 @@
     "build-dev": "browserify src/Mapillary.ts --plugin tsify --standalone Mapillary --debug | exorcist dist/mapillary.js.map > dist/mapillary.js",
     "build-docs": "typedoc --options typedoc.json",
     "build-min": "browserify src/Mapillary.ts --plugin tsify --standalone Mapillary | uglifyjs -m > dist/mapillary.min.js",
-    "clean": "yarn clean-dist && yarn clean-docs",
+    "build-module": "tsc -p tsconfig.rollup.json && rollup -c",
+    "build-watch": "concurrently -k -n 'tsc,rollup,serve' 'yarn tsc-watch' 'yarn rollup-watch' 'yarn serve'",
+    "clean": "yarn clean-build && yarn clean-dist && yarn clean-docs",
+    "clean-build": "rm -rf build",
     "clean-dist": "rm -rf dist && mkdir dist",
     "clean-docs": "rm -rf docs/build",
     "lint": "yarn lint-spec && yarn lint-src",
     "lint-spec": "tslint -c tslint.json -p tsconfig.json \"spec/**/*.ts\"",
     "lint-src": "tslint -c tslint.json -p tsconfig.json \"src/**/*.ts\"",
     "prepare": "yarn clean && yarn lint && yarn build-min && yarn build-dev && yarn build-css",
+    "rollup-watch": "rollup -w --no-watch.clearScreen -c rollup.watch.config.js",
     "start": "node server.js",
     "test": "karma start --single-run",
     "test-watch": "karma start",
-    "build-module": "tsc -p tsconfig.rollup.json && rollup -c",
-    "rollup": "rollup",
-    "tsc": "tsc"
+    "serve": "node serve.js",
+    "tsc-watch": "tsc -w --preserveWatchOutput -p tsconfig.rollup.json"
   }
 }
