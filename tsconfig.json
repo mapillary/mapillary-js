@@ -1,32 +1,39 @@
 {
     "compilerOptions": {
         "allowSyntheticDefaultImports": true,
+        "declaration": true,
         "lib": [
             "es6",
             "dom"
         ],
-        "module": "commonjs",
+        "module": "es6",
+        "moduleResolution": "node",
         "noImplicitAny": true,
-        "target": "es5",
+        "outDir": "build/esm/src",
+        "sourceMap": true,
+        "target": "es6",
         "typeRoots": [
             "./node_modules/@types",
-            "./types"
+            "./types",
+            "./types/@mapbox"
         ],
         "types": [
-            "@mapbox/polylabel",
-            "@mapbox/unitbezier",
+            "pbf",
+            "polylabel",
+            "rbush",
+            "s2-geometry",
+            "unitbezier",
             "earcut",
             "falcor",
             "falcor-http-datasource",
             "jasmine",
             "latlon-geohash",
             "node",
-            "pbf",
-            "rbush",
-            "s2-geometry",
             "three",
-            "virtual-dom",
-            "when"
+            "virtual-dom"
         ]
-    }
+    },
+    "files": [
+        "./src/Mapillary.ts"
+    ]
 }

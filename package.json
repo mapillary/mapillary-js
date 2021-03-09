@@ -46,13 +46,9 @@
     "@types/pako": "^1.0.1",
     "@types/three": "^0.125.3",
     "@types/virtual-dom": "^2.1.0",
-    "@types/when": "^2.4.33",
     "autoprefixer": "^10.2.4",
-    "browserify": "^17.0.0",
-    "browserify-middleware": "^8.1.1",
     "concurrently": "^6.0.0",
     "cssnano": "^4.1.10",
-    "exorcist": "^1.0.1",
     "express": "^4.17.1",
     "jasmine-core": "^3.5.0",
     "karma": "^6.1.1",
@@ -66,12 +62,10 @@
     "rollup-plugin-dts": "^2.0.1",
     "rollup-plugin-sourcemaps": "^0.6.3",
     "rollup-plugin-terser": "^7.0.2",
-    "tsify": "^5.0.2",
     "tslint": "^6.1.2",
     "typedoc": "^0.20.28",
     "typedoc-default-themes": "^0.12.7",
-    "typescript": "^4.2.2",
-    "uglify-js": "^3.12.8"
+    "typescript": "^4.2.2"
   },
   "browserslist": [
     "last 2 versions",
@@ -79,13 +73,10 @@
     "ie 11"
   ],
   "scripts": {
-    "build": "yarn build-dev && yarn build-min && yarn build-css",
+    "build": "yarn build-module && yarn build-css",
     "build-css": "cat styles/*.css | postcss -o dist/mapillary.min.css",
-    "build-dev": "browserify src/Mapillary.ts --plugin tsify --standalone Mapillary --debug | exorcist dist/mapillary.js.map > dist/mapillary.js",
     "build-docs": "typedoc --options typedoc.json",
-    "build-min": "browserify src/Mapillary.ts --plugin tsify --standalone Mapillary | uglifyjs -m > dist/mapillary.min.js",
-    "build-module": "tsc -p tsconfig.rollup.json && rollup -c",
-    "build-watch": "concurrently -k -n 'tsc,rollup,serve' 'yarn tsc-watch' 'yarn rollup-watch' 'yarn serve'",
+    "build-module": "tsc -p tsconfig.json && rollup -c",
     "clean": "yarn clean-build && yarn clean-dist && yarn clean-docs",
     "clean-build": "rm -rf build",
     "clean-dist": "rm -rf dist && mkdir dist",
@@ -95,10 +86,11 @@
     "lint-src": "tslint -c tslint.json -p tsconfig.json \"src/**/*.ts\"",
     "prepare": "yarn clean && yarn lint && yarn build-min && yarn build-dev && yarn build-css",
     "rollup-watch": "rollup -w --no-watch.clearScreen -c rollup.watch.config.js",
-    "start": "node server.js",
     "test": "karma start --single-run",
     "test-watch": "karma start",
-    "serve": "node serve.js",
-    "tsc-watch": "tsc -w --preserveWatchOutput -p tsconfig.rollup.json"
+    "serve": "node server.js",
+    "start": "yarn tsc-incremental && concurrently --kill-others-on-fail -n 'tsc,rollup,css,serve' 'yarn tsc-watch' 'yarn rollup-watch' 'yarn build-css' 'yarn serve'",
+    "tsc-incremental": "tsc --incremental -p tsconfig.json",
+    "tsc-watch": "tsc -w --incremental --preserveWatchOutput -p tsconfig.json"
   }
 }
