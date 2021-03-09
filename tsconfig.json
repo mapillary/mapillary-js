@@ -18,18 +18,18 @@
             "./types/@mapbox"
         ],
         "types": [
-            "pbf",
-            "polylabel",
-            "rbush",
-            "s2-geometry",
-            "unitbezier",
             "earcut",
             "falcor",
             "falcor-http-datasource",
             "jasmine",
             "latlon-geohash",
             "node",
+            "pbf",
+            "polylabel",
+            "rbush",
+            "s2-geometry",
             "three",
+            "unitbezier",
             "virtual-dom"
         ]
     },

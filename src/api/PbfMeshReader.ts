@@ -19,12 +19,13 @@ export class PbfMeshReader {
      * @returns {IMesh} Mesh object.
      */
     public static read(buffer: ArrayBuffer): IMesh {
-        let pbf: Pbf<IMesh> = new Pbf<IMesh>(buffer);
-
-        return pbf.readFields(PbfMeshReader._readMeshField, { faces: [], vertices: [] });
+        const pbf = new Pbf(buffer);
+        return pbf.readFields(
+            PbfMeshReader._readMeshField,
+            { faces: [], vertices: [] });
     }
 
-    private static _readMeshField(tag: number, mesh: IMesh, pbf: Pbf<IMesh>): void {
+    private static _readMeshField(tag: number, mesh: IMesh, pbf: Pbf): void {
         if (tag === 1) {
             mesh.vertices.push(pbf.readFloat());
         } else if (tag === 2) {
