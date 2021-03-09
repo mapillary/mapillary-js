@@ -9,19 +9,19 @@
         "module": "es6",
         "moduleResolution": "node",
         "noImplicitAny": true,
-        "outDir": "build/esm/src",
+        "outDir": "build/esm/",
         "sourceMap": true,
         "target": "es6",
         "typeRoots": [
-            "./node_modules/@types",
-            "./types",
-            "./types/@mapbox"
+            "node_modules/@types",
+            "types",
+            "types/@mapbox"
         ],
         "types": [
             "earcut",
             "falcor",
             "falcor-http-datasource",
-            "jasmine",
+            "jest",
             "latlon-geohash",
             "node",
             "pbf",
@@ -33,7 +33,8 @@
             "virtual-dom"
         ]
     },
-    "files": [
-        "./src/Mapillary.ts"
+    "include": [
+        "src/**/*",
+        "test/**/*",
     ]
 }
