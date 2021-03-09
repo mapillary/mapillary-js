@@ -2,11 +2,12 @@
 <html>
 
 <head>
-    <title>MapillaryJS Debug Page</title>
+    <title>MapillaryJS Module</title>
+    <link rel="icon" href="data:,">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-    <link rel="stylesheet" href="../dist/mapillary.min.css" />
+    <link rel="stylesheet" href="dist/mapillary.min.css" />
 
     <style>
         body {
@@ -28,15 +29,16 @@
 </head>
 
 <body>
-    <div id="mly"></div>
-
     <script type="module">
-        import { Viewer } from '../dist/mapillary.module.js';
+        import { Viewer } from 'dist/mapillary.module.js';
+
+        const container = document.createElement('div');
+        container.id = 'mly';
 
         var viewer = new Viewer({
             apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
             component: { cover: false },
-            container: "mly",
+            container: container,
             imageKey: "zarcRdNFZwg3FkXNcsFeGw",
         });
 
