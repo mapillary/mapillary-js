@@ -1,12 +1,12 @@
 export default {
     collectCoverage: true,
     collectCoverageFrom: [
-        "<rootDir>/esm/src/**/*",
+        "<rootDir>/src/**/*",
     ],
     coveragePathIgnorePatterns: [
         "node_modules/",
-        "build/esm/src/Mapillary.js",
-        "build/esm/src/export/",
+        "<rootDir>/src/Mapillary.js",
+        "<rootDir>/src/export/",
     ],
     coverageProvider: "v8",
     moduleDirectories: [
@@ -15,7 +15,7 @@ export default {
     moduleFileExtensions: [
         "js",
     ],
-    rootDir: "build",
+    rootDir: "build/cjs",
     slowTestThreshold: 1,
     watchman: false,
 };

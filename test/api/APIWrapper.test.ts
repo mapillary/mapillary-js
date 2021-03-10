@@ -2,27 +2,27 @@ import { empty as observableEmpty, Observable } from "rxjs";
 
 import { catchError } from "rxjs/operators";
 import { APIWrapper } from "../../src/api/APIWrapper";
-import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
 import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
 import { IFillNode } from "../../src/api/interfaces/IFillNode";
 import { ISequence } from "../../src/api/interfaces/ISequence";
+import { DataProvider } from "../helper/ProviderHelper";
 
 describe("APIWrapperctor", () => {
-    it("should create an APIWrapper instance", () => {
+    test("should create an APIWrapper instance", () => {
         const api: APIWrapper = new APIWrapper(undefined);
         expect(api).toBeDefined();
     });
 });
 
 describe("APIWrapperimageByKeyFill$", () => {
-    it("should call data provider correctly", (done: Function) => {
+    test("should call data provider correctly", (done: Function) => {
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
                 resolve({});
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const provider = new DataProvider();
         const providerSpy: jasmine.Spy = spyOn(provider, "getFillImages");
         providerSpy.and.returnValue(promise);
 
@@ -43,14 +43,14 @@ describe("APIWrapperimageByKeyFill$", () => {
                 });
     });
 
-    it("should pass on error", (done: Function) => {
+    test("should pass on error", (done: Function) => {
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
                 reject(new Error());
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const provider = new DataProvider();
         const providerSpy: jasmine.Spy = spyOn(provider, "getFillImages");
         providerSpy.and.returnValue(promise);
 
@@ -74,14 +74,14 @@ describe("APIWrapperimageByKeyFill$", () => {
 });
 
 describe("APIWrapperimageByKeyFull$", () => {
-    it("should call provider correctly", (done: Function) => {
+    test("should call provider correctly", (done: Function) => {
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
                 resolve({});
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const provider = new DataProvider();
         const providerSpy: jasmine.Spy = spyOn(provider, "getFullImages");
         providerSpy.and.returnValue(promise);
 
@@ -102,14 +102,14 @@ describe("APIWrapperimageByKeyFull$", () => {
                 });
     });
 
-    it("should pass on error", (done: Function) => {
+    test("should pass on error", (done: Function) => {
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
                 reject(new Error());
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const provider = new DataProvider();
         const providerSpy: jasmine.Spy = spyOn(provider, "getFullImages");
         providerSpy.and.returnValue(promise);
 
@@ -133,14 +133,14 @@ describe("APIWrapperimageByKeyFull$", () => {
 });
 
 describe("APIWrapperimagesByH$", () => {
-    it("should call provider correctly", (done: Function) => {
+    test("should call provider correctly", (done: Function) => {
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
                 resolve({});
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const provider = new DataProvider();
         const providerSpy: jasmine.Spy = spyOn(provider, "getCoreImages");
         providerSpy.and.returnValue(promise);
 
@@ -161,14 +161,14 @@ describe("APIWrapperimagesByH$", () => {
                 });
     });
 
-    it("should pass on error", (done: Function) => {
+    test("should pass on error", (done: Function) => {
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
                 reject(new Error());
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const provider = new DataProvider();
         const providerSpy: jasmine.Spy = spyOn(provider, "getCoreImages");
         providerSpy.and.returnValue(promise);
 
@@ -192,14 +192,14 @@ describe("APIWrapperimagesByH$", () => {
 });
 
 describe("APIWrappersequenceByKey$", () => {
-    it("should call provider correctly", (done: Function) => {
+    test("should call provider correctly", (done: Function) => {
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
                 resolve({});
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const provider = new DataProvider();
         const providerSpy: jasmine.Spy = spyOn(provider, "getSequences");
         providerSpy.and.returnValue(promise);
 
@@ -220,14 +220,14 @@ describe("APIWrappersequenceByKey$", () => {
                 });
     });
 
-    it("should pass on error", (done: Function) => {
+    test("should pass on error", (done: Function) => {
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
                 reject(new Error());
             },
         };
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const provider = new DataProvider();
         const providerSpy: jasmine.Spy = spyOn(provider, "getSequences");
         providerSpy.and.returnValue(promise);
 
@@ -251,8 +251,8 @@ describe("APIWrappersequenceByKey$", () => {
 });
 
 describe("APIWrappersetToken", () => {
-    it("should call provider correctly", () => {
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+    test("should call provider correctly", () => {
+        const provider = new DataProvider();
         const providerSpy: jasmine.Spy = spyOn(provider, "setUserToken");
 
         const api: APIWrapper = new APIWrapper(provider);

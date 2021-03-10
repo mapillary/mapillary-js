@@ -80,25 +80,27 @@
     "ie 11"
   ],
   "scripts": {
-    "build": "yarn build-css && yarn build-src",
-    "build-css": "cat styles/*.css | postcss -o dist/mapillary.min.css",
+    "build": "yarn build-style && yarn build-src",
     "build-docs": "typedoc --options typedoc.json",
-    "build-src": "tsc -p tsconfig.json && rollup -c",
-    "build-test": "tsc -p tsconfig.json",
+    "build-src": "yarn compile && yarn bundle",
+    "build-styles": "cat styles/*.css | postcss -o dist/mapillary.min.css",
+    "bundle": "rollup -c",
+    "bundle-watch": "rollup -w --no-watch.clearScreen -c rollup.watch.config.js",
     "clean": "yarn clean-build && yarn clean-dist && yarn clean-docs",
     "clean-build": "rm -rf build",
     "clean-dist": "rm -rf dist && mkdir dist",
     "clean-docs": "rm -rf docs/build",
-    "jest": "node --experimental-vm-modules node_modules/.bin/jest",
+    "clean-test": "rm -rf build/cjs",
+    "compile": "tsc -p tsconfig.json",
+    "compile-incremental": "tsc --incremental -p tsconfig.json",
+    "compile-test": "tsc -p tsconfig.test.json",
+    "compile-watch": "tsc -w --incremental --preserveWatchOutput -p tsconfig.json",
     "lint": "yarn lint-spec && yarn lint-src",
     "lint-spec": "tslint -c tslint.json -p tsconfig.json \"spec/**/*.ts\"",
     "lint-src": "tslint -c tslint.json -p tsconfig.json \"src/**/*.ts\"",
-    "prepare": "yarn clean && yarn lint && yarn build",
-    "rollup-watch": "rollup -w --no-watch.clearScreen -c rollup.watch.config.js",
-    "test": "yarn clean-build && yarn build-test && yarn jest",
+    "prepare": "yarn clean && yarn lint && yarn build-src",
     "serve": "node server.js",
-    "start": "yarn tsc-incremental && concurrently --kill-others-on-fail -n 'tsc,rollup,css,serve' 'yarn tsc-watch' 'yarn rollup-watch' 'yarn build-css' 'yarn serve'",
-    "tsc-incremental": "tsc --incremental -p tsconfig.json",
-    "tsc-watch": "tsc -w --incremental --preserveWatchOutput -p tsconfig.json"
+    "start": "yarn compile-incremental && concurrently --kill-others-on-fail -n 'compile,bundle,styles,serve' 'yarn compile-watch' 'yarn bundle-watch' 'yarn build-styles' 'yarn serve'",
+    "test": "yarn clean-test && yarn compile-test && jest"
   }
 }
