@@ -1,9 +1,14 @@
 'use strict';
 
-const express = require('express');
-const path = require('path');
+import express from 'express';
+import { join } from 'path';
 
 const PORT = 8000;
+
+const pathname = dirname => {
+    const path = join(import.meta.url, `../${dirname}`);
+    return new URL(path).pathname;
+}
 
 const logger = (req, _, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
@@ -12,8 +17,8 @@ const logger = (req, _, next) => {
 
 const app = express();
 app.use(logger);
-app.use('/', express.static(path.join(__dirname, 'debug')));
-app.use('/dist', express.static(path.join(__dirname, 'dist')));
+app.use('/', express.static(pathname('debug')));
+app.use('/dist', express.static(pathname('dist')));
 app.get('/debug', (_, res) => { res.redirect('/'); });
 
 app.listen(PORT, () => {

@@ -14,7 +14,7 @@ We will review your pull request and either merge it, request changes to it, or 
 **Before submitting a pull request**, please make sure the following is done:
 
 1. Fork [the repository](https://github.com/mapillary/mapillary-js) and create your branch from `main`.
-2. Run `yarn` in the repository root.
+2. Run `yarn install` in the repository root.
 3. If you’ve fixed a bug or added code that should be tested, add tests!
 4. Ensure the test suite passes (`yarn test`).
 5. Make sure your code lints (`yarn lint`).

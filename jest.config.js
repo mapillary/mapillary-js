@@ -4,7 +4,6 @@ export default {
         "<rootDir>/src/**/*",
     ],
     coveragePathIgnorePatterns: [
-        "node_modules/",
         "<rootDir>/src/Mapillary.js",
         "<rootDir>/src/export/",
     ],
