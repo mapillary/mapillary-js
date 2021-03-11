@@ -1,10 +1,6 @@
 import * as THREE from "three";
 
-import { InteractiveWaitingState } from "./InteractiveWaitingState";
 import { StateBase } from "./StateBase";
-import { TraversingState } from "./TraversingState";
-import { WaitingState } from "./WaitingState";
-
 import { IRotation } from "../interfaces/IRotation";
 import { IState } from "../interfaces/IState";
 import { Camera } from "../../geo/Camera";
@@ -23,18 +19,6 @@ export class EarthState extends StateBase {
         this._camera.position.x = state.camera.position.x - 16 * viewingDirection.x;
         this._camera.position.y = state.camera.position.y - 16 * viewingDirection.y;
         this._camera.up.set(0, 0, 1);
-    }
-
-    public traverse(): StateBase {
-        return new TraversingState(this);
-    }
-
-    public wait(): StateBase {
-        return new WaitingState(this);
-    }
-
-    public waitInteractively(): StateBase {
-        return new InteractiveWaitingState(this);
     }
 
     public dolly(delta: number): void {

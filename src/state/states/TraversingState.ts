@@ -1,12 +1,7 @@
 import * as THREE from "three";
-import UnitBezier from "@mapbox/unitbezier";
+import * as UnitBezier from "@mapbox/unitbezier";
 
-import { EarthState } from "./EarthState";
 import { InteractiveStateBase } from "./InteractiveStateBase";
-import { InteractiveWaitingState } from "./InteractiveWaitingState";
-import { StateBase } from "./StateBase";
-import { WaitingState } from "./WaitingState";
-
 import { IState } from "../interfaces/IState";
 import { Node } from "../../graph/Node";
 
@@ -29,18 +24,6 @@ export class TraversingState extends InteractiveStateBase {
         this._speedCoefficient = 1;
         this._unitBezier = new UnitBezier(0.74, 0.67, 0.38, 0.96);
         this._useBezier = false;
-    }
-
-    public earth(): StateBase {
-        return new EarthState(this);
-    }
-
-    public wait(): StateBase {
-        return new WaitingState(this);
-    }
-
-    public waitInteractively(): StateBase {
-        return new InteractiveWaitingState(this);
     }
 
     public append(nodes: Node[]): void {
