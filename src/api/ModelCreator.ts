@@ -22,9 +22,9 @@ export class ModelCreator {
      * @param {number} url - Json graph URL for API requests.
      * @param {number} [userToken] - Optional user bearer token for API requests of
      * protected resources.
-     * @returns {falcor.Model} Falcor model for HTTP requests.
+     * @returns {Model} Falcor model for HTTP requests.
      */
-    public createModel(url: string, userToken?: string): falcor.Model {
+    public createModel(url: string, userToken?: string): Model {
         const configuration: HttpDataSourceConfiguration = {
             crossDomain: true,
             withCredentials: false,
