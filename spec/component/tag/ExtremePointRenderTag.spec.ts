@@ -3,7 +3,7 @@ import { PointsGeometry } from "../../../src/component/tag/geometry/PointsGeomet
 import { ExtremePointRenderTag } from "../../../src/component/tag/tag/ExtremePointRenderTag";
 import { ExtremePointTag } from "../../../src/component/tag/tag/ExtremePointTag";
 
-import { TransformHelper } from "../../helper/TransformHelper.spec";
+import { TransformHelper } from "../../helper/TransformHelper";
 
 describe("ExtremePointRenderTag.ctor", () => {
     it("should be defined", () => {

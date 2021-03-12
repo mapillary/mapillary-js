@@ -1,16 +1,18 @@
 import * as THREE from "three";
-import * as UnitBezier from "@mapbox/unitbezier";
 
 import { InteractiveStateBase } from "./InteractiveStateBase";
 import { IState } from "../interfaces/IState";
 import { Node } from "../../graph/Node";
+import { IInterpolator } from "../../utils/interfaces/IInterpolator";
 
 export class TraversingState extends InteractiveStateBase {
+    private static _interpolator: new (...args: number[]) => IInterpolator;
+
     private _baseAlpha: number;
 
     private _speedCoefficient: number;
 
-    private _unitBezier: UnitBezier;
+    private _unitBezier: IInterpolator;
     private _useBezier: boolean;
 
     constructor(state: IState) {
@@ -22,8 +24,14 @@ export class TraversingState extends InteractiveStateBase {
 
         this._baseAlpha = this._alpha;
         this._speedCoefficient = 1;
-        this._unitBezier = new UnitBezier(0.74, 0.67, 0.38, 0.96);
+        this._unitBezier =
+            new TraversingState._interpolator(0.74, 0.67, 0.38, 0.96);
         this._useBezier = false;
+    }
+
+    public static register(
+        interpolator: new (...args: number[]) => any): void {
+        TraversingState._interpolator = interpolator;
     }
 
     public append(nodes: Node[]): void {

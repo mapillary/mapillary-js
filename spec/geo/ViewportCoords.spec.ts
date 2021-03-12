@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { TransformHelper } from "../helper/TransformHelper.spec";
+import { TransformHelper } from "../helper/TransformHelper";
 import { Transform } from "../../src/geo/Transform";
 import { ViewportCoords } from "../../src/geo/ViewportCoords";
 

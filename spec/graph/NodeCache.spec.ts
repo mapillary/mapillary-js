@@ -5,7 +5,9 @@ import { IEdge } from "../../src/graph/edge/interfaces/IEdge";
 import { IEdgeStatus } from "../../src/graph/interfaces/IEdgeStatus";
 import { NodeCache } from "../../src/graph/NodeCache";
 import { ImageSize } from "../../src/viewer/ImageSize";
-import { MockCreator } from "../helper/MockCreator.spec";
+import { MockCreator } from "../helper/MockCreator";
+
+global.URL.createObjectURL = jest.fn();
 
 describe("NodeCache.ctor", () => {
     it("should create a node cache", () => {

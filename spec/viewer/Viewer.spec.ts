@@ -5,9 +5,9 @@ import * as Navigator from "../../src/viewer/Navigator";
 import * as Observer from "../../src/viewer/Observer";
 
 import { Viewer } from "../../src/viewer/Viewer";
-import { ContainerMockCreator } from "../helper/ContainerMockCreator.spec";
-import { MockCreator } from "../helper/MockCreator.spec";
-import { NavigatorMockCreator } from "../helper/NavigatorMockCreator.spec";
+import { ContainerMockCreator } from "../helper/ContainerMockCreator";
+import { MockCreator } from "../helper/MockCreator";
+import { NavigatorMockCreator } from "../helper/NavigatorMockCreator";
 
 describe("Viewer.ctor", () => {
     it("should be definded", () => {

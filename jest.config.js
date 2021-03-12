@@ -6,6 +6,7 @@ export default {
     coveragePathIgnorePatterns: [
         "<rootDir>/src/Mapillary.js",
         "<rootDir>/src/export/",
+        "interfaces"
     ],
     coverageProvider: "v8",
     moduleDirectories: [

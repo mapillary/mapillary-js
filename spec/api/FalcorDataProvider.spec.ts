@@ -648,7 +648,7 @@ describe("FalcorDataProvider.getImage", () => {
         provider.getImage("url", abort)
             .then(
                 (buffer: ArrayBuffer): void => {
-                    expect(buffer instanceof ArrayBuffer).toBeTrue();
+                    expect(buffer instanceof ArrayBuffer).toBe(true);
                     expect(buffer).toEqual(response);
                     done();
                 });
@@ -674,7 +674,7 @@ describe("FalcorDataProvider.getImage", () => {
             .then(
                 undefined,
                 (reason: Error): void => {
-                    expect(reason instanceof MapillaryError).toBeTrue();
+                    expect(reason instanceof MapillaryError).toBe(true);
                     expect(reason.message).toContain("abort");
 
                     done();
@@ -696,7 +696,7 @@ describe("FalcorDataProvider.getImage", () => {
             .then(
                 undefined,
                 (reason: Error): void => {
-                    expect(reason instanceof MapillaryError).toBeTrue();
+                    expect(reason instanceof MapillaryError).toBe(true);
                     expect(reason.message).toContain("status");
 
                     done();
@@ -720,7 +720,7 @@ describe("FalcorDataProvider.getImage", () => {
             .then(
                 undefined,
                 (reason: Error): void => {
-                    expect(reason instanceof MapillaryError).toBeTrue();
+                    expect(reason instanceof MapillaryError).toBe(true);
                     expect(reason.message).toContain("empty");
 
                     done();
@@ -744,7 +744,7 @@ describe("FalcorDataProvider.getImage", () => {
             .then(
                 undefined,
                 (reason: Error): void => {
-                    expect(reason instanceof MapillaryError).toBeTrue();
+                    expect(reason instanceof MapillaryError).toBe(true);
                     expect(reason.message).toContain("error");
 
                     done();

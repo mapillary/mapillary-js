@@ -88,7 +88,6 @@
     "clean-build": "rm -rf build",
     "clean-dist": "rm -rf dist && mkdir dist",
     "clean-docs": "rm -rf docs/build",
-    "clean-test": "rm -rf build/cjs",
     "compile": "tsc -p tsconfig.json",
     "compile-incremental": "tsc --incremental -p tsconfig.json",
     "compile-test": "tsc -p tsconfig.test.json",
@@ -98,7 +97,8 @@
     "lint-src": "tslint -c tslint.json -p tsconfig.json \"src/**/*.ts\"",
     "prepare": "yarn clean && yarn lint && yarn build-src",
     "serve": "node server.js",
-    "start": "yarn compile-incremental && concurrently --kill-others-on-fail -n 'compile,bundle,styles,serve' 'yarn compile-watch' 'yarn bundle-watch' 'yarn build-styles' 'yarn serve'",
-    "test": "yarn clean-test && yarn compile-test && jest"
+    "start": "yarn start-init && concurrently --kill-others-on-fail -n 'compile,bundle,serve' 'yarn compile-watch' 'yarn bundle-watch' 'yarn serve'",
+    "start-init": "yarn clean-dist && yarn build-styles && yarn compile-incremental",
+    "test": "yarn clean-build && yarn compile-test && jest"
   }
 }

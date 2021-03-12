@@ -1,8 +1,8 @@
 import { Subject } from "rxjs";
 import { KeyboardService } from "../../src/viewer/KeyboardService";
 
-import { MockCreator } from "./MockCreator.spec";
-import { MockCreatorBase } from "./MockCreatorBase.spec";
+import { MockCreator } from "./MockCreator";
+import { MockCreatorBase } from "./MockCreatorBase";
 
 export class KeyboardServiceMockCreator extends MockCreatorBase<KeyboardService> {
     public create(): KeyboardService {

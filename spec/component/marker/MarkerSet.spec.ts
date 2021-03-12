@@ -1,3 +1,6 @@
+import { bootstrap } from "../../Bootstrap";
+bootstrap();
+
 import { first } from "rxjs/operators";
 import { Subscription } from "rxjs";
 import { ILatLon } from "../../../src/api/interfaces/ILatLon";
@@ -23,7 +26,7 @@ describe("MarkerSet.get", () => {
     it("should return undefined when marker does not exist", () => {
         let markerSet: MarkerSet = new MarkerSet();
 
-        let result: Marker = markerSet.get("non-existant-id");
+        let result: Marker = markerSet.get("non-existent-id");
 
         expect(result).toBeUndefined();
     });
@@ -81,7 +84,7 @@ describe("MarkerSet.add", () => {
         expect(result.latLon.lon).toBe(newMarker.latLon.lon);
     });
 
-    it("should replace and update index when marker with id exist", () => {
+    test("should replace and update index when marker with id exist", () => {
         let markerSet: MarkerSet = new MarkerSet();
 
         let id: string = "original-id";

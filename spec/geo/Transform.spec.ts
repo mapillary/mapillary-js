@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import { NodeHelper } from "../helper/NodeHelper.spec";
-import { GeoHelper } from "../helper/GeoHelper.spec";
+import { NodeHelper } from "../helper/NodeHelper";
+import { GeoHelper } from "../helper/GeoHelper";
 
 import { Node } from "../../src/graph/Node";
 import { Transform } from "../../src/geo/Transform";

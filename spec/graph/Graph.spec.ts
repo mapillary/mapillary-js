@@ -1,3 +1,6 @@
+import { bootstrap } from "../Bootstrap";
+bootstrap();
+
 import {
     from as observableFrom,
     merge as observableMerge,
@@ -9,7 +12,7 @@ import {
     first,
     mergeAll,
 } from "rxjs/operators";
-import { NodeHelper } from "../helper/NodeHelper.spec";
+import { NodeHelper } from "../helper/NodeHelper";
 import { Node } from "../../src/graph/Node";
 import { APIWrapper } from "../../src/api/APIWrapper";
 import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
@@ -19,7 +22,6 @@ import { IFillNode } from "../../src/api/interfaces/IFillNode";
 import { IFullNode } from "../../src/api/interfaces/IFullNode";
 import { ISequence } from "../../src/api/interfaces/ISequence";
 import { GraphMapillaryError } from "../../src/error/GraphMapillaryError";
-import { GeoRBush } from "../../src/geo/GeoRBush";
 import { EdgeCalculator } from "../../src/graph/edge/EdgeCalculator";
 import {
     Graph,
@@ -28,7 +30,7 @@ import {
 import { GraphCalculator } from "../../src/graph/GraphCalculator";
 import { IGraphConfiguration } from "../../src/graph/interfaces/IGraphConfiguration";
 import { Sequence } from "../../src/graph/Sequence";
-import { ImageSize } from "../../src/Mapillary";
+import { DataProvider, GeometryProvider } from "../helper/ProviderHelper";
 
 describe("Graph.ctor", () => {
     it("should create a graph", () => {
@@ -41,10 +43,9 @@ describe("Graph.ctor", () => {
 
     it("should create a graph with all ctor params", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         expect(graph).toBeDefined();
     });
@@ -57,13 +58,12 @@ describe("Graph.cacheBoundingBox$", () => {
         helper = new NodeHelper();
     });
 
-    it("should cache one node in the bounding box", (done: Function) => {
+    test("should cache one node in the bounding box", (done: Function) => {
         const geometryProvider = new GeohashGeometryProvider();
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -79,10 +79,10 @@ describe("Graph.cacheBoundingBox$", () => {
 
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.key = key;
-        fullNode.l.lat = 0.5;
-        fullNode.l.lon = 0.5;
+        fullNode.cl.lat = 0.5;
+        fullNode.cl.lon = 0.5;
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         graph.cacheBoundingBox$({ lat: 0, lon: 0 }, { lat: 1, lon: 1 })
             .subscribe(
@@ -114,7 +114,6 @@ describe("Graph.cacheBoundingBox$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -138,10 +137,10 @@ describe("Graph.cacheBoundingBox$", () => {
 
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.key = key;
-        fullNode.l.lat = 0.5;
-        fullNode.l.lon = 0.5;
+        fullNode.cl.lat = 0.5;
+        fullNode.cl.lon = 0.5;
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -185,17 +184,15 @@ describe("Graph.cacheBoundingBox$", () => {
                 });
     });
 
-    it("should only cache tile once for two similar calls", (done: Function) => {
-        const geometryProvider = new GeohashGeometryProvider();
-        const dataProvider = new FalcorDataProvider(
-            { clientToken: "cid" },
-            geometryProvider);
+    test("should only cache tile once for two similar calls", (done: Function) => {
+        const dataProvider = new DataProvider();
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
-        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
+        spyOn(dataProvider.geometry, "bboxToCellIds").and.returnValue([h]);
+        spyOn(dataProvider.geometry, "latLonToCellIds").and.returnValue([h]);
+        spyOn(dataProvider.geometry, "latLonToCellId").and.returnValue(h);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
@@ -208,10 +205,10 @@ describe("Graph.cacheBoundingBox$", () => {
 
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.key = key;
-        fullNode.l.lat = 0.5;
-        fullNode.l.lon = 0.5;
+        fullNode.cl.lat = 0.5;
+        fullNode.cl.lon = 0.5;
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         let count: number = 0;
         observableMerge(
@@ -257,7 +254,6 @@ describe("Graph.cacheFull$", () => {
 
     it("should be fetching", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const fullNode: IFullNode = helper.createFullNode();
@@ -265,7 +261,7 @@ describe("Graph.cacheFull$", () => {
 
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
         graph.cacheFull$(fullNode.key);
 
         expect(graph.isCachingFull(fullNode.key)).toBe(true);
@@ -275,13 +271,12 @@ describe("Graph.cacheFull$", () => {
 
     it("should fetch", (done: Function) => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
         const result: { [key: string]: IFullNode } = {};
@@ -308,7 +303,6 @@ describe("Graph.cacheFull$", () => {
 
     it("should not make additional calls when fetching same node twice", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const fullNode: IFullNode = helper.createFullNode();
@@ -317,7 +311,7 @@ describe("Graph.cacheFull$", () => {
         const imageByKeyFullSpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeyFullSpy.and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
@@ -327,13 +321,12 @@ describe("Graph.cacheFull$", () => {
 
     it("should throw when fetching node already in graph", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
 
@@ -350,13 +343,12 @@ describe("Graph.cacheFull$", () => {
 
     it("should throw if sequence key is missing", (done: Function) => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = undefined;
@@ -380,7 +372,6 @@ describe("Graph.cacheFull$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const key: string = "key";
@@ -406,7 +397,7 @@ describe("Graph.cacheFull$", () => {
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const otherNode: IFullNode = helper.createFullNode();
         otherNode.key = otherKey;
@@ -461,7 +452,6 @@ describe("Graph.cacheFill$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -478,7 +468,7 @@ describe("Graph.cacheFill$", () => {
         const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
@@ -514,7 +504,6 @@ describe("Graph.cacheFill$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -531,7 +520,7 @@ describe("Graph.cacheFill$", () => {
         const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
@@ -572,7 +561,6 @@ describe("Graph.cacheFill$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -590,7 +578,7 @@ describe("Graph.cacheFill$", () => {
         const imageByKeyFillSpy: jasmine.Spy = spyOn(api, "imageByKeyFill$");
         imageByKeyFillSpy.and.returnValue(imageByKeyFill);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
@@ -626,7 +614,6 @@ describe("Graph.cacheFill$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -640,7 +627,7 @@ describe("Graph.cacheFill$", () => {
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.key);
@@ -652,20 +639,18 @@ describe("Graph.cacheFill$", () => {
 
     it("should throw if node does not exist", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         expect(() => { graph.cacheFill$("key"); }).toThrowError(Error);
     });
 
     it("should throw if already full", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -674,7 +659,7 @@ describe("Graph.cacheFill$", () => {
         const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.key);
@@ -700,7 +685,6 @@ describe("Graph.cacheTiles$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const node: Node = helper.createNode();
@@ -711,7 +695,7 @@ describe("Graph.cacheTiles$", () => {
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         spyOn(graph, "hasNode").and.returnValue(true);
         spyOn(graph, "getNode").and.returnValue(node);
@@ -731,7 +715,6 @@ describe("Graph.cacheTiles$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const fullNode: IFullNode = helper.createFullNode();
@@ -749,7 +732,7 @@ describe("Graph.cacheTiles$", () => {
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         expect(graph.hasTiles(fullNode.key)).toBe(false);
@@ -774,7 +757,6 @@ describe("Graph.cacheTiles$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const node: Node = helper.createNode();
@@ -787,7 +769,7 @@ describe("Graph.cacheTiles$", () => {
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         spyOn(graph, "hasNode").and.returnValue(true);
         spyOn(graph, "getNode").and.returnValue(node);
@@ -804,7 +786,6 @@ describe("Graph.cacheTiles$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const fullNode: IFullNode = helper.createFullNode();
@@ -823,7 +804,7 @@ describe("Graph.cacheTiles$", () => {
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         expect(graph.hasTiles(fullNode.key)).toBe(false);
@@ -852,18 +833,16 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should throw when sequence does not exist", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         expect(() => { graph.cacheSequenceNodes$("sequenceKey"); }).toThrowError(Error);
     });
 
     it("should not be cached", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -873,7 +852,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const key: string = "key";
@@ -890,7 +869,6 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should start caching", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -900,7 +878,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const key: string = "key";
@@ -919,7 +897,6 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should be cached and not caching", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -929,7 +906,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -961,7 +938,6 @@ describe("Graph.cacheSequenceNodes$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
@@ -979,7 +955,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1014,7 +990,6 @@ describe("Graph.cacheSequenceNodes$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
@@ -1032,7 +1007,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1069,7 +1044,6 @@ describe("Graph.cacheSequenceNodes$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
@@ -1087,7 +1061,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1122,7 +1096,6 @@ describe("Graph.cacheSequenceNodes$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
@@ -1140,7 +1113,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1175,7 +1148,6 @@ describe("Graph.cacheSequenceNodes$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
@@ -1195,7 +1167,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1255,7 +1227,6 @@ describe("Graph.cacheSequenceNodes$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
@@ -1275,7 +1246,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1331,7 +1302,6 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should throw if caching already cached sequence nodes", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1341,7 +1311,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1366,7 +1336,6 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should only call API once if caching multiple times before response", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1377,7 +1346,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1403,7 +1372,6 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should not be cached and not caching on error", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1413,7 +1381,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
         const nodeKey: string = "nodeKey";
@@ -1439,7 +1407,6 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should start caching in with single batch when lass than or equal to 200 nodes", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1450,7 +1417,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
 
@@ -1476,7 +1443,6 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should start caching in batches when more than 200 nodes", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1487,7 +1453,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
 
@@ -1514,7 +1480,6 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should start caching prioritized batch when reference node key is specified at start", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1525,7 +1490,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
 
@@ -1557,7 +1522,6 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should start caching prioritized batch when reference node key is specified at end", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1568,7 +1532,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
 
@@ -1601,7 +1565,6 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should start caching in prioritized batches when reference node key is specified in middle", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1612,7 +1575,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
 
@@ -1646,7 +1609,6 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should not corrupt sequence when caching in batches", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1657,7 +1619,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
 
@@ -1680,7 +1642,6 @@ describe("Graph.cacheSequenceNodes$", () => {
 
     it("should create single batch when fewer than or equal to 50 nodes", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1691,7 +1652,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceKey: string = "sequenceKey";
 
@@ -1736,7 +1697,6 @@ describe("Graph.cacheSpatialArea$", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1745,7 +1705,7 @@ describe("Graph.cacheSpatialArea$", () => {
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: IFullNode } = {};
@@ -1756,26 +1716,20 @@ describe("Graph.cacheSpatialArea$", () => {
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
-        spyOn(index, "search").and.returnValue([{ node: node }]);
-
         expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
     });
 
-    it("should not be cached", () => {
-        const geometryProvider = new GeohashGeometryProvider();
-        const dataProvider = new FalcorDataProvider(
-            { clientToken: "cid" },
-            geometryProvider);
+    test("should not be cached", () => {
+        const dataProvider = new DataProvider()
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const fullNode: IFullNode = helper.createFullNode();
 
         const h: string = "h";
-        spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(dataProvider.geometry, "latLonToCellId").and.returnValue(h);
+        spyOn(dataProvider.geometry, "latLonToCellIds").and.returnValue([h]);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
@@ -1784,7 +1738,7 @@ describe("Graph.cacheSpatialArea$", () => {
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: IFullNode } = {};
@@ -1792,8 +1746,10 @@ describe("Graph.cacheSpatialArea$", () => {
         imageByKeyFull.next(fetchResult);
 
         const node: Node = graph.getNode(fullNode.key);
+        expect(node).toBeDefined();
 
-        spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
+        spyOn(graphCalculator, "boundingBoxCorners")
+            .and.returnValue([{ lat: -0.5, lon: -0.5 }, { lat: 0.5, lon: 0.5 }]);
 
         const coreNode: ICoreNode = helper.createCoreNode();
         coreNode.key = "otherKey";
@@ -1810,8 +1766,7 @@ describe("Graph.cacheSpatialArea$", () => {
         imagesByH.next(result);
 
         const otherNode: Node = graph.getNode(coreNode.key);
-
-        spyOn(index, "search").and.returnValue([{ node: node }, { node: otherNode }]);
+        expect(otherNode).toBeDefined();
 
         expect(graph.hasSpatialArea(fullNode.key)).toBe(false);
     });
@@ -1826,7 +1781,6 @@ describe("Graph.cacheSpatialEdges", () => {
 
     it("should use fallback keys", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1838,7 +1792,7 @@ describe("Graph.cacheSpatialEdges", () => {
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: IFullNode } = {};
@@ -1856,8 +1810,6 @@ describe("Graph.cacheSpatialEdges", () => {
         const node: Node = graph.getNode(fullNode.key);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
-
-        spyOn(index, "search").and.returnValue([{ node: node }]);
 
         expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
 
@@ -1880,21 +1832,36 @@ describe("Graph.cacheSpatialEdges", () => {
         expect(getPotentialSpy.calls.first().args[2].indexOf(fullNode.key)).toBe(-1);
     });
 
-    it("should apply filter", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
+    test("should apply filter", () => {
+        const cellId = "cell-id";
+        const dataProvider = new DataProvider();
+        spyOn(dataProvider.geometry, "latLonToCellId")
+            .and.returnValue(cellId);
+        spyOn(dataProvider.geometry, "latLonToCellIds")
+            .and.returnValue([cellId]);
+        const api = new APIWrapper(dataProvider);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
         const fullNode: IFullNode = helper.createFullNode();
+        const otherFullNode: IFullNode = helper.createFullNode();
+        otherFullNode.key = "other-key";
+        otherFullNode.sequence_key = "otherSequenceKey";
+
+        const imageByKeyFill = new Subject<{ [key: string]: IFullNode }>();
+        spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
+        const imagesByH =
+            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        spyOn(api, "imagesByH$").and.returnValue(imagesByH);
+
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: IFullNode } = {};
@@ -1909,16 +1876,33 @@ describe("Graph.cacheSpatialEdges", () => {
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node = graph.getNode(fullNode.key);
+        expect(node).toBeDefined();
+        expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
+        expect(graph.hasTiles(fullNode.key)).toBe(false);
+        expect(graph.isCachingTiles(fullNode.key)).toBe(false);
 
-        const otherFullNode: IFullNode = helper.createFullNode();
-        otherFullNode.sequence_key = "otherSequenceKey";
-        const otherNode: Node = new Node(otherFullNode);
-        otherNode.makeFull(otherFullNode);
+        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+            mergeAll())
+            .subscribe(() => { /*noop*/ });
 
-        spyOn(index, "search").and.returnValue([{ node: node }, { node: otherNode }]);
+        const coreResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        coreResult[cellId] = {};
+        coreResult[cellId]["0"] = fullNode;
+        coreResult[cellId]["1"] = otherFullNode;
+        imagesByH.next(coreResult);
+
+        expect(graph.hasTiles(fullNode.key)).toBe(true);
+
+        spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: -0.5, lon: -0.5 }, { lat: 0.5, lon: 0.5 }]);
+
+        graph.cacheFill$(otherFullNode.key).subscribe(() => { /*noop*/ });
+
+        const otherFetchResult: { [key: string]: IFullNode } = {};
+        otherFetchResult[otherFullNode.key] = otherFullNode;
+        imageByKeyFill.next(otherFetchResult);
+        imageByKeyFill.complete();
 
         expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
 
@@ -1943,7 +1927,6 @@ describe("Graph.cacheSpatialEdges", () => {
 
     it("should apply remove by filtering", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -1955,7 +1938,7 @@ describe("Graph.cacheSpatialEdges", () => {
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: IFullNode } = {};
@@ -1978,8 +1961,6 @@ describe("Graph.cacheSpatialEdges", () => {
         otherFullNode.sequence_key = "otherSequenceKey";
         const otherNode: Node = new Node(otherFullNode);
         otherNode.makeFull(otherFullNode);
-
-        spyOn(index, "search").and.returnValue([{ node: node }, { node: otherNode }]);
 
         expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
 
@@ -2011,13 +1992,12 @@ describe("Graph.cacheNodeSequence$", () => {
 
     it("should not be cached", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
 
@@ -2032,7 +2012,6 @@ describe("Graph.cacheNodeSequence$", () => {
 
     it("should be caching", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -2041,7 +2020,7 @@ describe("Graph.cacheNodeSequence$", () => {
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
 
@@ -2060,7 +2039,6 @@ describe("Graph.cacheNodeSequence$", () => {
 
     it("should be cached", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -2069,7 +2047,7 @@ describe("Graph.cacheNodeSequence$", () => {
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
@@ -2098,7 +2076,6 @@ describe("Graph.cacheNodeSequence$", () => {
 
     it("should throw if node not in graph", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -2107,7 +2084,7 @@ describe("Graph.cacheNodeSequence$", () => {
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
@@ -2117,7 +2094,6 @@ describe("Graph.cacheNodeSequence$", () => {
 
     it("should throw if already cached", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -2126,7 +2102,7 @@ describe("Graph.cacheNodeSequence$", () => {
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
@@ -2151,7 +2127,6 @@ describe("Graph.cacheNodeSequence$", () => {
 
     it("should call api only once when caching the same sequence twice in succession", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -2161,7 +2136,7 @@ describe("Graph.cacheNodeSequence$", () => {
         const sequenceByKeySpy: jasmine.Spy = spyOn(api, "sequenceByKey$");
         sequenceByKeySpy.and.returnValue(sequenceByKey);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
@@ -2180,7 +2155,6 @@ describe("Graph.cacheNodeSequence$", () => {
 
     it("should emit to changed stream", (done: Function) => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
@@ -2189,7 +2163,7 @@ describe("Graph.cacheNodeSequence$", () => {
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
@@ -2222,10 +2196,9 @@ describe("Graph.cacheNodeSequence$", () => {
 describe("Graph.cacheSequence$", () => {
     it("should not be cached", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const sequenceKey: string = "sequenceKey";
 
@@ -2234,10 +2207,9 @@ describe("Graph.cacheSequence$", () => {
 
     it("should not be caching", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const sequenceKey: string = "sequenceKey";
 
@@ -2246,13 +2218,12 @@ describe("Graph.cacheSequence$", () => {
 
     it("should be caching", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const sequenceKey: string = "sequenceKey";
 
@@ -2264,13 +2235,12 @@ describe("Graph.cacheSequence$", () => {
 
     it("should cache", (done: Function) => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const sequenceKey: string = "sequenceKey";
         const key: string = "key";
@@ -2296,14 +2266,13 @@ describe("Graph.cacheSequence$", () => {
 
     it("should call api only once when caching the same sequence twice in succession", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         const sequenceByKeySpy: jasmine.Spy = spyOn(api, "sequenceByKey$");
         sequenceByKeySpy.and.returnValue(sequenceByKey);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const sequenceKey: string = "sequenceKey";
 
@@ -2323,7 +2292,6 @@ describe("Graph.resetSpatialEdges", () => {
 
     it("should use fallback keys", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -2335,7 +2303,7 @@ describe("Graph.resetSpatialEdges", () => {
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: IFullNode } = {};
@@ -2353,9 +2321,6 @@ describe("Graph.resetSpatialEdges", () => {
         const node: Node = graph.getNode(fullNode.key);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
-
-        const searchSpy: jasmine.Spy = spyOn(index, "search");
-        searchSpy.and.returnValue([{ node: node }]);
 
         expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
 
@@ -2379,11 +2344,7 @@ describe("Graph.resetSpatialEdges", () => {
         expect(nodeSequenceResetSpy.calls.count()).toBe(0);
         expect(nodeSpatialResetSpy.calls.count()).toBe(1);
 
-        const countBefore: number = searchSpy.calls.count();
         expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
-        const countAfter: number = searchSpy.calls.count();
-
-        expect(countAfter - countBefore).toBe(1);
     });
 
     it("should have to re-encode hs after spatial edges reset", () => {
@@ -2392,7 +2353,6 @@ describe("Graph.resetSpatialEdges", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
@@ -2409,7 +2369,7 @@ describe("Graph.resetSpatialEdges", () => {
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const graph: Graph = new Graph(api, index, graphCalculator, edgeCalculator);
+        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: IFullNode } = {};
@@ -2446,8 +2406,6 @@ describe("Graph.resetSpatialEdges", () => {
         const node: Node = graph.getNode(fullNode.key);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
-
-        spyOn(index, "search").and.returnValue([{ node: node }]);
 
         expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
 
@@ -2493,7 +2451,6 @@ describe("Graph.reset", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -2502,7 +2459,7 @@ describe("Graph.reset", () => {
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
         const result: { [key: string]: IFullNode } = {};
@@ -2531,7 +2488,6 @@ describe("Graph.reset", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -2540,7 +2496,7 @@ describe("Graph.reset", () => {
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
         const result: { [key: string]: IFullNode } = {};
@@ -2570,7 +2526,6 @@ describe("Graph.reset", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -2579,7 +2534,7 @@ describe("Graph.reset", () => {
         const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: IFullNode = helper.createFullNode();
         const result: { [key: string]: IFullNode } = {};
@@ -2623,7 +2578,6 @@ describe("Graph.uncache", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -2639,7 +2593,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: IFullNode = helper.createFullNode();
         const result: { [key: string]: IFullNode } = {};
@@ -2669,7 +2623,6 @@ describe("Graph.uncache", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -2685,7 +2638,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = "sequencKey";
@@ -2716,7 +2669,6 @@ describe("Graph.uncache", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -2732,7 +2684,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: IFullNode = helper.createFullNode();
         const result: { [key: string]: IFullNode } = {};
@@ -2762,7 +2714,6 @@ describe("Graph.uncache", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -2778,7 +2729,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: IFullNode = helper.createFullNode();
         const result: { [key: string]: IFullNode } = {};
@@ -2810,7 +2761,6 @@ describe("Graph.uncache", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -2826,7 +2776,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: IFullNode = helper.createFullNode();
         const result: { [key: string]: IFullNode } = {};
@@ -2858,7 +2808,6 @@ describe("Graph.uncache", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -2873,7 +2822,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode1: IFullNode = helper.createFullNode();
         fullNode1.key = "key1";
@@ -2939,7 +2888,6 @@ describe("Graph.uncache", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -2956,7 +2904,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 1,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: IFullNode = helper.createFullNode();
         const result: { [key: string]: IFullNode } = {};
@@ -3003,7 +2951,6 @@ describe("Graph.uncache", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -3020,7 +2967,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 1,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: IFullNode = helper.createFullNode();
         const result: { [key: string]: IFullNode } = {};
@@ -3069,7 +3016,6 @@ describe("Graph.uncache", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -3086,7 +3032,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 1,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: IFullNode = helper.createFullNode();
         const result: { [key: string]: IFullNode } = {};
@@ -3134,7 +3080,6 @@ describe("Graph.uncache", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -3151,7 +3096,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 1,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: IFullNode = helper.createFullNode();
         const result: { [key: string]: IFullNode } = {};
@@ -3195,7 +3140,6 @@ describe("Graph.uncache", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -3211,7 +3155,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 1,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode1: IFullNode = helper.createFullNode();
         fullNode1.key = "key1";
@@ -3291,7 +3235,6 @@ describe("Graph.uncache", () => {
 
     it("should uncache sequence", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
@@ -3304,7 +3247,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const sequenceKey: string = "sequenceKey";
 
@@ -3331,7 +3274,6 @@ describe("Graph.uncache", () => {
 
     it("should not uncache sequence if specified to keep", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
@@ -3344,7 +3286,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const sequenceKey: string = "sequenceKey";
 
@@ -3371,7 +3313,6 @@ describe("Graph.uncache", () => {
 
     it("should not uncache sequence if number below threshold", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
@@ -3384,7 +3325,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const sequenceKey: string = "sequenceKey";
 
@@ -3411,7 +3352,6 @@ describe("Graph.uncache", () => {
 
     it("should not uncache sequence accessed last", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const sequenceByKeySpy: jasmine.Spy = spyOn(api, "sequenceByKey$");
@@ -3423,7 +3363,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const sequenceKey1: string = "sequenceKey1";
 
@@ -3483,7 +3423,6 @@ describe("Graph.uncache", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -3500,7 +3439,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: IFullNode = helper.createFullNode();
         const result: { [key: string]: IFullNode } = {};
@@ -3546,7 +3485,6 @@ describe("Graph.uncache", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -3563,7 +3501,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: IFullNode = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
@@ -3611,7 +3549,6 @@ describe("Graph.uncache", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -3628,7 +3565,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 1,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: IFullNode = helper.createFullNode();
         const result: { [key: string]: IFullNode } = {};
@@ -3675,7 +3612,6 @@ describe("Graph.uncache", () => {
             { clientToken: "cid" },
             geometryProvider);
         const api: APIWrapper = new APIWrapper(dataProvider);
-        const index: GeoRBush<any> = new GeoRBush(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const h: string = "h";
@@ -3692,7 +3628,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, index, calculator, undefined, undefined, configuration);
+        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: IFullNode = helper.createFullNode();
         const result: { [key: string]: IFullNode } = {};
@@ -3741,7 +3677,6 @@ describe("Graph.cacheCell$", () => {
             { clientToken: "token" },
             geometryProvider);
         const api = new APIWrapper(dataProvider);
-        const index = new GeoRBush<NodeIndexItem>(16);
         const calculator = new GraphCalculator(null);
 
         const cellId = "cellId";
@@ -3758,16 +3693,16 @@ describe("Graph.cacheCell$", () => {
         const fullNode = new NodeHelper().createFullNode();
         fullNode.key = key;
 
-        const graph = new Graph(api, index, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         graph.cacheCell$(cellId)
             .subscribe(
                 (nodes: Node[]): void => {
                     expect(nodes.length).toBe(1);
                     expect(nodes[0].key).toBe(key);
-                    expect(nodes[0].full).toBeTrue();
+                    expect(nodes[0].full).toBe(true);
 
-                    expect(graph.hasNode(key)).toBeTrue();
+                    expect(graph.hasNode(key)).toBe(true);
 
                     expect(imagesByHSpy.calls.count()).toBe(1);
                     expect(imageByKeyFillSpy.calls.count()).toBe(1);
@@ -3794,7 +3729,6 @@ describe("Graph.cacheCell$", () => {
             { clientToken: "token" },
             geometryProvider);
         const api = new APIWrapper(dataProvider);
-        const index = new GeoRBush<NodeIndexItem>(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const cellId = "cell-id";
@@ -3817,7 +3751,7 @@ describe("Graph.cacheCell$", () => {
         const fullNode: IFullNode = new NodeHelper().createFullNode();
         fullNode.key = key;
 
-        const graph: Graph = new Graph(api, index, calculator);
+        const graph: Graph = new Graph(api, undefined, calculator);
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -3847,9 +3781,9 @@ describe("Graph.cacheCell$", () => {
                 (nodes: Node[]): void => {
                     expect(nodes.length).toBe(1);
                     expect(nodes[0].key).toBe(key);
-                    expect(nodes[0].full).toBeTrue();
+                    expect(nodes[0].full).toBe(true);
 
-                    expect(graph.hasNode(key)).toBeTrue();
+                    expect(graph.hasNode(key)).toBe(true);
 
                     expect(imagesByHSpy.calls.count()).toBe(1);
                     expect(imageByKeyFullSpy.calls.count()).toBe(1);
@@ -3865,7 +3799,6 @@ describe("Graph.cacheCell$", () => {
             { clientToken: "token" },
             geometryProvider);
         const api = new APIWrapper(dataProvider);
-        const index = new GeoRBush<NodeIndexItem>(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const cellId = "cell-id";
@@ -3890,7 +3823,7 @@ describe("Graph.cacheCell$", () => {
         const fullNode1 = new NodeHelper().createFullNode();
         fullNode1.key = key1;
 
-        const graph = new Graph(api, index, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         graph.cacheFull$(fullNode1.key).subscribe(() => { /*noop*/ });
 
@@ -3912,14 +3845,14 @@ describe("Graph.cacheCell$", () => {
         tileResult[cellId]["1"] = fullNode2;
         imagesByH.next(tileResult);
 
-        expect(graph.hasNode(fullNode1.key)).toBeTrue();
-        expect(graph.hasNode(fullNode2.key)).toBeTrue();
-        expect(graph.hasTiles(fullNode1.key)).toBeTrue();
-        expect(graph.hasTiles(fullNode2.key)).toBeTrue();
+        expect(graph.hasNode(fullNode1.key)).toBe(true);
+        expect(graph.hasNode(fullNode2.key)).toBe(true);
+        expect(graph.hasTiles(fullNode1.key)).toBe(true);
+        expect(graph.hasTiles(fullNode2.key)).toBe(true);
 
 
-        expect(graph.getNode(fullNode1.key).full).toBeTrue();
-        expect(graph.getNode(fullNode2.key).full).toBeFalse();
+        expect(graph.getNode(fullNode1.key).full).toBe(true);
+        expect(graph.getNode(fullNode2.key).full).toBe(false);
 
         expect(imagesByHSpy.calls.count()).toBe(1);
         expect(imageByKeyFullSpy.calls.count()).toBe(1);
@@ -3928,13 +3861,13 @@ describe("Graph.cacheCell$", () => {
             .subscribe(
                 (nodes: Node[]): void => {
                     expect(nodes.length).toBe(2);
-                    expect([key1, key2].includes(nodes[0].key)).toBeTrue();
-                    expect([key1, key2].includes(nodes[1].key)).toBeTrue();
-                    expect(nodes[0].full).toBeTrue();
-                    expect(nodes[1].full).toBeTrue();
+                    expect([key1, key2].includes(nodes[0].key)).toBe(true);
+                    expect([key1, key2].includes(nodes[1].key)).toBe(true);
+                    expect(nodes[0].full).toBe(true);
+                    expect(nodes[1].full).toBe(true);
 
-                    expect(graph.hasNode(key1)).toBeTrue();
-                    expect(graph.hasNode(key2)).toBeTrue();
+                    expect(graph.hasNode(key1)).toBe(true);
+                    expect(graph.hasNode(key2)).toBe(true);
 
                     expect(imagesByHSpy.calls.count()).toBe(1);
                     expect(imageByKeyFullSpy.calls.count()).toBe(1);
@@ -3955,7 +3888,6 @@ describe("Graph.cacheCell$", () => {
             { clientToken: "token" },
             geometryProvider);
         const api = new APIWrapper(dataProvider);
-        const index = new GeoRBush<NodeIndexItem>(16);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
         const cellId = "cell-id";
@@ -3975,7 +3907,7 @@ describe("Graph.cacheCell$", () => {
         const fullNode = new NodeHelper().createFullNode();
         fullNode.key = key;
 
-        const graph = new Graph(api, index, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         let count: number = 0;
         observableMerge(
@@ -3989,9 +3921,9 @@ describe("Graph.cacheCell$", () => {
                     expect(nodes[0].key).toBe(fullNode.key);
                     expect(nodes[0].full).toBe(true);
 
-                    expect(graph.hasNode(key)).toBeTrue();
-                    expect(graph.hasTiles(fullNode.key)).toBeTrue();
-                    expect(graph.getNode(fullNode.key).full).toBeTrue();
+                    expect(graph.hasNode(key)).toBe(true);
+                    expect(graph.hasTiles(fullNode.key)).toBe(true);
+                    expect(graph.getNode(fullNode.key).full).toBe(true);
                 },
                 undefined,
                 (): void => {
@@ -4022,18 +3954,17 @@ describe("Graph.updateCells$", () => {
             { clientToken: "token" },
             geometryProvider);
         const api = new APIWrapper(dataProvider);
-        const index = new GeoRBush<NodeIndexItem>(16);
         const calculator = new GraphCalculator(null);
 
         const imagesByHSpy = spyOn(api, "imagesByH$").and.stub();
 
-        const graph = new Graph(api, index, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         const cellId = "cellId";
         let count = 0;
         graph.updateCells$([cellId])
             .subscribe(
-                (id: string): void => { count++; },
+                (): void => { count++; },
                 undefined,
                 (): void => {
                     expect(count).toBe(0);
@@ -4048,7 +3979,6 @@ describe("Graph.updateCells$", () => {
             { clientToken: "token" },
             geometryProvider);
         const api = new APIWrapper(dataProvider);
-        const index = new GeoRBush<NodeIndexItem>(16);
         const calculator = new GraphCalculator(null);
 
         const imagesByH =
@@ -4063,7 +3993,7 @@ describe("Graph.updateCells$", () => {
         const fullNode = new NodeHelper().createFullNode();
         fullNode.key = key;
 
-        const graph = new Graph(api, index, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         const cellId = "cellId";
         graph.cacheCell$(cellId).subscribe();
@@ -4080,7 +4010,7 @@ describe("Graph.updateCells$", () => {
         imageByKeyFill.next(fillResult);
         imageByKeyFill.complete();
 
-        expect(graph.hasNode(key)).toBeTrue();
+        expect(graph.hasNode(key)).toBe(true);
 
         const imagesByHUpdate =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
@@ -4105,7 +4035,6 @@ describe("Graph.updateCells$", () => {
             { clientToken: "token" },
             geometryProvider);
         const api = new APIWrapper(dataProvider);
-        const index = new GeoRBush<NodeIndexItem>(16);
         const calculator = new GraphCalculator(null);
 
         const imagesByH =
@@ -4120,12 +4049,12 @@ describe("Graph.updateCells$", () => {
         const fullNode = new NodeHelper().createFullNode();
         fullNode.key = key;
 
-        const graph = new Graph(api, index, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         const cellId = "cellId";
         graph.cacheCell$(cellId).subscribe();
 
-        expect(graph.hasNode(key)).toBeFalse();
+        expect(graph.hasNode(key)).toBe(false);
 
         const imagesByHUpdate =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
@@ -4152,7 +4081,7 @@ describe("Graph.updateCells$", () => {
         imageByKeyFill.next(fillResult);
         imageByKeyFill.complete();
 
-        expect(graph.hasNode(key)).toBeTrue();
+        expect(graph.hasNode(key)).toBe(true);
 
         imagesByHUpdate.next(tileResult);
         imagesByHUpdate.complete();
@@ -4164,7 +4093,6 @@ describe("Graph.updateCells$", () => {
             { clientToken: "token" },
             geometryProvider);
         const api = new APIWrapper(dataProvider);
-        const index = new GeoRBush<NodeIndexItem>(16);
         const calculator = new GraphCalculator(null);
 
         const imagesByH =
@@ -4179,7 +4107,7 @@ describe("Graph.updateCells$", () => {
         const fullNode1 = new NodeHelper().createFullNode();
         fullNode1.key = key1;
 
-        const graph = new Graph(api, index, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         const cellId = "cellId";
         graph.cacheCell$(cellId).subscribe();
@@ -4196,7 +4124,7 @@ describe("Graph.updateCells$", () => {
         imageByKeyFill.next(fillResult);
         imageByKeyFill.complete();
 
-        expect(graph.hasNode(key1)).toBeTrue();
+        expect(graph.hasNode(key1)).toBe(true);
 
         const imagesByHUpdate =
             new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
@@ -4208,10 +4136,10 @@ describe("Graph.updateCells$", () => {
                 (id: string): void => {
                     expect(id).toBe(cellId);
 
-                    expect(graph.hasNode(key1)).toBeTrue();
-                    expect(graph.hasNode(key2)).toBeTrue();
+                    expect(graph.hasNode(key1)).toBe(true);
+                    expect(graph.hasNode(key2)).toBe(true);
 
-                    expect(graph.getNode(key2).full).toBeFalse();
+                    expect(graph.getNode(key2).full).toBe(false);
 
                     expect(imagesByHSpy.calls.count()).toBe(1);
                     done();

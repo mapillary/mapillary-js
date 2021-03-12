@@ -22,6 +22,7 @@ export default [
             {
                 file: 'dist/mapillary.module.js',
                 format: 'es',
+                sourcemap: true,
             }],
         plugins: [
             virtual(virtualModules),

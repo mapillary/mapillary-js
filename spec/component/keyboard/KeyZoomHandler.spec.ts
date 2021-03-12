@@ -2,11 +2,11 @@ import * as THREE from "three";
 
 import { Subject } from "rxjs";
 
-import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
-import { EventHelper } from "../../helper/EventHelper.spec";
-import { MockCreator } from "../../helper/MockCreator.spec";
-import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
-import { TransformHelper } from "../../helper/TransformHelper.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
+import { EventHelper } from "../../helper/EventHelper";
+import { MockCreator } from "../../helper/MockCreator";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
+import { TransformHelper } from "../../helper/TransformHelper";
 
 import { Navigator } from "../../../src/viewer/Navigator";
 import { Transform } from "../../../src/geo/Transform";

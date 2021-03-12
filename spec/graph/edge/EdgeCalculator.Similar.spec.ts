@@ -6,7 +6,7 @@ import { IEdge } from "../../../src/graph/edge/interfaces/IEdge";
 import { IPotentialEdge } from "../../../src/graph/edge/interfaces/IPotentialEdge";
 import { Node } from "../../../src/graph/Node";
 
-import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper.spec";
+import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper";
 
 describe("EdgeCalculator.computeSimilarEdges", () => {
     let edgeCalculator: EdgeCalculator;

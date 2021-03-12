@@ -1,8 +1,8 @@
 import { empty as observableEmpty, Subject } from "rxjs";
 
-import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
-import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
-import { TransformHelper } from "../../helper/TransformHelper.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
+import { TransformHelper } from "../../helper/TransformHelper";
 import { Navigator } from "../../../src/viewer/Navigator";
 import { Transform } from "../../../src/geo/Transform";
 import { TagComponent } from "../../../src/component/tag/TagComponent";

@@ -2,13 +2,13 @@ import * as THREE from "three";
 
 import { Observable, Subject } from "rxjs";
 
-import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
-import { EventHelper } from "../../helper/EventHelper.spec";
-import { FrameHelper } from "../../helper/FrameHelper.spec";
-import { MockCreator } from "../../helper/MockCreator.spec";
-import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
-import { TestComponent } from "../../helper/TestComponent.spec";
-import { TransformHelper } from "../../helper/TransformHelper.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
+import { EventHelper } from "../../helper/EventHelper";
+import { FrameHelper } from "../../helper/FrameHelper";
+import { MockCreator } from "../../helper/MockCreator";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
+import { TestComponent } from "../../helper/TestComponent";
+import { TransformHelper } from "../../helper/TransformHelper";
 
 import { Navigator } from "../../../src/viewer/Navigator";
 import { Node as GraphNode } from "../../../src/graph/Node";

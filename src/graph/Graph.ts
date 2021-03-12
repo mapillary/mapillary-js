@@ -41,7 +41,6 @@ import { IFullNode } from "../api/interfaces/IFullNode";
 import { ISequence } from "../api/interfaces/ISequence";
 import { ILatLon } from "../api/interfaces/ILatLon";
 import { GraphMapillaryError } from "../error/GraphMapillaryError";
-import { GeoRBush } from "../geo/GeoRBush";
 
 type NodeTiles = {
     cache: string[];
@@ -81,6 +80,8 @@ export type NodeIndexItem = {
  * @classdesc Represents a graph of nodes with edges.
  */
 export class Graph {
+    private static _spatialIndex: new (...args: any[]) => any;
+
     private _api: APIWrapper;
 
     /**
@@ -159,7 +160,7 @@ export class Graph {
     /**
      * Contains all nodes in the graph. Used for fast spatial lookups.
      */
-    private _nodeIndex: GeoRBush<NodeIndexItem>;
+    private _nodeIndex: any;
 
     /**
      * All node index items sorted in tiles for easy uncache.
@@ -205,7 +206,7 @@ export class Graph {
      */
     constructor(
         api: APIWrapper,
-        nodeIndex?: GeoRBush<NodeIndexItem>,
+        nodeIndex?: any,
         graphCalculator?: GraphCalculator,
         edgeCalculator?: EdgeCalculator,
         filterCreator?: FilterCreator,
@@ -252,7 +253,8 @@ export class Graph {
             };
 
         this._nodes = {};
-        this._nodeIndex = nodeIndex != null ? nodeIndex : new GeoRBush<NodeIndexItem>(16);
+        this._nodeIndex = nodeIndex != null ?
+            nodeIndex : new Graph._spatialIndex(16);
         this._nodeIndexTiles = {};
         this._nodeToTile = {};
 
@@ -263,6 +265,10 @@ export class Graph {
 
         this._sequences = {};
         this._tileThreshold = 20;
+    }
+
+    public static register(spatialIndex: new (...args: any[]) => any): void {
+        Graph._spatialIndex = spatialIndex;
     }
 
     /**

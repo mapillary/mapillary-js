@@ -1,7 +1,7 @@
 import { empty as observableEmpty } from "rxjs";
 
-import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
-import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
 
 import { SliderComponent } from "../../../src/component/slider/SliderComponent";
 import { Container } from "../../../src/viewer/Container";

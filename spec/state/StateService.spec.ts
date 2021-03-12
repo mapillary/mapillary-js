@@ -1,3 +1,6 @@
+import { bootstrap } from "../Bootstrap";
+bootstrap();
+
 import { StateService } from "../../src/state/StateService";
 
 describe("StateService.ctor", () => {

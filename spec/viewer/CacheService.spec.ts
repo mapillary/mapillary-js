@@ -1,6 +1,9 @@
+import { bootstrap } from "../Bootstrap";
+bootstrap();
+
 import { of as observableOf, Subject } from "rxjs";
 
-import { NodeHelper } from "../helper/NodeHelper.spec";
+import { NodeHelper } from "../helper/NodeHelper";
 
 import { Node } from "../../src/graph/Node";
 import { APIWrapper } from "../../src/api/APIWrapper";

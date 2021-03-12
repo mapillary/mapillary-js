@@ -5,7 +5,7 @@ import { Spatial } from "../../../src/geo/Spatial";
 import { EdgeCalculator } from "../../../src/graph/edge/EdgeCalculator";
 import { IPotentialEdge } from "../../../src/graph/edge/interfaces/IPotentialEdge";
 import { Node } from "../../../src/graph/Node";
-import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper.spec";
+import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper";
 
 describe("EdgeCalculator.getPotentialEdges", () => {
     let precision: number = 7;

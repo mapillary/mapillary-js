@@ -1,4 +1,4 @@
-import { NodeHelper } from "../helper/NodeHelper.spec";
+import { NodeHelper } from "../helper/NodeHelper";
 
 import { Node } from "../../src/graph/Node";
 import { ICoreNode } from "../../src/api/interfaces/ICoreNode";

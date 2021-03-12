@@ -1,3 +1,6 @@
+import { bootstrap } from "../Bootstrap";
+bootstrap();
+
 import {
     from as observableFrom,
     of as observableOf,
@@ -10,7 +13,7 @@ import {
     skip,
 } from "rxjs/operators";
 
-import { NodeHelper } from "../helper/NodeHelper.spec";
+import { NodeHelper } from "../helper/NodeHelper";
 
 import { Node } from "../../src/graph/Node";
 import { APIWrapper } from "../../src/api/APIWrapper";
@@ -20,7 +23,7 @@ import { GraphMode } from "../../src/graph/GraphMode";
 import { GraphService } from "../../src/graph/GraphService";
 import { IEdgeStatus } from "../../src/graph/interfaces/IEdgeStatus";
 import { Sequence } from "../../src/graph/Sequence";
-import { DataProvider } from "../helper/ProviderHelper.spec";
+import { DataProvider } from "../helper/ProviderHelper";
 
 describe("GraphService.ctor", () => {
     it("should create a graph service", () => {
@@ -130,7 +133,7 @@ describe("GraphService.dataAdded$", () => {
             .subscribe(
                 (cellId): void => {
                     count++;
-                    expect(cellIds.includes(cellId)).toBeTrue();
+                    expect(cellIds.includes(cellId)).toBe(true);
 
                     expect(updateCellsSpy.calls.count()).toBe(1);
                     expect(resetSpatialEdgesSpy.calls.count()).toBe(count);

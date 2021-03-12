@@ -4,10 +4,10 @@ import { Subject } from "rxjs";
 import { Navigator } from "../../src/viewer/Navigator";
 import { Node } from "../../src/graph/Node";
 
-import { ContainerMockCreator } from "../helper/ContainerMockCreator.spec";
-import { NavigatorMockCreator } from "../helper/NavigatorMockCreator.spec";
-import { NodeMockCreator } from "../helper/NodeMockCreator.spec";
-import { MockCreator } from "../helper/MockCreator.spec";
+import { ContainerMockCreator } from "../helper/ContainerMockCreator";
+import { NavigatorMockCreator } from "../helper/NavigatorMockCreator";
+import { NodeMockCreator } from "../helper/NodeMockCreator";
+import { MockCreator } from "../helper/MockCreator";
 import { ComponentService } from "../../src/component/ComponentService";
 import { CoverComponent } from "../../src/component/CoverComponent";
 import { ICoverConfiguration, CoverState } from "../../src/component/interfaces/ICoverConfiguration";
@@ -117,7 +117,7 @@ describe("ComponentController.ctor", () => {
             const componentController: ComponentController =
                 new ComponentController(container, navigator, observer, "key", { cover: false }, componentService);
 
-            expect(componentService.coverActivated).toBeTrue();
+            expect(componentService.coverActivated).toBe(true);
 
             controllers.push(componentController);
         }

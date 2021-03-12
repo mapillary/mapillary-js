@@ -1,8 +1,8 @@
 import { Subject } from "rxjs";
 import { LoadingService } from "../../src/viewer/LoadingService";
 
-import { MockCreator } from "./MockCreator.spec";
-import { MockCreatorBase } from "./MockCreatorBase.spec";
+import { MockCreator } from "./MockCreator";
+import { MockCreatorBase } from "./MockCreatorBase";
 
 export class LoadingServiceMockCreator extends MockCreatorBase<LoadingService> {
     public create(): LoadingService {

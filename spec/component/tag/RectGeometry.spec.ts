@@ -1,7 +1,7 @@
 import { Node } from "../../../src/graph/Node";
 import { Transform } from "../../../src/geo/Transform";
 
-import { TransformHelper } from "../../helper/TransformHelper.spec";
+import { TransformHelper } from "../../helper/TransformHelper";
 import { IGPano } from "../../../src/api/interfaces/IGPano";
 import { RectGeometry } from "../../../src/component/tag/geometry/RectGeometry";
 

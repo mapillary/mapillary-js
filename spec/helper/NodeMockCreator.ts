@@ -1,7 +1,7 @@
 import { Node } from "../../src/graph/Node";
 
-import { MockCreator } from "./MockCreator.spec";
-import { MockCreatorBase } from "./MockCreatorBase.spec";
+import { MockCreator } from "./MockCreator";
+import { MockCreatorBase } from "./MockCreatorBase";
 
 export class NodeMockCreator extends MockCreatorBase<Node> {
     public create(configuration?: { [key: string]: any }): Node {

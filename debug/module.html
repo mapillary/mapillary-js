@@ -7,7 +7,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-    <link rel="stylesheet" href="dist/mapillary.min.css" />
+    <link rel="stylesheet" href="dist/mapillary.css" />
 
     <style>
         body {
@@ -30,10 +30,11 @@
 
 <body>
     <script type="module">
-        import { Viewer } from 'dist/mapillary.module.js';
+        import { Viewer } from './dist/mapillary.module.js';
 
         const container = document.createElement('div');
         container.id = 'mly';
+        document.body.appendChild(container);
 
         var viewer = new Viewer({
             apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",

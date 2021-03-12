@@ -7,9 +7,9 @@ import { Container } from "../../../src/viewer/Container";
 import { Navigator } from "../../../src/viewer/Navigator";
 import { Node } from "../../../src/graph/Node";
 
-import { ContainerMockCreator } from "../../helper/ContainerMockCreator.spec";
-import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator.spec";
-import { NodeHelper } from "../../helper/NodeHelper.spec";
+import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
+import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
+import { NodeHelper } from "../../helper/NodeHelper";
 
 describe("DirectionComponent.ctor", () => {
     it("should be defined", () => {
