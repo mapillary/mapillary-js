@@ -2,16 +2,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import sourcemaps from 'rollup-plugin-sourcemaps';
 import virtual from '@rollup/plugin-virtual';
-
-const virtualModules = {
-    './getXMLHttpRequest': `
-    export default function getXMLHttpRequest() {
-        return new XmlHTTPRequest();
-    }`,
-    'domain': 'export default undefined;',
-};
-
-const resolveOptions = { preferBuiltins: false };
+import { virtualModules, resolveOptions } from './rollup.options.config';
 
 export default [
     {

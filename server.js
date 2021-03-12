@@ -10,8 +10,16 @@ const pathname = dirname => {
     return new URL(path).pathname;
 }
 
-const logger = (req, _, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+const logger = (req, res, next) => {
+    const clearColor = '\x1b[0m';
+    res.on('finish', () => {
+        const color = res.statusCode === 200 ?
+            clearColor : '\x1b[31m';
+        const format = `${color}%s${clearColor}`;
+        const message = `[${new Date().toISOString()}] ${req.method} ` +
+            `${req.path} ${res.statusCode}`;
+        console.log(format, message);
+    });
     next();
 };
 

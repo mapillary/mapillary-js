@@ -1,21 +1,13 @@
 import commonjs from '@rollup/plugin-commonjs';
-import dts from "rollup-plugin-dts";
+import dts from 'rollup-plugin-dts';
 import resolve from '@rollup/plugin-node-resolve';
 import sourcemaps from 'rollup-plugin-sourcemaps';
 import virtual from '@rollup/plugin-virtual';
-import { terser } from "rollup-plugin-terser";
+import { terser } from 'rollup-plugin-terser';
+import { virtualModules, resolveOptions } from './rollup.options.config';
+import umd from './rollup.umd.config';
 
-const virtualModules = {
-    './getXMLHttpRequest': `
-    export default function getXMLHttpRequest() {
-        return new XmlHTTPRequest();
-    }`,
-    'domain': 'export default undefined;',
-};
-
-const resolveOptions = { preferBuiltins: false };
-
-export default [
+const bundles = [
     {
         input: 'build/esm/src/Mapillary.js',
         output: [
@@ -24,22 +16,6 @@ export default [
                 format: 'es',
                 sourcemap: true,
             }],
-        plugins: [
-            virtual(virtualModules),
-            resolve(resolveOptions),
-            commonjs(),
-        ],
-    },
-    {
-        input: 'build/esm/src/Mapillary.js',
-        output: [
-            {
-                file: 'dist/mapillary.js',
-                format: 'umd',
-                name: 'Mapillary',
-                sourcemap: true,
-            }
-        ],
         plugins: [
             sourcemaps(),
             virtual(virtualModules),
@@ -78,3 +54,7 @@ export default [
         ],
     },
 ];
+
+bundles.push(...umd);
+
+export default bundles;
