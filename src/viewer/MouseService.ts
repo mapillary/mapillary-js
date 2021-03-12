@@ -30,12 +30,21 @@ import { IMouseClaim } from "./interfaces/IMouseClaim";
 import { IMouseDeferPixels } from "./interfaces/IMouseDeferPixels";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
+type Button = 0 | 2;
+
+// MouseEvent.button
+const LEFT_BUTTON: Button = 0;
+const RIGHT_BUTTON: Button = 2;
+
+// MouseEvent.buttons
+const BUTTONS_MAP = {
+    [LEFT_BUTTON]: 1,
+    [RIGHT_BUTTON]: 2
+};
+
 interface FirefoxBrowser {
     InstallTrigger: undefined;
 }
-
-const LEFT_BUTTON = 0;
-const RIGHT_BUTTON = 2;
 
 export class MouseService {
     private _activeSubject$: BehaviorSubject<boolean>;
@@ -86,6 +95,7 @@ export class MouseService {
     private _wheelOwner$: Observable<string>;
 
     private _windowBlur$: Observable<FocusEvent>;
+
     private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
     constructor(
@@ -218,6 +228,11 @@ export class MouseService {
 
         const dragStop$: Observable<MouseEvent | FocusEvent> = observableMerge(
             this._windowBlur$,
+            this._documentMouseMove$.pipe(
+                filter(
+                    (e: MouseEvent): boolean => {
+                        return this._buttonReleased(e, LEFT_BUTTON);
+                    })),
             this._documentMouseUp$.pipe(
                 filter(
                     (e: MouseEvent): boolean => {
@@ -247,6 +262,11 @@ export class MouseService {
         const rightDragStop$: Observable<MouseEvent | FocusEvent> =
             observableMerge(
                 this._windowBlur$,
+                this._documentMouseMove$.pipe(
+                    filter(
+                        (e: MouseEvent): boolean => {
+                            return this._buttonReleased(e, RIGHT_BUTTON);
+                        })),
                 this._documentMouseUp$.pipe(
                     filter(
                         (e: MouseEvent): boolean => {
@@ -610,5 +630,15 @@ export class MouseService {
             return LEFT_BUTTON;
         }
         return event.button;
+    }
+
+    private _buttonReleased(e: MouseEvent, button: Button): boolean {
+        // Right button `mouseup` is not fired in
+        // Chrome on Mac outside the window or iframe. If
+        // the button is no longer pressed during move
+        // it may have been released and drag stop
+        // should be emitted.
+        const flag = BUTTONS_MAP[button];
+        return e.buttons === undefined || (e.buttons & flag) !== flag;
     }
 }
