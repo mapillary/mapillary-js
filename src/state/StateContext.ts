@@ -46,7 +46,7 @@ class TransitionMatrix {
         const transitions = this._transitions;
 
         if (!transitions.has(source) ||
-            !transitions.get(target).includes(target)) {
+            !transitions.get(source).includes(target)) {
             throw new Error("Invalid transition");
         }
 
