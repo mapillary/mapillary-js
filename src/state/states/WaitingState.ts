@@ -1,6 +1,7 @@
 import { StateBase } from "./StateBase";
 import { IState } from "../interfaces/IState";
 import { Node } from "../../graph/Node";
+import { isSpherical } from "../../geo/Geo";
 
 export class WaitingState extends StateBase {
     constructor(state: IState) {
@@ -52,12 +53,12 @@ export class WaitingState extends StateBase {
             return;
         }
 
-        if (this._currentNode.fullPano) {
+        if (isSpherical(this._currentNode.cameraType)) {
             let lookat: THREE.Vector3 = this._camera.lookat.clone().sub(this._camera.position);
             this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
         }
 
-        if (this._previousNode.fullPano) {
+        if (isSpherical(this._previousNode.cameraType)) {
             let lookat: THREE.Vector3 = this._currentCamera.lookat.clone().sub(this._currentCamera.position);
             this._previousCamera.lookat.copy(lookat.clone().add(this._previousCamera.position));
         }

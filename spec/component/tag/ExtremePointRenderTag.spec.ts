@@ -2,15 +2,16 @@ import * as THREE from "three";
 import { PointsGeometry } from "../../../src/component/tag/geometry/PointsGeometry";
 import { ExtremePointRenderTag } from "../../../src/component/tag/tag/ExtremePointRenderTag";
 import { ExtremePointTag } from "../../../src/component/tag/tag/ExtremePointTag";
-
 import { TransformHelper } from "../../helper/TransformHelper";
+
+const transformHelper = new TransformHelper();
 
 describe("ExtremePointRenderTag.ctor", () => {
     it("should be defined", () => {
-        const geometry: PointsGeometry = new PointsGeometry([[0, 0], [1, 1]]);
-        const extremePointTag: ExtremePointTag = new ExtremePointTag("id", geometry);
-        const extremePointRenderTag: ExtremePointRenderTag =
-            new ExtremePointRenderTag(extremePointTag, new TransformHelper().createTransform());
+        const geometry = new PointsGeometry([[0, 0], [1, 1]]);
+        const extremePointTag = new ExtremePointTag("id", geometry);
+        const extremePointRenderTag =
+            new ExtremePointRenderTag(extremePointTag, transformHelper.createTransform());
 
         expect(extremePointRenderTag).toBeDefined();
     });
@@ -18,19 +19,19 @@ describe("ExtremePointRenderTag.ctor", () => {
 
 describe("ExtremePointRenderTag.getRetrievableObjects", () => {
     it("should return a mesh object irrespective of fill opacity", () => {
-        const geometry: PointsGeometry = new PointsGeometry([[0, 0], [1, 1]]);
-        const extremePointTag: ExtremePointTag = new ExtremePointTag("id", geometry, { fillOpacity: 1 });
+        const geometry = new PointsGeometry([[0, 0], [1, 1]]);
+        const extremePointTag = new ExtremePointTag("id", geometry, { fillOpacity: 1 });
         const extremePointRenderTag: ExtremePointRenderTag =
-            new ExtremePointRenderTag(extremePointTag, new TransformHelper().createTransform());
+            new ExtremePointRenderTag(extremePointTag, transformHelper.createTransform());
 
         const retrievableObjects: THREE.Object3D[] = extremePointRenderTag.getRetrievableObjects();
 
         expect(retrievableObjects.length).toBe(1);
         expect(retrievableObjects[0] instanceof THREE.Mesh).toBe(true);
 
-        const extremePointTagTransparent: ExtremePointTag = new ExtremePointTag("id", geometry, { fillOpacity: 0 });
-        const extremePointRenderTagTransparent: ExtremePointRenderTag =
-            new ExtremePointRenderTag(extremePointTagTransparent, new TransformHelper().createTransform());
+        const extremePointTagTransparent = new ExtremePointTag("id", geometry, { fillOpacity: 0 });
+        const extremePointRenderTagTransparent =
+            new ExtremePointRenderTag(extremePointTagTransparent, transformHelper.createTransform());
 
         const retrievableTransparentObjects: THREE.Object3D[] = extremePointRenderTagTransparent.getRetrievableObjects();
 
@@ -39,12 +40,12 @@ describe("ExtremePointRenderTag.getRetrievableObjects", () => {
     });
 
     it("should not return any objects in panoramas", () => {
-        const geometry: PointsGeometry = new PointsGeometry([[0, 0], [1, 1]]);
-        const extremePointTag: ExtremePointTag = new ExtremePointTag("id", geometry, { fillOpacity: 1 });
-        const extremePointRenderTag: ExtremePointRenderTag =
+        const geometry = new PointsGeometry([[0, 0], [1, 1]]);
+        const extremePointTag = new ExtremePointTag("id", geometry, { fillOpacity: 1 });
+        const extremePointRenderTag =
             new ExtremePointRenderTag(
                 extremePointTag,
-                new TransformHelper().createTransform(new TransformHelper().createFullGPano()));
+                transformHelper.createTransform("equirectangular"));
 
         const retrievableObjects: THREE.Object3D[] = extremePointRenderTag.getRetrievableObjects();
 
@@ -54,11 +55,11 @@ describe("ExtremePointRenderTag.getRetrievableObjects", () => {
 
 describe("ExtremePointRenderTag.dispose", () => {
     it("should dispose all materials and geometries", () => {
-        const geometry: PointsGeometry = new PointsGeometry([[0, 0], [1, 1]]);
+        const geometry = new PointsGeometry([[0, 0], [1, 1]]);
 
-        const extremePointTag: ExtremePointTag = new ExtremePointTag("id", geometry, { fillOpacity: 1, lineOpacity: 1 });
-        const extremePointRenderTag: ExtremePointRenderTag =
-            new ExtremePointRenderTag(extremePointTag, new TransformHelper().createTransform());
+        const extremePointTag = new ExtremePointTag("id", geometry, { fillOpacity: 1, lineOpacity: 1 });
+        const extremePointRenderTag =
+            new ExtremePointRenderTag(extremePointTag, transformHelper.createTransform());
 
         const glObjects: (THREE.Line | THREE.Mesh)[] = <(THREE.Line | THREE.Mesh)[]>extremePointRenderTag.getGLObjects();
 

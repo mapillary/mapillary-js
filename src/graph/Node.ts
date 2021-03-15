@@ -7,10 +7,11 @@ import { IEdgeStatus } from "./interfaces/IEdgeStatus";
 
 import { ICoreNode } from "../api/interfaces/ICoreNode";
 import { IFillNode } from "../api/interfaces/IFillNode";
-import { IGPano } from "../api/interfaces/IGPano";
 import { ILatLon } from "../api/interfaces/ILatLon";
 import { IMesh } from "../api/interfaces/IMesh";
 import { ImageSize } from "../viewer/ImageSize";
+import { CameraProjectionType } from "../api/interfaces/CameraProjectionType";
+import { isSpherical } from "../geo/Geo";
 
 /**
  * @class Node
@@ -108,13 +109,13 @@ export class Node {
     }
 
     /**
-     * Get cameraProjection.
+     * Get cameraType.
      *
      * @description Will be undefined if SfM has not been run.
      *
-     * @returns {number} The camera projection of the image.
+     * @returns {string} The camera type that captured the image.
      */
-    public get cameraProjectionType(): "perspective" | "fisheye" | "equirectangular" {
+    public get cameraType(): string {
         return this._fill.camera_projection_type;
     }
 
@@ -233,31 +234,6 @@ export class Node {
      */
     public get full(): boolean {
         return this._fill != null;
-    }
-
-    /**
-     * Get fullPano.
-     *
-     * @returns {boolean} Value indicating whether the node is a complete
-     * 360 panorama.
-     */
-    public get fullPano(): boolean {
-        return this._fill.gpano != null &&
-            this._fill.gpano.CroppedAreaLeftPixels === 0 &&
-            this._fill.gpano.CroppedAreaTopPixels === 0 &&
-            this._fill.gpano.CroppedAreaImageWidthPixels === this._fill.gpano.FullPanoWidthPixels &&
-            this._fill.gpano.CroppedAreaImageHeightPixels === this._fill.gpano.FullPanoHeightPixels;
-    }
-
-    /**
-     * Get gpano.
-     *
-     * @description Will not be set for non panoramic images.
-     *
-     * @returns {IGPano} Panorama information for panorama images.
-     */
-    public get gpano(): IGPano {
-        return this._fill.gpano;
     }
 
     /**
@@ -410,17 +386,6 @@ export class Node {
      */
     public get originalLatLon(): ILatLon {
         return this._core.l;
-    }
-
-    /**
-     * Get pano.
-     *
-     * @returns {boolean} Value indicating whether the node is a panorama.
-     * It could be a cropped or full panorama.
-     */
-    public get pano(): boolean {
-        return this._fill.gpano != null &&
-            this._fill.gpano.FullPanoWidthPixels != null;
     }
 
     /**
@@ -595,7 +560,7 @@ export class Node {
         return this._cache
             .cacheAssets$(
                 this._fill,
-                this.pano,
+                isSpherical(this._fill.camera_projection_type),
                 this.merged)
             .pipe(
                 map(

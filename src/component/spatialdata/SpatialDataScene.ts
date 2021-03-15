@@ -5,6 +5,7 @@ import {
     IReconstructionPoint,
 } from "../../api/interfaces/IClusterReconstruction";
 import { MapillaryError } from "../../error/MapillaryError";
+import { isSpherical } from "../../geo/Geo";
 import { Transform } from "../../geo/Transform";
 import { FilterFunction } from "../../graph/FilterCreator";
 import { Node } from "../../graph/Node";
@@ -292,7 +293,7 @@ class PerspectiveCameraFrame extends CameraFrameBase {
     }
 }
 
-class PanoCameraFrame extends CameraFrameBase {
+class SphericalCameraFrame extends CameraFrameBase {
     private readonly _latitudeVertices: number;
     private readonly _longitudeVertices: number;
 
@@ -852,8 +853,8 @@ class NodeCell {
         const color = props.color;
         const visible = props.visible;
         const transform = props.transform;
-        const camera = !!transform.gpano ?
-            new PanoCameraFrame(maxSize, transform, scale, color) :
+        const camera = isSpherical(transform.cameraType) ?
+            new SphericalCameraFrame(maxSize, transform, scale, color) :
             new PerspectiveCameraFrame(maxSize, transform, scale, color);
         const interactiveLayer = this._intersection.interactiveLayer;
         this._setCameraVisibility(camera, visible, interactiveLayer);

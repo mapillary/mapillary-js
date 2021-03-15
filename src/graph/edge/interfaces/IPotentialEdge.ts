@@ -13,12 +13,6 @@ export interface IPotentialEdge {
     capturedAt: number;
 
     /**
-     * Determines if the destination node is a cropped panorama.
-     * @property {boolean} croppedPano
-     */
-    croppedPano: boolean;
-
-    /**
      * Change in viewing direction with respect to the origin node.
      * @property {number} directionChange
      */
@@ -31,10 +25,10 @@ export interface IPotentialEdge {
     distance: number;
 
     /**
-     * Determines if the destination node is a full panorama.
+     * Determines if the destination node is spherical.
      * @property {boolean} fullPano
      */
-    fullPano: boolean;
+    spherical: boolean;
 
     /**
      * Unique image key.

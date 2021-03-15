@@ -2,8 +2,8 @@ import { Node } from "../../../src/graph/Node";
 import { Transform } from "../../../src/geo/Transform";
 
 import { MockCreator } from "../../helper/MockCreator";
-import { IGPano } from "../../../src/api/interfaces/IGPano";
 import { PolygonGeometry } from "../../../src/component/tag/geometry/PolygonGeometry";
+import { CameraProjectionType } from "../../../src/api/interfaces/CameraProjectionType";
 
 describe("PolygonGeometry.ctor", () => {
     it("should be defined", () => {
@@ -275,7 +275,7 @@ describe("PolygonGeometry.removeVertex2d", () => {
 });
 
 describe("RectGeometry.setVertex2d", () => {
-    let createNode: (gpano: IGPano) => Node = (gpano: IGPano): Node => {
+    let createNode = (cameraType: CameraProjectionType): Node => {
         let node: Node = new Node({
             cl: { lat: 0, lon: 0 },
             key: "key",
@@ -288,11 +288,11 @@ describe("RectGeometry.setVertex2d", () => {
             c_rotation: [0, 0, 0],
             ca: 0,
             calt: 0,
+            camera_projection_type: cameraType,
             captured_at: 0,
             cca: 0,
             cfocal: 0,
             cluster_key: "ckey",
-            gpano: gpano,
             height: 0,
             merge_cc: 0,
             merge_version: 0,
@@ -306,18 +306,9 @@ describe("RectGeometry.setVertex2d", () => {
     };
 
     let createTransform: (pano: boolean) => Transform = (pano: boolean): Transform => {
-        let gpano: IGPano = pano ?
-            {
-                CroppedAreaImageHeightPixels: 1,
-                CroppedAreaImageWidthPixels: 1,
-                CroppedAreaLeftPixels: 0,
-                CroppedAreaTopPixels: 0,
-                FullPanoHeightPixels: 1,
-                FullPanoWidthPixels: 1,
-            } :
-            null;
-
-        let node: Node = createNode(gpano);
+        let cameraType: CameraProjectionType =
+            pano ? "equirectangular" : "perspective";
+        let node: Node = createNode(cameraType);
 
         return new Transform(
             node.orientation,
@@ -325,7 +316,6 @@ describe("RectGeometry.setVertex2d", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             [0, 0, 0],
             null);
@@ -405,7 +395,7 @@ describe("RectGeometry.setVertex2d", () => {
 describe("RectGeometry.setCentroid2d", () => {
     let precision: number = 1e-8;
 
-    let createNode: (gpano: IGPano) => Node = (gpano: IGPano): Node => {
+    let createNode = (cameraType: CameraProjectionType): Node => {
         let node: Node = new Node({
             cl: { lat: 0, lon: 0 },
             key: "key",
@@ -418,11 +408,11 @@ describe("RectGeometry.setCentroid2d", () => {
             c_rotation: [0, 0, 0],
             ca: 0,
             calt: 0,
+            camera_projection_type: cameraType,
             captured_at: 0,
             cca: 0,
             cfocal: 0,
             cluster_key: "ckey",
-            gpano: gpano,
             height: 0,
             merge_cc: 0,
             merge_version: 0,
@@ -436,18 +426,9 @@ describe("RectGeometry.setCentroid2d", () => {
     };
 
     let createTransform: (pano: boolean) => Transform = (pano: boolean): Transform => {
-        let gpano: IGPano = pano ?
-            {
-                CroppedAreaImageHeightPixels: 1,
-                CroppedAreaImageWidthPixels: 1,
-                CroppedAreaLeftPixels: 0,
-                CroppedAreaTopPixels: 0,
-                FullPanoHeightPixels: 1,
-                FullPanoWidthPixels: 1,
-            } :
-            null;
-
-        let node: Node = createNode(gpano);
+        let cameraType: CameraProjectionType =
+            pano ? "equirectangular" : "perspective";
+        let node: Node = createNode(cameraType);
 
         return new Transform(
             node.orientation,
@@ -455,7 +436,6 @@ describe("RectGeometry.setCentroid2d", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             [0, 0, 0],
             null);
@@ -607,7 +587,7 @@ describe("PolygonGeometry.get3dDomainTriangles", () => {
         const polygon: number[][] = [[0, 0], [0.5, 0], [0.5, 0.5], [0, 0]];
         const geometry: PolygonGeometry = new PolygonGeometry(polygon);
 
-        const transform: Transform = new Transform(1, 1, 1, 0.5, 1, undefined, [0, 0, 0], [0, 0, 0], undefined);
+        const transform: Transform = new Transform(1, 1, 1, 0.5, 1, [0, 0, 0], [0, 0, 0], undefined);
 
         const triangles: number[] = geometry.get3dDomainTriangles3d(transform);
 
@@ -620,7 +600,7 @@ describe("PolygonGeometry.getTriangles", () => {
         const polygon: number[][] = [[0, 0], [1e-4, 0], [1e-4, 1e-4], [0, 0]];
         const geometry: PolygonGeometry = new PolygonGeometry(polygon);
 
-        const transform: Transform = new Transform(1, 1, 1, 0.5, 1, undefined, [0, 0, 0], [0, 0, 0], undefined);
+        const transform: Transform = new Transform(1, 1, 1, 0.5, 1, [0, 0, 0], [0, 0, 0], undefined);
 
         const triangles: number[] = geometry.getTriangles3d(transform);
 
@@ -631,7 +611,7 @@ describe("PolygonGeometry.getTriangles", () => {
         const polygon: number[][] = [[0, 0], [0.5, 0], [0.5, 0.5], [0, 0]];
         const geometry: PolygonGeometry = new PolygonGeometry(polygon);
 
-        const transform: Transform = new Transform(1, 1, 1, 0.5, 1, undefined, [0, 0, 0], [0, 0, 0], undefined);
+        const transform: Transform = new Transform(1, 1, 1, 0.5, 1, [0, 0, 0], [0, 0, 0], undefined);
 
         const triangles: number[] = geometry.getTriangles3d(transform);
 
@@ -641,17 +621,7 @@ describe("PolygonGeometry.getTriangles", () => {
     it("should return two triangles for four close points for a panorama", () => {
         const polygon: number[][] = [[0, 0], [1e-4, 0], [1e-4, 1e-4], [0, 1e-4], [0, 0]];
         const geometry: PolygonGeometry = new PolygonGeometry(polygon);
-
-        const gpano: IGPano = {
-            CroppedAreaImageHeightPixels: 0,
-            CroppedAreaImageWidthPixels: 0,
-            CroppedAreaLeftPixels: 0,
-            CroppedAreaTopPixels: 0,
-            FullPanoHeightPixels: 0,
-            FullPanoWidthPixels: 0,
-        };
-
-        const transform: Transform = new Transform(1, 1, 1, 0.5, 1, gpano, [0, 0, 0], [0, 0, 0], undefined);
+        const transform: Transform = new Transform(1, 1, 1, 0.5, 1, [0, 0, 0], [0, 0, 0], undefined);
 
         const triangles: number[] = geometry.getTriangles3d(transform);
 

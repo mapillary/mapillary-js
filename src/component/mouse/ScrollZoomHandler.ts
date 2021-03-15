@@ -15,6 +15,7 @@ import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
 import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
 import { HandlerBase } from "../utils/HandlerBase";
+import { isSpherical } from "../../geo/Geo";
 
 /**
  * The `ScrollZoomHandler` allows the user to zoom the viewer image by scrolling.
@@ -65,7 +66,8 @@ export class ScrollZoomHandler extends HandlerBase<IMouseConfiguration> {
                 filter(
                     (args: [WheelEvent, IFrame]): boolean => {
                         let state: ICurrentState = args[1].state;
-                        return state.currentNode.fullPano || state.nodesAhead < 1;
+                        return isSpherical(state.currentNode.cameraType) ||
+                            state.nodesAhead < 1;
                     }),
                 map(
                     (args: [WheelEvent, IFrame]): WheelEvent => {

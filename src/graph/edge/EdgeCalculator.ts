@@ -16,6 +16,7 @@ import { Sequence } from "../Sequence";
 import { ArgumentMapillaryError } from "../../error/ArgumentMapillaryError";
 import { GeoCoords } from "../../geo/GeoCoords";
 import { Spatial } from "../../geo/Spatial";
+import { isSpherical } from "../../geo/Geo";
 
 /**
  * @class EdgeCalculator
@@ -139,10 +140,9 @@ export class EdgeCalculator {
 
             let potentialEdge: IPotentialEdge = {
                 capturedAt: potential.capturedAt,
-                croppedPano: potential.pano && !potential.fullPano,
                 directionChange: directionChange,
                 distance: distance,
-                fullPano: potential.fullPano,
+                spherical: isSpherical(potential.cameraType),
                 key: potential.key,
                 motionChange: motionChange,
                 rotation: rotation,
@@ -221,7 +221,7 @@ export class EdgeCalculator {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
 
-        let nodeFullPano: boolean = node.fullPano;
+        let nodeSpherical: boolean = isSpherical(node.cameraType);
         let sequenceGroups: { [key: string]: IPotentialEdge[] } = {};
 
         for (let potentialEdge of potentialEdges) {
@@ -233,12 +233,12 @@ export class EdgeCalculator {
                 continue;
             }
 
-            if (nodeFullPano) {
-                if (!potentialEdge.fullPano) {
+            if (nodeSpherical) {
+                if (!potentialEdge.spherical) {
                     continue;
                 }
             } else {
-                if (!potentialEdge.fullPano &&
+                if (!potentialEdge.spherical &&
                     Math.abs(potentialEdge.directionChange) > this._settings.similarMaxDirectionChange) {
                     continue;
                 }
@@ -264,8 +264,8 @@ export class EdgeCalculator {
 
         let similarEdges: IPotentialEdge[] = [];
 
-        let calculateScore: (potentialEdge: IPotentialEdge) => number =
-            node.fullPano ?
+        let calculateScore =
+            isSpherical(node.cameraType) ?
                 (potentialEdge: IPotentialEdge): number => {
                     return potentialEdge.distance;
                 } :
@@ -336,7 +336,7 @@ export class EdgeCalculator {
 
         let edges: IEdge[] = [];
 
-        if (node.pano) {
+        if (isSpherical(node.cameraType)) {
             return edges;
         }
 
@@ -352,7 +352,7 @@ export class EdgeCalculator {
             let fallback: IPotentialEdge = null;
 
             for (let potential of potentialEdges) {
-                if (potential.croppedPano || potential.fullPano) {
+                if (potential.spherical) {
                     continue;
                 }
 
@@ -432,7 +432,7 @@ export class EdgeCalculator {
 
         let edges: IEdge[] = [];
 
-        if (node.pano) {
+        if (isSpherical(node.cameraType)) {
             return edges;
         }
 
@@ -447,7 +447,7 @@ export class EdgeCalculator {
             let edge: IPotentialEdge = null;
 
             for (let potential of potentialEdges) {
-                if (potential.croppedPano || potential.fullPano) {
+                if (potential.spherical) {
                     continue;
                 }
 
@@ -526,7 +526,7 @@ export class EdgeCalculator {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
 
-        if (node.pano) {
+        if (isSpherical(node.cameraType)) {
             return [];
         }
 
@@ -534,7 +534,7 @@ export class EdgeCalculator {
         let edge: IPotentialEdge = null;
 
         for (let potential of potentialEdges) {
-            if (!potential.fullPano) {
+            if (!potential.spherical) {
                 continue;
             }
 
@@ -584,7 +584,7 @@ export class EdgeCalculator {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
 
-        if (!node.fullPano) {
+        if (!isSpherical(node.cameraType)) {
             return [];
         }
 
@@ -597,17 +597,13 @@ export class EdgeCalculator {
                 continue;
             }
 
-            if (potential.fullPano) {
+            if (potential.spherical) {
                 if (potential.distance < this._settings.panoMinDistance) {
                     continue;
                 }
 
                 potentialPanos.push(potential);
             } else {
-                if (potential.croppedPano) {
-                    continue;
-                }
-
                 for (let k in this._directions.panos) {
                     if (!this._directions.panos.hasOwnProperty(k)) {
                         continue;

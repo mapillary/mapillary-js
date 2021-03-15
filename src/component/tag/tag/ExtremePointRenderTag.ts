@@ -11,6 +11,7 @@ import { InteractionCursor } from "../interfaces/IInteraction";
 import { Transform } from "../../../geo/Transform";
 import { ISize } from "../../../render/interfaces/ISize";
 import { ISpriteAtlas } from "../../../viewer/interfaces/ISpriteAtlas";
+import { isSpherical } from "../../../geo/Geo";
 
 /**
  * @class OutlineRenderTag
@@ -24,7 +25,7 @@ export class ExtremePointRenderTag extends OutlineRenderTagBase<ExtremePointTag>
 
         this._rectGeometry = new RectGeometry(this._tag.geometry.getRect2d(transform));
 
-        this._fill = !transform.gpano ?
+        this._fill = !isSpherical(transform.cameraType) ?
             this._createFill() : null;
 
         this._outline = this._tag.lineWidth >= 1 ?

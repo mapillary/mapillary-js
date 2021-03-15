@@ -1,4 +1,3 @@
-import { IGPano } from "../../../src/api/interfaces/IGPano";
 import { GeoCoords } from "../../../src/geo/GeoCoords";
 import { ILatLonAlt } from "../../../src/geo/interfaces/ILatLonAlt";
 import { Spatial } from "../../../src/geo/Spatial";
@@ -46,7 +45,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let sequenceKey: string = "skey";
 
         let lla: ILatLonAlt = { alt: 0, lat: 0, lon: 0 };
-        let node: Node = helper.createFullNode(key, lla, sequenceKey, [0, -Math.PI / 2, 0], 2, null, 0, 0);
+        let node: Node = helper.createFullNode(key, lla, sequenceKey, [0, -Math.PI / 2, 0], 2, "perspective", 0, 0);
 
         let enu: number[] = [10, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
@@ -720,19 +719,10 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let lla: ILatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, createRotationVector(0), 467);
 
-        let gpano: IGPano = {
-            CroppedAreaImageHeightPixels: 1,
-            CroppedAreaImageWidthPixels: 1,
-            CroppedAreaLeftPixels: 0,
-            CroppedAreaTopPixels: 0,
-            FullPanoHeightPixels: 1,
-            FullPanoWidthPixels: 1,
-        };
-
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
         let edgeLla: ILatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
-        let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(0), 435, gpano);
+        let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(0), 435, "equirectangular");
 
         let potentialEdges: IPotentialEdge[] =
             edgeCalculator.getPotentialEdges(node, [edgeNode], []);
@@ -742,6 +732,6 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdge: IPotentialEdge = potentialEdges[0];
 
         expect(potentialEdge.key).toBe(edgeKey);
-        expect(potentialEdge.fullPano).toBe(true);
+        expect(potentialEdge.spherical).toBe(true);
     });
 });

@@ -54,6 +54,7 @@ import { CameraVisualizationMode } from "./CameraVisualizationMode";
 import { OriginalPositionMode } from "./OriginalPositionMode";
 import { SpatialDataScene } from "./SpatialDataScene";
 import { SpatialDataCache } from "./SpatialDataCache";
+import { CameraProjectionType } from "../../api/interfaces/CameraProjectionType";
 
 type IntersectEvent = MouseEvent | FocusEvent;
 
@@ -648,14 +649,13 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             translation,
             undefined,
             undefined,
             node.ck1,
             node.ck2,
-            node.cameraProjectionType);
+            <CameraProjectionType>node.cameraType);
 
         return transform;
     }

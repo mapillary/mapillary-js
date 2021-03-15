@@ -13,6 +13,7 @@ import { RenderCamera } from "../../render/RenderCamera";
 import { IRotation } from "../../state/interfaces/IRotation";
 import { IDirectionConfiguration } from "../interfaces/IDirectionConfiguration";
 import { DirectionDOMCalculator } from "./DirectionDOMCalculator";
+import { isSpherical } from "../../geo/Geo";
 
 /**
  * @class DirectionDOMRenderer
@@ -107,7 +108,7 @@ export class DirectionDOMRenderer {
         let steps: vd.VNode[] = [];
         let turns: vd.VNode[] = [];
 
-        if (this._node.pano) {
+        if (isSpherical(this._node.cameraType)) {
             steps = steps.concat(this._createPanoArrows(navigator, rotation));
         } else {
             steps = steps.concat(this._createPerspectiveToPanoArrows(navigator, rotation));

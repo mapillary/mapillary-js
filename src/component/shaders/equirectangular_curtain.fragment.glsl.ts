@@ -5,13 +5,11 @@ precision highp float;
 precision mediump float;
 #endif
 
+#define tau 6.28318530718
+
 uniform sampler2D projectorTex;
 uniform float curtain;
 uniform float opacity;
-uniform float phiLength;
-uniform float phiShift;
-uniform float thetaLength;
-uniform float thetaShift;
 
 varying vec4 vRstq;
 
@@ -20,8 +18,8 @@ void main()
     vec3 b = normalize(vRstq.xyz);
     float lat = -asin(b.y);
     float lon = atan(b.x, b.z);
-    float x = (lon - phiShift) / phiLength + 0.5;
-    float y = (lat - thetaShift) / thetaLength + 0.5;
+    float x = lon / tau + 0.5;
+    float y = lat / tau * 2.0 + 0.5;
 
     bool inverted = curtain < 0.5;
 

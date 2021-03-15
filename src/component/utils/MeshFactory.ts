@@ -2,7 +2,6 @@ import * as THREE from "three";
 
 import { Shaders } from "../shaders/Shaders";
 
-import { IGPano } from "../../api/interfaces/IGPano";
 import { Transform } from "../../geo/Transform";
 import { Node } from "../../graph/Node";
 
@@ -18,9 +17,9 @@ export class MeshFactory {
     }
 
     public createMesh(node: Node, transform: Transform): THREE.Mesh {
-        if (node.pano) {
+        if (transform.cameraType === "equirectangular") {
             return this._createImageSphere(node, transform);
-        } else if (transform.cameraProjection === "fisheye") {
+        } else if (transform.cameraType === "fisheye") {
             return this._createImagePlaneFisheye(node, transform);
         } else {
             return this._createImagePlane(node, transform);
@@ -46,13 +45,9 @@ export class MeshFactory {
     }
 
     public createCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
-        if (node.pano && !node.fullPano) {
-            throw new Error("Cropped panoramas cannot have curtain.");
-        }
-
-        if (node.pano) {
+        if (transform.cameraType === "equirectangular") {
             return this._createSphereCurtainMesh(node, transform);
-        } else if (transform.cameraProjection === "fisheye") {
+        } else if (transform.cameraType === "fisheye") {
             return this._createCurtainMeshFisheye(node, transform);
         } else {
             return this._createCurtainMesh(node, transform);
@@ -60,10 +55,6 @@ export class MeshFactory {
     }
 
     public createDistortedCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
-        if (node.pano) {
-            throw new Error("Cropped panoramas cannot have curtain.");
-        }
-
         return this._createDistortedCurtainMesh(node, transform);
     }
 
@@ -152,16 +143,6 @@ export class MeshFactory {
     }
 
     private _createSphereMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
-        let gpano: IGPano = transform.gpano;
-
-        let halfCroppedWidth: number = (gpano.FullPanoWidthPixels - gpano.CroppedAreaImageWidthPixels) / 2;
-        let phiShift: number = 2 * Math.PI * (gpano.CroppedAreaLeftPixels - halfCroppedWidth) / gpano.FullPanoWidthPixels;
-        let phiLength: number = 2 * Math.PI * gpano.CroppedAreaImageWidthPixels / gpano.FullPanoWidthPixels;
-
-        let halfCroppedHeight: number = (gpano.FullPanoHeightPixels - gpano.CroppedAreaImageHeightPixels) / 2;
-        let thetaShift: number = Math.PI * (halfCroppedHeight - gpano.CroppedAreaTopPixels) / gpano.FullPanoHeightPixels;
-        let thetaLength: number = Math.PI * gpano.CroppedAreaImageHeightPixels / gpano.FullPanoHeightPixels;
-
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
             fragmentShader: Shaders.equirectangular.fragment,
@@ -169,12 +150,8 @@ export class MeshFactory {
             transparent: true,
             uniforms: {
                 opacity: { value: 1.0 },
-                phiLength: { value: phiLength },
-                phiShift: { value: phiShift },
                 projectorMat: { value: transform.rt },
                 projectorTex: { value: texture },
-                thetaLength: { value: thetaLength },
-                thetaShift: { value: thetaShift },
             },
             vertexShader: Shaders.equirectangular.vertex,
         };
@@ -183,16 +160,6 @@ export class MeshFactory {
     }
 
     private _createCurtainSphereMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
-        let gpano: IGPano = transform.gpano;
-
-        let halfCroppedWidth: number = (gpano.FullPanoWidthPixels - gpano.CroppedAreaImageWidthPixels) / 2;
-        let phiShift: number = 2 * Math.PI * (gpano.CroppedAreaLeftPixels - halfCroppedWidth) / gpano.FullPanoWidthPixels;
-        let phiLength: number = 2 * Math.PI * gpano.CroppedAreaImageWidthPixels / gpano.FullPanoWidthPixels;
-
-        let halfCroppedHeight: number = (gpano.FullPanoHeightPixels - gpano.CroppedAreaImageHeightPixels) / 2;
-        let thetaShift: number = Math.PI * (halfCroppedHeight - gpano.CroppedAreaTopPixels) / gpano.FullPanoHeightPixels;
-        let thetaLength: number = Math.PI * gpano.CroppedAreaImageHeightPixels / gpano.FullPanoHeightPixels;
-
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
             fragmentShader: Shaders.equirectangularCurtain.fragment,
@@ -201,12 +168,8 @@ export class MeshFactory {
             uniforms: {
                 curtain: { value: 1.0 },
                 opacity: { value: 1.0 },
-                phiLength: { value: phiLength },
-                phiShift: { value: phiShift },
                 projectorMat: { value: transform.rt },
                 projectorTex: { value: texture },
-                thetaLength: { value: thetaLength },
-                thetaShift: { value: thetaShift },
             },
             vertexShader: Shaders.equirectangularCurtain.vertex,
         };
@@ -487,24 +450,9 @@ export class MeshFactory {
     }
 
     private _getFlatImageSphereGeo(transform: Transform): THREE.BufferGeometry {
-        let gpano: IGPano = transform.gpano;
-        let phiStart: number = 2 * Math.PI * gpano.CroppedAreaLeftPixels / gpano.FullPanoWidthPixels;
-        let phiLength: number = 2 * Math.PI * gpano.CroppedAreaImageWidthPixels / gpano.FullPanoWidthPixels;
-        let thetaStart: number = Math.PI *
-            (gpano.FullPanoHeightPixels - gpano.CroppedAreaImageHeightPixels - gpano.CroppedAreaTopPixels) /
-            gpano.FullPanoHeightPixels;
-        let thetaLength: number = Math.PI * gpano.CroppedAreaImageHeightPixels / gpano.FullPanoHeightPixels;
-        let geometry: THREE.SphereGeometry = new THREE.SphereGeometry(
-            this._imageSphereRadius,
-            20,
-            40,
-            phiStart - Math.PI / 2,
-            phiLength,
-            thetaStart,
-            thetaLength);
-
+        let geometry =
+            new THREE.SphereGeometry(this._imageSphereRadius, 20, 40);
         geometry.applyMatrix4(new THREE.Matrix4().copy(transform.rt).invert());
-
         return geometry;
     }
 

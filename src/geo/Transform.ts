@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
 import { CameraProjectionType } from "../api/interfaces/CameraProjectionType";
-import { IGPano } from "../api/interfaces/IGPano";
 
 const EPSILON = 1e-8;
 
@@ -21,8 +20,6 @@ export class Transform {
     private _basicHeight: number;
     private _basicAspect: number;
 
-    private _gpano: IGPano;
-
     private _rt: THREE.Matrix4;
     private _srt: THREE.Matrix4;
 
@@ -32,7 +29,7 @@ export class Transform {
 
     private _ck1: number;
     private _ck2: number;
-    private _cameraProjectionType: CameraProjectionType;
+    private _cameraType: CameraProjectionType;
 
     private _radialPeak: number;
 
@@ -43,7 +40,6 @@ export class Transform {
      * @param {number} height - Image width.
      * @param {number} focal - Focal length.
      * @param {number} scale - Atomic scale.
-     * @param {IGPano} gpano - Panorama properties.
      * @param {Array<number>} rotation - Rotation vector in three dimensions.
      * @param {Array<number>} translation - Translation vector in three dimensions.
      * @param {HTMLImageElement} image - Image for fallback size calculations.
@@ -54,20 +50,19 @@ export class Transform {
         height: number,
         focal: number,
         scale: number,
-        gpano: IGPano,
         rotation: number[],
         translation: number[],
         image: HTMLImageElement,
         textureScale?: number[],
         ck1?: number,
         ck2?: number,
-        cameraProjectionType?: CameraProjectionType) {
+        cameraType?: CameraProjectionType) {
 
         this._orientation = this._getValue(orientation, 1);
 
-        let imageWidth: number = image != null ? image.width : 4;
-        let imageHeight: number = image != null ? image.height : 3;
-        let keepOrientation: boolean = this._orientation < 5;
+        let imageWidth = image != null ? image.width : 4;
+        let imageHeight = image != null ? image.height : 3;
+        let keepOrientation = this._orientation < 5;
 
         this._width = this._getValue(width, keepOrientation ? imageWidth : imageHeight);
         this._height = this._getValue(height, keepOrientation ? imageHeight : imageWidth);
@@ -82,8 +77,6 @@ export class Transform {
         this._focal = this._getValue(focal, 1);
         this._scale = this._getValue(scale, 0);
 
-        this._gpano = gpano != null ? gpano : null;
-
         this._rt = this._getRt(rotation, translation);
         this._srt = this._getSrt(this._rt, this._scale);
 
@@ -93,11 +86,9 @@ export class Transform {
 
         this._ck1 = !!ck1 ? ck1 : 0;
         this._ck2 = !!ck2 ? ck2 : 0;
-        this._cameraProjectionType = !!cameraProjectionType ?
-            cameraProjectionType :
-            !!gpano ?
-                "equirectangular" :
-                "perspective";
+        this._cameraType = !!cameraType ?
+            cameraType :
+            "perspective";
 
         this._radialPeak = this._getRadialPeak(this._ck1, this._ck2);
     }
@@ -110,8 +101,8 @@ export class Transform {
         return this._ck2;
     }
 
-    public get cameraProjection(): string {
-        return this._cameraProjectionType;
+    public get cameraType(): CameraProjectionType {
+        return this._cameraType;
     }
 
     /**
@@ -158,28 +149,6 @@ export class Transform {
      */
     public get focal(): number {
         return this._focal;
-    }
-
-    /**
-     * Get fullPano.
-     *
-     * @returns {boolean} Value indicating whether the node is a complete
-     * 360 panorama.
-     */
-    public get fullPano(): boolean {
-        return this._gpano != null &&
-            this._gpano.CroppedAreaLeftPixels === 0 &&
-            this._gpano.CroppedAreaTopPixels === 0 &&
-            this._gpano.CroppedAreaImageWidthPixels === this._gpano.FullPanoWidthPixels &&
-            this._gpano.CroppedAreaImageHeightPixels === this._gpano.FullPanoHeightPixels;
-    }
-
-    /**
-     * Get gpano.
-     * @returns {number} The node gpano information.
-     */
-    public get gpano(): IGPano {
-        return this._gpano;
     }
 
     /**
@@ -348,10 +317,15 @@ export class Transform {
      *                            ignored for panoramas.
      * @returns {Array<number>} Unprojected 3D world coordinates.
      */
-    public unprojectSfM(sfm: number[], distance: number, depth?: boolean): number[] {
-        let bearing: number[] = this._sfmToBearing(sfm);
+    public unprojectSfM(
+        sfm: number[],
+        distance: number,
+        depth?: boolean): number[] {
 
-        const v: THREE.Vector4 = depth && !this.gpano ?
+        const bearing = this._sfmToBearing(sfm);
+        const equirectangular =
+            this._cameraType === 'equirectangular';
+        const v = depth && equirectangular ?
             new THREE.Vector4(
                 distance * bearing[0] / bearing[2],
                 distance * bearing[1] / bearing[2],
@@ -376,26 +350,14 @@ export class Transform {
      * on the unit sphere).
      */
     private _sfmToBearing(sfm: number[]): number[] {
-        if (this._fullPano()) {
+        if (this._cameraType === 'equirectangular') {
             let lon: number = sfm[0] * 2 * Math.PI;
             let lat: number = -sfm[1] * 2 * Math.PI;
             let x: number = Math.cos(lat) * Math.sin(lon);
             let y: number = -Math.sin(lat);
             let z: number = Math.cos(lat) * Math.cos(lon);
             return [x, y, z];
-        } else if (this._gpano) {
-            let size: number = Math.max(this.gpano.CroppedAreaImageWidthPixels, this.gpano.CroppedAreaImageHeightPixels);
-            let fullPanoPixel: number[] = [
-                sfm[0] * size + this.gpano.CroppedAreaImageWidthPixels / 2 + this.gpano.CroppedAreaLeftPixels,
-                sfm[1] * size + this.gpano.CroppedAreaImageHeightPixels / 2 + this.gpano.CroppedAreaTopPixels,
-            ];
-            let lon: number = 2 * Math.PI * (fullPanoPixel[0] / this.gpano.FullPanoWidthPixels - 0.5);
-            let lat: number = - Math.PI * (fullPanoPixel[1] / this.gpano.FullPanoHeightPixels - 0.5);
-            let x: number = Math.cos(lat) * Math.sin(lon);
-            let y: number = -Math.sin(lat);
-            let z: number = Math.cos(lat) * Math.cos(lon);
-            return [x, y, z];
-        } else if (this._cameraProjectionType === "fisheye") {
+        } else if (this._cameraType === "fisheye") {
             let [dxn, dyn]: number[] = [sfm[0] / this._focal, sfm[1] / this._focal];
             const dTheta: number = Math.sqrt(dxn * dxn + dyn * dyn);
             let d: number = this._distortionFromDistortedRadius(dTheta, this._ck1, this._ck2, this._radialPeak);
@@ -447,29 +409,14 @@ export class Transform {
      * @returns {Array<number>} 2D SfM coordinates.
      */
     private _bearingToSfm(bearing: number[]): number[] {
-        if (this._fullPano()) {
+        if (this._cameraType === 'equirectangular') {
             let x: number = bearing[0];
             let y: number = bearing[1];
             let z: number = bearing[2];
             let lon: number = Math.atan2(x, z);
             let lat: number = Math.atan2(-y, Math.sqrt(x * x + z * z));
             return [lon / (2 * Math.PI), -lat / (2 * Math.PI)];
-        } else if (this._gpano) {
-            let x: number = bearing[0];
-            let y: number = bearing[1];
-            let z: number = bearing[2];
-            let lon: number = Math.atan2(x, z);
-            let lat: number = Math.atan2(-y, Math.sqrt(x * x + z * z));
-            let fullPanoPixel: number[] = [
-                (lon / (2 * Math.PI) + 0.5) * this.gpano.FullPanoWidthPixels,
-                (- lat / Math.PI + 0.5) * this.gpano.FullPanoHeightPixels,
-            ];
-            let size: number = Math.max(this.gpano.CroppedAreaImageWidthPixels, this.gpano.CroppedAreaImageHeightPixels);
-            return [
-                (fullPanoPixel[0] - this.gpano.CroppedAreaLeftPixels - this.gpano.CroppedAreaImageWidthPixels / 2) / size,
-                (fullPanoPixel[1] - this.gpano.CroppedAreaTopPixels - this.gpano.CroppedAreaImageHeightPixels / 2) / size,
-            ];
-        } else if (this._cameraProjectionType === "fisheye") {
+        } else if (this._cameraType === "fisheye") {
             if (bearing[2] > 0) {
                 const [x, y, z]: number[] = bearing;
                 const r: number = Math.sqrt(x * x + y * y);
@@ -595,20 +542,6 @@ export class Transform {
         }
 
         return [basicX, basicY];
-    }
-
-    /**
-     * Determines if the gpano information indicates a full panorama.
-     *
-     * @returns {boolean} Value determining if the gpano information indicates
-     * a full panorama.
-     */
-    private _fullPano(): boolean {
-        return this.gpano != null &&
-            this.gpano.CroppedAreaLeftPixels === 0 &&
-            this.gpano.CroppedAreaTopPixels === 0 &&
-            this.gpano.CroppedAreaImageWidthPixels === this.gpano.FullPanoWidthPixels &&
-            this.gpano.CroppedAreaImageHeightPixels === this.gpano.FullPanoHeightPixels;
     }
 
     /**

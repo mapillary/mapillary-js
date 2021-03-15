@@ -176,18 +176,18 @@ export class NodeCache {
      * Cache the image and mesh assets.
      *
      * @param {string} key - Key of the node to cache.
-     * @param {boolean} pano - Value indicating whether node is a panorama.
+     * @param {boolean} spherical - Value indicating whether node is a panorama.
      * @param {boolean} merged - Value indicating whether node is merged.
      * @returns {Observable<NodeCache>} Observable emitting this node
      * cache whenever the load status has changed and when the mesh or image
      * has been fully loaded.
      */
-    public cacheAssets$(nodeUrls: INodeUrls, pano: boolean, merged: boolean): Observable<NodeCache> {
+    public cacheAssets$(nodeUrls: INodeUrls, spherical: boolean, merged: boolean): Observable<NodeCache> {
         if (this._cachingAssets$ != null) {
             return this._cachingAssets$;
         }
 
-        const imageSize: ImageSize = pano ?
+        const imageSize: ImageSize = spherical ?
             Settings.basePanoramaSize :
             Settings.baseImageSize;
 
@@ -339,7 +339,7 @@ export class NodeCache {
      * Cache the image.
      *
      * @param {INodeUrls} nodeUrls - Node URLs.
-     * @param {boolean} pano - Value indicating whether node is a panorama.
+     * @param {boolean} spherical - Value indicating whether node is a panorama.
      * @returns {Observable<ILoadStatusObject<HTMLImageElement>>} Observable
      * emitting a load status object every time the load status changes
      * and completes when the image is fully loaded.

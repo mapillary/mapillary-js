@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { isSpherical } from "./Geo";
 
 import { Transform } from "./Transform";
 
@@ -130,20 +131,20 @@ export class Camera {
     /**
      * Get the focal length based on the transform.
      *
-     * @description Returns the focal length of the transform if gpano info is not available.
-     * Returns a focal length corresponding to a vertical fov clamped to [45, 90] degrees based on
-     * the gpano information if available.
+     * @description Returns the focal length corresponding
+     * to a 90 degree field of view for equirectangular
+     * transforms.
+     *
+     * Returns the transform focal length for other
+     * projection types.
      *
      * @returns {number} Focal length.
      */
     private _getFocal(transform: Transform): number {
-        if (transform.gpano == null) {
+        if (!isSpherical(transform.cameraType)) {
             return transform.focal;
         }
 
-        let vFov: number = Math.PI * transform.gpano.CroppedAreaImageHeightPixels / transform.gpano.FullPanoHeightPixels;
-        let focal: number = 0.5 / Math.tan(vFov / 2);
-
-        return Math.min(1 / (2 * (Math.sqrt(2) - 1)), Math.max(0.5, focal));
+        return 0.5 / Math.tan(Math.PI / 2);
     }
 }

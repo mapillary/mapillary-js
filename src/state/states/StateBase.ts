@@ -10,6 +10,7 @@ import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
 import { ILatLonAlt } from "../../geo/interfaces/ILatLonAlt";
 import { Node } from "../../graph/Node";
+import { CameraProjectionType } from "../../api/interfaces/CameraProjectionType";
 
 export abstract class StateBase implements IState {
     protected _spatial: Spatial;
@@ -65,14 +66,13 @@ export abstract class StateBase implements IState {
                 node.height,
                 node.focal,
                 node.scale,
-                node.gpano,
                 node.rotation,
                 translation,
                 node.image,
                 undefined,
                 node.ck1,
                 node.ck2,
-                node.cameraProjectionType);
+                <CameraProjectionType>node.cameraType);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -370,14 +370,13 @@ export abstract class StateBase implements IState {
                 node.height,
                 node.focal,
                 node.scale,
-                node.gpano,
                 node.rotation,
                 translation,
                 node.image,
                 undefined,
                 node.ck1,
                 node.ck2,
-                node.cameraProjectionType);
+                <CameraProjectionType>node.cameraType);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -397,14 +396,13 @@ export abstract class StateBase implements IState {
                 node.height,
                 node.focal,
                 node.scale,
-                node.gpano,
                 node.rotation,
                 translation,
                 node.image,
                 undefined,
                 node.ck1,
                 node.ck2,
-                node.cameraProjectionType);
+                <CameraProjectionType>node.cameraType);
 
             this._trajectoryTransforms.unshift(transform);
             this._trajectoryCameras.unshift(new Camera(transform));

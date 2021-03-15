@@ -12,6 +12,8 @@ import { IShaderMaterial } from "../imageplane/interfaces/IShaderMaterial";
 import { SliderMode } from "../interfaces/ISliderConfiguration";
 import { MeshFactory } from "../utils/MeshFactory";
 import { MeshScene } from "../utils/MeshScene";
+import { isSpherical } from "../../geo/Geo";
+import { CameraProjectionType } from "../../api/interfaces/CameraProjectionType";
 
 export class SliderGLRenderer {
     private _factory: MeshFactory;
@@ -200,9 +202,8 @@ export class SliderGLRenderer {
     private _setDisabled(state: ICurrentState): void {
         this._disabled = state.currentNode == null ||
             state.previousNode == null ||
-            (state.currentNode.pano && !state.currentNode.fullPano) ||
-            (state.previousNode.pano && !state.previousNode.fullPano) ||
-            (state.currentNode.fullPano && !state.previousNode.fullPano);
+            (isSpherical(state.currentNode.cameraType) &&
+                !isSpherical(state.previousNode.cameraType));
     }
 
     private _setTextureProvider(
@@ -275,7 +276,10 @@ export class SliderGLRenderer {
         this._needsRender = true;
         this._mode = mode;
 
-        const motionless: boolean = state.motionless || mode === SliderMode.Stationary || state.currentNode.pano;
+        const motionless =
+            state.motionless ||
+            mode === SliderMode.Stationary ||
+            isSpherical(state.currentNode.cameraType);
 
         if (this.disabled || previousChanged) {
             if (this._previousKey in this._previousProviderDisposers) {
@@ -307,12 +311,14 @@ export class SliderGLRenderer {
                 let width: number = state.currentNode.width;
                 let height: number = state.currentNode.height;
 
-                if (previousNode.fullPano) {
+                if (isSpherical(previousNode.cameraType)) {
                     rotation = state.previousNode.rotation;
                     translation = this._spatial
                         .rotate(
                             this._spatial
-                                .opticalCenter(state.currentNode.rotation, translation)
+                                .opticalCenter(
+                                    state.currentNode.rotation,
+                                    translation)
                                 .toArray(),
                             rotation)
                         .multiplyScalar(-1)
@@ -328,18 +334,22 @@ export class SliderGLRenderer {
                     height,
                     state.currentNode.focal,
                     state.currentNode.scale,
-                    previousNode.gpano,
                     rotation,
                     translation,
                     previousNode.image,
-                    textureScale);
+                    textureScale,
+                    null,
+                    null,
+                    <CameraProjectionType>state.currentNode.cameraType);
 
                 let mesh: THREE.Mesh = undefined;
 
-                if (previousNode.fullPano) {
+                if (isSpherical(previousNode.cameraType)) {
                     mesh = this._factory.createMesh(
                         previousNode,
-                        motionless || state.currentNode.fullPano ? transform : state.previousTransform);
+                        motionless ||
+                            isSpherical(state.currentNode.cameraType) ?
+                            transform : state.previousTransform);
                 } else {
                     if (motionless) {
                         const [[basicX0, basicY0], [basicX1, basicY1]]: number[][] = this._getBasicCorners(currentAspect, previousAspect);
@@ -373,10 +383,11 @@ export class SliderGLRenderer {
 
             const planes: { [key: string]: THREE.Mesh } = {};
 
-            if (state.currentNode.fullPano) {
-                planes[state.currentNode.key] = this._factory.createCurtainMesh(state.currentNode, state.currentTransform);
-            } else if (state.currentNode.pano && !state.currentNode.fullPano) {
-                planes[state.currentNode.key] = this._factory.createMesh(state.currentNode, state.currentTransform);
+            if (isSpherical(state.currentNode.cameraType)) {
+                planes[state.currentNode.key] =
+                    this._factory.createCurtainMesh(
+                        state.currentNode,
+                        state.currentTransform);
             } else {
                 if (motionless) {
                     planes[state.currentNode.key] = this._factory.createDistortedCurtainMesh(state.currentNode, state.currentTransform);

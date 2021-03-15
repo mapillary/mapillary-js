@@ -4,6 +4,7 @@ import { InteractiveStateBase } from "./InteractiveStateBase";
 import { IState } from "../interfaces/IState";
 import { Node } from "../../graph/Node";
 import { IInterpolator } from "../../utils/interfaces/IInterpolator";
+import { isSpherical } from "../../geo/Geo";
 
 export class TraversingState extends InteractiveStateBase {
     private static _interpolator: new (...args: number[]) => IInterpolator;
@@ -95,7 +96,9 @@ export class TraversingState extends InteractiveStateBase {
             this._resetTransition();
             this._clearRotation();
 
-            this._desiredZoom = this._currentNode.fullPano ? this._zoom : 0;
+            this._desiredZoom =
+                isSpherical(this._currentNode.cameraType) ?
+                    this._zoom : 0;
 
             this._desiredLookat = null;
         }
@@ -143,7 +146,7 @@ export class TraversingState extends InteractiveStateBase {
         let lookat: THREE.Vector3 = this._camera.lookat.clone().sub(this._camera.position);
         this._previousCamera.lookat.copy(lookat.clone().add(this._previousCamera.position));
 
-        if (this._currentNode.fullPano) {
+        if (isSpherical(this._currentNode.cameraType)) {
             this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
         }
     }

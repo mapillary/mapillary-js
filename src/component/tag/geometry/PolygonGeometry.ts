@@ -1,6 +1,7 @@
 import { VertexGeometry } from "./VertexGeometry";
 import { GeometryTagError } from "../error/GeometryTagError";
 import { Transform } from "../../../geo/Transform";
+import { isSpherical } from "../../../geo/Geo";
 
 /**
  * @class PolygonGeometry
@@ -309,7 +310,7 @@ export class PolygonGeometry extends VertexGeometry {
 
     /** @ignore */
     public getTriangles3d(transform: Transform): number[] {
-        if (transform.fullPano) {
+        if (isSpherical(transform.cameraType)) {
             return this._triangulatePano(
                 this._polygon.slice(),
                 this.holes.slice(),

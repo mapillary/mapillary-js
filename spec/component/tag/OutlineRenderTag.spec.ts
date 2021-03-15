@@ -3,15 +3,16 @@ import { PolygonGeometry } from "../../../src/component/tag/geometry/PolygonGeom
 import { RectGeometry } from "../../../src/component/tag/geometry/RectGeometry";
 import { OutlineRenderTag } from "../../../src/component/tag/tag/OutlineRenderTag";
 import { OutlineTag } from "../../../src/component/tag/tag/OutlineTag";
-
 import { TransformHelper } from "../../helper/TransformHelper";
+
+const transformHelper = new TransformHelper();
 
 describe("OutlineRenderTag.ctor", () => {
     it("should be defined", () => {
-        const geometry: RectGeometry = new RectGeometry([0, 0, 1, 1]);
-        const outlineTag: OutlineTag = new OutlineTag("id", geometry);
-        const outlineRenderTag: OutlineRenderTag =
-            new OutlineRenderTag(outlineTag, new TransformHelper().createTransform());
+        const geometry = new RectGeometry([0, 0, 1, 1]);
+        const outlineTag = new OutlineTag("id", geometry);
+        const outlineRenderTag =
+            new OutlineRenderTag(outlineTag, transformHelper.createTransform());
 
         expect(outlineRenderTag).toBeDefined();
     });
@@ -19,40 +20,36 @@ describe("OutlineRenderTag.ctor", () => {
 
 describe("OutlineRenderTag.getRetrievableObjects", () => {
     it("should return a mesh object irrespective of fill opacity", () => {
-        const geometry: RectGeometry = new RectGeometry([0, 0, 1, 1]);
-        const outlineTag: OutlineTag = new OutlineTag("id", geometry, { fillOpacity: 1 });
-        const outlineRenderTag: OutlineRenderTag =
-            new OutlineRenderTag(outlineTag, new TransformHelper().createTransform());
+        const geometry = new RectGeometry([0, 0, 1, 1]);
+        const outlineTag = new OutlineTag("id", geometry, { fillOpacity: 1 });
+        const outlineRenderTag =
+            new OutlineRenderTag(outlineTag, transformHelper.createTransform());
 
-        const retrievableObjects: THREE.Object3D[] = outlineRenderTag.getRetrievableObjects();
+        const retrievableObjects = outlineRenderTag.getRetrievableObjects();
 
         expect(retrievableObjects.length).toBe(1);
         expect(retrievableObjects[0] instanceof THREE.Mesh).toBe(true);
 
-        const outlineTagTransparent: OutlineTag = new OutlineTag("id", geometry, { fillOpacity: 0 });
-        const outlineRenderTagTransparent: OutlineRenderTag =
-            new OutlineRenderTag(outlineTagTransparent, new TransformHelper().createTransform());
+        const outlineTagTransparent = new OutlineTag("id", geometry, { fillOpacity: 0 });
+        const outlineRenderTagTransparent =
+            new OutlineRenderTag(outlineTagTransparent, transformHelper.createTransform());
 
-        const retrievableTransparentObjects: THREE.Object3D[] = outlineRenderTagTransparent.getRetrievableObjects();
+        const retrievableTransparentObjects = outlineRenderTagTransparent.getRetrievableObjects();
 
         expect(retrievableTransparentObjects.length).toBe(1);
         expect(retrievableTransparentObjects[0] instanceof THREE.Mesh).toBe(true);
     });
 
     it("should not return any objects for rects in panoramas", () => {
-        const geometry: RectGeometry = new RectGeometry([0, 0, 1, 1]);
-        const outlineTag: OutlineTag = new OutlineTag("id", geometry, { fillOpacity: 1 });
-        const outlineRenderTag: OutlineRenderTag =
-            new OutlineRenderTag(outlineTag, new TransformHelper().createTransform({
-                CroppedAreaImageHeightPixels: 1,
-                CroppedAreaImageWidthPixels: 1,
-                CroppedAreaLeftPixels: 0,
-                CroppedAreaTopPixels: 0,
-                FullPanoHeightPixels: 1,
-                FullPanoWidthPixels: 1,
-            }));
+        const geometry = new RectGeometry([0, 0, 1, 1]);
+        const outlineTag = new OutlineTag("id", geometry, { fillOpacity: 1 });
+        const outlineRenderTag =
+            new OutlineRenderTag(
+                outlineTag,
+                transformHelper.createTransform(
+                    "equirectangular"));
 
-        const retrievableObjects: THREE.Object3D[] = outlineRenderTag.getRetrievableObjects();
+        const retrievableObjects = outlineRenderTag.getRetrievableObjects();
 
         expect(retrievableObjects.length).toBe(0);
     });
@@ -65,18 +62,14 @@ describe("OutlineRenderTag.getRetrievableObjects", () => {
             [0, 1],
             [0, 0],
         ]);
-        const outlineTag: OutlineTag = new OutlineTag("id", geometry, { fillOpacity: 1 });
-        const outlineRenderTag: OutlineRenderTag =
-            new OutlineRenderTag(outlineTag, new TransformHelper().createTransform({
-                CroppedAreaImageHeightPixels: 1,
-                CroppedAreaImageWidthPixels: 1,
-                CroppedAreaLeftPixels: 0,
-                CroppedAreaTopPixels: 0,
-                FullPanoHeightPixels: 1,
-                FullPanoWidthPixels: 1,
-            }));
+        const outlineTag = new OutlineTag("id", geometry, { fillOpacity: 1 });
+        const outlineRenderTag =
+            new OutlineRenderTag(
+                outlineTag,
+                transformHelper.createTransform(
+                    "equirectangular"));
 
-        const retrievableObjects: THREE.Object3D[] = outlineRenderTag.getRetrievableObjects();
+        const retrievableObjects = outlineRenderTag.getRetrievableObjects();
 
         expect(retrievableObjects.length).toBe(1);
     });
@@ -89,9 +82,9 @@ describe("OutlineRenderTag.dispose", () => {
                 [[0, 0], [1, 0], [1, 1], [0, 0]],
                 [[[0.1, 0.1], [0.9, 0.1], [0.9, 0.9], [0.1, 0.1]]]);
 
-        const outlineTag: OutlineTag = new OutlineTag("id", geometry, { fillOpacity: 1, lineOpacity: 1 });
-        const outlineRenderTag: OutlineRenderTag =
-            new OutlineRenderTag(outlineTag, new TransformHelper().createTransform());
+        const outlineTag = new OutlineTag("id", geometry, { fillOpacity: 1, lineOpacity: 1 });
+        const outlineRenderTag =
+            new OutlineRenderTag(outlineTag, transformHelper.createTransform());
 
         const glObjects: (THREE.Line | THREE.Mesh)[] = <(THREE.Line | THREE.Mesh)[]>outlineRenderTag.getGLObjects();
 

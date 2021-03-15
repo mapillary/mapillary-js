@@ -37,7 +37,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoMaxDistance / 2;
-        potentialEdge1.fullPano = true;
+        potentialEdge1.spherical = true;
     });
 
     it("should throw when node is not full", () => {
@@ -55,14 +55,6 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
-    });
-
-    it("should not have a pano edge for potential cropped pano ", () => {
-        potentialEdge1.croppedPano = true;
-        potentialEdge1.fullPano = false;
-        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
-
-        expect(panoEdges.length).toBe(0);
     });
 
     it("should have a pano edge irrespective of rotation", () => {
@@ -95,7 +87,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
     });
 
     it("should not have a pano edge for non full pano", () => {
-        potentialEdge1.fullPano = false;
+        potentialEdge1.spherical = false;
 
         let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
 
@@ -144,11 +136,11 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoPreferredDistance;
-        potentialEdge1.fullPano = true;
+        potentialEdge1.spherical = true;
 
         potentialEdge2 = helper.createPotentialEdge("pkey2");
         potentialEdge2.distance = settings.panoPreferredDistance;
-        potentialEdge2.fullPano = true;
+        potentialEdge2.spherical = true;
     });
 
     it("should have a pano edge closest to preferred distance", () => {
@@ -256,19 +248,19 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoMaxDistance / 2;
-        potentialEdge1.fullPano = true;
+        potentialEdge1.spherical = true;
 
         potentialEdge2 = helper.createPotentialEdge("pkey2");
         potentialEdge2.distance = settings.panoMaxDistance / 2;
-        potentialEdge2.fullPano = true;
+        potentialEdge2.spherical = true;
 
         potentialEdge3 = helper.createPotentialEdge("pkey3");
         potentialEdge3.distance = settings.panoMaxDistance / 2;
-        potentialEdge3.fullPano = true;
+        potentialEdge3.spherical = true;
 
         potentialEdge4 = helper.createPotentialEdge("pkey4");
         potentialEdge4.distance = settings.panoMaxDistance / 2;
-        potentialEdge4.fullPano = true;
+        potentialEdge4.spherical = true;
     });
 
     it("should have only have one pano edge based on motion change", () => {
@@ -398,7 +390,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoPreferredDistance;
-        potentialEdge1.fullPano = false;
+        potentialEdge1.spherical = false;
     });
 
     it("should have a step forward edge", () => {
@@ -413,16 +405,6 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.StepForward);
-    });
-
-    it("should not have a step forward edge for potential cropped pano", () => {
-        potentialEdge1.motionChange = 0;
-        potentialEdge1.directionChange = 0;
-        potentialEdge1.croppedPano = true;
-
-        let panoEdges: IEdge[] = edgeCalculator.computePanoEdges(node, [potentialEdge1]);
-
-        expect(panoEdges.length).toBe(0);
     });
 
     it("should have a step left edge", () => {
@@ -621,11 +603,11 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoPreferredDistance;
-        potentialEdge1.fullPano = false;
+        potentialEdge1.spherical = false;
 
         potentialEdge2 = helper.createPotentialEdge("pkey2");
         potentialEdge2.distance = settings.panoPreferredDistance;
-        potentialEdge2.fullPano = false;
+        potentialEdge2.spherical = false;
     });
 
     it("should prefer a step forward edge with preferred distance", () => {
@@ -733,19 +715,19 @@ describe("EdgeCalculator.computePanoEdges", () => {
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoMaxDistance / 2;
-        potentialEdge1.fullPano = false;
+        potentialEdge1.spherical = false;
 
         potentialEdge2 = helper.createPotentialEdge("pkey2");
         potentialEdge2.distance = settings.panoMaxDistance / 2;
-        potentialEdge2.fullPano = false;
+        potentialEdge2.spherical = false;
 
         potentialEdge3 = helper.createPotentialEdge("pkey3");
         potentialEdge3.distance = settings.panoMaxDistance / 2;
-        potentialEdge3.fullPano = false;
+        potentialEdge3.spherical = false;
 
         potentialEdge4 = helper.createPotentialEdge("pkey4");
         potentialEdge4.distance = settings.panoMaxDistance / 2;
-        potentialEdge4.fullPano = false;
+        potentialEdge4.spherical = false;
     });
 
     it("should have a forward, left, backward and right pano edge at the same motion", () => {
@@ -774,7 +756,7 @@ describe("EdgeCalculator.computePanoEdges", () => {
     });
 
     it("should not have any step edges in the pano edge direction", () => {
-        potentialEdge1.fullPano = true;
+        potentialEdge1.spherical = true;
 
         potentialEdge2.directionChange = 0;
         potentialEdge3.directionChange = Math.PI / 2;
@@ -846,11 +828,11 @@ describe("EdgeCalculator.computePerspectiveToPanoEdges", () => {
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.panoMaxDistance / 2;
-        potentialEdge1.fullPano = true;
+        potentialEdge1.spherical = true;
 
         potentialEdge2 = helper.createPotentialEdge("pkey2");
         potentialEdge2.distance = settings.panoMaxDistance / 2;
-        potentialEdge2.fullPano = true;
+        potentialEdge2.spherical = true;
     });
 
     it("should return a pano edge", () => {
@@ -862,14 +844,6 @@ describe("EdgeCalculator.computePerspectiveToPanoEdges", () => {
 
         expect(panoEdge.to).toBe(potentialEdge1.key);
         expect(panoEdge.data.direction).toBe(EdgeDirection.Pano);
-    });
-
-    it("should not return a pano edge for potential cropped pano", () => {
-        potentialEdge1.croppedPano = true;
-        potentialEdge1.fullPano = false;
-        let panoEdges: IEdge[] = calculator.computePerspectiveToPanoEdges(node, [potentialEdge1]);
-
-        expect(panoEdges.length).toBe(0);
     });
 
     it("should not return a pano edge when node is pano", () => {

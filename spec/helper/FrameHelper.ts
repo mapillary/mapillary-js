@@ -1,20 +1,22 @@
 import { NodeHelper } from "./NodeHelper";
 import { TransformHelper } from "./TransformHelper";
 
-import { Node } from "../../src/graph/Node";
-import { Transform } from "../../src/geo/Transform";
-import { IGPano } from "../../src/api/interfaces/IGPano";
 import { IFrame } from "../../src/state/interfaces/IFrame";
 import { State } from "../../src/state/State";
 import { Camera } from "../../src/geo/Camera";
+import { CameraProjectionType } from "../../src/api/interfaces/CameraProjectionType";
 
 export class FrameHelper {
     private _nodeHelper: NodeHelper = new NodeHelper();
     private _transformHelper: TransformHelper = new TransformHelper();
 
-    public createFrame(gpano?: IGPano): IFrame {
-        const currentNode: Node = this._nodeHelper.createNode(gpano);
-        const currentTransform: Transform = this._transformHelper.createTransform(gpano);
+    public createFrame(
+        cameraType: CameraProjectionType = "perspective"): IFrame {
+
+        const currentNode =
+            this._nodeHelper.createNode(cameraType);
+        const currentTransform =
+            this._transformHelper.createTransform(cameraType);
 
         return {
             fps: 60,

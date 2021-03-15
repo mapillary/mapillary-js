@@ -3,15 +3,17 @@ import { GeometryTagError } from "../../../src/component/tag/error/GeometryTagEr
 import { PointsGeometry } from "../../../src/component/tag/geometry/PointsGeometry";
 import { TransformHelper } from "../../helper/TransformHelper";
 
+const transformHelper = new TransformHelper();
+
 describe("PointsGeometry.ctor", () => {
     it("should be defined", () => {
-        let pointsGeometry: PointsGeometry = new PointsGeometry([[0.5, 0.5], [0.7, 0.7]]);
+        let pointsGeometry = new PointsGeometry([[0.5, 0.5], [0.7, 0.7]]);
 
         expect(pointsGeometry).toBeDefined();
     });
 
     it("points should be set", () => {
-        let pointsGeometry: PointsGeometry = new PointsGeometry([[0.5, 0.6], [0.7, 0.8]]);
+        let pointsGeometry = new PointsGeometry([[0.5, 0.6], [0.7, 0.8]]);
 
         expect(pointsGeometry.points.length).toBe(2);
         expect(pointsGeometry.points[0][0]).toBe(0.5);
@@ -41,11 +43,11 @@ describe("PointsGeometry.ctor", () => {
 
 describe("PointsGeometry.getCentroid2d", () => {
     it("should get an array that is the average of the points", () => {
-        const points: number[][] = [[0.5, 0.6], [0.8, 0.9]];
-        const pointsGeometry: PointsGeometry = new PointsGeometry(points);
+        const points = [[0.5, 0.6], [0.8, 0.9]];
+        const pointsGeometry = new PointsGeometry(points);
 
-        const transform: Transform = new TransformHelper().createTransform();
-        const result: number[] = pointsGeometry.getCentroid2d(transform);
+        const transform = transformHelper.createTransform();
+        const result = pointsGeometry.getCentroid2d(transform);
 
         expect(result).not.toBe(points[0]);
         expect(result).not.toBe(points[1]);
@@ -54,11 +56,11 @@ describe("PointsGeometry.getCentroid2d", () => {
     });
 
     it("should get an array that is the average of the points irrespective of order", () => {
-        const points: number[][] = [[0.8, 0.9], [0.5, 0.6]];
-        const pointsGeometry: PointsGeometry = new PointsGeometry(points);
+        const points = [[0.8, 0.9], [0.5, 0.6]];
+        const pointsGeometry = new PointsGeometry(points);
 
-        const transform: Transform = new TransformHelper().createTransform();
-        const result: number[] = pointsGeometry.getCentroid2d(transform);
+        const transform = transformHelper.createTransform();
+        const result = pointsGeometry.getCentroid2d(transform);
 
         expect(result).not.toBe(points[0]);
         expect(result).not.toBe(points[1]);
@@ -67,11 +69,11 @@ describe("PointsGeometry.getCentroid2d", () => {
     });
 
     it("should get centroid based on smallest rectangle containing all points", () => {
-        const points: number[][] = [[0.5, 0.6], [0.8, 0.9], [0.55, 0.65], [0.55, 0.65], [0.55, 0.65]];
-        const pointsGeometry: PointsGeometry = new PointsGeometry(points);
+        const points = [[0.5, 0.6], [0.8, 0.9], [0.55, 0.65], [0.55, 0.65], [0.55, 0.65]];
+        const pointsGeometry = new PointsGeometry(points);
 
-        const transform: Transform = new TransformHelper().createTransform();
-        const result: number[] = pointsGeometry.getCentroid2d(transform);
+        const transform = transformHelper.createTransform();
+        const result = pointsGeometry.getCentroid2d(transform);
 
         expect(result).not.toBe(points[0]);
         expect(result).not.toBe(points[1]);
@@ -82,11 +84,11 @@ describe("PointsGeometry.getCentroid2d", () => {
 
 describe("PointsGeometry.getRect2d", () => {
     it("should get the rectangle based on the two points", () => {
-        const points: number[][] = [[0.5, 0.6], [0.8, 0.9]];
-        const pointsGeometry: PointsGeometry = new PointsGeometry(points);
+        const points = [[0.5, 0.6], [0.8, 0.9]];
+        const pointsGeometry = new PointsGeometry(points);
 
-        const transform: Transform = new TransformHelper().createTransform();
-        const result: number[] = pointsGeometry.getRect2d(transform);
+        const transform = transformHelper.createTransform();
+        const result = pointsGeometry.getRect2d(transform);
 
         expect(result.length).toBe(4);
         expect(result).toEqual([
@@ -98,11 +100,11 @@ describe("PointsGeometry.getRect2d", () => {
     });
 
     it("should get the rectangle based on the two points irrespective of order", () => {
-        const points: number[][] = [[0.8, 0.9], [0.5, 0.6]];
-        const pointsGeometry: PointsGeometry = new PointsGeometry(points);
+        const points = [[0.8, 0.9], [0.5, 0.6]];
+        const pointsGeometry = new PointsGeometry(points);
 
-        const transform: Transform = new TransformHelper().createTransform();
-        const result: number[] = pointsGeometry.getRect2d(transform);
+        const transform = transformHelper.createTransform();
+        const result = pointsGeometry.getRect2d(transform);
 
         expect(result.length).toBe(4);
         expect(result).toEqual([
@@ -114,11 +116,11 @@ describe("PointsGeometry.getRect2d", () => {
     });
 
     it("should get the smallest rectangle containing all points", () => {
-        const points: number[][] = [[0.5, 0.6], [0.8, 0.9], [0.55, 0.65], [0.55, 0.65], [0.55, 0.65]];
-        const pointsGeometry: PointsGeometry = new PointsGeometry(points);
+        const points = [[0.5, 0.6], [0.8, 0.9], [0.55, 0.65], [0.55, 0.65], [0.55, 0.65]];
+        const pointsGeometry = new PointsGeometry(points);
 
-        const transform: Transform = new TransformHelper().createTransform();
-        const result: number[] = pointsGeometry.getRect2d(transform);
+        const transform = transformHelper.createTransform();
+        const result = pointsGeometry.getRect2d(transform);
 
         expect(result.length).toBe(4);
         expect(result).toEqual([
@@ -130,12 +132,12 @@ describe("PointsGeometry.getRect2d", () => {
     });
 
     it("should get the smallest wrapping rectangle containing all points for pano", () => {
-        const points: number[][] = [[0.9, 0.6], [0.2, 0.8]];
-        const pointsGeometry: PointsGeometry = new PointsGeometry(points);
+        const points = [[0.9, 0.6], [0.2, 0.8]];
+        const pointsGeometry = new PointsGeometry(points);
 
-        const helper: TransformHelper = new TransformHelper();
-        const transform: Transform = helper.createTransform(helper.createFullGPano());
-        const result: number[] = pointsGeometry.getRect2d(transform);
+        const helper = new TransformHelper();
+        const transform = helper.createTransform("equirectangular");
+        const result = pointsGeometry.getRect2d(transform);
 
         expect(result.length).toBe(4);
         expect(result).toEqual([
@@ -147,12 +149,12 @@ describe("PointsGeometry.getRect2d", () => {
     });
 
     it("should get the smallest wrapping rectangle containing all points for pano irrespective of order", () => {
-        const points: number[][] = [[0.2, 0.8], [0.9, 0.6]];
-        const pointsGeometry: PointsGeometry = new PointsGeometry(points);
+        const points = [[0.2, 0.8], [0.9, 0.6]];
+        const pointsGeometry = new PointsGeometry(points);
 
-        const helper: TransformHelper = new TransformHelper();
-        const transform: Transform = helper.createTransform(helper.createFullGPano());
-        const result: number[] = pointsGeometry.getRect2d(transform);
+        const helper = new TransformHelper();
+        const transform = helper.createTransform("equirectangular");
+        const result = pointsGeometry.getRect2d(transform);
 
         expect(result.length).toBe(4);
         expect(result).toEqual([
@@ -166,11 +168,11 @@ describe("PointsGeometry.getRect2d", () => {
 
 describe("PointsGeometry.setVertex2d", () => {
     it("should set point to value", () => {
-        const original: number[][] = [[0.1, 0.2], [0.3, 0.4]];
-        const pointGeometry: PointsGeometry = new PointsGeometry(original);
+        const original = [[0.1, 0.2], [0.3, 0.4]];
+        const pointGeometry = new PointsGeometry(original);
 
-        const point: number[] = [0.5, 0.6];
-        const transform: Transform = new TransformHelper().createTransform();
+        const point = [0.5, 0.6];
+        const transform = transformHelper.createTransform();
 
         pointGeometry.setVertex2d(1, point, transform);
 
@@ -179,11 +181,11 @@ describe("PointsGeometry.setVertex2d", () => {
     });
 
     it("should clamp negative input value to [0, 1] interval", () => {
-        const original: number[][] = [[0.1, 0.2], [0.3, 0.4]];
-        const pointGeometry: PointsGeometry = new PointsGeometry(original);
+        const original = [[0.1, 0.2], [0.3, 0.4]];
+        const pointGeometry = new PointsGeometry(original);
 
-        const point: number[] = [-1, -1];
-        const transform: Transform = new TransformHelper().createTransform();
+        const point = [-1, -1];
+        const transform = transformHelper.createTransform();
 
         pointGeometry.setVertex2d(1, point, transform);
 
@@ -192,11 +194,11 @@ describe("PointsGeometry.setVertex2d", () => {
     });
 
     it("should clamp input value larger than 1 to [0, 1] interval", () => {
-        const original: number[][] = [[0.1, 0.2], [0.3, 0.4]];
-        const pointGeometry: PointsGeometry = new PointsGeometry(original);
+        const original = [[0.1, 0.2], [0.3, 0.4]];
+        const pointGeometry = new PointsGeometry(original);
 
-        const point: number[] = [2, 2];
-        const transform: Transform = new TransformHelper().createTransform();
+        const point = [2, 2];
+        const transform = transformHelper.createTransform();
 
         pointGeometry.setVertex2d(1, point, transform);
 
@@ -207,8 +209,8 @@ describe("PointsGeometry.setVertex2d", () => {
 
 describe("PointsGeometry.removePoint2d", () => {
     it("should reomve point according to index", () => {
-        const original: number[][] = [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]];
-        const pointGeometry: PointsGeometry = new PointsGeometry(original);
+        const original = [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]];
+        const pointGeometry = new PointsGeometry(original);
 
         pointGeometry.removePoint2d(1);
 
@@ -222,8 +224,8 @@ describe("PointsGeometry.removePoint2d", () => {
 
 describe("PointsGeometry.removePoint2d", () => {
     it("should reomve point according to index", () => {
-        const original: number[][] = [[0.1, 0.2], [0.3, 0.4]];
-        const pointGeometry: PointsGeometry = new PointsGeometry(original);
+        const original = [[0.1, 0.2], [0.3, 0.4]];
+        const pointGeometry = new PointsGeometry(original);
 
         pointGeometry.addPoint2d([0.5, 0.6]);
 

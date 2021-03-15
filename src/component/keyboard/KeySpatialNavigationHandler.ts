@@ -24,6 +24,7 @@ import { IRotation } from "../../state/interfaces/IRotation";
 import { Camera } from "../../geo/Camera";
 import { EdgeDirection } from "../../graph/edge/EdgeDirection";
 import { AbortMapillaryError } from "../../error/AbortMapillaryError";
+import { isSpherical } from "../../geo/Geo";
 
 
 /**
@@ -76,7 +77,7 @@ export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfigurat
                 spatialEdges$,
                 this._navigator.stateService.currentState$))
             .subscribe(([event, edgeStatus, frame]: [KeyboardEvent, IEdgeStatus, IFrame]): void => {
-                let pano: boolean = frame.state.currentNode.pano;
+                let pano = isSpherical(frame.state.currentNode.cameraType);
                 let direction: EdgeDirection = null;
                 switch (event.keyCode) {
                     case 37: // left
