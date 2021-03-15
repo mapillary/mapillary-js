@@ -1,4 +1,4 @@
-.mapillaryjs-popup {
+.mapillary-popup {
     position: absolute;
     left: 0;
     top: 0;
@@ -6,44 +6,44 @@
     display: flex;
 }
 
-.mapillaryjs-popup-content,
-.mapillaryjs-popup-content-clean {
+.mapillary-popup-content,
+.mapillary-popup-content-clean {
     position: relative;
 }
 
-.mapillaryjs-popup-capture-pointer {
+.mapillary-popup-capture-pointer {
     pointer-events: auto;
 }
 
-.mapillaryjs-popup-content {
+.mapillary-popup-content {
     padding: 5px 10px;
     background: white;
     border: 1px solid black;
     border-radius: 2px;
 }
 
-.mapillaryjs-popup-float-bottom,
-.mapillaryjs-popup-float-bottom-left,
-.mapillaryjs-popup-float-bottom-right {
+.mapillary-popup-float-bottom,
+.mapillary-popup-float-bottom-left,
+.mapillary-popup-float-bottom-right {
     flex-direction: column;
 }
 
-.mapillaryjs-popup-float-top,
-.mapillaryjs-popup-float-top-left,
-.mapillaryjs-popup-float-top-right {
+.mapillary-popup-float-top,
+.mapillary-popup-float-top-left,
+.mapillary-popup-float-top-right {
     flex-direction: column-reverse;
 }
 
-.mapillaryjs-popup-float-left {
+.mapillary-popup-float-left {
     flex-direction: row-reverse;
 }
 
-.mapillaryjs-popup-float-right {
+.mapillary-popup-float-right {
     flex-direction: row;
 }
 
-.mapillaryjs-popup-tip,
-.mapillaryjs-popup-tip-inner {
+.mapillary-popup-tip,
+.mapillary-popup-tip-inner {
     position: relative;
     z-index: 1;
     width: 0;
@@ -51,13 +51,13 @@
     border: 7px solid transparent;
 }
 
-.mapillaryjs-popup-float-top .mapillaryjs-popup-tip {
+.mapillary-popup-float-top .mapillary-popup-tip {
     align-self: center;
     border-top-color:black;
     border-bottom: none;
 }
 
-.mapillaryjs-popup-float-top .mapillaryjs-popup-tip-inner {
+.mapillary-popup-float-top .mapillary-popup-tip-inner {
     position: relative;
     top: -8px;
     left: -7px;
@@ -65,14 +65,14 @@
     border-bottom: none;
 }
 
-.mapillaryjs-popup-float-top-right .mapillaryjs-popup-tip {
+.mapillary-popup-float-top-right .mapillary-popup-tip {
     align-self: flex-start;
     border-top-color:black;
     border-bottom: none;
     border-left: none;
 }
 
-.mapillaryjs-popup-float-top-right .mapillaryjs-popup-tip-inner {
+.mapillary-popup-float-top-right .mapillary-popup-tip-inner {
     position: relative;
     top: -9px;
     left: 1px;
@@ -81,14 +81,14 @@
     border-left: none;
 }
 
-.mapillaryjs-popup-float-top-left .mapillaryjs-popup-tip {
+.mapillary-popup-float-top-left .mapillary-popup-tip {
     align-self: flex-end;
     border-top-color:black;
     border-bottom: none;
     border-right: none;
 }
 
-.mapillaryjs-popup-float-top-left .mapillaryjs-popup-tip-inner {
+.mapillary-popup-float-top-left .mapillary-popup-tip-inner {
     position: relative;
     top: -9px;
     left: -8px;
@@ -97,13 +97,13 @@
     border-right: none;
 }
 
-.mapillaryjs-popup-float-bottom .mapillaryjs-popup-tip {
+.mapillary-popup-float-bottom .mapillary-popup-tip {
     align-self: center;
     border-top: none;
     border-bottom-color: black;
 }
 
-.mapillaryjs-popup-float-bottom .mapillaryjs-popup-tip-inner {
+.mapillary-popup-float-bottom .mapillary-popup-tip-inner {
     position: relative;
     bottom: -1px;
     left: -7px;
@@ -111,14 +111,14 @@
     border-bottom-color: white;
 }
 
-.mapillaryjs-popup-float-bottom-right .mapillaryjs-popup-tip {
+.mapillary-popup-float-bottom-right .mapillary-popup-tip {
     align-self: flex-start;
     border-bottom-color:black;
     border-top: none;
     border-left: none;
 }
 
-.mapillaryjs-popup-float-bottom-right .mapillaryjs-popup-tip-inner {
+.mapillary-popup-float-bottom-right .mapillary-popup-tip-inner {
     position: relative;
     bottom: -2px;
     left: 1px;
@@ -127,14 +127,14 @@
     border-left: none;
 }
 
-.mapillaryjs-popup-float-bottom-left .mapillaryjs-popup-tip {
+.mapillary-popup-float-bottom-left .mapillary-popup-tip {
     align-self: flex-end;
     border-bottom-color:black;
     border-top: none;
     border-right: none;
 }
 
-.mapillaryjs-popup-float-bottom-left .mapillaryjs-popup-tip-inner {
+.mapillary-popup-float-bottom-left .mapillary-popup-tip-inner {
     position: relative;
     bottom: -2px;
     left: -8px;
@@ -143,13 +143,13 @@
     border-right: none;
 }
 
-.mapillaryjs-popup-float-left .mapillaryjs-popup-tip {
+.mapillary-popup-float-left .mapillary-popup-tip {
     align-self: center;
     border-left-color: black;
     border-right: none;
 }
 
-.mapillaryjs-popup-float-left .mapillaryjs-popup-tip-inner {
+.mapillary-popup-float-left .mapillary-popup-tip-inner {
     position: relative;
     top: -7px;
     left: -8px;
@@ -157,13 +157,13 @@
     border-right: none;
 }
 
-.mapillaryjs-popup-float-right .mapillaryjs-popup-tip {
+.mapillary-popup-float-right .mapillary-popup-tip {
     align-self: center;
     border-right-color: black;
     border-left: none;
 }
 
-.mapillaryjs-popup-float-right .mapillaryjs-popup-tip-inner {
+.mapillary-popup-float-right .mapillary-popup-tip-inner {
     position: relative;
     top: -7px;
     left: 1px;
@@ -171,18 +171,18 @@
     border-left: none;
 }
 
-.mapillaryjs-popup-float-top-left .mapillaryjs-popup-content {
+.mapillary-popup-float-top-left .mapillary-popup-content {
     border-bottom-right-radius: 0;
 }
 
-.mapillaryjs-popup-float-top-right .mapillaryjs-popup-content {
+.mapillary-popup-float-top-right .mapillary-popup-content {
     border-bottom-left-radius: 0;
 }
 
-.mapillaryjs-popup-float-bottom-left .mapillaryjs-popup-content {
+.mapillary-popup-float-bottom-left .mapillary-popup-content {
     border-top-right-radius: 0;
 }
 
-.mapillaryjs-popup-float-bottom-right .mapillaryjs-popup-content {
+.mapillary-popup-float-bottom-right .mapillary-popup-content {
     border-top-left-radius: 0;
 }

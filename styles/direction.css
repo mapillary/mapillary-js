@@ -1,0 +1,152 @@
+.mapillary-direction-perspective {
+    display: block;
+    position: absolute;
+    pointer-events: none;
+    transform-style: preserve-3d;
+    z-index: 10;
+}
+
+.mapillary-direction-circle,
+.mapillary-direction-circle-sequence,
+.mapillary-direction-circle-inactive,
+.mapillary-direction-circle-highlight,
+.mapillary-direction-circle-sequence-highlight {
+    position: absolute;
+    border-radius: 50%;
+}
+
+.mapillary-direction-circle,
+.mapillary-direction-circle-sequence,
+.mapillary-direction-circle-highlight,
+.mapillary-direction-circle-sequence-highlight {
+    pointer-events: auto;
+}
+
+.mapillary-direction-circle:hover,
+.mapillary-direction-circle-sequence:hover,
+.mapillary-direction-circle-highlight:hover,
+.mapillary-direction-circle-sequence-highlight:hover {
+    cursor: pointer;
+}
+
+.mapillary-direction-circle,
+.mapillary-direction-circle-sequence {
+    background: rgba(0, 0, 0, 0);
+}
+
+.mapillary-direction-circle-inactive {
+    background: rgba(0, 0, 0, 0);
+    z-index: -1;
+}
+
+.mapillary-direction-circle-highlight,
+.mapillary-direction-circle-sequence-highlight {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.mapillary-direction-arrow-step,
+.mapillary-direction-arrow-pano,
+.mapillary-direction-arrow-inactive {
+    position: absolute;
+    top: 44%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 75%;
+    height: 44.0775%;
+    pointer-events: none;
+}
+
+.mapillary-direction-arrow-step,
+.mapillary-direction-arrow-inactive {
+    background: svg-load('svg/pointer-white.svg');
+    background-repeat: no-repeat;
+}
+
+.mapillary-direction-arrow-inactive {
+    opacity: 0.2;
+    z-index: -1;
+}
+
+.mapillary-direction-arrow-pano {
+    background: svg-load('svg/pointer-wheat.svg');
+    background-repeat: no-repeat;
+}
+
+.mapillary-direction-turn-circle,
+.mapillary-direction-turn-circle-sequence,
+.mapillary-direction-turn-circle-highlight,
+.mapillary-direction-turn-circle-sequence-highlight {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: auto;
+}
+
+.mapillary-direction-turn-circle,
+.mapillary-direction-turn-circle-sequence {
+    background: rgba(0, 0, 0, 0);
+}
+
+.mapillary-direction-turn-circle-highlight,
+.mapillary-direction-turn-circle-sequence-highlight {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.mapillary-direction-turn-circle:hover,
+.mapillary-direction-turn-circle-sequence:hover,
+.mapillary-direction-turn-circle-highlight:hover,
+.mapillary-direction-turn-circle-sequence-highlight:hover {
+    cursor: pointer;
+}
+
+.mapillary-direction-turn-left,
+.mapillary-direction-turn-right,
+.mapillary-direction-turn-around {
+    position: absolute;
+    top: 50%;
+    pointer-events: none;
+    filter: drop-shadow(0px 2px 1px rgba(0, 0, 0, 0.8));
+}
+
+.mapillary-direction-turn-left,
+.mapillary-direction-turn-right {
+    width: 58.794%;
+    height: 70%;
+}
+
+.mapillary-direction-turn-around {
+    left: 50%;
+    width: 75%;
+    height: 63.2475%;
+}
+
+.mapillary-direction-turn-left {
+    left: 45%;
+    background: svg-load('svg/turn.svg');
+    background-repeat: no-repeat;
+    transform: translate(-50%, -50%);
+}
+
+.mapillary-direction-turn-right {
+    left: 55%;
+    background: svg-load('svg/turn.svg');
+    background-repeat: no-repeat;
+    transform: translate(-50%, -50%) scaleX(-1);
+}
+
+.mapillary-direction-turn-around {
+    background: svg-load('svg/turn-around.svg');
+    background-repeat: no-repeat;
+    transform: translate(-50%, -50%);
+}
+
+@media (hover: hover) {
+    .mapillary-direction-circle:hover,
+    .mapillary-direction-circle-sequence:hover {
+        background: rgba(0, 0, 0, 0.4);
+    }
+
+    .mapillary-direction-turn-circle:hover,
+    .mapillary-direction-turn-circle-sequence:hover {
+        background: rgba(0, 0, 0, 0.4);
+    }
+}

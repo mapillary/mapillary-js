@@ -1,21 +1,21 @@
-.mapillary-js.component-tag-create .mapillary-js-interactive,
-.mapillary-js.component-tag-edit-crosshair .mapillary-js-interactive {
+.mapillary-viewer.component-tag-create .mapillary-interactive,
+.mapillary-viewer.component-tag-edit-crosshair .mapillary-interactive {
     cursor: crosshair;
 }
 
-.mapillary-js.component-tag-edit-move .mapillary-js-interactive {
+.mapillary-viewer.component-tag-edit-move .mapillary-interactive {
     cursor: move;
 }
 
-.mapillary-js.component-tag-edit-nesw-resize .mapillary-js-interactive {
+.mapillary-viewer.component-tag-edit-nesw-resize .mapillary-interactive {
     cursor: nesw-resize;
 }
 
-.mapillary-js.component-tag-edit-nwse-resize .mapillary-js-interactive {
+.mapillary-viewer.component-tag-edit-nwse-resize .mapillary-interactive {
     cursor: nwse-resize;
 }
 
-.TagContainer {
+.mapillary-tag-container {
     font-size: 12px;
     font-family: system-ui, -apple-system, BlinkMacSystemFont,
                 "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
@@ -23,29 +23,29 @@
                 "Helvetica Neue", sans-serif;
 }
 
-.TagCompleter,
-.TagInteractor,
-.TagMover,
-.TagResizer,
-.TagSpotInteractor,
-.TagSymbol,
-.TagVertex {
+.mapillary-tag-completer,
+.mapillary-tag-interactor,
+.mapillary-tag-mover,
+.mapillary-tag-resizer,
+.mapillary-tag-spot-interactor,
+.mapillary-tag-symbol,
+.mapillary-tag-vertex {
     position: absolute;
     left: 0;
     top: 0;
 }
 
-.TagSymbol {
+.mapillary-tag-symbol {
     cursor: pointer;
     pointer-events: auto;
 }
 
-.TagMover,
-.TagResizer {
+.mapillary-tag-mover,
+.mapillary-tag-resizer {
     pointer-events: auto;
 }
 
-.TagMover {
+.mapillary-tag-mover {
     border-radius: 7px;
     width: 14px;
     height: 14px;
@@ -53,11 +53,11 @@
     cursor: move;
 }
 
-.TagMover:hover {
+.mapillary-tag-mover:hover {
     opacity: 0.5;
 }
 
-.TagResizer {
+.mapillary-tag-resizer {
     border-radius: 7px;
     width: 14px;
     height: 14px;
@@ -65,18 +65,18 @@
     cursor: crosshair;
 }
 
-.TagResizer:hover {
+.mapillary-tag-resizer:hover {
     opacity: 0.3;
 }
 
-.TagVertex {
+.mapillary-tag-vertex {
     pointer-events: none;
     border-radius: 3px;
     width: 6px;
     height: 6px;
 }
 
-.TagDot {
+.mapillary-tag-dot {
     pointer-events: none;
     border-radius: 1.5px;
     width: 3px;
@@ -84,15 +84,15 @@
     background-color: green;
 }
 
-.TagVertex.TagLarger {
+.mapillary-tag-vertex.mapillary-tag-larger {
     border-radius: 4px;
     width: 8px;
     height: 8px;
 }
 
-.TagInteractor,
-.TagCompleter,
-.TagSpotInteractor {
+.mapillary-tag-interactor,
+.mapillary-tag-completer,
+.mapillary-tag-spot-interactor {
     pointer-events: auto;
     border-radius: 7px;
     width: 14px;
@@ -100,34 +100,34 @@
     opacity: 0;
 }
 
-.TagCompleter.TagLarger {
+.mapillary-tag-completer.mapillary-tag-larger {
     border-radius: 8px;
     width: 16px;
     height: 16px;
 }
 
-.TagInteractor,
-.TagCompleter {
+.mapillary-tag-interactor,
+.mapillary-tag-completer {
     cursor: pointer;
 }
 
-.TagSpotInteractor {
+.mapillary-tag-spot-interactor {
     cursor: move;
 }
 
-.TagCompleter {
+.mapillary-tag-completer {
     background: limegreen;
 }
 
-.TagInteractor {
+.mapillary-tag-interactor {
     background: orangered;
 }
 
-.TagCompleter:hover,
-.TagInteractor:hover {
+.mapillary-tag-completer:hover,
+.mapillary-tag-interactor:hover {
     opacity: 0.6;
 }
 
-.TagSpotInteractor:hover {
+.mapillary-tag-spot-interactor:hover {
     opacity: 0.3;
 }

@@ -92,7 +92,7 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
                         style: { transform: transform },
                     };
 
-                    vNodes.push(vd.h("div.TagSymbol", properties, [sprite]));
+                    vNodes.push(vd.h("div.mapillary-tag-symbol", properties, [sprite]));
                 }
             }
         } else if (this._tag.text != null && (isRect || isPerspective)) {
@@ -128,7 +128,7 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
                     textContent: this._tag.text,
                 };
 
-                vNodes.push(vd.h("span.TagSymbol", properties, []));
+                vNodes.push(vd.h("span.mapillary-tag-symbol", properties, []));
             }
         }
 
@@ -159,7 +159,7 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
                     style: { background: lineColor, transform: transform },
                 };
 
-                vNodes.push(vd.h("div.TagMover", properties, []));
+                vNodes.push(vd.h("div.mapillary-tag-mover", properties, []));
             }
         }
 
@@ -199,7 +199,7 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
                 style: { background: lineColor, transform: transform, cursor: cursor },
             };
 
-            vNodes.push(vd.h("div.TagResizer", properties, []));
+            vNodes.push(vd.h("div.mapillary-tag-resizer", properties, []));
 
             if (!this._tag.indicateVertices) {
                 continue;
@@ -209,7 +209,7 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
                 style: { background: lineColor, transform: transform },
             };
 
-            vNodes.push(vd.h("div.TagVertex", pointProperties, []));
+            vNodes.push(vd.h("div.mapillary-tag-vertex", pointProperties, []));
         }
 
         return vNodes;

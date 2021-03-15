@@ -312,7 +312,7 @@ export class RouteComponent extends Component<IRouteConfiguration> {
     }
 
     private _getRouteAnnotationNode(description: string): vd.VNode {
-        return vd.h("div.RouteFrame", {}, [
+        return vd.h("div.mapillary-route-frame", {}, [
             vd.h("p", { textContent: description }, []),
         ]);
     }

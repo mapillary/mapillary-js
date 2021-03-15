@@ -38,28 +38,30 @@ export class Container {
 
         this._dom = !!dom ? dom : new DOM();
 
-        if (typeof options.container === 'string') {
+        if (typeof options.container === "string") {
             this._container =
                 this._dom.document.getElementById(options.container);
             if (!this._container) {
-                throw new Error(`Container '${options.container}' not found.`);
+                throw new Error(`Container "${options.container}" not found.`);
             }
         } else if (options.container instanceof HTMLElement) {
             this._container = options.container;
         } else {
-            throw new Error(`Invalid type: 'container' must be a String or HTMLElement.`);
+            throw new Error(`Invalid type: "container" must be a String or HTMLElement.`);
         }
 
-        this.id = !!this._container.id ? this._container.id : "mapillary-js-fallback-container-id";
+        this.id = !!this._container.id ? this._container.id : "mapillary-fallback-container-id";
 
-        this._container.classList.add("mapillary-js");
-        this._domContainer = this._dom.createElement("div", "mapillary-js-dom", this._container);
+        this._container.classList.add("mapillary-viewer");
+        this._canvasContainer = this._dom.createElement("div", "mapillary-interactive", this._container);
 
-        this._canvasContainer = this._dom.createElement("div", "mapillary-js-interactive", this._container);
-
-        this._canvas = this._dom.createElement("canvas", "mapillary-js-canvas");
+        this._canvas = this._dom.createElement("canvas", "mapillary-canvas");
         this._canvas.style.position = "absolute";
         this._canvas.setAttribute("tabindex", "0");
+
+        // Add DOM container after canvas container to render DOM
+        // elements on top of the interactive canvas.
+        this._domContainer = this._dom.createElement("div", "mapillary-dom", this._container);
 
         this.renderService = new RenderService(
             this._container,
@@ -120,7 +122,7 @@ export class Container {
         this._removeNode(this._canvasContainer);
         this._removeNode(this._domContainer);
 
-        this._container.classList.remove('mapillary-js');
+        this._container.classList.remove("mapillary-viewer");
     }
 
     private _removeNode(node: Node): void {

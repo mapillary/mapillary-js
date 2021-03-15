@@ -270,12 +270,12 @@ export class BearingComponent extends Component<IBearingConfiguration> {
 
                         const compact: string = configuration.size === ComponentSize.Small ||
                             configuration.size === ComponentSize.Automatic && size.width < 640 ?
-                            ".BearingCompact" : "";
+                            ".mapillary-bearing-compact" : "";
 
                         return {
                             name: this._name,
                             vnode: vd.h(
-                                "div.BearingIndicatorContainer" + compact,
+                                "div.mapillary-bearing-indicator-container" + compact,
                                 { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
                                 [
                                     background,
@@ -443,9 +443,9 @@ export class BearingComponent extends Component<IBearingConfiguration> {
     }
 
     private _createNorth(bearing: number): vd.VNode {
-        const north: vd.VNode = vd.h("div.BearingNorth", []);
+        const north: vd.VNode = vd.h("div.mapillary-bearing-north", []);
         const container: vd.VNode = vd.h(
-            "div.BearingNorthContainer",
+            "div.mapillary-bearing-north-container",
             { style: { transform: `rotateZ(${this._spatial.radToDeg(-bearing)}deg)` } },
             [north]);
 
@@ -454,14 +454,14 @@ export class BearingComponent extends Component<IBearingConfiguration> {
 
     private _createBackground(bearing: number): vd.VNode {
         return vd.h(
-            "div.BearingIndicatorBackground",
+            "div.mapillary-bearing-indicator-background",
             { style: { transform: `rotateZ(${this._spatial.radToDeg(-bearing)}deg)` } },
             [
-                vd.h("div.BearingIndicatorBackgroundCircle", []),
+                vd.h("div.mapillary-bearing-indicator-background-circle", []),
                 vd.h(
-                    "div.BearingIndicatorBackgroundArrowContainer",
+                    "div.mapillary-bearing-indicator-background-arrow-container",
                     [
-                        vd.h("div.BearingIndicatorBackgroundArrow", []),
+                        vd.h("div.mapillary-bearing-indicator-background-arrow", []),
                     ]),
             ]);
     }

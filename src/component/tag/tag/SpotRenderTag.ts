@@ -68,7 +68,7 @@ export class SpotRenderTag extends RenderTag<SpotTag> {
                     textContent: tag.text,
                 };
 
-                vNodes.push(vd.h("span.TagSymbol", properties, []));
+                vNodes.push(vd.h("span.mapillary-tag-symbol", properties, []));
             }
 
             const interact: (e: MouseEvent) => void = this._interact(TagOperation.Centroid, tag, "move");
@@ -84,7 +84,7 @@ export class SpotRenderTag extends RenderTag<SpotTag> {
                     },
                 };
 
-                vNodes.push(vd.h("div.TagSpotInteractor", interactorProperties, []));
+                vNodes.push(vd.h("div.mapillary-tag-spot-interactor", interactorProperties, []));
             }
 
             const pointProperties: vd.createProperties = {
@@ -94,7 +94,7 @@ export class SpotRenderTag extends RenderTag<SpotTag> {
                 },
             };
 
-            vNodes.push(vd.h("div.TagVertex", pointProperties, []));
+            vNodes.push(vd.h("div.mapillary-tag-vertex", pointProperties, []));
         }
 
         return vNodes;

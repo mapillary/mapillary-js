@@ -45,19 +45,18 @@ export class NavigationComponent extends Component<INavigationConfiguration> {
         super(name, container, navigator);
 
         this._seqNames = {};
-        this._seqNames[EdgeDirection[EdgeDirection.Prev]] = "Prev";
-        this._seqNames[EdgeDirection[EdgeDirection.Next]] = "Next";
+        this._seqNames[EdgeDirection[EdgeDirection.Prev]] = "-prev";
+        this._seqNames[EdgeDirection[EdgeDirection.Next]] = "-next";
 
         this._spaTopNames = {};
-        this._spaTopNames[EdgeDirection[EdgeDirection.TurnLeft]] = "Turnleft";
-        this._spaTopNames[EdgeDirection[EdgeDirection.StepLeft]] = "Left";
-        this._spaTopNames[EdgeDirection[EdgeDirection.StepForward]] = "Forward";
-        this._spaTopNames[EdgeDirection[EdgeDirection.StepRight]] = "Right";
-        this._spaTopNames[EdgeDirection[EdgeDirection.TurnRight]] = "Turnright";
-
+        this._spaTopNames[EdgeDirection[EdgeDirection.TurnLeft]] = "-turn-left";
+        this._spaTopNames[EdgeDirection[EdgeDirection.StepLeft]] = "-left";
+        this._spaTopNames[EdgeDirection[EdgeDirection.StepForward]] = "-forward";
+        this._spaTopNames[EdgeDirection[EdgeDirection.StepRight]] = "-right";
+        this._spaTopNames[EdgeDirection[EdgeDirection.TurnRight]] = "-turn-right";
         this._spaBottomNames = {};
-        this._spaBottomNames[EdgeDirection[EdgeDirection.TurnU]] = "Turnaround";
-        this._spaBottomNames[EdgeDirection[EdgeDirection.StepBackward]] = "Backward";
+        this._spaBottomNames[EdgeDirection[EdgeDirection.TurnU]] = "-turn-around";
+        this._spaBottomNames[EdgeDirection[EdgeDirection.StepBackward]] = "-backward";
     }
 
     protected _activate(): void {
@@ -104,10 +103,10 @@ export class NavigationComponent extends Component<INavigationConfiguration> {
                         const spaTops: vd.VNode[] = this._createArrowRow(this._spaTopNames, edgeDirections);
                         const spaBottoms: vd.VNode[] = this._createArrowRow(this._spaBottomNames, edgeDirections);
 
-                        const seqContainer: vd.VNode = vd.h(`div.NavigationSequence`, seqs);
+                        const seqContainer: vd.VNode = vd.h(`div.mapillary-navigation-sequence`, seqs);
                         const spaTopContainer: vd.VNode = vd.h(`div.NavigationSpatialTop`, spaTops);
-                        const spaBottomContainer: vd.VNode = vd.h(`div.NavigationSpatialBottom`, spaBottoms);
-                        const spaContainer: vd.VNode = vd.h(`div.NavigationSpatial`, [spaTopContainer, spaBottomContainer]);
+                        const spaBottomContainer: vd.VNode = vd.h(`div.mapillary-navigation-spatial-bottom`, spaBottoms);
+                        const spaContainer: vd.VNode = vd.h(`div.mapillary-navigation-spatial`, [spaTopContainer, spaBottomContainer]);
 
                         return { name: this._name, vnode: vd.h(`div.NavigationContainer`, [seqContainer, spaContainer]) };
                     }))
@@ -143,7 +142,7 @@ export class NavigationComponent extends Component<INavigationConfiguration> {
 
     private _createVNode(direction: EdgeDirection, name: string, visibility: string): vd.VNode {
         return vd.h(
-            `span.Direction.Direction${name}`,
+            `span.mapillary-navigation-button.mapillary-navigation${name}`,
             {
                 onclick: (): void => {
                     this._navigator.moveDir$(direction)

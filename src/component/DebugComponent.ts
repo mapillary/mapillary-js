@@ -71,8 +71,8 @@ export class DebugComponent extends Component<IComponentConfiguration> {
 
     private _getDebugVNode(open: boolean, info: vd.VNode[]): vd.VNode {
         if (open) {
-            return vd.h("div.Debug", {}, [
-                vd.h("h2", {}, ["Debug"]),
+            return vd.h("div.mapillary-debug", {}, [
+                vd.h("h2", {}, ["mapillary-debug"]),
                 this._getDebugVNodeButton(open),
                 vd.h("pre", {}, info),
             ]);
@@ -82,17 +82,17 @@ export class DebugComponent extends Component<IComponentConfiguration> {
     }
 
     private _getDebugVNodeButton(open: boolean): any {
-        let buttonText: string = open ? "Disable Debug" : "D";
-        let buttonCssClass: string = open ? "" : ".DebugButtonFixed";
+        let buttonText: string = open ? "Disable mapillary-debug" : "D";
+        let buttonCssClass: string = open ? "" : ".mapillary-debug-button-fixed";
 
         if (open) {
             return vd.h(
-                `button.DebugButton${buttonCssClass}`,
+                `button.mapillary-debug-button${buttonCssClass}`,
                 { onclick: this._closeDebugElement.bind(this) },
                 [buttonText]);
         } else {
             return vd.h(
-                `button.DebugButton${buttonCssClass}`,
+                `button.mapillary-debug-button${buttonCssClass}`,
                 { onclick: this._openDebugElement.bind(this) },
                 [buttonText]);
         }

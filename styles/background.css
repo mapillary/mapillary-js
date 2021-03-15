@@ -1,4 +1,4 @@
-.BackgroundWrapper {
+.mapillary-background-wrapper {
     background-color: black;
     position: absolute;
     top: 0;
@@ -11,11 +11,10 @@
     padding-top: 30%;
 }
 
-.Background p {
+.mapillary-background-wrapper p {
     position: relative;
     padding: 5px;
     font-family: Helvetica, Arial, sans-serif;
     font-size: 12px;
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.75);
 }
-

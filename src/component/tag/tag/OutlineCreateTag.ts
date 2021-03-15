@@ -80,8 +80,8 @@ export class OutlineCreateTag extends CreateTag<VertexGeometry> {
                     style: { transform: transform },
                 };
 
-                vNodes.push(vd.h("div.TagInteractor", completerProperties, []));
-                vNodes.push(vd.h("div.TagVertex", pointProperties, []));
+                vNodes.push(vd.h("div.mapillary-tag-interactor", completerProperties, []));
+                vNodes.push(vd.h("div.mapillary-tag-vertex", pointProperties, []));
             }
         } else if (this._geometry instanceof PolygonGeometry) {
             const polygonGeometry: PolygonGeometry = <PolygonGeometry>this._geometry;
@@ -111,8 +111,8 @@ export class OutlineCreateTag extends CreateTag<VertexGeometry> {
                 };
 
                 const firstClass: string = polygonGeometry.polygon.length > 4 ?
-                    "TagCompleter" :
-                    "TagInteractor";
+                    "mapillary-tag-completer" :
+                    "mapillary-tag-interactor";
 
                 vNodes.push(vd.h("div." + firstClass, completerProperties, []));
             }
@@ -139,7 +139,7 @@ export class OutlineCreateTag extends CreateTag<VertexGeometry> {
                         style: { transform: transform },
                     };
 
-                    vNodes.push(vd.h("div.TagInteractor", completerProperties, []));
+                    vNodes.push(vd.h("div.mapillary-tag-interactor", completerProperties, []));
                 }
             }
 
@@ -164,7 +164,7 @@ export class OutlineCreateTag extends CreateTag<VertexGeometry> {
                         },
                     };
 
-                    vNodes.push(vd.h("div.TagVertex", pointProperties, []));
+                    vNodes.push(vd.h("div.mapillary-tag-vertex", pointProperties, []));
                 }
             }
         }

@@ -195,9 +195,9 @@ export class Popup {
             this._content.parentNode.removeChild(this._content);
         }
 
-        const className: string = "mapillaryjs-popup-content" +
+        const className: string = "mapillary-popup-content" +
             (this._options.clean === true ? "-clean" : "") +
-            (this._options.capturePointer === true ? " mapillaryjs-popup-capture-pointer" : "");
+            (this._options.capturePointer === true ? " mapillary-popup-capture-pointer" : "");
 
         this._content = this._dom.createElement("div", className, this._container);
 
@@ -287,7 +287,7 @@ export class Popup {
         }
 
         if (!this._container) {
-            this._container = this._dom.createElement("div", "mapillaryjs-popup", this._parentContainer);
+            this._container = this._dom.createElement("div", "mapillary-popup", this._parentContainer);
 
             const showTip: boolean =
                 this._options.clean !== true &&
@@ -295,11 +295,11 @@ export class Popup {
 
             if (showTip) {
                 const tipClassName: string =
-                    "mapillaryjs-popup-tip" +
-                    (this._options.capturePointer === true ? " mapillaryjs-popup-capture-pointer" : "");
+                    "mapillary-popup-tip" +
+                    (this._options.capturePointer === true ? " mapillary-popup-capture-pointer" : "");
 
                 this._tip = this._dom.createElement("div", tipClassName, this._container);
-                this._dom.createElement("div", "mapillaryjs-popup-tip-inner", this._tip);
+                this._dom.createElement("div", "mapillary-popup-tip-inner", this._tip);
             }
 
             this._container.appendChild(this._content);
@@ -330,7 +330,7 @@ export class Popup {
 
             let appliedPosition: PopupAlignment = null;
             for (const alignment of alignments) {
-                if (classList.contains(`mapillaryjs-popup-float-${alignment}`)) {
+                if (classList.contains(`mapillary-popup-float-${alignment}`)) {
                     appliedPosition = alignment;
                     break;
                 }
@@ -380,10 +380,10 @@ export class Popup {
                 continue;
             }
 
-            classList.remove(`mapillaryjs-popup-float-${key}`);
+            classList.remove(`mapillary-popup-float-${key}`);
         }
 
-        classList.add(`mapillaryjs-popup-float-${float}`);
+        classList.add(`mapillary-popup-float-${float}`);
 
         this._container.style.transform = `${floatTranslate[float]} translate(${pointPixel[0]}px,${pointPixel[1]}px)`;
     }

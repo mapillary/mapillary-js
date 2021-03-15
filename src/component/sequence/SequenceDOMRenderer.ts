@@ -144,7 +144,7 @@ export class SequenceDOMRenderer {
         navigator: Navigator): vd.VNode {
 
         if (configuration.visible === false) {
-            return vd.h("div.SequenceContainer", {}, []);
+            return vd.h("div.mapillary-sequence-container", {}, []);
         }
 
         const stepper: vd.VNode =
@@ -159,7 +159,7 @@ export class SequenceDOMRenderer {
         const playback: vd.VNode = this._createPlaybackControls(containerWidth, speed, component, configuration);
         const timeline: vd.VNode = this._createTimelineControls(containerWidth, index, max);
 
-        return vd.h("div.SequenceContainer", [stepper, controls, playback, timeline]);
+        return vd.h("div.mapillary-sequence-container", [stepper, controls, playback, timeline]);
     }
 
     public getContainerWidth(size: ISize, configuration: ISequenceConfiguration): number {
@@ -231,9 +231,9 @@ export class SequenceDOMRenderer {
             positionInputProperties.disabled = "true";
         }
 
-        const positionInput: vd.VNode = vd.h("input.SequencePosition", positionInputProperties, []);
+        const positionInput: vd.VNode = vd.h("input.mapillary-sequence-position", positionInputProperties, []);
 
-        const positionContainerClass: string = disabled ? ".SequencePositionContainerDisabled" : ".SequencePositionContainer";
+        const positionContainerClass: string = disabled ? ".mapillary-sequence-position-container-inactive" : ".mapillary-sequence-position-container";
 
         return vd.h("div" + positionContainerClass, [positionInput]);
     }
@@ -268,7 +268,7 @@ export class SequenceDOMRenderer {
         };
 
         const speedInput: vd.VNode = vd.h(
-            "input.SequenceSpeed",
+            "input.mapillary-sequence-speed",
             {
                 max: 1000,
                 min: 0,
@@ -287,7 +287,7 @@ export class SequenceDOMRenderer {
             },
             []);
 
-        return vd.h("div.SequenceSpeedContainer", [speedInput]);
+        return vd.h("div.mapillary-sequence-speed-container", [speedInput]);
     }
 
     private _createPlaybackControls(
@@ -297,10 +297,10 @@ export class SequenceDOMRenderer {
         configuration: ISequenceConfiguration): vd.VNode {
 
         if (this._mode !== SequenceMode.Playback) {
-            return vd.h("div.SequencePlayback", []);
+            return vd.h("div.mapillary-sequence-playback", []);
         }
 
-        const switchIcon: vd.VNode = vd.h("div.SequenceSwitchIcon.SequenceIconVisible", []);
+        const switchIcon: vd.VNode = vd.h("div.mapillary-sequence-switch-icon.mapillary-sequence-icon-visible", []);
         const direction: EdgeDirection = configuration.direction === EdgeDirection.Next ?
             EdgeDirection.Prev : EdgeDirection.Next;
 
@@ -312,20 +312,20 @@ export class SequenceDOMRenderer {
                 }
             },
         };
-        const switchButtonClassName: string = configuration.playing ? ".SequenceSwitchButtonDisabled" : ".SequenceSwitchButton";
+        const switchButtonClassName: string = configuration.playing ? ".mapillary-sequence-switch-button-inactive" : ".mapillary-sequence-switch-button";
         const switchButton: vd.VNode = vd.h("div" + switchButtonClassName, switchButtonProperties, [switchIcon]);
-        const slowIcon: vd.VNode = vd.h("div.SequenceSlowIcon.SequenceIconVisible", []);
-        const slowContainer: vd.VNode = vd.h("div.SequenceSlowContainer", [slowIcon]);
-        const fastIcon: vd.VNode = vd.h("div.SequenceFastIcon.SequenceIconVisible", []);
-        const fastContainer: vd.VNode = vd.h("div.SequenceFastContainer", [fastIcon]);
-        const closeIcon: vd.VNode = vd.h("div.SequenceCloseIcon.SequenceIconVisible", []);
+        const slowIcon: vd.VNode = vd.h("div.mapillary-sequence-slow-icon.mapillary-sequence-icon-visible", []);
+        const slowContainer: vd.VNode = vd.h("div.mapillary-sequence-slow-container", [slowIcon]);
+        const fastIcon: vd.VNode = vd.h("div.mapillary-sequence-fast-icon.mapillary-sequence-icon-visible", []);
+        const fastContainer: vd.VNode = vd.h("div.mapillary-sequence-fast-container", [fastIcon]);
+        const closeIcon: vd.VNode = vd.h("div.mapillary-sequence-close-icon.mapillary-sequence-icon-visible", []);
         const closeButtonProperties: vd.createProperties = {
             onclick: (): void => {
                 this._mode = SequenceMode.Default;
                 this._notifyChanged$.next(this);
             },
         };
-        const closeButton: vd.VNode = vd.h("div.SequenceCloseButton", closeButtonProperties, [closeIcon]);
+        const closeButton: vd.VNode = vd.h("div.mapillary-sequence-close-button", closeButtonProperties, [closeIcon]);
         const speedInput: vd.VNode = this._createSpeedInput(speed);
 
         const playbackChildren: vd.VNode[] = [switchButton, slowContainer, speedInput, fastContainer, closeButton];
@@ -333,7 +333,7 @@ export class SequenceDOMRenderer {
         const top: number = Math.round(containerWidth / this._stepperDefaultWidth * this._defaultHeight + 10);
         const playbackProperties: vd.createProperties = { style: { top: `${top}px` } };
 
-        return vd.h("div.SequencePlayback", playbackProperties, playbackChildren);
+        return vd.h("div.mapillary-sequence-playback", playbackProperties, playbackChildren);
     }
 
     private _createPlayingButton(
@@ -355,8 +355,8 @@ export class SequenceDOMRenderer {
         let buttonProperties: vd.createProperties = { onclick: onclick };
 
         let iconClass: string = configuration.playing ?
-            "Stop" :
-            canPlay ? "Play" : "PlayDisabled";
+            "mapillary-sequence-icon-stop" :
+            canPlay ? "mapillary-sequence-icon-play" : "mapillary-sequence-icon-play-inactive";
 
         let iconProperties: vd.createProperties = { className: iconClass };
         if (configuration.direction === EdgeDirection.Prev) {
@@ -365,9 +365,9 @@ export class SequenceDOMRenderer {
             };
         }
 
-        let icon: vd.VNode = vd.h("div.SequenceComponentIcon", iconProperties, []);
+        let icon: vd.VNode = vd.h("div.mapillary-sequence-icon", iconProperties, []);
 
-        let buttonClass: string = canPlay ? "SequencePlay" : "SequencePlayDisabled";
+        let buttonClass: string = canPlay ? "mapillary-sequence-play" : "mapillary-sequence-play-inactive";
 
         return vd.h("div." + buttonClass, buttonProperties, [icon]);
     }
@@ -385,11 +385,11 @@ export class SequenceDOMRenderer {
                 "border-top-right-radius": `${borderRadius}px`,
             },
         };
-        const expanderBar: vd.VNode = vd.h("div.SequenceExpanderBar", []);
-        const expander: vd.VNode = vd.h("div.SequenceExpanderButton", expanderProperties, [expanderBar]);
+        const expanderBar: vd.VNode = vd.h("div.mapillary-sequence-expander-bar", []);
+        const expander: vd.VNode = vd.h("div.mapillary-sequence-expander-button", expanderProperties, [expanderBar]);
 
         const fastIconClassName: string = this._mode === SequenceMode.Playback ?
-            ".SequenceFastIconGrey.SequenceIconVisible" : ".SequenceFastIcon";
+            ".mapillary-sequence-fast-icon-gray.mapillary-sequence-icon-visible" : ".mapillary-sequence-fast-icon";
         const fastIcon: vd.VNode = vd.h("div" + fastIconClassName, []);
         const playbackProperties: vd.createProperties = {
             onclick: (): void => {
@@ -400,10 +400,10 @@ export class SequenceDOMRenderer {
             },
         };
 
-        const playback: vd.VNode = vd.h("div.SequencePlaybackButton", playbackProperties, [fastIcon]);
+        const playback: vd.VNode = vd.h("div.mapillary-sequence-playback-button", playbackProperties, [fastIcon]);
 
         const timelineIconClassName: string = this._mode === SequenceMode.Timeline ?
-            ".SequenceTimelineIconGrey.SequenceIconVisible" : ".SequenceTimelineIcon";
+            ".mapillary-sequence-timeline-icon-gray.mapillary-sequence-icon-visible" : ".mapillary-sequence-timeline-icon";
         const timelineIcon: vd.VNode = vd.h("div" + timelineIconClassName, []);
         const timelineProperties: vd.createProperties = {
             onclick: (): void => {
@@ -414,7 +414,7 @@ export class SequenceDOMRenderer {
             },
         };
 
-        const timeline: vd.VNode = vd.h("div.SequenceTimelineButton", timelineProperties, [timelineIcon]);
+        const timeline: vd.VNode = vd.h("div.mapillary-sequence-timeline-button", timelineProperties, [timelineIcon]);
 
         const properties: vd.createProperties = {
             style: {
@@ -424,8 +424,8 @@ export class SequenceDOMRenderer {
             },
         };
 
-        const className: string = ".SequenceControls" +
-            (this._expandControls ? ".SequenceControlsExpanded" : "");
+        const className: string = ".mapillary-sequence-controls" +
+            (this._expandControls ? ".mapillary-sequence-controls-expanded" : "");
 
         return vd.h("div" + className, properties, [playback, timeline, expander]);
     }
@@ -479,8 +479,8 @@ export class SequenceDOMRenderer {
         let nextClass: string = this._getStepClassName(EdgeDirection.Next, nextKey, configuration.highlightKey);
         let prevClass: string = this._getStepClassName(EdgeDirection.Prev, prevKey, configuration.highlightKey);
 
-        let nextIcon: vd.VNode = vd.h("div.SequenceComponentIcon", []);
-        let prevIcon: vd.VNode = vd.h("div.SequenceComponentIcon", []);
+        let nextIcon: vd.VNode = vd.h("div.mapillary-sequence-icon", []);
+        let prevIcon: vd.VNode = vd.h("div.mapillary-sequence-icon", []);
 
         return [
             vd.h("div." + prevClass, prevProperties, [prevIcon]),
@@ -523,17 +523,17 @@ export class SequenceDOMRenderer {
             },
         };
 
-        return vd.h("div.SequenceStepper", containerProperties, buttons);
+        return vd.h("div.mapillary-sequence-stepper", containerProperties, buttons);
     }
 
     private _createTimelineControls(containerWidth: number, index: number, max: number): vd.VNode {
         if (this._mode !== SequenceMode.Timeline) {
-            return vd.h("div.SequenceTimeline", []);
+            return vd.h("div.mapillary-sequence-timeline", []);
         }
 
         const positionInput: vd.VNode = this._createPositionInput(index, max);
 
-        const closeIcon: vd.VNode = vd.h("div.SequenceCloseIcon.SequenceIconVisible", []);
+        const closeIcon: vd.VNode = vd.h("div.mapillary-sequence-close-icon.mapillary-sequence-icon-visible", []);
         const closeButtonProperties: vd.createProperties = {
             onclick: (): void => {
                 this._mode = SequenceMode.Default;
@@ -541,24 +541,24 @@ export class SequenceDOMRenderer {
             },
         };
 
-        const closeButton: vd.VNode = vd.h("div.SequenceCloseButton", closeButtonProperties, [closeIcon]);
+        const closeButton: vd.VNode = vd.h("div.mapillary-sequence-close-button", closeButtonProperties, [closeIcon]);
 
         const top: number = Math.round(containerWidth / this._stepperDefaultWidth * this._defaultHeight + 10);
         const playbackProperties: vd.createProperties = { style: { top: `${top}px` } };
 
-        return vd.h("div.SequenceTimeline", playbackProperties, [positionInput, closeButton]);
+        return vd.h("div.mapillary-sequence-timeline", playbackProperties, [positionInput, closeButton]);
     }
 
     private _getStepClassName(direction: EdgeDirection, key: string, highlightKey: string): string {
         let className: string = direction === EdgeDirection.Next ?
-            "SequenceStepNext" :
-            "SequenceStepPrev";
+            "mapillary-sequence-step-next" :
+            "mapillary-sequence-step-prev";
 
         if (key == null) {
-            className += "Disabled";
+            className += "-inactive";
         } else {
             if (highlightKey === key) {
-                className += "Highlight";
+                className += "-highlight";
             }
         }
 

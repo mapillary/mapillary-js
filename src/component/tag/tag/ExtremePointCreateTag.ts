@@ -88,7 +88,7 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
                 style: { transform: transform },
             };
 
-            vNodes.push(vd.h("div.TagInteractor", completerProperties, []));
+            vNodes.push(vd.h("div.mapillary-tag-interactor", completerProperties, []));
 
             const background: string = this._colorToBackground(this._options.color);
             const pointProperties: vd.createProperties = {
@@ -98,7 +98,7 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
                 },
             };
 
-            vNodes.push(vd.h("div.TagVertex", pointProperties, []));
+            vNodes.push(vd.h("div.mapillary-tag-vertex", pointProperties, []));
         }
 
         if (length > 2 && this._options.indicateCompleter === true) {
@@ -124,7 +124,7 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
                     style: { transform: transform },
                 };
 
-                vNodes.push(vd.h("div.TagCompleter.TagLarger", completerProperties, []));
+                vNodes.push(vd.h("div.mapillary-tag-completer.mapillary-tag-larger", completerProperties, []));
 
                 const pointProperties: vd.createProperties = {
                     style: {
@@ -133,7 +133,7 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
                     },
                 };
 
-                vNodes.push(vd.h("div.TagVertex.TagLarger", pointProperties, []));
+                vNodes.push(vd.h("div.mapillary-tag-vertex.mapillary-tag-larger", pointProperties, []));
 
                 const dotProperties: vd.createProperties = {
                     style: {
@@ -141,7 +141,7 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
                     },
                 };
 
-                vNodes.push(vd.h("div.TagDot", dotProperties, []));
+                vNodes.push(vd.h("div.mapillary-tag-dot", dotProperties, []));
             }
         }
 

@@ -1,4 +1,4 @@
-.Debug {
+.mapillary-debug {
     position: fixed;
     top: 0;
     right: 0;
@@ -11,7 +11,7 @@
     z-index: 50;
 }
 
-.DebugButton {
+.mapillary-debug-button {
     background-color: lime;
     color: white;
     border: 1px solid white;
@@ -20,7 +20,7 @@
     z-index: 50;
 }
 
-.DebugButtonFixed {
+.mapillary-debug-button-fixed {
     position: absolute;
     bottom: 2px;
     left: 2px;

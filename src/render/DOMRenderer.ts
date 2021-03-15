@@ -76,7 +76,7 @@ export class DOMRenderer {
 
         const subs = this._subscriptions;
 
-        const rootNode = vd.create(vd.h("div.domRenderer", []));
+        const rootNode = vd.create(vd.h("div.mapillary-dom-renderer", []));
         element.appendChild(rootNode);
 
         this._offset$ = this._adaptiveOperation$.pipe(
@@ -189,8 +189,8 @@ export class DOMRenderer {
                         };
 
                         return {
-                            name: "adaptiveDomRenderer",
-                            vnode: vd.h("div.adaptiveDomRenderer", properties, vNodes),
+                            name: "mapillary-dom-adaptive-renderer",
+                            vnode: vd.h("div.mapillary-dom-adaptive-renderer", properties, vNodes),
                         };
                     }))
             .subscribe(this._render$);
@@ -218,7 +218,7 @@ export class DOMRenderer {
                         vNodes.push(hashes[name]);
                     }
 
-                    return vd.h("div.domRenderer", vNodes);
+                    return vd.h("div.mapillary-dom-renderer", vNodes);
                 }));
 
         this._vPatch$ = this._vNode$.pipe(
@@ -228,7 +228,7 @@ export class DOMRenderer {
                     nodePatch.vnode = vNode;
                     return nodePatch;
                 },
-                { vnode: vd.h("div.domRenderer", []), vpatch: null }),
+                { vnode: vd.h("div.mapillary-dom-renderer", []), vpatch: null }),
             pluck<INodePatch, vd.VPatch[]>("vpatch"));
 
         this._element$ = this._vPatch$.pipe(
