@@ -50,12 +50,6 @@ export interface ISpatialDataConfiguration extends IComponentConfiguration {
     cameraVisualizationMode?: CameraVisualizationMode;
 
     /**
-     * @deprecated Deprecated since v2.19.0. Use cameraVisualizationMode
-     * property instead.
-     */
-    connectedComponents?: boolean;
-
-    /**
      * Specify if the camera should be controlled in earth
      * mode.
      *
@@ -89,12 +83,6 @@ export interface ISpatialDataConfiguration extends IComponentConfiguration {
      * @default true
      */
     pointsVisible?: boolean;
-
-    /**
-     * @deprecated Deprecated since v3.1.0. Use originalPositionMode
-     * property instead.
-     */
-    positionsVisible?: boolean;
 
     /**
      * Specify if the currently rendered tiles should be indicted on the ground.

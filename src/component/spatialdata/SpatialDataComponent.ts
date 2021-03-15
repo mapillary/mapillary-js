@@ -294,11 +294,9 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         cameraSize: c.cameraSize,
                         cameraVisualizationMode: c.cameraVisualizationMode,
                         camerasVisible: c.camerasVisible,
-                        connectedComponents: c.connectedComponents,
                         originalPositionMode: c.originalPositionMode,
                         pointSize: c.pointSize,
                         pointsVisible: c.pointsVisible,
-                        positionsVisible: c.positionsVisible,
                         tilesVisible: c.tilesVisible,
                     }
                 }),
@@ -307,11 +305,9 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     return c1.cameraSize === c2.cameraSize &&
                         c1.cameraVisualizationMode === c2.cameraVisualizationMode &&
                         c1.camerasVisible === c2.camerasVisible &&
-                        c1.connectedComponents === c2.connectedComponents &&
                         c1.originalPositionMode === c2.originalPositionMode &&
                         c1.pointSize === c2.pointSize &&
                         c1.pointsVisible === c2.pointsVisible &&
-                        c1.positionsVisible === c2.positionsVisible &&
                         c1.tilesVisible === c2.tilesVisible;
                 }))
             .subscribe(
@@ -321,15 +317,10 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     this._scene.setPointSize(c.pointSize);
                     this._scene.setPointVisibility(c.pointsVisible);
                     this._scene.setTileVisibility(c.tilesVisible);
-                    const cvm = c.connectedComponents ?
-                        CameraVisualizationMode.ConnectedComponent :
-                        c.cameraVisualizationMode;
+                    const cvm = c.cameraVisualizationMode;
                     this._scene.setCameraVisualizationMode(cvm);
-                    const pm = c.positionsVisible ?
-                        OriginalPositionMode.Flat :
-                        c.originalPositionMode;
-                    this._scene.setPositionMode(pm);
-
+                    const opm = c.originalPositionMode;
+                    this._scene.setPositionMode(opm);
                 }));
 
         subs.push(hash$
@@ -546,11 +537,9 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             cameraSize: 0.1,
             cameraVisualizationMode: CameraVisualizationMode.Default,
             camerasVisible: false,
-            connectedComponents: false,
             originalPositionMode: OriginalPositionMode.Hidden,
             pointSize: 0.1,
             pointsVisible: true,
-            positionsVisible: false,
             tilesVisible: false,
         };
     }

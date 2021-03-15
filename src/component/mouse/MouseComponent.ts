@@ -1,14 +1,11 @@
 import { Subscription } from "rxjs";
-
 import { Component } from "../Component";
-
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Spatial } from "../../geo/Spatial";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
 import { BounceHandler } from "./BounceHandler";
-import { DoubleClickZoomHandler } from "./DoubleClickZoomHandler";
 import { DragPanHandler } from "./DragPanHandler";
 import { EarthControlHandler } from "./EarthControlHandler";
 import { ScrollZoomHandler } from "./ScrollZoomHandler";
@@ -33,7 +30,6 @@ export class MouseComponent extends Component<IMouseConfiguration> {
     public static componentName: string = "mouse";
 
     private _bounceHandler: BounceHandler;
-    private _doubleClickZoomHandler: DoubleClickZoomHandler;
     private _dragPanHandler: DragPanHandler;
     private _earthControlHandler: EarthControlHandler;
     private _scrollZoomHandler: ScrollZoomHandler;
@@ -49,20 +45,10 @@ export class MouseComponent extends Component<IMouseConfiguration> {
         const viewportCoords: ViewportCoords = new ViewportCoords();
 
         this._bounceHandler = new BounceHandler(this, container, navigator, viewportCoords, spatial);
-        this._doubleClickZoomHandler = new DoubleClickZoomHandler(this, container, navigator, viewportCoords);
         this._dragPanHandler = new DragPanHandler(this, container, navigator, viewportCoords, spatial);
         this._earthControlHandler = new EarthControlHandler(this, container, navigator, viewportCoords, spatial);
         this._scrollZoomHandler = new ScrollZoomHandler(this, container, navigator, viewportCoords);
         this._touchZoomHandler = new TouchZoomHandler(this, container, navigator, viewportCoords);
-    }
-
-    /**
-     * Get double click zoom.
-     *
-     * @returns {DoubleClickZoomHandler} The double click zoom handler.
-     */
-    public get doubleClickZoom(): DoubleClickZoomHandler {
-        return this._doubleClickZoomHandler;
     }
 
     /**
@@ -99,12 +85,6 @@ export class MouseComponent extends Component<IMouseConfiguration> {
         this._configurationSubscription = this._configuration$
             .subscribe(
                 (configuration: IMouseConfiguration): void => {
-                    if (configuration.doubleClickZoom) {
-                        this._doubleClickZoomHandler.enable();
-                    } else {
-                        this._doubleClickZoomHandler.disable();
-                    }
-
                     if (configuration.dragPan) {
                         this._dragPanHandler.enable();
                     } else {
@@ -133,7 +113,6 @@ export class MouseComponent extends Component<IMouseConfiguration> {
         this._configurationSubscription.unsubscribe();
 
         this._bounceHandler.disable();
-        this._doubleClickZoomHandler.disable();
         this._dragPanHandler.disable();
         this._earthControlHandler.disable();
         this._scrollZoomHandler.disable();
@@ -141,6 +120,10 @@ export class MouseComponent extends Component<IMouseConfiguration> {
     }
 
     protected _getDefaultConfiguration(): IMouseConfiguration {
-        return { doubleClickZoom: false, dragPan: true, scrollZoom: true, touchZoom: true };
+        return {
+            dragPan: true,
+            scrollZoom: true,
+            touchZoom: true,
+        };
     }
 }
