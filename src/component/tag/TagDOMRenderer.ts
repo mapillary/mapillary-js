@@ -27,7 +27,7 @@ export class TagDOMRenderer {
             vNodes = vNodes.concat(createTag.getDOMObjects(camera, size));
         }
 
-        return vd.h("div.TagContainer", {}, vNodes);
+        return vd.h("div.mapillary-tag-container", {}, vNodes);
     }
 
     public clear(): vd.VNode {

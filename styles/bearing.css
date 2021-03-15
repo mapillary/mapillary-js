@@ -1,4 +1,4 @@
-.BearingIndicatorContainer {
+.mapillary-bearing-indicator-container {
     bottom: 34px;
     height: 40px;
     pointer-events: none;
@@ -8,13 +8,13 @@
     z-index: 10;
 }
 
-.BearingIndicatorContainer.BearingCompact {
+.mapillary-bearing-indicator-container.mapillary-bearing-compact {
     transform: scale(0.6);
     bottom: 16px;
     right: 2px;
 }
 
-.BearingIndicatorBackground {
+.mapillary-bearing-indicator-background {
     position: absolute;
     top: 0;
     left: 0;
@@ -24,7 +24,7 @@
     transform-origin: 50% 50%;
 }
 
-.BearingIndicatorBackgroundCircle {
+.mapillary-bearing-indicator-background-circle {
     pointer-events: auto;
     position: absolute;
     top: 0;
@@ -35,7 +35,7 @@
     background-color: #000;
 }
 
-.BearingIndicatorBackgroundArrowContainer {
+.mapillary-bearing-indicator-background-arrow-container {
     position: absolute;
     left: 14px;
     top: -3.5px;
@@ -44,7 +44,7 @@
     overflow: hidden;
 }
 
-.BearingIndicatorBackgroundArrow {
+.mapillary-bearing-indicator-background-arrow {
     position: absolute;
     width: 12px;
     height: 12px;
@@ -55,7 +55,7 @@
     border-radius: 2px;
 }
 
-.BearingNorthContainer {
+.mapillary-bearing-north-container {
     position: absolute;
     left: 16px;
     top: -1px;
@@ -64,7 +64,7 @@
     transform-origin: 50% 100%;
 }
 
-.BearingNorth {
+.mapillary-bearing-north {
     position: absolute;
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;

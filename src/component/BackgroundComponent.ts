@@ -28,7 +28,7 @@ export class BackgroundComponent extends Component<IComponentConfiguration> {
 
     private _getBackgroundNode(notice: string): vd.VNode {
         // todo: add condition for when to display the DOM node
-        return vd.h("div.BackgroundWrapper", {}, [
+        return vd.h("div.mapillary-background-wrapper", {}, [
             vd.h("p", { textContent: notice }, []),
         ]);
     }

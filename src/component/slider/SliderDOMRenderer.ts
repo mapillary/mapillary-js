@@ -66,7 +66,7 @@ export class SliderDOMRenderer {
         const children: vd.VNode[] = [];
 
         if (visible) {
-            children.push(vd.h("div.SliderBorder", []));
+            children.push(vd.h("div.mapillary-slider-border", []));
 
             const modeVisible: boolean = !(motionless || pano);
             if (modeVisible) {
@@ -80,7 +80,7 @@ export class SliderDOMRenderer {
         const boundingRect: ClientRect = this._container.domContainer.getBoundingClientRect();
         const width: number = Math.max(215, Math.min(400, boundingRect.width - 100));
 
-        return vd.h("div.SliderContainer", { style: { width: `${width}px` } }, children);
+        return vd.h("div.mapillary-slider-container", { style: { width: `${width}px` } }, children);
     }
 
     private _createModeButton(mode: SliderMode): vd.VNode {
@@ -95,10 +95,10 @@ export class SliderDOMRenderer {
         };
 
         const className: string = mode === SliderMode.Stationary ?
-            "SliderModeButtonDisabled" :
-            "SliderModeButton";
+            "mapillary-slider-mode-button-inactive" :
+            "mapillary-slider-mode-button";
 
-        return vd.h("div." + className, properties, [vd.h("div.SliderModeIcon", [])]);
+        return vd.h("div." + className, properties, [vd.h("div.mapillary-slider-mode-icon", [])]);
     }
 
     private _createModeButton2d(mode: SliderMode): vd.VNode {
@@ -113,10 +113,10 @@ export class SliderDOMRenderer {
         };
 
         const className: string = mode === SliderMode.Motion ?
-            "SliderModeButton2dDisabled" :
-            "SliderModeButton2d";
+            "mapillary-slider-mode-button-2d-inactive" :
+            "mapillary-slider-mode-button-2d";
 
-        return vd.h("div." + className, properties, [vd.h("div.SliderModeIcon2d", [])]);
+        return vd.h("div." + className, properties, [vd.h("div.mapillary-slider-mode-icon-2d", [])]);
     }
 
     private _createPositionInput(position: number, modeVisible: boolean): vd.VNode {
@@ -146,7 +146,7 @@ export class SliderDOMRenderer {
         const width: number = Math.max(215, Math.min(400, boundingRect.width - 105)) - 84 + (modeVisible ? 0 : 52);
 
         const positionInput: vd.VNode = vd.h(
-            "input.SliderPosition",
+            "input.mapillary-slider-position",
             {
                 max: 1000,
                 min: 0,
@@ -165,6 +165,6 @@ export class SliderDOMRenderer {
             },
             []);
 
-        return vd.h("div.SliderPositionContainer", [positionInput]);
+        return vd.h("div.mapillary-slider-position-container", [positionInput]);
     }
 }

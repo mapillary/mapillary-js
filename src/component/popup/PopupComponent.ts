@@ -142,7 +142,7 @@ export class PopupComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        this._popupContainer = this._dom.createElement("div", "mapillary-js-popup-container", this._container.container);
+        this._popupContainer = this._dom.createElement("div", "mapillary-popup-container", this._container.container);
 
         for (const popup of this._popups) {
             popup.setParentContainer(this._popupContainer);

@@ -70,12 +70,12 @@ export class AttributionComponent extends Component<IComponentConfiguration> {
 
         const imageLink: vd.VNode =
             vd.h(
-                "a.AttributionImageContainer",
+                "a.mapillary-attribution-image-container",
                 { href: Urls.exploreImage(key), target: "_blank" },
                 [imageByContent, dateContent]);
 
-        const compactClass: string = compact ? ".AttributionCompact" : "";
+        const compactClass: string = compact ? ".mapillary-attribution-compact" : "";
 
-        return vd.h("div.AttributionContainer" + compactClass, {}, [mapillaryLink, imageLink]);
+        return vd.h("div.mapillary-attribution-container" + compactClass, {}, [mapillaryLink, imageLink]);
     }
 }

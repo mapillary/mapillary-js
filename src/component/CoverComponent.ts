@@ -137,18 +137,18 @@ export class CoverComponent extends Component<ICoverConfiguration> {
                             return { name: this._name, vnode: vd.h("div", []) };
                         }
 
-                        const compactClass: string = size.width <= 640 || size.height <= 480 ? ".CoverCompact" : "";
+                        const compactClass: string = size.width <= 640 || size.height <= 480 ? ".mapillary-cover-compact" : "";
 
                         if (configuration.state === CoverState.Hidden) {
                             const doneContainer: vd.VNode = vd.h(
-                                "div.CoverContainer.CoverDone" + compactClass,
+                                "div.mapillary-cover-container.mapillary-cover-done" + compactClass,
                                 [this._getCoverBackgroundVNode(configuration)]);
 
                             return { name: this._name, vnode: doneContainer };
                         }
 
                         const container: vd.VNode = vd.h(
-                            "div.CoverContainer" + compactClass,
+                            "div.mapillary-cover-container" + compactClass,
                             [this._getCoverButtonVNode(configuration)]);
 
                         return { name: this._name, vnode: container };
@@ -168,14 +168,14 @@ export class CoverComponent extends Component<ICoverConfiguration> {
     }
 
     private _getCoverButtonVNode(configuration: ICoverConfiguration): vd.VNode {
-        const cover: string = configuration.state === CoverState.Loading ? "div.Cover.CoverLoading" : "div.Cover";
+        const cover: string = configuration.state === CoverState.Loading ? "div.mapillary-cover.mapillary-cover-loading" : "div.mapillary-cover";
         const coverButton: vd.VNode = vd.h(
-            "div.CoverButton",
-            [vd.h("div.CoverButtonIcon", [])]);
+            "div.mapillary-cover-button",
+            [vd.h("div.mapillary-cover-button-icon", [])]);
 
-        const coverLogo: vd.VNode = vd.h("a.CoverLogo", { href: Urls.explore, target: "_blank" }, []);
+        const coverLogo: vd.VNode = vd.h("a.mapillary-cover-logo", { href: Urls.explore, target: "_blank" }, []);
         const coverIndicator: vd.VNode = vd.h(
-            "div.CoverIndicator",
+            "div.mapillary-cover-indicator",
             { onclick: (): void => { this.configure({ state: CoverState.Loading }); } },
             []);
 
@@ -196,10 +196,10 @@ export class CoverComponent extends Component<ICoverConfiguration> {
 
         const children: vd.VNode[] = [];
         if (conf.state === CoverState.Loading) {
-            children.push(vd.h("div.Spinner", {}, []));
+            children.push(vd.h("div.mapillary-cover-spinner", {}, []));
         }
 
-        return vd.h("div.CoverBackground", properties, children);
+        return vd.h("div.mapillary-cover-background", properties, children);
     }
 
     private _getImageSrc$(key: string): Observable<string> {

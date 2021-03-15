@@ -204,7 +204,7 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                 map(
                     ([element]: [Element, RenderCamera, MouseEvent, MouseEvent]): string => {
                         let elements: HTMLCollectionOf<Element> =
-                            <HTMLCollectionOf<Element>>element.getElementsByClassName("DirectionsPerspective");
+                            <HTMLCollectionOf<Element>>element.getElementsByClassName("mapillary-direction-perspective");
 
                         for (let i: number = 0; i < elements.length; i++) {
                             let hovered: Element = elements.item(i).querySelector(":hover");

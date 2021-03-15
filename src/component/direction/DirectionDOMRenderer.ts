@@ -76,9 +76,9 @@ export class DirectionDOMRenderer {
         ];
 
         this._turnNames = {};
-        this._turnNames[EdgeDirection.TurnLeft] = "TurnLeft";
-        this._turnNames[EdgeDirection.TurnRight] = "TurnRight";
-        this._turnNames[EdgeDirection.TurnU] = "TurnAround";
+        this._turnNames[EdgeDirection.TurnLeft] = "mapillary-direction-turn-left";
+        this._turnNames[EdgeDirection.TurnRight] = "mapillary-direction-turn-right";
+        this._turnNames[EdgeDirection.TurnU] = "mapillary-direction-turn-around";
 
         // detects IE 8-11, then Edge 20+.
         let isIE: boolean = !!(<any>document).documentMode;
@@ -257,7 +257,7 @@ export class DirectionDOMRenderer {
                     panoEdge.data.worldMotionAzimuth,
                     rotation,
                     this._calculator.outerRadius,
-                    "DirectionsArrowPano"));
+                    "mapillary-direction-arrow-pano"));
         }
 
         for (let stepEdge of this._stepEdges) {
@@ -305,10 +305,10 @@ export class DirectionDOMRenderer {
                 azimuth,
                 rotation,
                 this._calculator.outerRadius,
-                "DirectionsArrowStep");
+                "mapillary-direction-arrow-step");
         }
 
-        return this._createVNodeDisabled(key, azimuth, rotation);
+        return this._createVNodeInactive(key, azimuth, rotation);
     }
 
     private _createPerspectiveToPanoArrows(navigator: Navigator, rotation: IRotation): vd.VNode[] {
@@ -322,7 +322,7 @@ export class DirectionDOMRenderer {
                     panoEdge.data.worldMotionAzimuth,
                     rotation,
                     this._calculator.innerRadius,
-                    "DirectionsArrowPano",
+                    "mapillary-direction-arrow-pano",
                     true));
         }
 
@@ -390,7 +390,7 @@ export class DirectionDOMRenderer {
             rotation,
             offset,
             className,
-            "DirectionsCircle",
+            "mapillary-direction-circle",
             onClick,
             shiftVertically);
     }
@@ -419,8 +419,8 @@ export class DirectionDOMRenderer {
             azimuth,
             rotation,
             this._calculator.outerRadius,
-            "DirectionsArrowStep",
-            "DirectionsCircle",
+            "mapillary-direction-arrow-step",
+            "mapillary-direction-circle",
             onClick);
     }
 
@@ -473,14 +473,14 @@ export class DirectionDOMRenderer {
             style: style,
         };
 
-        let circleClassName: string = "TurnCircle";
+        let circleClassName: string = "mapillary-direction-turn-circle";
 
         if (this._sequenceEdgeKeys.indexOf(key) > -1) {
-            circleClassName += "Sequence";
+            circleClassName += "-sequence";
         }
 
         if (this._highlightKey === key) {
-            circleClassName += "Highlight";
+            circleClassName += "-highlight";
         }
 
         let turn: vd.VNode = vd.h(`div.${className}`, {}, []);
@@ -488,14 +488,14 @@ export class DirectionDOMRenderer {
         return vd.h("div." + circleClassName, circleProperties, [turn]);
     }
 
-    private _createVNodeDisabled(key: string, azimuth: number, rotation: IRotation): vd.VNode {
+    private _createVNodeInactive(key: string, azimuth: number, rotation: IRotation): vd.VNode {
         return this._createVNode(
             key,
             azimuth,
             rotation,
             this._calculator.outerRadius,
-            "DirectionsArrowDisabled",
-            "DirectionsCircleDisabled");
+            "mapillary-direction-arrow-inactive",
+            "mapillary-direction-circle-inactive");
     }
 
     private _createVNode(
@@ -548,11 +548,11 @@ export class DirectionDOMRenderer {
         };
 
         if (this._sequenceEdgeKeys.indexOf(key) > -1) {
-            circleClassName += "Sequence";
+            circleClassName += "-sequence";
         }
 
         if (this._highlightKey === key) {
-            circleClassName += "Highlight";
+            circleClassName += "-highlight";
         }
 
         return vd.h("div." + circleClassName, circleProperties, [chevron]);
@@ -580,6 +580,6 @@ export class DirectionDOMRenderer {
             },
         };
 
-        return vd.h("div.DirectionsPerspective", properties, turns.concat(steps));
+        return vd.h("div.mapillary-direction-perspective", properties, turns.concat(steps));
     }
 }
