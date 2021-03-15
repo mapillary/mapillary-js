@@ -112,15 +112,12 @@ export class ComponentController {
     }
 
     private _initializeComponents(): void {
-        let options: IComponentOptions = this._options;
+        const options = this._options;
 
-        this._uFalse(options.background, "background");
-        this._uFalse(options.debug, "debug");
         this._uFalse(options.image, "image");
         this._uFalse(options.marker, "marker");
         this._uFalse(options.navigation, "navigation");
         this._uFalse(options.popup, "popup");
-        this._uFalse(options.route, "route");
         this._uFalse(options.slider, "slider");
         this._uFalse(options.spatialData, "spatialData");
         this._uFalse(options.tag, "tag");

@@ -991,14 +991,10 @@ export class SpatialDataScene {
         this._tileClusters = {};
         this._clusters = {};
 
-        this._cameraVisualizationMode = !!configuration.cameraVisualizationMode ?
-            configuration.cameraVisualizationMode :
-            CameraVisualizationMode.Default;
-
-        if (this._cameraVisualizationMode === CameraVisualizationMode.Default &&
-            configuration.connectedComponents === true) {
-            this._cameraVisualizationMode = CameraVisualizationMode.ConnectedComponent;
-        }
+        this._cameraVisualizationMode =
+            !!configuration.cameraVisualizationMode ?
+                configuration.cameraVisualizationMode :
+                CameraVisualizationMode.Default;
 
         this._cameraSize = configuration.cameraSize;
         this._camerasVisible = configuration.camerasVisible;

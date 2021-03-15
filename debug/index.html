@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>MapillaryJS Debug</title>
+    <title>MapillaryJS</title>
     <link rel="icon" href="data:,">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -38,8 +38,6 @@
     <button onclick="stop()">Stop</button>
     <button onclick="showSlider()">Show Slider</button>
     <button onclick="hideSlider()">Hide Slider</button>
-    <button onclick="playRoute()">Play Route</button>
-    <button onclick="stopRoute()">Stop Route</button>
     <button onclick="letterbox()">Letterbox</button>
     <button onclick="fill()">Fill</button>
     <button onclick="setFilter()">Filter</button>
@@ -49,7 +47,7 @@
         const fSup = Mapillary.isFallbackSupported();
         console.log(`isSupported: ${sup}, isFallbackSupported: ${fSup}`);
 
-        var viewer = new Mapillary.Viewer({
+        const viewer = new Mapillary.Viewer({
             apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
             component: { cover: false },
             container: "mly",
@@ -67,12 +65,10 @@
             viewer.setRenderMode(Mapillary.RenderMode.Fill);
         }
 
-        function remove() {
-            viewer.remove();
-        }
+        function remove() { viewer.remove(); }
 
-        var filterIndex = 0;
-        var filters = [
+        let filterIndex = 0;
+        const filters = [
             [],
             ["==", "fullPano", true],
             ["!=", "pano", true],
@@ -93,108 +89,7 @@
                 });
         }
 
-        var sequenceComponent = viewer.getComponent("sequence");
-
-        var route = viewer.getComponent("route");
-        route.configure({
-            paths: [
-                {
-                    sequenceKey: "euUElwr9jYeUW1R1OHj04g", startKey: "2yFbES2-ogx4Cz8IOsaThQ", stopKey: "0cPOfPT2ZgqNIiU063CI4Q",
-                    infoKeys: [
-                        { key: "CSZGtPDQZqQxqb96lsTzpw", description: "This is mine and Millenbops Califronia roadtrip." },
-                        { key: "DdTvQAKHEVhAbNlW3bCpvw", description: "It all began in West Hollywood." }
-                    ]
-                },
-                {
-                    sequenceKey: "euUElwr9jYeUW1R1OHj04g", startKey: "ERs17ne1Ln1FCWmrRAtWuw", stopKey: "rwfHD5iywHIDmzjsJvf8pw",
-                    infoKeys: [
-                        { key: "ERs17ne1Ln1FCWmrRAtWuw", description: "Every epic road trip should start at Sunset Blvd." },
-                    ]
-                },
-                {
-                    sequenceKey: "euUElwr9jYeUW1R1OHj04g", startKey: "EQCY7shEimCCW27J1cIl6g", stopKey: "Z5rHmOAWCtJFz6OJzFt20A",
-                    infoKeys: [
-                        { key: "EQCY7shEimCCW27J1cIl6g", description: "Sunset Blvd is one of the busiest streets in Los Angeles." },
-                    ]
-                },
-                {
-                    sequenceKey: "TJzxIvqxxxfJ4POUxNjAEA", startKey: "ajColPp_so8p0G6NXiMc4Q", stopKey: "x4BbhDOZhKJ1t96vDU2n-w",
-                    infoKeys: [
-                        { key: "ajColPp_so8p0G6NXiMc4Q", description: "After heading east for a while we ended up in the desert." }
-                    ]
-                },
-                {
-                    sequenceKey: "sK2j7wI6ZEkj2vsDy4jpDQ", startKey: "qKTcv58vTApeVwwZfsZL9w", stopKey: "f9viY8M7JYMxL0KVCaIN_g",
-                    infoKeys: [
-                        { key: "qKTcv58vTApeVwwZfsZL9w", description: "Our lodging the first two nights was deep into Yucca Valley." },
-                        { key: "patDqTIis_qL2i72MFZaog", description: "Where Joshua Trees grows everywhere." }
-                    ]
-                },
-                {
-                    sequenceKey: "j8ROntKX9iv-9gb1HBuSHQ", startKey: "yZU9lUaTYExFrAtIUlo_uw", stopKey: "VEVbQEAZrtvz7JEinkFp2A",
-                    infoKeys: [
-                        { key: "yZU9lUaTYExFrAtIUlo_uw", description: "Our closets neighbours house was completly burnt to the ground." }
-                    ]
-                },
-                {
-                    sequenceKey: "sK2j7wI6ZEkj2vsDy4jpDQ", startKey: "vJtyfbUtct7rXbkSKnfMtQ", stopKey: "8XMDhO9w54oosT3ex7pVig",
-                    infoKeys: [
-                        { key: "vJtyfbUtct7rXbkSKnfMtQ", description: "The main yard was behind this fence." }
-                    ]
-                },
-                {
-                    sequenceKey: "TJzxIvqxxxfJ4POUxNjAEA", startKey: "joM8RlVPy356_sazcblQMA", stopKey: "ZZDciNIDLfB57I3s2cJF_w",
-                    infoKeys: [
-                        { key: "joM8RlVPy356_sazcblQMA", description: "The first day we headed straight out in the desert." },
-                        { key: "b2GTrci-JeJvzPheAcL-1g", description: "With our destination set for Giant Rock." },
-                    ]
-                },
-                {
-                    sequenceKey: "DgoZjqjsHGH_zz5966dDBg", startKey: "LBPEtJMmbrGh0oLnQ9E8lg", stopKey: "wgXSKLtIR0GoFiVxe-INoQ",
-                    infoKeys: [
-                        { key: "LBPEtJMmbrGh0oLnQ9E8lg", description: "This is the Giant Rock. Some people belive it was placed there by aliens" },
-                        { key: "Np7XYqKsXhxi3OmxEKBHSQ", description: "However the rock ended up there its an impressive beast!" }
-                    ]
-                },
-                {
-                    sequenceKey: "1rjqpVbg2kgTrKpkneyGIQ", startKey: "2uIn4edT9tlkzzxqD78Y1Q", stopKey: "HB4XNwjCmpR1k_VPPfhn1Q",
-                    infoKeys: [
-                        { key: "2uIn4edT9tlkzzxqD78Y1Q", description: "Next stop, the peaceful integraton." }
-                    ]
-                },
-                {
-                    sequenceKey: "VQZ6FJbwb7m-kak85Lk15g", startKey: "JAEaa5H6MdcgJGC8rWPEFQ", stopKey: "I3b1TBdOaP1lIeQOQ7SSSg",
-                    infoKeys: [
-                        { key: "JAEaa5H6MdcgJGC8rWPEFQ", description: "The integraton is close by the Giant Rock." },
-                        { key: "l8oTDuLuVD_Q_mHd9_WKsQ", description: "Here you can get a soundbath to heal your soul." },
-                        { key: "27FI9bQrMTwFk9FvG9xtnQ", description: "The integraton itself is the white building." },
-                        { key: "79TCHVkj3qpOKBePzC6R8g", description: "A perfect sphere built in wood." }
-                    ]
-                },
-                {
-                    sequenceKey: "hV0PWG7L377V8pHG3CE-3w", startKey: "xOwoXDadn-G51JNJn67TRQ", stopKey: "13DeXe5fWJELCiXUOUqdrQ",
-                    infoKeys: [
-                        { key: "xOwoXDadn-G51JNJn67TRQ", description: "Our evening was spent on the veranda." }
-                    ]
-                },
-                {
-                    sequenceKey: "gD_UgTtm3Txuy907EePIYg", startKey: "af0_LV-Jwe981WM35yqIjQ", stopKey: "00elTbzW2vSoMo2JB-jHzw",
-                    infoKeys: [
-                        { key: "af0_LV-Jwe981WM35yqIjQ", description: "Next day we visited Pioneer Town." },
-                        { key: "DTeBlU5HCqUXdM_LFChFwQ", description: "A western movie set." }
-                    ]
-                },
-                {
-                    sequenceKey: "FqH1Elh2497hGqntmHHy5A", startKey: "clvsHTDMqGAFz4CCE8ndDg", stopKey: "ZimS6e9sNXvT30y9b1sZeQ",
-                    infoKeys: [
-                        { key: "clvsHTDMqGAFz4CCE8ndDg", description: "Next up was King of the Hammer." },
-                        { key: "Qqhp4_I2lPmH0TvUJnh86w", description: "This was my journey." },
-                        { key: "B7_vLuIFsLIXLeBCRxja6Q", description: "Now you build yours." },
-                        { key: "ZimS6e9sNXvT30y9b1sZeQ", description: "With MapillaryJS." }
-                    ]
-                }
-            ], playing: true
-        });
+        const sequenceComponent = viewer.getComponent("sequence");
 
         function play() {
             viewer.deactivateComponent("cache");
@@ -208,11 +103,9 @@
 
         function showSlider() {
             viewer.activateComponent("slider");
-
             viewer.deactivateComponent("imagePlane");
             viewer.deactivateComponent("direction");
             viewer.deactivateComponent("sequence");
-            viewer.deactivateComponent("mouse");
             viewer.deactivateComponent("keyboard");
         }
 
@@ -220,25 +113,9 @@
             viewer.activateComponent("imagePlane");
             viewer.activateComponent("direction");
             viewer.activateComponent("sequence");
-            viewer.activateComponent("mouse");
             viewer.activateComponent("keyboard");
-
             viewer.deactivateComponent("slider");
         }
-
-        function playRoute() {
-            viewer.deactivateComponent("cache");
-            route.play();
-        }
-
-        function stopRoute() {
-            viewer.activateComponent("cache");
-            route.stop();
-        }
-
-        viewer.on("loadingchanged", function (loading) {
-            console.log("loading:", loading);
-        });
     </script>
 </body>
 
