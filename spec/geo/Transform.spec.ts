@@ -6,7 +6,7 @@ import { GeoHelper } from "../helper/GeoHelper";
 import { Node } from "../../src/graph/Node";
 import { Transform } from "../../src/geo/Transform";
 import { IFillNode } from "../../src/api/interfaces/IFillNode";
-import { IGPano } from "../../src/api/interfaces/IGPano";
+
 
 describe("Transform.rt", () => {
     let epsilon: number = 10e-9;
@@ -32,7 +32,6 @@ describe("Transform.rt", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -75,7 +74,6 @@ describe("Transform.rt", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -118,7 +116,6 @@ describe("Transform.rt", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -161,7 +158,6 @@ describe("Transform.rt", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -215,7 +211,6 @@ describe("Transform.srt", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -259,7 +254,6 @@ describe("Transform.srt", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -303,7 +297,6 @@ describe("Transform.srt", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -356,7 +349,6 @@ describe("Transform.basicWidth", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -381,7 +373,6 @@ describe("Transform.basicWidth", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -414,7 +405,6 @@ describe("Transform.basicHeight", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -439,7 +429,6 @@ describe("Transform.basicHeight", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -470,7 +459,6 @@ describe("Transform.width", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -494,7 +482,6 @@ describe("Transform.width", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -525,7 +512,6 @@ describe("Transform.height", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -550,7 +536,6 @@ describe("Transform.height", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -579,7 +564,6 @@ describe("Transform.focal", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -603,7 +587,6 @@ describe("Transform.focal", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -632,7 +615,6 @@ describe("Transform.orientation", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -656,7 +638,6 @@ describe("Transform.orientation", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -684,7 +665,6 @@ describe("Transform.scale", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -708,71 +688,11 @@ describe("Transform.scale", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
 
         expect(transform.scale).toBe(scale);
-    });
-});
-
-describe("Transform.gpano", () => {
-    let helper: NodeHelper;
-
-    beforeEach(() => {
-        helper = new NodeHelper();
-    });
-
-    it("should not have gpano set", () => {
-        let t: number[] = [0, 0, 0];
-
-        let node: Node = new Node(helper.createCoreNode());
-        node.makeFull(helper.createFillNode());
-
-        let transform: Transform = new Transform(
-            node.orientation,
-            node.width,
-            node.height,
-            node.focal,
-            node.scale,
-            node.gpano,
-            node.rotation,
-            t,
-            null);
-
-        expect(transform.gpano).toBeNull();
-    });
-
-    it("should have gpano set", () => {
-        let gpano: IGPano = {
-            CroppedAreaImageHeightPixels: 1,
-            CroppedAreaImageWidthPixels: 1,
-            CroppedAreaLeftPixels: 0,
-            CroppedAreaTopPixels: 0,
-            FullPanoHeightPixels: 1,
-            FullPanoWidthPixels: 1,
-        };
-
-        let t: number[] = [0, 0, 0];
-
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: IFillNode = helper.createFillNode();
-        fillNode.gpano = gpano;
-        node.makeFull(fillNode);
-
-        let transform: Transform = new Transform(
-            node.orientation,
-            node.width,
-            node.height,
-            node.focal,
-            node.scale,
-            node.gpano,
-            node.rotation,
-            t,
-            null);
-
-        expect(transform.gpano).not.toBeNull();
     });
 });
 
@@ -799,7 +719,6 @@ describe("Transform.unprojectSfM", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -823,7 +742,6 @@ describe("Transform.unprojectSfM", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -851,7 +769,6 @@ describe("Transform.unprojectSfM", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -875,7 +792,6 @@ describe("Transform.unprojectSfM", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -903,7 +819,6 @@ describe("Transform.unprojectSfM", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -938,7 +853,6 @@ describe("Transform.projectBasic", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -961,7 +875,6 @@ describe("Transform.projectBasic", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -997,7 +910,6 @@ describe("Transform.unprojectBasic", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -1027,7 +939,6 @@ describe("Transform.unprojectBasic", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -1057,7 +968,6 @@ describe("Transform.unprojectBasic", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -1087,7 +997,6 @@ describe("Transform.unprojectBasic", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);
@@ -1102,20 +1011,13 @@ describe("Transform.unprojectBasic", () => {
         expect(backprojectedPixel[1]).toBeCloseTo(pixel[1], precision);
     });
 
-    it("should back-project to the same pixel for full pano", () => {
+    it("should back-project to the same pixel for spherical", () => {
         let t: number[] = [5, 15, 2];
 
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: IFillNode = helper.createFillNode();
         fillNode.c_rotation = [0.5, -0.2, 0.3];
-        fillNode.gpano = {
-            CroppedAreaImageHeightPixels: 1,
-            CroppedAreaImageWidthPixels: 1,
-            CroppedAreaLeftPixels: 0,
-            CroppedAreaTopPixels: 0,
-            FullPanoHeightPixels: 1,
-            FullPanoWidthPixels: 1,
-        };
+        fillNode.camera_projection_type = "equirectangular";
 
         node.makeFull(fillNode);
 
@@ -1125,45 +1027,6 @@ describe("Transform.unprojectBasic", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
-            node.rotation,
-            t,
-            null);
-
-        let basicPixel: number[] = [0.4534546, 0.72344564];
-
-        let point: number[] = transform.unprojectBasic(basicPixel, 100);
-
-        let backprojectedPixel: number[] = transform.projectBasic(point);
-
-        expect(backprojectedPixel[0]).toBeCloseTo(basicPixel[0], precision);
-        expect(backprojectedPixel[1]).toBeCloseTo(basicPixel[1], precision);
-    });
-
-    it("should back-project to the same pixel for cropped pano", () => {
-        let t: number[] = [5, 15, 2];
-
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: IFillNode = helper.createFillNode();
-        fillNode.c_rotation = [0.5, -0.2, 0.3];
-        fillNode.gpano = {
-            CroppedAreaImageHeightPixels: 600,
-            CroppedAreaImageWidthPixels: 400,
-            CroppedAreaLeftPixels: 200,
-            CroppedAreaTopPixels: 100,
-            FullPanoHeightPixels: 1000,
-            FullPanoWidthPixels: 2000,
-        };
-
-        node.makeFull(fillNode);
-
-        let transform: Transform = new Transform(
-            node.orientation,
-            node.width,
-            node.height,
-            node.focal,
-            node.scale,
-            node.gpano,
             node.rotation,
             t,
             null);

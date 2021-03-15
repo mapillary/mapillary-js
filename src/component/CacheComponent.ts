@@ -30,6 +30,7 @@ import { IEdgeStatus } from "../graph/interfaces/IEdgeStatus";
 import { EdgeDirection } from "../graph/edge/EdgeDirection";
 import { Container } from "../viewer/Container";
 import { Navigator } from "../viewer/Navigator";
+import { isSpherical } from "../geo/Geo";
 
 type EdgesDepth = [IEdge[], number];
 
@@ -108,8 +109,10 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                         let depth: ICacheDepth = configuration.depth;
 
                         let panoDepth: number = Math.max(0, Math.min(2, depth.pano));
-                        let stepDepth: number = node.pano ? 0 : Math.max(0, Math.min(3, depth.step));
-                        let turnDepth: number = node.pano ? 0 : Math.max(0, Math.min(1, depth.turn));
+                        let stepDepth: number = isSpherical(node.cameraType) ?
+                            0 : Math.max(0, Math.min(3, depth.step));
+                        let turnDepth: number = isSpherical(node.cameraType) ?
+                            0 : Math.max(0, Math.min(1, depth.turn));
 
                         let pano$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.Pano, panoDepth);
 

@@ -33,6 +33,7 @@ import { IFrame } from "../state/interfaces/IFrame";
 import { ComponentSize } from "./utils/ComponentSize";
 import { Container } from "../viewer/Container";
 import { Navigator } from "../viewer/Navigator";
+import { isSpherical } from "../geo/Geo";
 
 type NodeFov = [number, number];
 
@@ -123,10 +124,8 @@ export class BearingComponent extends Component<IBearingConfiguration> {
                         const node: Node = frame.state.currentNode;
                         const transform: Transform = frame.state.currentTransform;
 
-                        if (node.pano) {
-                            let panoHFov: number = 2 * Math.PI * node.gpano.CroppedAreaImageWidthPixels / node.gpano.FullPanoWidthPixels;
-
-                            return [panoHFov / 2, panoHFov / 2];
+                        if (isSpherical(node.cameraType)) {
+                            return [Math.PI / 2, Math.PI / 2];
                         }
 
                         const currentProjectedPoints: number[][] = this._computeProjectedPoints(transform);

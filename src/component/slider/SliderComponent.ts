@@ -63,6 +63,7 @@ import { SliderGLRenderer } from "./SliderGLRenderer";
 import { Transform } from "../../geo/Transform";
 import { ImageSize } from "../../viewer/ImageSize";
 import { SliderDOMRenderer } from "./SliderDOMRenderer";
+import { isSpherical } from "../../geo/Geo";
 
 /**
  * @class SliderComponent
@@ -285,7 +286,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         const fullPano$: Observable<boolean> = this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: IFrame): boolean => {
-                    return frame.state.currentNode.fullPano;
+                    return isSpherical(frame.state.currentNode.cameraType);
                 }),
             distinctUntilChanged());
 
@@ -300,9 +301,10 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     (frame: IFrame): boolean => {
                         return !(frame.state.currentNode == null ||
                             frame.state.previousNode == null ||
-                            (frame.state.currentNode.pano && !frame.state.currentNode.fullPano) ||
-                            (frame.state.previousNode.pano && !frame.state.previousNode.fullPano) ||
-                            (frame.state.currentNode.fullPano && !frame.state.previousNode.fullPano));
+                            (isSpherical(
+                                frame.state.currentNode.cameraType) &&
+                                !isSpherical(
+                                    frame.state.previousNode.cameraType)));
                     }),
                 distinctUntilChanged())).pipe(
                     map(
@@ -626,13 +628,13 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 }),
             filter(
                 (node: Node): boolean => {
-                    return node.pano ?
+                    return isSpherical(node.cameraType) ?
                         Settings.maxImageSize > Settings.basePanoramaSize :
                         Settings.maxImageSize > Settings.baseImageSize;
                 }),
             switchMap(
                 (node: Node): Observable<[HTMLImageElement, Node]> => {
-                    let baseImageSize: ImageSize = node.pano ?
+                    let baseImageSize: ImageSize = isSpherical(node.cameraType) ?
                         Settings.basePanoramaSize :
                         Settings.baseImageSize;
 
@@ -824,8 +826,8 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 ([[roi, provider], frame]: [[IRegionOfInterest, TextureProvider], IFrame]): void => {
                     let shiftedRoi: IRegionOfInterest = null;
 
-                    if (frame.state.previousNode.fullPano) {
-                        if (frame.state.currentNode.fullPano) {
+                    if (isSpherical(frame.state.previousNode.cameraType)) {
+                        if (isSpherical(frame.state.currentNode.cameraType)) {
                             const currentViewingDirection: THREE.Vector3 =
                                 this._spatial.viewingDirection(frame.state.currentNode.rotation);
                             const previousViewingDirection: THREE.Vector3 =
@@ -983,15 +985,16 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 }),
             filter(
                 (node: Node): boolean => {
-                    return node.pano ?
+                    return isSpherical(node.cameraType) ?
                         Settings.maxImageSize > Settings.basePanoramaSize :
                         Settings.maxImageSize > Settings.baseImageSize;
                 }),
             switchMap(
                 (node: Node): Observable<[HTMLImageElement, Node]> => {
-                    let baseImageSize: ImageSize = node.pano ?
-                        Settings.basePanoramaSize :
-                        Settings.baseImageSize;
+                    let baseImageSize: ImageSize =
+                        isSpherical(node.cameraType) ?
+                            Settings.basePanoramaSize :
+                            Settings.baseImageSize;
 
                     if (Math.max(node.image.width, node.image.height) > baseImageSize) {
                         return observableEmpty();

@@ -1,7 +1,7 @@
+import { CameraProjectionType } from "../../src/api/interfaces/CameraProjectionType";
 import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
 import { IFillNode } from "../../src/api/interfaces/IFillNode";
 import { IFullNode } from "../../src/api/interfaces/IFullNode";
-import { IGPano } from "../../src/api/interfaces/IGPano";
 import { Node } from "../../src/graph/Node";
 
 export class NodeHelper {
@@ -26,12 +26,12 @@ export class NodeHelper {
             c_rotation: [0, 0, 0],
             ca: 0,
             calt: 0,
+            camera_projection_type: "perspective",
             captured_at: 0,
             cca: 0,
             cfocal: 0,
             cluster_key: this._clusterKey,
             cluster_url: this._clusterKey = "_url",
-            gpano: null,
             height: 1,
             merge_cc: 0,
             merge_version: 0,
@@ -48,13 +48,13 @@ export class NodeHelper {
             c_rotation: [0, 0, 0],
             ca: 0,
             calt: 0,
+            camera_projection_type: "perspective",
             captured_at: 0,
             cca: 0,
             cfocal: 0,
             cl: { lat: 0, lon: 0 },
             cluster_key: this._clusterKey,
             cluster_url: this._clusterKey = "_url",
-            gpano: null,
             height: 1,
             key: this._nodeKey,
             l: { lat: 0, lon: 0 },
@@ -68,17 +68,15 @@ export class NodeHelper {
         };
     }
 
-    public createNode(gpano?: IGPano): Node {
-        let fullNode: IFullNode = this.createFullNode();
-        fullNode.gpano = gpano;
-
-        let node: Node = new Node(fullNode);
+    public createNode(cameraType: CameraProjectionType = "perspective"): Node {
+        let fullNode = this.createFullNode();
+        fullNode.camera_projection_type = cameraType;
+        let node = new Node(fullNode);
         node.makeFull(fullNode);
-
         return node;
     }
 
-    public createUnmergedNode(gpano?: IGPano): Node {
+    public createUnmergedNode(): Node {
         let fullNode: IFullNode = this.createFullNode();
 
         fullNode.atomic_scale = undefined;
@@ -88,8 +86,6 @@ export class NodeHelper {
         fullNode.cl = undefined;
         fullNode.merge_cc = undefined;
         fullNode.merge_version = undefined;
-
-        fullNode.gpano = gpano;
 
         let node: Node = new Node(fullNode);
         node.makeFull(fullNode);

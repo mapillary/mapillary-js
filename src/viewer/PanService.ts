@@ -34,6 +34,8 @@ import { Node } from "../graph/Node";
 import { StateService } from "../state/StateService";
 import { IFrame } from "../state/interfaces/IFrame";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { CameraProjectionType } from "../api/interfaces/CameraProjectionType";
+import { isSpherical } from "../geo/Geo";
 
 enum PanMode {
     Disabled,
@@ -124,7 +126,7 @@ export class PanService {
         const panNodes$: Observable<[Node, Transform, number][]> = this._stateService.currentNode$.pipe(
             switchMap(
                 (current: Node): Observable<[Node, Transform, number][]> => {
-                    if (!current.merged || current.fullPano) {
+                    if (!current.merged || isSpherical(current.cameraType)) {
                         return observableOf([]);
                     }
 
@@ -142,7 +144,7 @@ export class PanService {
                                 }),
                             map(
                                 (nodes: Node[]): Node[] => {
-                                    if (current.pano) {
+                                    if (isSpherical(current.cameraType)) {
                                         return [];
                                     }
 
@@ -157,7 +159,7 @@ export class PanService {
                                             continue;
                                         }
 
-                                        if (node.pano) {
+                                        if (isSpherical(node.cameraType)) {
                                             continue;
                                         }
 
@@ -337,14 +339,13 @@ export class PanService {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             translation,
             node.assetsCached ? node.image : undefined,
             undefined,
             node.ck1,
             node.ck2,
-            node.cameraProjectionType);
+            <CameraProjectionType>node.cameraType);
     }
 
     private _computeProjectedPoints(transform: Transform): number[][] {

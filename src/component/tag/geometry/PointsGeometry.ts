@@ -1,6 +1,7 @@
 import { Geometry } from "./Geometry";
 import { GeometryTagError } from "../error/GeometryTagError";
 import { Transform } from "../../../geo/Transform";
+import { isSpherical } from "../../../geo/Geo";
 
 /**
  * @class PointsGeometry
@@ -182,7 +183,7 @@ export class PointsGeometry extends Geometry {
             }
         }
 
-        if (transform.fullPano) {
+        if (isSpherical(transform.cameraType)) {
             const indices: number[] = [];
             for (let i: number = 0; i < points.length; i++) {
                 indices[i] = i;

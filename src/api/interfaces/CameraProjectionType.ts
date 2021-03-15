@@ -1,1 +1,4 @@
-export type CameraProjectionType = "perspective" | "fisheye" | "equirectangular";
+export type CameraProjectionType =
+    "equirectangular" |
+    "fisheye" |
+    "perspective";

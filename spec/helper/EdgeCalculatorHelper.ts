@@ -1,18 +1,17 @@
 import { Node } from "../../src/graph/Node";
 import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
 import { IFillNode } from "../../src/api/interfaces/IFillNode";
-import { IGPano } from "../../src/api/interfaces/IGPano";
 import { ILatLonAlt } from "../../src/geo/interfaces/ILatLonAlt";
 import { IPotentialEdge } from "../../src/graph/edge/interfaces/IPotentialEdge";
+import { CameraProjectionType } from "../../src/api/interfaces/CameraProjectionType";
 
 export class EdgeCalculatorHelper {
     public createPotentialEdge(key: string = "pkey"): IPotentialEdge {
         return {
             capturedAt: 0,
-            croppedPano: false,
             directionChange: 0,
             distance: 0,
-            fullPano: false,
+            spherical: false,
             key: key,
             motionChange: 0,
             rotation: 0,
@@ -47,7 +46,7 @@ export class EdgeCalculatorHelper {
         sequenceKey: string = "skey",
         r: number[] = [0, 0, 0],
         mergeCC: number = 2,
-        gpano: IGPano = null,
+        cameraType: CameraProjectionType = "perspective",
         capturedAt: number = 0,
         mergeVersion: number = 1): Node {
 
@@ -58,11 +57,11 @@ export class EdgeCalculatorHelper {
             c_rotation: r,
             ca: 0,
             calt: latLonAlt.alt,
+            camera_projection_type: cameraType,
             captured_at: capturedAt,
             cca: 0,
             cfocal: 0,
             cluster_key: "ckey",
-            gpano: gpano,
             height: 0,
             merge_cc: mergeCC,
             merge_version: mergeVersion,
@@ -82,17 +81,10 @@ export class EdgeCalculatorHelper {
         let sequenceKey: string = "skey";
         let latLonAlt: ILatLonAlt = { alt: 0, lat: 0, lon: 0 };
 
-        let gpano: IGPano = fullPano ?
-            {
-                CroppedAreaImageHeightPixels: 1,
-                CroppedAreaImageWidthPixels: 1,
-                CroppedAreaLeftPixels: 0,
-                CroppedAreaTopPixels: 0,
-                FullPanoHeightPixels: 1,
-                FullPanoWidthPixels: 1,
-            } :
+        let cameraType: CameraProjectionType = fullPano ?
+            "equirectangular" :
             null;
 
-        return this.createFullNode(key, latLonAlt, sequenceKey, [0, 0, 0], 2, gpano, 0);
+        return this.createFullNode(key, latLonAlt, sequenceKey, [0, 0, 0], 2, cameraType, 0);
     }
 }

@@ -5,10 +5,10 @@ import { StateBase } from "./StateBase";
 import { RotationDelta } from "../RotationDelta";
 import { IRotation } from "../interfaces/IRotation";
 import { IState } from "../interfaces/IState";
-import { IGPano } from "../../api/interfaces/IGPano";
 import { Camera } from "../../geo/Camera";
 import { Transform } from "../../geo/Transform";
 import { Node } from "../../graph/Node";
+import { isSpherical } from "../../geo/Geo";
 
 export abstract class InteractiveStateBase extends StateBase {
     /**
@@ -239,8 +239,7 @@ export abstract class InteractiveStateBase extends StateBase {
         let refX: number = reference[0];
         let refY: number = reference[1];
 
-        if (this.currentTransform.gpano != null &&
-            this.currentTransform.gpano.CroppedAreaImageWidthPixels === this.currentTransform.gpano.FullPanoWidthPixels) {
+        if (isSpherical(this.currentTransform.cameraType)) {
             if (refX - currentCenterX > 0.5) {
                 refX = refX - 1;
             } else if (currentCenterX - refX > 0.5) {
@@ -251,15 +250,11 @@ export abstract class InteractiveStateBase extends StateBase {
         let newCenterX: number = refX - zoom0 / zoom1 * (refX - currentCenterX);
         let newCenterY: number = refY - zoom0 / zoom1 * (refY - currentCenterY);
 
-        let gpano: IGPano = this.currentTransform.gpano;
-
-        if (this._currentNode.fullPano) {
-            newCenterX = this._spatial.wrap(newCenterX + this._basicRotation[0], 0, 1);
-            newCenterY = this._spatial.clamp(newCenterY + this._basicRotation[1], 0.05, 0.95);
-        } else if (gpano != null &&
-            this.currentTransform.gpano.CroppedAreaImageWidthPixels === this.currentTransform.gpano.FullPanoWidthPixels) {
-            newCenterX = this._spatial.wrap(newCenterX + this._basicRotation[0], 0, 1);
-            newCenterY = this._spatial.clamp(newCenterY + this._basicRotation[1], 0, 1);
+        if (isSpherical(this._currentNode.cameraType)) {
+            newCenterX = this._spatial
+                .wrap(newCenterX + this._basicRotation[0], 0, 1);
+            newCenterY = this._spatial
+                .clamp(newCenterY + this._basicRotation[1], 0.05, 0.95);
         } else {
             newCenterX = this._spatial.clamp(newCenterX, 0, 1);
             newCenterY = this._spatial.clamp(newCenterY, 0, 1);
@@ -354,28 +349,17 @@ export abstract class InteractiveStateBase extends StateBase {
         let currentBasic: number[] = currentTransform.projectBasic(currentCamera.lookat.toArray());
         let previousBasic: number[] = previousTransform.projectBasic(previousCamera.lookat.toArray());
 
-        let currentGPano: IGPano = currentTransform.gpano;
-        let previousGPano: IGPano = previousTransform.gpano;
-
-        if (currentNode.fullPano) {
+        if (isSpherical(currentNode.cameraType)) {
             currentBasic[0] = this._spatial.wrap(currentBasic[0] + basicRotation[0], 0, 1);
             currentBasic[1] = this._spatial.clamp(currentBasic[1] + basicRotation[1], 0.05, 0.95);
-        } else if (currentGPano != null &&
-            currentTransform.gpano.CroppedAreaImageWidthPixels === currentTransform.gpano.FullPanoWidthPixels) {
-            currentBasic[0] = this._spatial.wrap(currentBasic[0] + basicRotation[0], 0, 1);
-            currentBasic[1] = this._spatial.clamp(currentBasic[1] + basicRotation[1], 0, 1);
         } else {
             currentBasic[0] = this._spatial.clamp(currentBasic[0] + basicRotation[0], 0, 1);
             currentBasic[1] = this._spatial.clamp(currentBasic[1] + basicRotation[1], 0, 1);
         }
 
-        if (previousNode.fullPano) {
+        if (isSpherical(previousNode.cameraType)) {
             previousBasic[0] = this._spatial.wrap(previousBasic[0] + basicRotation[0], 0, 1);
             previousBasic[1] = this._spatial.clamp(previousBasic[1] + basicRotation[1], 0.05, 0.95);
-        } else if (previousGPano != null &&
-            previousTransform.gpano.CroppedAreaImageWidthPixels === previousTransform.gpano.FullPanoWidthPixels) {
-            previousBasic[0] = this._spatial.wrap(previousBasic[0] + basicRotation[0], 0, 1);
-            previousBasic[1] = this._spatial.clamp(previousBasic[1] + basicRotation[1], 0, 1);
         } else {
             previousBasic[0] = this._spatial.clamp(previousBasic[0] + basicRotation[0], 0, 1);
             previousBasic[1] = this._spatial.clamp(currentBasic[1] + basicRotation[1], 0, 1);
@@ -439,7 +423,8 @@ export abstract class InteractiveStateBase extends StateBase {
             return;
         }
 
-        const alpha: number = this.currentNode.fullPano ? 1 : this._alpha;
+        const alpha: number = isSpherical(this.currentNode.cameraType) ?
+            1 : this._alpha;
 
         this._rotationDelta.multiply(this._rotationAcceleration * alpha);
         this._rotationDelta.threshold(this._rotationThreshold);
@@ -509,7 +494,7 @@ export abstract class InteractiveStateBase extends StateBase {
     }
 
     protected _clearRotation(): void {
-        if (this._currentNode.fullPano) {
+        if (isSpherical(this._currentNode.cameraType)) {
             return;
         }
 
@@ -547,7 +532,8 @@ export abstract class InteractiveStateBase extends StateBase {
 
     protected _setDesiredZoom(): void {
         this._desiredZoom =
-            this._currentNode.fullPano || this._previousNode == null ?
+            isSpherical(this._currentNode.cameraType) ||
+                this._previousNode == null ?
                 this._zoom : 0;
     }
 }

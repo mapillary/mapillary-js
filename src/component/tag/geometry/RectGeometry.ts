@@ -1,6 +1,7 @@
 import { VertexGeometry } from "./VertexGeometry";
 import { GeometryTagError } from "../error/GeometryTagError";
 import { Transform } from "../../../geo/Transform";
+import { isSpherical } from "../../../geo/Geo";
 
 /**
  * @class RectGeometry
@@ -139,7 +140,7 @@ export class RectGeometry extends VertexGeometry {
                 this._anchorIndex === 2 ? [original[2], original[1]] :
                     [original[2], original[3]];
 
-        if (transform.fullPano) {
+        if (isSpherical(transform.cameraType)) {
             const deltaX: number = this._anchorIndex < 2 ?
                 changed[0] - original[2] :
                 changed[0] - original[0];
@@ -339,7 +340,7 @@ export class RectGeometry extends VertexGeometry {
             rect[3] = changed[1];
         }
 
-        if (transform.fullPano) {
+        if (isSpherical(transform.cameraType)) {
             let passingBoundaryLeftward: boolean =
                 index < 2 && changed[0] > 0.75 && original[0] < 0.25 ||
                 index >= 2 && this._inverted && changed[0] > 0.75 && original[2] < 0.25;
@@ -400,8 +401,7 @@ export class RectGeometry extends VertexGeometry {
 
         let translationX: number = 0;
 
-        if (transform.gpano != null &&
-            transform.gpano.CroppedAreaImageWidthPixels === transform.gpano.FullPanoWidthPixels) {
+        if (isSpherical(transform.cameraType)) {
             translationX = this._inverted ? value[0] + 1 - centerX : value[0] - centerX;
         } else {
             let minTranslationX: number = -x0;
@@ -577,7 +577,7 @@ export class RectGeometry extends VertexGeometry {
 
     /** @ignore */
     public getTriangles3d(transform: Transform): number[] {
-        return transform.fullPano ?
+        return isSpherical(transform.cameraType) ?
             [] :
             this._triangulate(
                 this._project(this._getPoints2d(), transform),

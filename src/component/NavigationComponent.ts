@@ -23,6 +23,7 @@ import { IEdgeStatus } from "../graph/interfaces/IEdgeStatus";
 import { IVNodeHash } from "../render/interfaces/IVNodeHash";
 import { Container } from "../viewer/Container";
 import { Navigator } from "../viewer/Navigator";
+import { isSpherical } from "../geo/Geo";
 
 /**
  * @class NavigationComponent
@@ -77,7 +78,8 @@ export class NavigationComponent extends Component<INavigationConfiguration> {
                                     })) :
                             observableOf<EdgeDirection[]>([]);
 
-                        const spatialEdges$: Observable<EdgeDirection[]> = !node.pano && configuration.spatial ?
+                        const spatialEdges$: Observable<EdgeDirection[]> = !isSpherical(node.cameraType) &&
+                            configuration.spatial ?
                             node.spatialEdges$.pipe(
                                 map(
                                     (status: IEdgeStatus): EdgeDirection[] => {

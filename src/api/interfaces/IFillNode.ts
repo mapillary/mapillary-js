@@ -1,5 +1,4 @@
 import { CameraProjectionType } from "./CameraProjectionType";
-import { IGPano } from "./IGPano";
 import { INodeUrls } from "./INodeUrls";
 import { IProject } from "./IProject";
 import { IUser } from "./IUser";
@@ -73,11 +72,6 @@ export interface IFillNode extends INodeUrls {
      * Key of SfM cluster that the node is part of.
      */
     cluster_key?: string;
-
-    /**
-     * Panorama information for panorama images.
-     */
-    gpano?: IGPano;
 
     /**
      * Height of original image, not adjusted for orientation.

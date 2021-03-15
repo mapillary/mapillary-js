@@ -1,14 +1,15 @@
 import { NodeHelper } from "./NodeHelper";
-
-import { Node } from "../../src/graph/Node";
 import { Transform } from "../../src/geo/Transform";
-import { IGPano } from "../../src/api/interfaces/IGPano";
+import { CameraProjectionType } from "../../src/api/interfaces/CameraProjectionType";
 
 export class TransformHelper {
     private _nodeHelper: NodeHelper = new NodeHelper();
 
-    public createTransform(gpano?: IGPano): Transform {
-        let node: Node = this._nodeHelper.createNode(gpano);
+    public createTransform(
+        cameraType: CameraProjectionType = "perspective"): Transform {
+
+        const node = this._nodeHelper
+            .createNode(cameraType);
 
         return new Transform(
             node.orientation,
@@ -16,20 +17,12 @@ export class TransformHelper {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             [0, 0, 0],
-            null);
-    }
-
-    public createFullGPano(): IGPano {
-        return {
-            CroppedAreaImageHeightPixels: 1,
-            CroppedAreaImageWidthPixels: 1,
-            CroppedAreaLeftPixels: 0,
-            CroppedAreaTopPixels: 0,
-            FullPanoHeightPixels: 1,
-            FullPanoWidthPixels: 1,
-        };
+            null,
+            null,
+            null,
+            null,
+            cameraType);
     }
 }

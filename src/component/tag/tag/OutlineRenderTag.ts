@@ -13,6 +13,7 @@ import { InteractionCursor } from "../interfaces/IInteraction";
 import { Transform } from "../../../geo/Transform";
 import { ISize } from "../../../render/interfaces/ISize";
 import { ISpriteAtlas } from "../../../viewer/interfaces/ISpriteAtlas";
+import { isSpherical } from "../../../geo/Geo";
 
 /**
  * @class OutlineRenderTag
@@ -24,10 +25,9 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
     constructor(tag: OutlineTag, transform: Transform) {
         super(tag, transform);
 
-        this._fill = !transform.gpano ?
+        this._fill = !isSpherical(transform.cameraType) ?
             this._createFill() :
-            transform.fullPano &&
-                tag.domain === TagDomain.TwoDimensional &&
+            tag.domain === TagDomain.TwoDimensional &&
                 tag.geometry instanceof PolygonGeometry ?
                 this._createFill() :
                 null;
@@ -52,7 +52,7 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
     public getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ISize): vd.VNode[] {
         const vNodes: vd.VNode[] = [];
         const isRect: boolean = this._tag.geometry instanceof RectGeometry;
-        const isPerspective: boolean = !this._transform.gpano;
+        const isPerspective: boolean = !isSpherical(this._transform.cameraType);
         const container: { offsetHeight: number, offsetWidth: number } = {
             offsetHeight: size.height, offsetWidth: size.width,
         };

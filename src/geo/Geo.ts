@@ -5,9 +5,14 @@ import { Spatial } from "./Spatial";
 import { Transform } from "./Transform";
 import { ViewportCoords } from "./ViewportCoords";
 import { ILatLonAlt } from "./interfaces/ILatLonAlt";
+import { CameraProjectionType } from "../api/interfaces/CameraProjectionType";
 
 const geoCoords: GeoCoords = new GeoCoords();
 const spatial: Spatial = new Spatial();
+
+export function isSpherical(cameraType: string): boolean {
+    return cameraType === "equirectangular";
+}
 
 export function computeTranslation(position: ILatLonAlt, rotation: number[], reference: ILatLonAlt): number[] {
     const C: number[] = geoCoords.geodeticToEnu(

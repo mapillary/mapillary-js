@@ -1,21 +1,20 @@
-import { Node } from "../../../src/graph/Node";
-import { Transform } from "../../../src/geo/Transform";
 
 import { TransformHelper } from "../../helper/TransformHelper";
-import { IGPano } from "../../../src/api/interfaces/IGPano";
 import { RectGeometry } from "../../../src/component/tag/geometry/RectGeometry";
+
+const transformHelper = new TransformHelper();
 
 describe("RectGeometry.ctor", () => {
     it("should be defined", () => {
-        let rectGeometry: RectGeometry = new RectGeometry([0, 0, 1, 1]);
+        let rectGeometry = new RectGeometry([0, 0, 1, 1]);
 
         expect(rectGeometry).toBeDefined();
     });
 
     it("rect should be set", () => {
-        let original: number[] = [0.2, 0.2, 0.4, 0.4];
+        let original = [0.2, 0.2, 0.4, 0.4];
 
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let rectGeometry = new RectGeometry(original);
 
         expect(rectGeometry.rect[0]).toBe(0.2);
         expect(rectGeometry.rect[1]).toBe(0.2);
@@ -24,19 +23,19 @@ describe("RectGeometry.ctor", () => {
     });
 
     it("should throw if y values are inverted", () => {
-        let original: number[] = [0.2, 0.4, 0.4, 0.2];
+        let original = [0.2, 0.4, 0.4, 0.2];
 
         expect(() => { return new RectGeometry(original); }).toThrowError(Error);
     });
 
     it("should throw if value is below supported range", () => {
-        let original: number[] = [-1, 0.4, 0.4, 0.2];
+        let original = [-1, 0.4, 0.4, 0.2];
 
         expect(() => { return new RectGeometry(original); }).toThrowError(Error);
     });
 
     it("should throw if value is above supported range", () => {
-        let original: number[] = [2, 0.4, 0.4, 0.2];
+        let original = [2, 0.4, 0.4, 0.2];
 
         expect(() => { return new RectGeometry(original); }).toThrowError(Error);
     });
@@ -44,8 +43,8 @@ describe("RectGeometry.ctor", () => {
 
 describe("RectGeometry.getVertex2d", () => {
     it("should return the polygon vertices", () => {
-        const rect: number[] = [0.2, 0.3, 0.4, 0.5];
-        const geometry: RectGeometry = new RectGeometry(rect);
+        const rect = [0.2, 0.3, 0.4, 0.5];
+        const geometry = new RectGeometry(rect);
 
         expect(geometry.getVertex2d(0)).toEqual([0.2, 0.5]);
         expect(geometry.getVertex2d(1)).toEqual([0.2, 0.3]);
@@ -57,10 +56,10 @@ describe("RectGeometry.getVertex2d", () => {
 
 describe("RectGeometry.getCentroid2d", () => {
     it("should return the centroid", () => {
-        const rect: number[] = [0.2, 0.4, 0.6, 0.7];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const rect = [0.2, 0.4, 0.6, 0.7];
+        const rectGeometry = new RectGeometry(rect);
 
-        const result: number[] = rectGeometry.getCentroid2d();
+        const result = rectGeometry.getCentroid2d();
 
         expect(result).toEqual([0.4, 0.55]);
     });
@@ -68,10 +67,10 @@ describe("RectGeometry.getCentroid2d", () => {
 
 describe("RectGeometry.getCentroid2d", () => {
     it("should shift the centroid when inverted", () => {
-        const rect: number[] = [0.9, 0.4, 0.2, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const rect = [0.9, 0.4, 0.2, 0.6];
+        const rectGeometry = new RectGeometry(rect);
 
-        const result: number[] = rectGeometry.getCentroid2d();
+        const result = rectGeometry.getCentroid2d();
 
         expect(result).toEqual([1.05, 0.5]);
     });
@@ -79,8 +78,8 @@ describe("RectGeometry.getCentroid2d", () => {
 
 describe("RectGeometry.getVertices2d", () => {
     it("should return the vertices create from the rect representation", () => {
-        const rect: number[] = [0.2, 0.4, 0.6, 0.7];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const rect = [0.2, 0.4, 0.6, 0.7];
+        const rectGeometry = new RectGeometry(rect);
 
         const result: number[][] = rectGeometry.getVertices2d();
 
@@ -95,8 +94,8 @@ describe("RectGeometry.getVertices2d", () => {
 
 describe("RectGeometry.getVertices2d", () => {
     it("should return the shifted clockwise vertices when inverted", () => {
-        const rect: number[] = [0.9, 0.4, 0.2, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const rect = [0.9, 0.4, 0.2, 0.6];
+        const rectGeometry = new RectGeometry(rect);
 
         const result: number[][] = rectGeometry.getVertices2d();
 
@@ -110,68 +109,12 @@ describe("RectGeometry.getVertices2d", () => {
 });
 
 describe("RectGeometry.setVertex2d", () => {
-    let createNode: (gpano: IGPano) => Node = (gpano: IGPano): Node => {
-        let node: Node = new Node({
-            cl: { lat: 0, lon: 0 },
-            key: "key",
-            l: { lat: 0, lon: 0 },
-            sequence_key: "skey",
-        });
-
-        node.makeFull({
-            atomic_scale: 0,
-            c_rotation: [0, 0, 0],
-            ca: 0,
-            calt: 0,
-            captured_at: 0,
-            cca: 0,
-            cfocal: 0,
-            cluster_key: "ckey",
-            gpano: gpano,
-            height: 0,
-            merge_cc: 0,
-            merge_version: 0,
-            orientation: 0,
-            private: false,
-            user: { key: "key", username: "username" },
-            width: 0,
-        });
-
-        return node;
-    };
-
-    let createTransform: (pano: boolean) => Transform = (pano: boolean): Transform => {
-        let gpano: IGPano = pano ?
-            {
-                CroppedAreaImageHeightPixels: 1,
-                CroppedAreaImageWidthPixels: 1,
-                CroppedAreaLeftPixels: 0,
-                CroppedAreaTopPixels: 0,
-                FullPanoHeightPixels: 1,
-                FullPanoWidthPixels: 1,
-            } :
-            null;
-
-        let node: Node = createNode(gpano);
-
-        return new Transform(
-            node.orientation,
-            node.width,
-            node.height,
-            node.focal,
-            node.scale,
-            node.gpano,
-            node.rotation,
-            [0, 0, 0],
-            null);
-    };
-
     it("should set rect according to bottom left value", () => {
-        let original: number[] = [0, 0, 1, 1];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0, 0, 1, 1];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [0.5, 0.5];
-        let transform: Transform = createTransform(true);
+        let vertex = [0.5, 0.5];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(0, vertex, transform);
 
@@ -182,11 +125,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should set rect according to top left value", () => {
-        let original: number[] = [0, 0, 1, 1];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0, 0, 1, 1];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [0.5, 0.5];
-        let transform: Transform = createTransform(true);
+        let vertex = [0.5, 0.5];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -197,11 +140,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should set rect according to top right value", () => {
-        let original: number[] = [0, 0, 1, 1];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0, 0, 1, 1];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [0.5, 0.5];
-        let transform: Transform = createTransform(true);
+        let vertex = [0.5, 0.5];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(2, vertex, transform);
 
@@ -212,11 +155,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should set rect according to bottom right value", () => {
-        let original: number[] = [0, 0, 1, 1];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0, 0, 1, 1];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [0.5, 0.5];
-        let transform: Transform = createTransform(true);
+        let vertex = [0.5, 0.5];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(3, vertex, transform);
 
@@ -227,11 +170,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should clamp negative input value to [0, 1] interval", () => {
-        let original: number[] = [0.25, 0.25, 0.75, 0.75];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.25, 0.25, 0.75, 0.75];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [-1, -1];
-        let transform: Transform = createTransform(true);
+        let vertex = [-1, -1];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -242,11 +185,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should clamp input value larger than 1 to [0, 1] interval", () => {
-        let original: number[] = [0.25, 0.25, 0.75, 0.75];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.25, 0.25, 0.75, 0.75];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [2, 2];
-        let transform: Transform = createTransform(true);
+        let vertex = [2, 2];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(3, vertex, transform);
 
@@ -257,11 +200,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should not allow right to pass left", () => {
-        let original: number[] = [0.5, 0.5, 0.7, 0.7];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.5, 0.5, 0.7, 0.7];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [0.3, original[3]];
-        let transform: Transform = createTransform(true);
+        let vertex = [0.3, original[3]];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(3, vertex, transform);
 
@@ -272,11 +215,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should not allow left to pass right", () => {
-        let original: number[] = [0.4, 0.4, 0.5, 0.5];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.4, 0.4, 0.5, 0.5];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [0.6, original[1]];
-        let transform: Transform = createTransform(true);
+        let vertex = [0.6, original[1]];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -287,11 +230,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should not allow bottom to pass top", () => {
-        let original: number[] = [0.5, 0.5, 0.6, 0.6];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.5, 0.5, 0.6, 0.6];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [original[2], 0.4];
-        let transform: Transform = createTransform(true);
+        let vertex = [original[2], 0.4];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(3, vertex, transform);
 
@@ -302,11 +245,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should not allow top to pass bottom", () => {
-        let original: number[] = [0.4, 0.4, 0.5, 0.5];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.4, 0.4, 0.5, 0.5];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [original[0], 0.6];
-        let transform: Transform = createTransform(true);
+        let vertex = [original[0], 0.6];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -317,11 +260,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should become inverted when passing boundary to the left", () => {
-        let original: number[] = [0.1, 0.1, 0.4, 0.4];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.1, 0.1, 0.4, 0.4];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [0.9, original[1]];
-        let transform: Transform = createTransform(true);
+        let vertex = [0.9, original[1]];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -332,11 +275,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should become inverted when passing boundary to the right", () => {
-        let original: number[] = [0.6, 0.6, 0.9, 0.9];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.6, 0.6, 0.9, 0.9];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [0.1, original[3]];
-        let transform: Transform = createTransform(true);
+        let vertex = [0.1, original[3]];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(3, vertex, transform);
 
@@ -347,11 +290,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should change correctly when inverted", () => {
-        let original: number[] = [0.9, 0.1, 0.4, 0.4];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.9, 0.1, 0.4, 0.4];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [0.8, original[1]];
-        let transform: Transform = createTransform(true);
+        let vertex = [0.8, original[1]];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -362,11 +305,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should become regular when passing boundary to the left", () => {
-        let original: number[] = [0.7, 0.1, 0.1, 0.4];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.7, 0.1, 0.1, 0.4];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [0.9, original[3]];
-        let transform: Transform = createTransform(true);
+        let vertex = [0.9, original[3]];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(3, vertex, transform);
 
@@ -377,11 +320,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should become regular when passing boundary to the right", () => {
-        let original: number[] = [0.9, 0.1, 0.4, 0.4];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.9, 0.1, 0.4, 0.4];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [0.1, original[1]];
-        let transform: Transform = createTransform(true);
+        let vertex = [0.1, original[1]];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -392,11 +335,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should not allow right to pass left over boundary", () => {
-        let original: number[] = [0.01, 0.1, 0.02, 0.2];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.01, 0.1, 0.02, 0.2];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [0.99, original[3]];
-        let transform: Transform = createTransform(true);
+        let vertex = [0.99, original[3]];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(3, vertex, transform);
 
@@ -407,11 +350,11 @@ describe("RectGeometry.setVertex2d", () => {
     });
 
     it("should not allow left to pass right over boundary", () => {
-        let original: number[] = [0.98, 0.1, 0.99, 0.2];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.98, 0.1, 0.99, 0.2];
+        let rectGeometry = new RectGeometry(original);
 
-        let vertex: number[] = [0.01, original[1]];
-        let transform: Transform = createTransform(true);
+        let vertex = [0.01, original[1]];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -425,68 +368,12 @@ describe("RectGeometry.setVertex2d", () => {
 describe("RectGeometry.setCentroid2d", () => {
     let precision: number = 8;
 
-    let createNode: (gpano: IGPano) => Node = (gpano: IGPano): Node => {
-        let node: Node = new Node({
-            cl: { lat: 0, lon: 0 },
-            key: "key",
-            l: { lat: 0, lon: 0 },
-            sequence_key: "skey",
-        });
-
-        node.makeFull({
-            atomic_scale: 0,
-            c_rotation: [0, 0, 0],
-            ca: 0,
-            calt: 0,
-            captured_at: 0,
-            cca: 0,
-            cfocal: 0,
-            cluster_key: "ckey",
-            gpano: gpano,
-            height: 0,
-            merge_cc: 0,
-            merge_version: 0,
-            orientation: 0,
-            private: false,
-            user: { key: "key", username: "username" },
-            width: 0,
-        });
-
-        return node;
-    };
-
-    let createTransform: (pano: boolean) => Transform = (pano: boolean): Transform => {
-        let gpano: IGPano = pano ?
-            {
-                CroppedAreaImageHeightPixels: 1,
-                CroppedAreaImageWidthPixels: 1,
-                CroppedAreaLeftPixels: 0,
-                CroppedAreaTopPixels: 0,
-                FullPanoHeightPixels: 1,
-                FullPanoWidthPixels: 1,
-            } :
-            null;
-
-        let node: Node = createNode(gpano);
-
-        return new Transform(
-            node.orientation,
-            node.width,
-            node.height,
-            node.focal,
-            node.scale,
-            node.gpano,
-            node.rotation,
-            [0, 0, 0],
-            null);
-    };
-
     it("should set rect according to new centroid", () => {
-        let original: number[] = [0.2, 0.2, 0.3, 0.3];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.2, 0.2, 0.3, 0.3];
+        let rectGeometry = new RectGeometry(original);
 
-        let centroid: number[] = [0.45, 0.45];
-        let transform: Transform = createTransform(false);
+        let centroid = [0.45, 0.45];
+        const transform = transformHelper.createTransform();
 
         rectGeometry.setCentroid2d(centroid, transform);
 
@@ -497,11 +384,11 @@ describe("RectGeometry.setCentroid2d", () => {
     });
 
     it("should limit x-axis translation for non pano", () => {
-        let original: number[] = [0.1, 0.1, 0.3, 0.3];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.1, 0.1, 0.3, 0.3];
+        let rectGeometry = new RectGeometry(original);
 
-        let centroid: number[] = [0, 0.2];
-        let transform: Transform = createTransform(false);
+        let centroid = [0, 0.2];
+        const transform = transformHelper.createTransform();
 
         rectGeometry.setCentroid2d(centroid, transform);
 
@@ -512,11 +399,11 @@ describe("RectGeometry.setCentroid2d", () => {
     });
 
     it("should not limit x-axis translation for non pano", () => {
-        let original: number[] = [0.1, 0.1, 0.3, 0.3];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.1, 0.1, 0.3, 0.3];
+        let rectGeometry = new RectGeometry(original);
 
-        let centroid: number[] = [0, 0.2];
-        let transform: Transform = createTransform(true);
+        let centroid = [0, 0.2];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setCentroid2d(centroid, transform);
 
@@ -527,11 +414,11 @@ describe("RectGeometry.setCentroid2d", () => {
     });
 
     it("should limit y-axis translation for non pano", () => {
-        let original: number[] = [0.1, 0.1, 0.3, 0.3];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.1, 0.1, 0.3, 0.3];
+        let rectGeometry = new RectGeometry(original);
 
-        let centroid: number[] = [0.2, 0];
-        let transform: Transform = createTransform(false);
+        let centroid = [0.2, 0];
+        const transform = transformHelper.createTransform();
 
         rectGeometry.setCentroid2d(centroid, transform);
 
@@ -542,11 +429,11 @@ describe("RectGeometry.setCentroid2d", () => {
     });
 
     it("should limit y-axis translation for non pano", () => {
-        let original: number[] = [0.1, 0.1, 0.3, 0.3];
-        let rectGeometry: RectGeometry = new RectGeometry(original);
+        let original = [0.1, 0.1, 0.3, 0.3];
+        let rectGeometry = new RectGeometry(original);
 
-        let centroid: number[] = [0.2, 0];
-        let transform: Transform = createTransform(true);
+        let centroid = [0.2, 0];
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.setCentroid2d(centroid, transform);
 
@@ -559,8 +446,8 @@ describe("RectGeometry.setCentroid2d", () => {
 
 describe("RectGeometry.initializeAnchorIndexing", () => {
     it("should initialize without parameter", () => {
-        const rect: number[] = [0.2, 0.2, 0.3, 0.3];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const rect = [0.2, 0.2, 0.3, 0.3];
+        const rectGeometry = new RectGeometry(rect);
 
         rectGeometry.initializeAnchorIndexing();
 
@@ -568,8 +455,8 @@ describe("RectGeometry.initializeAnchorIndexing", () => {
     });
 
     it("should initialize to supplied value parameter", () => {
-        const rect: number[] = [0.2, 0.2, 0.3, 0.3];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const rect = [0.2, 0.2, 0.3, 0.3];
+        const rectGeometry = new RectGeometry(rect);
 
         rectGeometry.initializeAnchorIndexing(2);
 
@@ -577,16 +464,16 @@ describe("RectGeometry.initializeAnchorIndexing", () => {
     });
 
     it("should throw for incorrect indices", () => {
-        const rect: number[] = [0.2, 0.2, 0.3, 0.3];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const rect = [0.2, 0.2, 0.3, 0.3];
+        const rectGeometry = new RectGeometry(rect);
 
         expect((): void => { rectGeometry.initializeAnchorIndexing(-1); }).toThrowError(Error);
         expect((): void => { rectGeometry.initializeAnchorIndexing(4); }).toThrowError(Error);
     });
 
     it("should throw if already intialized", () => {
-        const rect: number[] = [0.2, 0.2, 0.3, 0.3];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const rect = [0.2, 0.2, 0.3, 0.3];
+        const rectGeometry = new RectGeometry(rect);
 
         rectGeometry.initializeAnchorIndexing();
 
@@ -596,8 +483,8 @@ describe("RectGeometry.initializeAnchorIndexing", () => {
 
 describe("RectGeometry.terminateAnchorIndexing", () => {
     it("should clear anchor index", () => {
-        const rect: number[] = [0.2, 0.2, 0.3, 0.3];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const rect = [0.2, 0.2, 0.3, 0.3];
+        const rectGeometry = new RectGeometry(rect);
 
         rectGeometry.initializeAnchorIndexing();
         rectGeometry.terminateAnchorIndexing();
@@ -608,9 +495,9 @@ describe("RectGeometry.terminateAnchorIndexing", () => {
 
 describe("RectGeometry.setOppositeVertex", () => {
     it("should clamp supplied coords to [0, 1] interval", () => {
-        const rect: number[] = [0.5, 0.5, 0.6, 0.5];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform();
+        const rect = [0.5, 0.5, 0.6, 0.5];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform();
 
         rectGeometry.initializeAnchorIndexing(1);
 
@@ -624,9 +511,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should rotate anchor index clockwise", () => {
-        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform();
+        const rect = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform();
 
         rectGeometry.initializeAnchorIndexing(1);
         expect(rectGeometry.anchorIndex).toBe(1);
@@ -649,9 +536,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should rotate anchor index counterclockwise", () => {
-        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform();
+        const rect = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform();
 
         rectGeometry.initializeAnchorIndexing(1);
         expect(rectGeometry.anchorIndex).toBe(1);
@@ -674,9 +561,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should rotate anchor index diagonally se-nw", () => {
-        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform();
+        const rect = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform();
 
         rectGeometry.initializeAnchorIndexing(1);
         expect(rectGeometry.anchorIndex).toBe(1);
@@ -691,9 +578,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should rotate anchor index diagonally ne-sw", () => {
-        const rect: number[] = [0.5, 0.4, 0.6, 0.5];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform();
+        const rect = [0.5, 0.4, 0.6, 0.5];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform();
 
         rectGeometry.initializeAnchorIndexing(0);
         expect(rectGeometry.anchorIndex).toBe(0);
@@ -708,9 +595,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should not change anchor index when opposite decreases to equal anchor", () => {
-        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform();
+        const rect = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform();
 
         rectGeometry.initializeAnchorIndexing(1);
 
@@ -724,9 +611,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should not change anchor index when opposite increases to equal anchor", () => {
-        const rect: number[] = [0.4, 0.4, 0.5, 0.5];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform();
+        const rect = [0.4, 0.4, 0.5, 0.5];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform();
 
         rectGeometry.initializeAnchorIndexing(3);
 
@@ -740,9 +627,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should always have a larger right x than left x except when equal", () => {
-        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform();
+        const rect = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform();
 
         rectGeometry.initializeAnchorIndexing(1);
 
@@ -757,9 +644,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should always have a larger bottom y than top y except when equal", () => {
-        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform();
+        const rect = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform();
 
         rectGeometry.initializeAnchorIndexing(1);
 
@@ -776,36 +663,25 @@ describe("RectGeometry.setOppositeVertex", () => {
 
 describe("RectGeometry.inverted", () => {
     it("should not be inverted if right is larger than left", () => {
-        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const rect = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry = new RectGeometry(rect);
 
         expect(rectGeometry.inverted).toBe(false);
     });
 
     it("should be inverted if left is larger than right", () => {
-        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
+        const rect = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry = new RectGeometry(rect);
 
         expect(rectGeometry.inverted).toBe(true);
     });
 });
 
 describe("RectGeometry.setOppositeVertex", () => {
-    const createFullGPano: () => IGPano = (): IGPano => {
-        return {
-            CroppedAreaImageHeightPixels: 1,
-            CroppedAreaImageWidthPixels: 1,
-            CroppedAreaLeftPixels: 0,
-            CroppedAreaTopPixels: 0,
-            FullPanoHeightPixels: 1,
-            FullPanoWidthPixels: 1,
-        };
-    };
-
     it("should invert for pano when right side passes boundary rightward", () => {
-        const rect: number[] = [0.9, 0.5, 0.99, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.9, 0.5, 0.99, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(0);
 
@@ -817,9 +693,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should invert for pano when left side passes right side and boundary rightward", () => {
-        const rect: number[] = [0.9, 0.5, 0.99, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.9, 0.5, 0.99, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(3);
 
@@ -831,9 +707,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should uninvert for pano when left side passes boundary rightward", () => {
-        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(3);
 
@@ -845,9 +721,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should uninvert for pano when left side passes right side and boundary rightward", () => {
-        const rect: number[] = [0.99, 0.5, 0.01, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.99, 0.5, 0.01, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(3);
 
@@ -859,9 +735,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should invert for pano when left side passes boundary leftward", () => {
-        const rect: number[] = [0.01, 0.5, 0.1, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.01, 0.5, 0.1, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(3);
 
@@ -873,9 +749,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should invert for pano when right side passes left side and boundary leftward", () => {
-        const rect: number[] = [0.01, 0.5, 0.1, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.01, 0.5, 0.1, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(0);
 
@@ -887,9 +763,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should uninvert for pano when right side passes boundary leftward", () => {
-        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(0);
 
@@ -901,9 +777,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should uninvert for pano when right side passes left side and boundary leftward", () => {
-        const rect: number[] = [0.99, 0.5, 0.1, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.99, 0.5, 0.1, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(0);
 
@@ -915,9 +791,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should keep inversion for anchor index 0", () => {
-        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(0);
 
@@ -929,9 +805,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should keep inversion for anchor index 1", () => {
-        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(1);
 
@@ -943,9 +819,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should keep inversion for anchor index 2", () => {
-        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(2);
 
@@ -957,9 +833,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should keep inversion for anchor index 2", () => {
-        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(3);
 
@@ -971,9 +847,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should keep inversion when passing vertically to the right", () => {
-        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(1);
 
@@ -991,9 +867,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should keep inversion when passing vertically to the left", () => {
-        const rect: number[] = [0.9, 0.5, 0.1, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.9, 0.5, 0.1, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(2);
 
@@ -1011,9 +887,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should reset loop when right passes left", () => {
-        const rect: number[] = [0.15, 0.5, 0.1, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.15, 0.5, 0.1, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(0);
 
@@ -1025,9 +901,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should reset loop when left passes right", () => {
-        const rect: number[] = [0.2, 0.5, 0.15, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.2, 0.5, 0.15, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(3);
 
@@ -1040,21 +916,10 @@ describe("RectGeometry.setOppositeVertex", () => {
 });
 
 describe("RectGeometry.setOppositeVertex", () => {
-    const createFullGPano: () => IGPano = (): IGPano => {
-        return {
-            CroppedAreaImageHeightPixels: 1,
-            CroppedAreaImageWidthPixels: 1,
-            CroppedAreaLeftPixels: 0,
-            CroppedAreaTopPixels: 0,
-            FullPanoHeightPixels: 1,
-            FullPanoWidthPixels: 1,
-        };
-    };
-
     it("should rotate anchor index clockwise for pano", () => {
-        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(1);
         expect(rectGeometry.anchorIndex).toBe(1);
@@ -1077,9 +942,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should rotate anchor index counterclockwise for pano", () => {
-        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(1);
         expect(rectGeometry.anchorIndex).toBe(1);
@@ -1102,9 +967,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should rotate anchor index diagonally se-nw for pano", () => {
-        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(1);
         expect(rectGeometry.anchorIndex).toBe(1);
@@ -1119,9 +984,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should rotate anchor index diagonally ne-sw for pano", () => {
-        const rect: number[] = [0.5, 0.4, 0.6, 0.5];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.5, 0.4, 0.6, 0.5];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(0);
         expect(rectGeometry.anchorIndex).toBe(0);
@@ -1136,9 +1001,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should not change anchor index when opposite decreases to equal anchor for pano", () => {
-        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(1);
 
@@ -1152,9 +1017,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should not change anchor index when opposite increases to equal anchor for pano", () => {
-        const rect: number[] = [0.4, 0.4, 0.5, 0.5];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.4, 0.4, 0.5, 0.5];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(3);
 
@@ -1168,9 +1033,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should always have a larger right x than left x except when equal for pano", () => {
-        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(1);
 
@@ -1185,9 +1050,9 @@ describe("RectGeometry.setOppositeVertex", () => {
     });
 
     it("should always have a larger bottom y than top y except when equal for pano", () => {
-        const rect: number[] = [0.5, 0.5, 0.6, 0.6];
-        const rectGeometry: RectGeometry = new RectGeometry(rect);
-        const transform: Transform = new TransformHelper().createTransform(createFullGPano());
+        const rect = [0.5, 0.5, 0.6, 0.6];
+        const rectGeometry = new RectGeometry(rect);
+        const transform = transformHelper.createTransform("equirectangular");
 
         rectGeometry.initializeAnchorIndexing(1);
 

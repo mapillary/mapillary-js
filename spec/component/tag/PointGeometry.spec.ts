@@ -1,7 +1,8 @@
 import { Node } from "../../../src/graph/Node";
 import { Transform } from "../../../src/geo/Transform";
-import { IGPano } from "../../../src/api/interfaces/IGPano";
 import { PointGeometry } from "../../../src/component/tag/geometry/PointGeometry";
+import { CameraProjectionType } from "../../../src/api/interfaces/CameraProjectionType";
+
 
 describe("PointGeometry.ctor", () => {
     it("should be defined", () => {
@@ -29,7 +30,7 @@ describe("PointGeometry.ctor", () => {
 });
 
 describe("PointGeometry.setVertex2d", () => {
-    let createNode: (gpano: IGPano) => Node = (gpano: IGPano): Node => {
+    let createNode = (cameraType: CameraProjectionType): Node => {
         let node: Node = new Node({
             cl: { lat: 0, lon: 0 },
             key: "key",
@@ -42,11 +43,11 @@ describe("PointGeometry.setVertex2d", () => {
             c_rotation: [0, 0, 0],
             ca: 0,
             calt: 0,
+            camera_projection_type: cameraType,
             captured_at: 0,
             cca: 0,
             cfocal: 0,
             cluster_key: "ckey",
-            gpano: gpano,
             height: 0,
             merge_cc: 0,
             merge_version: 0,
@@ -60,18 +61,9 @@ describe("PointGeometry.setVertex2d", () => {
     };
 
     let createTransform: (pano: boolean) => Transform = (pano: boolean): Transform => {
-        let gpano: IGPano = pano ?
-            {
-                CroppedAreaImageHeightPixels: 1,
-                CroppedAreaImageWidthPixels: 1,
-                CroppedAreaLeftPixels: 0,
-                CroppedAreaTopPixels: 0,
-                FullPanoHeightPixels: 1,
-                FullPanoWidthPixels: 1,
-            } :
-            null;
-
-        let node: Node = createNode(gpano);
+        let cameraType: CameraProjectionType =
+            pano ? "equirectangular" : "perspective";
+        let node: Node = createNode(cameraType);
 
         return new Transform(
             node.orientation,
@@ -79,7 +71,6 @@ describe("PointGeometry.setVertex2d", () => {
             node.height,
             node.focal,
             node.scale,
-            node.gpano,
             node.rotation,
             [0, 0, 0],
             null);

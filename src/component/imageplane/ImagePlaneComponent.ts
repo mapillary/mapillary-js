@@ -53,6 +53,7 @@ import { Settings } from "../../utils/Settings";
 import { IComponentConfiguration } from "../interfaces/IComponentConfiguration";
 import { Transform } from "../../geo/Transform";
 import { ImageSize } from "../../viewer/ImageSize";
+import { isSpherical } from "../../geo/Geo";
 
 
 interface IImagePlaneGLRendererOperation {
@@ -353,13 +354,13 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                 }),
             filter(
                 (node: GraphNode): boolean => {
-                    return node.pano ?
+                    return isSpherical(node.cameraType) ?
                         Settings.maxImageSize > Settings.basePanoramaSize :
                         Settings.maxImageSize > Settings.baseImageSize;
                 }),
             switchMap(
                 (node: GraphNode): Observable<[HTMLImageElement, GraphNode]> => {
-                    let baseImageSize: ImageSize = node.pano ?
+                    let baseImageSize = isSpherical(node.cameraType) ?
                         Settings.basePanoramaSize :
                         Settings.baseImageSize;
 

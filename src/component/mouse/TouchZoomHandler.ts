@@ -23,6 +23,7 @@ import { IPinch } from "../../viewer/interfaces/IPinch";
 import { Component } from "../Component";
 import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
 import { HandlerBase } from "../utils/HandlerBase";
+import { isSpherical } from "../../geo/Geo";
 
 /**
  * The `TouchZoomHandler` allows the user to zoom the viewer image by pinching on a touchscreen.
@@ -86,7 +87,8 @@ export class TouchZoomHandler extends HandlerBase<IMouseConfiguration> {
             filter(
                 (args: [IPinch, IFrame]): boolean => {
                     let state: ICurrentState = args[1].state;
-                    return state.currentNode.fullPano || state.nodesAhead < 1;
+                    return isSpherical(state.currentNode.cameraType) ||
+                        state.nodesAhead < 1;
                 }),
             map(
                 (args: [IPinch, IFrame]): IPinch => {

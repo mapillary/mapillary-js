@@ -11,6 +11,9 @@ import { IState } from "../../src/state/interfaces/IState";
 import { TraversingState } from "../../src/state/states/TraversingState";
 import { Camera } from "../../src/geo/Camera";
 import { TransitionMode } from "../../src/state/TransitionMode";
+import { TransformHelper } from "../helper/TransformHelper";
+
+const transformHelper = new TransformHelper();
 
 describe("TraversingState.ctor", () => {
     it("should be defined", () => {
@@ -162,14 +165,7 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let currentNode: TestNode = new TestNode();
         let currentFillNode: IFillNode = helper.createFillNode();
-        currentFillNode.gpano = {
-            CroppedAreaImageHeightPixels: 1,
-            CroppedAreaImageWidthPixels: 1,
-            CroppedAreaLeftPixels: 0,
-            CroppedAreaTopPixels: 0,
-            FullPanoHeightPixels: 1,
-            FullPanoWidthPixels: 1,
-        };
+        currentFillNode.camera_projection_type = "equirectangular";
 
         currentNode.makeFull(currentFillNode);
 

@@ -5,6 +5,7 @@ import { Transform } from "../geo/Transform";
 import { ViewportCoords } from "../geo/ViewportCoords";
 import { RenderCamera } from "../render/RenderCamera";
 import { ISize } from "../render/interfaces/ISize";
+import { isSpherical } from "../geo/Geo";
 
 /**
  * @class RegionOfInterestCalculator
@@ -70,10 +71,14 @@ export class RegionOfInterestCalculator {
             .map(
                 (point: number[]): number[] => {
                     return this._viewportCoords
-                        .viewportToBasic(point[0], point[1], transform, renderCamera.perspective);
+                        .viewportToBasic(
+                            point[0],
+                            point[1],
+                            transform,
+                            renderCamera.perspective);
                 });
 
-        if (transform.gpano != null) {
+        if (isSpherical(transform.cameraType)) {
             return this._boundingBoxPano(basicPoints);
         } else {
             return this._boundingBox(basicPoints);

@@ -34,6 +34,7 @@ import { IRotation } from "../../state/interfaces/IRotation";
 import { MouseTouchPair } from "./HandlerTypes";
 import { MouseOperator } from "../utils/MouseOperator";
 import * as ImageBoundary from "./ImageBoundary";
+import { isSpherical } from "../../geo/Geo";
 
 /**
  * The `DragPanHandler` allows the user to pan the viewer image by clicking and dragging the cursor.
@@ -135,7 +136,8 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
         const rotation$: Observable<IRotation> = this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: IFrame): boolean => {
-                    return frame.state.currentNode.fullPano || frame.state.nodesAhead < 1;
+                    return isSpherical(frame.state.currentNode.cameraType) ||
+                        frame.state.nodesAhead < 1;
                 }),
             distinctUntilChanged(),
             switchMap(

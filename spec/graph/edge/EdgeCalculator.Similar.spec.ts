@@ -29,7 +29,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
 
     let createNode: (capturedAt: number) => Node =
         (capturedAt: number): Node => {
-            return helper.createFullNode("key", { alt: 0, lat: 0, lon: 0 }, "skey", [0, 0, 0], 2, null, capturedAt);
+            return helper.createFullNode("key", { alt: 0, lat: 0, lon: 0 }, "skey", [0, 0, 0], 2, "perspective", capturedAt);
         };
 
     beforeEach(() => {
@@ -137,7 +137,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         settings.similarMaxDirectionChange = 0.5;
 
         potentialEdge.directionChange = 1;
-        potentialEdge.fullPano = true;
+        potentialEdge.spherical = true;
         potentialEdge.sameMergeCC = true;
         potentialEdge.sequenceKey = "other";
 
