@@ -1,9 +1,9 @@
 import { BBox } from "rbush";
 import RBush from "rbush";
 
-import { ILatLon } from "../api/interfaces/ILatLon";
+import { LatLonEnt } from "../api/ents/LatLonEnt";
 
-export class GeoRBush<T extends ILatLon> extends RBush<T> {
+export class GeoRBush<T extends LatLonEnt> extends RBush<T> {
     public compareMinX(a: T, b: T): number { return a.lat - b.lat; }
 
     public compareMinY(a: T, b: T): number { return a.lon - b.lon; }

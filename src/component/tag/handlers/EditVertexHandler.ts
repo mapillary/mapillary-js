@@ -26,10 +26,10 @@ import { RenderCamera } from "../../../render/RenderCamera";
 import { Container } from "../../../viewer/Container";
 import { Component } from "../../Component";
 import { Navigator } from "../../../viewer/Navigator";
-import { ITagConfiguration } from "../../interfaces/ITagConfiguration";
+import { TagConfiguration } from "../../interfaces/TagConfiguration";
 import { Geometry } from "../geometry/Geometry";
 import { VertexGeometry } from "../geometry/VertexGeometry";
-import { IInteraction, InteractionCursor } from "../interfaces/IInteraction";
+import { TagInteraction, InteractionCursor } from "../interfaces/TagInteraction";
 import { RenderTag } from "../tag/RenderTag";
 import { Tag } from "../tag/Tag";
 import { TagOperation } from "../TagOperation";
@@ -46,7 +46,7 @@ export class EditVertexHandler extends TagHandlerBase {
     private _updateGeometrySubscription: Subscription;
 
     constructor(
-        component: Component<ITagConfiguration>,
+        component: Component<TagConfiguration>,
         container: Container,
         navigator: Navigator,
         viewportCoords: ViewportCoords,
@@ -57,26 +57,26 @@ export class EditVertexHandler extends TagHandlerBase {
     }
 
     protected _enable(): void {
-        const interaction$: Observable<IInteraction> = this._tagSet.changed$.pipe(
+        const interaction$: Observable<TagInteraction> = this._tagSet.changed$.pipe(
             map(
                 (tagSet: TagSet): RenderTag<Tag>[] => {
                     return tagSet.getAll();
                 }),
             switchMap(
-                (tags: RenderTag<Tag>[]): Observable<IInteraction> => {
+                (tags: RenderTag<Tag>[]): Observable<TagInteraction> => {
                     return observableFrom(tags).pipe(
                         mergeMap(
-                            (tag: RenderTag<Tag>): Observable<IInteraction> => {
+                            (tag: RenderTag<Tag>): Observable<TagInteraction> => {
                                 return tag.interact$;
                             }));
                 }),
             switchMap(
-                (interaction: IInteraction): Observable<IInteraction> => {
+                (interaction: TagInteraction): Observable<TagInteraction> => {
                     return observableConcat(
                         observableOf(interaction),
                         this._container.mouseService.documentMouseUp$.pipe(
                             map(
-                                (): IInteraction => {
+                                (): TagInteraction => {
                                     return { offsetX: 0, offsetY: 0, operation: TagOperation.None, tag: null };
                                 }),
                             first()));
@@ -90,7 +90,7 @@ export class EditVertexHandler extends TagHandlerBase {
 
         this._claimMouseSubscription = interaction$.pipe(
             switchMap(
-                (interaction: IInteraction): Observable<MouseEvent> => {
+                (interaction: TagInteraction): Observable<MouseEvent> => {
                     return !!interaction.tag ? this._container.mouseService.domMouseDragStart$ : observableEmpty();
                 }))
             .subscribe(
@@ -100,7 +100,7 @@ export class EditVertexHandler extends TagHandlerBase {
 
         this._cursorSubscription = interaction$.pipe(
             map(
-                (interaction: IInteraction): string => {
+                (interaction: TagInteraction): string => {
                     return interaction.cursor;
                 }),
             distinctUntilChanged())
@@ -125,7 +125,7 @@ export class EditVertexHandler extends TagHandlerBase {
 
         this._preventDefaultSubscription = interaction$.pipe(
             switchMap(
-                (interaction: IInteraction): Observable<MouseEvent> => {
+                (interaction: TagInteraction): Observable<MouseEvent> => {
                     return !!interaction.tag ?
                         this._container.mouseService.documentMouseMove$ :
                         observableEmpty();
@@ -137,7 +137,7 @@ export class EditVertexHandler extends TagHandlerBase {
 
         this._updateGeometrySubscription = interaction$.pipe(
             switchMap(
-                (interaction: IInteraction): Observable<[MouseEvent, RenderCamera, IInteraction, Transform]> => {
+                (interaction: TagInteraction): Observable<[MouseEvent, RenderCamera, TagInteraction, Transform]> => {
                     if (interaction.operation === TagOperation.None || !interaction.tag) {
                         return observableEmpty();
                     }
@@ -160,14 +160,14 @@ export class EditVertexHandler extends TagHandlerBase {
                                 this._navigator.stateService.currentTransform$,
                                 (
                                     [event, render]: [MouseEvent, RenderCamera],
-                                    i: IInteraction,
+                                    i: TagInteraction,
                                     transform: Transform):
-                                    [MouseEvent, RenderCamera, IInteraction, Transform] => {
+                                    [MouseEvent, RenderCamera, TagInteraction, Transform] => {
                                     return [event, render, i, transform];
                                 }));
                 }))
             .subscribe(
-                ([mouseEvent, renderCamera, interaction, transform]: [MouseEvent, RenderCamera, IInteraction, Transform]): void => {
+                ([mouseEvent, renderCamera, interaction, transform]: [MouseEvent, RenderCamera, TagInteraction, Transform]): void => {
                     const basic: number[] = this._mouseEventToBasic(
                         mouseEvent,
                         this._container.container,

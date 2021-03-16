@@ -4,14 +4,14 @@ import { AbortMapillaryError } from "../../error/AbortMapillaryError";
 import { Spatial } from "../../geo/Spatial";
 import { Node } from "../../graph/Node";
 import { Navigator } from "../../viewer/Navigator";
-import { EdgeDirection } from "../../graph/edge/EdgeDirection";
-import { IEdge } from "../../graph/edge/interfaces/IEdge";
-import { IEdgeStatus } from "../../graph/interfaces/IEdgeStatus";
+import { NavigationDirection } from "../../graph/edge/NavigationDirection";
+import { NavigationEdge } from "../../graph/edge/interfaces/NavigationEdge";
+import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
 import { Sequence } from "../../graph/Sequence";
-import { ISize } from "../../render/interfaces/ISize";
+import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { RenderCamera } from "../../render/RenderCamera";
-import { IRotation } from "../../state/interfaces/IRotation";
-import { IDirectionConfiguration } from "../interfaces/IDirectionConfiguration";
+import { EulerRotation } from "../../state/interfaces/EulerRotation";
+import { DirectionConfiguration } from "../interfaces/DirectionConfiguration";
 import { DirectionDOMCalculator } from "./DirectionDOMCalculator";
 import { isSpherical } from "../../geo/Geo";
 
@@ -25,7 +25,7 @@ export class DirectionDOMRenderer {
 
     private _node: Node;
 
-    private _rotation: IRotation;
+    private _rotation: EulerRotation;
     private _epsilon: number;
 
     private _highlightKey: string;
@@ -33,18 +33,18 @@ export class DirectionDOMRenderer {
 
     private _needsRender: boolean;
 
-    private _stepEdges: IEdge[];
-    private _turnEdges: IEdge[];
-    private _sphericalEdges: IEdge[];
+    private _stepEdges: NavigationEdge[];
+    private _turnEdges: NavigationEdge[];
+    private _sphericalEdges: NavigationEdge[];
     private _sequenceEdgeKeys: string[];
 
-    private _stepDirections: EdgeDirection[];
-    private _turnDirections: EdgeDirection[];
+    private _stepDirections: NavigationDirection[];
+    private _turnDirections: NavigationDirection[];
     private _turnNames: { [dir: number]: string };
 
     private _isEdge: boolean = false;
 
-    constructor(configuration: IDirectionConfiguration, size: ISize) {
+    constructor(configuration: DirectionConfiguration, size: ViewportSize) {
         this._spatial = new Spatial();
         this._calculator = new DirectionDOMCalculator(configuration, size);
 
@@ -64,22 +64,22 @@ export class DirectionDOMRenderer {
         this._sequenceEdgeKeys = [];
 
         this._stepDirections = [
-            EdgeDirection.StepForward,
-            EdgeDirection.StepBackward,
-            EdgeDirection.StepLeft,
-            EdgeDirection.StepRight,
+            NavigationDirection.StepForward,
+            NavigationDirection.StepBackward,
+            NavigationDirection.StepLeft,
+            NavigationDirection.StepRight,
         ];
 
         this._turnDirections = [
-            EdgeDirection.TurnLeft,
-            EdgeDirection.TurnRight,
-            EdgeDirection.TurnU,
+            NavigationDirection.TurnLeft,
+            NavigationDirection.TurnRight,
+            NavigationDirection.TurnU,
         ];
 
         this._turnNames = {};
-        this._turnNames[EdgeDirection.TurnLeft] = "mapillary-direction-turn-left";
-        this._turnNames[EdgeDirection.TurnRight] = "mapillary-direction-turn-right";
-        this._turnNames[EdgeDirection.TurnU] = "mapillary-direction-turn-around";
+        this._turnNames[NavigationDirection.TurnLeft] = "mapillary-direction-turn-left";
+        this._turnNames[NavigationDirection.TurnRight] = "mapillary-direction-turn-right";
+        this._turnNames[NavigationDirection.TurnU] = "mapillary-direction-turn-around";
 
         // detects IE 8-11, then Edge 20+.
         let isIE: boolean = !!(<any>document).documentMode;
@@ -103,7 +103,7 @@ export class DirectionDOMRenderer {
     public render(navigator: Navigator): vd.VNode {
         this._needsRender = false;
 
-        let rotation: IRotation = this._rotation;
+        let rotation: EulerRotation = this._rotation;
 
         let steps: vd.VNode[] = [];
         let turns: vd.VNode[] = [];
@@ -120,7 +120,7 @@ export class DirectionDOMRenderer {
         return this._getContainer(steps, turns, rotation);
     }
 
-    public setEdges(edgeStatus: IEdgeStatus, sequence: Sequence): void {
+    public setEdges(edgeStatus: NavigationEdgeStatus, sequence: Sequence): void {
         this._setEdges(edgeStatus, sequence);
 
         this._setNeedsRender();
@@ -144,7 +144,7 @@ export class DirectionDOMRenderer {
      * @param {RenderCamera} renderCamera
      */
     public setRenderCamera(renderCamera: RenderCamera): void {
-        let rotation: IRotation = renderCamera.rotation;
+        let rotation: EulerRotation = renderCamera.rotation;
 
         if (Math.abs(rotation.phi - this._rotation.phi) < this._epsilon) {
             return;
@@ -158,9 +158,9 @@ export class DirectionDOMRenderer {
     /**
      * Set configuration values.
      *
-     * @param {IDirectionConfiguration} configuration
+     * @param {DirectionConfiguration} configuration
      */
-    public setConfiguration(configuration: IDirectionConfiguration): void {
+    public setConfiguration(configuration: DirectionConfiguration): void {
         let needsRender: boolean = false;
         if (this._highlightKey !== configuration.highlightKey ||
             this._distinguishSequence !== configuration.distinguishSequence) {
@@ -185,9 +185,9 @@ export class DirectionDOMRenderer {
      * Detect the element's width and height and resize
      * elements accordingly.
      *
-     * @param {ISize} size Size of vßiewer container element.
+     * @param {ViewportSize} size Size of vßiewer container element.
      */
-    public resize(size: ISize): void {
+    public resize(size: ViewportSize): void {
         this._calculator.resize(size);
 
         this._setNeedsRender();
@@ -206,14 +206,14 @@ export class DirectionDOMRenderer {
         this._sequenceEdgeKeys = [];
     }
 
-    private _setEdges(edgeStatus: IEdgeStatus, sequence: Sequence): void {
+    private _setEdges(edgeStatus: NavigationEdgeStatus, sequence: Sequence): void {
         this._stepEdges = [];
         this._turnEdges = [];
         this._sphericalEdges = [];
         this._sequenceEdgeKeys = [];
 
         for (let edge of edgeStatus.edges) {
-            let direction: EdgeDirection = edge.data.direction;
+            let direction: NavigationDirection = edge.data.direction;
 
             if (this._stepDirections.indexOf(direction) > -1) {
                 this._stepEdges.push(edge);
@@ -225,18 +225,18 @@ export class DirectionDOMRenderer {
                 continue;
             }
 
-            if (edge.data.direction === EdgeDirection.Spherical) {
+            if (edge.data.direction === NavigationDirection.Spherical) {
                 this._sphericalEdges.push(edge);
             }
         }
 
         if (this._distinguishSequence && sequence != null) {
-            let edges: IEdge[] = this._sphericalEdges
+            let edges: NavigationEdge[] = this._sphericalEdges
                 .concat(this._stepEdges)
                 .concat(this._turnEdges);
 
             for (let edge of edges) {
-                let edgeKey: string = edge.to;
+                let edgeKey: string = edge.target;
 
                 for (let sequenceKey of sequence.keys) {
                     if (sequenceKey === edgeKey) {
@@ -248,14 +248,14 @@ export class DirectionDOMRenderer {
         }
     }
 
-    private _createSphericalArrows(navigator: Navigator, rotation: IRotation): vd.VNode[] {
+    private _createSphericalArrows(navigator: Navigator, rotation: EulerRotation): vd.VNode[] {
         let arrows: vd.VNode[] = [];
 
         for (let sphericalEdge of this._sphericalEdges) {
             arrows.push(
                 this._createVNodeByKey(
                     navigator,
-                    sphericalEdge.to,
+                    sphericalEdge.target,
                     sphericalEdge.data.worldMotionAzimuth,
                     rotation,
                     this._calculator.outerRadius,
@@ -266,7 +266,7 @@ export class DirectionDOMRenderer {
             arrows.push(
                 this._createSphericalToPerspectiveArrow(
                     navigator,
-                    stepEdge.to,
+                    stepEdge.target,
                     stepEdge.data.worldMotionAzimuth,
                     rotation,
                     stepEdge.data.direction));
@@ -279,21 +279,21 @@ export class DirectionDOMRenderer {
         navigator: Navigator,
         key: string,
         azimuth: number,
-        rotation: IRotation,
-        direction: EdgeDirection): vd.VNode {
+        rotation: EulerRotation,
+        direction: NavigationDirection): vd.VNode {
 
         let threshold: number = Math.PI / 8;
 
         let relativePhi: number = rotation.phi;
 
         switch (direction) {
-            case EdgeDirection.StepBackward:
+            case NavigationDirection.StepBackward:
                 relativePhi = rotation.phi - Math.PI;
                 break;
-            case EdgeDirection.StepLeft:
+            case NavigationDirection.StepLeft:
                 relativePhi = rotation.phi + Math.PI / 2;
                 break;
-            case EdgeDirection.StepRight:
+            case NavigationDirection.StepRight:
                 relativePhi = rotation.phi - Math.PI / 2;
                 break;
             default:
@@ -313,14 +313,14 @@ export class DirectionDOMRenderer {
         return this._createVNodeInactive(key, azimuth, rotation);
     }
 
-    private _createPerspectiveToSphericalArrows(navigator: Navigator, rotation: IRotation): vd.VNode[] {
+    private _createPerspectiveToSphericalArrows(navigator: Navigator, rotation: EulerRotation): vd.VNode[] {
         let arrows: vd.VNode[] = [];
 
         for (let sphericalEdge of this._sphericalEdges) {
             arrows.push(
                 this._createVNodeByKey(
                     navigator,
-                    sphericalEdge.to,
+                    sphericalEdge.target,
                     sphericalEdge.data.worldMotionAzimuth,
                     rotation,
                     this._calculator.innerRadius,
@@ -331,14 +331,14 @@ export class DirectionDOMRenderer {
         return arrows;
     }
 
-    private _createStepArrows(navigator: Navigator, rotation: IRotation): vd.VNode[] {
+    private _createStepArrows(navigator: Navigator, rotation: EulerRotation): vd.VNode[] {
         let arrows: vd.VNode[] = [];
 
         for (let stepEdge of this._stepEdges) {
             arrows.push(
                 this._createVNodeByDirection(
                     navigator,
-                    stepEdge.to,
+                    stepEdge.target,
                     stepEdge.data.worldMotionAzimuth,
                     rotation,
                     stepEdge.data.direction));
@@ -351,13 +351,13 @@ export class DirectionDOMRenderer {
         let turns: vd.VNode[] = [];
 
         for (let turnEdge of this._turnEdges) {
-            let direction: EdgeDirection = turnEdge.data.direction;
+            let direction: NavigationDirection = turnEdge.data.direction;
             let name: string = this._turnNames[direction];
 
             turns.push(
                 this._createVNodeByTurn(
                     navigator,
-                    turnEdge.to,
+                    turnEdge.target,
                     name,
                     direction));
         }
@@ -369,7 +369,7 @@ export class DirectionDOMRenderer {
         navigator: Navigator,
         key: string,
         azimuth: number,
-        rotation: IRotation,
+        rotation: EulerRotation,
         offset: number,
         className: string,
         shiftVertically?: boolean): vd.VNode {
@@ -401,8 +401,8 @@ export class DirectionDOMRenderer {
         navigator: Navigator,
         key: string,
         azimuth: number,
-        rotation: IRotation,
-        direction: EdgeDirection): vd.VNode {
+        rotation: EulerRotation,
+        direction: NavigationDirection): vd.VNode {
 
         let onClick: (e: Event) => void =
             (e: Event): void => {
@@ -430,7 +430,7 @@ export class DirectionDOMRenderer {
         navigator: Navigator,
         key: string,
         className: string,
-        direction: EdgeDirection): vd.VNode {
+        direction: NavigationDirection): vd.VNode {
 
         let onClick: (e: Event) => void =
             (e: Event): void => {
@@ -451,15 +451,15 @@ export class DirectionDOMRenderer {
         };
 
         switch (direction) {
-            case EdgeDirection.TurnLeft:
+            case NavigationDirection.TurnLeft:
                 style.left = "5px";
                 style.top = "5px";
                 break;
-            case EdgeDirection.TurnRight:
+            case NavigationDirection.TurnRight:
                 style.right = "5px";
                 style.top = "5px";
                 break;
-            case EdgeDirection.TurnU:
+            case NavigationDirection.TurnU:
                 style.left = "5px";
                 style.bottom = "5px";
                 break;
@@ -490,7 +490,7 @@ export class DirectionDOMRenderer {
         return vd.h("div." + circleClassName, circleProperties, [turn]);
     }
 
-    private _createVNodeInactive(key: string, azimuth: number, rotation: IRotation): vd.VNode {
+    private _createVNodeInactive(key: string, azimuth: number, rotation: EulerRotation): vd.VNode {
         return this._createVNode(
             key,
             azimuth,
@@ -503,7 +503,7 @@ export class DirectionDOMRenderer {
     private _createVNode(
         key: string,
         azimuth: number,
-        rotation: IRotation,
+        rotation: EulerRotation,
         radius: number,
         className: string,
         circleClassName: string,
@@ -563,7 +563,7 @@ export class DirectionDOMRenderer {
     private _getContainer(
         steps: vd.VNode[],
         turns: vd.VNode[],
-        rotation: IRotation): vd.VNode {
+        rotation: EulerRotation): vd.VNode {
 
         // edge does not handle hover on perspective transforms.
         let transform: string = this._isEdge ?

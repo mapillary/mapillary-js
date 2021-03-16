@@ -2,7 +2,7 @@ import { ComponentService } from "../src/component/ComponentService";
 import { MarkerSet } from "../src/component/marker/MarkerSet";
 import { Graph } from "../src/graph/Graph";
 import { TraversingState } from "../src/state/states/TraversingState";
-import { IInterpolator } from "../src/utils/interfaces/IInterpolator";
+import { Interpolator } from "../src/state/interfaces/IInterpolator";
 
 type Item = {
     lat: number;
@@ -39,7 +39,7 @@ class SpatialIndexMock<T extends Item> {
 
 class CoverMock { public activate(): void { /* noop */ } }
 
-class InterpolatorMock implements IInterpolator {
+class InterpolatorMock implements Interpolator {
     public solve(x: number): number { return x; }
 }
 

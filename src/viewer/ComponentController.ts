@@ -12,16 +12,16 @@ import {
 import { Container } from "./Container";
 import { Navigator } from "./Navigator";
 import { Observer } from "./Observer";
-import { IComponentOptions } from "./interfaces/IComponentOptions";
+import { ComponentOptions } from "./interfaces/ComponentOptions";
 
 import { Component } from "../component/Component";
 import { ComponentService } from "../component/ComponentService";
 import { CoverComponent } from "../component/CoverComponent";
-import { IComponentConfiguration } from "../component/interfaces/IComponentConfiguration";
+import { ComponentConfiguration } from "../component/interfaces/ComponentConfiguration";
 import {
     CoverState,
-    ICoverConfiguration,
-} from "../component/interfaces/ICoverConfiguration";
+    CoverConfiguration,
+} from "../component/interfaces/CoverConfiguration";
 import { Node } from "../graph/Node";
 
 export class ComponentController {
@@ -30,7 +30,7 @@ export class ComponentController {
     private _observer: Observer;
     private _navigator: Navigator;
     private _componentService: ComponentService;
-    private _options: IComponentOptions;
+    private _options: ComponentOptions;
     private _key: string;
     private _navigable: boolean;
     private _configurationSubscription: Subscription;
@@ -40,7 +40,7 @@ export class ComponentController {
         navigator: Navigator,
         observer: Observer,
         key: string,
-        options: IComponentOptions,
+        options: ComponentOptions,
         componentService?: ComponentService) {
         this._container = container;
         this._observer = observer;
@@ -83,7 +83,7 @@ export class ComponentController {
         return this._navigable;
     }
 
-    public get<TComponent extends Component<IComponentConfiguration>>(name: string): TComponent {
+    public get<TComponent extends Component<ComponentConfiguration>>(name: string): TComponent {
         return this._componentService.get<TComponent>(name);
     }
 
@@ -134,7 +134,7 @@ export class ComponentController {
     }
 
     private _initilizeCoverComponent(): void {
-        let options: IComponentOptions = this._options;
+        let options: ComponentOptions = this._options;
 
         this._coverComponent.configure({ key: this._key });
         if (options.cover === undefined || options.cover) {
@@ -158,10 +158,10 @@ export class ComponentController {
             this._coverComponent.configuration$.pipe(
                 distinctUntilChanged(
                     undefined,
-                    (c: ICoverConfiguration): CoverState => {
+                    (c: CoverConfiguration): CoverState => {
                         return c.state;
                     }))
-                .subscribe((conf: ICoverConfiguration) => {
+                .subscribe((conf: CoverConfiguration) => {
                     if (conf.state === CoverState.Loading) {
                         this._navigator.stateService.currentKey$.pipe(
                             first(),
@@ -205,7 +205,7 @@ export class ComponentController {
                 });
     }
 
-    private _uFalse<TConfiguration extends IComponentConfiguration>(option: boolean | TConfiguration, name: string): void {
+    private _uFalse<TConfiguration extends ComponentConfiguration>(option: boolean | TConfiguration, name: string): void {
         if (option === undefined) {
             this._componentService.deactivate(name);
             return;
@@ -222,7 +222,7 @@ export class ComponentController {
         this._componentService.activate(name);
     }
 
-    private _uTrue<TConfiguration extends IComponentConfiguration>(option: boolean | TConfiguration, name: string): void {
+    private _uTrue<TConfiguration extends ComponentConfiguration>(option: boolean | TConfiguration, name: string): void {
         if (option === undefined) {
             this._componentService.activate(name);
             return;

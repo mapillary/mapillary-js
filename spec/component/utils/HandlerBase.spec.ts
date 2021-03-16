@@ -4,27 +4,27 @@ import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
 
 import { Navigator } from "../../../src/viewer/Navigator";
 import { Component } from "../../../src/component/Component";
-import { IComponentConfiguration } from "../../../src/component/interfaces/IComponentConfiguration";
+import { ComponentConfiguration } from "../../../src/component/interfaces/ComponentConfiguration";
 import { HandlerBase } from "../../../src/component/utils/HandlerBase";
 import { Container } from "../../../src/viewer/Container";
 
-interface ITestConfiguration extends IComponentConfiguration {
+interface TestConfiguration extends ComponentConfiguration {
     test: boolean;
 }
 
-class TestComponent extends Component<ITestConfiguration> {
+class TestComponent extends Component<TestConfiguration> {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
     }
     protected _activate(): void { /* noop */ }
     protected _deactivate(): void { /* noop */ }
-    protected _getDefaultConfiguration(): ITestConfiguration { return { test: false }; }
+    protected _getDefaultConfiguration(): TestConfiguration { return { test: false }; }
 }
 
-class TestHandler extends HandlerBase<ITestConfiguration> {
+class TestHandler extends HandlerBase<TestConfiguration> {
     protected _disable(): void { /* noop */ }
     protected _enable(): void { /* noop */ }
-    protected _getConfiguration(enable: boolean): ITestConfiguration { return { test: enable }; }
+    protected _getConfiguration(enable: boolean): TestConfiguration { return { test: enable }; }
 }
 
 describe("HandlerBase.ctor", () => {

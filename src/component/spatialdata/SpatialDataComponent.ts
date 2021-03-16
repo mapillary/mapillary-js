@@ -30,31 +30,31 @@ import { Node } from "../../graph/Node";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import {
-    ICellNeighbors,
-    ICellCorners,
-} from "../../api/interfaces/ICellCorners";
-import { IClusterReconstruction } from "../../api/interfaces/IClusterReconstruction";
+    CellNeighbors,
+    CellCorners,
+} from "../../api/interfaces/CellCorners";
+import { ReconstructionEnt } from "../../api/ents/ReconstructionEnt";
 import { GeoCoords } from "../../geo/GeoCoords";
-import { ILatLonAlt } from "../../geo/interfaces/ILatLonAlt";
+import { LatLonAltEnt } from "../../api/ents/LatLonAltEnt";
 import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { FilterFunction } from "../../graph/FilterCreator";
 import * as Geo from "../../geo/Geo";
 import { GLRenderStage } from "../../render/GLRenderStage";
-import { IGLRenderHash } from "../../render/interfaces/IGLRenderHash";
+import { GLRenderHash } from "../../render/interfaces/IGLRenderHash";
 import { RenderCamera } from "../../render/RenderCamera";
-import { IFrame } from "../../state/interfaces/IFrame";
+import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { State } from "../../state/State";
 import { SubscriptionHolder } from "../../utils/SubscriptionHolder";
 import { PlayService } from "../../viewer/PlayService";
 import { Component } from "../Component";
-import { ISpatialDataConfiguration } from "../interfaces/ISpatialDataConfiguration";
+import { SpatialDataConfiguration } from "../interfaces/SpatialDataConfiguration";
 import { CameraVisualizationMode } from "./CameraVisualizationMode";
 import { OriginalPositionMode } from "./OriginalPositionMode";
 import { SpatialDataScene } from "./SpatialDataScene";
 import { SpatialDataCache } from "./SpatialDataCache";
-import { CameraProjectionType } from "../../api/interfaces/CameraProjectionType";
+import { CameraType } from "../../geo/interfaces/CameraType";
 
 type IntersectEvent = MouseEvent | FocusEvent;
 
@@ -63,7 +63,7 @@ type Cell = {
     nodes: Node[];
 }
 
-export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
+export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
     public static componentName: string = "spatialData";
 
     private _cache: SpatialDataCache;
@@ -91,7 +91,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
         subs.push(this._configuration$.pipe(
             map(
-                (configuration: ISpatialDataConfiguration): boolean => {
+                (configuration: SpatialDataConfiguration): boolean => {
                     return configuration.earthControls;
                 }),
             distinctUntilChanged(),
@@ -207,7 +207,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                             observableOf([
                                 hash,
                                 this._navigator.api.data.geometry
-                                    .getNeighbors(hash)[<keyof ICellNeighbors>direction]]) :
+                                    .getNeighbors(hash)[<keyof CellNeighbors>direction]]) :
                             observableOf(this._computeTiles(hash, direction));
                     }),
                 publish<string[]>(),
@@ -234,7 +234,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         subs.push(tile$.pipe(
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([cell, reference]: [Cell, ILatLonAlt]): void => {
+                ([cell, reference]: [Cell, LatLonAltEnt]): void => {
                     if (this._scene.hasTile(cell.id)) {
                         return;
                     }
@@ -247,22 +247,22 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         subs.push(tile$.pipe(
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([cell, reference]: [Cell, ILatLonAlt]): void => {
+                ([cell, reference]: [Cell, LatLonAltEnt]): void => {
                     this._addSceneNodes(cell, reference);
                 }));
 
         subs.push(tile$.pipe(
             concatMap(
-                (cell: Cell): Observable<[string, IClusterReconstruction]> => {
+                (cell: Cell): Observable<[string, ReconstructionEnt]> => {
                     const cellId = cell.id;
-                    let reconstructions$: Observable<IClusterReconstruction>;
+                    let reconstructions$: Observable<ReconstructionEnt>;
                     if (this._cache.hasClusterReconstructions(cellId)) {
                         reconstructions$ = observableFrom(this._cache.getClusterReconstructions(cellId));
                     } else if (this._cache.isCachingClusterReconstructions(cellId)) {
                         reconstructions$ = this._cache.cacheClusterReconstructions$(cellId).pipe(
                             last(null, {}),
                             switchMap(
-                                (): Observable<IClusterReconstruction> => {
+                                (): Observable<ReconstructionEnt> => {
                                     return observableFrom(this._cache.getClusterReconstructions(cellId));
                                 }));
                     } else if (this._cache.hasTile(cellId)) {
@@ -275,7 +275,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 }),
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([[hash, reconstruction], reference]: [[string, IClusterReconstruction], ILatLonAlt]): void => {
+                ([[hash, reconstruction], reference]: [[string, ReconstructionEnt], LatLonAltEnt]): void => {
                     if (this._scene.hasClusterReconstruction(reconstruction.key, hash)) {
                         return;
                     }
@@ -288,7 +288,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
         subs.push(this._configuration$.pipe(
             map(
-                (c: ISpatialDataConfiguration): ISpatialDataConfiguration => {
+                (c: SpatialDataConfiguration): SpatialDataConfiguration => {
                     c.cameraSize = this._spatial.clamp(c.cameraSize, 0.01, 1);
                     c.pointSize = this._spatial.clamp(c.pointSize, 0.01, 1);
                     return {
@@ -302,7 +302,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     }
                 }),
             distinctUntilChanged(
-                (c1: ISpatialDataConfiguration, c2: ISpatialDataConfiguration): boolean => {
+                (c1: SpatialDataConfiguration, c2: SpatialDataConfiguration): boolean => {
                     return c1.cameraSize === c2.cameraSize &&
                         c1.cameraVisualizationMode === c2.cameraVisualizationMode &&
                         c1.camerasVisible === c2.camerasVisible &&
@@ -312,7 +312,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         c1.tilesVisible === c2.tilesVisible;
                 }))
             .subscribe(
-                (c: ISpatialDataConfiguration): void => {
+                (c: SpatialDataConfiguration): void => {
                     this._scene.setCameraSize(c.cameraSize);
                     this._scene.setCameraVisibility(c.camerasVisible);
                     this._scene.setPointSize(c.pointSize);
@@ -364,7 +364,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
         const intersectChange$ = this._configuration$.pipe(
             map(
-                (c: ISpatialDataConfiguration): ISpatialDataConfiguration => {
+                (c: SpatialDataConfiguration): SpatialDataConfiguration => {
                     c.cameraSize = this._spatial.clamp(c.cameraSize, 0.01, 1);
                     return {
                         cameraSize: c.cameraSize,
@@ -373,7 +373,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     }
                 }),
             distinctUntilChanged(
-                (c1: ISpatialDataConfiguration, c2: ISpatialDataConfiguration): boolean => {
+                (c1: SpatialDataConfiguration, c2: SpatialDataConfiguration): boolean => {
                     return c1.cameraSize === c2.cameraSize &&
                         c1.camerasVisible === c2.camerasVisible &&
                         c1.earthControls === c2.earthControls;
@@ -398,7 +398,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 switchMap(
                     ([playing, mouseHover]:
                         [boolean, IntersectEvent, boolean, FilterFunction])
-                        : Observable<[IntersectEvent, RenderCamera, ISpatialDataConfiguration]> => {
+                        : Observable<[IntersectEvent, RenderCamera, SpatialDataConfiguration]> => {
                         return !playing && mouseHover.type === "mouseenter" ?
                             observableCombineLatest(
                                 observableConcat(
@@ -413,7 +413,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     }))
             .subscribe(
                 ([event, render]
-                    : [IntersectEvent, RenderCamera, ISpatialDataConfiguration]): void => {
+                    : [IntersectEvent, RenderCamera, SpatialDataConfiguration]): void => {
                     if (event.type !== "mousemove") {
                         this._scene.setHoveredNode(null);
                         return;
@@ -440,12 +440,12 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
 
         subs.push(this._navigator.stateService.currentState$
             .pipe(
-                map((frame: IFrame): IGLRenderHash => {
+                map((frame: AnimationFrame): GLRenderHash => {
                     const scene = this._scene;
 
                     return {
                         name: this._name,
-                        render: {
+                        renderer: {
                             frameId: frame.id,
                             needsRender: scene.needsRender,
                             render: scene.render.bind(scene),
@@ -462,7 +462,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                         return this._cache.hasTile(cellId);
                     }),
                 mergeMap(
-                    (cellId: string): Observable<[Cell, ILatLonAlt]> => {
+                    (cellId: string): Observable<[Cell, LatLonAltEnt]> => {
                         return this._cache.updateCell$(cellId).pipe(
                             map((nodes: Node[]) => ({ id: cellId, nodes })),
                             withLatestFrom(
@@ -470,22 +470,22 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                             )
                         );
                     }),
-                publish<[Cell, ILatLonAlt]>(),
+                publish<[Cell, LatLonAltEnt]>(),
                 refCount())
 
         subs.push(updatedCell$
             .subscribe(
-                ([cell, reference]: [Cell, ILatLonAlt]): void => {
+                ([cell, reference]: [Cell, LatLonAltEnt]): void => {
                     this._addSceneNodes(cell, reference);
                 }));
 
         subs.push(updatedCell$
             .pipe(
                 concatMap(
-                    ([cell]: [Cell, ILatLonAlt]): Observable<[string, IClusterReconstruction]> => {
+                    ([cell]: [Cell, LatLonAltEnt]): Observable<[string, ReconstructionEnt]> => {
                         const cellId = cell.id;
                         const cache = this._cache;
-                        let reconstructions$: Observable<IClusterReconstruction>;
+                        let reconstructions$: Observable<ReconstructionEnt>;
                         if (cache.hasClusterReconstructions(cellId)) {
                             reconstructions$ =
                                 cache.updateClusterReconstructions$(cellId);
@@ -493,7 +493,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                             reconstructions$ = this._cache.cacheClusterReconstructions$(cellId).pipe(
                                 last(null, {}),
                                 switchMap(
-                                    (): Observable<IClusterReconstruction> => {
+                                    (): Observable<ReconstructionEnt> => {
                                         return observableFrom(
                                             cache.updateClusterReconstructions$(cellId));
                                     }));
@@ -507,7 +507,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     }),
                 withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([[hash, reconstruction], reference]: [[string, IClusterReconstruction], ILatLonAlt]): void => {
+                ([[hash, reconstruction], reference]: [[string, ReconstructionEnt], LatLonAltEnt]): void => {
                     if (this._scene.hasClusterReconstruction(reconstruction.key, hash)) {
                         return;
                     }
@@ -533,7 +533,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                 });
     }
 
-    protected _getDefaultConfiguration(): ISpatialDataConfiguration {
+    protected _getDefaultConfiguration(): SpatialDataConfiguration {
         return {
             cameraSize: 0.1,
             cameraVisualizationMode: CameraVisualizationMode.Default,
@@ -545,7 +545,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         };
     }
 
-    private _addSceneNodes(cell: Cell, reference: ILatLonAlt): void {
+    private _addSceneNodes(cell: Cell, reference: LatLonAltEnt): void {
         const cellId = cell.id;
         const nodes = cell.nodes;
         for (const node of nodes) {
@@ -581,7 +581,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         const neighbours: string[] = [];
 
         for (const hash of currentHashes) {
-            const hashNeighbours: ICellNeighbors =
+            const hashNeighbours: CellNeighbors =
                 this._navigator.api.data.geometry.getNeighbors(hash);
 
             for (const direction in hashNeighbours) {
@@ -589,7 +589,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
                     continue;
                 }
 
-                neighbours.push(hashNeighbours[<keyof ICellNeighbors>direction]);
+                neighbours.push(hashNeighbours[<keyof CellNeighbors>direction]);
             }
         }
 
@@ -604,7 +604,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         this._adjacentComponentRecursive(hashSet, newHashes, currentDepth + 1, maxDepth);
     }
 
-    private _computeOriginalPosition(node: Node, reference: ILatLonAlt): number[] {
+    private _computeOriginalPosition(node: Node, reference: LatLonAltEnt): number[] {
         return this._geoCoords.geodeticToEnu(
             node.originalLatLon.lat,
             node.originalLatLon.lon,
@@ -614,8 +614,8 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             reference.alt);
     }
 
-    private _computeTileBBox(hash: string, reference: ILatLonAlt): number[][] {
-        const corners: ICellCorners =
+    private _computeTileBBox(hash: string, reference: LatLonAltEnt): number[][] {
+        const corners: CellCorners =
             this._navigator.api.data.geometry.getCorners(hash);
 
         const sw: number[] = this._geoCoords.geodeticToEnu(
@@ -637,7 +637,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         return [sw, ne];
     }
 
-    private _createTransform(node: Node, reference: ILatLonAlt): Transform {
+    private _createTransform(node: Node, reference: LatLonAltEnt): Transform {
         const translation: number[] = Geo.computeTranslation(
             { alt: node.alt, lat: node.latLon.lat, lon: node.latLon.lon },
             node.rotation,
@@ -655,7 +655,7 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             undefined,
             node.ck1,
             node.ck2,
-            <CameraProjectionType>node.cameraType);
+            <CameraType>node.cameraType);
 
         return transform;
     }
@@ -683,15 +683,15 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
             return;
         }
 
-        const neighbours: ICellNeighbors =
+        const neighbours: CellNeighbors =
             this._navigator.api.data.geometry.getNeighbors(currentHash);
         const directionIndex: number = directions.indexOf(direction);
         const length: number = directions.length;
 
         const directionNeighbours: string[] = [
-            neighbours[<keyof ICellNeighbors>directions[this._modulo((directionIndex - 1), length)]],
-            neighbours[<keyof ICellNeighbors>direction],
-            neighbours[<keyof ICellNeighbors>directions[this._modulo((directionIndex + 1), length)]],
+            neighbours[<keyof CellNeighbors>directions[this._modulo((directionIndex - 1), length)]],
+            neighbours[<keyof CellNeighbors>direction],
+            neighbours[<keyof CellNeighbors>directions[this._modulo((directionIndex + 1), length)]],
         ];
 
         for (let directionNeighbour of directionNeighbours) {
@@ -699,11 +699,11 @@ export class SpatialDataComponent extends Component<ISpatialDataConfiguration> {
         }
     }
 
-    private _computeTranslation(reconstruction: IClusterReconstruction, reference: ILatLonAlt): number[] {
+    private _computeTranslation(reconstruction: ReconstructionEnt, reference: LatLonAltEnt): number[] {
         return this._geoCoords.geodeticToEnu(
-            reconstruction.reference_lla.latitude,
-            reconstruction.reference_lla.longitude,
-            reconstruction.reference_lla.altitude,
+            reconstruction.reference.lat,
+            reconstruction.reference.lon,
+            reconstruction.reference.alt,
             reference.lat,
             reference.lon,
             reference.alt);

@@ -36,14 +36,14 @@ import { Node } from "../../graph/Node";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { GraphMode } from "../../graph/GraphMode";
-import { IEdgeStatus } from "../../graph/interfaces/IEdgeStatus";
+import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
 import { Sequence } from "../../graph/Sequence";
-import { ISize } from "../../render/interfaces/ISize";
-import { IVNodeHash } from "../../render/interfaces/IVNodeHash";
+import { ViewportSize } from "../../render/interfaces/ViewportSize";
+import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
 import { State } from "../../state/State";
-import { ISequenceConfiguration } from "../interfaces/ISequenceConfiguration";
+import { SequenceConfiguration } from "../interfaces/SequenceConfiguration";
 import { SequenceDOMRenderer } from "./SequenceDOMRenderer";
-import { EdgeDirection } from "../../graph/edge/EdgeDirection";
+import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { Component } from "../Component";
 
 /**
@@ -51,7 +51,7 @@ import { Component } from "../Component";
  * @classdesc Component showing navigation arrows for sequence directions
  * as well as playing button. Exposes an API to start and stop play.
  */
-export class SequenceComponent extends Component<ISequenceConfiguration> {
+export class SequenceComponent extends Component<SequenceConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "sequence";
 
@@ -117,7 +117,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             skip(1),
             withLatestFrom(this._configuration$))
             .subscribe(
-                ([playing, configuration]: [boolean, ISequenceConfiguration]): void => {
+                ([playing, configuration]: [boolean, SequenceConfiguration]): void => {
                     this.fire(SequenceComponent.playingchanged, playing);
 
                     if (playing === configuration.playing) {
@@ -135,7 +135,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
             skip(1),
             withLatestFrom(this._configuration$))
             .subscribe(
-                ([direction, configuration]: [EdgeDirection, ISequenceConfiguration]): void => {
+                ([direction, configuration]: [NavigationDirection, SequenceConfiguration]): void => {
                     if (direction !== configuration.direction) {
                         this.setDirection(direction);
                     }
@@ -176,9 +176,9 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     /**
      * Set the direction to follow when playing.
      *
-     * @param {EdgeDirection} direction - The direction that will be followed when playing.
+     * @param {NavigationDirection} direction - The direction that will be followed when playing.
      */
-    public setDirection(direction: EdgeDirection): void {
+    public setDirection(direction: NavigationDirection): void {
         this.configure({ direction: direction });
     }
 
@@ -238,9 +238,9 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
     protected _activate(): void {
         this._sequenceDOMRenderer.activate();
 
-        const edgeStatus$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$.pipe(
+        const edgeStatus$: Observable<NavigationEdgeStatus> = this._navigator.stateService.currentNode$.pipe(
             switchMap(
-                (node: Node): Observable<IEdgeStatus> => {
+                (node: Node): Observable<NavigationEdgeStatus> => {
                     return node.sequenceEdges$;
                 }),
             publishReplay(1),
@@ -430,14 +430,14 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     (
                         [edgeStatus, configuration, containerWidth, , speed, position, earth]:
                             [
-                                IEdgeStatus,
-                                ISequenceConfiguration,
+                                NavigationEdgeStatus,
+                                SequenceConfiguration,
                                 number,
                                 SequenceDOMRenderer,
                                 number,
                                 { index: number, max: number },
                                 boolean,
-                            ]): IVNodeHash => {
+                            ]): VirtualNodeHash => {
 
                         const vNode: vd.VNode = this._sequenceDOMRenderer
                             .render(
@@ -463,12 +463,12 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
         this._setDirectionSubscription = this._configuration$.pipe(
             map(
-                (configuration: ISequenceConfiguration): EdgeDirection => {
+                (configuration: SequenceConfiguration): NavigationDirection => {
                     return configuration.direction;
                 }),
             distinctUntilChanged())
             .subscribe(
-                (direction: EdgeDirection): void => {
+                (direction: NavigationDirection): void => {
                     this._navigator.playService.setDirection(direction);
                 });
 
@@ -479,11 +479,11 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
                     (value1: [number, number], value2: [number, number]): boolean => {
                         return value1[0] === value2[0] && value1[1] === value2[1];
                     },
-                    (configuration: ISequenceConfiguration) => {
+                    (configuration: SequenceConfiguration) => {
                         return [configuration.minWidth, configuration.maxWidth];
                     }))).pipe(
                         map(
-                            ([size, configuration]: [ISize, ISequenceConfiguration]): number => {
+                            ([size, configuration]: [ViewportSize, SequenceConfiguration]): number => {
                                 return this._sequenceDOMRenderer.getContainerWidth(
                                     size,
                                     configuration);
@@ -492,7 +492,7 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
         this._playingSubscription = this._configuration$.pipe(
             map(
-                (configuration: ISequenceConfiguration): boolean => {
+                (configuration: SequenceConfiguration): boolean => {
                     return configuration.playing;
                 }),
             distinctUntilChanged())
@@ -507,13 +507,13 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
 
         this._hoveredKeySubscription = this._sequenceDOMRenderer.mouseEnterDirection$.pipe(
             switchMap(
-                (direction: EdgeDirection): Observable<string> => {
+                (direction: NavigationDirection): Observable<string> => {
                     const edgeTo$: Observable<string> = edgeStatus$.pipe(
                         map(
-                            (edgeStatus: IEdgeStatus): string => {
+                            (edgeStatus: NavigationEdgeStatus): string => {
                                 for (let edge of edgeStatus.edges) {
                                     if (edge.data.direction === direction) {
-                                        return edge.to;
+                                        return edge.target;
                                     }
                                 }
 
@@ -551,9 +551,9 @@ export class SequenceComponent extends Component<ISequenceConfiguration> {
         this._sequenceDOMRenderer.deactivate();
     }
 
-    protected _getDefaultConfiguration(): ISequenceConfiguration {
+    protected _getDefaultConfiguration(): SequenceConfiguration {
         return {
-            direction: EdgeDirection.Next,
+            direction: NavigationDirection.Next,
             maxWidth: 108,
             minWidth: 70,
             playing: false,

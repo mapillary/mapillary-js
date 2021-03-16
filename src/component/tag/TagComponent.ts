@@ -41,17 +41,17 @@ import { RenderTag } from "./tag/RenderTag";
 import { CreateTag } from "./tag/CreateTag";
 
 import { Component } from "../Component";
-import { ITagConfiguration } from "../interfaces/ITagConfiguration";
+import { TagConfiguration } from "../interfaces/TagConfiguration";
 
 import { Transform } from "../../geo/Transform";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { Navigator } from "../../viewer/Navigator";
 import { GLRenderStage } from "../../render/GLRenderStage";
 import { RenderCamera } from "../../render/RenderCamera";
-import { IGLRenderHash } from "../../render/interfaces/IGLRenderHash";
-import { ISize } from "../../render/interfaces/ISize";
-import { IVNodeHash } from "../../render/interfaces/IVNodeHash";
-import { IFrame } from "../../state/interfaces/IFrame";
+import { GLRenderHash } from "../../render/interfaces/IGLRenderHash";
+import { ViewportSize } from "../../render/interfaces/ViewportSize";
+import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
+import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { Container } from "../../viewer/Container";
 import { ISpriteAtlas } from "../../viewer/interfaces/ISpriteAtlas";
 
@@ -89,7 +89,7 @@ import { ISpriteAtlas } from "../../viewer/interfaces/ISpriteAtlas";
  * var tagComponent = viewer.getComponent("tag");
  * ```
  */
-export class TagComponent extends Component<ITagConfiguration> {
+export class TagComponent extends Component<TagConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "tag";
 
@@ -181,7 +181,7 @@ export class TagComponent extends Component<ITagConfiguration> {
     private _createGeometryChanged$: Observable<CreateTag<Geometry>>;
     private _createGLObjectsChanged$: Observable<CreateTag<Geometry>>;
 
-    private _creatingConfiguration$: Observable<ITagConfiguration>;
+    private _creatingConfiguration$: Observable<TagConfiguration>;
 
     private _updateGLObjectsSubscription: Subscription;
     private _updateTagSceneSubscription: Subscription;
@@ -295,10 +295,10 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._creatingConfiguration$ = this._configuration$.pipe(
             distinctUntilChanged(
-                (c1: ITagConfiguration, c2: ITagConfiguration): boolean => {
+                (c1: TagConfiguration, c2: TagConfiguration): boolean => {
                     return c1.mode === c2.mode;
                 },
-                (configuration: ITagConfiguration): ITagConfiguration => {
+                (configuration: TagConfiguration): TagConfiguration => {
                     return {
                         createColor: configuration.createColor,
                         mode: configuration.mode,
@@ -309,7 +309,7 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._creatingConfiguration$
             .subscribe(
-                (configuration: ITagConfiguration): void => {
+                (configuration: TagConfiguration): void => {
                     this.fire(TagComponent.modechanged, configuration.mode);
                 });
     }
@@ -613,7 +613,7 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._handlerEnablerSubscription = this._creatingConfiguration$
             .subscribe(
-                (configuration: ITagConfiguration): void => {
+                (configuration: TagConfiguration): void => {
                     this._disableCreateHandlers();
 
                     const mode: keyof typeof TagMode = <keyof typeof TagMode>TagMode[configuration.mode];
@@ -688,8 +688,8 @@ export class TagComponent extends Component<ITagConfiguration> {
                 this._createGeometryChanged$).pipe(startWith(null))).pipe(
                     map(
                         ([renderTags, rc, atlas, size, , ct]:
-                            [RenderTag<Tag>[], RenderCamera, ISpriteAtlas, ISize, Tag, CreateTag<Geometry>]):
-                            IVNodeHash => {
+                            [RenderTag<Tag>[], RenderCamera, ISpriteAtlas, ViewportSize, Tag, CreateTag<Geometry>]):
+                            VirtualNodeHash => {
                             return {
                                 name: this._name,
                                 vnode: this._tagDomRenderer.render(renderTags, ct, atlas, rc.perspective, size),
@@ -699,12 +699,12 @@ export class TagComponent extends Component<ITagConfiguration> {
 
         this._glSubscription = this._navigator.stateService.currentState$.pipe(
             map(
-                (frame: IFrame): IGLRenderHash => {
+                (frame: AnimationFrame): GLRenderHash => {
                     const tagScene: TagScene = this._tagScene;
 
                     return {
                         name: this._name,
-                        render: {
+                        renderer: {
                             frameId: frame.id,
                             needsRender: tagScene.needsRender,
                             render: tagScene.render.bind(tagScene),
@@ -753,7 +753,7 @@ export class TagComponent extends Component<ITagConfiguration> {
         this._container.container.classList.remove("component-tag-create");
     }
 
-    protected _getDefaultConfiguration(): ITagConfiguration {
+    protected _getDefaultConfiguration(): TagConfiguration {
         return {
             createColor: 0xFFFFFF,
             indicatePointsCompleter: true,

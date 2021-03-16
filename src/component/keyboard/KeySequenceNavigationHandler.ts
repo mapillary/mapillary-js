@@ -8,10 +8,10 @@ import {
 } from "rxjs/operators";
 
 import { Node } from "../../graph/Node";
-import { IEdgeStatus } from "../../graph/interfaces/IEdgeStatus";
-import { IKeyboardConfiguration } from "../interfaces/IKeyboardConfiguration";
+import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
+import { KeyboardConfiguration } from "../interfaces/KeyboardConfiguration";
 import { HandlerBase } from "../utils/HandlerBase";
-import { EdgeDirection } from "../../graph/edge/EdgeDirection";
+import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { AbortMapillaryError } from "../../error/AbortMapillaryError";
 
 /**
@@ -31,27 +31,27 @@ import { AbortMapillaryError } from "../../error/AbortMapillaryError";
  * var isEnabled = keyboardComponent.keySequenceNavigation.isEnabled;
  * ```
  */
-export class KeySequenceNavigationHandler extends HandlerBase<IKeyboardConfiguration> {
+export class KeySequenceNavigationHandler extends HandlerBase<KeyboardConfiguration> {
     private _keyDownSubscription: Subscription;
 
     protected _enable(): void {
-        const sequenceEdges$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$.pipe(
+        const sequenceEdges$: Observable<NavigationEdgeStatus> = this._navigator.stateService.currentNode$.pipe(
             switchMap(
-                (node: Node): Observable<IEdgeStatus> => {
+                (node: Node): Observable<NavigationEdgeStatus> => {
                     return node.sequenceEdges$;
                 }));
 
         this._keyDownSubscription = this._container.keyboardService.keyDown$.pipe(
             withLatestFrom(sequenceEdges$))
             .subscribe(
-                ([event, edgeStatus]: [KeyboardEvent, IEdgeStatus]): void => {
-                    let direction: EdgeDirection = null;
+                ([event, edgeStatus]: [KeyboardEvent, NavigationEdgeStatus]): void => {
+                    let direction: NavigationDirection = null;
                     switch (event.keyCode) {
                         case 38: // up
-                            direction = EdgeDirection.Next;
+                            direction = NavigationDirection.Next;
                             break;
                         case 40: // down
-                            direction = EdgeDirection.Prev;
+                            direction = NavigationDirection.Prev;
                             break;
                         default:
                             return;
@@ -65,7 +65,7 @@ export class KeySequenceNavigationHandler extends HandlerBase<IKeyboardConfigura
 
                     for (const edge of edgeStatus.edges) {
                         if (edge.data.direction === direction) {
-                            this._navigator.moveToKey$(edge.to)
+                            this._navigator.moveToKey$(edge.target)
                                 .subscribe(
                                     undefined,
                                     (error: Error): void => {
@@ -84,7 +84,7 @@ export class KeySequenceNavigationHandler extends HandlerBase<IKeyboardConfigura
         this._keyDownSubscription.unsubscribe();
     }
 
-    protected _getConfiguration(enable: boolean): IKeyboardConfiguration {
+    protected _getConfiguration(enable: boolean): KeyboardConfiguration {
         return { keySequenceNavigation: enable };
     }
 }

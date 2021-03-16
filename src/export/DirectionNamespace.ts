@@ -1,2 +1,2 @@
 export { DirectionComponent } from "../component/direction/DirectionComponent";
-export { IDirectionConfiguration } from "../component/interfaces/IDirectionConfiguration";
+export { DirectionConfiguration } from "../component/interfaces/DirectionConfiguration";

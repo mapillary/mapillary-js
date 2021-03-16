@@ -20,9 +20,9 @@ import { ISpriteAtlas } from "./interfaces/ISpriteAtlas";
 export class SpriteAtlas implements ISpriteAtlas {
     private _image: HTMLImageElement;
     private _texture: THREE.Texture;
-    private _json: ISprites;
+    private _json: Sprites;
 
-    public set json(value: ISprites) {
+    public set json(value: Sprites) {
         this._json = value;
     }
 
@@ -41,7 +41,7 @@ export class SpriteAtlas implements ISpriteAtlas {
             throw new Error("Sprites cannot be retrieved before the atlas is loaded.");
         }
 
-        let definition: ISprite = this._json[name];
+        let definition: Sprite = this._json[name];
 
         if (!definition) {
             console.warn("Sprite with key" + name + "does not exist in sprite definition.");
@@ -77,7 +77,7 @@ export class SpriteAtlas implements ISpriteAtlas {
             float = Alignment.Center;
         }
 
-        let definition: ISprite = this._json[name];
+        let definition: Sprite = this._json[name];
 
         if (!definition) {
             console.warn("Sprite with key" + name + "does not exist in sprite definition.");
@@ -159,7 +159,7 @@ export class SpriteAtlas implements ISpriteAtlas {
     }
 }
 
-interface ISprite {
+interface Sprite {
     width: number;
     height: number;
     x: number;
@@ -167,18 +167,18 @@ interface ISprite {
     pixelRatio: number;
 }
 
-interface ISprites {
-    [key: string]: ISprite;
+interface Sprites {
+    [key: string]: Sprite;
 }
 
-interface ISpriteAtlasOperation {
+interface SpriteAtlasOperation {
     (atlas: SpriteAtlas): SpriteAtlas;
 }
 
 export class SpriteService {
     private _retina: boolean;
 
-    private _spriteAtlasOperation$: Subject<ISpriteAtlasOperation>;
+    private _spriteAtlasOperation$: Subject<SpriteAtlasOperation>;
     private _spriteAtlas$: Observable<SpriteAtlas>;
 
     private _atlasSubscription: Subscription;
@@ -186,15 +186,15 @@ export class SpriteService {
     constructor(sprite?: string) {
         this._retina = window.devicePixelRatio > 1;
 
-        this._spriteAtlasOperation$ = new Subject<ISpriteAtlasOperation>();
+        this._spriteAtlasOperation$ = new Subject<SpriteAtlasOperation>();
 
         this._spriteAtlas$ = this._spriteAtlasOperation$.pipe(
             startWith(
-                (atlas: SpriteAtlas): SpriteAtlas => {
+                (atlas: ISpriteAtlas): ISpriteAtlas => {
                     return atlas;
                 }),
             scan(
-                (atlas: SpriteAtlas, operation: ISpriteAtlasOperation): SpriteAtlas => {
+                (atlas: SpriteAtlas, operation: SpriteAtlasOperation): SpriteAtlas => {
                     return operation(atlas);
                 },
                 new SpriteAtlas()),
@@ -238,7 +238,7 @@ export class SpriteService {
         jsonXmlHTTP.open("GET", sprite + format + ".json", true);
         jsonXmlHTTP.responseType = "text";
         jsonXmlHTTP.onload = () => {
-            let json: ISprites = <ISprites>JSON.parse(jsonXmlHTTP.response);
+            let json: Sprites = <Sprites>JSON.parse(jsonXmlHTTP.response);
 
             this._spriteAtlasOperation$.next(
                 (atlas: SpriteAtlas): SpriteAtlas => {
@@ -255,7 +255,7 @@ export class SpriteService {
         jsonXmlHTTP.send();
     }
 
-    public get spriteAtlas$(): Observable<ISpriteAtlas> {
+    public get spriteAtlas$(): Observable<SpriteAtlas> {
         return this._spriteAtlas$;
     }
 

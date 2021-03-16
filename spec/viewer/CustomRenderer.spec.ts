@@ -12,7 +12,7 @@ import { ContainerMockCreator } from "../helper/ContainerMockCreator";
 import { MockCreator } from "../helper/MockCreator";
 import { NavigatorMockCreator } from "../helper/NavigatorMockCreator";
 import { RendererMock } from "../helper/WebGLRenderer";
-import { ILatLonAlt } from "../../src/geo/interfaces/ILatLonAlt";
+import { LatLonAltEnt } from "../../src/api/ents/LatLonAltEnt";
 import { RenderCamera } from "../../src/render/RenderCamera";
 import { RenderMode } from "../../src/render/RenderMode";
 
@@ -99,7 +99,7 @@ describe("CustomRenderer.add", () => {
         spyOn(rendererMock, "getContext").and.returnValue(contextMock);
         (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
             .next(rendererMock);
-        (<Subject<ILatLonAlt>>navigator.stateService.reference$)
+        (<Subject<LatLonAltEnt>>navigator.stateService.reference$)
             .next(referenceMock);
     });
 
@@ -134,7 +134,7 @@ describe("CustomRenderer.add", () => {
         spyOn(rendererMock, "getContext").and.returnValue(contextMock);
         (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
             .next(rendererMock);
-        (<Subject<ILatLonAlt>>navigator.stateService.reference$)
+        (<Subject<LatLonAltEnt>>navigator.stateService.reference$)
             .next(referenceMock);
 
         expect(invokeCount).toBe(0);
@@ -172,9 +172,9 @@ describe("CustomRenderer.add", () => {
         (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
             .next(rendererMock);
 
-        (<Subject<ILatLonAlt>>navigator.stateService.reference$)
+        (<Subject<LatLonAltEnt>>navigator.stateService.reference$)
             .next(referenceMock);
-        (<Subject<ILatLonAlt>>navigator.stateService.reference$)
+        (<Subject<LatLonAltEnt>>navigator.stateService.reference$)
             .next(referenceMock);
 
         expect(invokeCount).toBe(1);
@@ -215,7 +215,7 @@ describe("CustomRenderer.add", () => {
         spyOn(rendererMock, "getContext").and.returnValue(contextMock);
         (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
             .next(rendererMock);
-        (<Subject<ILatLonAlt>>navigator.stateService.reference$)
+        (<Subject<LatLonAltEnt>>navigator.stateService.reference$)
             .next(referenceMock);
 
         const renderCameraMock = new RenderCamera(1, 1, RenderMode.Fill);

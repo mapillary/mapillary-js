@@ -18,59 +18,59 @@ import {
 
 import { RenderMode } from "./RenderMode";
 import { RenderService } from "./RenderService";
-import { ISize } from "./interfaces/ISize";
-import { IVNodeHash } from "./interfaces/IVNodeHash";
+import { ViewportSize } from "./interfaces/ViewportSize";
+import { VirtualNodeHash } from "./interfaces/VirtualNodeHash";
 
-import { IFrame } from "../state/interfaces/IFrame";
+import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
-interface INodePatch {
+interface VirtualNodePatch {
     vnode: vd.VNode;
     vpatch: vd.VPatch[];
 }
 
-interface IVNodeHashes {
+interface VirtualNodeHashes {
     [name: string]: vd.VNode;
 }
 
-interface IOffset {
+interface OffsetStyle {
     bottom: number;
     left: number;
     right: number;
     top: number;
 }
 
-interface IAdaptive {
+interface AdaptiveCanvas {
     elementHeight: number;
     elementWidth: number;
     imageAspect: number;
     renderMode: RenderMode;
 }
 
-interface IAdaptiveOperation {
-    (adaptive: IAdaptive): IAdaptive;
+interface AdaptiveRenderOperation {
+    (adaptive: AdaptiveCanvas): AdaptiveCanvas;
 }
 
 export class DOMRenderer {
     private _renderService: RenderService;
-    private _currentFrame$: Observable<IFrame>;
+    private _currentFrame$: Observable<AnimationFrame>;
 
-    private _adaptiveOperation$: Subject<IAdaptiveOperation> =
-        new Subject<IAdaptiveOperation>();
-    private _offset$: Observable<IOffset>;
+    private _adaptiveOperation$: Subject<AdaptiveRenderOperation> =
+        new Subject<AdaptiveRenderOperation>();
+    private _offset$: Observable<OffsetStyle>;
 
     private _element$: Observable<Element>;
     private _vPatch$: Observable<vd.VPatch[]>;
     private _vNode$: Observable<vd.VNode>;
-    private _render$: Subject<IVNodeHash> = new Subject<IVNodeHash>();
-    private _renderAdaptive$: Subject<IVNodeHash> = new Subject<IVNodeHash>();
+    private _render$: Subject<VirtualNodeHash> = new Subject<VirtualNodeHash>();
+    private _renderAdaptive$: Subject<VirtualNodeHash> = new Subject<VirtualNodeHash>();
 
     private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
     constructor(
         element: HTMLElement,
         renderService: RenderService,
-        currentFrame$: Observable<IFrame>) {
+        currentFrame$: Observable<AnimationFrame>) {
         this._renderService = renderService;
         this._currentFrame$ = currentFrame$;
 
@@ -81,7 +81,7 @@ export class DOMRenderer {
 
         this._offset$ = this._adaptiveOperation$.pipe(
             scan(
-                (adaptive: IAdaptive, operation: IAdaptiveOperation): IAdaptive => {
+                (adaptive: AdaptiveCanvas, operation: AdaptiveRenderOperation): AdaptiveCanvas => {
                     return operation(adaptive);
                 },
                 {
@@ -91,11 +91,11 @@ export class DOMRenderer {
                     renderMode: RenderMode.Fill,
                 }),
             filter(
-                (adaptive: IAdaptive): boolean => {
+                (adaptive: AdaptiveCanvas): boolean => {
                     return adaptive.imageAspect > 0 && adaptive.elementWidth > 0 && adaptive.elementHeight > 0;
                 }),
             map(
-                (adaptive: IAdaptive): IOffset => {
+                (adaptive: AdaptiveCanvas): OffsetStyle => {
                     const elementAspect = adaptive.elementWidth / adaptive.elementHeight;
                     const ratio = adaptive.imageAspect / elementAspect;
 
@@ -126,23 +126,23 @@ export class DOMRenderer {
 
         const imageAspectSubscription = this._currentFrame$.pipe(
             filter(
-                (frame: IFrame): boolean => {
+                (frame: AnimationFrame): boolean => {
                     return frame.state.currentNode != null;
                 }),
             distinctUntilChanged(
                 (k1: string, k2: string): boolean => {
                     return k1 === k2;
                 },
-                (frame: IFrame): string => {
+                (frame: AnimationFrame): string => {
                     return frame.state.currentNode.key;
                 }),
             map(
-                (frame: IFrame): number => {
+                (frame: AnimationFrame): number => {
                     return frame.state.currentTransform.basicAspect;
                 }),
             map(
-                (aspect: number): IAdaptiveOperation => {
-                    return (adaptive: IAdaptive): IAdaptive => {
+                (aspect: number): AdaptiveRenderOperation => {
+                    return (adaptive: AdaptiveCanvas): AdaptiveCanvas => {
                         adaptive.imageAspect = aspect;
 
                         return adaptive;
@@ -153,7 +153,7 @@ export class DOMRenderer {
         const renderAdaptiveSubscription = observableCombineLatest(
             this._renderAdaptive$.pipe(
                 scan(
-                    (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
+                    (vNodeHashes: VirtualNodeHashes, vNodeHash: VirtualNodeHash): VirtualNodeHashes => {
                         if (vNodeHash.vnode == null) {
                             delete vNodeHashes[vNodeHash.name];
                         } else {
@@ -164,9 +164,9 @@ export class DOMRenderer {
                     {})),
             this._offset$).pipe(
                 map(
-                    (vo: [IVNodeHashes, IOffset]): IVNodeHash => {
+                    (vo: [VirtualNodeHashes, OffsetStyle]): VirtualNodeHash => {
                         const vNodes: vd.VNode[] = [];
-                        const hashes: IVNodeHashes = vo[0];
+                        const hashes: VirtualNodeHashes = vo[0];
                         for (const name in hashes) {
                             if (!hashes.hasOwnProperty(name)) {
                                 continue;
@@ -197,7 +197,7 @@ export class DOMRenderer {
 
         this._vNode$ = this._render$.pipe(
             scan(
-                (vNodeHashes: IVNodeHashes, vNodeHash: IVNodeHash): IVNodeHashes => {
+                (vNodeHashes: VirtualNodeHashes, vNodeHash: VirtualNodeHash): VirtualNodeHashes => {
                     if (vNodeHash.vnode == null) {
                         delete vNodeHashes[vNodeHash.name];
                     } else {
@@ -208,7 +208,7 @@ export class DOMRenderer {
                 },
                 {}),
             map(
-                (hashes: IVNodeHashes): vd.VNode => {
+                (hashes: VirtualNodeHashes): vd.VNode => {
                     const vNodes: vd.VNode[] = [];
                     for (const name in hashes) {
                         if (!hashes.hasOwnProperty(name)) {
@@ -223,13 +223,13 @@ export class DOMRenderer {
 
         this._vPatch$ = this._vNode$.pipe(
             scan(
-                (nodePatch: INodePatch, vNode: vd.VNode): INodePatch => {
+                (nodePatch: VirtualNodePatch, vNode: vd.VNode): VirtualNodePatch => {
                     nodePatch.vpatch = vd.diff(nodePatch.vnode, vNode);
                     nodePatch.vnode = vNode;
                     return nodePatch;
                 },
                 { vnode: vd.h("div.mapillary-dom-renderer", []), vpatch: null }),
-            pluck<INodePatch, vd.VPatch[]>("vpatch"));
+            pluck<VirtualNodePatch, vd.VPatch[]>("vpatch"));
 
         this._element$ = this._vPatch$.pipe(
             scan(
@@ -246,8 +246,8 @@ export class DOMRenderer {
 
         subs.push(this._renderService.size$.pipe(
             map(
-                (size: ISize): IAdaptiveOperation => {
-                    return (adaptive: IAdaptive): IAdaptive => {
+                (size: ViewportSize): AdaptiveRenderOperation => {
+                    return (adaptive: AdaptiveCanvas): AdaptiveCanvas => {
                         adaptive.elementWidth = size.width;
                         adaptive.elementHeight = size.height;
 
@@ -258,8 +258,8 @@ export class DOMRenderer {
 
         subs.push(this._renderService.renderMode$.pipe(
             map(
-                (renderMode: RenderMode): IAdaptiveOperation => {
-                    return (adaptive: IAdaptive): IAdaptive => {
+                (renderMode: RenderMode): AdaptiveRenderOperation => {
+                    return (adaptive: AdaptiveCanvas): AdaptiveCanvas => {
                         adaptive.renderMode = renderMode;
 
                         return adaptive;
@@ -272,11 +272,11 @@ export class DOMRenderer {
         return this._element$;
     }
 
-    public get render$(): Subject<IVNodeHash> {
+    public get render$(): Subject<VirtualNodeHash> {
         return this._render$;
     }
 
-    public get renderAdaptive$(): Subject<IVNodeHash> {
+    public get renderAdaptive$(): Subject<VirtualNodeHash> {
         return this._renderAdaptive$;
     }
 

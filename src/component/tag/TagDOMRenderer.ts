@@ -6,7 +6,7 @@ import { CreateTag } from "./tag/CreateTag";
 import { RenderTag } from "./tag/RenderTag";
 import { Tag } from "./tag/Tag";
 
-import { ISize } from "../../render/interfaces/ISize";
+import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { ISpriteAtlas } from "../../viewer/interfaces/ISpriteAtlas";
 
 export class TagDOMRenderer {
@@ -15,7 +15,7 @@ export class TagDOMRenderer {
         createTag: CreateTag<Geometry>,
         atlas: ISpriteAtlas,
         camera: THREE.PerspectiveCamera,
-        size: ISize): vd.VNode {
+        size: ViewportSize): vd.VNode {
 
         let vNodes: vd.VNode[] = [];
 

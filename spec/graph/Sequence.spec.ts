@@ -1,11 +1,11 @@
-import { ISequence } from "../../src/api/interfaces/ISequence";
+import { SequenceEnt } from "../../src/api/ents/SequenceEnt";
 import { Sequence } from "../../src/graph/Sequence";
 
 describe("Sequence", () => {
     let sequence: Sequence;
 
     beforeEach(() => {
-        let response: ISequence = {
+        let response: SequenceEnt = {
             key: "A",
             keys: ["B", "C", "D", "E"],
         };

@@ -1,10 +1,10 @@
 import { Component } from "../Component";
-import { IComponentConfiguration } from "../interfaces/IComponentConfiguration";
+import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 
-export abstract class HandlerBase<TConfiguration extends IComponentConfiguration> {
+export abstract class HandlerBase<TConfiguration extends ComponentConfiguration> {
     protected _component: Component<TConfiguration>;
     protected _container: Container;
     protected _navigator: Navigator;

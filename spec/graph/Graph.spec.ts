@@ -17,10 +17,9 @@ import { Node } from "../../src/graph/Node";
 import { APIWrapper } from "../../src/api/APIWrapper";
 import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
 import { GeohashGeometryProvider } from "../../src/api/GeohashGeometryProvider";
-import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
-import { IFillNode } from "../../src/api/interfaces/IFillNode";
-import { IFullNode } from "../../src/api/interfaces/IFullNode";
-import { ISequence } from "../../src/api/interfaces/ISequence";
+import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
+import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
+import { ImageEnt } from "../../src/api/ents/ImageEnt";
 import { GraphMapillaryError } from "../../src/error/GraphMapillaryError";
 import { EdgeCalculator } from "../../src/graph/edge/EdgeCalculator";
 import {
@@ -28,9 +27,10 @@ import {
     NodeIndexItem,
 } from "../../src/graph/Graph";
 import { GraphCalculator } from "../../src/graph/GraphCalculator";
-import { IGraphConfiguration } from "../../src/graph/interfaces/IGraphConfiguration";
+import { GraphConfiguration } from "../../src/graph/interfaces/GraphConfiguration";
 import { Sequence } from "../../src/graph/Sequence";
 import { DataProvider, GeometryProvider } from "../helper/ProviderHelper";
+import { SequenceEnt } from "../../src/api/ents/SequenceEnt";
 
 describe("Graph.ctor", () => {
     it("should create a graph", () => {
@@ -69,15 +69,15 @@ describe("Graph.cacheBoundingBox$", () => {
         const h: string = "h";
         spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         const key: string = "key";
-        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.key = key;
         fullNode.cl.lat = 0.5;
         fullNode.cl.lon = 0.5;
@@ -96,13 +96,13 @@ describe("Graph.cacheBoundingBox$", () => {
                     done();
                 });
 
-        const tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         tileResult[h] = {};
         tileResult[h]["0"] = fullNode;
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        const fillResult: { [key: string]: IFillNode } = {};
+        const fillResult: { [key: string]: SpatialImageEnt } = {};
         fillResult[key] = fullNode;
         imageByKeyFill.next(fillResult);
         imageByKeyFill.complete();
@@ -121,21 +121,21 @@ describe("Graph.cacheBoundingBox$", () => {
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         const imagesByHSpy: jasmine.Spy = spyOn(api, "imagesByH$");
         imagesByHSpy.and.returnValue(imagesByH);
 
         const key: string = "key";
-        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
         const imageByKeyFillSpy: jasmine.Spy = spyOn(api, "imageByKeyFill$");
         imageByKeyFillSpy.and.returnValue(imageByKeyFill);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
         const imageByKeyFullSpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeyFullSpy.and.returnValue(imageByKeyFull);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.key = key;
         fullNode.cl.lat = 0.5;
         fullNode.cl.lon = 0.5;
@@ -144,7 +144,7 @@ describe("Graph.cacheBoundingBox$", () => {
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fullResult: { [key: string]: IFullNode } = {};
+        const fullResult: { [key: string]: ImageEnt } = {};
         fullResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fullResult);
         imageByKeyFull.complete();
@@ -154,7 +154,7 @@ describe("Graph.cacheBoundingBox$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         tileResult[h] = {};
         tileResult[h]["0"] = fullNode;
         imagesByH.next(tileResult);
@@ -194,16 +194,16 @@ describe("Graph.cacheBoundingBox$", () => {
         spyOn(dataProvider.geometry, "latLonToCellIds").and.returnValue([h]);
         spyOn(dataProvider.geometry, "latLonToCellId").and.returnValue(h);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         const imagesByHSpy: jasmine.Spy = spyOn(api, "imagesByH$");
         imagesByHSpy.and.returnValue(imagesByH);
 
         const key: string = "key";
-        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.key = key;
         fullNode.cl.lat = 0.5;
         fullNode.cl.lon = 0.5;
@@ -232,13 +232,13 @@ describe("Graph.cacheBoundingBox$", () => {
                     done();
                 });
 
-        const tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         tileResult[h] = {};
         tileResult[h]["0"] = fullNode;
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        const fillResult: { [key: string]: IFillNode } = {};
+        const fillResult: { [key: string]: SpatialImageEnt } = {};
         fillResult[key] = fullNode;
         imageByKeyFill.next(fillResult);
         imageByKeyFill.complete();
@@ -256,8 +256,8 @@ describe("Graph.cacheFull$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const fullNode: ImageEnt = helper.createFullNode();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
 
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
@@ -273,13 +273,13 @@ describe("Graph.cacheFull$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const result: { [key: string]: IFullNode } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key)
             .subscribe(
@@ -305,8 +305,8 @@ describe("Graph.cacheFull$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const fullNode: ImageEnt = helper.createFullNode();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
 
         const imageByKeyFullSpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeyFullSpy.and.returnValue(imageByKeyFull);
@@ -323,16 +323,16 @@ describe("Graph.cacheFull$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: IFullNode } = {};
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
@@ -345,12 +345,12 @@ describe("Graph.cacheFull$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.sequence_key = undefined;
 
         graph.cacheFull$(fullNode.key)
@@ -360,7 +360,7 @@ describe("Graph.cacheFull$", () => {
                     done();
                 });
 
-        const result: { [key: string]: IFullNode } = {};
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
@@ -376,10 +376,10 @@ describe("Graph.cacheFull$", () => {
 
         const key: string = "key";
         const otherKey: string = "otherKey";
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
-        const imageByKeyFullOther: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFullOther: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.callFake(
-            (keys: string[]): Observable<{ [key: string]: IFullNode }> => {
+            (keys: string[]): Observable<{ [key: string]: ImageEnt }> => {
                 if (keys[0] === key) {
                     return imageByKeyFull;
                 } else if (keys[0] === otherKey) {
@@ -393,17 +393,17 @@ describe("Graph.cacheFull$", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const otherNode: IFullNode = helper.createFullNode();
+        const otherNode: ImageEnt = helper.createFullNode();
         otherNode.key = otherKey;
         graph.cacheFull$(otherNode.key).subscribe(() => { /*noop*/ });
 
-        const otherFullResult: { [key: string]: IFullNode } = {};
+        const otherFullResult: { [key: string]: ImageEnt } = {};
         otherFullResult[otherNode.key] = otherNode;
         imageByKeyFullOther.next(otherFullResult);
         imageByKeyFullOther.complete();
@@ -413,14 +413,14 @@ describe("Graph.cacheFull$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.key = key;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
         expect(graph.hasNode(fullNode.key)).toBe(false);
         expect(graph.isCachingFull(fullNode.key)).toBe(true);
 
-        const tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         tileResult[h] = {};
         tileResult[h]["0"] = otherNode;
         tileResult[h]["1"] = fullNode;
@@ -430,7 +430,7 @@ describe("Graph.cacheFull$", () => {
         expect(graph.hasNode(fullNode.key)).toBe(true);
         expect(graph.getNode(fullNode.key).full).toBe(false);
 
-        const fullResult: { [key: string]: IFullNode } = {};
+        const fullResult: { [key: string]: ImageEnt } = {};
         fullResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fullResult);
         imageByKeyFull.complete();
@@ -454,26 +454,26 @@ describe("Graph.cacheFill$", () => {
         const api: APIWrapper = new APIWrapper(dataProvider);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -482,9 +482,9 @@ describe("Graph.cacheFill$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const tileNode: ICoreNode = helper.createCoreNode();
+        const tileNode: CoreImageEnt = helper.createCoreNode();
         tileNode.key = "tileNodeKey";
-        const result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const result: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         result[h] = {};
         result[h]["0"] = tileNode;
         imagesByH.next(result);
@@ -506,26 +506,26 @@ describe("Graph.cacheFill$", () => {
         const api: APIWrapper = new APIWrapper(dataProvider);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -534,9 +534,9 @@ describe("Graph.cacheFill$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const tileNode: ICoreNode = helper.createCoreNode();
+        const tileNode: CoreImageEnt = helper.createCoreNode();
         tileNode.key = "tileNodeKey";
-        const result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const result: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         result[h] = {};
         result[h]["0"] = tileNode;
         imagesByH.next(result);
@@ -546,8 +546,8 @@ describe("Graph.cacheFill$", () => {
 
         graph.cacheFill$(tileNode.key).subscribe(() => { /*noop*/ });
 
-        const fillTileNode: IFillNode = helper.createFullNode();
-        const fillResult: { [key: string]: IFillNode } = {};
+        const fillTileNode: SpatialImageEnt = helper.createFullNode();
+        const fillResult: { [key: string]: SpatialImageEnt } = {};
         fillResult[tileNode.key] = fillTileNode;
         imageByKeyFill.next(fillResult);
 
@@ -563,27 +563,27 @@ describe("Graph.cacheFill$", () => {
         const api: APIWrapper = new APIWrapper(dataProvider);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
         const imageByKeyFillSpy: jasmine.Spy = spyOn(api, "imageByKeyFill$");
         imageByKeyFillSpy.and.returnValue(imageByKeyFill);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -592,9 +592,9 @@ describe("Graph.cacheFill$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const tileNode: ICoreNode = helper.createCoreNode();
+        const tileNode: CoreImageEnt = helper.createCoreNode();
         tileNode.key = "tileNodeKey";
-        const result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const result: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         result[h] = {};
         result[h]["0"] = tileNode;
         imagesByH.next(result);
@@ -616,20 +616,20 @@ describe("Graph.cacheFill$", () => {
         const api: APIWrapper = new APIWrapper(dataProvider);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         graph.cacheFull$(fullNode.key);
 
         expect(graph.isCachingFull(fullNode.key)).toBe(true);
@@ -641,7 +641,7 @@ describe("Graph.cacheFill$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
         const graph: Graph = new Graph(api, undefined, calculator);
@@ -653,18 +653,18 @@ describe("Graph.cacheFill$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const imageByKeyFill: Subject<{ [key: string]: IFillNode }> = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         graph.cacheFull$(fullNode.key);
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -691,8 +691,8 @@ describe("Graph.cacheTiles$", () => {
 
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue(["h"]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         const graph: Graph = new Graph(api, undefined, calculator);
@@ -717,19 +717,19 @@ describe("Graph.cacheTiles$", () => {
         const api: APIWrapper = new APIWrapper(dataProvider);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
 
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyResult: { [key: string]: IFullNode } = {};
+        const imageByKeyResult: { [key: string]: ImageEnt } = {};
         imageByKeyResult[fullNode.key] = fullNode;
-        const imageByKeyFull: Observable<{ [key: string]: IFullNode }> = observableOf<{ [key: string]: IFullNode }>(imageByKeyResult);
+        const imageByKeyFull: Observable<{ [key: string]: ImageEnt }> = observableOf<{ [key: string]: ImageEnt }>(imageByKeyResult);
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         const graph: Graph = new Graph(api, undefined, calculator);
@@ -742,7 +742,7 @@ describe("Graph.cacheTiles$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const result: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         result[h] = {};
         result[h]["0"] = fullNode;
         imagesByH.next(result);
@@ -765,8 +765,8 @@ describe("Graph.cacheTiles$", () => {
         const encodeHsSpy: jasmine.Spy = spyOn(geometryProvider, "latLonToCellIds");
         encodeHsSpy.and.returnValue([h]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         const graph: Graph = new Graph(api, undefined, calculator);
@@ -788,20 +788,20 @@ describe("Graph.cacheTiles$", () => {
         const api: APIWrapper = new APIWrapper(dataProvider);
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
 
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         const encodeHsSpy: jasmine.Spy = spyOn(geometryProvider, "latLonToCellIds");
         encodeHsSpy.and.returnValue([h]);
 
-        const imageByKeyResult: { [key: string]: IFullNode } = {};
+        const imageByKeyResult: { [key: string]: ImageEnt } = {};
         imageByKeyResult[fullNode.key] = fullNode;
-        const imageByKeyFull: Observable<{ [key: string]: IFullNode }> = observableOf<{ [key: string]: IFullNode }>(imageByKeyResult);
+        const imageByKeyFull: Observable<{ [key: string]: ImageEnt }> = observableOf<{ [key: string]: ImageEnt }>(imageByKeyResult);
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         const graph: Graph = new Graph(api, undefined, calculator);
@@ -813,7 +813,7 @@ describe("Graph.cacheTiles$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const result: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         result[h] = {};
         result[h]["0"] = fullNode;
         imagesByH.next(result);
@@ -846,10 +846,10 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
@@ -859,7 +859,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -872,10 +872,10 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
@@ -885,7 +885,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -900,10 +900,10 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
@@ -913,14 +913,14 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
         graph.cacheSequenceNodes$(sequenceKey).subscribe();
 
-        const imageResult: { [key: string]: IFullNode } = {};
+        const imageResult: { [key: string]: ImageEnt } = {};
         imageResult[nodeKey] = helper.createFullNode();
         imageResult[nodeKey].key = nodeKey;
         imageByKey.next(imageResult);
@@ -942,17 +942,17 @@ describe("Graph.cacheSequenceNodes$", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
@@ -962,15 +962,15 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
         graph.cacheSequenceNodes$(sequenceKey).subscribe();
 
-        const imageResult: { [key: string]: IFullNode } = {};
-        const fullNode: IFullNode = helper.createFullNode();
+        const imageResult: { [key: string]: ImageEnt } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.key = nodeKey;
         fullNode.sequence_key = sequenceKey;
         imageResult[fullNode.key] = fullNode;
@@ -994,17 +994,17 @@ describe("Graph.cacheSequenceNodes$", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 1,
         };
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
@@ -1014,15 +1014,15 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
         graph.cacheSequenceNodes$(sequenceKey).subscribe();
 
-        const imageResult: { [key: string]: IFullNode } = {};
-        const fullNode: IFullNode = helper.createFullNode();
+        const imageResult: { [key: string]: ImageEnt } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.key = nodeKey;
         fullNode.sequence_key = sequenceKey;
         imageResult[fullNode.key] = fullNode;
@@ -1048,17 +1048,17 @@ describe("Graph.cacheSequenceNodes$", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
@@ -1068,15 +1068,15 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
         graph.cacheSequenceNodes$(sequenceKey).subscribe();
 
-        const imageResult: { [key: string]: IFullNode } = {};
-        const fullNode: IFullNode = helper.createFullNode();
+        const imageResult: { [key: string]: ImageEnt } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.key = nodeKey;
         fullNode.sequence_key = sequenceKey;
         imageResult[fullNode.key] = fullNode;
@@ -1100,17 +1100,17 @@ describe("Graph.cacheSequenceNodes$", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
@@ -1120,15 +1120,15 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
         graph.cacheSequenceNodes$(sequenceKey).subscribe();
 
-        const imageResult: { [key: string]: IFullNode } = {};
-        const fullNode: IFullNode = helper.createFullNode();
+        const imageResult: { [key: string]: ImageEnt } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.key = nodeKey;
         fullNode.sequence_key = sequenceKey;
         imageResult[fullNode.key] = fullNode;
@@ -1154,17 +1154,17 @@ describe("Graph.cacheSequenceNodes$", () => {
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 1,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
@@ -1174,15 +1174,15 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
         graph.cacheSequenceNodes$(sequenceKey).subscribe();
 
-        const imageResult: { [key: string]: IFullNode } = {};
-        const fullNode: IFullNode = helper.createFullNode();
+        const imageResult: { [key: string]: ImageEnt } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.key = nodeKey;
         fullNode.sequence_key = sequenceKey;
         imageResult[fullNode.key] = fullNode;
@@ -1191,8 +1191,8 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.initializeCache(fullNode.key);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
@@ -1200,7 +1200,7 @@ describe("Graph.cacheSequenceNodes$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
@@ -1233,17 +1233,17 @@ describe("Graph.cacheSequenceNodes$", () => {
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 1,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
@@ -1253,15 +1253,15 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
         graph.cacheSequenceNodes$(sequenceKey).subscribe();
 
-        const imageResult: { [key: string]: IFullNode } = {};
-        const fullNode: IFullNode = helper.createFullNode();
+        const imageResult: { [key: string]: ImageEnt } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.key = nodeKey;
         fullNode.sequence_key = sequenceKey;
         imageResult[fullNode.key] = fullNode;
@@ -1270,8 +1270,8 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.initializeCache(fullNode.key);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
@@ -1279,7 +1279,7 @@ describe("Graph.cacheSequenceNodes$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
@@ -1305,10 +1305,10 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
@@ -1318,14 +1318,14 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
         graph.cacheSequenceNodes$(sequenceKey).subscribe();
 
-        const imageResult: { [key: string]: IFullNode } = {};
+        const imageResult: { [key: string]: ImageEnt } = {};
         imageResult[nodeKey] = helper.createFullNode();
         imageResult[nodeKey].key = nodeKey;
         imageByKey.next(imageResult);
@@ -1339,10 +1339,10 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1353,7 +1353,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -1361,7 +1361,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequenceNodes$(sequenceKey).subscribe();
         graph.cacheSequenceNodes$(sequenceKey).subscribe();
 
-        const imageResult: { [key: string]: IFullNode } = {};
+        const imageResult: { [key: string]: ImageEnt } = {};
         imageResult[nodeKey] = helper.createFullNode();
         imageResult[nodeKey].key = nodeKey;
         imageByKey.next(imageResult);
@@ -1375,10 +1375,10 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
@@ -1388,7 +1388,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -1410,10 +1410,10 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1423,7 +1423,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: Array(200).fill(undefined).map((value, i) => { return i.toString(); }) };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -1446,10 +1446,10 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1459,7 +1459,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe();
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: Array(201).fill(undefined).map((value, i) => { return i.toString(); }) };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -1483,10 +1483,10 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1498,7 +1498,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const referenceNodeKey: string = "referenceNodeKey";
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(400), (x, i): string => i.toString()) };
         result[sequenceKey].keys.splice(0, 1, referenceNodeKey);
         sequenceByKey.next(result);
@@ -1525,10 +1525,10 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1540,7 +1540,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const referenceNodeKey: string = "referenceNodeKey";
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(400), (x, i): string => i.toString()) };
         result[sequenceKey].keys.splice(399, 1, referenceNodeKey);
         sequenceByKey.next(result);
@@ -1568,10 +1568,10 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1583,7 +1583,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const referenceNodeKey: string = "referenceNodeKey";
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(400), (x, i): string => i.toString()) };
         result[sequenceKey].keys.splice(200, 1, referenceNodeKey);
         sequenceByKey.next(result);
@@ -1612,10 +1612,10 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1627,7 +1627,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const referenceNodeKey: string = "referenceNodeKey";
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(400), (x, i): string => i.toString()) };
         result[sequenceKey].keys.splice(200, 1, referenceNodeKey);
         sequenceByKey.next(result);
@@ -1645,10 +1645,10 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const imageByKey: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1660,7 +1660,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const referenceNodeKey: string = "referenceNodeKey";
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(50), (x, i): string => i.toString()) };
         result[sequenceKey].keys.splice(20, 1, referenceNodeKey);
         sequenceByKey.next(result);
@@ -1700,15 +1700,15 @@ describe("Graph.cacheSpatialArea$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -1725,23 +1725,23 @@ describe("Graph.cacheSpatialArea$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
 
         const h: string = "h";
         spyOn(dataProvider.geometry, "latLonToCellId").and.returnValue(h);
         spyOn(dataProvider.geometry, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -1751,7 +1751,7 @@ describe("Graph.cacheSpatialArea$", () => {
         spyOn(graphCalculator, "boundingBoxCorners")
             .and.returnValue([{ lat: -0.5, lon: -0.5 }, { lat: 0.5, lon: 0.5 }]);
 
-        const coreNode: ICoreNode = helper.createCoreNode();
+        const coreNode: CoreImageEnt = helper.createCoreNode();
         coreNode.key = "otherKey";
 
         graph.hasTiles(fullNode.key);
@@ -1759,7 +1759,7 @@ describe("Graph.cacheSpatialArea$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const result: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         result[h] = {};
         result[h]["0"] = fullNode;
         result[h]["1"] = coreNode;
@@ -1784,25 +1784,25 @@ describe("Graph.cacheSpatialEdges", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: SequenceEnt } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -1843,35 +1843,35 @@ describe("Graph.cacheSpatialEdges", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const otherFullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
+        const otherFullNode: ImageEnt = helper.createFullNode();
         otherFullNode.key = "other-key";
         otherFullNode.sequence_key = "otherSequenceKey";
 
-        const imageByKeyFill = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFill = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: SequenceEnt } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -1887,7 +1887,7 @@ describe("Graph.cacheSpatialEdges", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const coreResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const coreResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         coreResult[cellId] = {};
         coreResult[cellId]["0"] = fullNode;
         coreResult[cellId]["1"] = otherFullNode;
@@ -1899,7 +1899,7 @@ describe("Graph.cacheSpatialEdges", () => {
 
         graph.cacheFill$(otherFullNode.key).subscribe(() => { /*noop*/ });
 
-        const otherFetchResult: { [key: string]: IFullNode } = {};
+        const otherFetchResult: { [key: string]: ImageEnt } = {};
         otherFetchResult[otherFullNode.key] = otherFullNode;
         imageByKeyFill.next(otherFetchResult);
         imageByKeyFill.complete();
@@ -1930,25 +1930,25 @@ describe("Graph.cacheSpatialEdges", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: SequenceEnt } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -1957,7 +1957,7 @@ describe("Graph.cacheSpatialEdges", () => {
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
-        const otherFullNode: IFullNode = helper.createFullNode();
+        const otherFullNode: ImageEnt = helper.createFullNode();
         otherFullNode.sequence_key = "otherSequenceKey";
         const otherNode: Node = new Node(otherFullNode);
         otherNode.makeFull(otherFullNode);
@@ -1994,16 +1994,16 @@ describe("Graph.cacheNodeSequence$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -2014,19 +2014,19 @@ describe("Graph.cacheNodeSequence$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
@@ -2041,20 +2041,20 @@ describe("Graph.cacheNodeSequence$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -2065,7 +2065,7 @@ describe("Graph.cacheNodeSequence$", () => {
                     expect(g.isCachingNodeSequence(fullNode.key)).toBe(false);
                 });
 
-        const result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: SequenceEnt } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: [fullNode.key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -2078,15 +2078,15 @@ describe("Graph.cacheNodeSequence$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
 
         expect(() => { graph.cacheNodeSequence$(fullNode.key); }).toThrowError(Error);
@@ -2096,26 +2096,26 @@ describe("Graph.cacheNodeSequence$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: SequenceEnt } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: [fullNode.key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -2129,21 +2129,21 @@ describe("Graph.cacheNodeSequence$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         const sequenceByKeySpy: jasmine.Spy = spyOn(api, "sequenceByKey$");
         sequenceByKeySpy.and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -2157,20 +2157,20 @@ describe("Graph.cacheNodeSequence$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
 
@@ -2186,7 +2186,7 @@ describe("Graph.cacheNodeSequence$", () => {
                     done();
                 });
 
-        const result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: SequenceEnt } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: [fullNode.key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -2220,7 +2220,7 @@ describe("Graph.cacheSequence$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, calculator);
@@ -2237,7 +2237,7 @@ describe("Graph.cacheSequence$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, calculator);
@@ -2258,7 +2258,7 @@ describe("Graph.cacheSequence$", () => {
                     done();
                 });
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -2268,7 +2268,7 @@ describe("Graph.cacheSequence$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         const sequenceByKeySpy: jasmine.Spy = spyOn(api, "sequenceByKey$");
         sequenceByKeySpy.and.returnValue(sequenceByKey);
 
@@ -2295,25 +2295,25 @@ describe("Graph.resetSpatialEdges", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: SequenceEnt } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -2361,25 +2361,25 @@ describe("Graph.resetSpatialEdges", () => {
         const encodeHsSpy: jasmine.Spy = spyOn(geometryProvider, "latLonToCellIds");
         encodeHsSpy.and.returnValue([h]);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: IFullNode } = {};
+        const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
         graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: ISequence } = {};
+        const result: { [key: string]: SequenceEnt } = {};
         result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -2387,15 +2387,15 @@ describe("Graph.resetSpatialEdges", () => {
         expect(graph.hasTiles(fullNode.key)).toBe(false);
         expect(graph.isCachingTiles(fullNode.key)).toBe(false);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHresult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHresult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         imagesByHresult[h] = {};
         imagesByHresult[h]["0"] = fullNode;
         imagesByH.next(imagesByHresult);
@@ -2456,13 +2456,13 @@ describe("Graph.reset", () => {
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const result: { [key: string]: IFullNode } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2493,13 +2493,13 @@ describe("Graph.reset", () => {
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const result: { [key: string]: IFullNode } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2531,13 +2531,13 @@ describe("Graph.reset", () => {
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const result: { [key: string]: IFullNode } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2583,10 +2583,10 @@ describe("Graph.uncache", () => {
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
@@ -2595,8 +2595,8 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const result: { [key: string]: IFullNode } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2628,10 +2628,10 @@ describe("Graph.uncache", () => {
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
@@ -2640,9 +2640,9 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.sequence_key = "sequencKey";
-        const result: { [key: string]: IFullNode } = {};
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2674,10 +2674,10 @@ describe("Graph.uncache", () => {
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
@@ -2686,8 +2686,8 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const result: { [key: string]: IFullNode } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2719,10 +2719,10 @@ describe("Graph.uncache", () => {
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
@@ -2731,8 +2731,8 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const result: { [key: string]: IFullNode } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2766,10 +2766,10 @@ describe("Graph.uncache", () => {
         const h: string = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
             maxUnusedPreStoredNodes: 1,
@@ -2778,8 +2778,8 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const result: { [key: string]: IFullNode } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2815,7 +2815,7 @@ describe("Graph.uncache", () => {
 
         const imageByKeyFullSpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 1,
@@ -2824,12 +2824,12 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode1: IFullNode = helper.createFullNode();
+        const fullNode1: ImageEnt = helper.createFullNode();
         fullNode1.key = "key1";
-        const result1: { [key: string]: IFullNode } = {};
+        const result1: { [key: string]: ImageEnt } = {};
         result1[fullNode1.key] = fullNode1;
 
-        const imageByKeyFull1: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull1: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull1);
 
         graph.cacheFull$(fullNode1.key).subscribe(() => { /*noop*/ });
@@ -2839,12 +2839,12 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode1.key)).toBe(true);
 
-        const fullNode2: IFullNode = helper.createFullNode();
+        const fullNode2: ImageEnt = helper.createFullNode();
         fullNode2.key = "key2";
-        const result2: { [key: string]: IFullNode } = {};
+        const result2: { [key: string]: ImageEnt } = {};
         result2[fullNode2.key] = fullNode2;
 
-        const imageByKeyFull2: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull2: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull2);
 
         graph.cacheFull$(fullNode2.key).subscribe(() => { /*noop*/ });
@@ -2894,10 +2894,10 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
@@ -2906,8 +2906,8 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const result: { [key: string]: IFullNode } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2920,8 +2920,8 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasInitializedCache(fullNode.key)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
@@ -2929,7 +2929,7 @@ describe("Graph.uncache", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
@@ -2957,10 +2957,10 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
             maxUnusedPreStoredNodes: 0,
@@ -2969,8 +2969,8 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const result: { [key: string]: IFullNode } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -2983,8 +2983,8 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasInitializedCache(fullNode.key)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
@@ -2992,7 +2992,7 @@ describe("Graph.uncache", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
@@ -3022,10 +3022,10 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
@@ -3034,8 +3034,8 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const result: { [key: string]: IFullNode } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -3049,8 +3049,8 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasInitializedCache(node.key)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
@@ -3058,7 +3058,7 @@ describe("Graph.uncache", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
@@ -3086,10 +3086,10 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
@@ -3098,8 +3098,8 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const result: { [key: string]: IFullNode } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -3113,8 +3113,8 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasInitializedCache(node.key)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(node.key);
@@ -3148,7 +3148,7 @@ describe("Graph.uncache", () => {
 
         const imageByKeyFullSpy: jasmine.Spy = spyOn(api, "imageByKeyFull$");
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
             maxUnusedPreStoredNodes: 0,
@@ -3157,12 +3157,12 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode1: IFullNode = helper.createFullNode();
+        const fullNode1: ImageEnt = helper.createFullNode();
         fullNode1.key = "key1";
-        const result1: { [key: string]: IFullNode } = {};
+        const result1: { [key: string]: ImageEnt } = {};
         result1[fullNode1.key] = fullNode1;
 
-        const imageByKeyFull1: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull1: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull1);
 
         graph.cacheFull$(fullNode1.key).subscribe(() => { /*noop*/ });
@@ -3172,12 +3172,12 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode1.key)).toBe(true);
 
-        const fullNode2: IFullNode = helper.createFullNode();
+        const fullNode2: ImageEnt = helper.createFullNode();
         fullNode2.key = "key2";
-        const result2: { [key: string]: IFullNode } = {};
+        const result2: { [key: string]: ImageEnt } = {};
         result2[fullNode2.key] = fullNode2;
 
-        const imageByKeyFull2: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull2: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull2);
 
         graph.cacheFull$(fullNode2.key).subscribe(() => { /*noop*/ });
@@ -3197,8 +3197,8 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasInitializedCache(node2.key)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode1.key);
@@ -3206,7 +3206,7 @@ describe("Graph.uncache", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode1;
         imagesByHResult[h]["1"] = fullNode2;
@@ -3237,10 +3237,10 @@ describe("Graph.uncache", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
@@ -3253,7 +3253,7 @@ describe("Graph.uncache", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -3276,10 +3276,10 @@ describe("Graph.uncache", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
@@ -3292,7 +3292,7 @@ describe("Graph.uncache", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -3315,10 +3315,10 @@ describe("Graph.uncache", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const sequenceByKey: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
@@ -3331,7 +3331,7 @@ describe("Graph.uncache", () => {
 
         graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
 
-        const result: { [sequenceKey: string]: ISequence } = {};
+        const result: { [sequenceKey: string]: SequenceEnt } = {};
         result[sequenceKey] = { key: sequenceKey, keys: [] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
@@ -3356,7 +3356,7 @@ describe("Graph.uncache", () => {
 
         const sequenceByKeySpy: jasmine.Spy = spyOn(api, "sequenceByKey$");
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
@@ -3367,12 +3367,12 @@ describe("Graph.uncache", () => {
 
         const sequenceKey1: string = "sequenceKey1";
 
-        const sequenceByKey1: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey1: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         sequenceByKeySpy.and.returnValue(sequenceByKey1);
 
         graph.cacheSequence$(sequenceKey1).subscribe(() => { /*noop*/ });
 
-        const result1: { [sequenceKey: string]: ISequence } = {};
+        const result1: { [sequenceKey: string]: SequenceEnt } = {};
         result1[sequenceKey1] = { key: sequenceKey1, keys: [] };
         sequenceByKey1.next(result1);
         sequenceByKey1.complete();
@@ -3385,12 +3385,12 @@ describe("Graph.uncache", () => {
 
         const sequenceKey2: string = "sequenceKey2";
 
-        const sequenceByKey2: Subject<{ [key: string]: ISequence }> = new Subject<{ [key: string]: ISequence }>();
+        const sequenceByKey2: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
         sequenceByKeySpy.and.returnValue(sequenceByKey2);
 
         graph.cacheSequence$(sequenceKey2).subscribe(() => { /*noop*/ });
 
-        const result2: { [sequenceKey: string]: ISequence } = {};
+        const result2: { [sequenceKey: string]: SequenceEnt } = {};
         result2[sequenceKey2] = { key: sequenceKey2, keys: [] };
         sequenceByKey2.next(result2);
         sequenceByKey2.complete();
@@ -3429,10 +3429,10 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
             maxUnusedPreStoredNodes: 0,
@@ -3441,8 +3441,8 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const result: { [key: string]: IFullNode } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -3451,8 +3451,8 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
@@ -3460,7 +3460,7 @@ describe("Graph.uncache", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
@@ -3491,10 +3491,10 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
             maxUnusedPreStoredNodes: 0,
@@ -3503,9 +3503,9 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: IFullNode = helper.createFullNode();
+        const fullNode: ImageEnt = helper.createFullNode();
         fullNode.sequence_key = "sequenceKey";
-        const result: { [key: string]: IFullNode } = {};
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -3514,8 +3514,8 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
@@ -3523,7 +3523,7 @@ describe("Graph.uncache", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
@@ -3555,10 +3555,10 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
             maxUnusedPreStoredNodes: 0,
@@ -3567,8 +3567,8 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const result: { [key: string]: IFullNode } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -3577,8 +3577,8 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
@@ -3586,7 +3586,7 @@ describe("Graph.uncache", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
@@ -3618,10 +3618,10 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: IFullNode }> = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const configuration: IGraphConfiguration = {
+        const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
@@ -3630,8 +3630,8 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: IFullNode = helper.createFullNode();
-        const result: { [key: string]: IFullNode } = {};
+        const fullNode: ImageEnt = helper.createFullNode();
+        const result: { [key: string]: ImageEnt } = {};
         result[fullNode.key] = fullNode;
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
@@ -3640,8 +3640,8 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.key)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: ICoreNode } }> =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         graph.hasTiles(fullNode.key);
@@ -3649,7 +3649,7 @@ describe("Graph.uncache", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         imagesByHResult[h] = {};
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
@@ -3681,11 +3681,11 @@ describe("Graph.cacheCell$", () => {
 
         const cellId = "cellId";
         const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         const imagesByHSpy =
             spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const imageByKeyFill = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFill = new Subject<{ [key: string]: SpatialImageEnt }>();
         const imageByKeyFillSpy =
             spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
@@ -3710,14 +3710,14 @@ describe("Graph.cacheCell$", () => {
                     done();
                 });
 
-        const tileResult: { [key: string]: { [index: string]: ICoreNode } } =
+        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } =
             {};
         tileResult[cellId] = {};
         tileResult[cellId]["0"] = fullNode;
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        const fillResult: { [key: string]: IFillNode } = {};
+        const fillResult: { [key: string]: SpatialImageEnt } = {};
         fillResult[key] = fullNode;
         imageByKeyFill.next(fillResult);
         imageByKeyFill.complete();
@@ -3736,11 +3736,11 @@ describe("Graph.cacheCell$", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(cellId);
 
         const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         const imagesByHSpy =
             spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const imageByKeyFull = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeyFullSpy =
             spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
@@ -3748,14 +3748,14 @@ describe("Graph.cacheCell$", () => {
             spyOn(api, "imageByKeyFill$").and.stub();
 
         const key = "full-key";
-        const fullNode: IFullNode = new NodeHelper().createFullNode();
+        const fullNode: ImageEnt = new NodeHelper().createFullNode();
         fullNode.key = key;
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
         graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
 
-        const fullResult: { [key: string]: IFullNode } = {};
+        const fullResult: { [key: string]: ImageEnt } = {};
         fullResult[fullNode.key] = fullNode;
         imageByKeyFull.next(fullResult);
         imageByKeyFull.complete();
@@ -3765,7 +3765,7 @@ describe("Graph.cacheCell$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         tileResult[cellId] = {};
         tileResult[cellId]["0"] = fullNode;
         imagesByH.next(tileResult);
@@ -3806,15 +3806,15 @@ describe("Graph.cacheCell$", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(cellId);
 
         const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         const imagesByHSpy =
             spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const imageByKeyFull = new Subject<{ [key: string]: IFullNode }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeyFullSpy =
             spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
-        const imageByKeyFill = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFill = new Subject<{ [key: string]: SpatialImageEnt }>();
         const imageByKeyFillSpy =
             spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
@@ -3827,7 +3827,7 @@ describe("Graph.cacheCell$", () => {
 
         graph.cacheFull$(fullNode1.key).subscribe(() => { /*noop*/ });
 
-        const fullResult: { [key: string]: IFullNode } = {};
+        const fullResult: { [key: string]: ImageEnt } = {};
         fullResult[fullNode1.key] = fullNode1;
         imageByKeyFull.next(fullResult);
         imageByKeyFull.complete();
@@ -3839,7 +3839,7 @@ describe("Graph.cacheCell$", () => {
 
         const fullNode2 = new NodeHelper().createFullNode();
         fullNode2.key = key2;
-        const tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         tileResult[cellId] = {};
         tileResult[cellId]["0"] = fullNode1;
         tileResult[cellId]["1"] = fullNode2;
@@ -3876,7 +3876,7 @@ describe("Graph.cacheCell$", () => {
                     done();
                 });
 
-        const fillResult: { [key: string]: IFillNode } = {};
+        const fillResult: { [key: string]: SpatialImageEnt } = {};
         fillResult[fullNode2.key] = fullNode2;
         imageByKeyFill.next(fillResult);
         imageByKeyFill.complete();
@@ -3895,11 +3895,11 @@ describe("Graph.cacheCell$", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(cellId);
 
         const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         const imagesByHSpy =
             spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const imageByKeyFill = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFill = new Subject<{ [key: string]: SpatialImageEnt }>();
         const imageByKeyFillSpy =
             spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
@@ -3934,13 +3934,13 @@ describe("Graph.cacheCell$", () => {
                     done();
                 });
 
-        const tileResult: { [key: string]: { [index: string]: ICoreNode } } = {};
+        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         tileResult[cellId] = {};
         tileResult[cellId]["0"] = fullNode;
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        const fillResult: { [key: string]: IFillNode } = {};
+        const fillResult: { [key: string]: SpatialImageEnt } = {};
         fillResult[fullNode.key] = fullNode;
         imageByKeyFill.next(fillResult);
         imageByKeyFill.complete();
@@ -3982,11 +3982,11 @@ describe("Graph.updateCells$", () => {
         const calculator = new GraphCalculator(null);
 
         const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         const imagesByHSpy =
             spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const imageByKeyFill = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFill = new Subject<{ [key: string]: SpatialImageEnt }>();
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
         const key = "full-key";
@@ -3998,14 +3998,14 @@ describe("Graph.updateCells$", () => {
         const cellId = "cellId";
         graph.cacheCell$(cellId).subscribe();
 
-        const tileResult: { [key: string]: { [index: string]: ICoreNode } } =
+        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } =
             {};
         tileResult[cellId] = {};
         tileResult[cellId]["0"] = fullNode;
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        const fillResult: { [key: string]: IFillNode } = {};
+        const fillResult: { [key: string]: SpatialImageEnt } = {};
         fillResult[key] = fullNode;
         imageByKeyFill.next(fillResult);
         imageByKeyFill.complete();
@@ -4013,7 +4013,7 @@ describe("Graph.updateCells$", () => {
         expect(graph.hasNode(key)).toBe(true);
 
         const imagesByHUpdate =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         imagesByHSpy.calls.reset();
         imagesByHSpy.and.returnValue(imagesByHUpdate);
 
@@ -4038,11 +4038,11 @@ describe("Graph.updateCells$", () => {
         const calculator = new GraphCalculator(null);
 
         const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         const imagesByHSpy =
             spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const imageByKeyFill = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFill = new Subject<{ [key: string]: SpatialImageEnt }>();
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
         const key = "full-key";
@@ -4057,7 +4057,7 @@ describe("Graph.updateCells$", () => {
         expect(graph.hasNode(key)).toBe(false);
 
         const imagesByHUpdate =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         imagesByHSpy.calls.reset();
         imagesByHSpy.and.returnValue(imagesByHUpdate);
 
@@ -4069,14 +4069,14 @@ describe("Graph.updateCells$", () => {
                     done();
                 });
 
-        const tileResult: { [key: string]: { [index: string]: ICoreNode } } =
+        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } =
             {};
         tileResult[cellId] = {};
         tileResult[cellId]["0"] = fullNode;
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        const fillResult: { [key: string]: IFillNode } = {};
+        const fillResult: { [key: string]: SpatialImageEnt } = {};
         fillResult[key] = fullNode;
         imageByKeyFill.next(fillResult);
         imageByKeyFill.complete();
@@ -4096,11 +4096,11 @@ describe("Graph.updateCells$", () => {
         const calculator = new GraphCalculator(null);
 
         const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         const imagesByHSpy =
             spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        const imageByKeyFill = new Subject<{ [key: string]: IFillNode }>();
+        const imageByKeyFill = new Subject<{ [key: string]: SpatialImageEnt }>();
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
         const key1 = "full-key-1";
@@ -4112,14 +4112,14 @@ describe("Graph.updateCells$", () => {
         const cellId = "cellId";
         graph.cacheCell$(cellId).subscribe();
 
-        const tileResult: { [key: string]: { [index: string]: ICoreNode } } =
+        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } =
             {};
         tileResult[cellId] = {};
         tileResult[cellId]["0"] = fullNode1;
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        const fillResult: { [key: string]: IFillNode } = {};
+        const fillResult: { [key: string]: SpatialImageEnt } = {};
         fillResult[key1] = fullNode1;
         imageByKeyFill.next(fillResult);
         imageByKeyFill.complete();
@@ -4127,7 +4127,7 @@ describe("Graph.updateCells$", () => {
         expect(graph.hasNode(key1)).toBe(true);
 
         const imagesByHUpdate =
-            new Subject<{ [key: string]: { [index: string]: ICoreNode } }>();
+            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         imagesByHSpy.calls.reset();
         imagesByHSpy.and.returnValue(imagesByHUpdate);
 

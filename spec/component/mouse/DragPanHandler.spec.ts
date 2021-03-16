@@ -17,7 +17,7 @@ import { DragPanHandler } from "../../../src/component/mouse/DragPanHandler";
 import { Spatial } from "../../../src/geo/Spatial";
 import { ViewportCoords } from "../../../src/geo/ViewportCoords";
 import { RenderCamera } from "../../../src/render/RenderCamera";
-import { IFrame } from "../../../src/state/interfaces/IFrame";
+import { AnimationFrame } from "../../../src/state/interfaces/AnimationFrame";
 import { Container } from "../../../src/viewer/Container";
 import { RenderMode } from "../../../src/render/RenderMode";
 
@@ -219,8 +219,8 @@ describe("DragPanHandler.enable", () => {
         testComponent.activate();
         handler.enable();
 
-        const frame: IFrame = new FrameHelper().createFrame();
-        (<Subject<IFrame>>navigatorMock.stateService.currentState$).next(frame);
+        const frame: AnimationFrame = new FrameHelper().createFrame();
+        (<Subject<AnimationFrame>>navigatorMock.stateService.currentState$).next(frame);
 
         (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
 
@@ -257,8 +257,8 @@ describe("DragPanHandler.enable", () => {
         testComponent.activate();
         handler.enable();
 
-        const frame: IFrame = new FrameHelper().createFrame();
-        (<Subject<IFrame>>navigatorMock.stateService.currentState$).next(frame);
+        const frame: AnimationFrame = new FrameHelper().createFrame();
+        (<Subject<AnimationFrame>>navigatorMock.stateService.currentState$).next(frame);
 
         (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
 
@@ -296,8 +296,8 @@ describe("DragPanHandler.enable", () => {
         testComponent.activate();
         handler.enable();
 
-        const frame: IFrame = new FrameHelper().createFrame();
-        (<Subject<IFrame>>navigatorMock.stateService.currentState$).next(frame);
+        const frame: AnimationFrame = new FrameHelper().createFrame();
+        (<Subject<AnimationFrame>>navigatorMock.stateService.currentState$).next(frame);
 
         (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
 
@@ -336,8 +336,8 @@ describe("DragPanHandler.enable", () => {
         testComponent.activate();
         handler.enable();
 
-        const frame: IFrame = new FrameHelper().createFrame();
-        (<Subject<IFrame>>navigatorMock.stateService.currentState$).next(frame);
+        const frame: AnimationFrame = new FrameHelper().createFrame();
+        (<Subject<AnimationFrame>>navigatorMock.stateService.currentState$).next(frame);
 
         (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
 

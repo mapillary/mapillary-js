@@ -20,16 +20,16 @@ import {
 import * as Geo from "../geo/Geo";
 
 import { Component } from "./Component";
-import { IBearingConfiguration } from "./interfaces/IBearingConfiguration";
+import { BearingConfiguration } from "./interfaces/BearingConfiguration";
 
 import { Spatial } from "../geo/Spatial";
 import { Transform } from "../geo/Transform";
 import { ViewportCoords } from "../geo/ViewportCoords";
 import { Node } from "../graph/Node";
 import { RenderCamera } from "../render/RenderCamera";
-import { ISize } from "../render/interfaces/ISize";
-import { IVNodeHash } from "../render/interfaces/IVNodeHash";
-import { IFrame } from "../state/interfaces/IFrame";
+import { ViewportSize } from "../render/interfaces/ViewportSize";
+import { VirtualNodeHash } from "../render/interfaces/VirtualNodeHash";
+import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { ComponentSize } from "./utils/ComponentSize";
 import { Container } from "../viewer/Container";
 import { Navigator } from "../viewer/Navigator";
@@ -45,7 +45,7 @@ type NodeFovState = {
     prev: NodeFov,
 };
 
-interface INodeFovOperation {
+interface NodeFovOperation {
     (state: NodeFovState): NodeFovState;
 }
 
@@ -65,7 +65,7 @@ interface INodeFovOperation {
  * bearingComponent.configure({ size: Mapillary.ComponentSize.Small });
  * ```
  */
-export class BearingComponent extends Component<IBearingConfiguration> {
+export class BearingComponent extends Component<BearingConfiguration> {
     public static componentName: string = "bearing";
 
     private _spatial: Spatial;
@@ -115,12 +115,12 @@ export class BearingComponent extends Component<IBearingConfiguration> {
             this._navigator.stateService.currentState$.pipe(
                 distinctUntilChanged(
                     undefined,
-                    (frame: IFrame): string => {
+                    (frame: AnimationFrame): string => {
                         return frame.state.currentNode.key;
                     })),
             this._navigator.panService.panNodes$).pipe(
                 map(
-                    ([frame, panNodes]: [IFrame, [Node, Transform, number][]]): NodeFov => {
+                    ([frame, panNodes]: [AnimationFrame, [Node, Transform, number][]]): NodeFov => {
                         const node: Node = frame.state.currentNode;
                         const transform: Transform = frame.state.currentTransform;
 
@@ -158,22 +158,22 @@ export class BearingComponent extends Component<IBearingConfiguration> {
             this._navigator.stateService.currentState$.pipe(
                 distinctUntilChanged(
                     undefined,
-                    (frame: IFrame): string => {
+                    (frame: AnimationFrame): string => {
                         return frame.state.currentNode.key;
                     })),
             this._container.renderService.bearing$).pipe(
                 map(
-                    ([frame, bearing]: [IFrame, number]): number => {
+                    ([frame, bearing]: [AnimationFrame, number]): number => {
                         const offset: number = this._spatial.degToRad(frame.state.currentNode.ca - bearing);
 
                         return offset;
                     }));
 
-        const nodeFovOperation$: Subject<INodeFovOperation> = new Subject<INodeFovOperation>();
+        const nodeFovOperation$: Subject<NodeFovOperation> = new Subject<NodeFovOperation>();
 
         const smoothNodeFov$: Observable<NodeFov> = nodeFovOperation$.pipe(
             scan(
-                (state: NodeFovState, operation: INodeFovOperation): NodeFovState => {
+                (state: NodeFovState, operation: NodeFovOperation): NodeFovState => {
                     return operation(state);
                 },
                 { alpha: 0, curr: [0, 0, 0], prev: [0, 0, 0] }),
@@ -191,7 +191,7 @@ export class BearingComponent extends Component<IBearingConfiguration> {
 
         this._fovSubscription = nodeFov$.pipe(
             map(
-                (nbf: NodeFov): INodeFovOperation => {
+                (nbf: NodeFov): NodeFovOperation => {
                     return (state: NodeFovState): NodeFovState => {
                         const a: number = this._unitBezier.solve(state.alpha);
                         const c: NodeFov = state.curr;
@@ -233,7 +233,7 @@ export class BearingComponent extends Component<IBearingConfiguration> {
                             }));
                 }),
             map(
-                (alpha: number): INodeFovOperation => {
+                (alpha: number): NodeFovOperation => {
                     return (nbfState: NodeFovState): NodeFovState => {
                         return {
                             alpha: alpha,
@@ -259,7 +259,7 @@ export class BearingComponent extends Component<IBearingConfiguration> {
             this._container.renderService.size$).pipe(
                 map(
                     ([[cb, cf], [no, nfl, nfr], configuration, size]:
-                        [[number, number], [number, number, number], IBearingConfiguration, ISize]): IVNodeHash => {
+                        [[number, number], [number, number, number], BearingConfiguration, ViewportSize]): VirtualNodeHash => {
 
                         const background: vd.VNode = this._createBackground(cb);
                         const fovIndicator: vd.VNode = this._createFovIndicator(nfl, nfr, no);
@@ -293,7 +293,7 @@ export class BearingComponent extends Component<IBearingConfiguration> {
         this._fovAnimationSubscription.unsubscribe();
     }
 
-    protected _getDefaultConfiguration(): IBearingConfiguration {
+    protected _getDefaultConfiguration(): BearingConfiguration {
         return { size: ComponentSize.Automatic };
     }
 

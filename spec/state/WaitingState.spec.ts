@@ -3,8 +3,8 @@ import * as THREE from "three";
 import { NodeHelper } from "../helper/NodeHelper";
 
 import { Node } from "../../src/graph/Node";
-import { IFillNode } from "../../src/api/interfaces/IFillNode";
-import { IState } from "../../src/state/interfaces/IState";
+import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
+import { IStateBase } from "../../src/state/interfaces/IStateBase";
 import { WaitingState } from "../../src/state/states/WaitingState";
 import { Camera } from "../../src/geo/Camera";
 import { TransitionMode } from "../../src/state/TransitionMode";
@@ -14,7 +14,7 @@ const transformHelper = new TransformHelper();
 
 describe("WaitingState.ctor", () => {
     it("should be defined", () => {
-        let state: IState = {
+        let state: IStateBase = {
             alpha: 1,
             camera: new Camera(),
             currentIndex: -1,
@@ -73,7 +73,7 @@ describe("WaitingState.currentCamera.lookat", () => {
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
 
-        let state: IState = {
+        let state: IStateBase = {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
@@ -86,7 +86,7 @@ describe("WaitingState.currentCamera.lookat", () => {
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
         let node: TestNode = new TestNode();
-        let fillNode: IFillNode = helper.createFillNode();
+        let fillNode: SpatialImageEnt = helper.createFillNode();
         node.makeFull(fillNode);
 
         waitingState.set([node]);
@@ -105,7 +105,7 @@ describe("WaitingState.currentCamera.lookat", () => {
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
 
-        let state: IState = {
+        let state: IStateBase = {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
@@ -118,12 +118,12 @@ describe("WaitingState.currentCamera.lookat", () => {
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
         let previousNode: TestNode = new TestNode();
-        let previousFillNode: IFillNode = helper.createFillNode();
+        let previousFillNode: SpatialImageEnt = helper.createFillNode();
         previousFillNode.c_rotation = [Math.PI, 0, 0];
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();
-        let currentFillNode: IFillNode = helper.createFillNode();
+        let currentFillNode: SpatialImageEnt = helper.createFillNode();
         currentNode.makeFull(currentFillNode);
 
         waitingState.set([previousNode]);
@@ -143,7 +143,7 @@ describe("WaitingState.currentCamera.lookat", () => {
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
 
-        let state: IState = {
+        let state: IStateBase = {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
@@ -156,12 +156,12 @@ describe("WaitingState.currentCamera.lookat", () => {
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
         let previousNode: TestNode = new TestNode();
-        let previousFillNode: IFillNode = helper.createFillNode();
+        let previousFillNode: SpatialImageEnt = helper.createFillNode();
         previousFillNode.c_rotation = [Math.PI, 0, 0];
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();
-        let currentFillNode: IFillNode = helper.createFillNode();
+        let currentFillNode: SpatialImageEnt = helper.createFillNode();
         currentFillNode.camera_projection_type = "equirectangular";
 
         currentNode.makeFull(currentFillNode);
@@ -199,7 +199,7 @@ describe("WaitingState.previousCamera.lookat", () => {
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
 
-        let state: IState = {
+        let state: IStateBase = {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
@@ -212,7 +212,7 @@ describe("WaitingState.previousCamera.lookat", () => {
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
         let node: TestNode = new TestNode();
-        let fillNode: IFillNode = helper.createFillNode();
+        let fillNode: SpatialImageEnt = helper.createFillNode();
         node.makeFull(fillNode);
 
         waitingState.set([node]);
@@ -231,7 +231,7 @@ describe("WaitingState.previousCamera.lookat", () => {
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
 
-        let state: IState = {
+        let state: IStateBase = {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
@@ -244,11 +244,11 @@ describe("WaitingState.previousCamera.lookat", () => {
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
         let previousNode: TestNode = new TestNode();
-        let previousFillNode: IFillNode = helper.createFillNode();
+        let previousFillNode: SpatialImageEnt = helper.createFillNode();
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();
-        let currentFillNode: IFillNode = helper.createFillNode();
+        let currentFillNode: SpatialImageEnt = helper.createFillNode();
         currentFillNode.c_rotation = [Math.PI, 0, 0];
         currentNode.makeFull(currentFillNode);
 
@@ -267,7 +267,7 @@ describe("WaitingState.previousCamera.lookat", () => {
     it("should correspond to direction of current camera when spherical and previous node set", () => {
         let camera: Camera = new Camera();
 
-        let state: IState = {
+        let state: IStateBase = {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
@@ -280,13 +280,13 @@ describe("WaitingState.previousCamera.lookat", () => {
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
         let previousNode: TestNode = new TestNode();
-        let previousFillNode: IFillNode = helper.createFillNode();
+        let previousFillNode: SpatialImageEnt = helper.createFillNode();
         previousFillNode.camera_projection_type = "equirectangular";
 
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();
-        let currentFillNode: IFillNode = helper.createFillNode();
+        let currentFillNode: SpatialImageEnt = helper.createFillNode();
         currentFillNode.c_rotation = [0.2, 0.3, 0.4];
         currentNode.makeFull(currentFillNode);
 

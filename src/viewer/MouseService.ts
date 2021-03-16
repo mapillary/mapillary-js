@@ -26,8 +26,8 @@ import {
     withLatestFrom,
 } from "rxjs/operators";
 
-import { IMouseClaim } from "./interfaces/IMouseClaim";
-import { IMouseDeferPixels } from "./interfaces/IMouseDeferPixels";
+import { MouseClaim } from "./interfaces/MouseClaim";
+import { MousePixelDeferral } from "./interfaces/MousePixelDeferral";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
 type Button = 0 | 2;
@@ -83,13 +83,13 @@ export class MouseService {
     private _mouseRightDrag$: Observable<MouseEvent>;
     private _mouseRightDragEnd$: Observable<MouseEvent | FocusEvent>;
 
-    private _deferPixelClaims$: Subject<IMouseDeferPixels>;
+    private _deferPixelClaims$: Subject<MousePixelDeferral>;
     private _deferPixels$: Observable<number>;
     private _proximateClick$: Observable<MouseEvent>;
     private _staticClick$: Observable<MouseEvent>;
 
-    private _claimMouse$: Subject<IMouseClaim>;
-    private _claimWheel$: Subject<IMouseClaim>;
+    private _claimMouse$: Subject<MouseClaim>;
+    private _claimWheel$: Subject<MouseClaim>;
 
     private _mouseOwner$: Observable<string>;
     private _wheelOwner$: Observable<string>;
@@ -113,13 +113,13 @@ export class MouseService {
             publishReplay(1),
             refCount());
 
-        this._claimMouse$ = new Subject<IMouseClaim>();
-        this._claimWheel$ = new Subject<IMouseClaim>();
+        this._claimMouse$ = new Subject<MouseClaim>();
+        this._claimWheel$ = new Subject<MouseClaim>();
 
-        this._deferPixelClaims$ = new Subject<IMouseDeferPixels>();
+        this._deferPixelClaims$ = new Subject<MousePixelDeferral>();
         this._deferPixels$ = this._deferPixelClaims$.pipe(
             scan(
-                (claims: { [key: string]: number }, claim: IMouseDeferPixels): { [key: string]: number } => {
+                (claims: { [key: string]: number }, claim: MousePixelDeferral): { [key: string]: number } => {
                     if (claim.deferPixels == null) {
                         delete claims[claim.name];
                     } else {
@@ -571,10 +571,10 @@ export class MouseService {
                 }));
     }
 
-    private _createOwner$(claim$: Observable<IMouseClaim>): Observable<string> {
+    private _createOwner$(claim$: Observable<MouseClaim>): Observable<string> {
         return claim$.pipe(
             scan(
-                (claims: { [key: string]: number }, claim: IMouseClaim): { [key: string]: number } => {
+                (claims: { [key: string]: number }, claim: MouseClaim): { [key: string]: number } => {
                     if (claim.zindex == null) {
                         delete claims[claim.name];
                     } else {

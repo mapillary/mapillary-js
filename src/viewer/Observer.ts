@@ -20,14 +20,14 @@ import { Container } from "./Container";
 import { Navigator } from "./Navigator";
 import { Projection } from "./Projection";
 import { Viewer } from "./Viewer";
-import { IUnprojection } from "./interfaces/IUnprojection";
-import { IViewerMouseEvent } from "./interfaces/IViewerMouseEvent";
+import { Unprojection } from "./interfaces/Unprojection";
+import { ViewerMouseEvent } from "./interfaces/ViewerMouseEvent";
 
-import { ILatLon } from "../api/interfaces/ILatLon";
+import { LatLonEnt } from "../api/ents/LatLonEnt";
 import { Transform } from "../geo/Transform";
-import { ILatLonAlt } from "../geo/interfaces/ILatLonAlt";
+import { LatLonAltEnt } from "../api/ents/LatLonAltEnt";
 import { Node } from "../graph/Node";
-import { IEdgeStatus } from "../graph/interfaces/IEdgeStatus";
+import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
 import { RenderCamera } from "../render/RenderCamera";
 import { EventEmitter } from "../utils/EventEmitter";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
@@ -97,14 +97,14 @@ export class Observer {
         this._subscriptions.unsubscribe();
     }
 
-    public project$(latLon: ILatLon): Observable<number[]> {
+    public project$(latLon: LatLonEnt): Observable<number[]> {
         return observableCombineLatest(
             this._container.renderService.renderCamera$,
             this._navigator.stateService.currentNode$,
             this._navigator.stateService.reference$).pipe(
                 first(),
                 map(
-                    ([render, node, reference]: [RenderCamera, Node, ILatLonAlt]): number[] => {
+                    ([render, node, reference]: [RenderCamera, Node, LatLonAltEnt]): number[] => {
                         if (this._projection.distanceBetweenLatLons(latLon, node.latLon) > 1000) {
                             return null;
                         }
@@ -154,21 +154,21 @@ export class Observer {
 
         this._sequenceEdgesSubscription = this._navigator.stateService.currentNodeExternal$.pipe(
             switchMap(
-                (node: Node): Observable<IEdgeStatus> => {
+                (node: Node): Observable<NavigationEdgeStatus> => {
                     return node.sequenceEdges$;
                 }))
             .subscribe(
-                (status: IEdgeStatus): void => {
+                (status: NavigationEdgeStatus): void => {
                     this._eventEmitter.fire(Viewer.sequenceedgeschanged, status);
                 });
 
         this._spatialEdgesSubscription = this._navigator.stateService.currentNodeExternal$.pipe(
             switchMap(
-                (node: Node): Observable<IEdgeStatus> => {
+                (node: Node): Observable<NavigationEdgeStatus> => {
                     return node.spatialEdges$;
                 }))
             .subscribe(
-                (status: IEdgeStatus): void => {
+                (status: NavigationEdgeStatus): void => {
                     this._eventEmitter.fire(Viewer.spatialedgeschanged, status);
                 });
 
@@ -224,8 +224,8 @@ export class Observer {
                     this._navigator.stateService.currentTransform$),
                 map(
                     ([[type, event], render, reference, transform]:
-                        [[string, MouseEvent], RenderCamera, ILatLonAlt, Transform]): IViewerMouseEvent => {
-                        const unprojection: IUnprojection =
+                        [[string, MouseEvent], RenderCamera, LatLonAltEnt, Transform]): ViewerMouseEvent => {
+                        const unprojection: Unprojection =
                             this._projection.eventToUnprojection(
                                 event,
                                 this._container.container,
@@ -243,7 +243,7 @@ export class Observer {
                         };
                     }))
             .subscribe(
-                (event: IViewerMouseEvent): void => {
+                (event: ViewerMouseEvent): void => {
                     this._eventEmitter.fire(event.type, event);
                 });
 
@@ -332,15 +332,15 @@ export class Observer {
         this._viewerMouseEventSubscription = null;
     }
 
-    public unproject$(canvasPoint: number[]): Observable<ILatLon> {
+    public unproject$(canvasPoint: number[]): Observable<LatLonEnt> {
         return observableCombineLatest(
             this._container.renderService.renderCamera$,
             this._navigator.stateService.reference$,
             this._navigator.stateService.currentTransform$).pipe(
                 first(),
                 map(
-                    ([render, reference, transform]: [RenderCamera, ILatLonAlt, Transform]): ILatLon => {
-                        const unprojection: IUnprojection =
+                    ([render, reference, transform]: [RenderCamera, LatLonAltEnt, Transform]): LatLonEnt => {
+                        const unprojection: Unprojection =
                             this._projection.canvasToUnprojection(
                                 canvasPoint,
                                 this._container.container,

@@ -1,4 +1,4 @@
-export { IKeyboardConfiguration } from "../component/interfaces/IKeyboardConfiguration";
+export { KeyboardConfiguration } from "../component/interfaces/KeyboardConfiguration";
 export { KeyboardComponent } from "../component/keyboard/KeyboardComponent";
 export { KeyPlayHandler } from "../component/keyboard/KeyPlayHandler";
 export { KeySequenceNavigationHandler } from "../component/keyboard/KeySequenceNavigationHandler";

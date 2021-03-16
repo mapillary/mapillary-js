@@ -1,8 +1,8 @@
 import { first, skip } from "rxjs/operators";
 import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
-import { EdgeDirection } from "../../src/graph/edge/EdgeDirection";
-import { IEdge } from "../../src/graph/edge/interfaces/IEdge";
-import { IEdgeStatus } from "../../src/graph/interfaces/IEdgeStatus";
+import { NavigationDirection } from "../../src/graph/edge/NavigationDirection";
+import { NavigationEdge } from "../../src/graph/edge/interfaces/NavigationEdge";
+import { NavigationEdgeStatus } from "../../src/graph/interfaces/NavigationEdgeStatus";
 import { NodeCache } from "../../src/graph/NodeCache";
 import { ImageSize } from "../../src/viewer/ImageSize";
 import { MockCreator } from "../helper/MockCreator";
@@ -37,7 +37,7 @@ describe("NodeCache.sequenceEdges$", () => {
         nodeCache.sequenceEdges$.pipe(
             first())
             .subscribe(
-                (edgeStatus: IEdgeStatus): void => {
+                (edgeStatus: NavigationEdgeStatus): void => {
                     expect(edgeStatus.cached).toBe(false);
                     expect(edgeStatus.edges.length).toBe(0);
 
@@ -48,24 +48,24 @@ describe("NodeCache.sequenceEdges$", () => {
     it("should emit cached non empty edge status when sequence edges cached", (done: Function) => {
         let nodeCache: NodeCache = new NodeCache(undefined);
 
-        let sequenceEdge: IEdge = {
+        let sequenceEdge: NavigationEdge = {
             data: {
-                direction: EdgeDirection.Next,
+                direction: NavigationDirection.Next,
                 worldMotionAzimuth: 0,
             },
-            from: "key1",
-            to: "key2",
+            source: "key1",
+            target: "key2",
         };
 
         nodeCache.sequenceEdges$.pipe(
             skip(1),
             first())
             .subscribe(
-                (edgeStatus: IEdgeStatus): void => {
+                (edgeStatus: NavigationEdgeStatus): void => {
                     expect(edgeStatus.cached).toBe(true);
                     expect(edgeStatus.edges.length).toBe(1);
-                    expect(edgeStatus.edges[0].from).toBe(sequenceEdge.from);
-                    expect(edgeStatus.edges[0].to).toBe(sequenceEdge.to);
+                    expect(edgeStatus.edges[0].source).toBe(sequenceEdge.source);
+                    expect(edgeStatus.edges[0].target).toBe(sequenceEdge.target);
                     expect(edgeStatus.edges[0].data.direction).toBe(sequenceEdge.data.direction);
                     expect(edgeStatus.edges[0].data.worldMotionAzimuth).toBe(sequenceEdge.data.worldMotionAzimuth);
 
@@ -80,20 +80,20 @@ describe("NodeCache.resetSequenceEdges", () => {
     it("should reset the sequence edges", () => {
         let nodeCache: NodeCache = new NodeCache(undefined);
 
-        let sequenceEdge: IEdge = {
+        let sequenceEdge: NavigationEdge = {
             data: {
-                direction: EdgeDirection.Next,
+                direction: NavigationDirection.Next,
                 worldMotionAzimuth: null,
             },
-            from: "key1",
-            to: "key2",
+            source: "key1",
+            target: "key2",
         };
 
         nodeCache.cacheSequenceEdges([sequenceEdge]);
 
         expect(nodeCache.sequenceEdges.cached).toBe(true);
         expect(nodeCache.sequenceEdges.edges.length).toBe(1);
-        expect(nodeCache.sequenceEdges.edges[0].from).toBe(sequenceEdge.from);
+        expect(nodeCache.sequenceEdges.edges[0].source).toBe(sequenceEdge.source);
 
         nodeCache.resetSequenceEdges();
 
@@ -109,7 +109,7 @@ describe("NodeCache.spatialEdges$", () => {
         nodeCache.spatialEdges$.pipe(
             first())
             .subscribe(
-                (edgeStatus: IEdgeStatus): void => {
+                (edgeStatus: NavigationEdgeStatus): void => {
                     expect(edgeStatus.cached).toBe(false);
                     expect(edgeStatus.edges.length).toBe(0);
 
@@ -120,24 +120,24 @@ describe("NodeCache.spatialEdges$", () => {
     it("should emit cached non empty edge status when spatial edges cached", (done: Function) => {
         let nodeCache: NodeCache = new NodeCache(undefined);
 
-        let spatialEdge: IEdge = {
+        let spatialEdge: NavigationEdge = {
             data: {
-                direction: EdgeDirection.StepForward,
+                direction: NavigationDirection.StepForward,
                 worldMotionAzimuth: 0,
             },
-            from: "key1",
-            to: "key2",
+            source: "key1",
+            target: "key2",
         };
 
         nodeCache.spatialEdges$.pipe(
             skip(1),
             first())
             .subscribe(
-                (edgeStatus: IEdgeStatus): void => {
+                (edgeStatus: NavigationEdgeStatus): void => {
                     expect(edgeStatus.cached).toBe(true);
                     expect(edgeStatus.edges.length).toBe(1);
-                    expect(edgeStatus.edges[0].from).toBe(spatialEdge.from);
-                    expect(edgeStatus.edges[0].to).toBe(spatialEdge.to);
+                    expect(edgeStatus.edges[0].source).toBe(spatialEdge.source);
+                    expect(edgeStatus.edges[0].target).toBe(spatialEdge.target);
                     expect(edgeStatus.edges[0].data.direction).toBe(spatialEdge.data.direction);
                     expect(edgeStatus.edges[0].data.worldMotionAzimuth).toBe(spatialEdge.data.worldMotionAzimuth);
 
@@ -152,20 +152,20 @@ describe("NodeCache.resetSpatialEdges", () => {
     it("should reset the spatial edges", () => {
         let nodeCache: NodeCache = new NodeCache(undefined);
 
-        let spatialEdge: IEdge = {
+        let spatialEdge: NavigationEdge = {
             data: {
-                direction: EdgeDirection.StepForward,
+                direction: NavigationDirection.StepForward,
                 worldMotionAzimuth: 0,
             },
-            from: "key1",
-            to: "key2",
+            source: "key1",
+            target: "key2",
         };
 
         nodeCache.cacheSpatialEdges([spatialEdge]);
 
         expect(nodeCache.spatialEdges.cached).toBe(true);
         expect(nodeCache.spatialEdges.edges.length).toBe(1);
-        expect(nodeCache.spatialEdges.edges[0].from).toBe(spatialEdge.from);
+        expect(nodeCache.spatialEdges.edges[0].source).toBe(spatialEdge.source);
 
         nodeCache.resetSpatialEdges();
 
@@ -178,22 +178,22 @@ describe("NodeCache.dispose", () => {
     it("should clear all properties", () => {
         let nodeCache: NodeCache = new NodeCache(undefined);
 
-        let sequencEdge: IEdge = {
+        let sequencEdge: NavigationEdge = {
             data: {
-                direction: EdgeDirection.StepForward,
+                direction: NavigationDirection.StepForward,
                 worldMotionAzimuth: 0,
             },
-            from: "key1",
-            to: "key2",
+            source: "key1",
+            target: "key2",
         };
 
-        let spatialEdge: IEdge = {
+        let spatialEdge: NavigationEdge = {
             data: {
-                direction: EdgeDirection.StepForward,
+                direction: NavigationDirection.StepForward,
                 worldMotionAzimuth: 0,
             },
-            from: "key1",
-            to: "key2",
+            source: "key1",
+            target: "key2",
         };
 
         nodeCache.cacheSequenceEdges([sequencEdge]);

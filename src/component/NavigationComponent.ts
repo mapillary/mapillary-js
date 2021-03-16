@@ -13,14 +13,14 @@ import {
 } from "rxjs/operators";
 
 import { Component } from "./Component";
-import { INavigationConfiguration } from "./interfaces/INavigationConfiguration";
+import { NavigationConfiguration } from "./interfaces/NavigationConfiguration";
 
 import { AbortMapillaryError } from "../error/AbortMapillaryError";
 import { Node } from "../graph/Node";
-import { EdgeDirection } from "../graph/edge/EdgeDirection";
-import { IEdge } from "../graph/edge/interfaces/IEdge";
-import { IEdgeStatus } from "../graph/interfaces/IEdgeStatus";
-import { IVNodeHash } from "../render/interfaces/IVNodeHash";
+import { NavigationDirection } from "../graph/edge/NavigationDirection";
+import { NavigationEdge } from "../graph/edge/interfaces/NavigationEdge";
+import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
+import { VirtualNodeHash } from "../render/interfaces/VirtualNodeHash";
 import { Container } from "../viewer/Container";
 import { Navigator } from "../viewer/Navigator";
 import { isSpherical } from "../geo/Geo";
@@ -32,7 +32,7 @@ import { isSpherical } from "../geo/Geo";
  *
  * Replaces the functionality in the Direction and Sequence components.
  */
-export class NavigationComponent extends Component<INavigationConfiguration> {
+export class NavigationComponent extends Component<NavigationConfiguration> {
     public static componentName: string = "navigation";
 
     private _renderSubscription: Subscription;
@@ -46,18 +46,18 @@ export class NavigationComponent extends Component<INavigationConfiguration> {
         super(name, container, navigator);
 
         this._seqNames = {};
-        this._seqNames[EdgeDirection[EdgeDirection.Prev]] = "-prev";
-        this._seqNames[EdgeDirection[EdgeDirection.Next]] = "-next";
+        this._seqNames[NavigationDirection[NavigationDirection.Prev]] = "-prev";
+        this._seqNames[NavigationDirection[NavigationDirection.Next]] = "-next";
 
         this._spaTopNames = {};
-        this._spaTopNames[EdgeDirection[EdgeDirection.TurnLeft]] = "-turn-left";
-        this._spaTopNames[EdgeDirection[EdgeDirection.StepLeft]] = "-left";
-        this._spaTopNames[EdgeDirection[EdgeDirection.StepForward]] = "-forward";
-        this._spaTopNames[EdgeDirection[EdgeDirection.StepRight]] = "-right";
-        this._spaTopNames[EdgeDirection[EdgeDirection.TurnRight]] = "-turn-right";
+        this._spaTopNames[NavigationDirection[NavigationDirection.TurnLeft]] = "-turn-left";
+        this._spaTopNames[NavigationDirection[NavigationDirection.StepLeft]] = "-left";
+        this._spaTopNames[NavigationDirection[NavigationDirection.StepForward]] = "-forward";
+        this._spaTopNames[NavigationDirection[NavigationDirection.StepRight]] = "-right";
+        this._spaTopNames[NavigationDirection[NavigationDirection.TurnRight]] = "-turn-right";
         this._spaBottomNames = {};
-        this._spaBottomNames[EdgeDirection[EdgeDirection.TurnU]] = "-turn-around";
-        this._spaBottomNames[EdgeDirection[EdgeDirection.StepBackward]] = "-backward";
+        this._spaBottomNames[NavigationDirection[NavigationDirection.TurnU]] = "-turn-around";
+        this._spaBottomNames[NavigationDirection[NavigationDirection.StepBackward]] = "-backward";
     }
 
     protected _activate(): void {
@@ -65,42 +65,42 @@ export class NavigationComponent extends Component<INavigationConfiguration> {
             this._navigator.stateService.currentNode$,
             this._configuration$).pipe(
                 switchMap(
-                    ([node, configuration]: [Node, INavigationConfiguration]): Observable<EdgeDirection[]> => {
-                        const sequenceEdges$: Observable<EdgeDirection[]> = configuration.sequence ?
+                    ([node, configuration]: [Node, NavigationConfiguration]): Observable<NavigationDirection[]> => {
+                        const sequenceEdges$: Observable<NavigationDirection[]> = configuration.sequence ?
                             node.sequenceEdges$.pipe(
                                 map(
-                                    (status: IEdgeStatus): EdgeDirection[] => {
+                                    (status: NavigationEdgeStatus): NavigationDirection[] => {
                                         return status.edges
                                             .map(
-                                                (edge: IEdge): EdgeDirection => {
+                                                (edge: NavigationEdge): NavigationDirection => {
                                                     return edge.data.direction;
                                                 });
                                     })) :
-                            observableOf<EdgeDirection[]>([]);
+                            observableOf<NavigationDirection[]>([]);
 
-                        const spatialEdges$: Observable<EdgeDirection[]> = !isSpherical(node.cameraType) &&
+                        const spatialEdges$: Observable<NavigationDirection[]> = !isSpherical(node.cameraType) &&
                             configuration.spatial ?
                             node.spatialEdges$.pipe(
                                 map(
-                                    (status: IEdgeStatus): EdgeDirection[] => {
+                                    (status: NavigationEdgeStatus): NavigationDirection[] => {
                                         return status.edges
                                             .map(
-                                                (edge: IEdge): EdgeDirection => {
+                                                (edge: NavigationEdge): NavigationDirection => {
                                                     return edge.data.direction;
                                                 });
                                     })) :
-                            observableOf<EdgeDirection[]>([]);
+                            observableOf<NavigationDirection[]>([]);
 
                         return observableCombineLatest(
                             sequenceEdges$,
                             spatialEdges$).pipe(
                                 map(
-                                    ([seq, spa]: [EdgeDirection[], EdgeDirection[]]): EdgeDirection[] => {
+                                    ([seq, spa]: [NavigationDirection[], NavigationDirection[]]): NavigationDirection[] => {
                                         return seq.concat(spa);
                                     }));
                     }),
                 map(
-                    (edgeDirections: EdgeDirection[]): IVNodeHash => {
+                    (edgeDirections: NavigationDirection[]): VirtualNodeHash => {
                         const seqs: vd.VNode[] = this._createArrowRow(this._seqNames, edgeDirections);
                         const spaTops: vd.VNode[] = this._createArrowRow(this._spaTopNames, edgeDirections);
                         const spaBottoms: vd.VNode[] = this._createArrowRow(this._spaBottomNames, edgeDirections);
@@ -119,11 +119,11 @@ export class NavigationComponent extends Component<INavigationConfiguration> {
         this._renderSubscription.unsubscribe();
     }
 
-    protected _getDefaultConfiguration(): INavigationConfiguration {
+    protected _getDefaultConfiguration(): NavigationConfiguration {
         return { sequence: true, spatial: true };
     }
 
-    private _createArrowRow(arrowNames: { [dir: string]: string }, edgeDirections: EdgeDirection[]): vd.VNode[] {
+    private _createArrowRow(arrowNames: { [dir: string]: string }, edgeDirections: NavigationDirection[]): vd.VNode[] {
         const arrows: vd.VNode[] = [];
 
         for (const arrowName in arrowNames) {
@@ -131,7 +131,7 @@ export class NavigationComponent extends Component<INavigationConfiguration> {
                 continue;
             }
 
-            const direction: EdgeDirection = EdgeDirection[<keyof typeof EdgeDirection>arrowName];
+            const direction: NavigationDirection = NavigationDirection[<keyof typeof NavigationDirection>arrowName];
             if (edgeDirections.indexOf(direction) !== -1) {
                 arrows.push(this._createVNode(direction, arrowNames[arrowName], "visible"));
             } else {
@@ -142,7 +142,7 @@ export class NavigationComponent extends Component<INavigationConfiguration> {
         return arrows;
     }
 
-    private _createVNode(direction: EdgeDirection, name: string, visibility: string): vd.VNode {
+    private _createVNode(direction: NavigationDirection, name: string, visibility: string): vd.VNode {
         return vd.h(
             `span.mapillary-navigation-button.mapillary-navigation${name}`,
             {

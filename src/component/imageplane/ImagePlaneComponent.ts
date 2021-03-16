@@ -39,33 +39,33 @@ import { ImagePlaneGLRenderer } from "./ImagePlaneGLRenderer";
 import { Spatial } from "../../geo/Spatial";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { GLRenderStage } from "../../render/GLRenderStage";
-import { IGLRenderHash } from "../../render/interfaces/IGLRenderHash";
-import { ISize } from "../../render/interfaces/ISize";
+import { GLRenderHash } from "../../render/interfaces/IGLRenderHash";
+import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { RenderCamera } from "../../render/RenderCamera";
-import { ICurrentState } from "../../state/interfaces/ICurrentState";
-import { IFrame } from "../../state/interfaces/IFrame";
+import { IAnimationState } from "../../state/interfaces/IAnimationState";
+import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { ImageTileLoader } from "../../tiles/ImageTileLoader";
 import { ImageTileStore } from "../../tiles/ImageTileStore";
-import { IRegionOfInterest } from "../../tiles/interfaces/IRegionOfInterest";
+import { TileRegionOfInterest } from "../../tiles/interfaces/TileRegionOfInterest";
 import { RegionOfInterestCalculator } from "../../tiles/RegionOfInterestCalculator";
 import { TextureProvider } from "../../tiles/TextureProvider";
 import { Settings } from "../../utils/Settings";
-import { IComponentConfiguration } from "../interfaces/IComponentConfiguration";
+import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { Transform } from "../../geo/Transform";
 import { ImageSize } from "../../viewer/ImageSize";
 import { isSpherical } from "../../geo/Geo";
 
 
-interface IImagePlaneGLRendererOperation {
+interface ImagePlaneGLRendererOperation {
     (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer;
 }
 
 type PositionLookat = [THREE.Vector3, THREE.Vector3, number, number, number];
 
-export class ImagePlaneComponent extends Component<IComponentConfiguration> {
+export class ImagePlaneComponent extends Component<ComponentConfiguration> {
     public static componentName: string = "imagePlane";
 
-    private _rendererOperation$: Subject<IImagePlaneGLRendererOperation>;
+    private _rendererOperation$: Subject<ImagePlaneGLRendererOperation>;
     private _renderer$: Observable<ImagePlaneGLRenderer>;
     private _rendererCreator$: Subject<void>;
     private _rendererDisposer$: Subject<void>;
@@ -95,13 +95,13 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
         this._imageTileLoader = new ImageTileLoader(navigator.api.data);
         this._roiCalculator = new RegionOfInterestCalculator();
 
-        this._rendererOperation$ = new Subject<IImagePlaneGLRendererOperation>();
+        this._rendererOperation$ = new Subject<ImagePlaneGLRendererOperation>();
         this._rendererCreator$ = new Subject<void>();
         this._rendererDisposer$ = new Subject<void>();
 
         this._renderer$ = this._rendererOperation$.pipe(
             scan(
-                (renderer: ImagePlaneGLRenderer, operation: IImagePlaneGLRendererOperation): ImagePlaneGLRenderer => {
+                (renderer: ImagePlaneGLRenderer, operation: ImagePlaneGLRendererOperation): ImagePlaneGLRenderer => {
                     return operation(renderer);
                 },
                 null),
@@ -117,7 +117,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
 
         this._rendererCreator$.pipe(
             map(
-                (): IImagePlaneGLRendererOperation => {
+                (): ImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         if (renderer != null) {
                             throw new Error("Multiple image plane states can not be created at the same time");
@@ -130,7 +130,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
 
         this._rendererDisposer$.pipe(
             map(
-                (): IImagePlaneGLRendererOperation => {
+                (): ImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.dispose();
 
@@ -143,10 +143,10 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
     protected _activate(): void {
         this._rendererSubscription = this._renderer$.pipe(
             map(
-                (renderer: ImagePlaneGLRenderer): IGLRenderHash => {
-                    let renderHash: IGLRenderHash = {
+                (renderer: ImagePlaneGLRenderer): GLRenderHash => {
+                    let renderHash: GLRenderHash = {
                         name: this._name,
-                        render: {
+                        renderer: {
                             frameId: renderer.frameId,
                             needsRender: renderer.needsRender,
                             render: renderer.render.bind(renderer),
@@ -164,7 +164,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
 
         this._stateSubscription = this._navigator.stateService.currentState$.pipe(
             map(
-                (frame: IFrame): IImagePlaneGLRendererOperation => {
+                (frame: AnimationFrame): ImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.updateFrame(frame);
 
@@ -176,15 +176,15 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
         let textureProvider$: Observable<TextureProvider> = this._navigator.stateService.currentState$.pipe(
             distinctUntilChanged(
                 undefined,
-                (frame: IFrame): string => {
+                (frame: AnimationFrame): string => {
                     return frame.state.currentNode.key;
                 }),
             withLatestFrom(
                 this._container.glRenderer.webGLRenderer$,
                 this._container.renderService.size$),
             map(
-                ([frame, renderer, size]: [IFrame, THREE.WebGLRenderer, ISize]): TextureProvider => {
-                    let state: ICurrentState = frame.state;
+                ([frame, renderer, size]: [AnimationFrame, THREE.WebGLRenderer, ViewportSize]): TextureProvider => {
+                    let state: IAnimationState = frame.state;
                     let viewportSize: number = Math.max(size.width, size.height);
 
                     let currentNode: GraphNode = state.currentNode;
@@ -208,7 +208,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
 
         this._setTextureProviderSubscription = textureProvider$.pipe(
             map(
-                (provider: TextureProvider): IImagePlaneGLRendererOperation => {
+                (provider: TextureProvider): ImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.setTextureProvider(provider.key, provider);
 
@@ -219,14 +219,14 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
 
         this._setTileSizeSubscription = this._container.renderService.size$.pipe(
             switchMap(
-                (size: ISize): Observable<[TextureProvider, ISize]> => {
+                (size: ViewportSize): Observable<[TextureProvider, ViewportSize]> => {
                     return observableCombineLatest(
                         textureProvider$,
-                        observableOf<ISize>(size)).pipe(
+                        observableOf<ViewportSize>(size)).pipe(
                             first());
                 }))
             .subscribe(
-                ([provider, size]: [TextureProvider, ISize]): void => {
+                ([provider, size]: [TextureProvider, ViewportSize]): void => {
                     let viewportSize: number = Math.max(size.width, size.height);
                     let tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
 
@@ -241,11 +241,11 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                     previous.abort();
                 });
 
-        let roiTrigger$: Observable<[RenderCamera, ISize, Transform]> = observableCombineLatest(
+        let roiTrigger$: Observable<[RenderCamera, ViewportSize, Transform]> = observableCombineLatest(
             this._container.renderService.renderCameraFrame$,
             this._container.renderService.size$.pipe(debounceTime(250))).pipe(
                 map(
-                    ([camera, size]: [RenderCamera, ISize]): PositionLookat => {
+                    ([camera, size]: [RenderCamera, ViewportSize]): PositionLookat => {
                         return [
                             camera.camera.position.clone(),
                             camera.camera.lookat.clone(),
@@ -284,11 +284,11 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
 
         this._setRegionOfInterestSubscription = textureProvider$.pipe(
             switchMap(
-                (provider: TextureProvider): Observable<[IRegionOfInterest, TextureProvider]> => {
+                (provider: TextureProvider): Observable<[TileRegionOfInterest, TextureProvider]> => {
                     return roiTrigger$.pipe(
                         map(
-                            ([camera, size, transform]: [RenderCamera, ISize, Transform]):
-                                [IRegionOfInterest, TextureProvider] => {
+                            ([camera, size, transform]: [RenderCamera, ViewportSize, Transform]):
+                                [TileRegionOfInterest, TextureProvider] => {
                                 const basic: number[] = new ViewportCoords().viewportToBasic(0, 0, transform, camera.perspective);
 
                                 if (basic[0] < 0 || basic[1] < 0 || basic[0] > 1 || basic[1] > 1) {
@@ -301,17 +301,17 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                                 ];
                             }),
                         filter(
-                            (args: [IRegionOfInterest, TextureProvider]): boolean => {
+                            (args: [TileRegionOfInterest, TextureProvider]): boolean => {
                                 return !!args;
                             }));
                 }),
             filter(
-                (args: [IRegionOfInterest, TextureProvider]): boolean => {
+                (args: [TileRegionOfInterest, TextureProvider]): boolean => {
                     return !args[1].disposed;
                 }))
             .subscribe(
-                (args: [IRegionOfInterest, TextureProvider]): void => {
-                    let roi: IRegionOfInterest = args[0];
+                (args: [TileRegionOfInterest, TextureProvider]): void => {
+                    let roi: TileRegionOfInterest = args[0];
                     let provider: TextureProvider = args[1];
 
                     provider.setRegionOfInterest(roi);
@@ -330,11 +330,11 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
 
         let nodeImage$: Observable<[HTMLImageElement, GraphNode]> = this._navigator.stateService.currentState$.pipe(
             filter(
-                (frame: IFrame): boolean => {
+                (frame: AnimationFrame): boolean => {
                     return frame.state.nodesAhead === 0;
                 }),
             map(
-                (frame: IFrame): GraphNode => {
+                (frame: AnimationFrame): GraphNode => {
                     return frame.state.currentNode;
                 }),
             distinctUntilChanged(
@@ -408,7 +408,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
 
         this._updateTextureImageSubscription = nodeImage$.pipe(
             map(
-                (imn: [HTMLImageElement, GraphNode]): IImagePlaneGLRendererOperation => {
+                (imn: [HTMLImageElement, GraphNode]): ImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.updateTextureImage(imn[0], imn[1]);
 
@@ -423,7 +423,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                     return panNodes.length === 0;
                 }),
             map(
-                (): IImagePlaneGLRendererOperation => {
+                (): ImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.clearPeripheryPlanes();
 
@@ -453,7 +453,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
 
         this._addPeripheryPlaneSubscription = cachedPanNodes$.pipe(
             map(
-                ([n, t]: [GraphNode, Transform]): IImagePlaneGLRendererOperation => {
+                ([n, t]: [GraphNode, Transform]): ImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.addPeripheryPlane(n, t);
 
@@ -474,7 +474,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
                         observableEmpty();
                 }),
             map(
-                (n: GraphNode): IImagePlaneGLRendererOperation => {
+                (n: GraphNode): ImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.updateTextureImage(n.image, n);
 
@@ -485,7 +485,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
 
         const inTransition$: Observable<boolean> = this._navigator.stateService.currentState$.pipe(
             map(
-                (frame: IFrame): boolean => {
+                (frame: AnimationFrame): boolean => {
                     return frame.state.alpha < 1;
                 }),
             distinctUntilChanged());
@@ -582,7 +582,7 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
         this._moveToPeripheryNodeSubscription.unsubscribe();
     }
 
-    protected _getDefaultConfiguration(): IComponentConfiguration {
+    protected _getDefaultConfiguration(): ComponentConfiguration {
         return {};
     }
 }

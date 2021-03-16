@@ -1,5 +1,5 @@
 import { ImageSize } from "../viewer/ImageSize";
-import { IViewerOptions } from "../viewer/interfaces/IViewerOptions";
+import { ViewerOptions } from "../viewer/interfaces/ViewerOptions";
 
 export class Settings {
     private static _baseImageSize: number;
@@ -18,7 +18,7 @@ export class Settings {
         return Settings._maxImageSize;
     }
 
-    public static setOptions(options: IViewerOptions): void {
+    public static setOptions(options: ViewerOptions): void {
         Settings._baseImageSize = options.baseImageSize != null ?
             options.baseImageSize :
             ImageSize.Size640;

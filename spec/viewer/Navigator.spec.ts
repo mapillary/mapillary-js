@@ -17,19 +17,19 @@ import { Navigator } from "../../src/viewer/Navigator";
 import { Node } from "../../src/graph/Node";
 import { APIWrapper } from "../../src/api/APIWrapper";
 import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
-import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
+import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { Graph } from "../../src/graph/Graph";
 import { GraphService } from "../../src/graph/GraphService";
-import { ICurrentState } from "../../src/state/interfaces/ICurrentState";
-import { IFrame } from "../../src/state/interfaces/IFrame";
+import { IAnimationState } from "../../src/state/interfaces/IAnimationState";
+import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
 import { State } from "../../src/state/State";
 import { StateService } from "../../src/state/StateService";
 import { CacheService } from "../../src/viewer/CacheService";
 import { LoadingService } from "../../src/viewer/LoadingService";
 import { AbortMapillaryError } from "../../src/error/AbortMapillaryError";
-import { EdgeDirection } from "../../src/graph/edge/EdgeDirection";
+import { NavigationDirection } from "../../src/graph/edge/NavigationDirection";
 
-const createState: () => ICurrentState = (): ICurrentState => {
+const createState: () => IAnimationState = (): IAnimationState => {
     return {
         alpha: 0,
         camera: null,
@@ -406,15 +406,15 @@ describe("Navigator.movedToKey$", () => {
 });
 
 class TestStateService extends StateService {
-    private _overridingCurrentState$: Subject<IFrame>;
+    private _overridingCurrentState$: Subject<AnimationFrame>;
 
-    constructor(currentState$: Subject<IFrame>) {
+    constructor(currentState$: Subject<AnimationFrame>) {
         super();
 
         this._overridingCurrentState$ = currentState$;
     }
 
-    public get currentState$(): Subject<IFrame> {
+    public get currentState$(): Subject<AnimationFrame> {
         return this._overridingCurrentState$;
     }
 }
@@ -572,7 +572,7 @@ describe("Navigator.setFilter$", () => {
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
 
-        const currentStateSubject$: Subject<IFrame> = new Subject<IFrame>();
+        const currentStateSubject$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const stateService: TestStateService = new TestStateService(currentStateSubject$);
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
@@ -613,7 +613,7 @@ describe("Navigator.setFilter$", () => {
 
         navigator.moveToKey$("key").subscribe(() => { /*noop*/ });
 
-        const coreNode0: ICoreNode = helper.createCoreNode();
+        const coreNode0: CoreImageEnt = helper.createCoreNode();
         coreNode0.key = "node0";
         const node0: Node = new Node(coreNode0);
 
@@ -635,15 +635,15 @@ describe("Navigator.setFilter$", () => {
                     done();
                 });
 
-        const coreNode1: ICoreNode = helper.createCoreNode();
+        const coreNode1: CoreImageEnt = helper.createCoreNode();
         coreNode1.key = "node1";
         const node1: Node = new Node(coreNode1);
 
-        const coreNode2: ICoreNode = helper.createCoreNode();
+        const coreNode2: CoreImageEnt = helper.createCoreNode();
         coreNode2.key = "node2";
         const node2: Node = new Node(coreNode2);
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [node1, node2];
 
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
@@ -716,7 +716,7 @@ describe("Navigator.setToken$", () => {
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
 
-        const currentStateSubject$: Subject<IFrame> = new Subject<IFrame>();
+        const currentStateSubject$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const stateService: TestStateService = new TestStateService(currentStateSubject$);
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
@@ -758,7 +758,7 @@ describe("Navigator.setToken$", () => {
 
         navigator.moveToKey$("key").subscribe(() => { /*noop*/ });
 
-        const coreNode0: ICoreNode = helper.createCoreNode();
+        const coreNode0: CoreImageEnt = helper.createCoreNode();
         coreNode0.key = "node0";
         const node0: Node = new Node(coreNode0);
 
@@ -786,15 +786,15 @@ describe("Navigator.setToken$", () => {
                     done();
                 });
 
-        const coreNode1: ICoreNode = helper.createCoreNode();
+        const coreNode1: CoreImageEnt = helper.createCoreNode();
         coreNode1.key = "node1";
         const node1: Node = new Node(coreNode1);
 
-        const coreNode2: ICoreNode = helper.createCoreNode();
+        const coreNode2: CoreImageEnt = helper.createCoreNode();
         coreNode2.key = "node2";
         const node2: Node = new Node(coreNode2);
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [node1, node2];
 
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
@@ -861,7 +861,7 @@ describe("Navigator.setToken$", () => {
                 stateService,
                 cacheService);
 
-        navigator.moveDir$(EdgeDirection.Next)
+        navigator.moveDir$(NavigationDirection.Next)
             .subscribe(
                 undefined,
                 (e: Error): void => {

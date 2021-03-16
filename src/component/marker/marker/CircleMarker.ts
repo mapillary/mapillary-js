@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { ILatLon } from "../../../api/interfaces/ILatLon";
-import { ICircleMarkerOptions } from "../interfaces/ICircleMarkerOptions";
+import { LatLonEnt } from "../../../api/ents/LatLonEnt";
+import { CircleMarkerOptions } from "../interfaces/CircleMarkerOptions";
 import { Marker } from "./Marker";
 
 /**
@@ -37,7 +37,7 @@ export class CircleMarker extends Marker {
     private _opacity: number;
     private _radius: number;
 
-    constructor(id: string, latLon: ILatLon, options?: ICircleMarkerOptions) {
+    constructor(id: string, latLon: LatLonEnt, options?: CircleMarkerOptions) {
         super(id, latLon);
 
         options = !!options ? options : {};

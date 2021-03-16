@@ -20,9 +20,9 @@ import {
 import { GraphMode } from "../graph/GraphMode";
 import { GraphService } from "../graph/GraphService";
 import { Node } from "../graph/Node";
-import { IEdgeStatus } from "../graph/interfaces/IEdgeStatus";
+import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
 import { StateService } from "../state/StateService";
-import { IFrame } from "../state/interfaces/IFrame";
+import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
 export class CacheService {
@@ -52,11 +52,11 @@ export class CacheService {
         subs.push(this._stateService.currentState$.pipe(
             distinctUntilChanged(
                 undefined,
-                (frame: IFrame): string => {
+                (frame: AnimationFrame): string => {
                     return frame.state.currentNode.key;
                 }),
             map(
-                (frame: IFrame): [string[], string] => {
+                (frame: AnimationFrame): [string[], string] => {
                     const trajectory: Node[] = frame.state.trajectory;
                     const trajectoryKeys: string[] = trajectory
                         .map(
@@ -84,11 +84,11 @@ export class CacheService {
             skip(1),
             withLatestFrom(this._stateService.currentState$),
             switchMap(
-                ([mode, frame]: [GraphMode, IFrame]): Observable<IEdgeStatus> => {
+                ([mode, frame]: [GraphMode, AnimationFrame]): Observable<NavigationEdgeStatus> => {
                     return mode === GraphMode.Sequence ?
                         this._keyToEdges(
                             frame.state.currentNode.key,
-                            (node: Node): Observable<IEdgeStatus> => {
+                            (node: Node): Observable<NavigationEdgeStatus> => {
                                 return node.sequenceEdges$;
                             }) :
                         observableFrom(frame.state.trajectory
@@ -98,10 +98,10 @@ export class CacheService {
                                 })
                             .slice(frame.state.currentIndex)).pipe(
                                 mergeMap(
-                                    (key: string): Observable<IEdgeStatus> => {
+                                    (key: string): Observable<NavigationEdgeStatus> => {
                                         return this._keyToEdges(
                                             key,
-                                            (node: Node): Observable<IEdgeStatus> => {
+                                            (node: Node): Observable<NavigationEdgeStatus> => {
                                                 return node.spatialEdges$;
                                             });
                                     },
@@ -127,16 +127,16 @@ export class CacheService {
         this._started = false;
     }
 
-    private _keyToEdges(key: string, nodeToEdgeMap: (node: Node) => Observable<IEdgeStatus>): Observable<IEdgeStatus> {
+    private _keyToEdges(key: string, nodeToEdgeMap: (node: Node) => Observable<NavigationEdgeStatus>): Observable<NavigationEdgeStatus> {
         return this._graphService.cacheNode$(key).pipe(
             switchMap(nodeToEdgeMap),
             first(
-                (status: IEdgeStatus): boolean => {
+                (status: NavigationEdgeStatus): boolean => {
                     return status.cached;
                 }),
             timeout(15000),
             catchError(
-                (error: Error): Observable<IEdgeStatus> => {
+                (error: Error): Observable<NavigationEdgeStatus> => {
                     console.error(`Failed to cache edges (${key}).`, error);
 
                     return observableEmpty();

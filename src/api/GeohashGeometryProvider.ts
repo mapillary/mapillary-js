@@ -1,8 +1,8 @@
 import * as geohash from "latlon-geohash";
 
 import { GeometryProviderBase } from "./GeometryProviderBase";
-import { ICellCorners, ICellNeighbors } from "./interfaces/ICellCorners";
-import { ILatLon } from "./interfaces/ILatLon";
+import { CellCorners, CellNeighbors } from "./interfaces/CellCorners";
+import { LatLonEnt } from "./ents/LatLonEnt";
 
 import { GeoCoords } from "../geo/GeoCoords";
 
@@ -44,40 +44,40 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
      * The method currently uses the largest side as the threshold leading to
      * more tiles being returned than needed in edge cases.
      *
-     * @param {ILatLon} sw - South west corner of bounding box.
-     * @param {ILatLon} ne - North east corner of bounding box.
+     * @param {LatLonEnt} sw - South west corner of bounding box.
+     * @param {LatLonEnt} ne - North east corner of bounding box.
      *
      * @returns {string} The geohash tiles containing the bounding box.
      */
-    public bboxToCellIds(sw: ILatLon, ne: ILatLon): string[] {
+    public bboxToCellIds(sw: LatLonEnt, ne: LatLonEnt): string[] {
         return this._bboxSquareToCellIds(sw, ne);
     }
 
     /** @inheritdoc */
-    public getCorners(cellId: string): ICellCorners {
+    public getCorners(cellId: string): CellCorners {
         const bounds: geohash.Bounds = geohash.bounds(cellId);
-        const nw: ILatLon = { lat: bounds.ne.lat, lon: bounds.sw.lon };
-        const ne: ILatLon = { lat: bounds.ne.lat, lon: bounds.ne.lon };
-        const se: ILatLon = { lat: bounds.ne.lat, lon: bounds.sw.lon };
-        const sw: ILatLon = { lat: bounds.sw.lat, lon: bounds.sw.lon };
+        const nw: LatLonEnt = { lat: bounds.ne.lat, lon: bounds.sw.lon };
+        const ne: LatLonEnt = { lat: bounds.ne.lat, lon: bounds.ne.lon };
+        const se: LatLonEnt = { lat: bounds.ne.lat, lon: bounds.sw.lon };
+        const sw: LatLonEnt = { lat: bounds.sw.lat, lon: bounds.sw.lon };
         return { nw, ne, se, sw };
     }
 
     /** @inheritdoc */
-    public getNeighbors(cellId: string): ICellNeighbors {
+    public getNeighbors(cellId: string): CellNeighbors {
         return geohash.neighbours(cellId);
     }
 
     /**
      * Encode the geohash tile for geodetic coordinates.
      *
-     * @param {ILatLon} latlon - Latitude and longitude to encode.
+     * @param {LatLonEnt} latlon - Latitude and longitude to encode.
      * @param {number} precision - Precision of the encoding.
      *
      * @returns {string} The geohash tile for the lat, lon and precision.
      */
     public latLonToCellId(
-        latLon: ILatLon,
+        latLon: LatLonEnt,
         relativeLevel: number = 0): string {
 
         return geohash.encode(
@@ -90,7 +90,7 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
      * Encode the geohash tiles within a threshold from a position
      * using Manhattan distance.
      *
-     * @param {ILatLon} latlon - Latitude and longitude to encode.
+     * @param {LatLonEnt} latlon - Latitude and longitude to encode.
      * @param {number} precision - Precision of the encoding.
      * @param {number} threshold - Threshold of the encoding in meters.
      *
@@ -98,7 +98,7 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
      * threshold.
      */
     public latLonToCellIds(
-        latLon: ILatLon,
+        latLon: LatLonEnt,
         threshold: number,
         relativeLevel: number = 0): string[] {
 
@@ -106,14 +106,14 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
             latLon.lat, latLon.lon, this._level + relativeLevel);
 
         const bounds: geohash.Bounds = geohash.bounds(h);
-        const corners: ICellCorners = {
+        const corners: CellCorners = {
             ne: { lat: bounds.ne.lat, lon: bounds.ne.lon },
             nw: { lat: bounds.ne.lat, lon: bounds.sw.lon },
             se: { lat: bounds.sw.lat, lon: bounds.ne.lon },
             sw: { lat: bounds.sw.lat, lon: bounds.sw.lon },
         };
 
-        const neighbours: ICellNeighbors = this.getNeighbors(h);
+        const neighbours: CellNeighbors = this.getNeighbors(h);
 
         return this._filterNeighbors(
             latLon,
@@ -124,11 +124,11 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
     }
 
     private _filterNeighbors(
-        latLon: ILatLon,
+        latLon: LatLonEnt,
         threshold: number,
         cellId: string,
-        corners: ICellCorners,
-        neighbors: ICellNeighbors): string[] {
+        corners: CellCorners,
+        neighbors: CellNeighbors): string[] {
 
         const bl: number[] = [0, 0, 0];
         const tr: number[] =

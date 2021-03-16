@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { CameraProjectionType } from "../api/interfaces/CameraProjectionType";
+import { CameraType } from "./interfaces/CameraType";
 
 const EPSILON = 1e-8;
 
@@ -29,7 +29,7 @@ export class Transform {
 
     private _ck1: number;
     private _ck2: number;
-    private _cameraType: CameraProjectionType;
+    private _cameraType: CameraType;
 
     private _radialPeak: number;
 
@@ -56,7 +56,7 @@ export class Transform {
         textureScale?: number[],
         ck1?: number,
         ck2?: number,
-        cameraType?: CameraProjectionType) {
+        cameraType?: CameraType) {
 
         this._orientation = this._getValue(orientation, 1);
 
@@ -101,7 +101,7 @@ export class Transform {
         return this._ck2;
     }
 
-    public get cameraType(): CameraProjectionType {
+    public get cameraType(): CameraType {
         return this._cameraType;
     }
 

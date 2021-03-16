@@ -4,16 +4,16 @@ import { Subscription } from "rxjs";
 import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
 import { Node } from "../../graph/Node";
-import { ICurrentState } from "../../state/interfaces/ICurrentState";
-import { IFrame } from "../../state/interfaces/IFrame";
+import { IAnimationState } from "../../state/interfaces/IAnimationState";
+import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { TextureProvider } from "../../tiles/TextureProvider";
-import { IBBoxShaderMaterial } from "../imageplane/interfaces/IBBoxShaderMaterial";
-import { IShaderMaterial } from "../imageplane/interfaces/IShaderMaterial";
-import { SliderMode } from "../interfaces/ISliderConfiguration";
+import { BBoxProjectorShaderMaterial } from "../imageplane/interfaces/BBoxProjectorShaderMaterial";
+import { ProjectorShaderMaterial } from "../imageplane/interfaces/ProjectorShaderMaterial";
+import { SliderConfigurationMode } from "../interfaces/SliderConfiguration";
 import { MeshFactory } from "../utils/MeshFactory";
 import { MeshScene } from "../utils/MeshScene";
 import { isSpherical } from "../../geo/Geo";
-import { CameraProjectionType } from "../../api/interfaces/CameraProjectionType";
+import { CameraType } from "../../geo/interfaces/CameraType";
 
 export class SliderGLRenderer {
     private _factory: MeshFactory;
@@ -28,7 +28,7 @@ export class SliderGLRenderer {
     private _frameId: number;
     private _needsRender: boolean;
 
-    private _mode: SliderMode;
+    private _mode: SliderConfigurationMode;
 
     private _currentProviderDisposers: { [key: string]: () => void };
     private _previousProviderDisposers: { [key: string]: () => void };
@@ -82,7 +82,7 @@ export class SliderGLRenderer {
             this._updateTexturePrev.bind(this));
     }
 
-    public update(frame: IFrame, mode: SliderMode): void {
+    public update(frame: AnimationFrame, mode: SliderConfigurationMode): void {
         this._updateFrameId(frame.id);
         this._updateImagePlanes(frame.state, mode);
     }
@@ -117,7 +117,7 @@ export class SliderGLRenderer {
             }
 
             const plane: THREE.Mesh = planes[key];
-            let material: IShaderMaterial = <IShaderMaterial>plane.material;
+            let material: ProjectorShaderMaterial = <ProjectorShaderMaterial>plane.material;
             let texture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
 
             texture.image = image;
@@ -140,7 +140,7 @@ export class SliderGLRenderer {
             }
 
             const plane: THREE.Mesh = planes[key];
-            let material: IShaderMaterial = <IShaderMaterial>plane.material;
+            let material: ProjectorShaderMaterial = <ProjectorShaderMaterial>plane.material;
             let texture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
 
             texture.image = image;
@@ -199,7 +199,7 @@ export class SliderGLRenderer {
         return [[0.5 - offsetX, 0.5 - offsetY], [0.5 + offsetX, 0.5 + offsetY]];
     }
 
-    private _setDisabled(state: ICurrentState): void {
+    private _setDisabled(state: IAnimationState): void {
         this._disabled = state.currentNode == null ||
             state.previousNode == null ||
             (isSpherical(state.currentNode.cameraType) &&
@@ -251,7 +251,7 @@ export class SliderGLRenderer {
             }
 
             const plane: THREE.Mesh = planes[key];
-            let shaderMaterial = <IBBoxShaderMaterial>plane.material;
+            let shaderMaterial = <BBoxProjectorShaderMaterial>plane.material;
 
             if (!!shaderMaterial.uniforms.curtain) {
                 shaderMaterial.uniforms.curtain.value = this._curtain;
@@ -263,7 +263,7 @@ export class SliderGLRenderer {
         this._frameId = frameId;
     }
 
-    private _updateImagePlanes(state: ICurrentState, mode: SliderMode): void {
+    private _updateImagePlanes(state: IAnimationState, mode: SliderConfigurationMode): void {
         const currentChanged: boolean = state.currentNode != null && this._currentKey !== state.currentNode.key;
         const previousChanged: boolean = state.previousNode != null && this._previousKey !== state.previousNode.key;
         const modeChanged: boolean = this._mode !== mode;
@@ -278,7 +278,7 @@ export class SliderGLRenderer {
 
         const motionless =
             state.motionless ||
-            mode === SliderMode.Stationary ||
+            mode === SliderConfigurationMode.Stationary ||
             isSpherical(state.currentNode.cameraType);
 
         if (this.disabled || previousChanged) {
@@ -340,7 +340,7 @@ export class SliderGLRenderer {
                     textureScale,
                     null,
                     null,
-                    <CameraProjectionType>state.currentNode.cameraType);
+                    <CameraType>state.currentNode.cameraType);
 
                 let mesh: THREE.Mesh = undefined;
 
@@ -413,7 +413,7 @@ export class SliderGLRenderer {
             }
 
             const plane: THREE.Mesh = planes[key];
-            let material: IShaderMaterial = <IShaderMaterial>plane.material;
+            let material: ProjectorShaderMaterial = <ProjectorShaderMaterial>plane.material;
 
             let oldTexture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
             material.uniforms.projectorTex.value = null;
@@ -434,7 +434,7 @@ export class SliderGLRenderer {
             }
 
             const plane: THREE.Mesh = planes[key];
-            let material: IShaderMaterial = <IShaderMaterial>plane.material;
+            let material: ProjectorShaderMaterial = <ProjectorShaderMaterial>plane.material;
 
             let oldTexture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
             material.uniforms.projectorTex.value = null;

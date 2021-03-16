@@ -18,10 +18,10 @@ import {
 import { Transform } from "../../geo/Transform";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
-import { ISize } from "../../render/interfaces/ISize";
+import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { RenderCamera } from "../../render/RenderCamera";
 import { DOM } from "../../utils/DOM";
-import { IComponentConfiguration } from "../interfaces/IComponentConfiguration";
+import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { Component } from "../Component";
 import { Popup } from "./popup/Popup";
 
@@ -50,7 +50,7 @@ import { Popup } from "./popup/Popup";
  * var popupComponent = viewer.getComponent("popup");
  * ```
  */
-export class PopupComponent extends Component<IComponentConfiguration> {
+export class PopupComponent extends Component<ComponentConfiguration> {
     public static componentName: string = "popup";
 
     private _dom: DOM;
@@ -153,7 +153,7 @@ export class PopupComponent extends Component<IComponentConfiguration> {
             this._container.renderService.size$,
             this._navigator.stateService.currentTransform$)
             .subscribe(
-                ([renderCamera, size, transform]: [RenderCamera, ISize, Transform]): void => {
+                ([renderCamera, size, transform]: [RenderCamera, ViewportSize, Transform]): void => {
                     for (const popup of this._popups) {
                         popup.update(renderCamera, size, transform);
                     }
@@ -180,7 +180,7 @@ export class PopupComponent extends Component<IComponentConfiguration> {
                 this._container.renderService.size$,
                 this._navigator.stateService.currentTransform$))
             .subscribe(
-                ([popups, renderCamera, size, transform]: [Popup[], RenderCamera, ISize, Transform]): void => {
+                ([popups, renderCamera, size, transform]: [Popup[], RenderCamera, ViewportSize, Transform]): void => {
                     for (const popup of popups) {
                         popup.update(renderCamera, size, transform);
                     }
@@ -199,7 +199,7 @@ export class PopupComponent extends Component<IComponentConfiguration> {
         delete this._popupContainer;
     }
 
-    protected _getDefaultConfiguration(): IComponentConfiguration {
+    protected _getDefaultConfiguration(): ComponentConfiguration {
         return {};
     }
 

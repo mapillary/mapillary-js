@@ -13,7 +13,7 @@ import {
     Subject,
 } from "rxjs";
 
-interface ILoader {
+interface Loader {
     task: string;
     loading: boolean;
 }
@@ -25,7 +25,7 @@ export class LoadingService {
     constructor() {
         this._loaders$ = this._loadersSubject$.pipe(
             scan(
-                (loaders: { [key: string]: boolean }, loader: ILoader): { [key: string]: boolean } => {
+                (loaders: { [key: string]: boolean }, loader: Loader): { [key: string]: boolean } => {
                     if (loader.task !== undefined) {
                         loaders[loader.task] = loader.loading;
                     }

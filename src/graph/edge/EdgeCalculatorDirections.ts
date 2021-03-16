@@ -1,83 +1,83 @@
-import { EdgeDirection } from "./EdgeDirection";
-import { ISpherical } from "./interfaces/ISpherical";
-import { IStep } from "./interfaces/IStep";
-import { ITurn } from "./interfaces/ITurn";
+import { NavigationDirection } from "./NavigationDirection";
+import { SphericalDirection } from "./interfaces/SphericalDirection";
+import { StepDirection } from "./interfaces/StepDirection";
+import { TurnDirection } from "./interfaces/TurnDirection";
 
 export class EdgeCalculatorDirections {
 
-    public steps: { [direction: string]: IStep } = {};
-    public turns: { [direction: string]: ITurn } = {};
-    public spherical: { [direction: string]: ISpherical } = {};
+    public steps: { [direction: string]: StepDirection } = {};
+    public turns: { [direction: string]: TurnDirection } = {};
+    public spherical: { [direction: string]: SphericalDirection } = {};
 
     constructor() {
-        this.steps[EdgeDirection.StepForward] = {
-            direction: EdgeDirection.StepForward,
+        this.steps[NavigationDirection.StepForward] = {
+            direction: NavigationDirection.StepForward,
             motionChange: 0,
             useFallback: true,
         };
 
-        this.steps[EdgeDirection.StepBackward] = {
-            direction: EdgeDirection.StepBackward,
+        this.steps[NavigationDirection.StepBackward] = {
+            direction: NavigationDirection.StepBackward,
             motionChange: Math.PI,
             useFallback: true,
         };
 
-        this.steps[EdgeDirection.StepLeft] = {
-            direction: EdgeDirection.StepLeft,
+        this.steps[NavigationDirection.StepLeft] = {
+            direction: NavigationDirection.StepLeft,
             motionChange: Math.PI / 2,
             useFallback: false,
         };
 
-        this.steps[EdgeDirection.StepRight] = {
-            direction: EdgeDirection.StepRight,
+        this.steps[NavigationDirection.StepRight] = {
+            direction: NavigationDirection.StepRight,
             motionChange: -Math.PI / 2,
             useFallback: false,
         };
 
-        this.turns[EdgeDirection.TurnLeft] = {
-            direction: EdgeDirection.TurnLeft,
+        this.turns[NavigationDirection.TurnLeft] = {
+            direction: NavigationDirection.TurnLeft,
             directionChange: Math.PI / 2,
             motionChange: Math.PI / 4,
         };
 
-        this.turns[EdgeDirection.TurnRight] = {
-            direction: EdgeDirection.TurnRight,
+        this.turns[NavigationDirection.TurnRight] = {
+            direction: NavigationDirection.TurnRight,
             directionChange: -Math.PI / 2,
             motionChange: -Math.PI / 4,
         };
 
-        this.turns[EdgeDirection.TurnU] = {
-            direction: EdgeDirection.TurnU,
+        this.turns[NavigationDirection.TurnU] = {
+            direction: NavigationDirection.TurnU,
             directionChange: Math.PI,
             motionChange: null,
         };
 
-        this.spherical[EdgeDirection.StepForward] = {
-            direction: EdgeDirection.StepForward,
+        this.spherical[NavigationDirection.StepForward] = {
+            direction: NavigationDirection.StepForward,
             directionChange: 0,
-            next: EdgeDirection.StepLeft,
-            prev: EdgeDirection.StepRight,
+            next: NavigationDirection.StepLeft,
+            prev: NavigationDirection.StepRight,
         };
 
-        this.spherical[EdgeDirection.StepBackward] = {
-            direction: EdgeDirection.StepBackward,
+        this.spherical[NavigationDirection.StepBackward] = {
+            direction: NavigationDirection.StepBackward,
             directionChange: Math.PI,
-            next: EdgeDirection.StepRight,
-            prev: EdgeDirection.StepLeft,
+            next: NavigationDirection.StepRight,
+            prev: NavigationDirection.StepLeft,
         };
 
-        this.spherical[EdgeDirection.StepLeft] = {
-            direction: EdgeDirection.StepLeft,
+        this.spherical[NavigationDirection.StepLeft] = {
+            direction: NavigationDirection.StepLeft,
             directionChange: Math.PI / 2,
-            next: EdgeDirection.StepBackward,
-            prev: EdgeDirection.StepForward,
+            next: NavigationDirection.StepBackward,
+            prev: NavigationDirection.StepForward,
         };
 
-        this.spherical[EdgeDirection.StepRight] = {
-            direction: EdgeDirection.StepRight,
+        this.spherical[NavigationDirection.StepRight] = {
+            direction: NavigationDirection.StepRight,
             directionChange: -Math.PI / 2,
-            next: EdgeDirection.StepForward,
-            prev: EdgeDirection.StepBackward,
+            next: NavigationDirection.StepForward,
+            prev: NavigationDirection.StepBackward,
         };
     }
 }

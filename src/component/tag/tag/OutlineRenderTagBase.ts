@@ -7,10 +7,10 @@ import { TagOperation } from "../TagOperation";
 import { RenderTag } from "./RenderTag";
 import { Tag } from "./Tag";
 
-import { InteractionCursor } from "../interfaces/IInteraction";
+import { InteractionCursor } from "../interfaces/TagInteraction";
 
 import { Transform } from "../../../geo/Transform";
-import { ISize } from "../../../render/interfaces/ISize";
+import { ViewportSize } from "../../../render/interfaces/ViewportSize";
 import { ISpriteAtlas } from "../../../viewer/interfaces/ISpriteAtlas";
 
 export abstract class OutlineRenderTagBase<T extends Tag> extends RenderTag<T> {
@@ -45,7 +45,7 @@ export abstract class OutlineRenderTagBase<T extends Tag> extends RenderTag<T> {
         this._geometryChangedSubscription.unsubscribe();
     }
 
-    public abstract getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ISize): vd.VNode[];
+    public abstract getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ViewportSize): vd.VNode[];
 
     public abstract getGLObjects(): THREE.Object3D[];
 

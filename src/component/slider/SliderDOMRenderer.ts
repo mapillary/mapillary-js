@@ -4,13 +4,13 @@ import { filter } from "rxjs/operators";
 import * as vd from "virtual-dom";
 
 import { Container } from "../../viewer/Container";
-import { SliderMode } from "../interfaces/ISliderConfiguration";
+import { SliderConfigurationMode } from "../interfaces/SliderConfiguration";
 
 export class SliderDOMRenderer {
     private _container: Container;
 
     private _interacting: boolean;
-    private _notifyModeChanged$: Subject<SliderMode>;
+    private _notifyModeChanged$: Subject<SliderConfigurationMode>;
     private _notifyPositionChanged$: Subject<number>;
     private _stopInteractionSubscription: Subscription;
 
@@ -18,12 +18,12 @@ export class SliderDOMRenderer {
         this._container = container;
 
         this._interacting = false;
-        this._notifyModeChanged$ = new Subject<SliderMode>();
+        this._notifyModeChanged$ = new Subject<SliderConfigurationMode>();
         this._notifyPositionChanged$ = new Subject<number>();
         this._stopInteractionSubscription = null;
     }
 
-    public get mode$(): Observable<SliderMode> {
+    public get mode$(): Observable<SliderConfigurationMode> {
         return this._notifyModeChanged$;
     }
 
@@ -64,7 +64,7 @@ export class SliderDOMRenderer {
 
     public render(
         position: number,
-        mode: SliderMode,
+        mode: SliderConfigurationMode,
         motionless: boolean,
         spherical: boolean,
         visible: boolean): vd.VNode {
@@ -88,36 +88,36 @@ export class SliderDOMRenderer {
         return vd.h("div.mapillary-slider-container", { style: { width: `${width}px` } }, children);
     }
 
-    private _createModeButton(mode: SliderMode): vd.VNode {
+    private _createModeButton(mode: SliderConfigurationMode): vd.VNode {
         const properties: vd.createProperties = {
             onclick: (): void => {
-                if (mode === SliderMode.Motion) {
+                if (mode === SliderConfigurationMode.Motion) {
                     return;
                 }
 
-                this._notifyModeChanged$.next(SliderMode.Motion);
+                this._notifyModeChanged$.next(SliderConfigurationMode.Motion);
             },
         };
 
-        const className: string = mode === SliderMode.Stationary ?
+        const className: string = mode === SliderConfigurationMode.Stationary ?
             "mapillary-slider-mode-button-inactive" :
             "mapillary-slider-mode-button";
 
         return vd.h("div." + className, properties, [vd.h("div.mapillary-slider-mode-icon", [])]);
     }
 
-    private _createModeButton2d(mode: SliderMode): vd.VNode {
+    private _createModeButton2d(mode: SliderConfigurationMode): vd.VNode {
         const properties: vd.createProperties = {
             onclick: (): void => {
-                if (mode === SliderMode.Stationary) {
+                if (mode === SliderConfigurationMode.Stationary) {
                     return;
                 }
 
-                this._notifyModeChanged$.next(SliderMode.Stationary);
+                this._notifyModeChanged$.next(SliderConfigurationMode.Stationary);
             },
         };
 
-        const className: string = mode === SliderMode.Motion ?
+        const className: string = mode === SliderConfigurationMode.Motion ?
             "mapillary-slider-mode-button-2d-inactive" :
             "mapillary-slider-mode-button-2d";
 

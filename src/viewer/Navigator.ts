@@ -21,7 +21,7 @@ import { CacheService } from "./CacheService";
 import { LoadingService } from "./LoadingService";
 import { PanService } from "./PanService";
 import { PlayService } from "./PlayService";
-import { IViewerOptions } from "./interfaces/IViewerOptions";
+import { ViewerOptions } from "./interfaces/ViewerOptions";
 
 import { APIWrapper } from "../api/APIWrapper";
 import { DataProviderBase } from "../api/DataProviderBase";
@@ -31,10 +31,10 @@ import { FilterExpression } from "../graph/FilterExpression";
 import { Graph } from "../graph/Graph";
 import { GraphService } from "../graph/GraphService";
 import { Node } from "../graph/Node";
-import { EdgeDirection } from "../graph/edge/EdgeDirection";
-import { IEdgeStatus } from "../graph/interfaces/IEdgeStatus";
+import { NavigationDirection } from "../graph/edge/NavigationDirection";
+import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
 import { StateService } from "../state/StateService";
-import { IFrame } from "../state/interfaces/IFrame";
+import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 
 export class Navigator {
     private _api: APIWrapper;
@@ -55,7 +55,7 @@ export class Navigator {
     private _nodeRequestSubscription: Subscription;
 
     constructor(
-        options: IViewerOptions,
+        options: ViewerOptions,
         api?: APIWrapper,
         graphService?: GraphService,
         loadingService?: LoadingService,
@@ -158,8 +158,8 @@ export class Navigator {
         return this._makeRequest$(node$);
     }
 
-    public moveDir$(direction: EdgeDirection): Observable<Node> {
-        this._abortRequest(`in dir ${EdgeDirection[direction]}`);
+    public moveDir$(direction: NavigationDirection): Observable<Node> {
+        this._abortRequest(`in dir ${NavigationDirection[direction]}`);
 
         this._loadingService.startLoading(this._loadingName);
 
@@ -167,15 +167,15 @@ export class Navigator {
             first(),
             mergeMap(
                 (node: Node): Observable<string> => {
-                    return ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
+                    return ([NavigationDirection.Next, NavigationDirection.Prev].indexOf(direction) > -1 ?
                         node.sequenceEdges$ :
                         node.spatialEdges$).pipe(
                             first(),
                             map(
-                                (status: IEdgeStatus): string => {
+                                (status: NavigationEdgeStatus): string => {
                                     for (let edge of status.edges) {
                                         if (edge.data.direction === direction) {
-                                            return edge.to;
+                                            return edge.target;
                                         }
                                     }
 
@@ -347,7 +347,7 @@ export class Navigator {
         return this._stateService.currentState$.pipe(
             first(),
             map(
-                (frame: IFrame): string[] => {
+                (frame: AnimationFrame): string[] => {
                     return frame.state.trajectory
                         .map(
                             (node: Node): string => {

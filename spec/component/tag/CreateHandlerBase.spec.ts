@@ -3,7 +3,7 @@ import { Navigator } from "../../../src/viewer/Navigator";
 import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
 import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
 import { Component } from "../../../src/component/Component";
-import { ITagConfiguration } from "../../../src/component/interfaces/ITagConfiguration";
+import { TagConfiguration } from "../../../src/component/interfaces/TagConfiguration";
 import { CreateHandlerBase } from "../../../src/component/tag/handlers/CreateHandlerBase";
 import { TagCreator } from "../../../src/component/tag/TagCreator";
 import { ViewportCoords } from "../../../src/geo/ViewportCoords";
@@ -19,10 +19,10 @@ class CreateTestHandler extends CreateHandlerBase {
     protected _getNameExtension(): string { return "create-test"; }
 }
 
-class TestComponent extends Component<ITagConfiguration> {
+class TestComponent extends Component<TagConfiguration> {
     protected _activate(): void { /*noop*/ }
     protected _deactivate(): void { /*noop*/ }
-    protected _getDefaultConfiguration(): ITagConfiguration { return {}; }
+    protected _getDefaultConfiguration(): TagConfiguration { return {}; }
 }
 
 describe("CreateHandlerBase.ctor", () => {

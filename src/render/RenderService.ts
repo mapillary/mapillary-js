@@ -18,13 +18,13 @@ import {
 
 import { RenderCamera } from "./RenderCamera";
 import { RenderMode } from "./RenderMode";
-import { ISize } from "./interfaces/ISize";
+import { ViewportSize } from "./interfaces/ViewportSize";
 
 import { Spatial } from "../geo/Spatial";
-import { IFrame } from "../state/interfaces/IFrame";
+import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
-interface IRenderCameraOperation {
+interface RenderCameraOperation {
     (rc: RenderCamera): RenderCamera;
 }
 
@@ -32,15 +32,15 @@ export class RenderService {
     private _bearing$: Observable<number>;
 
     private _element: HTMLElement;
-    private _currentFrame$: Observable<IFrame>;
+    private _currentFrame$: Observable<AnimationFrame>;
 
-    private _renderCameraOperation$: Subject<IRenderCameraOperation>;
+    private _renderCameraOperation$: Subject<RenderCameraOperation>;
     private _renderCameraHolder$: Observable<RenderCamera>;
     private _renderCameraFrame$: Observable<RenderCamera>;
     private _renderCamera$: Observable<RenderCamera>;
 
     private _resize$: Subject<void>;
-    private _size$: BehaviorSubject<ISize>;
+    private _size$: BehaviorSubject<ViewportSize>;
 
     private _spatial: Spatial;
 
@@ -48,7 +48,7 @@ export class RenderService {
 
     private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
-    constructor(element: HTMLElement, currentFrame$: Observable<IFrame>, renderMode: RenderMode, renderCamera?: RenderCamera) {
+    constructor(element: HTMLElement, currentFrame$: Observable<AnimationFrame>, renderMode: RenderMode, renderCamera?: RenderCamera) {
         this._element = element;
         this._currentFrame$ = currentFrame$;
 
@@ -57,10 +57,10 @@ export class RenderService {
         renderMode = renderMode != null ? renderMode : RenderMode.Fill;
 
         this._resize$ = new Subject<void>();
-        this._renderCameraOperation$ = new Subject<IRenderCameraOperation>();
+        this._renderCameraOperation$ = new Subject<RenderCameraOperation>();
 
         this._size$ =
-            new BehaviorSubject<ISize>(
+            new BehaviorSubject<ViewportSize>(
                 {
                     height: this._element.offsetHeight,
                     width: this._element.offsetWidth,
@@ -69,7 +69,7 @@ export class RenderService {
         const subs = this._subscriptions;
         subs.push(this._resize$.pipe(
             map(
-                (): ISize => {
+                (): ViewportSize => {
                     return { height: this._element.offsetHeight, width: this._element.offsetWidth };
                 }))
             .subscribe(this._size$));
@@ -82,7 +82,7 @@ export class RenderService {
                     return rc;
                 }),
             scan(
-                (rc: RenderCamera, operation: IRenderCameraOperation): RenderCamera => {
+                (rc: RenderCamera, operation: RenderCameraOperation): RenderCamera => {
                     return operation(rc);
                 },
                 !!renderCamera ? renderCamera : new RenderCamera(this._element.offsetWidth, this._element.offsetHeight, renderMode)),
@@ -92,11 +92,11 @@ export class RenderService {
         this._renderCameraFrame$ = this._currentFrame$.pipe(
             withLatestFrom(this._renderCameraHolder$),
             tap(
-                ([frame, rc]: [IFrame, RenderCamera]): void => {
+                ([frame, rc]: [AnimationFrame, RenderCamera]): void => {
                     rc.setFrame(frame);
                 }),
             map(
-                (args: [IFrame, RenderCamera]): RenderCamera => {
+                (args: [AnimationFrame, RenderCamera]): RenderCamera => {
                     return args[1];
                 }),
             publishReplay(1),
@@ -125,7 +125,7 @@ export class RenderService {
         subs.push(this._size$.pipe(
             skip(1),
             map(
-                (size: ISize) => {
+                (size: ViewportSize) => {
                     return (rc: RenderCamera): RenderCamera => {
                         rc.setSize(size);
 
@@ -166,7 +166,7 @@ export class RenderService {
         return this._resize$;
     }
 
-    public get size$(): Observable<ISize> {
+    public get size$(): Observable<ViewportSize> {
         return this._size$;
     }
 

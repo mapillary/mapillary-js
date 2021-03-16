@@ -17,11 +17,11 @@ import { NodeHelper } from "../helper/NodeHelper";
 
 import { Node } from "../../src/graph/Node";
 import { APIWrapper } from "../../src/api/APIWrapper";
-import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
+import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { Graph } from "../../src/graph/Graph";
 import { GraphMode } from "../../src/graph/GraphMode";
 import { GraphService } from "../../src/graph/GraphService";
-import { IEdgeStatus } from "../../src/graph/interfaces/IEdgeStatus";
+import { NavigationEdgeStatus } from "../../src/graph/interfaces/NavigationEdgeStatus";
 import { Sequence } from "../../src/graph/Sequence";
 import { DataProvider } from "../helper/ProviderHelper";
 
@@ -455,10 +455,10 @@ describe("GraphService.graphMode$", () => {
 
 class TestNode extends Node {
     private _assetsCached: boolean;
-    private _sequenceEdges: IEdgeStatus;
-    private _spatialEdges: IEdgeStatus;
+    private _sequenceEdges: NavigationEdgeStatus;
+    private _spatialEdges: NavigationEdgeStatus;
 
-    constructor(core: ICoreNode) {
+    constructor(core: CoreImageEnt) {
         super(core);
 
         this._assetsCached = false;
@@ -474,11 +474,11 @@ class TestNode extends Node {
         this._assetsCached = value;
     }
 
-    public get sequenceEdges(): IEdgeStatus {
+    public get sequenceEdges(): NavigationEdgeStatus {
         return this._sequenceEdges;
     }
 
-    public get spatialEdges(): IEdgeStatus {
+    public get spatialEdges(): NavigationEdgeStatus {
         return this._spatialEdges;
     }
 }

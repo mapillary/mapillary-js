@@ -1,12 +1,12 @@
 import { Node } from "../../src/graph/Node";
-import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
-import { IFillNode } from "../../src/api/interfaces/IFillNode";
-import { ILatLonAlt } from "../../src/geo/interfaces/ILatLonAlt";
-import { IPotentialEdge } from "../../src/graph/edge/interfaces/IPotentialEdge";
-import { CameraProjectionType } from "../../src/api/interfaces/CameraProjectionType";
+import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
+import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
+import { LatLonAltEnt } from "../../src/api/ents/LatLonAltEnt";
+import { PotentialEdge } from "../../src/graph/edge/interfaces/PotentialEdge";
+import { CameraType } from "../../src/geo/interfaces/CameraType";
 
 export class EdgeCalculatorHelper {
-    public createPotentialEdge(key: string = "pkey"): IPotentialEdge {
+    public createPotentialEdge(key: string = "pkey"): PotentialEdge {
         return {
             capturedAt: 0,
             directionChange: 0,
@@ -27,10 +27,10 @@ export class EdgeCalculatorHelper {
 
     public createCoreNode(
         key: string,
-        latLonAlt: ILatLonAlt,
+        latLonAlt: LatLonAltEnt,
         sequenceKey: string): Node {
 
-        let coreNode: ICoreNode = {
+        let coreNode: CoreImageEnt = {
             cl: { lat: latLonAlt.lat, lon: latLonAlt.lon },
             key: key,
             l: { lat: latLonAlt.lat, lon: latLonAlt.lon },
@@ -42,17 +42,17 @@ export class EdgeCalculatorHelper {
 
     public createFullNode(
         key: string = "key",
-        latLonAlt: ILatLonAlt = { alt: 0, lat: 0, lon: 0 },
+        latLonAlt: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 },
         sequenceKey: string = "skey",
         r: number[] = [0, 0, 0],
         mergeCC: number = 2,
-        cameraType: CameraProjectionType = "perspective",
+        cameraType: CameraType = "perspective",
         capturedAt: number = 0,
         mergeVersion: number = 1): Node {
 
         let node: Node = this.createCoreNode(key, latLonAlt, sequenceKey);
 
-        let fillNode: IFillNode = {
+        let fillNode: SpatialImageEnt = {
             atomic_scale: 0,
             c_rotation: r,
             ca: 0,
@@ -79,9 +79,9 @@ export class EdgeCalculatorHelper {
     public createDefaultNode(spherical: boolean = false): Node {
         let key: string = "key";
         let sequenceKey: string = "skey";
-        let latLonAlt: ILatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let latLonAlt: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
 
-        let cameraType: CameraProjectionType = spherical ?
+        let cameraType: CameraType = spherical ?
             "equirectangular" :
             null;
 

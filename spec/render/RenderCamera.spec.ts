@@ -1,6 +1,6 @@
 import { RenderCamera } from "../../src/render/RenderCamera";
 import { RenderMode } from "../../src/render/RenderMode";
-import { IFrame } from "../../src/state/interfaces/IFrame";
+import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
 import { FrameHelper } from "../helper/FrameHelper";
 
 describe("RenderCamera.ctor", () => {
@@ -63,7 +63,7 @@ describe("RenderCamera.setRenderMode", () => {
 
         renderCamera.setRenderMode(RenderMode.Fill);
 
-        const frame: IFrame = new FrameHelper().createFrame();
+        const frame: AnimationFrame = new FrameHelper().createFrame();
         renderCamera.setFrame(frame);
 
         expect(renderCamera.changed).toBe(true);
@@ -88,7 +88,7 @@ describe("RenderCamera.setFrame", () => {
     it("should not be changed when not updated", () => {
         let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
-        const frame: IFrame = new FrameHelper().createFrame();
+        const frame: AnimationFrame = new FrameHelper().createFrame();
         renderCamera.setFrame(frame);
 
         expect(renderCamera.changed).toBe(true);
@@ -113,7 +113,7 @@ describe("RenderCamera.setFrame", () => {
 
         renderCamera.setSize({ width: 1, height: 1 });
 
-        const frame: IFrame = new FrameHelper().createFrame();
+        const frame: AnimationFrame = new FrameHelper().createFrame();
         frame.id = 0;
         renderCamera.setFrame(frame);
         frame.id = 1;
@@ -186,7 +186,7 @@ describe("RenderCamera.perspective.fov", () => {
 
         const fov: number = renderCamera.perspective.fov;
 
-        const frame: IFrame = new FrameHelper().createFrame();
+        const frame: AnimationFrame = new FrameHelper().createFrame();
         frame.state.zoom = 1;
         renderCamera.setFrame(frame);
 

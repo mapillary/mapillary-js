@@ -1,2 +1,6 @@
-export { ISliderConfiguration, ISliderKeys, SliderMode } from "../component/interfaces/ISliderConfiguration";
+export {
+    SliderConfiguration,
+    SliderConfigurationKeys,
+    SliderConfigurationMode,
+} from "../component/interfaces/SliderConfiguration";
 export { SliderComponent } from "../component/slider/SliderComponent";

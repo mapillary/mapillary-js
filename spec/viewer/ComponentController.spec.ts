@@ -10,23 +10,23 @@ import { NodeMockCreator } from "../helper/NodeMockCreator";
 import { MockCreator } from "../helper/MockCreator";
 import { ComponentService } from "../../src/component/ComponentService";
 import { CoverComponent } from "../../src/component/CoverComponent";
-import { ICoverConfiguration, CoverState } from "../../src/component/interfaces/ICoverConfiguration";
+import { CoverConfiguration, CoverState } from "../../src/component/interfaces/CoverConfiguration";
 import { Container } from "../../src/viewer/Container";
 import { Observer } from "../../src/viewer/Observer";
 import { EventEmitter } from "../../src/utils/EventEmitter";
 import { ComponentController } from "../../src/viewer/ComponentController";
 import { Viewer } from "../../src/viewer/Viewer";
 import { Component } from "../../src/component/Component";
-import { IComponentConfiguration } from "../../src/component/interfaces/IComponentConfiguration";
+import { ComponentConfiguration } from "../../src/component/interfaces/ComponentConfiguration";
 
-class ComponentMock extends Component<IComponentConfiguration> {
+class ComponentMock extends Component<ComponentConfiguration> {
     protected static _cn: string = "mock";
     public static get componentName(): string {
         return this._cn;
     };
     protected _activate(): void { /*noop*/ }
     protected _deactivate(): void { /*noop*/ }
-    protected _getDefaultConfiguration(): IComponentConfiguration {
+    protected _getDefaultConfiguration(): ComponentConfiguration {
         return {};
     }
 }
@@ -74,7 +74,7 @@ ComponentService.register(ZC);
 class CoverComponentMock extends CoverComponent {
     protected _activate(): void { /*noop*/ }
     protected _deactivate(): void { /*noop*/ }
-    protected _getDefaultConfiguration(): IComponentConfiguration {
+    protected _getDefaultConfiguration(): ComponentConfiguration {
         return {};
     }
 }
@@ -203,7 +203,7 @@ describe("ComponentController.navigable", () => {
             skip(1), // skip initial default configuration
             take(1))
             .subscribe(
-                (c: ICoverConfiguration): void => {
+                (c: CoverConfiguration): void => {
                     expect(c.key).toBe(key);
                 });
 
@@ -253,11 +253,11 @@ describe("ComponentController.navigable", () => {
         let configurationCount: number = 0;
         coverComponent.configuration$.pipe(
             first(
-                (c: ICoverConfiguration): boolean => {
+                (c: CoverConfiguration): boolean => {
                     return c.state === CoverState.Hidden;
                 }))
             .subscribe(
-                (c: ICoverConfiguration): void => {
+                (c: CoverConfiguration): void => {
                     configurationCount++;
                     expect(c.key).toBe(key);
                 });

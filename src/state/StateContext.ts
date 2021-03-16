@@ -1,6 +1,6 @@
 import { State } from "./State";
 import { TransitionMode } from "./TransitionMode";
-import { IRotation } from "./interfaces/IRotation";
+import { EulerRotation } from "./interfaces/EulerRotation";
 import { IStateContext } from "./interfaces/IStateContext";
 import { EarthState } from "./states/EarthState";
 import { InteractiveWaitingState } from "./states/InteractiveWaitingState";
@@ -10,7 +10,7 @@ import { WaitingState } from "./states/WaitingState";
 
 import { Camera } from "../geo/Camera";
 import { Transform } from "../geo/Transform";
-import { ILatLonAlt } from "../geo/interfaces/ILatLonAlt";
+import { LatLonAltEnt } from "../api/ents/LatLonAltEnt";
 import { Node } from "../graph/Node";
 
 type StateCreators = Map<string, new (state: StateBase) => StateBase>;
@@ -89,7 +89,7 @@ export class StateContext implements IStateContext {
         return this._transitions.getState(this._state);
     }
 
-    public get reference(): ILatLonAlt {
+    public get reference(): LatLonAltEnt {
         return this._state.reference;
     }
 
@@ -205,15 +205,15 @@ export class StateContext implements IStateContext {
         this._state.set(nodes);
     }
 
-    public rotate(delta: IRotation): void {
+    public rotate(delta: EulerRotation): void {
         this._state.rotate(delta);
     }
 
-    public rotateUnbounded(delta: IRotation): void {
+    public rotateUnbounded(delta: EulerRotation): void {
         this._state.rotateUnbounded(delta);
     }
 
-    public rotateWithoutInertia(delta: IRotation): void {
+    public rotateWithoutInertia(delta: EulerRotation): void {
         this._state.rotateWithoutInertia(delta);
     }
 
@@ -257,7 +257,7 @@ export class StateContext implements IStateContext {
         this._state.dolly(delta);
     }
 
-    public orbit(rotation: IRotation): void {
+    public orbit(rotation: EulerRotation): void {
         this._state.orbit(rotation);
     }
 

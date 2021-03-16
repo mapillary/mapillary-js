@@ -1,12 +1,12 @@
 import * as pako from "pako";
 import * as falcor from "falcor";
 import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
-import { IClusterReconstruction } from "../../src/api/interfaces/IClusterReconstruction";
-import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
-import { IFillNode } from "../../src/api/interfaces/IFillNode";
-import { ISequence } from "../../src/api/interfaces/ISequence";
+import { ReconstructionEnt } from "../../src/api/ents/ReconstructionEnt";
+import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
+import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { ModelCreator } from "../../src/api/ModelCreator";
 import { MapillaryError } from "../../src/error/MapillaryError";
+import { SequenceEnt } from "../../src/api/ents/SequenceEnt";
 
 describe("FalcorDataProvider.ctor", () => {
     it("should create a data provider", () => {
@@ -41,7 +41,7 @@ describe("FalcorDataProvider.getFillImages", () => {
 
         provider.getFillImages([key])
             .then(
-                (result: { [key: string]: IFillNode }): void => {
+                (result: { [key: string]: SpatialImageEnt }): void => {
                     expect(result).toBeDefined();
 
                     expect(modelSpy.calls.count()).toBe(1);
@@ -196,7 +196,7 @@ describe("FalcorDataProvider.getFullImages", () => {
 
         provider.getFullImages([key])
             .then(
-                (result: { [key: string]: IFillNode }): void => {
+                (result: { [key: string]: SpatialImageEnt }): void => {
                     expect(result).toBeDefined();
 
                     expect(spy.calls.count()).toBe(1);
@@ -268,7 +268,7 @@ describe("FalcorDataProvider.getFullImages", () => {
 
         provider.getFullImages([key])
             .then(
-                (result: { [key: string]: IFillNode }): void => { return; },
+                (result: { [key: string]: SpatialImageEnt }): void => { return; },
                 (error: Error): void => {
                     expect(invalidateSpy.calls.count()).toBe(1);
                     expect(invalidateSpy.calls.first().args.length).toBe(1);
@@ -308,7 +308,7 @@ describe("FalcorDataProvider.getCoreImages", () => {
 
         provider.getCoreImages(h)
             .then(
-                (result: { [key: string]: { [index: string]: ICoreNode } }): void => {
+                (result: { [key: string]: { [index: string]: CoreImageEnt } }): void => {
                     expect(result).toBeDefined();
 
                     expect(spy.calls.count()).toBe(1);
@@ -348,7 +348,7 @@ describe("FalcorDataProvider.getCoreImages", () => {
 
         provider.getCoreImages(h)
             .then(
-                (result: { [key: string]: { [index: string]: ICoreNode } }): void => { return; },
+                (result: { [key: string]: { [index: string]: CoreImageEnt } }): void => { return; },
                 (error: Error): void => {
                     expect(invalidateSpy.calls.count()).toBe(1);
                     expect(invalidateSpy.calls.first().args.length).toBe(1);
@@ -386,7 +386,7 @@ describe("FalcorDataProvider.getCoreImages", () => {
 
         provider.getCoreImages(h)
             .then(
-                (result: { [key: string]: { [index: string]: ICoreNode } }): void => {
+                (result: { [key: string]: { [index: string]: CoreImageEnt } }): void => {
                     expect(result).toBeDefined();
                     expect(result[h]).toBeDefined();
 
@@ -423,7 +423,7 @@ describe("FalcorDataProvider.getSequences", () => {
 
         provider.getSequences([skey])
             .then(
-                (result: { [key: string]: ISequence }): void => {
+                (result: { [key: string]: SequenceEnt }): void => {
                     expect(result).toBeDefined();
 
                     expect(spy.calls.count()).toBe(1);
@@ -463,7 +463,7 @@ describe("FalcorDataProvider.getSequences", () => {
 
         provider.getSequences([skey])
             .then(
-                (result: { [key: string]: ISequence }): void => { return; },
+                (result: { [key: string]: SequenceEnt }): void => { return; },
                 (error: Error): void => {
                     expect(invalidateSpy.calls.count()).toBe(1);
                     expect(invalidateSpy.calls.first().args.length).toBe(1);
@@ -504,7 +504,7 @@ describe("FalcorDataProvider.getSequences", () => {
 
         provider.getSequences([skey])
             .then(
-                (result: { [key: string]: ISequence }): void => {
+                (result: { [key: string]: SequenceEnt }): void => {
                     expect(result).toBeDefined();
                     expect(result[skey]).toBeDefined();
                     expect(result[skey].key).toBe(skey);
@@ -542,7 +542,7 @@ describe("FalcorDataProvider.getSequences", () => {
 
         provider.getSequences([skey])
             .then(
-                (result: { [key: string]: ISequence }): void => {
+                (result: { [key: string]: SequenceEnt }): void => {
                     expect(result).toBeDefined();
                     expect(result[skey]).toBeDefined();
                     expect(result[skey].key).toBe(skey);
@@ -579,7 +579,7 @@ describe("FalcorDataProvider.getSequences", () => {
 
         provider.getSequences([skey])
             .then(
-                (result: { [key: string]: ISequence }): void => {
+                (result: { [key: string]: SequenceEnt }): void => {
                     expect(result).toBeDefined();
                     expect(result[skey]).toBeDefined();
                     expect(result[skey].key).toBe(skey);
@@ -763,11 +763,11 @@ describe("FalcorDataProvider.getClusterReconstruction", () => {
 
         provider.getClusterReconstruction("url")
             .then(
-                (r: IClusterReconstruction): void => {
+                (r: ReconstructionEnt): void => {
                     expect(r.points).toEqual({});
-                    expect(r.reference_lla.altitude).toBe(1);
-                    expect(r.reference_lla.latitude).toBe(2);
-                    expect(r.reference_lla.longitude).toBe(3);
+                    expect(r.reference.alt).toBe(1);
+                    expect(r.reference.lat).toBe(2);
+                    expect(r.reference.lon).toBe(3);
 
                     done();
                 });

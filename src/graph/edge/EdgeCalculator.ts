@@ -3,12 +3,12 @@ import * as THREE from "three";
 import { EdgeCalculatorCoefficients } from "./EdgeCalculatorCoefficients";
 import { EdgeCalculatorDirections } from "./EdgeCalculatorDirections";
 import { EdgeCalculatorSettings } from "./EdgeCalculatorSettings";
-import { EdgeDirection } from "./EdgeDirection";
-import { IEdge } from "./interfaces/IEdge";
-import { ISpherical } from "./interfaces/ISpherical";
-import { IPotentialEdge } from "./interfaces/IPotentialEdge";
-import { IStep } from "./interfaces/IStep";
-import { ITurn } from "./interfaces/ITurn";
+import { NavigationDirection } from "./NavigationDirection";
+import { NavigationEdge } from "./interfaces/NavigationEdge";
+import { SphericalDirection } from "./interfaces/SphericalDirection";
+import { PotentialEdge } from "./interfaces/PotentialEdge";
+import { StepDirection } from "./interfaces/StepDirection";
+import { TurnDirection } from "./interfaces/TurnDirection";
 
 import { Node } from "../Node";
 import { Sequence } from "../Sequence";
@@ -62,7 +62,7 @@ export class EdgeCalculator {
      * be returned even if they do not meet the criteria for a potential edge.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public getPotentialEdges(node: Node, potentialNodes: Node[], fallbackKeys: string[]): IPotentialEdge[] {
+    public getPotentialEdges(node: Node, potentialNodes: Node[], fallbackKeys: string[]): PotentialEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
@@ -76,7 +76,7 @@ export class EdgeCalculator {
         let currentVerticalDirection: number =
             this._spatial.angleToPlane(currentDirection.toArray(), [0, 0, 1]);
 
-        let potentialEdges: IPotentialEdge[] = [];
+        let potentialEdges: PotentialEdge[] = [];
 
         for (let potential of potentialNodes) {
             if (!potential.merged ||
@@ -138,7 +138,7 @@ export class EdgeCalculator {
             let sameUser: boolean =
                 potential.userKey === node.userKey;
 
-            let potentialEdge: IPotentialEdge = {
+            let potentialEdge: PotentialEdge = {
                 capturedAt: potential.capturedAt,
                 directionChange: directionChange,
                 distance: distance,
@@ -167,7 +167,7 @@ export class EdgeCalculator {
      * @param {Node} node - Source node.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public computeSequenceEdges(node: Node, sequence: Sequence): IEdge[] {
+    public computeSequenceEdges(node: Node, sequence: Sequence): NavigationEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
@@ -176,17 +176,17 @@ export class EdgeCalculator {
             throw new ArgumentMapillaryError("Node and sequence does not correspond.");
         }
 
-        let edges: IEdge[] = [];
+        let edges: NavigationEdge[] = [];
 
         let nextKey: string = sequence.findNextKey(node.key);
         if (nextKey != null) {
             edges.push({
                 data: {
-                    direction: EdgeDirection.Next,
+                    direction: NavigationDirection.Next,
                     worldMotionAzimuth: Number.NaN,
                 },
-                from: node.key,
-                to: nextKey,
+                source: node.key,
+                target: nextKey,
             });
         }
 
@@ -194,11 +194,11 @@ export class EdgeCalculator {
         if (prevKey != null) {
             edges.push({
                 data: {
-                    direction: EdgeDirection.Prev,
+                    direction: NavigationDirection.Prev,
                     worldMotionAzimuth: Number.NaN,
                 },
-                from: node.key,
-                to: prevKey,
+                source: node.key,
+                target: prevKey,
             });
         }
 
@@ -213,16 +213,16 @@ export class EdgeCalculator {
      * Similar edges for spherical only target other spherical.
      *
      * @param {Node} node - Source node.
-     * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
+     * @param {Array<PotentialEdge>} potentialEdges - Potential edges.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public computeSimilarEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computeSimilarEdges(node: Node, potentialEdges: PotentialEdge[]): NavigationEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
 
         let nodeSpherical: boolean = isSpherical(node.cameraType);
-        let sequenceGroups: { [key: string]: IPotentialEdge[] } = {};
+        let sequenceGroups: { [key: string]: PotentialEdge[] } = {};
 
         for (let potentialEdge of potentialEdges) {
             if (potentialEdge.sequenceKey == null) {
@@ -262,14 +262,14 @@ export class EdgeCalculator {
 
         }
 
-        let similarEdges: IPotentialEdge[] = [];
+        let similarEdges: PotentialEdge[] = [];
 
         let calculateScore =
             isSpherical(node.cameraType) ?
-                (potentialEdge: IPotentialEdge): number => {
+                (potentialEdge: PotentialEdge): number => {
                     return potentialEdge.distance;
                 } :
-                (potentialEdge: IPotentialEdge): number => {
+                (potentialEdge: PotentialEdge): number => {
                     return this._coefficients.similarDistance * potentialEdge.distance +
                         this._coefficients.similarRotation * potentialEdge.rotation;
                 };
@@ -280,7 +280,7 @@ export class EdgeCalculator {
             }
 
             let lowestScore: number = Number.MAX_VALUE;
-            let similarEdge: IPotentialEdge = null;
+            let similarEdge: PotentialEdge = null;
 
             for (let potentialEdge of sequenceGroups[sequenceKey]) {
                 let score: number = calculateScore(potentialEdge);
@@ -299,15 +299,15 @@ export class EdgeCalculator {
         }
 
         return similarEdges
-            .map<IEdge>(
-                (potentialEdge: IPotentialEdge): IEdge => {
+            .map<NavigationEdge>(
+                (potentialEdge: PotentialEdge): NavigationEdge => {
                     return {
                         data: {
-                            direction: EdgeDirection.Similar,
+                            direction: NavigationDirection.Similar,
                             worldMotionAzimuth: potentialEdge.worldMotionAzimuth,
                         },
-                        from: node.key,
-                        to: potentialEdge.key,
+                        source: node.key,
+                        target: potentialEdge.key,
                     };
                 });
     }
@@ -319,22 +319,22 @@ export class EdgeCalculator {
      * Returns an empty array for spherical.
      *
      * @param {Node} node - Source node.
-     * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
+     * @param {Array<PotentialEdge>} potentialEdges - Potential edges.
      * @param {string} prevKey - Key of previous node in sequence.
      * @param {string} prevKey - Key of next node in sequence.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
     public computeStepEdges(
         node: Node,
-        potentialEdges: IPotentialEdge[],
+        potentialEdges: PotentialEdge[],
         prevKey: string,
-        nextKey: string): IEdge[] {
+        nextKey: string): NavigationEdge[] {
 
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
 
-        let edges: IEdge[] = [];
+        let edges: NavigationEdge[] = [];
 
         if (isSpherical(node.cameraType)) {
             return edges;
@@ -345,11 +345,11 @@ export class EdgeCalculator {
                 continue;
             }
 
-            let step: IStep = this._directions.steps[k];
+            let step: StepDirection = this._directions.steps[k];
 
             let lowestScore: number = Number.MAX_VALUE;
-            let edge: IPotentialEdge = null;
-            let fallback: IPotentialEdge = null;
+            let edge: PotentialEdge = null;
+            let fallback: PotentialEdge = null;
 
             for (let potential of potentialEdges) {
                 if (potential.spherical) {
@@ -406,8 +406,8 @@ export class EdgeCalculator {
                         direction: step.direction,
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
-                    from: node.key,
-                    to: edge.key,
+                    source: node.key,
+                    target: edge.key,
                 });
             }
         }
@@ -422,15 +422,15 @@ export class EdgeCalculator {
      * Returns an empty array for spherical.
      *
      * @param {Node} node - Source node.
-     * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
+     * @param {Array<PotentialEdge>} potentialEdges - Potential edges.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public computeTurnEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computeTurnEdges(node: Node, potentialEdges: PotentialEdge[]): NavigationEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
 
-        let edges: IEdge[] = [];
+        let edges: NavigationEdge[] = [];
 
         if (isSpherical(node.cameraType)) {
             return edges;
@@ -441,10 +441,10 @@ export class EdgeCalculator {
                 continue;
             }
 
-            let turn: ITurn = this._directions.turns[k];
+            let turn: TurnDirection = this._directions.turns[k];
 
             let lowestScore: number = Number.MAX_VALUE;
-            let edge: IPotentialEdge = null;
+            let edge: PotentialEdge = null;
 
             for (let potential of potentialEdges) {
                 if (potential.spherical) {
@@ -456,7 +456,7 @@ export class EdgeCalculator {
                 }
 
                 let rig: boolean =
-                    turn.direction !== EdgeDirection.TurnU &&
+                    turn.direction !== NavigationDirection.TurnU &&
                     potential.distance < this._settings.turnMaxRigDistance &&
                     Math.abs(potential.directionChange) > this._settings.turnMinRigDirectionChange;
 
@@ -502,8 +502,8 @@ export class EdgeCalculator {
                         direction: turn.direction,
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
-                    from: node.key,
-                    to: edge.key,
+                    source: node.key,
+                    target: edge.key,
                 });
             }
         }
@@ -518,10 +518,10 @@ export class EdgeCalculator {
      * spherical nodes. Returns an empty array for spherical.
      *
      * @param {Node} node - Source node.
-     * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
+     * @param {Array<PotentialEdge>} potentialEdges - Potential edges.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public computePerspectiveToSphericalEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computePerspectiveToSphericalEdges(node: Node, potentialEdges: PotentialEdge[]): NavigationEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
@@ -531,7 +531,7 @@ export class EdgeCalculator {
         }
 
         let lowestScore: number = Number.MAX_VALUE;
-        let edge: IPotentialEdge = null;
+        let edge: PotentialEdge = null;
 
         for (let potential of potentialEdges) {
             if (!potential.spherical) {
@@ -558,11 +558,11 @@ export class EdgeCalculator {
         return [
             {
                 data: {
-                    direction: EdgeDirection.Spherical,
+                    direction: NavigationDirection.Spherical,
                     worldMotionAzimuth: edge.worldMotionAzimuth,
                 },
-                from: node.key,
-                to: edge.key,
+                source: node.key,
+                target: edge.key,
             },
         ];
     }
@@ -575,10 +575,10 @@ export class EdgeCalculator {
      * nodes.
      *
      * @param {Node} node - Source node.
-     * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
+     * @param {Array<PotentialEdge>} potentialEdges - Potential edges.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public computeSphericalEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computeSphericalEdges(node: Node, potentialEdges: PotentialEdge[]): NavigationEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
@@ -587,9 +587,9 @@ export class EdgeCalculator {
             return [];
         }
 
-        let sphericalEdges: IEdge[] = [];
-        let potentialSpherical: IPotentialEdge[] = [];
-        let potentialSteps: [EdgeDirection, IPotentialEdge][] = [];
+        let sphericalEdges: NavigationEdge[] = [];
+        let potentialSpherical: PotentialEdge[] = [];
+        let potentialSteps: [NavigationDirection, PotentialEdge][] = [];
 
         for (let potential of potentialEdges) {
             if (potential.distance > this._settings.sphericalMaxDistance) {
@@ -608,7 +608,7 @@ export class EdgeCalculator {
                         continue;
                     }
 
-                    let spherical: ISpherical = this._directions.spherical[k];
+                    let spherical = this._directions.spherical[k];
 
                     let turn: number = this._spatial.angleDifference(
                         potential.directionChange,
@@ -636,7 +636,7 @@ export class EdgeCalculator {
             let rotation: number = index / this._settings.sphericalMaxItems * 2 * Math.PI;
 
             let lowestScore: number = Number.MAX_VALUE;
-            let edge: IPotentialEdge = null;
+            let edge: PotentialEdge = null;
 
             for (let potential of potentialSpherical) {
                 let motionDifference: number = this._spatial.angleDifference(rotation, potential.motionChange);
@@ -675,11 +675,11 @@ export class EdgeCalculator {
                 occupiedAngles.push(edge.motionChange);
                 sphericalEdges.push({
                     data: {
-                        direction: EdgeDirection.Spherical,
+                        direction: NavigationDirection.Spherical,
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
-                    from: node.key,
-                    to: edge.key,
+                    source: node.key,
+                    target: edge.key,
                 });
             } else {
                 stepAngles.push(rotation);
@@ -687,29 +687,29 @@ export class EdgeCalculator {
         }
 
         let occupiedStepAngles: { [direction: string]: number[] } = {};
-        occupiedStepAngles[EdgeDirection.Spherical] = occupiedAngles;
-        occupiedStepAngles[EdgeDirection.StepForward] = [];
-        occupiedStepAngles[EdgeDirection.StepLeft] = [];
-        occupiedStepAngles[EdgeDirection.StepBackward] = [];
-        occupiedStepAngles[EdgeDirection.StepRight] = [];
+        occupiedStepAngles[NavigationDirection.Spherical] = occupiedAngles;
+        occupiedStepAngles[NavigationDirection.StepForward] = [];
+        occupiedStepAngles[NavigationDirection.StepLeft] = [];
+        occupiedStepAngles[NavigationDirection.StepBackward] = [];
+        occupiedStepAngles[NavigationDirection.StepRight] = [];
 
         for (let stepAngle of stepAngles) {
-            let occupations: [EdgeDirection, IPotentialEdge][] = [];
+            let occupations: [NavigationDirection, PotentialEdge][] = [];
 
             for (let k in this._directions.spherical) {
                 if (!this._directions.spherical.hasOwnProperty(k)) {
                     continue;
                 }
 
-                let spherical: ISpherical = this._directions.spherical[k];
+                let spherical = this._directions.spherical[k];
 
-                let allOccupiedAngles: number[] = occupiedStepAngles[EdgeDirection.Spherical]
+                let allOccupiedAngles: number[] = occupiedStepAngles[NavigationDirection.Spherical]
                     .concat(occupiedStepAngles[spherical.direction])
                     .concat(occupiedStepAngles[spherical.prev])
                     .concat(occupiedStepAngles[spherical.next]);
 
                 let lowestScore: number = Number.MAX_VALUE;
-                let edge: [EdgeDirection, IPotentialEdge] = null;
+                let edge: [NavigationDirection, PotentialEdge] = null;
 
                 for (let potential of potentialSteps) {
                     if (potential[0] !== spherical.direction) {
@@ -755,8 +755,8 @@ export class EdgeCalculator {
                             direction: edge[0],
                             worldMotionAzimuth: edge[1].worldMotionAzimuth,
                         },
-                        from: node.key,
-                        to: edge[1].key,
+                        source: node.key,
+                        target: edge[1].key,
                     });
                 }
             }

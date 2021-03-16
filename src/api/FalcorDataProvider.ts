@@ -9,28 +9,29 @@ import { GeohashGeometryProvider } from "./GeohashGeometryProvider";
 import { JsonInflator } from "./JsonInflator";
 import { ModelCreator } from "./ModelCreator";
 import { PbfMeshReader } from "./PbfMeshReader";
-import { IClusterReconstruction } from "./interfaces/IClusterReconstruction";
-import { ICoreNode } from "./interfaces/ICoreNode";
-import { IFalcorDataProviderOptions } from "./interfaces/IFalcorDataProviderOptions";
-import { IFillNode } from "./interfaces/IFillNode";
-import { IFullNode } from "./interfaces/IFullNode";
-import { IMesh } from "./interfaces/IMesh";
-import { ISequence } from "./interfaces/ISequence";
+import { ReconstructionEnt } from "./ents/ReconstructionEnt";
+import { CoreImageEnt } from "./ents/CoreImageEnt";
+import { FalcorDataProviderOptions } from "./interfaces/FalcorDataProviderOptions";
+import { SpatialImageEnt } from "./ents/SpatialImageEnt";
+import { ImageEnt } from "./ents/ImageEnt";
+import { MeshEnt } from "./ents/MeshEnt";
 
 import { MapillaryError } from "../error/MapillaryError";
 import { ImageSize } from "../viewer/ImageSize";
 import { GeometryProviderBase } from "./GeometryProviderBase";
+import { SequenceEnt } from "./ents/SequenceEnt";
+import { LatLonAltEnt } from "./ents/LatLonAltEnt";
 
 
-interface IImageByKey<T> {
+interface ImageByKey<T> {
     imageByKey: { [key: string]: T };
 }
 
-interface IImagesByH<T> {
+interface ImagesByH<T> {
     imagesByH: { [key: string]: { [index: string]: T } };
 }
 
-interface ISequenceByKey<T> {
+interface SequenceByKey<T> {
     sequenceByKey: { [sequenceKey: string]: T };
 }
 
@@ -38,6 +39,14 @@ type APIPath =
     "imageByKey" |
     "imagesByH" |
     "sequenceByKey";
+
+interface Reconstruction extends ReconstructionEnt {
+    reference_lla: {
+        altitude: number,
+        latitude: number,
+        longitude: number,
+    }
+}
 
 /**
  * @class PointsGeometry
@@ -64,17 +73,17 @@ export class FalcorDataProviderUrls {
     /**
      * Create a new Falcor data provider URLs instance.
      *
-     * @param {IFalcorDataProviderOptions} options - Options struct.
+     * @param {FalcorDataProviderOptions} options - Options struct.
      */
-    constructor(options: IFalcorDataProviderOptions) {
+    constructor(options: FalcorDataProviderOptions) {
         this._clientToken = options.clientToken;
 
         if (!!options.apiHost) {
             this._apiHost = options.apiHost;
         }
 
-        if (!!options.clusterReconstructionHost) {
-            this._clusterReconstructionHost = options.clusterReconstructionHost;
+        if (!!options.reconstructionHost) {
+            this._clusterReconstructionHost = options.reconstructionHost;
         }
 
         if (!!options.imageHost) {
@@ -156,12 +165,12 @@ export class FalcorDataProvider extends DataProviderBase {
     /**
      * Create a new Falcor data provider instance.
      *
-     * @param {IFalcorDataProviderOptions} options - Options struct.
+     * @param {FalcorDataProviderOptions} options - Options struct.
      * @param {GeometryProviderBase} [geometry] - Optional geometry
      * provider instance.
      */
     constructor(
-        options: IFalcorDataProviderOptions,
+        options: FalcorDataProviderOptions,
         geometry?: GeometryProviderBase) {
 
         super(!!geometry ? geometry : new GeohashGeometryProvider());
@@ -236,8 +245,8 @@ export class FalcorDataProvider extends DataProviderBase {
      * @inheritdoc
      */
     public getCoreImages(cellId: string):
-        Promise<{ [cellId: string]: { [imageKey: string]: ICoreNode } }> {
-        return Promise.resolve(<PromiseLike<JSONEnvelope<IImagesByH<ICoreNode>>>>this._model
+        Promise<{ [cellId: string]: { [imageKey: string]: CoreImageEnt } }> {
+        return Promise.resolve(<PromiseLike<JSONEnvelope<ImagesByH<CoreImageEnt>>>>this._model
             .get([
                 this._pathImagesByH,
                 [cellId],
@@ -245,7 +254,7 @@ export class FalcorDataProvider extends DataProviderBase {
                 this._propertiesKey
                     .concat(this._propertiesCore)]))
             .then(
-                (value: JSONEnvelope<IImagesByH<ICoreNode>>): { [h: string]: { [index: string]: ICoreNode } } => {
+                (value: JSONEnvelope<ImagesByH<CoreImageEnt>>): { [h: string]: { [index: string]: CoreImageEnt } } => {
                     if (!value) {
                         value = { json: { imagesByH: {} } };
                         for (const h of [cellId]) {
@@ -267,20 +276,32 @@ export class FalcorDataProvider extends DataProviderBase {
     /**
      * @inheritdoc
      */
-    public getClusterReconstruction(url: string, abort?: Promise<void>): Promise<IClusterReconstruction> {
+    public getClusterReconstruction(
+        url: string,
+        abort?: Promise<void>): Promise<ReconstructionEnt> {
         return BufferFetcher.getArrayBuffer(url, abort)
             .then(
-                (buffer: ArrayBuffer): IClusterReconstruction => {
-                    const reconstructions: IClusterReconstruction[] =
+                (buffer: ArrayBuffer): Reconstruction => {
+                    const reconstructions: Reconstruction[] =
                         JsonInflator.decompress(buffer);
 
                     if (reconstructions.length < 1) {
                         throw new MapillaryError("Cluster reconstruction is empty.");
                     }
 
+                    const reconstruction = reconstructions[0];
+                    const referenceLla = reconstruction.reference_lla;
+                    const reference: LatLonAltEnt = {
+                        alt: referenceLla.altitude,
+                        lat: referenceLla.latitude,
+                        lon: referenceLla.longitude,
+                    };
+                    reconstruction.reference = reference;
+                    delete reconstruction.reference_lla;
+
                     return reconstructions[0];
                 },
-                (reason: Error): IClusterReconstruction => {
+                (reason: Error): Reconstruction => {
                     throw reason;
                 });
     }
@@ -288,8 +309,8 @@ export class FalcorDataProvider extends DataProviderBase {
     /**
      * @inheritdoc
      */
-    public getFillImages(keys: string[]): Promise<{ [key: string]: IFillNode }> {
-        return Promise.resolve(<PromiseLike<JSONEnvelope<IImageByKey<IFillNode>>>>this._model
+    public getFillImages(keys: string[]): Promise<{ [key: string]: SpatialImageEnt }> {
+        return Promise.resolve(<PromiseLike<JSONEnvelope<ImageByKey<SpatialImageEnt>>>>this._model
             .get([
                 this._pathImageByKey,
                 keys,
@@ -299,7 +320,7 @@ export class FalcorDataProvider extends DataProviderBase {
                 this._propertiesKey
                     .concat(this._propertiesUser)]))
             .then(
-                (value: JSONEnvelope<IImageByKey<IFillNode>>): { [key: string]: IFillNode } => {
+                (value: JSONEnvelope<ImageByKey<SpatialImageEnt>>): { [key: string]: SpatialImageEnt } => {
                     if (!value) {
                         this._invalidateGet(this._pathImageByKey, keys);
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
@@ -316,8 +337,8 @@ export class FalcorDataProvider extends DataProviderBase {
     /**
      * @inheritdoc
      */
-    public getFullImages(keys: string[]): Promise<{ [key: string]: IFullNode }> {
-        return Promise.resolve(<PromiseLike<JSONEnvelope<IImageByKey<IFullNode>>>>this._model
+    public getFullImages(keys: string[]): Promise<{ [key: string]: ImageEnt }> {
+        return Promise.resolve(<PromiseLike<JSONEnvelope<ImageByKey<ImageEnt>>>>this._model
             .get([
                 this._pathImageByKey,
                 keys,
@@ -328,7 +349,7 @@ export class FalcorDataProvider extends DataProviderBase {
                 this._propertiesKey
                     .concat(this._propertiesUser)]))
             .then(
-                (value: JSONEnvelope<IImageByKey<IFullNode>>): { [key: string]: IFullNode } => {
+                (value: JSONEnvelope<ImageByKey<ImageEnt>>): { [key: string]: ImageEnt } => {
                     if (!value) {
                         this._invalidateGet(this._pathImageByKey, keys);
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
@@ -371,13 +392,13 @@ export class FalcorDataProvider extends DataProviderBase {
     /**
      * @inheritdoc
      */
-    public getMesh(url: string, abort?: Promise<void>): Promise<IMesh> {
+    public getMesh(url: string, abort?: Promise<void>): Promise<MeshEnt> {
         return BufferFetcher.getArrayBuffer(url, abort)
             .then(
-                (buffer: ArrayBuffer): IMesh => {
+                (buffer: ArrayBuffer): MeshEnt => {
                     return PbfMeshReader.read(buffer);
                 },
-                (reason: Error): IMesh => {
+                (reason: Error): MeshEnt => {
                     throw reason;
                 });
     }
@@ -386,15 +407,15 @@ export class FalcorDataProvider extends DataProviderBase {
      * @inheritdoc
      */
     public getSequences(sequenceKeys: string[]):
-        Promise<{ [sequenceKey: string]: ISequence }> {
-        return Promise.resolve(<PromiseLike<JSONEnvelope<ISequenceByKey<ISequence>>>>this._model
+        Promise<{ [sequenceKey: string]: SequenceEnt }> {
+        return Promise.resolve(<PromiseLike<JSONEnvelope<SequenceByKey<SequenceEnt>>>>this._model
             .get([
                 this._pathSequenceByKey,
                 sequenceKeys,
                 this._propertiesKey
                     .concat(this._propertiesSequence)]))
             .then(
-                (value: JSONEnvelope<ISequenceByKey<ISequence>>): { [sequenceKey: string]: ISequence } => {
+                (value: JSONEnvelope<SequenceByKey<SequenceEnt>>): { [sequenceKey: string]: SequenceEnt } => {
                     if (!value) {
                         value = { json: { sequenceByKey: {} } };
                     }
@@ -429,7 +450,7 @@ export class FalcorDataProvider extends DataProviderBase {
         this._model.invalidate([path, paths]);
     }
 
-    private _populateUrls<T extends IFillNode>(ibk: { [key: string]: T }): { [key: string]: T } {
+    private _populateUrls<T extends SpatialImageEnt>(ibk: { [key: string]: T }): { [key: string]: T } {
         for (let key in ibk) {
             if (!ibk.hasOwnProperty(key)) {
                 continue;

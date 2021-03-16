@@ -1,15 +1,12 @@
 import * as THREE from "three";
-
-import {
-    IClusterReconstruction,
-    IReconstructionPoint,
-} from "../../api/interfaces/IClusterReconstruction";
+import { PointEnt } from "../../api/ents/PointEnt";
+import { ReconstructionEnt } from "../../api/ents/ReconstructionEnt";
 import { MapillaryError } from "../../error/MapillaryError";
 import { isSpherical } from "../../geo/Geo";
 import { Transform } from "../../geo/Transform";
 import { FilterFunction } from "../../graph/FilterCreator";
 import { Node } from "../../graph/Node";
-import { ISpatialDataConfiguration } from "../interfaces/ISpatialDataConfiguration";
+import { SpatialDataConfiguration } from "../interfaces/SpatialDataConfiguration";
 import { CameraVisualizationMode } from "./CameraVisualizationMode";
 import { OriginalPositionMode } from "./OriginalPositionMode";
 
@@ -417,7 +414,7 @@ class SphericalCameraFrame extends CameraFrameBase {
 class ClusterPoints extends THREE.Points {
     constructor(
         private readonly _originalSize: number,
-        reconstruction: IClusterReconstruction,
+        reconstruction: ReconstructionEnt,
         translation: number[],
         scale: number) {
         super();
@@ -452,12 +449,12 @@ class ClusterPoints extends THREE.Points {
     }
 
     private _getArrays(
-        reconstruction: IClusterReconstruction,
+        reconstruction: ReconstructionEnt,
         translation: number[]): [Float32Array, Float32Array] {
         const points = Object
             .keys(reconstruction.points)
             .map(
-                (key: string): IReconstructionPoint => {
+                (key: string): PointEnt => {
                     return reconstruction.points[key];
                 });
 
@@ -974,7 +971,7 @@ export class SpatialDataScene {
     private _colors: { hover: string, select: string };
 
     constructor(
-        configuration: ISpatialDataConfiguration,
+        configuration: SpatialDataConfiguration,
         scene?: THREE.Scene) {
         this._rayNearScale = 1.1;
         this._originalPointSize = 2;
@@ -1015,7 +1012,7 @@ export class SpatialDataScene {
     public get intersection(): Intersection { return this._intersection; }
 
     public addClusterReconstruction(
-        reconstruction: IClusterReconstruction,
+        reconstruction: ReconstructionEnt,
         translation: number[],
         cellId: string): void {
 

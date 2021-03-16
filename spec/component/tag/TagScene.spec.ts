@@ -4,7 +4,7 @@ import { RectGeometry } from "../../../src/component/tag/geometry/RectGeometry";
 import { RenderTag } from "../../../src/component/tag/tag/RenderTag";
 import { Tag } from "../../../src/component/tag/tag/Tag";
 import { TagScene } from "../../../src/component/tag/TagScene";
-import { ISize } from "../../../src/render/interfaces/ISize";
+import { ViewportSize } from "../../../src/render/interfaces/ViewportSize";
 import { ISpriteAtlas } from "../../../src/viewer/interfaces/ISpriteAtlas";
 
 describe("TagScene.ctor", () => {
@@ -36,7 +36,7 @@ class TestTag extends Tag {
 
 class TestRenderTag extends RenderTag<Tag> {
     public dispose(): void { /*noop*/ }
-    public getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ISize): vd.VNode[] { return []; }
+    public getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ViewportSize): vd.VNode[] { return []; }
     public getGLObjects(): THREE.Object3D[] { return []; }
     public getRetrievableObjects(): THREE.Object3D[] { return []; }
 }

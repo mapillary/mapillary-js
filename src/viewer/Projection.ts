@@ -1,13 +1,13 @@
 import * as THREE from "three";
 
-import { IUnprojection } from "./interfaces/IUnprojection";
+import { Unprojection } from "./interfaces/Unprojection";
 
-import { ILatLon } from "../api/interfaces/ILatLon";
+import { LatLonEnt } from "../api/ents/LatLonEnt";
 import { GeoCoords } from "../geo/GeoCoords";
 import { Spatial } from "../geo/Spatial";
 import { Transform } from "../geo/Transform";
 import { ViewportCoords } from "../geo/ViewportCoords";
-import { ILatLonAlt } from "../geo/interfaces/ILatLonAlt";
+import { LatLonAltEnt } from "../api/ents/LatLonAltEnt";
 import { RenderCamera } from "../render/RenderCamera";
 
 export class Projection {
@@ -51,8 +51,8 @@ export class Projection {
         event: MouseEvent | Touch,
         container: HTMLElement,
         render: RenderCamera,
-        reference: ILatLonAlt,
-        transform: Transform): IUnprojection {
+        reference: LatLonAltEnt,
+        transform: Transform): Unprojection {
 
         const pixelPoint: number[] = this._viewportCoords.canvasPosition(event, container);
 
@@ -63,8 +63,8 @@ export class Projection {
         canvasPoint: number[],
         container: HTMLElement,
         render: RenderCamera,
-        reference: ILatLonAlt,
-        transform: Transform): IUnprojection {
+        reference: LatLonAltEnt,
+        transform: Transform): Unprojection {
 
         const canvasX: number = canvasPoint[0];
         const canvasY: number = canvasPoint[1];
@@ -83,7 +83,7 @@ export class Projection {
         const direction3d: THREE.Vector3 = point3d.clone().sub(render.camera.position).normalize();
         const dist: number = -2 / direction3d.z;
 
-        let latLon: ILatLon = null;
+        let latLon: LatLonEnt = null;
         if (dist > 0 && dist < 100 && !!basicPoint) {
             const point: THREE.Vector3 = direction3d.clone().multiplyScalar(dist).add(render.camera.position);
             const latLonArray: number[] = this._geoCoords
@@ -99,7 +99,7 @@ export class Projection {
             latLon = { lat: latLonArray[0], lon: latLonArray[1] };
         }
 
-        const unprojection: IUnprojection = {
+        const unprojection: Unprojection = {
             basicPoint: basicPoint,
             latLon: latLon,
             pixelPoint: [canvasX, canvasY],
@@ -108,7 +108,7 @@ export class Projection {
         return unprojection;
     }
 
-    public cameraToLatLon(render: RenderCamera, reference: ILatLonAlt): ILatLon {
+    public cameraToLatLon(render: RenderCamera, reference: LatLonAltEnt): LatLonEnt {
         const position: THREE.Vector3 = render.camera.position;
         const [lat, lon]: number[] = this._geoCoords.enuToGeodetic(
             position.x,
@@ -122,10 +122,10 @@ export class Projection {
     }
 
     public latLonToCanvas(
-        latLon: ILatLon,
+        latLon: LatLonEnt,
         container: HTMLElement,
         render: RenderCamera,
-        reference: ILatLonAlt): number[] {
+        reference: LatLonAltEnt): number[] {
 
         const point3d: number[] = this._geoCoords.geodeticToEnu(
             latLon.lat,
@@ -143,7 +143,7 @@ export class Projection {
         return canvas;
     }
 
-    public distanceBetweenLatLons(latLon1: ILatLon, latLon2: ILatLon): number {
+    public distanceBetweenLatLons(latLon1: LatLonEnt, latLon2: LatLonEnt): number {
         return this._spatial.distanceFromLatLon(
             latLon1.lat,
             latLon1.lon,

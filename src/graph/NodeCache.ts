@@ -17,11 +17,11 @@ import {
     tap,
 } from "rxjs/operators";
 
-import { IEdge } from "./edge/interfaces/IEdge";
-import { IEdgeStatus } from "./interfaces/IEdgeStatus";
+import { NavigationEdge } from "./edge/interfaces/NavigationEdge";
+import { NavigationEdgeStatus } from "./interfaces/NavigationEdgeStatus";
 
-import { IMesh } from "../api/interfaces/IMesh";
-import { INodeUrls } from "../api/interfaces/INodeUrls";
+import { MeshEnt } from "../api/ents/MeshEnt";
+import { URLImageEnt } from "../api/ents/URLImageEnt";
 import { Settings } from "../utils/Settings";
 import { ImageSize } from "../viewer/ImageSize";
 import { DataProviderBase } from "../api/DataProviderBase";
@@ -37,19 +37,19 @@ export class NodeCache {
     private _provider: DataProviderBase;
 
     private _image: HTMLImageElement;
-    private _mesh: IMesh;
-    private _sequenceEdges: IEdgeStatus;
-    private _spatialEdges: IEdgeStatus;
+    private _mesh: MeshEnt;
+    private _sequenceEdges: NavigationEdgeStatus;
+    private _spatialEdges: NavigationEdgeStatus;
 
     private _imageAborter: Function;
     private _meshAborter: Function;
 
     private _imageChanged$: Subject<HTMLImageElement>;
     private _image$: Observable<HTMLImageElement>;
-    private _sequenceEdgesChanged$: Subject<IEdgeStatus>;
-    private _sequenceEdges$: Observable<IEdgeStatus>;
-    private _spatialEdgesChanged$: Subject<IEdgeStatus>;
-    private _spatialEdges$: Observable<IEdgeStatus>;
+    private _sequenceEdgesChanged$: Subject<NavigationEdgeStatus>;
+    private _sequenceEdges$: Observable<NavigationEdgeStatus>;
+    private _spatialEdgesChanged$: Subject<NavigationEdgeStatus>;
+    private _spatialEdges$: Observable<NavigationEdgeStatus>;
 
     private _cachingAssets$: Observable<NodeCache>;
 
@@ -78,7 +78,7 @@ export class NodeCache {
 
         this._iamgeSubscription = this._image$.subscribe();
 
-        this._sequenceEdgesChanged$ = new Subject<IEdgeStatus>();
+        this._sequenceEdgesChanged$ = new Subject<NavigationEdgeStatus>();
         this._sequenceEdges$ = this._sequenceEdgesChanged$.pipe(
             startWith(this._sequenceEdges),
             publishReplay(1),
@@ -86,7 +86,7 @@ export class NodeCache {
 
         this._sequenceEdgesSubscription = this._sequenceEdges$.subscribe(() => { /*noop*/ });
 
-        this._spatialEdgesChanged$ = new Subject<IEdgeStatus>();
+        this._spatialEdgesChanged$ = new Subject<NavigationEdgeStatus>();
         this._spatialEdges$ = this._spatialEdgesChanged$.pipe(
             startWith(this._spatialEdges),
             publishReplay(1),
@@ -125,50 +125,50 @@ export class NodeCache {
      * @description Will not be set when assets have not been cached
      * or when the object has been disposed.
      *
-     * @returns {IMesh} SfM triangulated mesh of reconstructed
+     * @returns {MeshEnt} SfM triangulated mesh of reconstructed
      * atomic 3D points.
      */
-    public get mesh(): IMesh {
+    public get mesh(): MeshEnt {
         return this._mesh;
     }
 
     /**
      * Get sequenceEdges.
      *
-     * @returns {IEdgeStatus} Value describing the status of the
+     * @returns {NavigationEdgeStatus} Value describing the status of the
      * sequence edges.
      */
-    public get sequenceEdges(): IEdgeStatus {
+    public get sequenceEdges(): NavigationEdgeStatus {
         return this._sequenceEdges;
     }
 
     /**
      * Get sequenceEdges$.
      *
-     * @returns {Observable<IEdgeStatus>} Observable emitting
+     * @returns {Observable<NavigationEdgeStatus>} Observable emitting
      * values describing the status of the sequence edges.
      */
-    public get sequenceEdges$(): Observable<IEdgeStatus> {
+    public get sequenceEdges$(): Observable<NavigationEdgeStatus> {
         return this._sequenceEdges$;
     }
 
     /**
      * Get spatialEdges.
      *
-     * @returns {IEdgeStatus} Value describing the status of the
+     * @returns {NavigationEdgeStatus} Value describing the status of the
      * spatial edges.
      */
-    public get spatialEdges(): IEdgeStatus {
+    public get spatialEdges(): NavigationEdgeStatus {
         return this._spatialEdges;
     }
 
     /**
      * Get spatialEdges$.
      *
-     * @returns {Observable<IEdgeStatus>} Observable emitting
+     * @returns {Observable<NavigationEdgeStatus>} Observable emitting
      * values describing the status of the spatial edges.
      */
-    public get spatialEdges$(): Observable<IEdgeStatus> {
+    public get spatialEdges$(): Observable<NavigationEdgeStatus> {
         return this._spatialEdges$;
     }
 
@@ -182,7 +182,7 @@ export class NodeCache {
      * cache whenever the load status has changed and when the mesh or image
      * has been fully loaded.
      */
-    public cacheAssets$(nodeUrls: INodeUrls, spherical: boolean, merged: boolean): Observable<NodeCache> {
+    public cacheAssets$(nodeUrls: URLImageEnt, spherical: boolean, merged: boolean): Observable<NodeCache> {
         if (this._cachingAssets$ != null) {
             return this._cachingAssets$;
         }
@@ -195,7 +195,7 @@ export class NodeCache {
             this._cacheImage$(nodeUrls, imageSize),
             this._cacheMesh$(nodeUrls, merged)).pipe(
                 map(
-                    ([image, mesh]: [HTMLImageElement, IMesh]): NodeCache => {
+                    ([image, mesh]: [HTMLImageElement, MeshEnt]): NodeCache => {
                         this._image = image;
                         this._mesh = mesh;
 
@@ -225,14 +225,14 @@ export class NodeCache {
     /**
      * Cache an image with a higher resolution than the current one.
      *
-     * @param {INodeUrls} nodeUrls - Node URLs.
+     * @param {URLImageEnt} nodeUrls - Node URLs.
      * @param {ImageSize} imageSize - The size to cache.
      * @returns {Observable<NodeCache>} Observable emitting a single item,
      * the node cache, when the image has been cached. If supplied image
      * size is not larger than the current image size the node cache is
      * returned immediately.
      */
-    public cacheImage$(nodeUrls: INodeUrls, imageSize: ImageSize): Observable<NodeCache> {
+    public cacheImage$(nodeUrls: URLImageEnt, imageSize: ImageSize): Observable<NodeCache> {
         if (this._image != null && imageSize <= Math.max(this._image.width, this._image.height)) {
             return observableOf<NodeCache>(this);
         }
@@ -267,9 +267,9 @@ export class NodeCache {
     /**
      * Cache the sequence edges.
      *
-     * @param {Array<IEdge>} edges - Sequence edges to cache.
+     * @param {Array<NavigationEdge>} edges - Sequence edges to cache.
      */
-    public cacheSequenceEdges(edges: IEdge[]): void {
+    public cacheSequenceEdges(edges: NavigationEdge[]): void {
         this._sequenceEdges = { cached: true, edges: edges };
         this._sequenceEdgesChanged$.next(this._sequenceEdges);
     }
@@ -277,9 +277,9 @@ export class NodeCache {
     /**
      * Cache the spatial edges.
      *
-     * @param {Array<IEdge>} edges - Spatial edges to cache.
+     * @param {Array<NavigationEdge>} edges - Spatial edges to cache.
      */
-    public cacheSpatialEdges(edges: IEdge[]): void {
+    public cacheSpatialEdges(edges: NavigationEdge[]): void {
         this._spatialEdges = { cached: true, edges: edges };
         this._spatialEdgesChanged$.next(this._spatialEdges);
     }
@@ -338,13 +338,13 @@ export class NodeCache {
     /**
      * Cache the image.
      *
-     * @param {INodeUrls} nodeUrls - Node URLs.
+     * @param {URLImageEnt} nodeUrls - Node URLs.
      * @param {boolean} spherical - Value indicating whether node is a spherical.
      * @returns {Observable<ILoadStatusObject<HTMLImageElement>>} Observable
      * emitting a load status object every time the load status changes
      * and completes when the image is fully loaded.
      */
-    private _cacheImage$(nodeUrls: INodeUrls, imageSize: ImageSize): Observable<HTMLImageElement> {
+    private _cacheImage$(nodeUrls: URLImageEnt, imageSize: ImageSize): Observable<HTMLImageElement> {
         return Observable.create(
             (subscriber: Subscriber<HTMLImageElement>): void => {
                 const abort: Promise<void> = new Promise(
@@ -392,15 +392,15 @@ export class NodeCache {
     /**
      * Cache the mesh.
      *
-     * @param {INodeUrls} nodeUrls - Node URLs.
+     * @param {URLImageEnt} nodeUrls - Node URLs.
      * @param {boolean} merged - Value indicating whether node is merged.
-     * @returns {Observable<ILoadStatusObject<IMesh>>} Observable emitting
+     * @returns {Observable<ILoadStatusObject<MeshEnt>>} Observable emitting
      * a load status object every time the load status changes and completes
      * when the mesh is fully loaded.
      */
-    private _cacheMesh$(nodeUrls: INodeUrls, merged: boolean): Observable<IMesh> {
+    private _cacheMesh$(nodeUrls: URLImageEnt, merged: boolean): Observable<MeshEnt> {
         return Observable.create(
-            (subscriber: Subscriber<IMesh>): void => {
+            (subscriber: Subscriber<MeshEnt>): void => {
                 if (!merged) {
                     subscriber.next(this._createEmptyMesh());
                     subscriber.complete();
@@ -414,7 +414,7 @@ export class NodeCache {
 
                 this._provider.getMesh(nodeUrls.mesh_url, abort)
                     .then(
-                        (mesh: IMesh): void => {
+                        (mesh: MeshEnt): void => {
                             this._meshAborter = null;
 
                             if (this._disposed) {
@@ -436,10 +436,10 @@ export class NodeCache {
     /**
      * Create a load status object with an empty mesh.
      *
-     * @returns {ILoadStatusObject<IMesh>} Load status object
+     * @returns {ILoadStatusObject<MeshEnt>} Load status object
      * with empty mesh.
      */
-    private _createEmptyMesh(): IMesh {
+    private _createEmptyMesh(): MeshEnt {
         return { faces: [], vertices: [] };
     }
 
@@ -451,7 +451,7 @@ export class NodeCache {
         this._image = null;
     }
 
-    private _getThumbUrl(nodeUrls: INodeUrls, size: ImageSize): string {
+    private _getThumbUrl(nodeUrls: URLImageEnt, size: ImageSize): string {
         switch (size) {
             case ImageSize.Size320:
                 return nodeUrls.thumb320_url;

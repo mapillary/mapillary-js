@@ -12,7 +12,7 @@ import { Geometry } from "../geometry/Geometry";
 
 import { Transform } from "../../../geo/Transform";
 import { ViewportCoords } from "../../../geo/ViewportCoords";
-import { ISize } from "../../../render/interfaces/ISize";
+import { ViewportSize } from "../../../render/interfaces/ViewportSize";
 
 
 export abstract class CreateTag<T extends Geometry> {
@@ -76,7 +76,7 @@ export abstract class CreateTag<T extends Geometry> {
                 }));
     }
 
-    public abstract getDOMObjects(camera: THREE.Camera, size: ISize): vd.VNode[];
+    public abstract getDOMObjects(camera: THREE.Camera, size: ViewportSize): vd.VNode[];
 
     public abstract create(): void;
 

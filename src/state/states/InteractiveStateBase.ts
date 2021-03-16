@@ -2,9 +2,9 @@ import * as THREE from "three";
 
 import { StateBase } from "./StateBase";
 
-import { RotationDelta } from "../RotationDelta";
-import { IRotation } from "../interfaces/IRotation";
-import { IState } from "../interfaces/IState";
+import { EulerRotationDelta } from "./EulerRotationDelta";
+import { EulerRotation } from "../interfaces/EulerRotation";
+import { IStateBase } from "../interfaces/IStateBase";
 import { Camera } from "../../geo/Camera";
 import { Transform } from "../../geo/Transform";
 import { Node } from "../../graph/Node";
@@ -17,8 +17,8 @@ export abstract class InteractiveStateBase extends StateBase {
      */
     protected _animationSpeed: number;
 
-    protected _rotationDelta: RotationDelta;
-    protected _requestedRotationDelta: RotationDelta;
+    protected _rotationDelta: EulerRotationDelta;
+    protected _requestedRotationDelta: EulerRotationDelta;
 
     protected _basicRotation: number[];
     protected _requestedBasicRotation: number[];
@@ -37,12 +37,12 @@ export abstract class InteractiveStateBase extends StateBase {
     protected _desiredLookat: THREE.Vector3;
     protected _desiredCenter: number[];
 
-    constructor(state: IState) {
+    constructor(state: IStateBase) {
         super(state);
 
         this._animationSpeed = 1 / 40;
 
-        this._rotationDelta = new RotationDelta(0, 0);
+        this._rotationDelta = new EulerRotationDelta(0, 0);
         this._requestedRotationDelta = null;
 
         this._basicRotation = [0, 0];
@@ -64,7 +64,7 @@ export abstract class InteractiveStateBase extends StateBase {
         this._desiredCenter = null;
     }
 
-    public rotate(rotationDelta: IRotation): void {
+    public rotate(rotationDelta: EulerRotation): void {
         if (this._currentNode == null) {
             return;
         }
@@ -81,11 +81,11 @@ export abstract class InteractiveStateBase extends StateBase {
             this._requestedRotationDelta.phi = this._requestedRotationDelta.phi + rotationDelta.phi;
             this._requestedRotationDelta.theta = this._requestedRotationDelta.theta + rotationDelta.theta;
         } else {
-            this._requestedRotationDelta = new RotationDelta(rotationDelta.phi, rotationDelta.theta);
+            this._requestedRotationDelta = new EulerRotationDelta(rotationDelta.phi, rotationDelta.theta);
         }
     }
 
-    public rotateUnbounded(delta: IRotation): void {
+    public rotateUnbounded(delta: EulerRotation): void {
         if (this._currentNode == null) {
             return;
         }
@@ -128,7 +128,7 @@ export abstract class InteractiveStateBase extends StateBase {
             .add(offset.multiplyScalar(length));
     }
 
-    public rotateWithoutInertia(rotationDelta: IRotation): void {
+    public rotateWithoutInertia(rotationDelta: EulerRotation): void {
         if (this._currentNode == null) {
             return;
         }
@@ -139,7 +139,7 @@ export abstract class InteractiveStateBase extends StateBase {
         this._requestedRotationDelta = null;
 
         const threshold: number = Math.PI / (10 * Math.pow(2, this._zoom));
-        const delta: IRotation = {
+        const delta: EulerRotation = {
             phi: this._spatial.clamp(rotationDelta.phi, -threshold, threshold),
             theta: this._spatial.clamp(rotationDelta.theta, -threshold, threshold),
         };
@@ -304,7 +304,7 @@ export abstract class InteractiveStateBase extends StateBase {
         this._desiredZoom = this._zoom;
     }
 
-    protected _applyRotation(delta: IRotation, camera: Camera): void {
+    protected _applyRotation(delta: EulerRotation, camera: Camera): void {
         if (camera == null) {
             return;
         }

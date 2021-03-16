@@ -4,10 +4,10 @@ import {
 } from "rxjs";
 import { DataProviderBase } from "./DataProviderBase";
 
-import { ICoreNode } from "./interfaces/ICoreNode";
-import { IFillNode } from "./interfaces/IFillNode";
-import { IFullNode } from "./interfaces/IFullNode";
-import { ISequence } from "./interfaces/ISequence";
+import { CoreImageEnt } from "./ents/CoreImageEnt";
+import { SpatialImageEnt } from "./ents/SpatialImageEnt";
+import { ImageEnt } from "./ents/ImageEnt";
+import { SequenceEnt } from "./ents/SequenceEnt";
 
 /**
  * @class API
@@ -21,19 +21,19 @@ export class APIWrapper {
         return this._data;
     }
 
-    public imageByKeyFill$(keys: string[]): Observable<{ [key: string]: IFillNode }> {
+    public imageByKeyFill$(keys: string[]): Observable<{ [key: string]: SpatialImageEnt }> {
         return this._wrapPromise$(this._data.getFillImages(keys));
     }
 
-    public imageByKeyFull$(keys: string[]): Observable<{ [key: string]: IFullNode }> {
+    public imageByKeyFull$(keys: string[]): Observable<{ [key: string]: ImageEnt }> {
         return this._wrapPromise$(this._data.getFullImages(keys));
     }
 
-    public imagesByH$(h: string): Observable<{ [h: string]: { [index: string]: ICoreNode } }> {
+    public imagesByH$(h: string): Observable<{ [h: string]: { [index: string]: CoreImageEnt } }> {
         return this._wrapPromise$(this._data.getCoreImages(h));
     }
 
-    public sequenceByKey$(sequenceKeys: string[]): Observable<{ [sequenceKey: string]: ISequence }> {
+    public sequenceByKey$(sequenceKeys: string[]): Observable<{ [sequenceKey: string]: SequenceEnt }> {
         return this._wrapPromise$(this._data.getSequences(sequenceKeys));
     }
 

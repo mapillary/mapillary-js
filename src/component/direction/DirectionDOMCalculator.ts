@@ -1,6 +1,6 @@
 import { Spatial } from "../../geo/Spatial";
-import { ISize } from "../../render/interfaces/ISize";
-import { IDirectionConfiguration } from "../interfaces/IDirectionConfiguration";
+import { ViewportSize } from "../../render/interfaces/ViewportSize";
+import { DirectionConfiguration } from "../interfaces/DirectionConfiguration";
 
 /**
  * @class DirectionDOMCalculator
@@ -40,7 +40,7 @@ export class DirectionDOMCalculator {
 
     private _shadowOffset: number;
 
-    constructor(configuration: IDirectionConfiguration, size: ISize) {
+    constructor(configuration: DirectionConfiguration, size: ViewportSize) {
         this._spatial = new Spatial();
 
         this._minThresholdWidth = 320;
@@ -124,10 +124,10 @@ export class DirectionDOMCalculator {
     /**
      * Configures the min and max width values.
      *
-     * @param {IDirectionConfiguration} configuration Configuration
+     * @param {DirectionConfiguration} configuration Configuration
      * with min and max width values.
      */
-    public configure(configuration: IDirectionConfiguration): void {
+    public configure(configuration: DirectionConfiguration): void {
         this._configure(configuration);
         this._reset();
     }
@@ -136,9 +136,9 @@ export class DirectionDOMCalculator {
      * Resizes all properties according to the width and height
      * of the size object.
      *
-     * @param {ISize} size The size of the container element.
+     * @param {ViewportSize} size The size of the container element.
      */
-    public resize(size: ISize): void {
+    public resize(size: ViewportSize): void {
         this._resize(size);
         this._reset();
     }
@@ -168,12 +168,12 @@ export class DirectionDOMCalculator {
         return this.angleToCoordinates(relativeAngle);
     }
 
-    private _configure(configuration: IDirectionConfiguration): void {
+    private _configure(configuration: DirectionConfiguration): void {
         this._minWidth = configuration.minWidth;
         this._maxWidth = this._getMaxWidth(configuration.minWidth, configuration.maxWidth);
     }
 
-    private _resize(size: ISize): void {
+    private _resize(size: ViewportSize): void {
         this._elementWidth = size.width;
         this._elementHeight = size.height;
     }

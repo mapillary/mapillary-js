@@ -1,4 +1,4 @@
-import { IShader } from "../interfaces/IShader";
+import { Shader } from "../interfaces/Shader";
 
 import { equirectangularFrag } from "./equirectangular.fragment.glsl";
 import { equirectangularVert } from "./equirectangular.vertex.glsl";
@@ -19,42 +19,42 @@ import { perspectiveDistortedCurtainVert } from "./perspective_distorted_curtain
 
 
 export class Shaders {
-    public static equirectangular: IShader = {
+    public static equirectangular: Shader = {
         fragment: equirectangularFrag,
         vertex: equirectangularVert,
     };
 
-    public static equirectangularCurtain: IShader = {
+    public static equirectangularCurtain: Shader = {
         fragment: equirectangularCurtainFrag,
         vertex: equirectangularCurtainVert,
     };
 
-    public static fisheye: IShader = {
+    public static fisheye: Shader = {
         fragment: fisheyeFrag,
         vertex: fisheyeVert,
     };
 
-    public static fisheyeCurtain: IShader = {
+    public static fisheyeCurtain: Shader = {
         fragment: fisheyeCurtainFrag,
         vertex: fisheyeCurtainVert,
     };
 
-    public static perspective: IShader = {
+    public static perspective: Shader = {
         fragment: perspectiveFrag,
         vertex: perspectiveVert,
     };
 
-    public static perspectiveCurtain: IShader = {
+    public static perspectiveCurtain: Shader = {
         fragment: perspectiveCurtainFrag,
         vertex: perspectiveCurtainVert,
     };
 
-    public static perspectiveDistorted: IShader = {
+    public static perspectiveDistorted: Shader = {
         fragment: perspectiveDistortedFrag,
         vertex: perspectiveDistortedVert,
     };
 
-    public static perspectiveDistortedCurtain: IShader = {
+    public static perspectiveDistortedCurtain: Shader = {
         fragment: perspectiveDistortedCurtainFrag,
         vertex: perspectiveDistortedCurtainVert,
     };

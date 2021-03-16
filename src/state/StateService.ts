@@ -25,15 +25,15 @@ import { FrameGenerator } from "./FrameGenerator";
 import { State } from "./State";
 import { StateContext } from "./StateContext";
 import { TransitionMode } from "./TransitionMode";
-import { IFrame } from "./interfaces/IFrame";
-import { IRotation } from "./interfaces/IRotation";
+import { AnimationFrame } from "./interfaces/AnimationFrame";
+import { EulerRotation } from "./interfaces/EulerRotation";
 import { IStateContext } from "./interfaces/IStateContext";
 
-import { ILatLon } from "../api/interfaces/ILatLon";
+import { LatLonEnt } from "../api/ents/LatLonEnt";
 import { Camera } from "../geo/Camera";
 import { Node } from "../graph/Node";
 import { Transform } from "../geo/Transform";
-import { ILatLonAlt } from "../geo/interfaces/ILatLonAlt";
+import { LatLonAltEnt } from "../api/ents/LatLonAltEnt";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
 interface IContextOperation {
@@ -50,14 +50,14 @@ export class StateService {
     private _fps$: Observable<number>;
     private _state$: Observable<State>;
 
-    private _currentState$: Observable<IFrame>;
-    private _lastState$: Observable<IFrame>;
+    private _currentState$: Observable<AnimationFrame>;
+    private _lastState$: Observable<AnimationFrame>;
     private _currentNode$: Observable<Node>;
     private _currentNodeExternal$: Observable<Node>;
     private _currentCamera$: Observable<Camera>;
     private _currentKey$: BehaviorSubject<string>;
     private _currentTransform$: Observable<Transform>;
-    private _reference$: Observable<ILatLonAlt>;
+    private _reference$: Observable<LatLonAltEnt>;
 
     private _inMotionOperation$: Subject<boolean>;
     private _inMotion$: Observable<boolean>;
@@ -138,7 +138,7 @@ export class StateService {
                     fc[2].update(fc[1]);
                 }),
             map(
-                (fc: [number, number, IStateContext]): IFrame => {
+                (fc: [number, number, IStateContext]): AnimationFrame => {
                     return { fps: fc[1], id: fc[0], state: fc[2] };
                 }),
             share());
@@ -147,16 +147,16 @@ export class StateService {
             publishReplay(1),
             refCount());
 
-        let nodeChanged$: Observable<IFrame> = this._currentState$.pipe(
+        let nodeChanged$: Observable<AnimationFrame> = this._currentState$.pipe(
             distinctUntilChanged(
                 undefined,
-                (f: IFrame): string => {
+                (f: AnimationFrame): string => {
                     return f.state.currentNode.key;
                 }),
             publishReplay(1),
             refCount());
 
-        let nodeChangedSubject$: Subject<IFrame> = new Subject<IFrame>();
+        let nodeChangedSubject$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
 
         subs.push(nodeChanged$
             .subscribe(nodeChangedSubject$));
@@ -165,14 +165,14 @@ export class StateService {
 
         subs.push(nodeChangedSubject$.pipe(
             map(
-                (f: IFrame): string => {
+                (f: AnimationFrame): string => {
                     return f.state.currentNode.key;
                 }))
             .subscribe(this._currentKey$));
 
         this._currentNode$ = nodeChangedSubject$.pipe(
             map(
-                (f: IFrame): Node => {
+                (f: AnimationFrame): Node => {
                     return f.state.currentNode;
                 }),
             publishReplay(1),
@@ -180,7 +180,7 @@ export class StateService {
 
         this._currentCamera$ = nodeChangedSubject$.pipe(
             map(
-                (f: IFrame): Camera => {
+                (f: AnimationFrame): Camera => {
                     return f.state.currentCamera;
                 }),
             publishReplay(1),
@@ -188,7 +188,7 @@ export class StateService {
 
         this._currentTransform$ = nodeChangedSubject$.pipe(
             map(
-                (f: IFrame): Transform => {
+                (f: AnimationFrame): Transform => {
                     return f.state.currentTransform;
                 }),
             publishReplay(1),
@@ -196,14 +196,14 @@ export class StateService {
 
         this._reference$ = nodeChangedSubject$.pipe(
             map(
-                (f: IFrame): ILatLonAlt => {
+                (f: AnimationFrame): LatLonAltEnt => {
                     return f.state.reference;
                 }),
             distinctUntilChanged(
-                (r1: ILatLon, r2: ILatLon): boolean => {
+                (r1: LatLonEnt, r2: LatLonEnt): boolean => {
                     return r1.lat === r2.lat && r1.lon === r2.lon;
                 },
-                (reference: ILatLonAlt): ILatLon => {
+                (reference: LatLonAltEnt): LatLonEnt => {
                     return { lat: reference.lat, lon: reference.lon };
                 }),
             publishReplay(1),
@@ -211,7 +211,7 @@ export class StateService {
 
         this._currentNodeExternal$ = nodeChanged$.pipe(
             map(
-                (f: IFrame): Node => {
+                (f: AnimationFrame): Node => {
                     return f.state.currentNode;
                 }),
             publishReplay(1),
@@ -247,11 +247,11 @@ export class StateService {
                 (): Observable<boolean> => {
                     return this._currentState$.pipe(
                         filter(
-                            (frame: IFrame): boolean => {
+                            (frame: AnimationFrame): boolean => {
                                 return frame.state.nodesAhead === 0;
                             }),
                         map(
-                            (frame: IFrame): [Camera, number] => {
+                            (frame: AnimationFrame): [Camera, number] => {
                                 return [frame.state.camera.clone(), frame.state.zoom];
                             }),
                         pairwise(),
@@ -296,11 +296,11 @@ export class StateService {
                 (): Observable<boolean> => {
                     return this._currentState$.pipe(
                         filter(
-                            (frame: IFrame): boolean => {
+                            (frame: AnimationFrame): boolean => {
                                 return frame.state.nodesAhead === 0;
                             }),
                         map(
-                            (frame: IFrame): THREE.Vector3 => {
+                            (frame: AnimationFrame): THREE.Vector3 => {
                                 return frame.state.camera.position.clone();
                             }),
                         pairwise(),
@@ -334,7 +334,7 @@ export class StateService {
         this._frameGenerator = new FrameGenerator(window);
     }
 
-    public get currentState$(): Observable<IFrame> {
+    public get currentState$(): Observable<AnimationFrame> {
         return this._currentState$;
     }
 
@@ -362,7 +362,7 @@ export class StateService {
         return this._state$;
     }
 
-    public get reference$(): Observable<ILatLonAlt> {
+    public get reference$(): Observable<LatLonAltEnt> {
         return this._reference$;
     }
 
@@ -429,17 +429,17 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.set(nodes); });
     }
 
-    public rotate(delta: IRotation): void {
+    public rotate(delta: EulerRotation): void {
         this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.rotate(delta); });
     }
 
-    public rotateUnbounded(delta: IRotation): void {
+    public rotateUnbounded(delta: EulerRotation): void {
         this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.rotateUnbounded(delta); });
     }
 
-    public rotateWithoutInertia(delta: IRotation): void {
+    public rotateWithoutInertia(delta: EulerRotation): void {
         this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.rotateWithoutInertia(delta); });
     }
@@ -479,7 +479,7 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.dolly(delta); });
     }
 
-    public orbit(rotation: IRotation): void {
+    public orbit(rotation: EulerRotation): void {
         this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.orbit(rotation); });
     }
@@ -504,7 +504,7 @@ export class StateService {
         return this._lastState$.pipe(
             first(),
             map(
-                (frame: IFrame): number[] => {
+                (frame: AnimationFrame): number[] => {
                     return (<IStateContext>frame.state).getCenter();
                 }));
     }
@@ -513,7 +513,7 @@ export class StateService {
         return this._lastState$.pipe(
             first(),
             map(
-                (frame: IFrame): number => {
+                (frame: AnimationFrame): number => {
                     return frame.state.zoom;
                 }));
     }

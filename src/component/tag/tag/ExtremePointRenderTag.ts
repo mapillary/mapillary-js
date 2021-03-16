@@ -6,10 +6,10 @@ import { ExtremePointTag } from "./ExtremePointTag";
 import { OutlineRenderTagBase } from "./OutlineRenderTagBase";
 
 import { RectGeometry } from "../geometry/RectGeometry";
-import { InteractionCursor } from "../interfaces/IInteraction";
+import { InteractionCursor } from "../interfaces/TagInteraction";
 
 import { Transform } from "../../../geo/Transform";
-import { ISize } from "../../../render/interfaces/ISize";
+import { ViewportSize } from "../../../render/interfaces/ViewportSize";
 import { ISpriteAtlas } from "../../../viewer/interfaces/ISpriteAtlas";
 import { isSpherical } from "../../../geo/Geo";
 
@@ -40,7 +40,7 @@ export class ExtremePointRenderTag extends OutlineRenderTagBase<ExtremePointTag>
         this._disposeOutline();
     }
 
-    public getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ISize): vd.VNode[] {
+    public getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ViewportSize): vd.VNode[] {
         const vNodes: vd.VNode[] = [];
         const container: { offsetHeight: number, offsetWidth: number } = {
             offsetHeight: size.height, offsetWidth: size.width,

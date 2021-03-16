@@ -1,5 +1,5 @@
-import { ICellCorners, ICellNeighbors } from "./interfaces/ICellCorners";
-import { ILatLon } from "./interfaces/ILatLon";
+import { CellCorners, CellNeighbors } from "./interfaces/CellCorners";
+import { LatLonEnt } from "./ents/LatLonEnt";
 
 import { MapillaryError } from "../error/MapillaryError";
 import { GeoCoords } from "../geo/GeoCoords";
@@ -36,12 +36,12 @@ export abstract class GeometryProviderBase {
      * to be sufficiently small to be contained in an area with the size
      * of maximally four tiles. Up to nine adjacent tiles may be returned.
      *
-     * @param {ILatLon} sw - South west corner of bounding box.
-     * @param {ILatLon} ne - North east corner of bounding box.
+     * @param {LatLonEnt} sw - South west corner of bounding box.
+     * @param {LatLonEnt} ne - North east corner of bounding box.
      *
      * @returns {Array<string>} Array of cell ids.
      */
-    public bboxToCellIds(sw: ILatLon, ne: ILatLon): string[] {
+    public bboxToCellIds(sw: LatLonEnt, ne: LatLonEnt): string[] {
         throw new MapillaryError("Not implemented");
     }
 
@@ -49,30 +49,30 @@ export abstract class GeometryProviderBase {
      * Get the corners of a cell.
      *
      * @param {string} cellId - Id of cell.
-     * @returns {ICellCorners} Cell corners struct.
+     * @returns {CellCorners} Cell corners struct.
      */
-    public getCorners(cellId: string): ICellCorners {
+    public getCorners(cellId: string): CellCorners {
         throw new MapillaryError("Not implemented");
     }
 
     /**
      * Get the neighbors of a cell.
      *
-     * @param {ILatLon} sw - South west corner of the bounding box.
-     * @param {ILatLon} ne - North east corner of the bounding box.
-     * @returns {ICellCorners} Cell corners struct.
+     * @param {LatLonEnt} sw - South west corner of the bounding box.
+     * @param {LatLonEnt} ne - North east corner of the bounding box.
+     * @returns {CellCorners} Cell corners struct.
      */
-    public getNeighbors(cellId: string): ICellNeighbors {
+    public getNeighbors(cellId: string): CellNeighbors {
         throw new MapillaryError("Not implemented");
     }
 
     /**
      * Convert geodetic coordinates to a cell id.
      *
-     * @param {ILatLon} latlon - Latitude and longitude to convert.
+     * @param {LatLonEnt} latlon - Latitude and longitude to convert.
      * @returns {string} Cell id for the latitude, longitude.
      */
-    public latLonToCellId(latLon: ILatLon, relativeLevel?: number): string {
+    public latLonToCellId(latLon: LatLonEnt, relativeLevel?: number): string {
         throw new MapillaryError("Not implemented");
     }
 
@@ -82,17 +82,17 @@ export abstract class GeometryProviderBase {
      * The square is specified as a latitude, longitude
      * and a threshold from the position using Manhattan distance.
      *
-     * @param {ILatLon} latlon - Latitude and longitude.
+     * @param {LatLonEnt} latlon - Latitude and longitude.
      * @param {number} threshold - Threshold of the conversion in meters.
      *
      * @returns {Array<string>} Array of cell ids reachable within
      * the threshold.
      */
-    public latLonToCellIds(latLon: ILatLon, threshold: number, relativeLevel?: number): string[] {
+    public latLonToCellIds(latLon: LatLonEnt, threshold: number, relativeLevel?: number): string[] {
         throw new MapillaryError("Not implemented");
     }
 
-    protected _bboxSquareToCellIds(sw: ILatLon, ne: ILatLon): string[] {
+    protected _bboxSquareToCellIds(sw: LatLonEnt, ne: LatLonEnt): string[] {
         if (ne.lat <= sw.lat || ne.lon <= sw.lon) {
             throw new MapillaryError("North east needs to be top right of south west");
         }

@@ -1,10 +1,10 @@
 import * as THREE from "three";
-import { ILatLon } from "../../../src/api/interfaces/ILatLon";
+import { LatLonEnt } from "../../../src/api/ents/LatLonEnt";
 import { Marker } from "../../../src/component/marker/marker/Marker";
 import { MarkerScene } from "../../../src/component/marker/MarkerScene";
 
 class TestMarker extends Marker {
-    constructor(id: string, latLon: ILatLon) { super(id, latLon); }
+    constructor(id: string, latLon: LatLonEnt) { super(id, latLon); }
     protected _createGeometry(position: number[]): void { /* noop */ }
     protected _disposeGeometry(): void { /* noop */ }
     protected _getInteractiveObjects(): THREE.Object3D[] { return []; }

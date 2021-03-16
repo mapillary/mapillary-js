@@ -14,15 +14,15 @@ import { Node } from "../../graph/Node";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
-import { IKeyboardConfiguration } from "../interfaces/IKeyboardConfiguration";
+import { KeyboardConfiguration } from "../interfaces/KeyboardConfiguration";
 import { HandlerBase } from "../utils/HandlerBase";
 import { Spatial } from "../../geo/Spatial";
-import { IEdge } from "../../graph/edge/interfaces/IEdge";
-import { IEdgeStatus } from "../../graph/interfaces/IEdgeStatus";
-import { IFrame } from "../../state/interfaces/IFrame";
-import { IRotation } from "../../state/interfaces/IRotation";
+import { NavigationEdge } from "../../graph/edge/interfaces/NavigationEdge";
+import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
+import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
+import { EulerRotation } from "../../state/interfaces/EulerRotation";
 import { Camera } from "../../geo/Camera";
-import { EdgeDirection } from "../../graph/edge/EdgeDirection";
+import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { AbortMapillaryError } from "../../error/AbortMapillaryError";
 import { isSpherical } from "../../geo/Geo";
 
@@ -49,14 +49,14 @@ import { isSpherical } from "../../geo/Geo";
  * var isEnabled = keyboardComponent.keySpatialNavigation.isEnabled;
  * ```
  */
-export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfiguration> {
+export class KeySpatialNavigationHandler extends HandlerBase<KeyboardConfiguration> {
     private _spatial: Spatial;
 
     private _keyDownSubscription: Subscription;
 
     /** @ignore */
     constructor(
-        component: Component<IKeyboardConfiguration>,
+        component: Component<KeyboardConfiguration>,
         container: Container,
         navigator: Navigator,
         spatial: Spatial) {
@@ -66,9 +66,9 @@ export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfigurat
     }
 
     protected _enable(): void {
-        const spatialEdges$: Observable<IEdgeStatus> = this._navigator.stateService.currentNode$.pipe(
+        const spatialEdges$: Observable<NavigationEdgeStatus> = this._navigator.stateService.currentNode$.pipe(
             switchMap(
-                (node: Node): Observable<IEdgeStatus> => {
+                (node: Node): Observable<NavigationEdgeStatus> => {
                     return node.spatialEdges$;
                 }));
 
@@ -76,21 +76,21 @@ export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfigurat
             withLatestFrom(
                 spatialEdges$,
                 this._navigator.stateService.currentState$))
-            .subscribe(([event, edgeStatus, frame]: [KeyboardEvent, IEdgeStatus, IFrame]): void => {
+            .subscribe(([event, edgeStatus, frame]: [KeyboardEvent, NavigationEdgeStatus, AnimationFrame]): void => {
                 let spherical = isSpherical(frame.state.currentNode.cameraType);
-                let direction: EdgeDirection = null;
+                let direction: NavigationDirection = null;
                 switch (event.keyCode) {
                     case 37: // left
-                        direction = event.shiftKey && !spherical ? EdgeDirection.TurnLeft : EdgeDirection.StepLeft;
+                        direction = event.shiftKey && !spherical ? NavigationDirection.TurnLeft : NavigationDirection.StepLeft;
                         break;
                     case 38: // up
-                        direction = event.shiftKey && !spherical ? EdgeDirection.Spherical : EdgeDirection.StepForward;
+                        direction = event.shiftKey && !spherical ? NavigationDirection.Spherical : NavigationDirection.StepForward;
                         break;
                     case 39: // right
-                        direction = event.shiftKey && !spherical ? EdgeDirection.TurnRight : EdgeDirection.StepRight;
+                        direction = event.shiftKey && !spherical ? NavigationDirection.TurnRight : NavigationDirection.StepRight;
                         break;
                     case 40: // down
-                        direction = event.shiftKey && !spherical ? EdgeDirection.TurnU : EdgeDirection.StepBackward;
+                        direction = event.shiftKey && !spherical ? NavigationDirection.TurnU : NavigationDirection.StepBackward;
                         break;
                     default:
                         return;
@@ -108,17 +108,17 @@ export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfigurat
                 } else {
                     const shifts: { [dir: number]: number } = {};
 
-                    shifts[EdgeDirection.StepBackward] = Math.PI;
-                    shifts[EdgeDirection.StepForward] = 0;
-                    shifts[EdgeDirection.StepLeft] = Math.PI / 2;
-                    shifts[EdgeDirection.StepRight] = -Math.PI / 2;
+                    shifts[NavigationDirection.StepBackward] = Math.PI;
+                    shifts[NavigationDirection.StepForward] = 0;
+                    shifts[NavigationDirection.StepLeft] = Math.PI / 2;
+                    shifts[NavigationDirection.StepRight] = -Math.PI / 2;
 
                     const phi: number = this._rotationFromCamera(frame.state.camera).phi;
                     const navigationAngle: number = this._spatial.wrapAngle(phi + shifts[direction]);
                     const threshold: number = Math.PI / 4;
-                    const edges: IEdge[] = edgeStatus.edges.filter(
-                        (e: IEdge): boolean => {
-                            return e.data.direction === EdgeDirection.Spherical || e.data.direction === direction;
+                    const edges: NavigationEdge[] = edgeStatus.edges.filter(
+                        (e: NavigationEdge): boolean => {
+                            return e.data.direction === NavigationDirection.Spherical || e.data.direction === direction;
                         });
 
                     let smallestAngle: number = Number.MAX_VALUE;
@@ -128,7 +128,7 @@ export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfigurat
 
                         if (angle < Math.min(smallestAngle, threshold)) {
                             smallestAngle = angle;
-                            toKey = edge.to;
+                            toKey = edge.target;
                         }
                     }
 
@@ -145,14 +145,14 @@ export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfigurat
         this._keyDownSubscription.unsubscribe();
     }
 
-    protected _getConfiguration(enable: boolean): IKeyboardConfiguration {
+    protected _getConfiguration(enable: boolean): KeyboardConfiguration {
         return { keySpatialNavigation: enable };
     }
 
-    private _moveDir(direction: EdgeDirection, edgeStatus: IEdgeStatus): void {
+    private _moveDir(direction: NavigationDirection, edgeStatus: NavigationEdgeStatus): void {
         for (const edge of edgeStatus.edges) {
             if (edge.data.direction === direction) {
-                this._moveToKey(edge.to);
+                this._moveToKey(edge.target);
                 return;
             }
         }
@@ -169,7 +169,7 @@ export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfigurat
                 });
     }
 
-    private _rotationFromCamera(camera: Camera): IRotation {
+    private _rotationFromCamera(camera: Camera): EulerRotation {
         let direction: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
 
         let upProjection: number = direction.clone().dot(camera.up);
