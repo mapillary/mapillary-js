@@ -44,7 +44,7 @@ import { isSpherical } from "../geo/Geo";
 export class Node {
     private _cache: NodeCache;
     private _core: CoreImageEnt;
-    private _fill: SpatialImageEnt;
+    private _spatial: SpatialImageEnt;
 
     /**
      * Create a new node instance.
@@ -58,7 +58,7 @@ export class Node {
     constructor(core: CoreImageEnt) {
         this._cache = null;
         this._core = core;
-        this._fill = null;
+        this._spatial = null;
     }
 
     /**
@@ -76,7 +76,7 @@ export class Node {
      */
     public get assetsCached(): boolean {
         return this._core != null &&
-            this._fill != null &&
+            this._spatial != null &&
             this._cache != null &&
             this._cache.image != null &&
             this._cache.mesh != null;
@@ -91,7 +91,7 @@ export class Node {
      * @returns {number} Altitude, in meters.
      */
     public get alt(): number {
-        return this._fill.calt;
+        return this._spatial.calt;
     }
 
     /**
@@ -104,7 +104,34 @@ export class Node {
      * clockwise with respect to north.
      */
     public get ca(): number {
-        return this._fill.cca != null ? this._fill.cca : this._fill.ca;
+        return this._spatial.cca != null ? this._spatial.cca : this._spatial.ca;
+    }
+
+    /**
+     * Get cameraParameters.
+     *
+     * @description Will be undefined if SfM has
+     * not been run.
+     *
+     * Camera type dependent parameters.
+     *
+     * For perspective and fisheye camera types,
+     * the camera parameters array should be
+     * constructed according to
+     *
+     * `[focal, k1, k2]`
+     *
+     * where focal is the camera focal length,
+     * and k1, k2 are radial distortion parameters.
+     *
+     * For equirectangular camera type the camera
+     * parameters are unset or emtpy array.
+     *
+     * @returns {Array<number>} The parameters
+     * related to the camera type.
+     */
+    public get cameraParameters(): number[] {
+        return this._spatial.camera_parameters;
     }
 
     /**
@@ -115,7 +142,7 @@ export class Node {
      * @returns {string} The camera type that captured the image.
      */
     public get cameraType(): string {
-        return this._fill.camera_type;
+        return this._spatial.camera_type;
     }
 
     /**
@@ -124,7 +151,7 @@ export class Node {
      * @returns {number} Timestamp when the image was captured.
      */
     public get capturedAt(): number {
-        return this._fill.captured_at;
+        return this._spatial.captured_at;
     }
 
     /**
@@ -137,7 +164,7 @@ export class Node {
      * when capturing image.
      */
     public get cameraUuid(): string {
-        return this._fill.captured_with_camera_uuid;
+        return this._spatial.captured_with_camera_uuid;
     }
 
     /**
@@ -147,7 +174,7 @@ export class Node {
      * the node belongs.
      */
     public get clusterKey(): string {
-        return this._fill.cluster_key;
+        return this._spatial.cluster_key;
     }
 
     /**
@@ -158,31 +185,7 @@ export class Node {
      * @ignore
      */
     public get clusterUrl(): string {
-        return this._fill.cluster_url;
-    }
-
-    /**
-     * Get ck1.
-     *
-     * @description Will not be set if SfM has not been run.
-     *
-     * @returns {number} SfM computed radial distortion parameter
-     * k1.
-     */
-    public get ck1(): number {
-        return this._fill.ck1;
-    }
-
-    /**
-     * Get ck2.
-     *
-     * @description Will not be set if SfM has not been run.
-     *
-     * @returns {number} SfM computed radial distortion parameter
-     * k2.
-     */
-    public get ck2(): number {
-        return this._fill.ck2;
+        return this._spatial.cluster_url;
     }
 
     /**
@@ -194,7 +197,7 @@ export class Node {
      * in degrees clockwise with respect to north.
      */
     public get computedCA(): number {
-        return this._fill.cca;
+        return this._spatial.cca;
     }
 
     /**
@@ -210,17 +213,6 @@ export class Node {
     }
 
     /**
-     * Get focal.
-     *
-     * @description Will not be set if SfM has not been run.
-     *
-     * @returns {number} SfM computed focal length.
-     */
-    public get focal(): number {
-        return this._fill.cfocal;
-    }
-
-    /**
      * Get full.
      *
      * @description The library ensures that the current node will
@@ -232,7 +224,7 @@ export class Node {
      * @ignore
      */
     public get full(): boolean {
-        return this._fill != null;
+        return this._spatial != null;
     }
 
     /**
@@ -242,7 +234,7 @@ export class Node {
      * for orientation.
      */
     public get height(): number {
-        return this._fill.height;
+        return this._spatial.height;
     }
 
     /**
@@ -299,9 +291,9 @@ export class Node {
      * connected component.
      */
     public get merged(): boolean {
-        return this._fill != null &&
-            this._fill.merge_version != null &&
-            this._fill.merge_version > 0;
+        return this._spatial != null &&
+            this._spatial.merge_version != null &&
+            this._spatial.merge_version > 0;
     }
 
     /**
@@ -314,7 +306,7 @@ export class Node {
      * image belongs.
      */
     public get mergeCC(): number {
-        return this._fill.merge_cc;
+        return this._spatial.merge_cc;
     }
 
     /**
@@ -323,7 +315,7 @@ export class Node {
      * @returns {number} Version for which SfM was run and image was merged.
      */
     public get mergeVersion(): number {
-        return this._fill.merge_version;
+        return this._spatial.merge_version;
     }
 
     /**
@@ -346,7 +338,7 @@ export class Node {
      * organization the organization key will be undefined.
      */
     public get organizationKey(): string {
-        return this._fill.organization_key;
+        return this._spatial.organization_key;
     }
 
     /**
@@ -355,7 +347,7 @@ export class Node {
      * @returns {number} EXIF orientation of original image.
      */
     public get orientation(): number {
-        return this._fill.orientation;
+        return this._spatial.orientation;
     }
 
     /**
@@ -364,7 +356,7 @@ export class Node {
      * @returns {number} EXIF altitude, in meters, if available.
      */
     public get originalAlt(): number {
-        return this._fill.altitude;
+        return this._spatial.altitude;
     }
 
     /**
@@ -374,7 +366,7 @@ export class Node {
      * degrees.
      */
     public get originalCA(): number {
-        return this._fill.ca;
+        return this._spatial.ca;
     }
 
     /**
@@ -394,7 +386,7 @@ export class Node {
      * organization members only or to everyone.
      */
     public get private(): boolean {
-        return this._fill.private;
+        return this._spatial.private;
     }
 
     /**
@@ -409,7 +401,7 @@ export class Node {
      * affect the quality score.
      */
     public get qualityScore(): number {
-        return this._fill.quality_score;
+        return this._spatial.quality_score;
     }
 
     /**
@@ -420,7 +412,7 @@ export class Node {
      * @returns {Array<number>} Rotation vector in angle axis representation.
      */
     public get rotation(): number[] {
-        return this._fill.c_rotation;
+        return this._spatial.c_rotation;
     }
 
     /**
@@ -431,7 +423,7 @@ export class Node {
      * @returns {number} Scale of atomic reconstruction.
      */
     public get scale(): number {
-        return this._fill.atomic_scale;
+        return this._spatial.atomic_scale;
     }
 
     /**
@@ -503,7 +495,7 @@ export class Node {
      * the image.
      */
     public get userKey(): string {
-        return this._fill.user.key;
+        return this._spatial.user.key;
     }
 
     /**
@@ -513,7 +505,7 @@ export class Node {
      * the image.
      */
     public get username(): string {
-        return this._fill.user.username;
+        return this._spatial.user.username;
     }
 
     /**
@@ -523,7 +515,7 @@ export class Node {
      * adjusted for orientation.
      */
     public get width(): number {
-        return this._fill.width;
+        return this._spatial.width;
     }
 
     /**
@@ -540,8 +532,8 @@ export class Node {
     public cacheAssets$(): Observable<Node> {
         return this._cache
             .cacheAssets$(
-                this._fill,
-                isSpherical(this._fill.camera_type),
+                this._spatial,
+                isSpherical(this._spatial.camera_type),
                 this.merged)
             .pipe(
                 map(
@@ -562,7 +554,7 @@ export class Node {
      * @ignore
      */
     public cacheImage$(imageSize: ImageSize): Observable<Node> {
-        return this._cache.cacheImage$(this._fill, imageSize).pipe(
+        return this._cache.cacheImage$(this._spatial, imageSize).pipe(
             map(
                 (): Node => {
                     return this;
@@ -608,7 +600,7 @@ export class Node {
         }
 
         this._core = null;
-        this._fill = null;
+        this._spatial = null;
     }
 
     /**
@@ -642,7 +634,7 @@ export class Node {
             throw new Error("Fill can not be null.");
         }
 
-        this._fill = fill;
+        this._spatial = fill;
     }
 
     /**

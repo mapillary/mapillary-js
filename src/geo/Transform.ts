@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { isSpherical } from "./Geo";
 
 import { CameraType } from "./interfaces/CameraType";
 
@@ -48,14 +49,12 @@ export class Transform {
         orientation: number,
         width: number,
         height: number,
-        focal: number,
         scale: number,
         rotation: number[],
         translation: number[],
         image: HTMLImageElement,
         textureScale?: number[],
-        ck1?: number,
-        ck2?: number,
+        cameraParameters?: number[],
         cameraType?: CameraType) {
 
         this._orientation = this._getValue(orientation, 1);
@@ -73,6 +72,13 @@ export class Transform {
 
         this._basicWidth = keepOrientation ? width : height;
         this._basicHeight = keepOrientation ? height : width;
+
+        const parameters = this._getCameraParameters(
+            cameraParameters,
+            cameraType);
+        const focal = parameters[0];
+        const ck1 = parameters[1];
+        const ck2 = parameters[2];
 
         this._focal = this._getValue(focal, 1);
         this._scale = this._getValue(scale, 0);
@@ -554,6 +560,21 @@ export class Transform {
      */
     private _getValue(value: number, fallback: number): number {
         return value != null && value > 0 ? value : fallback;
+    }
+
+    private _getCameraParameters(
+        value: number[],
+        cameraType: string): number[] {
+        if (isSpherical(cameraType)) { return []; }
+        if (!value || value.length === 0) { return [1, 0, 0]; }
+
+        const padding = 3 - value.length;
+        if (padding <= 0) { return value; }
+
+        return value
+            .concat(
+                new Array(padding)
+                    .fill(0));
     }
 
     /**

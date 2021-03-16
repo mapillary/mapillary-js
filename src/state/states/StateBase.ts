@@ -64,14 +64,12 @@ export abstract class StateBase implements IStateBase {
                 node.orientation,
                 node.width,
                 node.height,
-                node.focal,
                 node.scale,
                 node.rotation,
                 translation,
                 node.image,
                 undefined,
-                node.ck1,
-                node.ck2,
+                node.cameraParameters,
                 <CameraType>node.cameraType);
 
             this._trajectoryTransforms.push(transform);
@@ -368,14 +366,12 @@ export abstract class StateBase implements IStateBase {
                 node.orientation,
                 node.width,
                 node.height,
-                node.focal,
                 node.scale,
                 node.rotation,
                 translation,
                 node.image,
                 undefined,
-                node.ck1,
-                node.ck2,
+                node.cameraParameters,
                 <CameraType>node.cameraType);
 
             this._trajectoryTransforms.push(transform);
@@ -394,14 +390,12 @@ export abstract class StateBase implements IStateBase {
                 node.orientation,
                 node.width,
                 node.height,
-                node.focal,
                 node.scale,
                 node.rotation,
                 translation,
                 node.image,
                 undefined,
-                node.ck1,
-                node.ck2,
+                node.cameraParameters,
                 <CameraType>node.cameraType);
 
             this._trajectoryTransforms.unshift(transform);

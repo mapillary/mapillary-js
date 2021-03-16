@@ -337,14 +337,12 @@ export class PanService {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             translation,
             node.assetsCached ? node.image : undefined,
             undefined,
-            node.ck1,
-            node.ck2,
+            node.cameraParameters,
             <CameraType>node.cameraType);
     }
 

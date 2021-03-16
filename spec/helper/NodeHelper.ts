@@ -26,12 +26,10 @@ export class NodeHelper {
             c_rotation: [0, 0, 0],
             ca: 0,
             calt: 0,
+            camera_parameters: [1, 0, 0],
             camera_type: "perspective",
             captured_at: 0,
             cca: 0,
-            cfocal: 0,
-            ck1: 0,
-            ck2: 0,
             cluster_key: this._clusterKey,
             cluster_url: this._clusterKey = "_url",
             height: 1,
@@ -51,16 +49,14 @@ export class NodeHelper {
             c_rotation: [0, 0, 0],
             ca: 0,
             calt: 0,
+            camera_parameters: [1, 0, 0],
             camera_type: "perspective",
             captured_at: 0,
             captured_with_camera_uuid: "",
             cca: 0,
-            cfocal: 0,
             cl: { lat: 0, lon: 0 },
             cluster_key: this._clusterKey,
             cluster_url: this._clusterKey = "_url",
-            ck1: 0,
-            ck2: 0,
             height: 1,
             key: this._nodeKey,
             l: { lat: 0, lon: 0 },
@@ -88,7 +84,8 @@ export class NodeHelper {
         fullNode.atomic_scale = undefined;
         fullNode.ca = undefined;
         fullNode.calt = undefined;
-        fullNode.cfocal = undefined;
+        fullNode.camera_parameters = undefined;
+        fullNode.camera_type = undefined;
         fullNode.cl = undefined;
         fullNode.merge_cc = undefined;
         fullNode.merge_version = undefined;
