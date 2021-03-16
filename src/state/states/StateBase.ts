@@ -319,7 +319,7 @@ export abstract class StateBase implements IStateBase {
 
         this._reference.lat = node.latLon.lat;
         this._reference.lon = node.latLon.lon;
-        this._reference.alt = node.alt;
+        this._reference.alt = node.computedAltitude;
 
         return true;
     }
@@ -405,7 +405,7 @@ export abstract class StateBase implements IStateBase {
 
     private _nodeToTranslation(node: Node, reference: LatLonAltEnt): number[] {
         return Geo.computeTranslation(
-            { alt: node.alt, lat: node.latLon.lat, lon: node.latLon.lon },
+            { alt: node.computedAltitude, lat: node.latLon.lat, lon: node.latLon.lon },
             node.rotation,
             reference);
     }

@@ -99,9 +99,9 @@ export class SliderGLRenderer {
     }
 
     public updateTexture(image: HTMLImageElement, node: Node): void {
-        const planes: { [key: string]: THREE.Mesh } = node.key === this._currentKey ?
+        const planes: { [key: string]: THREE.Mesh } = node.id === this._currentKey ?
             this._scene.planes :
-            node.key === this._previousKey ?
+            node.id === this._previousKey ?
                 this._scene.planesOld :
                 {};
 
@@ -126,7 +126,7 @@ export class SliderGLRenderer {
     }
 
     public updateTextureImage(image: HTMLImageElement, node?: Node): void {
-        if (this._currentKey !== node.key) {
+        if (this._currentKey !== node.id) {
             return;
         }
 
@@ -264,8 +264,8 @@ export class SliderGLRenderer {
     }
 
     private _updateImagePlanes(state: IAnimationState, mode: SliderConfigurationMode): void {
-        const currentChanged: boolean = state.currentNode != null && this._currentKey !== state.currentNode.key;
-        const previousChanged: boolean = state.previousNode != null && this._previousKey !== state.previousNode.key;
+        const currentChanged: boolean = state.currentNode != null && this._currentKey !== state.currentNode.id;
+        const previousChanged: boolean = state.previousNode != null && this._previousKey !== state.previousNode.id;
         const modeChanged: boolean = this._mode !== mode;
 
         if (!(currentChanged || previousChanged || modeChanged)) {
@@ -295,7 +295,7 @@ export class SliderGLRenderer {
             if (previousChanged || modeChanged) {
                 const previousNode: Node = state.previousNode;
 
-                this._previousKey = previousNode.key;
+                this._previousKey = previousNode.id;
 
                 const elements: number[] = state.currentTransform.rt.elements;
                 let translation: number[] = [elements[12], elements[13], elements[14]];
@@ -365,7 +365,7 @@ export class SliderGLRenderer {
                 }
 
                 const previousPlanes: { [key: string]: THREE.Mesh } = {};
-                previousPlanes[previousNode.key] = mesh;
+                previousPlanes[previousNode.id] = mesh;
                 this._scene.setImagePlanesOld(previousPlanes);
             }
         }
@@ -377,20 +377,20 @@ export class SliderGLRenderer {
                 delete this._currentProviderDisposers[this._currentKey];
             }
 
-            this._currentKey = state.currentNode.key;
+            this._currentKey = state.currentNode.id;
 
             const planes: { [key: string]: THREE.Mesh } = {};
 
             if (isSpherical(state.currentNode.cameraType)) {
-                planes[state.currentNode.key] =
+                planes[state.currentNode.id] =
                     this._factory.createCurtainMesh(
                         state.currentNode,
                         state.currentTransform);
             } else {
                 if (motionless) {
-                    planes[state.currentNode.key] = this._factory.createDistortedCurtainMesh(state.currentNode, state.currentTransform);
+                    planes[state.currentNode.id] = this._factory.createDistortedCurtainMesh(state.currentNode, state.currentTransform);
                 } else {
-                    planes[state.currentNode.key] = this._factory.createCurtainMesh(state.currentNode, state.currentTransform);
+                    planes[state.currentNode.id] = this._factory.createCurtainMesh(state.currentNode, state.currentTransform);
                 }
             }
 

@@ -151,8 +151,8 @@ export class RenderCamera {
             this._changed = true;
         }
 
-        const currentNodeId: string = state.currentNode.key;
-        const previousNodeId: string = !!state.previousNode ? state.previousNode.key : null;
+        const currentNodeId: string = state.currentNode.id;
+        const previousNodeId: string = !!state.previousNode ? state.previousNode.id : null;
 
         if (currentNodeId !== this._currentNodeId) {
             this._currentNodeId = currentNodeId;

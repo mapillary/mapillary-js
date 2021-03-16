@@ -1,13 +1,14 @@
-import { KeyedEnt } from "./KeyedEnt";
+import { IDEnt } from "./IDEnt";
 
 /**
  * Interface that describes the raw image sequence properties.
  *
  * @interface SequenceEnt
  */
-export interface SequenceEnt extends KeyedEnt {
+export interface SequenceEnt extends IDEnt {
     /**
-     * The ordered image keys of the sequence.
+     * The image IDs of the sequence sorted in
+     * acsending order based on capture time.
      */
-    keys: string[];
+    image_ids: string[];
 }

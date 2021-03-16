@@ -46,10 +46,10 @@ class TestTraversingState extends TraversingState {
 class TestNode extends Node {
     constructor() {
         super({
-            cl: { lat: 0, lon: 0 },
-            key: "key",
-            l: { lat: 0, lon: 0 },
-            sequence_key: "skey",
+            computed_geometry: { lat: 0, lon: 0 },
+            id: "key",
+            geometry: { lat: 0, lon: 0 },
+            sequence: { id: "skey" },
         });
     }
 
@@ -122,7 +122,7 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let previousNode: TestNode = new TestNode();
         let previousFillNode: SpatialImageEnt = helper.createFillNode();
-        previousFillNode.c_rotation = [Math.PI, 0, 0];
+        previousFillNode.computed_rotation = [Math.PI, 0, 0];
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();
@@ -160,7 +160,7 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let previousNode: TestNode = new TestNode();
         let preivousFillNode: SpatialImageEnt = helper.createFillNode();
-        preivousFillNode.c_rotation = [Math.PI, 0, 0];
+        preivousFillNode.computed_rotation = [Math.PI, 0, 0];
         previousNode.makeFull(preivousFillNode);
 
         let currentNode: TestNode = new TestNode();
@@ -244,7 +244,7 @@ describe("TraversingState.previousCamera.lookat", () => {
 
         let previousNode: TestNode = new TestNode();
         let previousFillNode: SpatialImageEnt = helper.createFillNode();
-        previousFillNode.c_rotation = [Math.PI, 0, 0];
+        previousFillNode.computed_rotation = [Math.PI, 0, 0];
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();

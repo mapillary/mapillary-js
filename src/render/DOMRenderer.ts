@@ -134,7 +134,7 @@ export class DOMRenderer {
                     return k1 === k2;
                 },
                 (frame: AnimationFrame): string => {
-                    return frame.state.currentNode.key;
+                    return frame.state.currentNode.id;
                 }),
             map(
                 (frame: AnimationFrame): number => {

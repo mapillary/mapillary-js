@@ -17,7 +17,7 @@ import {
 } from "rxjs/operators";
 
 import { DataProviderBase } from "../../api/DataProviderBase";
-import { ReconstructionEnt } from "../../api/ents/ReconstructionEnt";
+import { ClusterReconstructionEnt } from "../../api/ents/ClusterReconstructionEnt";
 import { AbortMapillaryError } from "../../error/AbortMapillaryError";
 import { GraphService } from "../../graph/GraphService";
 import { Node } from "../../graph/Node";
@@ -34,11 +34,11 @@ export class SpatialDataCache {
     private _cacheRequests: { [hash: string]: Function[] };
     private _tiles: { [hash: string]: Node[] };
 
-    private _clusterReconstructions: { [key: string]: ReconstructionEnt };
+    private _clusterReconstructions: { [key: string]: ClusterReconstructionEnt };
     private _clusterReconstructionTiles: { [key: string]: string[] };
     private _tileClusters: { [hash: string]: ClusterData[] };
 
-    private _cachingClusterReconstructions$: { [hash: string]: Observable<ReconstructionEnt> };
+    private _cachingClusterReconstructions$: { [hash: string]: Observable<ClusterReconstructionEnt> };
     private _cachingTiles$: { [hash: string]: Observable<Node[]> };
 
     constructor(graphService: GraphService, provider: DataProviderBase) {
@@ -56,7 +56,7 @@ export class SpatialDataCache {
         this._cachingClusterReconstructions$ = {};
     }
 
-    public cacheClusterReconstructions$(hash: string): Observable<ReconstructionEnt> {
+    public cacheClusterReconstructions$(hash: string): Observable<ClusterReconstructionEnt> {
         if (!this.hasTile(hash)) {
             throw new Error("Cannot cache reconstructions of a non-existing tile.");
         }
@@ -72,11 +72,11 @@ export class SpatialDataCache {
         const duplicatedClusters: ClusterData[] = this.getTile(hash)
             .filter(
                 (n: Node): boolean => {
-                    return !!n.clusterKey && !!n.clusterUrl;
+                    return !!n.clusterId && !!n.clusterUrl;
                 })
             .map(
                 (n: Node): ClusterData => {
-                    return { key: n.clusterKey, url: n.clusterUrl };
+                    return { key: n.clusterId, url: n.clusterUrl };
                 });
 
         const clusters: ClusterData[] = Array
@@ -182,15 +182,15 @@ export class SpatialDataCache {
         return !(hash in this._cachingTiles$) && hash in this._tiles;
     }
 
-    public getClusterReconstructions(hash: string): ReconstructionEnt[] {
+    public getClusterReconstructions(hash: string): ClusterReconstructionEnt[] {
         return hash in this._tileClusters ?
             this._tileClusters[hash]
                 .map(
-                    (cd: ClusterData): ReconstructionEnt => {
+                    (cd: ClusterData): ClusterReconstructionEnt => {
                         return this._clusterReconstructions[cd.key];
                     })
                 .filter(
-                    (reconstruction: ReconstructionEnt): boolean => {
+                    (reconstruction: ClusterReconstructionEnt): boolean => {
                         return !!reconstruction;
                     }) :
             [];
@@ -276,7 +276,7 @@ export class SpatialDataCache {
     }
 
     public updateClusterReconstructions$(hash: string):
-        Observable<ReconstructionEnt> {
+        Observable<ClusterReconstructionEnt> {
         if (!this.hasTile(hash)) {
             throw new Error("Cannot update reconstructions of a non-existing tile.");
         }
@@ -288,11 +288,11 @@ export class SpatialDataCache {
         const duplicatedClusters: ClusterData[] = this.getTile(hash)
             .filter(
                 (n: Node): boolean => {
-                    return !!n.clusterKey && !!n.clusterUrl;
+                    return !!n.clusterId && !!n.clusterUrl;
                 })
             .map(
                 (n: Node): ClusterData => {
-                    return { key: n.clusterKey, url: n.clusterUrl };
+                    return { key: n.clusterId, url: n.clusterUrl };
                 });
 
         const clusters: ClusterData[] = Array
@@ -315,10 +315,10 @@ export class SpatialDataCache {
     private _cacheClusterReconstructions$(
         clusters: ClusterData[],
         cellId: string,
-        cancellation: Promise<void>): Observable<ReconstructionEnt> {
+        cancellation: Promise<void>): Observable<ClusterReconstructionEnt> {
         return observableFrom(clusters).pipe(
             mergeMap(
-                (cd: ClusterData): Observable<ReconstructionEnt> => {
+                (cd: ClusterData): Observable<ClusterReconstructionEnt> => {
                     if (this._hasClusterReconstruction(cd.key)) {
                         return observableOf(
                             this._getClusterReconstruction(cd.key));
@@ -330,7 +330,7 @@ export class SpatialDataCache {
                         cancellation)
                         .pipe(
                             catchError(
-                                (error: Error): Observable<ReconstructionEnt> => {
+                                (error: Error): Observable<ClusterReconstructionEnt> => {
                                     if (error instanceof AbortMapillaryError) {
                                         return observableEmpty();
                                     }
@@ -345,7 +345,7 @@ export class SpatialDataCache {
                     return cellId in this._tileClusters;
                 }),
             tap(
-                (reconstruction: ReconstructionEnt): void => {
+                (reconstruction: ClusterReconstructionEnt): void => {
                     if (!this._hasClusterReconstruction(reconstruction.key)) {
                         this._clusterReconstructions[reconstruction.key] = reconstruction;
                     }
@@ -360,16 +360,16 @@ export class SpatialDataCache {
                 }))
     }
 
-    private _getClusterReconstruction(key: string): ReconstructionEnt {
+    private _getClusterReconstruction(key: string): ClusterReconstructionEnt {
         return this._clusterReconstructions[key];
     }
 
-    private _getClusterReconstruction$(url: string, clusterKey: string, abort: Promise<void>): Observable<ReconstructionEnt> {
+    private _getClusterReconstruction$(url: string, clusterKey: string, abort: Promise<void>): Observable<ClusterReconstructionEnt> {
         return Observable.create(
-            (subscriber: Subscriber<ReconstructionEnt>): void => {
+            (subscriber: Subscriber<ClusterReconstructionEnt>): void => {
                 this._data.getClusterReconstruction(url, abort)
                     .then(
-                        (reconstruction: ReconstructionEnt): void => {
+                        (reconstruction: ClusterReconstructionEnt): void => {
                             reconstruction.key = clusterKey;
                             subscriber.next(reconstruction);
                             subscriber.complete();

@@ -15,8 +15,8 @@ export class Sequence {
      * @param {SequenceEnt} sequence - Raw sequence data.
      */
     constructor(sequence: SequenceEnt) {
-        this._key = sequence.key;
-        this._keys = sequence.keys;
+        this._key = sequence.id;
+        this._keys = sequence.image_ids;
     }
 
     /**

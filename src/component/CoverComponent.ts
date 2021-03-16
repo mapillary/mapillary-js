@@ -105,7 +105,7 @@ export class CoverComponent extends Component<CoverConfiguration> {
             switchMap(
                 ([state, node]: [CoverState, Node]): Observable<[string, string]> => {
                     const keySrc$: Observable<[string, string]> = observableCombineLatest(
-                        observableOf(node.key),
+                        observableOf(node.id),
                         node.image$.pipe(
                             filter(
                                 (image: HTMLImageElement): boolean => {

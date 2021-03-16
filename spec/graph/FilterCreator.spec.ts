@@ -26,17 +26,17 @@ describe("FilterCreator.createFilter", () => {
         let creator: FilterCreator = new FilterCreator();
 
         let sequenceKey: string = "skey";
-        let filter: FilterFunction = creator.createFilter(["==", "sequenceKey", sequenceKey]);
+        let filter: FilterFunction = creator.createFilter(["==", "sequenceId", sequenceKey]);
 
         let coreNode1: CoreImageEnt = helper.createCoreNode();
         let coreNode2: CoreImageEnt = helper.createCoreNode();
         let coreNode3: CoreImageEnt = helper.createCoreNode();
         let coreNode4: CoreImageEnt = helper.createCoreNode();
 
-        coreNode1.sequence_key = sequenceKey;
-        coreNode2.sequence_key = sequenceKey + "w";
-        coreNode3.sequence_key = null;
-        coreNode4.sequence_key = undefined;
+        coreNode1.sequence.id = sequenceKey;
+        coreNode2.sequence.id = sequenceKey + "w";
+        coreNode3.sequence.id = null;
+        coreNode4.sequence.id = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -84,7 +84,7 @@ describe("FilterCreator.createFilter", () => {
     it("should compare ==, null", () => {
         let creator: FilterCreator = new FilterCreator();
 
-        let filter: FilterFunction = creator.createFilter(["==", "userKey", null]);
+        let filter: FilterFunction = creator.createFilter(["==", "userId", null]);
 
         let node1: Node = new Node(helper.createCoreNode());
         let node2: Node = new Node(helper.createCoreNode());
@@ -96,10 +96,10 @@ describe("FilterCreator.createFilter", () => {
         let fillNode3: SpatialImageEnt = helper.createFillNode();
         let fillNode4: SpatialImageEnt = helper.createFillNode();
 
-        fillNode1.user.key = null;
-        fillNode2.user.key = "ukey";
-        fillNode3.user.key = "null";
-        fillNode4.user.key = undefined;
+        fillNode1.user.id = null;
+        fillNode2.user.id = "ukey";
+        fillNode3.user.id = "null";
+        fillNode4.user.id = undefined;
 
         node1.makeFull(fillNode1);
         node2.makeFull(fillNode2);
@@ -124,17 +124,17 @@ describe("FilterCreator.createFilter", () => {
         let creator: FilterCreator = new FilterCreator();
 
         let sequenceKey: string = "skey";
-        let filter: FilterFunction = creator.createFilter(["!=", "sequenceKey", sequenceKey]);
+        let filter: FilterFunction = creator.createFilter(["!=", "sequenceId", sequenceKey]);
 
         let coreNode1: CoreImageEnt = helper.createCoreNode();
         let coreNode2: CoreImageEnt = helper.createCoreNode();
         let coreNode3: CoreImageEnt = helper.createCoreNode();
         let coreNode4: CoreImageEnt = helper.createCoreNode();
 
-        coreNode1.sequence_key = sequenceKey;
-        coreNode2.sequence_key = sequenceKey + "w";
-        coreNode3.sequence_key = null;
-        coreNode4.sequence_key = undefined;
+        coreNode1.sequence.id = sequenceKey;
+        coreNode2.sequence.id = sequenceKey + "w";
+        coreNode3.sequence.id = null;
+        coreNode4.sequence.id = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -182,7 +182,7 @@ describe("FilterCreator.createFilter", () => {
     it("should compare !=, null", () => {
         let creator: FilterCreator = new FilterCreator();
 
-        let filter: FilterFunction = creator.createFilter(["!=", "userKey", null]);
+        let filter: FilterFunction = creator.createFilter(["!=", "userId", null]);
 
         let node1: Node = new Node(helper.createCoreNode());
         let node2: Node = new Node(helper.createCoreNode());
@@ -194,10 +194,10 @@ describe("FilterCreator.createFilter", () => {
         let fillNode3: SpatialImageEnt = helper.createFillNode();
         let fillNode4: SpatialImageEnt = helper.createFillNode();
 
-        fillNode1.user.key = null;
-        fillNode2.user.key = "ukey";
-        fillNode3.user.key = "null";
-        fillNode4.user.key = undefined;
+        fillNode1.user.id = null;
+        fillNode2.user.id = "ukey";
+        fillNode3.user.id = "null";
+        fillNode4.user.id = undefined;
 
         node1.makeFull(fillNode1);
         node2.makeFull(fillNode2);
@@ -259,7 +259,7 @@ describe("FilterCreator.createFilter", () => {
         let creator: FilterCreator = new FilterCreator();
 
         let sequenceKey: string = "0";
-        let filter: FilterFunction = creator.createFilter([">", "sequenceKey", sequenceKey]);
+        let filter: FilterFunction = creator.createFilter([">", "sequenceId", sequenceKey]);
 
         let coreNode1: CoreImageEnt = helper.createCoreNode();
         let coreNode2: CoreImageEnt = helper.createCoreNode();
@@ -267,11 +267,11 @@ describe("FilterCreator.createFilter", () => {
         let coreNode4: CoreImageEnt = helper.createCoreNode();
         let coreNode5: CoreImageEnt = helper.createCoreNode();
 
-        coreNode1.sequence_key = "-1";
-        coreNode2.sequence_key = sequenceKey;
-        coreNode3.sequence_key = "1";
-        coreNode4.sequence_key = null;
-        coreNode5.sequence_key = undefined;
+        coreNode1.sequence.id = "-1";
+        coreNode2.sequence.id = sequenceKey;
+        coreNode3.sequence.id = "1";
+        coreNode4.sequence.id = null;
+        coreNode5.sequence.id = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -335,7 +335,7 @@ describe("FilterCreator.createFilter", () => {
         let creator: FilterCreator = new FilterCreator();
 
         let sequenceKey: string = "0";
-        let filter: FilterFunction = creator.createFilter([">=", "sequenceKey", sequenceKey]);
+        let filter: FilterFunction = creator.createFilter([">=", "sequenceId", sequenceKey]);
 
         let coreNode1: CoreImageEnt = helper.createCoreNode();
         let coreNode2: CoreImageEnt = helper.createCoreNode();
@@ -343,11 +343,11 @@ describe("FilterCreator.createFilter", () => {
         let coreNode4: CoreImageEnt = helper.createCoreNode();
         let coreNode5: CoreImageEnt = helper.createCoreNode();
 
-        coreNode1.sequence_key = "-1";
-        coreNode2.sequence_key = sequenceKey;
-        coreNode3.sequence_key = "1";
-        coreNode4.sequence_key = null;
-        coreNode5.sequence_key = undefined;
+        coreNode1.sequence.id = "-1";
+        coreNode2.sequence.id = sequenceKey;
+        coreNode3.sequence.id = "1";
+        coreNode4.sequence.id = null;
+        coreNode5.sequence.id = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -411,7 +411,7 @@ describe("FilterCreator.createFilter", () => {
         let creator: FilterCreator = new FilterCreator();
 
         let sequenceKey: string = "0";
-        let filter: FilterFunction = creator.createFilter(["<", "sequenceKey", sequenceKey]);
+        let filter: FilterFunction = creator.createFilter(["<", "sequenceId", sequenceKey]);
 
         let coreNode1: CoreImageEnt = helper.createCoreNode();
         let coreNode2: CoreImageEnt = helper.createCoreNode();
@@ -419,11 +419,11 @@ describe("FilterCreator.createFilter", () => {
         let coreNode4: CoreImageEnt = helper.createCoreNode();
         let coreNode5: CoreImageEnt = helper.createCoreNode();
 
-        coreNode1.sequence_key = "-1";
-        coreNode2.sequence_key = sequenceKey;
-        coreNode3.sequence_key = "1";
-        coreNode4.sequence_key = null;
-        coreNode5.sequence_key = undefined;
+        coreNode1.sequence.id = "-1";
+        coreNode2.sequence.id = sequenceKey;
+        coreNode3.sequence.id = "1";
+        coreNode4.sequence.id = null;
+        coreNode5.sequence.id = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -487,7 +487,7 @@ describe("FilterCreator.createFilter", () => {
         let creator: FilterCreator = new FilterCreator();
 
         let sequenceKey: string = "0";
-        let filter: FilterFunction = creator.createFilter(["<=", "sequenceKey", sequenceKey]);
+        let filter: FilterFunction = creator.createFilter(["<=", "sequenceId", sequenceKey]);
 
         let coreNode1: CoreImageEnt = helper.createCoreNode();
         let coreNode2: CoreImageEnt = helper.createCoreNode();
@@ -495,11 +495,11 @@ describe("FilterCreator.createFilter", () => {
         let coreNode4: CoreImageEnt = helper.createCoreNode();
         let coreNode5: CoreImageEnt = helper.createCoreNode();
 
-        coreNode1.sequence_key = "-1";
-        coreNode2.sequence_key = sequenceKey;
-        coreNode3.sequence_key = "1";
-        coreNode4.sequence_key = null;
-        coreNode5.sequence_key = undefined;
+        coreNode1.sequence.id = "-1";
+        coreNode2.sequence.id = sequenceKey;
+        coreNode3.sequence.id = "1";
+        coreNode4.sequence.id = null;
+        coreNode5.sequence.id = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -563,7 +563,7 @@ describe("FilterCreator.createFilter", () => {
         let creator: FilterCreator = new FilterCreator();
 
         let sequenceKey: string = "0";
-        let filter: FilterFunction = creator.createFilter(["in", "sequenceKey", sequenceKey]);
+        let filter: FilterFunction = creator.createFilter(["in", "sequenceId", sequenceKey]);
 
         let coreNode1: CoreImageEnt = helper.createCoreNode();
         let coreNode2: CoreImageEnt = helper.createCoreNode();
@@ -571,11 +571,11 @@ describe("FilterCreator.createFilter", () => {
         let coreNode4: CoreImageEnt = helper.createCoreNode();
         let coreNode5: CoreImageEnt = helper.createCoreNode();
 
-        coreNode1.sequence_key = "-1";
-        coreNode2.sequence_key = sequenceKey;
-        coreNode3.sequence_key = "1";
-        coreNode4.sequence_key = null;
-        coreNode5.sequence_key = undefined;
+        coreNode1.sequence.id = "-1";
+        coreNode2.sequence.id = sequenceKey;
+        coreNode3.sequence.id = "1";
+        coreNode4.sequence.id = null;
+        coreNode5.sequence.id = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -593,15 +593,15 @@ describe("FilterCreator.createFilter", () => {
     it("should test in, null", () => {
         let creator: FilterCreator = new FilterCreator();
 
-        let filter: FilterFunction = creator.createFilter(["in", "sequenceKey", null]);
+        let filter: FilterFunction = creator.createFilter(["in", "sequenceId", null]);
 
         let coreNode1: CoreImageEnt = helper.createCoreNode();
         let coreNode2: CoreImageEnt = helper.createCoreNode();
         let coreNode3: CoreImageEnt = helper.createCoreNode();
 
-        coreNode1.sequence_key = "1";
-        coreNode2.sequence_key = null;
-        coreNode3.sequence_key = undefined;
+        coreNode1.sequence.id = "1";
+        coreNode2.sequence.id = null;
+        coreNode3.sequence.id = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -721,7 +721,7 @@ describe("FilterCreator.createFilter", () => {
         let creator: FilterCreator = new FilterCreator();
 
         let sequenceKey: string = "0";
-        let filter: FilterFunction = creator.createFilter(["!in", "sequenceKey", sequenceKey]);
+        let filter: FilterFunction = creator.createFilter(["!in", "sequenceId", sequenceKey]);
 
         let coreNode1: CoreImageEnt = helper.createCoreNode();
         let coreNode2: CoreImageEnt = helper.createCoreNode();
@@ -729,11 +729,11 @@ describe("FilterCreator.createFilter", () => {
         let coreNode4: CoreImageEnt = helper.createCoreNode();
         let coreNode5: CoreImageEnt = helper.createCoreNode();
 
-        coreNode1.sequence_key = "-1";
-        coreNode2.sequence_key = sequenceKey;
-        coreNode3.sequence_key = "1";
-        coreNode4.sequence_key = null;
-        coreNode5.sequence_key = undefined;
+        coreNode1.sequence.id = "-1";
+        coreNode2.sequence.id = sequenceKey;
+        coreNode3.sequence.id = "1";
+        coreNode4.sequence.id = null;
+        coreNode5.sequence.id = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);
@@ -751,15 +751,15 @@ describe("FilterCreator.createFilter", () => {
     it("should test !in, null", () => {
         let creator: FilterCreator = new FilterCreator();
 
-        let filter: FilterFunction = creator.createFilter(["!in", "sequenceKey", null]);
+        let filter: FilterFunction = creator.createFilter(["!in", "sequenceId", null]);
 
         let coreNode1: CoreImageEnt = helper.createCoreNode();
         let coreNode2: CoreImageEnt = helper.createCoreNode();
         let coreNode3: CoreImageEnt = helper.createCoreNode();
 
-        coreNode1.sequence_key = "1";
-        coreNode2.sequence_key = null;
-        coreNode3.sequence_key = undefined;
+        coreNode1.sequence.id = "1";
+        coreNode2.sequence.id = null;
+        coreNode3.sequence.id = undefined;
 
         let node1: Node = new Node(coreNode1);
         let node2: Node = new Node(coreNode2);

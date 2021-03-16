@@ -28,7 +28,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let sequenceKey: string = "skey";
 
         let node: Node = helper.createCoreNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey);
-        let sequence: Sequence = new Sequence({ key: sequenceKey, keys: [key] });
+        let sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [key] });
 
         expect(() => { edgeCalculator.computeSequenceEdges(node, sequence); }).toThrowError(Error);
     });
@@ -39,7 +39,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let sequenceKey2: string = "skey2";
 
         let node: Node = helper.createCoreNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey1);
-        let sequence: Sequence = new Sequence({ key: sequenceKey2, keys: [key] });
+        let sequence: Sequence = new Sequence({ id: sequenceKey2, image_ids: [key] });
 
         expect(() => { edgeCalculator.computeSequenceEdges(node, sequence); }).toThrowError(Error);
     });
@@ -50,7 +50,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let sequenceKey: string = "skey";
 
         let node: Node = helper.createFullNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
-        let sequence: Sequence = new Sequence({ key: sequenceKey, keys: [key, nextKey] });
+        let sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [key, nextKey] });
 
         let sequenceEdges: NavigationEdge[] = edgeCalculator.computeSequenceEdges(node, sequence);
 
@@ -68,7 +68,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let sequenceKey: string = "skey";
 
         let node: Node = helper.createFullNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
-        let sequence: Sequence = new Sequence({ key: sequenceKey, keys: [prevKey, key] });
+        let sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [prevKey, key] });
 
         let sequenceEdges: NavigationEdge[] = edgeCalculator.computeSequenceEdges(node, sequence);
 
@@ -88,7 +88,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let sequenceKey: string = "skey";
 
         let node: Node = helper.createFullNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
-        let sequence: Sequence = new Sequence({ key: sequenceKey, keys: [prevKey, key, nextKey] });
+        let sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [prevKey, key, nextKey] });
 
         let sequenceEdges: NavigationEdge[] = edgeCalculator.computeSequenceEdges(node, sequence);
 

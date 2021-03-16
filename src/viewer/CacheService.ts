@@ -53,7 +53,7 @@ export class CacheService {
             distinctUntilChanged(
                 undefined,
                 (frame: AnimationFrame): string => {
-                    return frame.state.currentNode.key;
+                    return frame.state.currentNode.id;
                 }),
             map(
                 (frame: AnimationFrame): [string[], string] => {
@@ -61,10 +61,10 @@ export class CacheService {
                     const trajectoryKeys: string[] = trajectory
                         .map(
                             (n: Node): string => {
-                                return n.key;
+                                return n.id;
                             });
 
-                    const sequenceKey: string = trajectory[trajectory.length - 1].sequenceKey;
+                    const sequenceKey: string = trajectory[trajectory.length - 1].sequenceId;
 
                     return [trajectoryKeys, sequenceKey];
                 }),
@@ -87,14 +87,14 @@ export class CacheService {
                 ([mode, frame]: [GraphMode, AnimationFrame]): Observable<NavigationEdgeStatus> => {
                     return mode === GraphMode.Sequence ?
                         this._keyToEdges(
-                            frame.state.currentNode.key,
+                            frame.state.currentNode.id,
                             (node: Node): Observable<NavigationEdgeStatus> => {
                                 return node.sequenceEdges$;
                             }) :
                         observableFrom(frame.state.trajectory
                             .map(
                                 (node: Node): string => {
-                                    return node.key;
+                                    return node.id;
                                 })
                             .slice(frame.state.currentIndex)).pipe(
                                 mergeMap(

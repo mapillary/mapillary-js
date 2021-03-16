@@ -151,7 +151,7 @@ export class StateService {
             distinctUntilChanged(
                 undefined,
                 (f: AnimationFrame): string => {
-                    return f.state.currentNode.key;
+                    return f.state.currentNode.id;
                 }),
             publishReplay(1),
             refCount());
@@ -166,7 +166,7 @@ export class StateService {
         subs.push(nodeChangedSubject$.pipe(
             map(
                 (f: AnimationFrame): string => {
-                    return f.state.currentNode.key;
+                    return f.state.currentNode.id;
                 }))
             .subscribe(this._currentKey$));
 

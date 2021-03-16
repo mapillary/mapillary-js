@@ -353,7 +353,7 @@ export class Graph {
                         if (node.full) {
                             fullNodes.push(node);
                         } else {
-                            coreNodes.push(node.key);
+                            coreNodes.push(node.id);
                         }
                     }
 
@@ -431,7 +431,7 @@ export class Graph {
                     if (node.full) {
                         fullNodes.push(node);
                     } else {
-                        coreNodes.push(node.key);
+                        coreNodes.push(node.id);
                     }
                 }
 
@@ -561,7 +561,7 @@ export class Graph {
                             this._makeFull(node, fn);
                         }
                     } else {
-                        if (fn.sequence_key == null) {
+                        if (fn.sequence.id == null) {
                             throw new GraphMapillaryError(`Node has no sequence key (${key}).`);
                         }
 
@@ -608,11 +608,11 @@ export class Graph {
         }
 
         let node: Node = this.getNode(key);
-        if (node.sequenceKey in this._sequences) {
-            throw new GraphMapillaryError(`Sequence already cached (${key}), (${node.sequenceKey}).`);
+        if (node.sequenceId in this._sequences) {
+            throw new GraphMapillaryError(`Sequence already cached (${key}), (${node.sequenceId}).`);
         }
 
-        return this._cacheSequence$(node.sequenceKey);
+        return this._cacheSequence$(node.sequenceId);
     }
 
     /**
@@ -642,11 +642,11 @@ export class Graph {
     public cacheSequenceEdges(key: string): void {
         let node: Node = this.getNode(key);
 
-        if (!(node.sequenceKey in this._sequences)) {
-            throw new GraphMapillaryError(`Sequence is not cached (${key}), (${node.sequenceKey})`);
+        if (!(node.sequenceId in this._sequences)) {
+            throw new GraphMapillaryError(`Sequence is not cached (${key}), (${node.sequenceId})`);
         }
 
-        let sequence: Sequence = this._sequences[node.sequenceKey].sequence;
+        let sequence: Sequence = this._sequences[node.sequenceId].sequence;
         let edges: NavigationEdge[] = this._edgeCalculator.computeSequenceEdges(node, sequence);
 
         node.cacheSequenceEdges(edges);
@@ -711,14 +711,14 @@ export class Graph {
                                     const fn: ImageEnt = imageByKeyFull[fullKey];
 
                                     if (this.hasNode(fullKey)) {
-                                        const node: Node = this.getNode(fn.key);
+                                        const node: Node = this.getNode(fn.id);
 
                                         if (!node.full) {
                                             this._makeFull(node, fn);
                                         }
                                     } else {
-                                        if (fn.sequence_key == null) {
-                                            console.warn(`Sequence missing, discarding node (${fn.key})`);
+                                        if (fn.sequence.id == null) {
+                                            console.warn(`Sequence missing, discarding node (${fn.id})`);
                                         }
 
                                         const node: Node = new Node(fn);
@@ -871,15 +871,15 @@ export class Graph {
         }
 
         let node: Node = this.getNode(key);
-        let sequence: Sequence = this._sequences[node.sequenceKey].sequence;
+        let sequence: Sequence = this._sequences[node.sequenceId].sequence;
 
         let fallbackKeys: string[] = [];
-        let prevKey: string = sequence.findPrevKey(node.key);
+        let prevKey: string = sequence.findPrevKey(node.id);
         if (prevKey != null) {
             fallbackKeys.push(prevKey);
         }
 
-        let nextKey: string = sequence.findNextKey(node.key);
+        let nextKey: string = sequence.findNextKey(node.id);
         if (nextKey != null) {
             fallbackKeys.push(nextKey);
         }
@@ -1059,7 +1059,7 @@ export class Graph {
     public isCachingNodeSequence(key: string): boolean {
         let node: Node = this.getNode(key);
 
-        return node.sequenceKey in this._cachingSequences$;
+        return node.sequenceId in this._cachingSequences$;
     }
 
     /**
@@ -1134,7 +1134,7 @@ export class Graph {
      */
     public hasNodeSequence(key: string): boolean {
         let node: Node = this.getNode(key);
-        let sequenceKey: string = node.sequenceKey;
+        let sequenceKey: string = node.sequenceId;
 
         let hasNodeSequence: boolean = sequenceKey in this._sequences;
 
@@ -1211,11 +1211,11 @@ export class Graph {
         };
 
         for (let spatialItem of spatialItems) {
-            spatialNodes.all[spatialItem.node.key] = spatialItem.node;
+            spatialNodes.all[spatialItem.node.id] = spatialItem.node;
 
             if (!spatialItem.node.full) {
-                spatialNodes.cacheKeys.push(spatialItem.node.key);
-                spatialNodes.cacheNodes[spatialItem.node.key] = spatialItem.node;
+                spatialNodes.cacheKeys.push(spatialItem.node.id);
+                spatialNodes.cacheNodes[spatialItem.node.id] = spatialItem.node;
             }
         }
 
@@ -1355,7 +1355,7 @@ export class Graph {
         this._preStored = {};
 
         for (const node of nodes) {
-            this._nodes[node.key] = node;
+            this._nodes[node.id] = node;
 
             const h: string = this._api.data.geometry.latLonToCellId(node.originalLatLon);
             this._preStore(h, node);
@@ -1474,7 +1474,7 @@ export class Graph {
                     continue;
                 }
 
-                if (prestoredNodes[key].sequenceKey === keepSequenceKey) {
+                if (prestoredNodes[key].sequenceId === keepSequenceKey) {
                     continue;
                 }
 
@@ -1494,7 +1494,7 @@ export class Graph {
             .slice(this._configuration.maxUnusedPreStoredNodes)
             .map(
                 ([na, h]: [NodeAccess, string]): [string, string] => {
-                    return [na.node.key, h];
+                    return [na.node.id, h];
                 });
 
         this._uncachePreStored(nonCachedPreStored);
@@ -1518,7 +1518,7 @@ export class Graph {
 
         for (let nodeAccess of uncacheNodes) {
             nodeAccess.node.uncache();
-            let key: string = nodeAccess.node.key;
+            let key: string = nodeAccess.node.id;
             delete this._cachedNodes[key];
 
             if (key in this._cachedNodeTiles) {
@@ -1682,15 +1682,15 @@ export class Graph {
                             break;
                         }
 
-                        if (coreNode.sequence_key == null) {
-                            console.warn(`Sequence missing, discarding node (${coreNode.key})`);
+                        if (coreNode.sequence.id == null) {
+                            console.warn(`Sequence missing, discarding node (${coreNode.id})`);
 
                             continue;
                         }
 
-                        if (preStored != null && coreNode.key in preStored) {
-                            let preStoredNode: Node = preStored[coreNode.key];
-                            delete preStored[coreNode.key];
+                        if (preStored != null && coreNode.id in preStored) {
+                            let preStoredNode: Node = preStored[coreNode.id];
+                            delete preStored[coreNode.id];
 
                             hCache.push(preStoredNode);
 
@@ -1702,7 +1702,7 @@ export class Graph {
 
                             this._nodeIndex.insert(preStoredNodeIndexItem);
                             this._nodeIndexTiles[h].push(preStoredNodeIndexItem);
-                            this._nodeToTile[preStoredNode.key] = h;
+                            this._nodeToTile[preStoredNode.id] = h;
 
                             continue;
                         }
@@ -1719,7 +1719,7 @@ export class Graph {
 
                         this._nodeIndex.insert(nodeIndexItem);
                         this._nodeIndexTiles[h].push(nodeIndexItem);
-                        this._nodeToTile[node.key] = h;
+                        this._nodeToTile[node.id] = h;
 
                         this._setNode(node);
                     }
@@ -1743,12 +1743,12 @@ export class Graph {
     }
 
     private _makeFull(node: Node, fillNode: SpatialImageEnt): void {
-        if (fillNode.calt == null) {
-            fillNode.calt = this._defaultAlt;
+        if (fillNode.computed_altitude == null) {
+            fillNode.computed_altitude = this._defaultAlt;
         }
 
-        if (fillNode.c_rotation == null) {
-            fillNode.c_rotation = this._graphCalculator.rotationFromCompass(fillNode.ca, fillNode.orientation);
+        if (fillNode.computed_rotation == null) {
+            fillNode.computed_rotation = this._graphCalculator.rotationFromCompass(fillNode.compass_angle, fillNode.orientation);
         }
 
         node.makeFull(fillNode);
@@ -1759,7 +1759,7 @@ export class Graph {
             this._preStored[h] = {};
         }
 
-        this._preStored[h][node.key] = node;
+        this._preStored[h][node.id] = node;
     }
 
     private _removeFromPreStore(h: string): { [key: string]: Node } {
@@ -1774,7 +1774,7 @@ export class Graph {
     }
 
     private _setNode(node: Node): void {
-        let key: string = node.key;
+        let key: string = node.id;
 
         if (this.hasNode(key)) {
             throw new GraphMapillaryError(`Node already exist (${key}).`);
@@ -1785,7 +1785,7 @@ export class Graph {
 
     private _uncacheTile(h: string, keepSequenceKey: string): void {
         for (let node of this._cachedTiles[h].nodes) {
-            let key: string = node.key;
+            let key: string = node.id;
 
             delete this._nodeToTile[key];
 
@@ -1801,14 +1801,14 @@ export class Graph {
                 delete this._cachedSpatialEdges[key];
             }
 
-            if (node.sequenceKey === keepSequenceKey) {
+            if (node.sequenceId === keepSequenceKey) {
                 this._preStore(h, node);
                 node.uncache();
             } else {
                 delete this._nodes[key];
 
-                if (node.sequenceKey in this._cachedSequenceNodes) {
-                    delete this._cachedSequenceNodes[node.sequenceKey];
+                if (node.sequenceId in this._cachedSequenceNodes) {
+                    delete this._cachedSequenceNodes[node.sequenceId];
                 }
 
                 node.dispose();
@@ -1836,8 +1836,8 @@ export class Graph {
 
             let node: Node = this._preStored[h][key];
 
-            if (node.sequenceKey in this._cachedSequenceNodes) {
-                delete this._cachedSequenceNodes[node.sequenceKey];
+            if (node.sequenceId in this._cachedSequenceNodes) {
+                delete this._cachedSequenceNodes[node.sequenceId];
             }
 
             delete this._preStored[h][key];
@@ -1896,13 +1896,13 @@ export class Graph {
                             break;
                         }
 
-                        if (this.hasNode(coreNode.key)) {
+                        if (this.hasNode(coreNode.id)) {
                             continue;
                         }
 
-                        if (coreNode.sequence_key == null) {
+                        if (coreNode.sequence.id == null) {
                             console.warn(`Sequence missing, discarding node ` +
-                                `(${coreNode.key})`);
+                                `(${coreNode.id})`);
                             continue;
                         }
 
@@ -1915,7 +1915,7 @@ export class Graph {
                         };
                         nodeIndex.insert(nodeIndexItem);
                         nodeIndexCell.push(nodeIndexItem);
-                        nodeToCell[node.key] = cellId;
+                        nodeToCell[node.id] = cellId;
                         this._setNode(node);
                     }
                     return observableOf(cellId);

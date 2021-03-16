@@ -56,7 +56,7 @@ export class ImagePlaneGLRenderer {
     public addPeripheryPlane(node: Node, transform: Transform): void {
         const mesh: THREE.Mesh = this._factory.createMesh(node, transform);
         const planes: { [key: string]: THREE.Mesh } = {};
-        planes[node.key] = mesh;
+        planes[node.id] = mesh;
         this._scene.addPeripheryPlanes(planes);
 
         this._needsRender = true;
@@ -119,7 +119,7 @@ export class ImagePlaneGLRenderer {
                 continue;
             }
 
-            if (key !== node.key) {
+            if (key !== node.id) {
                 continue;
             }
 
@@ -220,12 +220,12 @@ export class ImagePlaneGLRenderer {
     }
 
     private _updateImagePlanes(state: IAnimationState): boolean {
-        if (state.currentNode == null || state.currentNode.key === this._currentKey) {
+        if (state.currentNode == null || state.currentNode.id === this._currentKey) {
             return false;
         }
 
-        let previousKey: string = state.previousNode != null ? state.previousNode.key : null;
-        let currentKey: string = state.currentNode.key;
+        let previousKey: string = state.previousNode != null ? state.previousNode.id : null;
+        let currentKey: string = state.currentNode.id;
 
         if (this._previousKey !== previousKey &&
             this._previousKey !== currentKey &&

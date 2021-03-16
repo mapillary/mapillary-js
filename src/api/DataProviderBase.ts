@@ -1,6 +1,6 @@
 import { MapillaryError } from "../error/MapillaryError";
 import { EventEmitter } from "../utils/EventEmitter";
-import { ReconstructionEnt } from "./ents/ReconstructionEnt";
+import { ClusterReconstructionEnt } from "./ents/ClusterReconstructionEnt";
 import { CoreImageEnt } from "./ents/CoreImageEnt";
 import { SpatialImageEnt } from "./ents/SpatialImageEnt";
 import { ImageEnt } from "./ents/ImageEnt";
@@ -70,12 +70,12 @@ export abstract class DataProviderBase extends EventEmitter {
      * to retrieve.
      * @param {Promise} [abort] - Optional promise for aborting
      * the request through rejection.
-     * @returns {Promise<ReconstructionEnt>} Promise to the
+     * @returns {Promise<ClusterReconstructionEnt>} Promise to the
      * cluster reconstruction.
      * @throws {Error} Rejects the promise on errors.
      */
     public getClusterReconstruction(url: string, abort?: Promise<void>):
-        Promise<ReconstructionEnt> {
+        Promise<ClusterReconstructionEnt> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 

@@ -138,7 +138,7 @@ export class PanService {
                         .cacheBoundingBox$(bounds[0], bounds[1]).pipe(
                             catchError(
                                 (error: Error): Observable<Node> => {
-                                    console.error(`Failed to cache periphery bounding box (${current.key})`, error);
+                                    console.error(`Failed to cache periphery bounding box (${current.id})`, error);
 
                                     return observableEmpty();
                                 }),
@@ -151,7 +151,7 @@ export class PanService {
                                     const potential: Node[] = [];
 
                                     for (const node of nodes) {
-                                        if (node.key === current.key) {
+                                        if (node.id === current.id) {
                                             continue;
                                         }
 
@@ -179,7 +179,7 @@ export class PanService {
                             ([[cn, adjacent], reference]: [[Node, Node[]], LatLonAltEnt]): [Node, Transform, number][] => {
                                 const currentDirection: THREE.Vector3 = this._spatial.viewingDirection(cn.rotation);
                                 const currentTranslation: number[] = Geo.computeTranslation(
-                                    { lat: cn.latLon.lat, lon: cn.latLon.lon, alt: cn.alt },
+                                    { lat: cn.latLon.lat, lon: cn.latLon.lon, alt: cn.computedAltitude },
                                     cn.rotation,
                                     reference);
                                 const currentTransform: Transform = this._createTransform(cn, currentTranslation);
@@ -200,7 +200,7 @@ export class PanService {
 
                                 for (const a of adjacent) {
                                     const translation: number[] = Geo.computeTranslation(
-                                        { lat: a.latLon.lat, lon: a.latLon.lon, alt: a.alt },
+                                        { lat: a.latLon.lat, lon: a.latLon.lon, alt: a.computedAltitude },
                                         a.rotation,
                                         reference);
 
@@ -320,10 +320,10 @@ export class PanService {
         const [x, y, z]: number[] = this._geoCoords.geodeticToEnu(
             node.latLon.lat,
             node.latLon.lon,
-            node.alt,
+            node.computedAltitude,
             reference.latLon.lat,
             reference.latLon.lon,
-            reference.alt);
+            reference.computedAltitude);
 
         return Math.sqrt(x * x + y * y + z * z);
     }

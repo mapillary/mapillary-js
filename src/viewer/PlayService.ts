@@ -149,7 +149,7 @@ export class PlayService {
             this._stateService.currentNode$.pipe(
                 map(
                     (node: Node): [string, string] => {
-                        return [node.sequenceKey, node.key];
+                        return [node.sequenceId, node.id];
                     }),
                 distinctUntilChanged(
                     undefined,
@@ -195,7 +195,7 @@ export class PlayService {
                         return this._stateService.currentState$.pipe(
                             map(
                                 (frame: AnimationFrame): [string, number] => {
-                                    return [frame.state.trajectory[frame.state.trajectory.length - 1].key, frame.state.nodesAhead];
+                                    return [frame.state.trajectory[frame.state.trajectory.length - 1].id, frame.state.nodesAhead];
                                 }),
                             scan(
                                 (
@@ -247,7 +247,7 @@ export class PlayService {
             distinctUntilChanged(
                 undefined,
                 (frame: AnimationFrame): string => {
-                    return frame.state.lastNode.key;
+                    return frame.state.lastNode.id;
                 }),
             map(
                 (frame: AnimationFrame): [Node, boolean] => {
@@ -257,7 +257,7 @@ export class PlayService {
 
                     for (let i: number = trajectory.length - 2; i >= 0; i--) {
                         const node: Node = trajectory[i];
-                        if (node.sequenceKey !== lastNode.sequenceKey) {
+                        if (node.sequenceId !== lastNode.sequenceId) {
                             break;
                         }
 
@@ -296,11 +296,7 @@ export class PlayService {
                                 (key: string): Observable<Node> => {
                                     return key != null ?
                                         this._graphService.cacheNode$(key) :
-                                        this._bridge$(node, increasingTime).pipe(
-                                            filter(
-                                                (n: Node): boolean => {
-                                                    return !!n;
-                                                }));
+                                        observableEmpty();
                                 }));
                 }))
             .subscribe(
@@ -331,11 +327,11 @@ export class PlayService {
                     return kc1 === kc2 && kl1 === kl2;
                 },
                 (state: IAnimationState): [string, string] => {
-                    return [state.currentNode.key, state.lastNode.key];
+                    return [state.currentNode.id, state.lastNode.id];
                 }),
             filter(
                 (state: IAnimationState): boolean => {
-                    return state.currentNode.key === state.lastNode.key &&
+                    return state.currentNode.id === state.lastNode.id &&
                         state.currentIndex === state.trajectory.length - 1;
                 }),
             map(
@@ -492,51 +488,6 @@ export class PlayService {
         this._graphService.setGraphMode(GraphMode.Spatial);
 
         this._setPlaying(false);
-    }
-
-    private _bridge$(node: Node, increasingTime: boolean): Observable<Node> {
-        if (increasingTime === undefined) {
-            return observableOf(null);
-        }
-
-        const boundingBox: LatLonEnt[] = this._graphCalculator.boundingBoxCorners(node.latLon, 25);
-
-        this._bridging$ = this._graphService.cacheBoundingBox$(boundingBox[0], boundingBox[1]).pipe(
-            mergeMap(
-                (nodes: Node[]): Observable<Node> => {
-                    let nextNode: Node = null;
-                    for (const n of nodes) {
-                        if (n.sequenceKey === node.sequenceKey ||
-                            !n.cameraUuid ||
-                            n.cameraUuid !== node.cameraUuid ||
-                            n.capturedAt === node.capturedAt ||
-                            n.capturedAt > node.capturedAt !== increasingTime) {
-                            continue;
-                        }
-
-                        const delta: number = Math.abs(n.capturedAt - node.capturedAt);
-
-                        if (delta > 15000) {
-                            continue;
-                        }
-
-                        if (!nextNode || delta < Math.abs(nextNode.capturedAt - node.capturedAt)) {
-                            nextNode = n;
-                        }
-                    }
-
-                    return !!nextNode ?
-                        this._graphService.cacheNode$(nextNode.key) :
-                        observableOf(null);
-                }),
-            finalize(
-                (): void => {
-                    this._bridging$ = null;
-                }),
-            publish(),
-            refCount());
-
-        return this._bridging$;
     }
 
     private _mapSpeed(speed: number): number {

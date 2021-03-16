@@ -24,7 +24,7 @@ describe("Transform.rt", () => {
 
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.c_rotation = r;
+        fillNode.computed_rotation = r;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
@@ -68,7 +68,7 @@ describe("Transform.rt", () => {
 
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.c_rotation = r;
+        fillNode.computed_rotation = r;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
@@ -112,7 +112,7 @@ describe("Transform.rt", () => {
 
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.c_rotation = r;
+        fillNode.computed_rotation = r;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
@@ -156,7 +156,7 @@ describe("Transform.rt", () => {
 
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.c_rotation = r;
+        fillNode.computed_rotation = r;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
@@ -211,7 +211,7 @@ describe("Transform.srt", () => {
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
         fillNode.atomic_scale = 1;
-        fillNode.c_rotation = r;
+        fillNode.computed_rotation = r;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
@@ -256,7 +256,7 @@ describe("Transform.srt", () => {
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
         fillNode.atomic_scale = 3;
-        fillNode.c_rotation = r;
+        fillNode.computed_rotation = r;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
@@ -301,7 +301,7 @@ describe("Transform.srt", () => {
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
         fillNode.atomic_scale = 0.5;
-        fillNode.c_rotation = r;
+        fillNode.computed_rotation = r;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
@@ -807,7 +807,7 @@ describe("Transform.unprojectSfM", () => {
 
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.c_rotation = r;
+        fillNode.computed_rotation = r;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
@@ -861,7 +861,7 @@ describe("Transform.unprojectSfM", () => {
 
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.c_rotation = r;
+        fillNode.computed_rotation = r;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
@@ -957,7 +957,7 @@ describe("Transform.unprojectBasic", () => {
 
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.c_rotation = [0.1, 0.2, 0.3];
+        fillNode.computed_rotation = [0.1, 0.2, 0.3];
         fillNode.orientation = 1;
         node.makeFull(fillNode);
 
@@ -988,7 +988,7 @@ describe("Transform.unprojectBasic", () => {
 
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.c_rotation = [0.1, 0.2, 0.3];
+        fillNode.computed_rotation = [0.1, 0.2, 0.3];
         fillNode.orientation = 3;
         node.makeFull(fillNode);
 
@@ -1019,7 +1019,7 @@ describe("Transform.unprojectBasic", () => {
 
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.c_rotation = [0.1, 0.2, 0.3];
+        fillNode.computed_rotation = [0.1, 0.2, 0.3];
         fillNode.orientation = 6;
         node.makeFull(fillNode);
 
@@ -1050,7 +1050,7 @@ describe("Transform.unprojectBasic", () => {
 
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.c_rotation = [0.1, 0.2, 0.3];
+        fillNode.computed_rotation = [0.1, 0.2, 0.3];
         fillNode.orientation = 8;
         node.makeFull(fillNode);
 
@@ -1081,7 +1081,7 @@ describe("Transform.unprojectBasic", () => {
 
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.c_rotation = [0.5, -0.2, 0.3];
+        fillNode.computed_rotation = [0.5, -0.2, 0.3];
         fillNode.camera_type = "equirectangular";
 
         node.makeFull(fillNode);

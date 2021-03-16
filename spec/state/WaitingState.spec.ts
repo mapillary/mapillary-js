@@ -43,10 +43,10 @@ class TestWaitingState extends WaitingState {
 class TestNode extends Node {
     constructor() {
         super({
-            cl: { lat: 0, lon: 0 },
-            key: "key",
-            l: { lat: 0, lon: 0 },
-            sequence_key: "skey",
+            computed_geometry: { lat: 0, lon: 0 },
+            id: "key",
+            geometry: { lat: 0, lon: 0 },
+            sequence: { id: "skey" },
         });
     }
 
@@ -119,7 +119,7 @@ describe("WaitingState.currentCamera.lookat", () => {
 
         let previousNode: TestNode = new TestNode();
         let previousFillNode: SpatialImageEnt = helper.createFillNode();
-        previousFillNode.c_rotation = [Math.PI, 0, 0];
+        previousFillNode.computed_rotation = [Math.PI, 0, 0];
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();
@@ -157,7 +157,7 @@ describe("WaitingState.currentCamera.lookat", () => {
 
         let previousNode: TestNode = new TestNode();
         let previousFillNode: SpatialImageEnt = helper.createFillNode();
-        previousFillNode.c_rotation = [Math.PI, 0, 0];
+        previousFillNode.computed_rotation = [Math.PI, 0, 0];
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();
@@ -249,7 +249,7 @@ describe("WaitingState.previousCamera.lookat", () => {
 
         let currentNode: TestNode = new TestNode();
         let currentFillNode: SpatialImageEnt = helper.createFillNode();
-        currentFillNode.c_rotation = [Math.PI, 0, 0];
+        currentFillNode.computed_rotation = [Math.PI, 0, 0];
         currentNode.makeFull(currentFillNode);
 
         waitingState.set([previousNode]);
@@ -287,7 +287,7 @@ describe("WaitingState.previousCamera.lookat", () => {
 
         let currentNode: TestNode = new TestNode();
         let currentFillNode: SpatialImageEnt = helper.createFillNode();
-        currentFillNode.c_rotation = [0.2, 0.3, 0.4];
+        currentFillNode.computed_rotation = [0.2, 0.3, 0.4];
         currentNode.makeFull(currentFillNode);
 
         waitingState.set([previousNode]);

@@ -1,4 +1,4 @@
-import { KeyedEnt } from "./KeyedEnt";
+import { IDEnt } from "./IDEnt";
 import { LatLonEnt } from "./LatLonEnt";
 
 /**
@@ -6,19 +6,19 @@ import { LatLonEnt } from "./LatLonEnt";
  *
  * @interface CoreImageEnt
  */
-export interface CoreImageEnt extends KeyedEnt {
+export interface CoreImageEnt extends IDEnt {
     /**
      * SfM computed latitude longitude in WGS84 datum, measured in degrees.
      */
-    cl?: LatLonEnt;
+    computed_geometry?: LatLonEnt;
 
     /**
      * Original EXIF latitude longitude in WGS84 datum, measured in degrees.
      */
-    l: LatLonEnt;
+    geometry: LatLonEnt;
 
     /**
-     * Key of sequence that the node is part of.
+     * Sequence that the node is part of.
      */
-    sequence_key: string;
+    sequence: IDEnt;
 }

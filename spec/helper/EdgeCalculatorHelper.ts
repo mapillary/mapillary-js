@@ -31,10 +31,10 @@ export class EdgeCalculatorHelper {
         sequenceKey: string): Node {
 
         let coreNode: CoreImageEnt = {
-            cl: { lat: latLonAlt.lat, lon: latLonAlt.lon },
-            key: key,
-            l: { lat: latLonAlt.lat, lon: latLonAlt.lon },
-            sequence_key: sequenceKey,
+            computed_geometry: { lat: latLonAlt.lat, lon: latLonAlt.lon },
+            id: key,
+            geometry: { lat: latLonAlt.lat, lon: latLonAlt.lon },
+            sequence: { id: sequenceKey },
         };
 
         return new Node(coreNode);
@@ -54,21 +54,24 @@ export class EdgeCalculatorHelper {
 
         let fillNode: SpatialImageEnt = {
             atomic_scale: 0,
-            c_rotation: r,
-            ca: 0,
-            calt: latLonAlt.alt,
+            computed_rotation: r,
+            compass_angle: 0,
+            computed_altitude: latLonAlt.alt,
             camera_parameters: cameraType === "equirectangular" ?
                 [] : [1, 0, 0],
             camera_type: cameraType,
             captured_at: capturedAt,
-            cca: 0,
-            cluster_key: "ckey",
+            computed_compass_angle: 0,
+            cluster: {
+                id: "ckey",
+                url: "ckey_url",
+            },
             height: 0,
             merge_cc: mergeCC,
             merge_version: mergeVersion,
             orientation: 0,
             private: false,
-            user: { key: "ukey", username: "uname" },
+            user: { id: "ukey", username: "uname" },
             width: 0,
         };
 

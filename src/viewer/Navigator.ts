@@ -335,7 +335,7 @@ export class Navigator {
             tap(
                 (node: Node) => {
                     this._stateService.setNodes([node]);
-                    this._movedToKey$.next(node.key);
+                    this._movedToKey$.next(node.id);
                 }),
             finalize(
                 (): void => {
@@ -351,7 +351,7 @@ export class Navigator {
                     return frame.state.trajectory
                         .map(
                             (node: Node): string => {
-                                return node.key;
+                                return node.id;
                             });
                 }));
     }

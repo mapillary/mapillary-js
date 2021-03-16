@@ -5,11 +5,6 @@
  */
 export interface URLImageEnt {
   /**
-   * URL for cluster reconstruction resource.
-   */
-  cluster_url?: string;
-
-  /**
    * URL for 3D mesh resource.
    */
   mesh_url?: string;

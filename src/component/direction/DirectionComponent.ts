@@ -163,10 +163,10 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
                         node.spatialEdges$,
                         configuration.distinguishSequence ?
                             this._navigator.graphService
-                                .cacheSequence$(node.sequenceKey).pipe(
+                                .cacheSequence$(node.sequenceId).pipe(
                                     catchError(
                                         (error: Error): Observable<Sequence> => {
-                                            console.error(`Failed to cache sequence (${node.sequenceKey})`, error);
+                                            console.error(`Failed to cache sequence (${node.sequenceId})`, error);
 
                                             return observableOf<Sequence>(null);
                                         })) :
