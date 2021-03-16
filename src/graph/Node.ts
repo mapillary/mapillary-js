@@ -115,7 +115,7 @@ export class Node {
      * @returns {string} The camera type that captured the image.
      */
     public get cameraType(): string {
-        return this._fill.camera_projection_type;
+        return this._fill.camera_type;
     }
 
     /**
@@ -398,24 +398,6 @@ export class Node {
     }
 
     /**
-     * Get projectKey.
-     *
-     * @returns {string} Unique key of the project to which
-     * the node belongs. If the node does not belong to a
-     * project the project key will be undefined.
-     *
-     * @deprecated This property will be deprecated in favor
-     * of the organization key and private properties.
-     *
-     * @ignore
-     */
-    public get projectKey(): string {
-        return this._fill.project != null ?
-            this._fill.project.key :
-            null;
-    }
-
-    /**
      * Get quality score.
      *
      * @returns {number} A number between zero and one
@@ -559,7 +541,7 @@ export class Node {
         return this._cache
             .cacheAssets$(
                 this._fill,
-                isSpherical(this._fill.camera_projection_type),
+                isSpherical(this._fill.camera_type),
                 this.merged)
             .pipe(
                 map(

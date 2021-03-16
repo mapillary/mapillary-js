@@ -1,5 +1,5 @@
+import { CameraEnt } from "./CameraEnt";
 import { URLImageEnt } from "./URLImageEnt";
-import { ProjectEnt } from "./ProjectEnt";
 import { UserEnt } from "./UserEnt";
 
 /**
@@ -7,7 +7,7 @@ import { UserEnt } from "./UserEnt";
  *
  * @interface SpatialImageEnt
  */
-export interface SpatialImageEnt extends URLImageEnt {
+export interface SpatialImageEnt extends CameraEnt, URLImageEnt {
     /**
      * Original EXIF altitude above sea level, in meters.
      */
@@ -37,11 +37,6 @@ export interface SpatialImageEnt extends URLImageEnt {
     calt?: number;
 
     /**
-     * Projection type of captured image.
-     */
-    camera_projection_type?: string;
-
-    /**
      * Timestamp when the image was captured.
      */
     captured_at: number;
@@ -58,24 +53,9 @@ export interface SpatialImageEnt extends URLImageEnt {
     cca?: number;
 
     /**
-     * SfM computed focal length.
+     * Key of SfM reconstruction that the image is part of.
      */
-    cfocal?: number;
-
-    /**
-     * SfM computed radial distortion parameter.
-     */
-    ck1?: number;
-
-    /**
-     * SfM computed radial distortion parameter.
-     */
-    ck2?: number;
-
-    /**
-     * Key of SfM cluster that the node is part of.
-     */
-    cluster_key?: string;
+    cluster_key: string;
 
     /**
      * Height of original image, not adjusted for orientation.
@@ -100,18 +80,13 @@ export interface SpatialImageEnt extends URLImageEnt {
     /**
      * EXIF orientation of original image.
      */
-    orientation?: number;
+    orientation: number;
 
     /**
      * Value specifying if image is accessible to organization members only
      * or to everyone.
      */
-    private: boolean;
-
-    /**
-     * Project the image belongs to.
-     */
-    project?: ProjectEnt;
+    private?: boolean;
 
     /**
      * Image quality score.
@@ -121,7 +96,7 @@ export interface SpatialImageEnt extends URLImageEnt {
     /**
      * User who uploaded the image.
      */
-    user: UserEnt;
+    user?: UserEnt;
 
     /**
      * Width of original image, not adjusted for orientation.

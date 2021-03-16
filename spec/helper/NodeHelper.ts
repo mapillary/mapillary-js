@@ -26,10 +26,12 @@ export class NodeHelper {
             c_rotation: [0, 0, 0],
             ca: 0,
             calt: 0,
-            camera_projection_type: "perspective",
+            camera_type: "perspective",
             captured_at: 0,
             cca: 0,
             cfocal: 0,
+            ck1: 0,
+            ck2: 0,
             cluster_key: this._clusterKey,
             cluster_url: this._clusterKey = "_url",
             height: 1,
@@ -44,17 +46,21 @@ export class NodeHelper {
 
     public createFullNode(): ImageEnt {
         return {
+            altitude: 0,
             atomic_scale: 0,
             c_rotation: [0, 0, 0],
             ca: 0,
             calt: 0,
-            camera_projection_type: "perspective",
+            camera_type: "perspective",
             captured_at: 0,
+            captured_with_camera_uuid: "",
             cca: 0,
             cfocal: 0,
             cl: { lat: 0, lon: 0 },
             cluster_key: this._clusterKey,
             cluster_url: this._clusterKey = "_url",
+            ck1: 0,
+            ck2: 0,
             height: 1,
             key: this._nodeKey,
             l: { lat: 0, lon: 0 },
@@ -70,7 +76,7 @@ export class NodeHelper {
 
     public createNode(cameraType: CameraType = "perspective"): Node {
         let fullNode = this.createFullNode();
-        fullNode.camera_projection_type = cameraType;
+        fullNode.camera_type = cameraType;
         let node = new Node(fullNode);
         node.makeFull(fullNode);
         return node;

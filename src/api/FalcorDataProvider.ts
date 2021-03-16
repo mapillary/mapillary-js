@@ -21,6 +21,7 @@ import { ImageSize } from "../viewer/ImageSize";
 import { GeometryProviderBase } from "./GeometryProviderBase";
 import { SequenceEnt } from "./ents/SequenceEnt";
 import { LatLonAltEnt } from "./ents/LatLonAltEnt";
+import { CameraEnt } from "./ents/CameraEnt";
 
 
 interface ImageByKey<T> {
@@ -40,13 +41,27 @@ type APIPath =
     "imagesByH" |
     "sequenceByKey";
 
-interface Reconstruction extends ReconstructionEnt {
-    reference_lla: {
+interface FalcorCameraEnt extends CameraEnt {
+    focal?: number;
+    k1?: number;
+    k2?: number;
+    projection_type?: string;
+}
+
+interface FalcorReconstructionEnt extends ReconstructionEnt {
+    cameras: { [key: string]: FalcorCameraEnt };
+    reference_lla?: {
         altitude: number,
         latitude: number,
         longitude: number,
     }
 }
+
+interface FalcorSpatialImageEnt extends SpatialImageEnt {
+    camera_projection_type: string;
+}
+
+interface FalcorImageEnt extends ImageEnt, FalcorSpatialImageEnt { }
 
 /**
  * @class PointsGeometry
@@ -281,8 +296,8 @@ export class FalcorDataProvider extends DataProviderBase {
         abort?: Promise<void>): Promise<ReconstructionEnt> {
         return BufferFetcher.getArrayBuffer(url, abort)
             .then(
-                (buffer: ArrayBuffer): Reconstruction => {
-                    const reconstructions: Reconstruction[] =
+                (buffer: ArrayBuffer): FalcorReconstructionEnt => {
+                    const reconstructions: FalcorReconstructionEnt[] =
                         JsonInflator.decompress(buffer);
 
                     if (reconstructions.length < 1) {
@@ -297,11 +312,27 @@ export class FalcorDataProvider extends DataProviderBase {
                         lon: referenceLla.longitude,
                     };
                     reconstruction.reference = reference;
-                    delete reconstruction.reference_lla;
+
+                    const cameraEnts: { [key: string]: CameraEnt } = {};
+                    const cameras = reconstruction.cameras;
+                    for (const cameraId in cameras) {
+                        if (reconstruction.cameras.hasOwnProperty(cameraId)) {
+                            continue;
+                        }
+
+                        const camera = cameras[cameraId];
+                        cameraEnts[cameraId] = {
+                            cfocal: camera.focal,
+                            ck1: camera.ck1,
+                            ck2: camera.ck2,
+                            camera_type: camera.projection_type,
+                        };
+                    }
+                    reconstruction.cameras = cameraEnts;
 
                     return reconstructions[0];
                 },
-                (reason: Error): Reconstruction => {
+                (reason: Error): FalcorReconstructionEnt => {
                     throw reason;
                 });
     }
@@ -310,7 +341,7 @@ export class FalcorDataProvider extends DataProviderBase {
      * @inheritdoc
      */
     public getFillImages(keys: string[]): Promise<{ [key: string]: SpatialImageEnt }> {
-        return Promise.resolve(<PromiseLike<JSONEnvelope<ImageByKey<SpatialImageEnt>>>>this._model
+        return Promise.resolve(<PromiseLike<JSONEnvelope<ImageByKey<FalcorSpatialImageEnt>>>>this._model
             .get([
                 this._pathImageByKey,
                 keys,
@@ -320,13 +351,13 @@ export class FalcorDataProvider extends DataProviderBase {
                 this._propertiesKey
                     .concat(this._propertiesUser)]))
             .then(
-                (value: JSONEnvelope<ImageByKey<SpatialImageEnt>>): { [key: string]: SpatialImageEnt } => {
+                (value: JSONEnvelope<ImageByKey<FalcorSpatialImageEnt>>): { [key: string]: FalcorSpatialImageEnt } => {
                     if (!value) {
                         this._invalidateGet(this._pathImageByKey, keys);
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
                     }
 
-                    return this._populateUrls(value.json.imageByKey);
+                    return this._populateProperties(value.json.imageByKey);
                 },
                 (error: Error) => {
                     this._invalidateGet(this._pathImageByKey, keys);
@@ -338,7 +369,7 @@ export class FalcorDataProvider extends DataProviderBase {
      * @inheritdoc
      */
     public getFullImages(keys: string[]): Promise<{ [key: string]: ImageEnt }> {
-        return Promise.resolve(<PromiseLike<JSONEnvelope<ImageByKey<ImageEnt>>>>this._model
+        return Promise.resolve(<PromiseLike<JSONEnvelope<ImageByKey<FalcorImageEnt>>>>this._model
             .get([
                 this._pathImageByKey,
                 keys,
@@ -349,13 +380,13 @@ export class FalcorDataProvider extends DataProviderBase {
                 this._propertiesKey
                     .concat(this._propertiesUser)]))
             .then(
-                (value: JSONEnvelope<ImageByKey<ImageEnt>>): { [key: string]: ImageEnt } => {
+                (value: JSONEnvelope<ImageByKey<FalcorImageEnt>>): { [key: string]: FalcorImageEnt } => {
                     if (!value) {
                         this._invalidateGet(this._pathImageByKey, keys);
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
                     }
 
-                    return this._populateUrls(value.json.imageByKey);
+                    return this._populateProperties(value.json.imageByKey);
                 },
                 (error: Error) => {
                     this._invalidateGet(this._pathImageByKey, keys);
@@ -450,13 +481,14 @@ export class FalcorDataProvider extends DataProviderBase {
         this._model.invalidate([path, paths]);
     }
 
-    private _populateUrls<T extends SpatialImageEnt>(ibk: { [key: string]: T }): { [key: string]: T } {
+    private _populateProperties<T extends FalcorSpatialImageEnt>(ibk: { [key: string]: T }): { [key: string]: T } {
         for (let key in ibk) {
             if (!ibk.hasOwnProperty(key)) {
                 continue;
             }
 
             const image: T = ibk[key];
+            image.camera_type = image.camera_projection_type;
             image.cluster_url = this._urls.clusterReconstruction(image.cluster_key);
             image.mesh_url = this._urls.protoMesh(key);
             image.thumb320_url = this._urls.thumbnail(

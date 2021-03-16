@@ -20,5 +20,5 @@ export interface CoreImageEnt extends KeyedEnt {
     /**
      * Key of sequence that the node is part of.
      */
-    sequence_key?: string;
+    sequence_key: string;
 }

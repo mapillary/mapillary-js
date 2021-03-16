@@ -8,20 +8,20 @@ export interface CameraEnt {
     /**
      * SfM computed focal length.
      */
-    focal: number;
+    cfocal?: number;
 
     /**
      * SfM computed radial distortion parameter.
      */
-    k1: number;
+    ck1?: number;
 
     /**
      * SfM computed radial distortion parameter.
      */
-    k2: number;
+    ck2?: number;
 
     /**
      * Projection type of the camera.
      */
-    projection_type: string;
+    camera_type?: string;
 }

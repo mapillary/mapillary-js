@@ -57,7 +57,7 @@ export class EdgeCalculatorHelper {
             c_rotation: r,
             ca: 0,
             calt: latLonAlt.alt,
-            camera_projection_type: cameraType,
+            camera_type: cameraType,
             captured_at: capturedAt,
             cca: 0,
             cfocal: 0,
