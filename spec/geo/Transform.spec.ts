@@ -1017,7 +1017,7 @@ describe("Transform.unprojectBasic", () => {
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
         fillNode.c_rotation = [0.5, -0.2, 0.3];
-        fillNode.camera_projection_type = "equirectangular";
+        fillNode.camera_type = "equirectangular";
 
         node.makeFull(fillNode);
 
