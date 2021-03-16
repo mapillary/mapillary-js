@@ -15,13 +15,13 @@ import {
 import { Transform } from "../../geo/Transform";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { RenderCamera } from "../../render/RenderCamera";
-import { ICurrentState } from "../../state/interfaces/ICurrentState";
-import { IFrame } from "../../state/interfaces/IFrame";
+import { IAnimationState } from "../../state/interfaces/IAnimationState";
+import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
-import { IPinch } from "../../viewer/interfaces/IPinch";
+import { TouchPinch } from "../../viewer/interfaces/TouchPinch";
 import { Component } from "../Component";
-import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
+import { MouseConfiguration } from "../interfaces/MouseConfiguration";
 import { HandlerBase } from "../utils/HandlerBase";
 import { isSpherical } from "../../geo/Geo";
 
@@ -38,7 +38,7 @@ import { isSpherical } from "../../geo/Geo";
  * var isEnabled = mouseComponent.touchZoom.isEnabled;
  * ```
  */
-export class TouchZoomHandler extends HandlerBase<IMouseConfiguration> {
+export class TouchZoomHandler extends HandlerBase<MouseConfiguration> {
     private _viewportCoords: ViewportCoords;
 
     private _activeSubscription: Subscription;
@@ -47,7 +47,7 @@ export class TouchZoomHandler extends HandlerBase<IMouseConfiguration> {
 
     /** @ignore */
     constructor(
-        component: Component<IMouseConfiguration>,
+        component: Component<MouseConfiguration>,
         container: Container,
         navigator: Navigator,
         viewportCoords: ViewportCoords) {
@@ -59,7 +59,7 @@ export class TouchZoomHandler extends HandlerBase<IMouseConfiguration> {
     protected _enable(): void {
         this._preventDefaultSubscription = this._container.touchService.pinch$
             .subscribe(
-                (pinch: IPinch): void => {
+                (pinch: TouchPinch): void => {
                     pinch.originalEvent.preventDefault();
                 });
 
@@ -85,20 +85,20 @@ export class TouchZoomHandler extends HandlerBase<IMouseConfiguration> {
         this._zoomSubscription = this._container.touchService.pinch$.pipe(
             withLatestFrom(this._navigator.stateService.currentState$),
             filter(
-                (args: [IPinch, IFrame]): boolean => {
-                    let state: ICurrentState = args[1].state;
+                (args: [TouchPinch, AnimationFrame]): boolean => {
+                    let state: IAnimationState = args[1].state;
                     return isSpherical(state.currentNode.cameraType) ||
                         state.nodesAhead < 1;
                 }),
             map(
-                (args: [IPinch, IFrame]): IPinch => {
+                (args: [TouchPinch, AnimationFrame]): TouchPinch => {
                     return args[0];
                 }),
             withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$))
             .subscribe(
-                ([pinch, render, transform]: [IPinch, RenderCamera, Transform]): void => {
+                ([pinch, render, transform]: [TouchPinch, RenderCamera, Transform]): void => {
                     let element: HTMLElement = this._container.container;
 
                     let [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(pinch, element);
@@ -128,7 +128,7 @@ export class TouchZoomHandler extends HandlerBase<IMouseConfiguration> {
         this._zoomSubscription = null;
     }
 
-    protected _getConfiguration(enable: boolean): IMouseConfiguration {
+    protected _getConfiguration(enable: boolean): MouseConfiguration {
         return { touchZoom: enable };
     }
 }

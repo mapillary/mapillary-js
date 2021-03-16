@@ -2,9 +2,9 @@ import { empty as observableEmpty, Observable } from "rxjs";
 
 import { catchError } from "rxjs/operators";
 import { APIWrapper } from "../../src/api/APIWrapper";
-import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
-import { IFillNode } from "../../src/api/interfaces/IFillNode";
-import { ISequence } from "../../src/api/interfaces/ISequence";
+import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
+import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
+import { SequenceEnt } from "../../src/api/ents/SequenceEnt";
 import { DataProvider } from "../helper/ProviderHelper";
 
 describe("APIWrapperctor", () => {
@@ -32,7 +32,7 @@ describe("APIWrapperimageByKeyFill$", () => {
 
         api.imageByKeyFill$([key])
             .subscribe(
-                (result: { [key: string]: IFillNode }): void => {
+                (result: { [key: string]: SpatialImageEnt }): void => {
                     expect(result).toBeDefined();
 
                     expect(providerSpy.calls.count()).toBe(1);
@@ -91,7 +91,7 @@ describe("APIWrapperimageByKeyFull$", () => {
 
         api.imageByKeyFull$([key])
             .subscribe(
-                (result: { [key: string]: IFillNode }): void => {
+                (result: { [key: string]: SpatialImageEnt }): void => {
                     expect(result).toBeDefined();
 
                     expect(providerSpy.calls.count()).toBe(1);
@@ -150,7 +150,7 @@ describe("APIWrapperimagesByH$", () => {
 
         api.imagesByH$(h)
             .subscribe(
-                (result: { [key: string]: { [index: string]: ICoreNode } }): void => {
+                (result: { [key: string]: { [index: string]: CoreImageEnt } }): void => {
                     expect(result).toBeDefined();
 
                     expect(providerSpy.calls.count()).toBe(1);
@@ -209,7 +209,7 @@ describe("APIWrappersequenceByKey$", () => {
 
         api.sequenceByKey$([skey])
             .subscribe(
-                (result: { [key: string]: ISequence }): void => {
+                (result: { [key: string]: SequenceEnt }): void => {
                     expect(result).toBeDefined();
 
                     expect(providerSpy.calls.count()).toBe(1);

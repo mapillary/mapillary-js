@@ -3,7 +3,7 @@ import { Subject } from "rxjs";
 import { Node } from "../../../src/graph/Node";
 import { FalcorDataProvider } from "../../../src/api/FalcorDataProvider";
 import { GeohashGeometryProvider } from "../../../src/api/GeohashGeometryProvider";
-import { IClusterReconstruction } from "../../../src/api/interfaces/IClusterReconstruction";
+import { ReconstructionEnt } from "../../../src/api/ents/ReconstructionEnt";
 import { SpatialDataCache } from "../../../src/component/spatialdata/SpatialDataCache";
 import { GraphService } from "../../../src/graph/GraphService";
 import { GraphServiceMockCreator } from "../../helper/GraphServiceMockCreator";
@@ -172,7 +172,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         let emitCount: number = 0;
         cache.cacheClusterReconstructions$(hash)
             .subscribe(
-                (r: IClusterReconstruction): void => {
+                (r: ReconstructionEnt): void => {
                     expect(r.key).toBe(node.clusterKey);
                     emitCount++;
                 },
@@ -263,7 +263,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
 
         let resolver: Function;
         const promise: any = {
-            then: (resolve: (value: IClusterReconstruction) => void): void => {
+            then: (resolve: (value: ReconstructionEnt) => void): void => {
                 resolver = resolve;
             },
         };
@@ -402,12 +402,12 @@ describe("SpatialDataCache.updateCell$", () => {
 });
 
 describe("SpatialDataCache.updateReconstructions$", () => {
-    const createCluster = (key: string): IClusterReconstruction => {
+    const createCluster = (key: string): ReconstructionEnt => {
         return {
             cameras: {},
             key,
             points: {},
-            reference_lla: { latitude: 0, longitude: 0, altitude: 0 },
+            reference: { lat: 0, lon: 0, alt: 0 },
             shots: {},
         }
     }
@@ -418,7 +418,7 @@ describe("SpatialDataCache.updateReconstructions$", () => {
             { clientToken: "cid" }, geometryProvider);
         spyOn(dataProvider, "getClusterReconstruction").and
             .returnValue(
-                new Promise<IClusterReconstruction>(() => { /* noop */ }));
+                new Promise<ReconstructionEnt>(() => { /* noop */ }));
 
         const graphService = new GraphServiceMockCreator().create();
         const cache = new SpatialDataCache(graphService, dataProvider);
@@ -432,7 +432,7 @@ describe("SpatialDataCache.updateReconstructions$", () => {
 
         let resolver: Function;
         const promise: any = {
-            then: (resolve: (value: IClusterReconstruction) => void): void => {
+            then: (resolve: (value: ReconstructionEnt) => void): void => {
                 resolver = resolve;
             },
         };
@@ -472,7 +472,7 @@ describe("SpatialDataCache.updateReconstructions$", () => {
 
         let resolver: Function;
         const promise: any = {
-            then: (resolve: (value: IClusterReconstruction) => void): void => {
+            then: (resolve: (value: ReconstructionEnt) => void): void => {
                 resolver = resolve;
             },
         };

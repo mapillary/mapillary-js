@@ -2,7 +2,7 @@ import { KeyboardService } from "./KeyboardService";
 import { MouseService } from "./MouseService";
 import { SpriteService } from "./SpriteService";
 import { TouchService } from "./TouchService";
-import { IViewerOptions } from "./interfaces/IViewerOptions";
+import { ViewerOptions } from "./interfaces/ViewerOptions";
 
 import { DOMRenderer } from "../render/DOMRenderer";
 import { GLRenderer } from "../render/GLRenderer";
@@ -32,7 +32,7 @@ export class Container {
     private _dom: DOM;
 
     constructor(
-        options: IViewerOptions,
+        options: ViewerOptions,
         stateService: StateService,
         dom?: DOM) {
 

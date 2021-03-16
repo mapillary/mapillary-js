@@ -7,7 +7,7 @@ import { RenderCamera } from "../../render/RenderCamera";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
-import { IKeyboardConfiguration } from "../interfaces/IKeyboardConfiguration";
+import { KeyboardConfiguration } from "../interfaces/KeyboardConfiguration";
 import { HandlerBase } from "../utils/HandlerBase";
 
 /**
@@ -27,14 +27,14 @@ import { HandlerBase } from "../utils/HandlerBase";
  * var isEnabled = keyboardComponent.keyZoom.isEnabled;
  * ```
  */
-export class KeyZoomHandler extends HandlerBase<IKeyboardConfiguration> {
+export class KeyZoomHandler extends HandlerBase<KeyboardConfiguration> {
     private _keyDownSubscription: Subscription;
 
     private _viewportCoords: ViewportCoords;
 
     /** @ignore */
     constructor(
-        component: Component<IKeyboardConfiguration>,
+        component: Component<KeyboardConfiguration>,
         container: Container,
         navigator: Navigator,
         viewportCoords: ViewportCoords) {
@@ -79,7 +79,7 @@ export class KeyZoomHandler extends HandlerBase<IKeyboardConfiguration> {
         this._keyDownSubscription.unsubscribe();
     }
 
-    protected _getConfiguration(enable: boolean): IKeyboardConfiguration {
+    protected _getConfiguration(enable: boolean): KeyboardConfiguration {
         return { keyZoom: enable };
     }
 }

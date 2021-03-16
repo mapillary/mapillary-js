@@ -8,12 +8,12 @@ import { NodeHelper } from "../helper/NodeHelper";
 import { Node } from "../../src/graph/Node";
 import { APIWrapper } from "../../src/api/APIWrapper";
 import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
-import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
+import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { Graph } from "../../src/graph/Graph";
 import { GraphMode } from "../../src/graph/GraphMode";
 import { GraphService } from "../../src/graph/GraphService";
-import { ICurrentState } from "../../src/state/interfaces/ICurrentState";
-import { IFrame } from "../../src/state/interfaces/IFrame";
+import { IAnimationState } from "../../src/state/interfaces/IAnimationState";
+import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
 import { State } from "../../src/state/State";
 import { StateService } from "../../src/state/StateService";
 import { CacheService } from "../../src/viewer/CacheService";
@@ -68,20 +68,20 @@ describe("CacheService.started", () => {
 });
 
 class TestStateService extends StateService {
-    private _overridingCurrentState$: Subject<IFrame>;
+    private _overridingCurrentState$: Subject<AnimationFrame>;
 
-    constructor(currentState$: Subject<IFrame>) {
+    constructor(currentState$: Subject<AnimationFrame>) {
         super();
 
         this._overridingCurrentState$ = currentState$;
     }
 
-    public get currentState$(): Subject<IFrame> {
+    public get currentState$(): Subject<AnimationFrame> {
         return this._overridingCurrentState$;
     }
 }
 
-const createState: () => ICurrentState = (): ICurrentState => {
+const createState: () => IAnimationState = (): IAnimationState => {
     return {
         alpha: 0,
         camera: null,
@@ -114,7 +114,7 @@ describe("CacheService.start", () => {
         const graphService: GraphService = new GraphService(graph);
         graphService.setGraphMode(GraphMode.Spatial);
 
-        const currentStateSubject$: Subject<IFrame> = new Subject<IFrame>();
+        const currentStateSubject$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const stateService: TestStateService = new TestStateService(currentStateSubject$);
 
         const uncacheSpy: jasmine.Spy = spyOn(graphService, "uncache$");
@@ -125,15 +125,15 @@ describe("CacheService.start", () => {
 
         cacheService.start();
 
-        const coreNode1: ICoreNode = helper.createCoreNode();
+        const coreNode1: CoreImageEnt = helper.createCoreNode();
         coreNode1.key = "node1";
         const node1: Node = new Node(coreNode1);
 
-        const coreNode2: ICoreNode = helper.createCoreNode();
+        const coreNode2: CoreImageEnt = helper.createCoreNode();
         coreNode2.key = "node2";
         const node2: Node = new Node(coreNode2);
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [node1, node2];
         state.currentNode = node1;
 
@@ -156,7 +156,7 @@ describe("CacheService.start", () => {
         const graphService: GraphService = new GraphService(graph);
         graphService.setGraphMode(GraphMode.Sequence);
 
-        const currentStateSubject$: Subject<IFrame> = new Subject<IFrame>();
+        const currentStateSubject$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const stateService: TestStateService = new TestStateService(currentStateSubject$);
 
         const uncacheSpy: jasmine.Spy = spyOn(graphService, "uncache$");
@@ -167,16 +167,16 @@ describe("CacheService.start", () => {
 
         cacheService.start();
 
-        const coreNode1: ICoreNode = helper.createCoreNode();
+        const coreNode1: CoreImageEnt = helper.createCoreNode();
         coreNode1.key = "node1";
         const node1: Node = new Node(coreNode1);
 
-        const coreNode2: ICoreNode = helper.createCoreNode();
+        const coreNode2: CoreImageEnt = helper.createCoreNode();
         coreNode2.key = "node2";
         coreNode2.sequence_key = "sequence2";
         const node2: Node = new Node(coreNode2);
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [node1, node2];
         state.currentNode = node1;
 
@@ -202,7 +202,7 @@ describe("CacheService.start", () => {
 
         graphService.setGraphMode(GraphMode.Spatial);
 
-        const currentStateSubject$: Subject<IFrame> = new Subject<IFrame>();
+        const currentStateSubject$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const stateService: TestStateService = new TestStateService(currentStateSubject$);
 
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
@@ -213,15 +213,15 @@ describe("CacheService.start", () => {
 
         cacheService.start();
 
-        const coreNode1: ICoreNode = helper.createCoreNode();
+        const coreNode1: CoreImageEnt = helper.createCoreNode();
         coreNode1.key = "node1";
         const node1: Node = new Node(coreNode1);
 
-        const coreNode2: ICoreNode = helper.createCoreNode();
+        const coreNode2: CoreImageEnt = helper.createCoreNode();
         coreNode2.key = "node2";
         const node2: Node = new Node(coreNode2);
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [node1, node2];
         state.currentNode = node1;
 
@@ -245,7 +245,7 @@ describe("CacheService.start", () => {
 
         graphService.setGraphMode(GraphMode.Sequence);
 
-        const currentStateSubject$: Subject<IFrame> = new Subject<IFrame>();
+        const currentStateSubject$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const stateService: TestStateService = new TestStateService(currentStateSubject$);
 
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
@@ -256,19 +256,19 @@ describe("CacheService.start", () => {
 
         cacheService.start();
 
-        const coreNode1: ICoreNode = helper.createCoreNode();
+        const coreNode1: CoreImageEnt = helper.createCoreNode();
         coreNode1.key = "node1";
         const node1: Node = new Node(coreNode1);
 
-        const coreNode2: ICoreNode = helper.createCoreNode();
+        const coreNode2: CoreImageEnt = helper.createCoreNode();
         coreNode2.key = "node2";
         const node2: Node = new Node(coreNode2);
 
-        const coreNode3: ICoreNode = helper.createCoreNode();
+        const coreNode3: CoreImageEnt = helper.createCoreNode();
         coreNode3.key = "node3";
         const node3: Node = new Node(coreNode3);
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [node1, node2, node3];
         state.currentNode = node2;
         state.currentIndex = 1;
@@ -295,7 +295,7 @@ describe("CacheService.start", () => {
 
         spyOn(graphService, "uncache$").and.returnValue(observableOf<void>(null));
 
-        const currentStateSubject$: Subject<IFrame> = new Subject<IFrame>();
+        const currentStateSubject$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const stateService: TestStateService = new TestStateService(currentStateSubject$);
 
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
@@ -304,11 +304,11 @@ describe("CacheService.start", () => {
 
         cacheService.start();
 
-        const coreNode1: ICoreNode = helper.createCoreNode();
+        const coreNode1: CoreImageEnt = helper.createCoreNode();
         coreNode1.key = "node1";
         const node1: Node = new Node(coreNode1);
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [node1];
         state.currentNode = node1;
         state.currentIndex = 0;

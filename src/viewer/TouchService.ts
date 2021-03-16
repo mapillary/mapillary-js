@@ -25,10 +25,10 @@ import {
 } from "rxjs/operators";
 
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
-import { IPinch } from "./interfaces/IPinch";
+import { TouchPinch } from "./interfaces/TouchPinch";
 
-interface IPinchOperation {
-    (pinch: IPinch): IPinch;
+interface PinchOperation {
+    (pinch: TouchPinch): TouchPinch;
 }
 
 export class TouchService {
@@ -45,11 +45,11 @@ export class TouchService {
     private _singleTouchDragEnd$: Observable<TouchEvent>;
     private _singleTouchMove$: Observable<TouchEvent>;
 
-    private _pinchOperation$: Subject<IPinchOperation>;
-    private _pinch$: Observable<IPinch>;
+    private _pinchOperation$: Subject<PinchOperation>;
+    private _pinch$: Observable<TouchPinch>;
     private _pinchStart$: Observable<TouchEvent>;
     private _pinchEnd$: Observable<TouchEvent>;
-    private _pinchChange$: Observable<IPinch>;
+    private _pinchChange$: Observable<TouchPinch>;
 
     private _doubleTap$: Observable<TouchEvent>;
 
@@ -193,11 +193,11 @@ export class TouchService {
                     return te.touches.length !== 2 || te.targetTouches.length !== 2;
                 }));
 
-        this._pinchOperation$ = new Subject<IPinchOperation>();
+        this._pinchOperation$ = new Subject<PinchOperation>();
 
         this._pinch$ = this._pinchOperation$.pipe(
             scan(
-                (pinch: IPinch, operation: IPinchOperation): IPinch => {
+                (pinch: TouchPinch, operation: PinchOperation): TouchPinch => {
                     return operation(pinch);
                 },
                 {
@@ -224,8 +224,8 @@ export class TouchService {
                     return te.touches.length === 2 && te.targetTouches.length === 2;
                 }),
             map(
-                (te: TouchEvent): IPinchOperation => {
-                    return (previous: IPinch): IPinch => {
+                (te: TouchEvent): PinchOperation => {
+                    return (previous: TouchPinch): TouchPinch => {
                         let touch1: Touch = te.touches[0];
                         let touch2: Touch = te.touches[1];
 
@@ -254,7 +254,7 @@ export class TouchService {
                         let changeX: number = distanceX - previous.distanceX;
                         let changeY: number = distanceY - previous.distanceY;
 
-                        let current: IPinch = {
+                        let current: TouchPinch = {
                             changeX: changeX,
                             changeY: changeY,
                             clientX: centerClientX,
@@ -281,7 +281,7 @@ export class TouchService {
 
         this._pinchChange$ = this._pinchStart$.pipe(
             switchMap(
-                (): Observable<IPinch> => {
+                (): Observable<TouchPinch> => {
                     return this._pinch$.pipe(
                         skip(1),
                         takeUntil(this._pinchEnd$));
@@ -328,7 +328,7 @@ export class TouchService {
         return this._singleTouchDragEnd$;
     }
 
-    public get pinch$(): Observable<IPinch> {
+    public get pinch$(): Observable<TouchPinch> {
         return this._pinchChange$;
     }
 

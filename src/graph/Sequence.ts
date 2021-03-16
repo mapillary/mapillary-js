@@ -1,4 +1,4 @@
-import { ISequence } from "../api/interfaces/ISequence";
+import { SequenceEnt } from "../api/ents/SequenceEnt";
 
 /**
  * @class Sequence
@@ -12,9 +12,9 @@ export class Sequence {
     /**
      * Create a new sequene instance.
      *
-     * @param {ISequence} sequence - Raw sequence data.
+     * @param {SequenceEnt} sequence - Raw sequence data.
      */
-    constructor(sequence: ISequence) {
+    constructor(sequence: SequenceEnt) {
         this._key = sequence.key;
         this._keys = sequence.keys;
     }

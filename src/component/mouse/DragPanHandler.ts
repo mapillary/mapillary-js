@@ -23,14 +23,14 @@ import { Transform } from "../../geo/Transform";
 import { Node } from "../../graph/Node";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { RenderCamera } from "../../render/RenderCamera";
-import { IFrame } from "../../state/interfaces/IFrame";
+import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
-import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
+import { MouseConfiguration } from "../interfaces/MouseConfiguration";
 import { HandlerBase } from "../utils/HandlerBase";
 import { Spatial } from "../../geo/Spatial";
-import { IRotation } from "../../state/interfaces/IRotation";
+import { EulerRotation } from "../../state/interfaces/EulerRotation";
 import { MouseTouchPair } from "./HandlerTypes";
 import { MouseOperator } from "../utils/MouseOperator";
 import * as ImageBoundary from "./ImageBoundary";
@@ -49,7 +49,7 @@ import { isSpherical } from "../../geo/Geo";
  * var isEnabled = mouseComponent.dragPan.isEnabled;
  * ```
  */
-export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
+export class DragPanHandler extends HandlerBase<MouseConfiguration> {
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
 
@@ -61,7 +61,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
 
     /** @ignore */
     constructor(
-        component: Component<IMouseConfiguration>,
+        component: Component<MouseConfiguration>,
         container: Container,
         navigator: Navigator,
         viewportCoords: ViewportCoords,
@@ -133,9 +133,9 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
             touchMovingStopped$)
             .subscribe(this._container.touchService.activate$);
 
-        const rotation$: Observable<IRotation> = this._navigator.stateService.currentState$.pipe(
+        const rotation$: Observable<EulerRotation> = this._navigator.stateService.currentState$.pipe(
             map(
-                (frame: IFrame): boolean => {
+                (frame: AnimationFrame): boolean => {
                     return isSpherical(frame.state.currentNode.cameraType) ||
                         frame.state.nodesAhead < 1;
                 }),
@@ -174,7 +174,13 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                 this._navigator.stateService.currentTransform$,
                 this._navigator.panService.panNodes$),
             map(
-                ([events, render, transform, nts]: [MouseTouchPair, RenderCamera, Transform, [Node, Transform, number][]]): IRotation => {
+                ([events, render, transform, nts]:
+                    [
+                        MouseTouchPair,
+                        RenderCamera,
+                        Transform,
+                        [Node, Transform, number][],
+                    ]): EulerRotation => {
                     let previousEvent: MouseEvent | Touch = events[0];
                     let event: MouseEvent | Touch = events[1];
 
@@ -246,13 +252,13 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
 
         this._rotateWithoutInertiaSubscription = rotation$
             .subscribe(
-                (rotation: IRotation): void => {
+                (rotation: EulerRotation): void => {
                     this._navigator.stateService.rotateWithoutInertia(rotation);
                 });
 
         this._rotateSubscription = rotation$.pipe(
             scan(
-                (rotationBuffer: [number, IRotation][], rotation: IRotation): [number, IRotation][] => {
+                (rotationBuffer: [number, EulerRotation][], rotation: EulerRotation): [number, EulerRotation][] => {
                     this._drainBuffer(rotationBuffer);
 
                     rotationBuffer.push([Date.now(), rotation]);
@@ -267,9 +273,9 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                         this._container.mouseService.mouseDragEnd$),
                     this._container.touchService.singleTouchDragEnd$)),
             map(
-                (rotationBuffer: [number, IRotation][]): IRotation => {
-                    const drainedBuffer: [number, IRotation][] = this._drainBuffer(rotationBuffer.slice());
-                    const rotation: IRotation = { phi: 0, theta: 0 };
+                (rotationBuffer: [number, EulerRotation][]): EulerRotation => {
+                    const drainedBuffer: [number, EulerRotation][] = this._drainBuffer(rotationBuffer.slice());
+                    const rotation: EulerRotation = { phi: 0, theta: 0 };
 
                     for (const bufferedRotation of drainedBuffer) {
                         rotation.phi += bufferedRotation[1].phi;
@@ -290,7 +296,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
                     return rotation;
                 }))
             .subscribe(
-                (rotation: IRotation): void => {
+                (rotation: EulerRotation): void => {
                     this._navigator.stateService.rotate(rotation);
                 });
     }
@@ -308,7 +314,7 @@ export class DragPanHandler extends HandlerBase<IMouseConfiguration> {
         this._rotateSubscription = null;
     }
 
-    protected _getConfiguration(enable: boolean): IMouseConfiguration {
+    protected _getConfiguration(enable: boolean): MouseConfiguration {
         return { dragPan: enable };
     }
 

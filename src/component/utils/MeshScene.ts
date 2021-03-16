@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { IShaderMaterial } from "../imageplane/interfaces/IShaderMaterial";
+import { ProjectorShaderMaterial } from "../imageplane/interfaces/ProjectorShaderMaterial";
 
 export class MeshScene {
     private _planes: { [key: string]: THREE.Mesh };
@@ -152,7 +152,7 @@ export class MeshScene {
             scene.remove(plane);
             plane.geometry.dispose();
             (<THREE.Material>plane.material).dispose();
-            let texture: THREE.Texture = (<IShaderMaterial>plane.material).uniforms.projectorTex.value;
+            let texture: THREE.Texture = (<ProjectorShaderMaterial>plane.material).uniforms.projectorTex.value;
             if (texture != null) {
                 texture.dispose();
             }

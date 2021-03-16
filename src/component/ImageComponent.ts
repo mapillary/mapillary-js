@@ -13,15 +13,15 @@ import {
 } from "rxjs/operators";
 
 import { Component } from "./Component";
-import { IComponentConfiguration } from "./interfaces/IComponentConfiguration";
+import { ComponentConfiguration } from "./interfaces/ComponentConfiguration";
 
 import { Node } from "../graph/Node";
 import { Container } from "../viewer/Container";
 import { Navigator } from "../viewer/Navigator";
-import { ISize } from "../render/interfaces/ISize";
+import { ViewportSize } from "../render/interfaces/ViewportSize";
 import { DOM } from "../utils/DOM";
 
-export class ImageComponent extends Component<IComponentConfiguration> {
+export class ImageComponent extends Component<ComponentConfiguration> {
     public static componentName: string = "image";
 
     private _canvasId: string;
@@ -36,7 +36,7 @@ export class ImageComponent extends Component<IComponentConfiguration> {
     }
 
     protected _activate(): void {
-        const canvasSize$: Observable<[HTMLCanvasElement, ISize]> = this._container.domRenderer.element$.pipe(
+        const canvasSize$: Observable<[HTMLCanvasElement, ViewportSize]> = this._container.domRenderer.element$.pipe(
             map(
                 (): HTMLCanvasElement => {
                     return <HTMLCanvasElement>this._dom.document.getElementById(this._canvasId);
@@ -46,7 +46,7 @@ export class ImageComponent extends Component<IComponentConfiguration> {
                     return !!canvas;
                 }),
             map(
-                (canvas: HTMLCanvasElement): [HTMLCanvasElement, ISize] => {
+                (canvas: HTMLCanvasElement): [HTMLCanvasElement, ViewportSize] => {
                     const adaptableDomRenderer: HTMLElement = canvas.parentElement;
                     const width: number = adaptableDomRenderer.offsetWidth;
                     const height: number = adaptableDomRenderer.offsetHeight;
@@ -54,10 +54,10 @@ export class ImageComponent extends Component<IComponentConfiguration> {
                     return [canvas, { height: height, width: width }];
                 }),
             distinctUntilChanged(
-                (s1: ISize, s2: ISize): boolean => {
+                (s1: ViewportSize, s2: ViewportSize): boolean => {
                     return s1.height === s2.height && s1.width === s2.width;
                 },
-                ([, size]: [HTMLCanvasElement, ISize]): ISize => {
+                ([, size]: [HTMLCanvasElement, ViewportSize]): ViewportSize => {
                     return size;
                 }));
 
@@ -65,7 +65,7 @@ export class ImageComponent extends Component<IComponentConfiguration> {
             canvasSize$,
             this._navigator.stateService.currentNode$)
             .subscribe(
-                ([[canvas, size], node]: [[HTMLCanvasElement, ISize], Node]): void => {
+                ([[canvas, size], node]: [[HTMLCanvasElement, ViewportSize], Node]): void => {
                     canvas.width = size.width;
                     canvas.height = size.height;
                     canvas
@@ -80,7 +80,7 @@ export class ImageComponent extends Component<IComponentConfiguration> {
         this.drawSubscription.unsubscribe();
     }
 
-    protected _getDefaultConfiguration(): IComponentConfiguration {
+    protected _getDefaultConfiguration(): ComponentConfiguration {
         return {};
     }
 }

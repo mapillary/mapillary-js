@@ -1,23 +1,23 @@
 import { Component } from "./Component";
 import { CoverComponent } from "./CoverComponent";
-import { IComponentConfiguration } from "./interfaces/IComponentConfiguration";
+import { ComponentConfiguration } from "./interfaces/ComponentConfiguration";
 
 import { ArgumentMapillaryError } from "../error/ArgumentMapillaryError";
 import { Container } from "../viewer/Container";
 import { Navigator } from "../viewer/Navigator";
 
-interface IActiveComponent {
+interface ActiveComponent {
     active: boolean;
-    component: Component<IComponentConfiguration>;
+    component: Component<ComponentConfiguration>;
 }
 
 export class ComponentService {
     public static registeredCoverComponent: typeof CoverComponent;
-    public static registeredComponents: { [key: string]: { new(...args: any[]): Component<IComponentConfiguration>; } } = {};
+    public static registeredComponents: { [key: string]: { new(...args: any[]): Component<ComponentConfiguration>; } } = {};
 
     private _coverActivated: boolean;
     private _coverComponent: CoverComponent;
-    private _components: { [key: string]: IActiveComponent } = {};
+    private _components: { [key: string]: ActiveComponent } = {};
 
     constructor(container: Container, navigator: Navigator) {
         for (const componentName in ComponentService.registeredComponents) {
@@ -25,7 +25,7 @@ export class ComponentService {
                 continue;
             }
 
-            const component: new (...args: any[]) => Component<IComponentConfiguration> =
+            const component: new (...args: any[]) => Component<ComponentConfiguration> =
                 ComponentService.registeredComponents[componentName];
 
             this._components[componentName] = {
@@ -39,7 +39,7 @@ export class ComponentService {
         this._coverActivated = true;
     }
 
-    public static register<T extends Component<IComponentConfiguration>>(
+    public static register<T extends Component<ComponentConfiguration>>(
         component: { componentName: string, new(...args: any[]): T; }): void {
         if (ComponentService.registeredComponents[component.componentName] === undefined) {
             ComponentService.registeredComponents[component.componentName] = component;
@@ -66,7 +66,7 @@ export class ComponentService {
                 continue;
             }
 
-            const component: IActiveComponent = this._components[componentName];
+            const component: ActiveComponent = this._components[componentName];
 
             if (component.active) {
                 component.component.deactivate();
@@ -86,7 +86,7 @@ export class ComponentService {
                 continue;
             }
 
-            const component: IActiveComponent = this._components[componentName];
+            const component: ActiveComponent = this._components[componentName];
 
             if (component.active) {
                 component.component.activate();
@@ -103,7 +103,7 @@ export class ComponentService {
         }
     }
 
-    public configure<TConfiguration extends IComponentConfiguration>(name: string, conf: TConfiguration): void {
+    public configure<TConfiguration extends ComponentConfiguration>(name: string, conf: TConfiguration): void {
         this._checkName(name);
         this.get(name).configure(conf);
     }
@@ -117,7 +117,7 @@ export class ComponentService {
         }
     }
 
-    public get<TComponent extends Component<IComponentConfiguration>>(name: string): TComponent {
+    public get<TComponent extends Component<ComponentConfiguration>>(name: string): TComponent {
         return <TComponent>this._components[name].component;
     }
 

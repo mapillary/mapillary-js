@@ -7,7 +7,7 @@ import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
 import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
 import { Popup } from "../../../src/component/popup/popup/Popup";
 import { PopupComponent } from "../../../src/component/popup/PopupComponent";
-import { ISize } from "../../../src/render/interfaces/ISize";
+import { ViewportSize } from "../../../src/render/interfaces/ViewportSize";
 import { RenderCamera } from "../../../src/render/RenderCamera";
 import { Container } from "../../../src/viewer/Container";
 
@@ -287,7 +287,7 @@ describe("PopupComponent.updateAdded", () => {
         popupComponent.activate();
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$).next(null);
-        (<Subject<ISize>>containerMock.renderService.size$).next(null);
+        (<Subject<ViewportSize>>containerMock.renderService.size$).next(null);
         (<Subject<Transform>>navigatorMock.stateService.currentTransform$).next(null);
 
         popupComponent.add([popup]);
@@ -313,7 +313,7 @@ describe("PopupComponent.updateAdded", () => {
         popupComponent.activate();
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$).next(null);
-        (<Subject<ISize>>containerMock.renderService.size$).next(null);
+        (<Subject<ViewportSize>>containerMock.renderService.size$).next(null);
         (<Subject<Transform>>navigatorMock.stateService.currentTransform$).next(null);
 
         popupComponent.add([popup]);
@@ -345,7 +345,7 @@ describe("PopupComponent.updateAll", () => {
         popupComponent.activate();
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$).next(null);
-        (<Subject<ISize>>containerMock.renderService.size$).next(null);
+        (<Subject<ViewportSize>>containerMock.renderService.size$).next(null);
         (<Subject<Transform>>navigatorMock.stateService.currentTransform$).next(null);
 
         expect(updateSpy.calls.count()).toBe(1);
@@ -373,7 +373,7 @@ describe("PopupComponent.updateAll", () => {
         popupComponent.deactivate();
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$).next(null);
-        (<Subject<ISize>>containerMock.renderService.size$).next(null);
+        (<Subject<ViewportSize>>containerMock.renderService.size$).next(null);
         (<Subject<Transform>>navigatorMock.stateService.currentTransform$).next(null);
 
         expect(updateSpy.calls.count()).toBe(0);

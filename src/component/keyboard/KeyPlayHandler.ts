@@ -9,11 +9,11 @@ import {
     withLatestFrom,
 } from "rxjs/operators";
 
-import { EdgeDirection } from "../../graph/edge/EdgeDirection";
-import { IEdgeStatus } from "../../graph/interfaces/IEdgeStatus";
+import { NavigationDirection } from "../../graph/edge/NavigationDirection";
+import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
 import { Node } from "../../graph/Node";
 import { State } from "../../state/State";
-import { IKeyboardConfiguration } from "../interfaces/IKeyboardConfiguration";
+import { KeyboardConfiguration } from "../interfaces/KeyboardConfiguration";
 import { HandlerBase } from "../utils/HandlerBase";
 
 /**
@@ -35,7 +35,7 @@ import { HandlerBase } from "../utils/HandlerBase";
  * var isEnabled = keyboardComponent.keyPlay.isEnabled;
  * ```
  */
-export class KeyPlayHandler extends HandlerBase<IKeyboardConfiguration> {
+export class KeyPlayHandler extends HandlerBase<KeyboardConfiguration> {
     private _keyDownSubscription: Subscription;
 
     protected _enable(): void {
@@ -46,7 +46,7 @@ export class KeyPlayHandler extends HandlerBase<IKeyboardConfiguration> {
                 this._navigator.playService.speed$,
                 this._navigator.stateService.currentNode$.pipe(
                     switchMap(
-                        (node: Node): Observable<IEdgeStatus> => {
+                        (node: Node): Observable<NavigationEdgeStatus> => {
                             return node.sequenceEdges$;
                         })),
                 this._navigator.stateService.state$.pipe(
@@ -58,7 +58,7 @@ export class KeyPlayHandler extends HandlerBase<IKeyboardConfiguration> {
             .subscribe(
                 (
                     [event, playing, direction, speed, status, earth]:
-                        [KeyboardEvent, boolean, EdgeDirection, number, IEdgeStatus, boolean]): void => {
+                        [KeyboardEvent, boolean, NavigationDirection, number, NavigationEdgeStatus, boolean]): void => {
 
                     if (event.altKey || event.ctrlKey || event.metaKey) {
                         return;
@@ -70,10 +70,10 @@ export class KeyPlayHandler extends HandlerBase<IKeyboardConfiguration> {
                                 return;
                             }
 
-                            const newDirection: EdgeDirection = playing ?
-                                null : direction === EdgeDirection.Next ?
-                                    EdgeDirection.Prev : direction === EdgeDirection.Prev ?
-                                        EdgeDirection.Next : null;
+                            const newDirection: NavigationDirection = playing ?
+                                null : direction === NavigationDirection.Next ?
+                                    NavigationDirection.Prev : direction === NavigationDirection.Prev ?
+                                        NavigationDirection.Next : null;
 
                             if (newDirection != null) {
                                 this._navigator.playService.setDirection(newDirection);
@@ -116,7 +116,7 @@ export class KeyPlayHandler extends HandlerBase<IKeyboardConfiguration> {
         this._keyDownSubscription.unsubscribe();
     }
 
-    protected _getConfiguration(enable: boolean): IKeyboardConfiguration {
+    protected _getConfiguration(enable: boolean): KeyboardConfiguration {
         return { keyZoom: enable };
     }
 }

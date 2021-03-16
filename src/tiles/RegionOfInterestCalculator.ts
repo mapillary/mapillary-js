@@ -1,10 +1,10 @@
-import { IBoundingBox } from "./interfaces/IBoundingBox";
-import { IRegionOfInterest } from "./interfaces/IRegionOfInterest";
+import { TileBoundingBox } from "./interfaces/TileBoundingBox";
+import { TileRegionOfInterest } from "./interfaces/TileRegionOfInterest";
 
 import { Transform } from "../geo/Transform";
 import { ViewportCoords } from "../geo/ViewportCoords";
 import { RenderCamera } from "../render/RenderCamera";
-import { ISize } from "../render/interfaces/ISize";
+import { ViewportSize } from "../render/interfaces/ViewportSize";
 import { isSpherical } from "../geo/Geo";
 
 /**
@@ -20,17 +20,17 @@ export class RegionOfInterestCalculator {
      * and the viewport size.
      *
      * @param {RenderCamera} renderCamera - Render camera used for unprojections.
-     * @param {ISize} size - Viewport size in pixels.
+     * @param {ViewportSize} size - Viewport size in pixels.
      * @param {Transform} transform - Transform used for projections.
      *
-     * @returns {IRegionOfInterest} A region of interest.
+     * @returns {TileRegionOfInterest} A region of interest.
      */
     public computeRegionOfInterest(
         renderCamera: RenderCamera,
-        size: ISize,
-        transform: Transform): IRegionOfInterest {
+        size: ViewportSize,
+        transform: Transform): TileRegionOfInterest {
         let viewportBoundaryPoints: number[][] = this._viewportBoundaryPoints(4);
-        let bbox: IBoundingBox = this._viewportPointsBoundingBox(viewportBoundaryPoints, renderCamera, transform);
+        let bbox: TileBoundingBox = this._viewportPointsBoundingBox(viewportBoundaryPoints, renderCamera, transform);
         this._clipBoundingBox(bbox);
 
         const viewportPixelWidth: number = 2 / size.width;
@@ -42,7 +42,7 @@ export class RegionOfInterestCalculator {
             [-0.5 * viewportPixelWidth, -0.5 * viewportPixelHeight],
         ];
 
-        let cpbox: IBoundingBox = this._viewportPointsBoundingBox(centralViewportPixel, renderCamera, transform);
+        let cpbox: TileBoundingBox = this._viewportPointsBoundingBox(centralViewportPixel, renderCamera, transform);
 
         return {
             bbox: bbox,
@@ -66,7 +66,7 @@ export class RegionOfInterestCalculator {
         return points;
     }
 
-    private _viewportPointsBoundingBox(viewportPoints: number[][], renderCamera: RenderCamera, transform: Transform): IBoundingBox {
+    private _viewportPointsBoundingBox(viewportPoints: number[][], renderCamera: RenderCamera, transform: Transform): TileBoundingBox {
         let basicPoints: number[][] = viewportPoints
             .map(
                 (point: number[]): number[] => {
@@ -85,8 +85,8 @@ export class RegionOfInterestCalculator {
         }
     }
 
-    private _boundingBox(points: number[][]): IBoundingBox {
-        let bbox: IBoundingBox = {
+    private _boundingBox(points: number[][]): TileBoundingBox {
+        let bbox: TileBoundingBox = {
             maxX: Number.NEGATIVE_INFINITY,
             maxY: Number.NEGATIVE_INFINITY,
             minX: Number.POSITIVE_INFINITY,
@@ -103,7 +103,7 @@ export class RegionOfInterestCalculator {
         return bbox;
     }
 
-    private _boundingBoxSpherical(points: number[][]): IBoundingBox {
+    private _boundingBoxSpherical(points: number[][]): TileBoundingBox {
         let xs: number[] = [];
         let ys: number[] = [];
         for (let i: number = 0; i < points.length; ++i) {
@@ -146,7 +146,7 @@ export class RegionOfInterestCalculator {
         }
     }
 
-    private _clipBoundingBox(bbox: IBoundingBox): void {
+    private _clipBoundingBox(bbox: TileBoundingBox): void {
         bbox.minX = Math.max(0, Math.min(1, bbox.minX));
         bbox.maxX = Math.max(0, Math.min(1, bbox.maxX));
         bbox.minY = Math.max(0, Math.min(1, bbox.minY));

@@ -9,12 +9,12 @@ import {
 import { filter } from "rxjs/operators";
 
 import { AbortMapillaryError } from "../../error/AbortMapillaryError";
-import { EdgeDirection } from "../../graph/edge/EdgeDirection";
-import { IEdgeStatus } from "../../graph/interfaces/IEdgeStatus";
-import { ISize } from "../../render/interfaces/ISize";
+import { NavigationDirection } from "../../graph/edge/NavigationDirection";
+import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
+import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
-import { ISequenceConfiguration } from "../interfaces/ISequenceConfiguration";
+import { SequenceConfiguration } from "../interfaces/SequenceConfiguration";
 import { SequenceMode } from "./SequenceMode";
 import { SequenceComponent } from "./SequenceComponent";
 
@@ -35,8 +35,8 @@ export class SequenceDOMRenderer {
     private _index: number;
     private _changingPosition: boolean;
 
-    private _mouseEnterDirection$: Subject<EdgeDirection>;
-    private _mouseLeaveDirection$: Subject<EdgeDirection>;
+    private _mouseEnterDirection$: Subject<NavigationDirection>;
+    private _mouseLeaveDirection$: Subject<NavigationDirection>;
     private _notifyChanged$: Subject<SequenceDOMRenderer>;
     private _notifyChangingPositionChanged$: Subject<boolean>;
     private _notifySpeedChanged$: Subject<number>;
@@ -62,8 +62,8 @@ export class SequenceDOMRenderer {
         this._index = null;
         this._changingPosition = false;
 
-        this._mouseEnterDirection$ = new Subject<EdgeDirection>();
-        this._mouseLeaveDirection$ = new Subject<EdgeDirection>();
+        this._mouseEnterDirection$ = new Subject<NavigationDirection>();
+        this._mouseLeaveDirection$ = new Subject<NavigationDirection>();
         this._notifyChanged$ = new Subject<SequenceDOMRenderer>();
         this._notifyChangingPositionChanged$ = new Subject<boolean>();
         this._notifySpeedChanged$ = new Subject<number>();
@@ -86,11 +86,11 @@ export class SequenceDOMRenderer {
         return this._notifyIndexChanged$;
     }
 
-    public get mouseEnterDirection$(): Observable<EdgeDirection> {
+    public get mouseEnterDirection$(): Observable<NavigationDirection> {
         return this._mouseEnterDirection$;
     }
 
-    public get mouseLeaveDirection$(): Observable<EdgeDirection> {
+    public get mouseLeaveDirection$(): Observable<NavigationDirection> {
         return this._mouseLeaveDirection$;
     }
 
@@ -133,8 +133,8 @@ export class SequenceDOMRenderer {
     }
 
     public render(
-        edgeStatus: IEdgeStatus,
-        configuration: ISequenceConfiguration,
+        edgeStatus: NavigationEdgeStatus,
+        configuration: SequenceConfiguration,
         containerWidth: number,
         speed: number,
         index: number,
@@ -162,7 +162,7 @@ export class SequenceDOMRenderer {
         return vd.h("div.mapillary-sequence-container", [stepper, controls, playback, timeline]);
     }
 
-    public getContainerWidth(size: ISize, configuration: ISequenceConfiguration): number {
+    public getContainerWidth(size: ViewportSize, configuration: SequenceConfiguration): number {
         let minWidth: number = configuration.minWidth;
         let maxWidth: number = configuration.maxWidth;
         if (maxWidth < minWidth) {
@@ -294,15 +294,15 @@ export class SequenceDOMRenderer {
         containerWidth: number,
         speed: number,
         component: SequenceComponent,
-        configuration: ISequenceConfiguration): vd.VNode {
+        configuration: SequenceConfiguration): vd.VNode {
 
         if (this._mode !== SequenceMode.Playback) {
             return vd.h("div.mapillary-sequence-playback", []);
         }
 
         const switchIcon: vd.VNode = vd.h("div.mapillary-sequence-switch-icon.mapillary-sequence-icon-visible", []);
-        const direction: EdgeDirection = configuration.direction === EdgeDirection.Next ?
-            EdgeDirection.Prev : EdgeDirection.Next;
+        const direction: NavigationDirection = configuration.direction === NavigationDirection.Next ?
+            NavigationDirection.Prev : NavigationDirection.Next;
 
         const playing: boolean = configuration.playing;
         const switchButtonProperties: vd.createProperties = {
@@ -340,12 +340,12 @@ export class SequenceDOMRenderer {
         nextKey: string,
         prevKey: string,
         playEnabled: boolean,
-        configuration: ISequenceConfiguration,
+        configuration: SequenceConfiguration,
         component: SequenceComponent): vd.VNode {
 
         let canPlay: boolean =
-            (configuration.direction === EdgeDirection.Next && nextKey != null) ||
-            (configuration.direction === EdgeDirection.Prev && prevKey != null);
+            (configuration.direction === NavigationDirection.Next && nextKey != null) ||
+            (configuration.direction === NavigationDirection.Prev && prevKey != null);
         canPlay = canPlay && playEnabled;
 
         let onclick: (e: Event) => void = configuration.playing ?
@@ -359,7 +359,7 @@ export class SequenceDOMRenderer {
             canPlay ? "mapillary-sequence-icon-play" : "mapillary-sequence-icon-play-inactive";
 
         let iconProperties: vd.createProperties = { className: iconClass };
-        if (configuration.direction === EdgeDirection.Prev) {
+        if (configuration.direction === NavigationDirection.Prev) {
             iconProperties.style = {
                 transform: "rotate(180deg) translate(50%, 50%)",
             };
@@ -434,13 +434,13 @@ export class SequenceDOMRenderer {
         nextKey: string,
         prevKey: string,
         containerWidth: number,
-        configuration: ISequenceConfiguration,
+        configuration: SequenceConfiguration,
         navigator: Navigator): vd.VNode[] {
 
         let nextProperties: vd.createProperties = {
             onclick: nextKey != null ?
                 (): void => {
-                    navigator.moveDir$(EdgeDirection.Next)
+                    navigator.moveDir$(NavigationDirection.Next)
                         .subscribe(
                             undefined,
                             (error: Error): void => {
@@ -450,15 +450,15 @@ export class SequenceDOMRenderer {
                             });
                 } :
                 null,
-            onmouseenter: (): void => { this._mouseEnterDirection$.next(EdgeDirection.Next); },
-            onmouseleave: (): void => { this._mouseLeaveDirection$.next(EdgeDirection.Next); },
+            onmouseenter: (): void => { this._mouseEnterDirection$.next(NavigationDirection.Next); },
+            onmouseleave: (): void => { this._mouseLeaveDirection$.next(NavigationDirection.Next); },
         };
 
         const borderRadius: number = Math.round(8 / this._stepperDefaultWidth * containerWidth);
         let prevProperties: vd.createProperties = {
             onclick: prevKey != null ?
                 (): void => {
-                    navigator.moveDir$(EdgeDirection.Prev)
+                    navigator.moveDir$(NavigationDirection.Prev)
                         .subscribe(
                             undefined,
                             (error: Error): void => {
@@ -468,16 +468,16 @@ export class SequenceDOMRenderer {
                             });
                 } :
                 null,
-            onmouseenter: (): void => { this._mouseEnterDirection$.next(EdgeDirection.Prev); },
-            onmouseleave: (): void => { this._mouseLeaveDirection$.next(EdgeDirection.Prev); },
+            onmouseenter: (): void => { this._mouseEnterDirection$.next(NavigationDirection.Prev); },
+            onmouseleave: (): void => { this._mouseLeaveDirection$.next(NavigationDirection.Prev); },
             style: {
                 "border-bottom-left-radius": `${borderRadius}px`,
                 "border-top-left-radius": `${borderRadius}px`,
             },
         };
 
-        let nextClass: string = this._getStepClassName(EdgeDirection.Next, nextKey, configuration.highlightKey);
-        let prevClass: string = this._getStepClassName(EdgeDirection.Prev, prevKey, configuration.highlightKey);
+        let nextClass: string = this._getStepClassName(NavigationDirection.Next, nextKey, configuration.highlightKey);
+        let prevClass: string = this._getStepClassName(NavigationDirection.Prev, prevKey, configuration.highlightKey);
 
         let nextIcon: vd.VNode = vd.h("div.mapillary-sequence-icon", []);
         let prevIcon: vd.VNode = vd.h("div.mapillary-sequence-icon", []);
@@ -489,8 +489,8 @@ export class SequenceDOMRenderer {
     }
 
     private _createStepper(
-        edgeStatus: IEdgeStatus,
-        configuration: ISequenceConfiguration,
+        edgeStatus: NavigationEdgeStatus,
+        configuration: SequenceConfiguration,
         playEnabled: boolean,
         containerWidth: number,
         component: SequenceComponent,
@@ -501,12 +501,12 @@ export class SequenceDOMRenderer {
         let prevKey: string = null;
 
         for (let edge of edgeStatus.edges) {
-            if (edge.data.direction === EdgeDirection.Next) {
-                nextKey = edge.to;
+            if (edge.data.direction === NavigationDirection.Next) {
+                nextKey = edge.target;
             }
 
-            if (edge.data.direction === EdgeDirection.Prev) {
-                prevKey = edge.to;
+            if (edge.data.direction === NavigationDirection.Prev) {
+                prevKey = edge.target;
             }
         }
 
@@ -549,8 +549,8 @@ export class SequenceDOMRenderer {
         return vd.h("div.mapillary-sequence-timeline", playbackProperties, [positionInput, closeButton]);
     }
 
-    private _getStepClassName(direction: EdgeDirection, key: string, highlightKey: string): string {
-        let className: string = direction === EdgeDirection.Next ?
+    private _getStepClassName(direction: NavigationDirection, key: string, highlightKey: string): string {
+        let className: string = direction === NavigationDirection.Next ?
             "mapillary-sequence-step-next" :
             "mapillary-sequence-step-prev";
 

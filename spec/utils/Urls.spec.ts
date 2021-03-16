@@ -1,9 +1,9 @@
 import { Urls } from "../../src/utils/Urls";
-import { IUrlOptions } from "../../src/viewer/interfaces/IUrlOptions";
+import { UrlOptions } from "../../src/viewer/interfaces/UrlOptions";
 
 describe("Urls.setOptions", () => {
     it("should set all option properties", () => {
-        const options: IUrlOptions = {
+        const options: UrlOptions = {
             exploreHost: "test-explore",
             scheme: "test-scheme",
         };

@@ -8,16 +8,16 @@ import {
 import { map } from "rxjs/operators";
 
 import { Component } from "./Component";
-import { IComponentConfiguration } from "./interfaces/IComponentConfiguration";
+import { ComponentConfiguration } from "./interfaces/ComponentConfiguration";
 
 import { Node } from "../graph/Node";
-import { ISize } from "../render/interfaces/ISize";
-import { IVNodeHash } from "../render/interfaces/IVNodeHash";
+import { ViewportSize } from "../render/interfaces/ViewportSize";
+import { VirtualNodeHash } from "../render/interfaces/VirtualNodeHash";
 import { Urls } from "../utils/Urls";
 import { Container } from "../viewer/Container";
 import { Navigator } from "../viewer/Navigator";
 
-export class AttributionComponent extends Component<IComponentConfiguration> {
+export class AttributionComponent extends Component<ComponentConfiguration> {
     public static componentName: string = "attribution";
     private _disposable: Subscription;
 
@@ -30,7 +30,7 @@ export class AttributionComponent extends Component<IComponentConfiguration> {
             this._navigator.stateService.currentNode$,
             this._container.renderService.size$).pipe(
                 map(
-                    ([node, size]: [Node, ISize]): IVNodeHash => {
+                    ([node, size]: [Node, ViewportSize]): VirtualNodeHash => {
                         return {
                             name: this._name,
                             vnode: this._getAttributionNode(node.username, node.key, node.capturedAt, size.width),
@@ -43,7 +43,7 @@ export class AttributionComponent extends Component<IComponentConfiguration> {
         this._disposable.unsubscribe();
     }
 
-    protected _getDefaultConfiguration(): IComponentConfiguration {
+    protected _getDefaultConfiguration(): ComponentConfiguration {
         return {};
     }
 

@@ -8,10 +8,10 @@ import { TagOperation } from "../TagOperation";
 
 import { PolygonGeometry } from "../geometry/PolygonGeometry";
 import { RectGeometry } from "../geometry/RectGeometry";
-import { InteractionCursor } from "../interfaces/IInteraction";
+import { InteractionCursor } from "../interfaces/TagInteraction";
 
 import { Transform } from "../../../geo/Transform";
-import { ISize } from "../../../render/interfaces/ISize";
+import { ViewportSize } from "../../../render/interfaces/ViewportSize";
 import { ISpriteAtlas } from "../../../viewer/interfaces/ISpriteAtlas";
 import { isSpherical } from "../../../geo/Geo";
 
@@ -49,7 +49,7 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
         this._disposeOutline();
     }
 
-    public getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ISize): vd.VNode[] {
+    public getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ViewportSize): vd.VNode[] {
         const vNodes: vd.VNode[] = [];
         const isRect: boolean = this._tag.geometry instanceof RectGeometry;
         const isPerspective: boolean = !isSpherical(this._transform.cameraType);

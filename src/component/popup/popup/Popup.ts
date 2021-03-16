@@ -5,12 +5,12 @@ import {
 
 import { Transform } from "../../../geo/Transform";
 import { ViewportCoords } from "../../../geo/ViewportCoords";
-import { ISize } from "../../../render/interfaces/ISize";
+import { ViewportSize } from "../../../render/interfaces/ViewportSize";
 import { RenderCamera } from "../../../render/RenderCamera";
 import { DOM } from "../../../utils/DOM";
 import { Alignment } from "../../../viewer/Alignment";
-import { IPopupOffset } from "../interfaces/IPopupOffset";
-import { IPopupOptions } from "../interfaces/IPopupOptions";
+import { PopupOffset } from "../interfaces/PopupOffset";
+import { PopupOptions } from "../interfaces/PopupOptions";
 import { PopupAlignment } from "./PopupAlignment";
 
 /**
@@ -66,7 +66,7 @@ export class Popup {
     private _container: HTMLDivElement;
     private _content: HTMLDivElement;
     private _parentContainer: HTMLElement;
-    private _options: IPopupOptions;
+    private _options: PopupOptions;
     private _tip: HTMLDivElement;
 
     private _point: number[];
@@ -75,7 +75,7 @@ export class Popup {
     private _dom: DOM;
     private _viewportCoords: ViewportCoords;
 
-    constructor(options?: IPopupOptions, viewportCoords?: ViewportCoords, dom?: DOM) {
+    constructor(options?: PopupOptions, viewportCoords?: ViewportCoords, dom?: DOM) {
         this._options = {};
 
         options = !!options ? options : {};
@@ -277,7 +277,7 @@ export class Popup {
      * position of the popup called by the popup component.
      * @ignore
      */
-    public update(renderCamera: RenderCamera, size: ISize, transform: Transform): void {
+    public update(renderCamera: RenderCamera, size: ViewportSize, transform: Transform): void {
         if (!this._parentContainer || !this._content) {
             return;
         }
@@ -393,7 +393,7 @@ export class Popup {
         position: PopupAlignment,
         appliedPosition: PopupAlignment,
         renderCamera: RenderCamera,
-        size: ISize,
+        size: ViewportSize,
         transform: Transform): [number[], PopupAlignment] {
 
         if (!position) {
@@ -504,7 +504,7 @@ export class Popup {
         }
     }
 
-    private _normalizeOffset(offset: number | IPopupOffset): { [key in PopupAlignment]: number[] } {
+    private _normalizeOffset(offset: number | PopupOffset): { [key in PopupAlignment]: number[] } {
         if (offset == null) {
             return this._normalizeOffset(0);
         }
@@ -541,7 +541,7 @@ export class Popup {
         }
     }
 
-    private _pixelToFloats(pointPixel: number[], size: ISize, width: number, height: number): PopupAlignment[] {
+    private _pixelToFloats(pointPixel: number[], size: ViewportSize, width: number, height: number): PopupAlignment[] {
         const floats: PopupAlignment[] = [];
 
         if (pointPixel[1] < height) {

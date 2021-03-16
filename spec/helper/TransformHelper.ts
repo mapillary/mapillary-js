@@ -1,12 +1,12 @@
 import { NodeHelper } from "./NodeHelper";
 import { Transform } from "../../src/geo/Transform";
-import { CameraProjectionType } from "../../src/api/interfaces/CameraProjectionType";
+import { CameraType } from "../../src/geo/interfaces/CameraType";
 
 export class TransformHelper {
     private _nodeHelper: NodeHelper = new NodeHelper();
 
     public createTransform(
-        cameraType: CameraProjectionType = "perspective"): Transform {
+        cameraType: CameraType = "perspective"): Transform {
 
         const node = this._nodeHelper
             .createNode(cameraType);

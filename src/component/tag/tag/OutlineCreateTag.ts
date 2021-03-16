@@ -6,19 +6,19 @@ import { CreateTag } from "./CreateTag";
 import { PolygonGeometry } from "../geometry/PolygonGeometry";
 import { RectGeometry } from "../geometry/RectGeometry";
 import { VertexGeometry } from "../geometry/VertexGeometry";
-import { IOutlineCreateTagOptions } from "../interfaces/IOutlineCreateTagOptions";
+import { OutlineCreateTagOptions } from "../interfaces/OutlineCreateTagOptions";
 
 import { Transform } from "../../../geo/Transform";
 import { ViewportCoords } from "../../../geo/ViewportCoords";
-import { ISize } from "../../../render/interfaces/ISize";
+import { ViewportSize } from "../../../render/interfaces/ViewportSize";
 
 export class OutlineCreateTag extends CreateTag<VertexGeometry> {
     private _outline: THREE.Line;
-    private _options: IOutlineCreateTagOptions;
+    private _options: OutlineCreateTagOptions;
 
     constructor(
         geometry: VertexGeometry,
-        options: IOutlineCreateTagOptions,
+        options: OutlineCreateTagOptions,
         transform: Transform,
         viewportCoords?: ViewportCoords) {
 
@@ -45,7 +45,7 @@ export class OutlineCreateTag extends CreateTag<VertexGeometry> {
         this._disposeObjects();
     }
 
-    public getDOMObjects(camera: THREE.Camera, size: ISize): vd.VNode[] {
+    public getDOMObjects(camera: THREE.Camera, size: ViewportSize): vd.VNode[] {
         const vNodes: vd.VNode[] = [];
         const container: { offsetHeight: number, offsetWidth: number } = {
             offsetHeight: size.height, offsetWidth: size.width,

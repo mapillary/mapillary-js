@@ -6,9 +6,9 @@ import { RenderTag } from "./RenderTag";
 import { SpotTag } from "./SpotTag";
 import { Tag } from "./Tag";
 
-import { InteractionCursor } from "../interfaces/IInteraction";
+import { InteractionCursor } from "../interfaces/TagInteraction";
 
-import { ISize } from "../../../render/interfaces/ISize";
+import { ViewportSize } from "../../../render/interfaces/ViewportSize";
 import { Alignment } from "../../../viewer/Alignment";
 import { ISpriteAtlas } from "../../../viewer/interfaces/ISpriteAtlas";
 
@@ -19,7 +19,7 @@ import { ISpriteAtlas } from "../../../viewer/interfaces/ISpriteAtlas";
 export class SpotRenderTag extends RenderTag<SpotTag> {
     public dispose(): void { /* noop */ }
 
-    public getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ISize): vd.VNode[] {
+    public getDOMObjects(atlas: ISpriteAtlas, camera: THREE.Camera, size: ViewportSize): vd.VNode[] {
         const tag: SpotTag = this._tag;
         const container: { offsetHeight: number, offsetWidth: number } = {
             offsetHeight: size.height, offsetWidth: size.width,

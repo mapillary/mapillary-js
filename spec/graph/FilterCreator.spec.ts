@@ -1,7 +1,7 @@
 import { NodeHelper } from "../helper/NodeHelper";
 import { Node } from "../../src/graph/Node";
-import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
-import { IFillNode } from "../../src/api/interfaces/IFillNode";
+import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
+import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { FilterCreator, FilterFunction } from "../../src/graph/FilterCreator";
 
 /**
@@ -28,10 +28,10 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "skey";
         let filter: FilterFunction = creator.createFilter(["==", "sequenceKey", sequenceKey]);
 
-        let coreNode1: ICoreNode = helper.createCoreNode();
-        let coreNode2: ICoreNode = helper.createCoreNode();
-        let coreNode3: ICoreNode = helper.createCoreNode();
-        let coreNode4: ICoreNode = helper.createCoreNode();
+        let coreNode1: CoreImageEnt = helper.createCoreNode();
+        let coreNode2: CoreImageEnt = helper.createCoreNode();
+        let coreNode3: CoreImageEnt = helper.createCoreNode();
+        let coreNode4: CoreImageEnt = helper.createCoreNode();
 
         coreNode1.sequence_key = sequenceKey;
         coreNode2.sequence_key = sequenceKey + "w";
@@ -60,10 +60,10 @@ describe("FilterCreator.createFilter", () => {
         let node3: Node = new Node(helper.createCoreNode());
         let node4: Node = new Node(helper.createCoreNode());
 
-        let fillNode1: IFillNode = helper.createFillNode();
-        let fillNode2: IFillNode = helper.createFillNode();
-        let fillNode3: IFillNode = helper.createFillNode();
-        let fillNode4: IFillNode = helper.createFillNode();
+        let fillNode1: SpatialImageEnt = helper.createFillNode();
+        let fillNode2: SpatialImageEnt = helper.createFillNode();
+        let fillNode3: SpatialImageEnt = helper.createFillNode();
+        let fillNode4: SpatialImageEnt = helper.createFillNode();
 
         fillNode1.captured_at = capturedAt;
         fillNode2.captured_at = capturedAt + 1;
@@ -91,10 +91,10 @@ describe("FilterCreator.createFilter", () => {
         let node3: Node = new Node(helper.createCoreNode());
         let node4: Node = new Node(helper.createCoreNode());
 
-        let fillNode1: IFillNode = helper.createFillNode();
-        let fillNode2: IFillNode = helper.createFillNode();
-        let fillNode3: IFillNode = helper.createFillNode();
-        let fillNode4: IFillNode = helper.createFillNode();
+        let fillNode1: SpatialImageEnt = helper.createFillNode();
+        let fillNode2: SpatialImageEnt = helper.createFillNode();
+        let fillNode3: SpatialImageEnt = helper.createFillNode();
+        let fillNode4: SpatialImageEnt = helper.createFillNode();
 
         fillNode1.user.key = null;
         fillNode2.user.key = "ukey";
@@ -126,10 +126,10 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "skey";
         let filter: FilterFunction = creator.createFilter(["!=", "sequenceKey", sequenceKey]);
 
-        let coreNode1: ICoreNode = helper.createCoreNode();
-        let coreNode2: ICoreNode = helper.createCoreNode();
-        let coreNode3: ICoreNode = helper.createCoreNode();
-        let coreNode4: ICoreNode = helper.createCoreNode();
+        let coreNode1: CoreImageEnt = helper.createCoreNode();
+        let coreNode2: CoreImageEnt = helper.createCoreNode();
+        let coreNode3: CoreImageEnt = helper.createCoreNode();
+        let coreNode4: CoreImageEnt = helper.createCoreNode();
 
         coreNode1.sequence_key = sequenceKey;
         coreNode2.sequence_key = sequenceKey + "w";
@@ -158,10 +158,10 @@ describe("FilterCreator.createFilter", () => {
         let node3: Node = new Node(helper.createCoreNode());
         let node4: Node = new Node(helper.createCoreNode());
 
-        let fillNode1: IFillNode = helper.createFillNode();
-        let fillNode2: IFillNode = helper.createFillNode();
-        let fillNode3: IFillNode = helper.createFillNode();
-        let fillNode4: IFillNode = helper.createFillNode();
+        let fillNode1: SpatialImageEnt = helper.createFillNode();
+        let fillNode2: SpatialImageEnt = helper.createFillNode();
+        let fillNode3: SpatialImageEnt = helper.createFillNode();
+        let fillNode4: SpatialImageEnt = helper.createFillNode();
 
         fillNode1.captured_at = capturedAt;
         fillNode2.captured_at = capturedAt + 1;
@@ -189,10 +189,10 @@ describe("FilterCreator.createFilter", () => {
         let node3: Node = new Node(helper.createCoreNode());
         let node4: Node = new Node(helper.createCoreNode());
 
-        let fillNode1: IFillNode = helper.createFillNode();
-        let fillNode2: IFillNode = helper.createFillNode();
-        let fillNode3: IFillNode = helper.createFillNode();
-        let fillNode4: IFillNode = helper.createFillNode();
+        let fillNode1: SpatialImageEnt = helper.createFillNode();
+        let fillNode2: SpatialImageEnt = helper.createFillNode();
+        let fillNode3: SpatialImageEnt = helper.createFillNode();
+        let fillNode4: SpatialImageEnt = helper.createFillNode();
 
         fillNode1.user.key = null;
         fillNode2.user.key = "ukey";
@@ -230,11 +230,11 @@ describe("FilterCreator.createFilter", () => {
         let node4: Node = new Node(helper.createCoreNode());
         let node5: Node = new Node(helper.createCoreNode());
 
-        let fillNode1: IFillNode = helper.createFillNode();
-        let fillNode2: IFillNode = helper.createFillNode();
-        let fillNode3: IFillNode = helper.createFillNode();
-        let fillNode4: IFillNode = helper.createFillNode();
-        let fillNode5: IFillNode = helper.createFillNode();
+        let fillNode1: SpatialImageEnt = helper.createFillNode();
+        let fillNode2: SpatialImageEnt = helper.createFillNode();
+        let fillNode3: SpatialImageEnt = helper.createFillNode();
+        let fillNode4: SpatialImageEnt = helper.createFillNode();
+        let fillNode5: SpatialImageEnt = helper.createFillNode();
 
         fillNode1.captured_at = capturedAt - 1;
         fillNode2.captured_at = capturedAt;
@@ -261,11 +261,11 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "0";
         let filter: FilterFunction = creator.createFilter([">", "sequenceKey", sequenceKey]);
 
-        let coreNode1: ICoreNode = helper.createCoreNode();
-        let coreNode2: ICoreNode = helper.createCoreNode();
-        let coreNode3: ICoreNode = helper.createCoreNode();
-        let coreNode4: ICoreNode = helper.createCoreNode();
-        let coreNode5: ICoreNode = helper.createCoreNode();
+        let coreNode1: CoreImageEnt = helper.createCoreNode();
+        let coreNode2: CoreImageEnt = helper.createCoreNode();
+        let coreNode3: CoreImageEnt = helper.createCoreNode();
+        let coreNode4: CoreImageEnt = helper.createCoreNode();
+        let coreNode5: CoreImageEnt = helper.createCoreNode();
 
         coreNode1.sequence_key = "-1";
         coreNode2.sequence_key = sequenceKey;
@@ -306,11 +306,11 @@ describe("FilterCreator.createFilter", () => {
         let node4: Node = new Node(helper.createCoreNode());
         let node5: Node = new Node(helper.createCoreNode());
 
-        let fillNode1: IFillNode = helper.createFillNode();
-        let fillNode2: IFillNode = helper.createFillNode();
-        let fillNode3: IFillNode = helper.createFillNode();
-        let fillNode4: IFillNode = helper.createFillNode();
-        let fillNode5: IFillNode = helper.createFillNode();
+        let fillNode1: SpatialImageEnt = helper.createFillNode();
+        let fillNode2: SpatialImageEnt = helper.createFillNode();
+        let fillNode3: SpatialImageEnt = helper.createFillNode();
+        let fillNode4: SpatialImageEnt = helper.createFillNode();
+        let fillNode5: SpatialImageEnt = helper.createFillNode();
 
         fillNode1.captured_at = capturedAt - 1;
         fillNode2.captured_at = capturedAt;
@@ -337,11 +337,11 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "0";
         let filter: FilterFunction = creator.createFilter([">=", "sequenceKey", sequenceKey]);
 
-        let coreNode1: ICoreNode = helper.createCoreNode();
-        let coreNode2: ICoreNode = helper.createCoreNode();
-        let coreNode3: ICoreNode = helper.createCoreNode();
-        let coreNode4: ICoreNode = helper.createCoreNode();
-        let coreNode5: ICoreNode = helper.createCoreNode();
+        let coreNode1: CoreImageEnt = helper.createCoreNode();
+        let coreNode2: CoreImageEnt = helper.createCoreNode();
+        let coreNode3: CoreImageEnt = helper.createCoreNode();
+        let coreNode4: CoreImageEnt = helper.createCoreNode();
+        let coreNode5: CoreImageEnt = helper.createCoreNode();
 
         coreNode1.sequence_key = "-1";
         coreNode2.sequence_key = sequenceKey;
@@ -382,11 +382,11 @@ describe("FilterCreator.createFilter", () => {
         let node4: Node = new Node(helper.createCoreNode());
         let node5: Node = new Node(helper.createCoreNode());
 
-        let fillNode1: IFillNode = helper.createFillNode();
-        let fillNode2: IFillNode = helper.createFillNode();
-        let fillNode3: IFillNode = helper.createFillNode();
-        let fillNode4: IFillNode = helper.createFillNode();
-        let fillNode5: IFillNode = helper.createFillNode();
+        let fillNode1: SpatialImageEnt = helper.createFillNode();
+        let fillNode2: SpatialImageEnt = helper.createFillNode();
+        let fillNode3: SpatialImageEnt = helper.createFillNode();
+        let fillNode4: SpatialImageEnt = helper.createFillNode();
+        let fillNode5: SpatialImageEnt = helper.createFillNode();
 
         fillNode1.captured_at = capturedAt - 1;
         fillNode2.captured_at = capturedAt;
@@ -413,11 +413,11 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "0";
         let filter: FilterFunction = creator.createFilter(["<", "sequenceKey", sequenceKey]);
 
-        let coreNode1: ICoreNode = helper.createCoreNode();
-        let coreNode2: ICoreNode = helper.createCoreNode();
-        let coreNode3: ICoreNode = helper.createCoreNode();
-        let coreNode4: ICoreNode = helper.createCoreNode();
-        let coreNode5: ICoreNode = helper.createCoreNode();
+        let coreNode1: CoreImageEnt = helper.createCoreNode();
+        let coreNode2: CoreImageEnt = helper.createCoreNode();
+        let coreNode3: CoreImageEnt = helper.createCoreNode();
+        let coreNode4: CoreImageEnt = helper.createCoreNode();
+        let coreNode5: CoreImageEnt = helper.createCoreNode();
 
         coreNode1.sequence_key = "-1";
         coreNode2.sequence_key = sequenceKey;
@@ -458,11 +458,11 @@ describe("FilterCreator.createFilter", () => {
         let node4: Node = new Node(helper.createCoreNode());
         let node5: Node = new Node(helper.createCoreNode());
 
-        let fillNode1: IFillNode = helper.createFillNode();
-        let fillNode2: IFillNode = helper.createFillNode();
-        let fillNode3: IFillNode = helper.createFillNode();
-        let fillNode4: IFillNode = helper.createFillNode();
-        let fillNode5: IFillNode = helper.createFillNode();
+        let fillNode1: SpatialImageEnt = helper.createFillNode();
+        let fillNode2: SpatialImageEnt = helper.createFillNode();
+        let fillNode3: SpatialImageEnt = helper.createFillNode();
+        let fillNode4: SpatialImageEnt = helper.createFillNode();
+        let fillNode5: SpatialImageEnt = helper.createFillNode();
 
         fillNode1.captured_at = capturedAt - 1;
         fillNode2.captured_at = capturedAt;
@@ -489,11 +489,11 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "0";
         let filter: FilterFunction = creator.createFilter(["<=", "sequenceKey", sequenceKey]);
 
-        let coreNode1: ICoreNode = helper.createCoreNode();
-        let coreNode2: ICoreNode = helper.createCoreNode();
-        let coreNode3: ICoreNode = helper.createCoreNode();
-        let coreNode4: ICoreNode = helper.createCoreNode();
-        let coreNode5: ICoreNode = helper.createCoreNode();
+        let coreNode1: CoreImageEnt = helper.createCoreNode();
+        let coreNode2: CoreImageEnt = helper.createCoreNode();
+        let coreNode3: CoreImageEnt = helper.createCoreNode();
+        let coreNode4: CoreImageEnt = helper.createCoreNode();
+        let coreNode5: CoreImageEnt = helper.createCoreNode();
 
         coreNode1.sequence_key = "-1";
         coreNode2.sequence_key = sequenceKey;
@@ -534,11 +534,11 @@ describe("FilterCreator.createFilter", () => {
         let node4: Node = new Node(helper.createCoreNode());
         let node5: Node = new Node(helper.createCoreNode());
 
-        let fillNode1: IFillNode = helper.createFillNode();
-        let fillNode2: IFillNode = helper.createFillNode();
-        let fillNode3: IFillNode = helper.createFillNode();
-        let fillNode4: IFillNode = helper.createFillNode();
-        let fillNode5: IFillNode = helper.createFillNode();
+        let fillNode1: SpatialImageEnt = helper.createFillNode();
+        let fillNode2: SpatialImageEnt = helper.createFillNode();
+        let fillNode3: SpatialImageEnt = helper.createFillNode();
+        let fillNode4: SpatialImageEnt = helper.createFillNode();
+        let fillNode5: SpatialImageEnt = helper.createFillNode();
 
         fillNode1.captured_at = capturedAt - 1;
         fillNode2.captured_at = capturedAt;
@@ -565,11 +565,11 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "0";
         let filter: FilterFunction = creator.createFilter(["in", "sequenceKey", sequenceKey]);
 
-        let coreNode1: ICoreNode = helper.createCoreNode();
-        let coreNode2: ICoreNode = helper.createCoreNode();
-        let coreNode3: ICoreNode = helper.createCoreNode();
-        let coreNode4: ICoreNode = helper.createCoreNode();
-        let coreNode5: ICoreNode = helper.createCoreNode();
+        let coreNode1: CoreImageEnt = helper.createCoreNode();
+        let coreNode2: CoreImageEnt = helper.createCoreNode();
+        let coreNode3: CoreImageEnt = helper.createCoreNode();
+        let coreNode4: CoreImageEnt = helper.createCoreNode();
+        let coreNode5: CoreImageEnt = helper.createCoreNode();
 
         coreNode1.sequence_key = "-1";
         coreNode2.sequence_key = sequenceKey;
@@ -595,9 +595,9 @@ describe("FilterCreator.createFilter", () => {
 
         let filter: FilterFunction = creator.createFilter(["in", "sequenceKey", null]);
 
-        let coreNode1: ICoreNode = helper.createCoreNode();
-        let coreNode2: ICoreNode = helper.createCoreNode();
-        let coreNode3: ICoreNode = helper.createCoreNode();
+        let coreNode1: CoreImageEnt = helper.createCoreNode();
+        let coreNode2: CoreImageEnt = helper.createCoreNode();
+        let coreNode3: CoreImageEnt = helper.createCoreNode();
 
         coreNode1.sequence_key = "1";
         coreNode2.sequence_key = null;
@@ -621,9 +621,9 @@ describe("FilterCreator.createFilter", () => {
         let node2: Node = new Node(helper.createCoreNode());
         let node3: Node = new Node(helper.createCoreNode());
 
-        let fillNode1: IFillNode = helper.createFillNode();
-        let fillNode2: IFillNode = helper.createFillNode();
-        let fillNode3: IFillNode = helper.createFillNode();
+        let fillNode1: SpatialImageEnt = helper.createFillNode();
+        let fillNode2: SpatialImageEnt = helper.createFillNode();
+        let fillNode3: SpatialImageEnt = helper.createFillNode();
 
         fillNode1.captured_at = 0;
         fillNode2.captured_at = 1;
@@ -651,10 +651,10 @@ describe("FilterCreator.createFilter", () => {
         let node3: Node = new Node(helper.createCoreNode());
         let node4: Node = new Node(helper.createCoreNode());
 
-        let fillNode1: IFillNode = helper.createFillNode();
-        let fillNode2: IFillNode = helper.createFillNode();
-        let fillNode3: IFillNode = helper.createFillNode();
-        let fillNode4: IFillNode = helper.createFillNode();
+        let fillNode1: SpatialImageEnt = helper.createFillNode();
+        let fillNode2: SpatialImageEnt = helper.createFillNode();
+        let fillNode3: SpatialImageEnt = helper.createFillNode();
+        let fillNode4: SpatialImageEnt = helper.createFillNode();
 
         fillNode1.captured_at = 0;
         fillNode2.captured_at = 1;
@@ -692,11 +692,11 @@ describe("FilterCreator.createFilter", () => {
         let node4: Node = new Node(helper.createCoreNode());
         let node5: Node = new Node(helper.createCoreNode());
 
-        let fillNode1: IFillNode = helper.createFillNode();
-        let fillNode2: IFillNode = helper.createFillNode();
-        let fillNode3: IFillNode = helper.createFillNode();
-        let fillNode4: IFillNode = helper.createFillNode();
-        let fillNode5: IFillNode = helper.createFillNode();
+        let fillNode1: SpatialImageEnt = helper.createFillNode();
+        let fillNode2: SpatialImageEnt = helper.createFillNode();
+        let fillNode3: SpatialImageEnt = helper.createFillNode();
+        let fillNode4: SpatialImageEnt = helper.createFillNode();
+        let fillNode5: SpatialImageEnt = helper.createFillNode();
 
         fillNode1.captured_at = capturedAt - 1;
         fillNode2.captured_at = capturedAt;
@@ -723,11 +723,11 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "0";
         let filter: FilterFunction = creator.createFilter(["!in", "sequenceKey", sequenceKey]);
 
-        let coreNode1: ICoreNode = helper.createCoreNode();
-        let coreNode2: ICoreNode = helper.createCoreNode();
-        let coreNode3: ICoreNode = helper.createCoreNode();
-        let coreNode4: ICoreNode = helper.createCoreNode();
-        let coreNode5: ICoreNode = helper.createCoreNode();
+        let coreNode1: CoreImageEnt = helper.createCoreNode();
+        let coreNode2: CoreImageEnt = helper.createCoreNode();
+        let coreNode3: CoreImageEnt = helper.createCoreNode();
+        let coreNode4: CoreImageEnt = helper.createCoreNode();
+        let coreNode5: CoreImageEnt = helper.createCoreNode();
 
         coreNode1.sequence_key = "-1";
         coreNode2.sequence_key = sequenceKey;
@@ -753,9 +753,9 @@ describe("FilterCreator.createFilter", () => {
 
         let filter: FilterFunction = creator.createFilter(["!in", "sequenceKey", null]);
 
-        let coreNode1: ICoreNode = helper.createCoreNode();
-        let coreNode2: ICoreNode = helper.createCoreNode();
-        let coreNode3: ICoreNode = helper.createCoreNode();
+        let coreNode1: CoreImageEnt = helper.createCoreNode();
+        let coreNode2: CoreImageEnt = helper.createCoreNode();
+        let coreNode3: CoreImageEnt = helper.createCoreNode();
 
         coreNode1.sequence_key = "1";
         coreNode2.sequence_key = null;
@@ -779,9 +779,9 @@ describe("FilterCreator.createFilter", () => {
         let node2: Node = new Node(helper.createCoreNode());
         let node3: Node = new Node(helper.createCoreNode());
 
-        let fillNode1: IFillNode = helper.createFillNode();
-        let fillNode2: IFillNode = helper.createFillNode();
-        let fillNode3: IFillNode = helper.createFillNode();
+        let fillNode1: SpatialImageEnt = helper.createFillNode();
+        let fillNode2: SpatialImageEnt = helper.createFillNode();
+        let fillNode3: SpatialImageEnt = helper.createFillNode();
 
         fillNode1.captured_at = 0;
         fillNode2.captured_at = 1;
@@ -809,10 +809,10 @@ describe("FilterCreator.createFilter", () => {
         let node3: Node = new Node(helper.createCoreNode());
         let node4: Node = new Node(helper.createCoreNode());
 
-        let fillNode1: IFillNode = helper.createFillNode();
-        let fillNode2: IFillNode = helper.createFillNode();
-        let fillNode3: IFillNode = helper.createFillNode();
-        let fillNode4: IFillNode = helper.createFillNode();
+        let fillNode1: SpatialImageEnt = helper.createFillNode();
+        let fillNode2: SpatialImageEnt = helper.createFillNode();
+        let fillNode3: SpatialImageEnt = helper.createFillNode();
+        let fillNode4: SpatialImageEnt = helper.createFillNode();
 
         fillNode1.captured_at = 0;
         fillNode2.captured_at = 1;
@@ -842,7 +842,7 @@ describe("FilterCreator.createFilter", () => {
         let creator: FilterCreator = new FilterCreator();
 
         let node: Node = new Node(helper.createCoreNode());
-        let fillNode: IFillNode = helper.createFillNode();
+        let fillNode: SpatialImageEnt = helper.createFillNode();
         fillNode.captured_at = 1;
         node.makeFull(fillNode);
 

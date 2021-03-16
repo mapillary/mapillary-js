@@ -1,12 +1,12 @@
 import { FalcorDataProviderUrls } from "../../src/api/FalcorDataProvider";
-import { IFalcorDataProviderOptions } from "../../src/api/interfaces/IFalcorDataProviderOptions";
+import { FalcorDataProviderOptions } from "../../src/api/interfaces/FalcorDataProviderOptions";
 
 describe("DataProviderUrls.ctor", () => {
     it("should set all option properties", () => {
-        const options: IFalcorDataProviderOptions = {
+        const options: FalcorDataProviderOptions = {
             apiHost: "test-api",
             clientToken: "ct",
-            clusterReconstructionHost: "test-cluster",
+            reconstructionHost: "test-cluster",
             imageHost: "test-image",
             imageTileHost: "test-image-tile",
             meshHost: "test-mesh",

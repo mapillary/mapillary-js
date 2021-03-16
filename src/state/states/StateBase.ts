@@ -1,22 +1,22 @@
 import * as Geo from "../../geo/Geo";
 
 import { TransitionMode } from "../TransitionMode";
-import { IRotation } from "../interfaces/IRotation";
-import { IState } from "../interfaces/IState";
+import { EulerRotation } from "../interfaces/EulerRotation";
+import { IStateBase } from "../interfaces/IStateBase";
 import { ArgumentMapillaryError } from "../../error/ArgumentMapillaryError";
 import { Camera } from "../../geo/Camera";
 import { GeoCoords } from "../../geo/GeoCoords";
 import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
-import { ILatLonAlt } from "../../geo/interfaces/ILatLonAlt";
+import { LatLonAltEnt } from "../../api/ents/LatLonAltEnt";
 import { Node } from "../../graph/Node";
-import { CameraProjectionType } from "../../api/interfaces/CameraProjectionType";
+import { CameraType } from "../../geo/interfaces/CameraType";
 
-export abstract class StateBase implements IState {
+export abstract class StateBase implements IStateBase {
     protected _spatial: Spatial;
     protected _geoCoords: GeoCoords;
 
-    protected _reference: ILatLonAlt;
+    protected _reference: LatLonAltEnt;
 
     protected _alpha: number;
     protected _camera: Camera;
@@ -39,7 +39,7 @@ export abstract class StateBase implements IState {
     private _referenceThreshold: number;
     private _transitionMode: TransitionMode;
 
-    constructor(state: IState) {
+    constructor(state: IStateBase) {
         this._spatial = new Spatial();
         this._geoCoords = new GeoCoords();
 
@@ -72,7 +72,7 @@ export abstract class StateBase implements IState {
                 undefined,
                 node.ck1,
                 node.ck2,
-                <CameraProjectionType>node.cameraType);
+                <CameraType>node.cameraType);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -95,7 +95,7 @@ export abstract class StateBase implements IState {
             this._currentCamera.clone();
     }
 
-    public get reference(): ILatLonAlt {
+    public get reference(): LatLonAltEnt {
         return this._reference;
     }
 
@@ -153,11 +153,11 @@ export abstract class StateBase implements IState {
 
     public moveTo(position: number): void { /*noop*/ }
 
-    public rotate(delta: IRotation): void { /*noop*/ }
+    public rotate(delta: EulerRotation): void { /*noop*/ }
 
-    public rotateUnbounded(delta: IRotation): void { /*noop*/ }
+    public rotateUnbounded(delta: EulerRotation): void { /*noop*/ }
 
-    public rotateWithoutInertia(delta: IRotation): void { /*noop*/ }
+    public rotateWithoutInertia(delta: EulerRotation): void { /*noop*/ }
 
     public rotateBasic(basicRotation: number[]): void { /*noop*/ }
 
@@ -179,7 +179,7 @@ export abstract class StateBase implements IState {
 
     public dolly(delta: number): void { /*noop*/ }
 
-    public orbit(rotation: IRotation): void { /*noop*/ }
+    public orbit(rotation: EulerRotation): void { /*noop*/ }
 
     public truck(direction: number[]): void { /*noop*/ }
 
@@ -376,7 +376,7 @@ export abstract class StateBase implements IState {
                 undefined,
                 node.ck1,
                 node.ck2,
-                <CameraProjectionType>node.cameraType);
+                <CameraType>node.cameraType);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -402,14 +402,14 @@ export abstract class StateBase implements IState {
                 undefined,
                 node.ck1,
                 node.ck2,
-                <CameraProjectionType>node.cameraType);
+                <CameraType>node.cameraType);
 
             this._trajectoryTransforms.unshift(transform);
             this._trajectoryCameras.unshift(new Camera(transform));
         }
     }
 
-    private _nodeToTranslation(node: Node, reference: ILatLonAlt): number[] {
+    private _nodeToTranslation(node: Node, reference: LatLonAltEnt): number[] {
         return Geo.computeTranslation(
             { alt: node.alt, lat: node.latLon.lat, lon: node.latLon.lon },
             node.rotation,

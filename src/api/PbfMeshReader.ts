@@ -1,6 +1,6 @@
 import Pbf from "pbf";
 
-import { IMesh } from "./interfaces/IMesh";
+import { MeshEnt } from "./ents/MeshEnt";
 
 /**
  * @class PbfMeshReader
@@ -16,16 +16,16 @@ export class PbfMeshReader {
      * @static
      * @param {ArrayBuffer} buffer - Array buffer to read.
      *
-     * @returns {IMesh} Mesh object.
+     * @returns {MeshEnt} Mesh object.
      */
-    public static read(buffer: ArrayBuffer): IMesh {
+    public static read(buffer: ArrayBuffer): MeshEnt {
         const pbf = new Pbf(buffer);
         return pbf.readFields(
             PbfMeshReader._readMeshField,
             { faces: [], vertices: [] });
     }
 
-    private static _readMeshField(tag: number, mesh: IMesh, pbf: Pbf): void {
+    private static _readMeshField(tag: number, mesh: MeshEnt, pbf: Pbf): void {
         if (tag === 1) {
             mesh.vertices.push(pbf.readFloat());
         } else if (tag === 2) {

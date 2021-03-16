@@ -21,18 +21,18 @@ import {
 } from "rxjs/operators";
 
 import { Component } from "./Component";
-import { CoverState, ICoverConfiguration } from "./interfaces/ICoverConfiguration";
+import { CoverState, CoverConfiguration } from "./interfaces/CoverConfiguration";
 
-import { IFullNode } from "../api/interfaces/IFullNode";
+import { ImageEnt } from "../api/ents/ImageEnt";
 import { MapillaryError } from "../error/MapillaryError";
 import { Node } from "../graph/Node";
-import { ISize } from "../render/interfaces/ISize";
-import { IVNodeHash } from "../render/interfaces/IVNodeHash";
+import { ViewportSize } from "../render/interfaces/ViewportSize";
+import { VirtualNodeHash } from "../render/interfaces/VirtualNodeHash";
 import { Urls } from "../utils/Urls";
 import { Container } from "../viewer/Container";
 import { Navigator } from "../viewer/Navigator";
 
-export class CoverComponent extends Component<ICoverConfiguration> {
+export class CoverComponent extends Component<CoverConfiguration> {
     public static componentName: string = "cover";
 
     private _renderSubscription: Subscription;
@@ -47,15 +47,15 @@ export class CoverComponent extends Component<ICoverConfiguration> {
     protected _activate(): void {
         const originalSrc$: Observable<string> = this.configuration$.pipe(
             first(
-                (c: ICoverConfiguration): boolean => {
+                (c: CoverConfiguration): boolean => {
                     return !!c.key;
                 }),
             filter(
-                (c: ICoverConfiguration): boolean => {
+                (c: CoverConfiguration): boolean => {
                     return !c.src;
                 }),
             switchMap(
-                (c: ICoverConfiguration): Observable<string> => {
+                (c: CoverConfiguration): Observable<string> => {
                     return this._getImageSrc$(c.key).pipe(
                         catchError(
                             (error: Error): Observable<string> => {
@@ -69,11 +69,11 @@ export class CoverComponent extends Component<ICoverConfiguration> {
 
         this._configureSrcSubscription = originalSrc$.pipe(
             map(
-                (src: string): ICoverConfiguration => {
+                (src: string): CoverConfiguration => {
                     return { src: src };
                 }))
             .subscribe(
-                (c: ICoverConfiguration): void => {
+                (c: CoverConfiguration): void => {
                     this._configurationSubject$.next(c);
                 });
 
@@ -81,23 +81,23 @@ export class CoverComponent extends Component<ICoverConfiguration> {
             this.configuration$,
             originalSrc$).pipe(
                 filter(
-                    ([c, src]: [ICoverConfiguration, string]): boolean => {
+                    ([c, src]: [CoverConfiguration, string]): boolean => {
                         return !!c.src && c.src !== src;
                     }),
                 first())
             .subscribe(
-                ([, src]: [ICoverConfiguration, string]): void => {
+                ([, src]: [CoverConfiguration, string]): void => {
                     window.URL.revokeObjectURL(src);
                 });
 
         this._keySubscription = this._configuration$.pipe(
             distinctUntilChanged(
                 undefined,
-                (configuration: ICoverConfiguration): CoverState => {
+                (configuration: CoverConfiguration): CoverState => {
                     return configuration.state;
                 }),
             switchMap(
-                (configuration: ICoverConfiguration): Observable<[CoverState, Node]> => {
+                (configuration: CoverConfiguration): Observable<[CoverState, Node]> => {
                     return observableCombineLatest(
                         observableOf(configuration.state),
                         this._navigator.stateService.currentNode$);
@@ -123,7 +123,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
                     return k1 === k2 && s1 === s2;
                 }),
             map(
-                ([key, src]: [string, string]): ICoverConfiguration => {
+                ([key, src]: [string, string]): CoverConfiguration => {
                     return { key: key, src: src };
                 }))
             .subscribe(this._configurationSubject$);
@@ -132,7 +132,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
             this._configuration$,
             this._container.renderService.size$).pipe(
                 map(
-                    ([configuration, size]: [ICoverConfiguration, ISize]): IVNodeHash => {
+                    ([configuration, size]: [CoverConfiguration, ViewportSize]): VirtualNodeHash => {
                         if (!configuration.src) {
                             return { name: this._name, vnode: vd.h("div", []) };
                         }
@@ -163,11 +163,11 @@ export class CoverComponent extends Component<ICoverConfiguration> {
         this._revokeUrlSubscription.unsubscribe();
     }
 
-    protected _getDefaultConfiguration(): ICoverConfiguration {
+    protected _getDefaultConfiguration(): CoverConfiguration {
         return { state: CoverState.Visible };
     }
 
-    private _getCoverButtonVNode(configuration: ICoverConfiguration): vd.VNode {
+    private _getCoverButtonVNode(configuration: CoverConfiguration): vd.VNode {
         const cover: string = configuration.state === CoverState.Loading ? "div.mapillary-cover.mapillary-cover-loading" : "div.mapillary-cover";
         const coverButton: vd.VNode = vd.h(
             "div.mapillary-cover-button",
@@ -189,7 +189,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
             ]);
     }
 
-    private _getCoverBackgroundVNode(conf: ICoverConfiguration): vd.VNode {
+    private _getCoverBackgroundVNode(conf: CoverConfiguration): vd.VNode {
         const properties: vd.createProperties = {
             style: { backgroundImage: `url(${conf.src})` },
         };
@@ -207,7 +207,7 @@ export class CoverComponent extends Component<ICoverConfiguration> {
             (subscriber: Subscriber<string>): void => {
                 this._navigator.api.imageByKeyFull$([key])
                     .subscribe(
-                        (fullNodes: { [key: string]: IFullNode; }): void => {
+                        (fullNodes: { [key: string]: ImageEnt; }): void => {
                             if (!fullNodes[key]) {
                                 subscriber.error(new MapillaryError(`Non existent cover key: ${key}`));
                                 return;

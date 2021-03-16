@@ -1,6 +1,6 @@
-import { IGLRender } from "./IGLRender";
+import { GLFrameRenderer } from "./GLFrameRenderer";
 
-export interface IGLRenderHash {
+export interface GLRenderHash {
     name: string;
-    render: IGLRender;
+    renderer: GLFrameRenderer;
 }

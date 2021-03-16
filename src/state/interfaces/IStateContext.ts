@@ -1,9 +1,9 @@
-import { ICurrentState } from "./ICurrentState";
-import { IRotation } from "./IRotation";
+import { IAnimationState } from "./IAnimationState";
+import { EulerRotation } from "./EulerRotation";
 import { TransitionMode } from "../TransitionMode";
 import { Node } from "../../graph/Node";
 
-export interface IStateContext extends ICurrentState {
+export interface IStateContext extends IAnimationState {
     earth(): void;
     traverse(): void;
     wait(): void;
@@ -18,9 +18,9 @@ export interface IStateContext extends ICurrentState {
     cut(): void;
     set(nodes: Node[]): void;
 
-    rotate(delta: IRotation): void;
-    rotateUnbounded(delta: IRotation): void;
-    rotateWithoutInertia(delta: IRotation): void;
+    rotate(delta: EulerRotation): void;
+    rotateUnbounded(delta: EulerRotation): void;
+    rotateWithoutInertia(delta: EulerRotation): void;
     rotateBasic(basicRotation: number[]): void;
     rotateBasicUnbounded(basicRotation: number[]): void;
     rotateBasicWithoutInertia(basicRotation: number[]): void;
@@ -37,6 +37,6 @@ export interface IStateContext extends ICurrentState {
     setTransitionMode(mode: TransitionMode): void;
 
     dolly(delta: number): void;
-    orbit(rotation: IRotation): void;
+    orbit(rotation: EulerRotation): void;
     truck(direction: number[]): void;
 }

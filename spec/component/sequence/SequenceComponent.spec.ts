@@ -11,9 +11,9 @@ import { Node } from "../../../src/graph/Node";
 import { SequenceComponent } from "../../../src/component/sequence/SequenceComponent";
 import { SequenceDOMRenderer } from "../../../src/component/sequence/SequenceDOMRenderer";
 import { GraphMode } from "../../../src/graph/GraphMode";
-import { IEdgeStatus } from "../../../src/graph/interfaces/IEdgeStatus";
+import { NavigationEdgeStatus } from "../../../src/graph/interfaces/NavigationEdgeStatus";
 import { Sequence } from "../../../src/graph/Sequence";
-import { ISize } from "../../../src/render/interfaces/ISize";
+import { ViewportSize } from "../../../src/render/interfaces/ViewportSize";
 import { State } from "../../../src/state/State";
 import { Container } from "../../../src/viewer/Container";
 
@@ -132,7 +132,7 @@ describe("SequenceComponent.activate", () => {
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node1, "sequenceEdges$", new Subject<IEdgeStatus>());
+        mockCreator.mockProperty(node1, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
         mockCreator.mockProperty(node1, "key", "nodeKey1");
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
 
@@ -141,7 +141,7 @@ describe("SequenceComponent.activate", () => {
 
         const node2: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node2, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node2, "sequenceEdges$", new Subject<IEdgeStatus>());
+        mockCreator.mockProperty(node2, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
         mockCreator.mockProperty(node2, "key", "nodeKey2");
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node2);
 
@@ -150,7 +150,7 @@ describe("SequenceComponent.activate", () => {
 
         const node3: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node3, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node3, "sequenceEdges$", new Subject<IEdgeStatus>());
+        mockCreator.mockProperty(node3, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
         mockCreator.mockProperty(node3, "key", "nodeKey2");
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node3);
 
@@ -171,7 +171,7 @@ describe("SequenceComponent.activate", () => {
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node1, "sequenceEdges$", new Subject<IEdgeStatus>());
+        mockCreator.mockProperty(node1, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
         mockCreator.mockProperty(node1, "key", "nodeKey1");
         mockCreator.mockProperty(node1, "sequenceKey", "sequenceKey1");
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
@@ -181,7 +181,7 @@ describe("SequenceComponent.activate", () => {
 
         const node2: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node2, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node2, "sequenceEdges$", new Subject<IEdgeStatus>());
+        mockCreator.mockProperty(node2, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
         mockCreator.mockProperty(node2, "key", "nodeKey2");
         mockCreator.mockProperty(node2, "sequenceKey", "sequenceKey1");
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node2);
@@ -190,7 +190,7 @@ describe("SequenceComponent.activate", () => {
 
         const node3: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node3, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node3, "sequenceEdges$", new Subject<IEdgeStatus>());
+        mockCreator.mockProperty(node3, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
         mockCreator.mockProperty(node3, "key", "nodeKey3");
         mockCreator.mockProperty(node3, "sequenceKey", "sequenceKey2");
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node3);
@@ -215,7 +215,7 @@ describe("SequenceComponent.activate", () => {
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
-        mockCreator.mockProperty(node1, "sequenceEdges$", new Subject<IEdgeStatus>());
+        mockCreator.mockProperty(node1, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
         mockCreator.mockProperty(node1, "key", "nodeKey1");
         mockCreator.mockProperty(node1, "sequenceKey", "sequenceKey1");
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node1);
@@ -270,7 +270,7 @@ describe("SequenceComponent.activate", () => {
 
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
-        (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
+        (<Subject<ViewportSize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
         const node1: Node = nodeHelper.createNode();
         mockCreator.mockProperty(node1, "spatialEdges", { cached: false, edges: [] });
@@ -303,7 +303,7 @@ describe("SequenceComponent.activate", () => {
 
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
-        (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
+        (<Subject<ViewportSize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
         const sequenceKey1: string = "sequenceKey1";
         const nodeKey1: string = "nodeKey1";
@@ -343,7 +343,7 @@ describe("SequenceComponent.activate", () => {
 
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
-        (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
+        (<Subject<ViewportSize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
         const sequenceKey1: string = "sequenceKey1";
         const nodeKey1: string = "nodeKey1";
@@ -397,7 +397,7 @@ describe("SequenceComponent.activate", () => {
 
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
-        (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
+        (<Subject<ViewportSize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
         const sequenceKey1: string = "sequenceKey1";
         const sequenceKey2: string = "sequenceKey2";
@@ -463,7 +463,7 @@ describe("SequenceComponent.activate", () => {
 
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
-        (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
+        (<Subject<ViewportSize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
         const sequenceKey1: string = "sequenceKey1";
         const nodeKey1: string = "nodeKey1";
@@ -513,7 +513,7 @@ describe("SequenceComponent.activate", () => {
 
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
         (<Subject<number>>navigatorMock.playService.speed$).next(1);
-        (<Subject<ISize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
+        (<Subject<ViewportSize>>containerMock.renderService.size$).next({ height: 1, width: 1 });
 
         const sequenceKey1: string = "sequenceKey1";
         const nodeKey1: string = "nodeKey1";

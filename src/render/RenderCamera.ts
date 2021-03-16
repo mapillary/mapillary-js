@@ -3,16 +3,16 @@ import * as THREE from "three";
 import * as Geo from "../geo/Geo";
 
 import { RenderMode } from "./RenderMode";
-import { ISize } from "./interfaces/ISize";
+import { ViewportSize } from "./interfaces/ViewportSize";
 
 import { Camera } from "../geo/Camera";
 import { Spatial } from "../geo/Spatial";
 import { Transform } from "../geo/Transform";
 import { ViewportCoords } from "../geo/ViewportCoords";
 import { State } from "../state/State";
-import { ICurrentState } from "../state/interfaces/ICurrentState";
-import { IFrame } from "../state/interfaces/IFrame";
-import { IRotation } from "../state/interfaces/IRotation";
+import { IAnimationState } from "../state/interfaces/IAnimationState";
+import { AnimationFrame } from "../state/interfaces/AnimationFrame";
+import { EulerRotation } from "../state/interfaces/EulerRotation";
 import { isSpherical } from "../geo/Geo";
 
 export class RenderCamera {
@@ -27,7 +27,7 @@ export class RenderCamera {
     private _camera: Camera;
     private _perspective: THREE.PerspectiveCamera;
 
-    private _rotation: IRotation;
+    private _rotation: EulerRotation;
 
     private _changed: boolean;
     private _changedForFrame: number;
@@ -114,7 +114,7 @@ export class RenderCamera {
         return this._renderMode;
     }
 
-    public get rotation(): IRotation {
+    public get rotation(): EulerRotation {
         return this._rotation;
     }
 
@@ -142,8 +142,8 @@ export class RenderCamera {
         return zoom;
     }
 
-    public setFrame(frame: IFrame): void {
-        const state: ICurrentState = frame.state;
+    public setFrame(frame: AnimationFrame): void {
+        const state: IAnimationState = frame.state;
 
         if (state.state !== this._state) {
             this._state = state.state;
@@ -236,7 +236,7 @@ export class RenderCamera {
         this._changed = true;
     }
 
-    public setSize(size: ISize): void {
+    public setSize(size: ViewportSize): void {
         this._perspective.aspect = this._computeAspect(size.width, size.height);
 
         this._perspective.fov = this._computeFov();
@@ -300,7 +300,7 @@ export class RenderCamera {
         return this._yToFov(maxY, zoom);
     }
 
-    private _computeRotation(camera: Camera): IRotation {
+    private _computeRotation(camera: Camera): EulerRotation {
         let direction: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
         let up: THREE.Vector3 = camera.up.clone();
 

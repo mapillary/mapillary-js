@@ -6,8 +6,8 @@ import * as THREE from "three";
 import { NodeHelper } from "../helper/NodeHelper";
 
 import { Node } from "../../src/graph/Node";
-import { IFillNode } from "../../src/api/interfaces/IFillNode";
-import { IState } from "../../src/state/interfaces/IState";
+import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
+import { IStateBase } from "../../src/state/interfaces/IStateBase";
 import { TraversingState } from "../../src/state/states/TraversingState";
 import { Camera } from "../../src/geo/Camera";
 import { TransitionMode } from "../../src/state/TransitionMode";
@@ -17,7 +17,7 @@ const transformHelper = new TransformHelper();
 
 describe("TraversingState.ctor", () => {
     it("should be defined", () => {
-        let state: IState = {
+        let state: IStateBase = {
             alpha: 1,
             camera: new Camera(),
             currentIndex: -1,
@@ -76,7 +76,7 @@ describe("TraversingState.currentCamera.lookat", () => {
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
 
-        let state: IState = {
+        let state: IStateBase = {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
@@ -89,7 +89,7 @@ describe("TraversingState.currentCamera.lookat", () => {
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
         let node: TestNode = new TestNode();
-        let fillNode: IFillNode = helper.createFillNode();
+        let fillNode: SpatialImageEnt = helper.createFillNode();
         node.makeFull(fillNode);
 
         traversingState.set([node]);
@@ -108,7 +108,7 @@ describe("TraversingState.currentCamera.lookat", () => {
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
 
-        let state: IState = {
+        let state: IStateBase = {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
@@ -121,12 +121,12 @@ describe("TraversingState.currentCamera.lookat", () => {
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
         let previousNode: TestNode = new TestNode();
-        let previousFillNode: IFillNode = helper.createFillNode();
+        let previousFillNode: SpatialImageEnt = helper.createFillNode();
         previousFillNode.c_rotation = [Math.PI, 0, 0];
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();
-        let currentFillNode: IFillNode = helper.createFillNode();
+        let currentFillNode: SpatialImageEnt = helper.createFillNode();
         currentNode.makeFull(currentFillNode);
 
         traversingState.set([previousNode]);
@@ -146,7 +146,7 @@ describe("TraversingState.currentCamera.lookat", () => {
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
 
-        let state: IState = {
+        let state: IStateBase = {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
@@ -159,12 +159,12 @@ describe("TraversingState.currentCamera.lookat", () => {
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
         let previousNode: TestNode = new TestNode();
-        let preivousFillNode: IFillNode = helper.createFillNode();
+        let preivousFillNode: SpatialImageEnt = helper.createFillNode();
         preivousFillNode.c_rotation = [Math.PI, 0, 0];
         previousNode.makeFull(preivousFillNode);
 
         let currentNode: TestNode = new TestNode();
-        let currentFillNode: IFillNode = helper.createFillNode();
+        let currentFillNode: SpatialImageEnt = helper.createFillNode();
         currentFillNode.camera_projection_type = "equirectangular";
 
         currentNode.makeFull(currentFillNode);
@@ -198,7 +198,7 @@ describe("TraversingState.previousCamera.lookat", () => {
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
 
-        let state: IState = {
+        let state: IStateBase = {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
@@ -211,7 +211,7 @@ describe("TraversingState.previousCamera.lookat", () => {
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
         let node: TestNode = new TestNode();
-        let fillNode: IFillNode = helper.createFillNode();
+        let fillNode: SpatialImageEnt = helper.createFillNode();
         node.makeFull(fillNode);
 
         traversingState.set([node]);
@@ -230,7 +230,7 @@ describe("TraversingState.previousCamera.lookat", () => {
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
 
-        let state: IState = {
+        let state: IStateBase = {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
@@ -243,12 +243,12 @@ describe("TraversingState.previousCamera.lookat", () => {
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
         let previousNode: TestNode = new TestNode();
-        let previousFillNode: IFillNode = helper.createFillNode();
+        let previousFillNode: SpatialImageEnt = helper.createFillNode();
         previousFillNode.c_rotation = [Math.PI, 0, 0];
         previousNode.makeFull(previousFillNode);
 
         let currentNode: TestNode = new TestNode();
-        let currentFillNode: IFillNode = helper.createFillNode();
+        let currentFillNode: SpatialImageEnt = helper.createFillNode();
         currentNode.makeFull(currentFillNode);
 
         traversingState.set([previousNode]);

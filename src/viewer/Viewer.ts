@@ -7,13 +7,13 @@ import {
     first,
 } from "rxjs/operators";
 
-import { ILatLon } from "../api/interfaces/ILatLon";
+import { LatLonEnt } from "../api/ents/LatLonEnt";
 import { Component } from "../component/Component";
-import { IComponentConfiguration } from "../component/interfaces/IComponentConfiguration";
-import { ILatLonAlt } from "../geo/interfaces/ILatLonAlt";
+import { ComponentConfiguration } from "../component/interfaces/ComponentConfiguration";
+import { LatLonAltEnt } from "../api/ents/LatLonAltEnt";
 import { FilterExpression } from "../graph/FilterExpression";
 import { Node } from "../graph/Node";
-import { EdgeDirection } from "../graph/edge/EdgeDirection";
+import { NavigationDirection } from "../graph/edge/NavigationDirection";
 import { RenderCamera } from "../render/RenderCamera";
 import { RenderMode } from "../render/RenderMode";
 import { TransitionMode } from "../state/TransitionMode";
@@ -22,8 +22,8 @@ import { Settings } from "../utils/Settings";
 import { Urls } from "../utils/Urls";
 
 import { ICustomRenderer } from "./interfaces/ICustomRenderer";
-import { IPointOfView } from "./interfaces/IPointOfView";
-import { IViewerOptions } from "./interfaces/IViewerOptions";
+import { PointOfView } from "./interfaces/PointOfView";
+import { ViewerOptions } from "./interfaces/ViewerOptions";
 import { ComponentController } from "./ComponentController";
 import { Container } from "./Container";
 import { Navigator } from "./Navigator";
@@ -312,7 +312,7 @@ export class Viewer extends EventEmitter {
      * application when the initial key is not known at implementation
      * time.
      *
-     * @param {IViewerOptions} options - Optional configuration object
+     * @param {ViewerOptions} options - Optional configuration object
      * specifing Viewer's and the components' initial setup.
      *
      * @example
@@ -323,7 +323,7 @@ export class Viewer extends EventEmitter {
      * });
      * ```
      */
-    constructor(options: IViewerOptions) {
+    constructor(options: ViewerOptions) {
         super();
 
         Settings.setOptions(options);
@@ -530,7 +530,7 @@ export class Viewer extends EventEmitter {
      * var mouseComponent = viewer.getComponent("mouse");
      * ```
      */
-    public getComponent<TComponent extends Component<IComponentConfiguration>>(name: string): TComponent {
+    public getComponent<TComponent extends Component<ComponentConfiguration>>(name: string): TComponent {
         return this._componentController.get<TComponent>(name);
     }
 
@@ -575,7 +575,7 @@ export class Viewer extends EventEmitter {
     /**
      * Get the viewer's current point of view.
      *
-     * @returns {Promise<IPointOfView>} Promise to the current point of view
+     * @returns {Promise<PointOfView>} Promise to the current point of view
      * of the viewer camera.
      *
      * @example
@@ -583,9 +583,9 @@ export class Viewer extends EventEmitter {
      * viewer.getPointOfView().then((pov) => { console.log(pov); });
      * ```
      */
-    public getPointOfView(): Promise<IPointOfView> {
-        return new Promise<IPointOfView>(
-            (resolve: (value: IPointOfView) => void, reject: (reason: Error) => void): void => {
+    public getPointOfView(): Promise<PointOfView> {
+        return new Promise<PointOfView>(
+            (resolve: (value: PointOfView) => void, reject: (reason: Error) => void): void => {
                 observableCombineLatest(
                     this._container.renderService.renderCamera$,
                     this._container.renderService.bearing$).pipe(
@@ -606,7 +606,7 @@ export class Viewer extends EventEmitter {
     /**
      * Get the viewer's current position
      *
-     * @returns {Promise<ILatLon>} Promise to the viewers's current
+     * @returns {Promise<LatLonEnt>} Promise to the viewers's current
      * position.
      *
      * @example
@@ -614,15 +614,15 @@ export class Viewer extends EventEmitter {
      * viewer.getPosition().then((pos) => { console.log(pos); });
      * ```
      */
-    public getPosition(): Promise<ILatLon> {
-        return new Promise<ILatLon>(
-            (resolve: (value: ILatLon) => void, reject: (reason: Error) => void): void => {
+    public getPosition(): Promise<LatLonEnt> {
+        return new Promise<LatLonEnt>(
+            (resolve: (value: LatLonEnt) => void, reject: (reason: Error) => void): void => {
                 observableCombineLatest(
                     this._container.renderService.renderCamera$,
                     this._navigator.stateService.reference$).pipe(
                         first())
                     .subscribe(
-                        ([render, reference]: [RenderCamera, ILatLonAlt]): void => {
+                        ([render, reference]: [RenderCamera, LatLonAltEnt]): void => {
                             resolve(this._observer.projection.cameraToLatLon(render, reference));
                         },
                         (error: Error): void => {
@@ -674,7 +674,7 @@ export class Viewer extends EventEmitter {
      *
      * @description This method has to be called through EdgeDirection enumeration as in the example.
      *
-     * @param {EdgeDirection} dir - Direction in which which to move.
+     * @param {NavigationDirection} dir - Direction in which which to move.
      * @returns {Promise<Node>} Promise to the node that was navigated to.
      * @throws {Error} If the current node does not have the edge direction
      * or the edges has not yet been cached.
@@ -690,7 +690,7 @@ export class Viewer extends EventEmitter {
      *     (e) => { console.error(e); });
      * ```
      */
-    public moveDir(dir: EdgeDirection): Promise<Node> {
+    public moveDir(dir: NavigationDirection): Promise<Node> {
         const moveDir$: Observable<Node> = this.isNavigable ?
             this._navigator.moveDir$(dir) :
             observableThrowError(new Error("Calling moveDir is not supported when viewer is not navigable."));
@@ -760,7 +760,7 @@ export class Viewer extends EventEmitter {
      * Note that whenever the camera moves, the result of the method will be
      * different.
      *
-     * @param {ILatLon} latLon - Geographical coordinates to project.
+     * @param {LatLonEnt} latLon - Geographical coordinates to project.
      * @returns {Promise<Array<number>>} Promise to the pixel coordinates corresponding
      * to the latLon.
      *
@@ -776,7 +776,7 @@ export class Viewer extends EventEmitter {
      *     });
      * ```
      */
-    public project(latLon: ILatLon): Promise<number[]> {
+    public project(latLon: LatLonEnt): Promise<number[]> {
         return new Promise<number[]>(
             (resolve: (value: number[]) => void, reject: (reason: Error) => void): void => {
                 this._observer.project$(latLon)
@@ -1115,7 +1115,7 @@ export class Viewer extends EventEmitter {
      * the altitude with respect to the ground plane for the returned latLon is zero.
      *
      * @param {Array<number>} pixelPoint - Pixel coordinates to unproject.
-     * @returns {Promise<ILatLon>} Promise to the latLon corresponding to the pixel point.
+     * @returns {Promise<LatLonEnt>} Promise to the latLon corresponding to the pixel point.
      *
      * @example
      * ```
@@ -1123,12 +1123,12 @@ export class Viewer extends EventEmitter {
      *     .then((latLon) => { console.log(latLon); });
      * ```
      */
-    public unproject(pixelPoint: number[]): Promise<ILatLon> {
-        return new Promise<ILatLon>(
-            (resolve: (value: ILatLon) => void, reject: (reason: Error) => void): void => {
+    public unproject(pixelPoint: number[]): Promise<LatLonEnt> {
+        return new Promise<LatLonEnt>(
+            (resolve: (value: LatLonEnt) => void, reject: (reason: Error) => void): void => {
                 this._observer.unproject$(pixelPoint)
                     .subscribe(
-                        (latLon: ILatLon): void => {
+                        (latLon: LatLonEnt): void => {
                             resolve(latLon);
                         },
                         (error: Error): void => {
@@ -1146,7 +1146,7 @@ export class Viewer extends EventEmitter {
      * be `null`.
      *
      * @param {Array<number>} pixelPoint - Pixel coordinates to unproject.
-     * @returns {Promise<ILatLon>} Promise to the basic coordinates corresponding
+     * @returns {Promise<LatLonEnt>} Promise to the basic coordinates corresponding
      * to the pixel point.
      *
      * @example

@@ -25,19 +25,19 @@ import { Component } from "../Component";
 import { Node } from "../../graph/Node";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
-import { IEdgeStatus } from "../../graph/interfaces/IEdgeStatus";
+import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
 import { Sequence } from "../../graph/Sequence";
-import { ISize } from "../../render/interfaces/ISize";
-import { IVNodeHash } from "../../render/interfaces/IVNodeHash";
+import { ViewportSize } from "../../render/interfaces/ViewportSize";
+import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
 import { RenderCamera } from "../../render/RenderCamera";
-import { IDirectionConfiguration } from "../interfaces/IDirectionConfiguration";
+import { DirectionConfiguration } from "../interfaces/DirectionConfiguration";
 import { DirectionDOMRenderer } from "./DirectionDOMRenderer";
 
 /**
  * @class DirectionComponent
  * @classdesc Component showing navigation arrows for steps and turns.
  */
-export class DirectionComponent extends Component<IDirectionConfiguration> {
+export class DirectionComponent extends Component<DirectionConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "direction";
 
@@ -140,13 +140,13 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
     protected _activate(): void {
         this._configurationSubscription = this._configuration$
             .subscribe(
-                (configuration: IDirectionConfiguration): void => {
+                (configuration: DirectionConfiguration): void => {
                     this._renderer.setConfiguration(configuration);
                 });
 
         this._resizeSubscription = this._container.renderService.size$
             .subscribe(
-                (size: ISize): void => {
+                (size: ViewportSize): void => {
                     this._renderer.resize(size);
                 });
 
@@ -158,7 +158,7 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                 }),
             withLatestFrom(this._configuration$),
             switchMap(
-                ([node, configuration]: [Node, IDirectionConfiguration]): Observable<[IEdgeStatus, Sequence]> => {
+                ([node, configuration]: [Node, DirectionConfiguration]): Observable<[NavigationEdgeStatus, Sequence]> => {
                     return observableCombineLatest(
                         node.spatialEdges$,
                         configuration.distinguishSequence ?
@@ -173,7 +173,7 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                             observableOf<Sequence>(null));
                 }))
             .subscribe(
-                ([edgeStatus, sequence]: [IEdgeStatus, Sequence]): void => {
+                ([edgeStatus, sequence]: [NavigationEdgeStatus, Sequence]): void => {
                     this._renderer.setEdges(edgeStatus, sequence);
                 });
 
@@ -191,7 +191,7 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
                     return renderer.needsRender;
                 }),
             map(
-                (renderer: DirectionDOMRenderer): IVNodeHash => {
+                (renderer: DirectionDOMRenderer): VirtualNodeHash => {
                     return { name: this._name, vnode: renderer.render(this._navigator) };
                 }))
             .subscribe(this._container.domRenderer.render$);
@@ -235,7 +235,7 @@ export class DirectionComponent extends Component<IDirectionConfiguration> {
         this._resizeSubscription.unsubscribe();
     }
 
-    protected _getDefaultConfiguration(): IDirectionConfiguration {
+    protected _getDefaultConfiguration(): DirectionConfiguration {
         return {
             distinguishSequence: false,
             maxWidth: 460,

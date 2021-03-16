@@ -2,16 +2,16 @@ import { empty as observableEmpty, Subject } from "rxjs";
 
 import { skip, first, take, count } from "rxjs/operators";
 import { Camera } from "../../src/geo/Camera";
-import { ISize } from "../../src/render/interfaces/ISize";
+import { ViewportSize } from "../../src/render/interfaces/ViewportSize";
 import { RenderCamera } from "../../src/render/RenderCamera";
 import { RenderMode } from "../../src/render/RenderMode";
 import { RenderService } from "../../src/render/RenderService";
-import { IFrame } from "../../src/state/interfaces/IFrame";
+import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
 import { FrameHelper } from "../helper/FrameHelper";
 
-const createFrame: (frameId: number, alpha?: number, camera?: Camera) => IFrame =
-    (frameId: number, alpha?: number, camera?: Camera): IFrame => {
-        const frame: IFrame = new FrameHelper().createFrame();
+const createFrame: (frameId: number, alpha?: number, camera?: Camera) => AnimationFrame =
+    (frameId: number, alpha?: number, camera?: Camera): AnimationFrame => {
+        const frame: AnimationFrame = new FrameHelper().createFrame();
 
         frame.id = frameId;
         frame.state.alpha = alpha != null ? alpha : 0;
@@ -89,7 +89,7 @@ describe("RenderService.size", () => {
         renderService.size$.pipe(
             first())
             .subscribe(
-                (size: ISize): void => {
+                (size: ViewportSize): void => {
                     expect(size).toBeDefined();
 
                     done();
@@ -104,7 +104,7 @@ describe("RenderService.size", () => {
         renderService.size$.pipe(
             first())
             .subscribe(
-                (size: ISize): void => {
+                (size: ViewportSize): void => {
                     expect(size.width).toBe(0);
                     expect(size.height).toBe(0);
 
@@ -120,7 +120,7 @@ describe("RenderService.size", () => {
         renderService.size$.pipe(
             take(2))
             .subscribe(
-                (size: ISize): void => { return; },
+                (size: ViewportSize): void => { return; },
                 (e: Error): void => { return; },
                 (): void => { done(); });
 
@@ -137,7 +137,7 @@ describe("RenderService.renderCameraFrame", () => {
 
     it("should be defined", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let frame$: Subject<IFrame> = new Subject<IFrame>();
+        let frame$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const renderCamera: RenderCamera = createRenderCameraMock();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox, renderCamera);
@@ -157,7 +157,7 @@ describe("RenderService.renderCameraFrame", () => {
 
     it("should be changed for first frame", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let frame$: Subject<IFrame> = new Subject<IFrame>();
+        let frame$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const renderCamera: RenderCamera = createRenderCameraMock();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox, renderCamera);
@@ -177,7 +177,7 @@ describe("RenderService.renderCameraFrame", () => {
 
     it("should not be changed for two identical frames", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let frame$: Subject<IFrame> = new Subject<IFrame>();
+        let frame$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const renderCamera: RenderCamera = createRenderCameraMock();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox, renderCamera);
@@ -199,7 +199,7 @@ describe("RenderService.renderCameraFrame", () => {
 
     it("should be changed for alpha changes between two frames", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let frame$: Subject<IFrame> = new Subject<IFrame>();
+        let frame$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const renderCamera: RenderCamera = createRenderCameraMock();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox, renderCamera);
@@ -221,7 +221,7 @@ describe("RenderService.renderCameraFrame", () => {
 
     it("should be changed for camera changes between two frames", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let frame$: Subject<IFrame> = new Subject<IFrame>();
+        let frame$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const renderCamera: RenderCamera = createRenderCameraMock();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox, renderCamera);
@@ -246,7 +246,7 @@ describe("RenderService.renderCameraFrame", () => {
 
     it("should be changed for resize", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let frame$: Subject<IFrame> = new Subject<IFrame>();
+        let frame$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const renderCamera: RenderCamera = createRenderCameraMock();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox, renderCamera);
@@ -270,7 +270,7 @@ describe("RenderService.renderCameraFrame", () => {
 
     it("should be changed for changed render mode", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let frame$: Subject<IFrame> = new Subject<IFrame>();
+        let frame$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const renderCamera: RenderCamera = createRenderCameraMock();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox, renderCamera);
@@ -294,7 +294,7 @@ describe("RenderService.renderCameraFrame", () => {
 
     it("should have correct render mode when changed before subscribe", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let frame$: Subject<IFrame> = new Subject<IFrame>();
+        let frame$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const renderCamera: RenderCamera = createRenderCameraMock();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox, renderCamera);
@@ -316,7 +316,7 @@ describe("RenderService.renderCameraFrame", () => {
 
     it("should emit once for each frame", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let frame$: Subject<IFrame> = new Subject<IFrame>();
+        let frame$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const renderCamera: RenderCamera = createRenderCameraMock();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox, renderCamera);
@@ -345,7 +345,7 @@ describe("RenderService.renderCameraFrame", () => {
 describe("RenderService.renderCamera$", () => {
     it("should be defined", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let frame$: Subject<IFrame> = new Subject<IFrame>();
+        let frame$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
 
         const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
 
@@ -366,7 +366,7 @@ describe("RenderService.renderCamera$", () => {
 
     it("should only emit when camera has changed", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let frame$: Subject<IFrame> = new Subject<IFrame>();
+        let frame$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
 
         const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
 
@@ -405,7 +405,7 @@ describe("RenderService.renderCamera$", () => {
             appendChild(htmlElement: HTMLElement): void { return; },
         };
 
-        let frame$: Subject<IFrame> = new Subject<IFrame>();
+        let frame$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
 
         let renderService: RenderService = new RenderService(element, frame$, RenderMode.Letterbox);
 
@@ -425,7 +425,7 @@ describe("RenderService.renderCamera$", () => {
 describe("RenderService.bearing$", () => {
     it("should be defined", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let frame$: Subject<IFrame> = new Subject<IFrame>();
+        let frame$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
 
         const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
 
@@ -445,7 +445,7 @@ describe("RenderService.bearing$", () => {
 
     it("should be 90 degrees", (done: Function) => {
         let element: HTMLDivElement = document.createElement("div");
-        let frame$: Subject<IFrame> = new Subject<IFrame>();
+        let frame$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
 
         const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
 
@@ -460,7 +460,7 @@ describe("RenderService.bearing$", () => {
                     done();
                 });
 
-        let frame: IFrame = createFrame(0);
+        let frame: AnimationFrame = createFrame(0);
         frame.state.camera.lookat.set(1, 0, 0);
 
         frame$.next(frame);

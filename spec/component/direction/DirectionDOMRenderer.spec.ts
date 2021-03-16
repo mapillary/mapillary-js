@@ -6,15 +6,15 @@ import { NodeHelper } from "../../helper/NodeHelper";
 import { Navigator } from "../../../src/viewer/Navigator";
 import { Node } from "../../../src/graph/Node";
 import { DirectionDOMRenderer } from "../../../src/component/direction/DirectionDOMRenderer";
-import { IDirectionConfiguration } from "../../../src/component/interfaces/IDirectionConfiguration";
+import { DirectionConfiguration } from "../../../src/component/interfaces/DirectionConfiguration";
 import { RenderCamera } from "../../../src/render/RenderCamera";
-import { IFrame } from "../../../src/state/interfaces/IFrame";
+import { AnimationFrame } from "../../../src/state/interfaces/AnimationFrame";
 import { FrameHelper } from "../../helper/FrameHelper";
 import { RenderMode } from "../../../src/render/RenderMode";
 
 describe("DirectionDOMRenderer.ctor", () => {
     it("should be defined", () => {
-        let configuration: IDirectionConfiguration = {
+        let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
             minWidth: 100,
@@ -34,7 +34,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
     });
 
     it("should not need render when constructed", () => {
-        let configuration: IDirectionConfiguration = {
+        let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
             minWidth: 100,
@@ -46,7 +46,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
     });
 
     it("should need render when node is set", () => {
-        let configuration: IDirectionConfiguration = {
+        let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
             minWidth: 100,
@@ -63,7 +63,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
     });
 
     it("should not need render after rendering", () => {
-        let configuration: IDirectionConfiguration = {
+        let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
             minWidth: 100,
@@ -88,7 +88,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
     });
 
     it("should not need render when setting render camera without node set", () => {
-        let configuration: IDirectionConfiguration = {
+        let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
             minWidth: 100,
@@ -105,7 +105,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
     });
 
     it("should not need render when setting configuration without node set", () => {
-        let configuration: IDirectionConfiguration = {
+        let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
             minWidth: 100,
@@ -120,7 +120,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
     });
 
     it("should not need render when resizing without node set", () => {
-        let configuration: IDirectionConfiguration = {
+        let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
             minWidth: 100,
@@ -134,7 +134,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
     });
 
     it("should need render when setting changed render camera if node is set", () => {
-        let configuration: IDirectionConfiguration = {
+        let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
             minWidth: 100,
@@ -158,7 +158,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         expect(renderer.needsRender).toBe(false);
 
         let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
-        const frame: IFrame = new FrameHelper().createFrame();
+        const frame: AnimationFrame = new FrameHelper().createFrame();
         frame.state.camera.up.fromArray([0, 0, 1]);
         frame.state.camera.lookat.fromArray([1, 1, 0]);
         renderCamera.setFrame(frame);
@@ -168,7 +168,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
     });
 
     it("should need render when setting changed configuration if node is set", () => {
-        let configuration: IDirectionConfiguration = {
+        let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
             minWidth: 100,
@@ -198,7 +198,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
     });
 
     it("should need render when resizing if node is set", () => {
-        let configuration: IDirectionConfiguration = {
+        let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
             minWidth: 100,

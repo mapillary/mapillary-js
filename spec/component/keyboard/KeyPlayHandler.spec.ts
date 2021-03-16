@@ -9,24 +9,24 @@ import { NodeHelper } from "../../helper/NodeHelper";
 import { Navigator } from "../../../src/viewer/Navigator";
 import { Node } from "../../../src/graph/Node";
 import { Component } from "../../../src/component/Component";
-import { IComponentConfiguration } from "../../../src/component/interfaces/IComponentConfiguration";
+import { ComponentConfiguration } from "../../../src/component/interfaces/ComponentConfiguration";
 import { KeyPlayHandler } from "../../../src/component/keyboard/KeyPlayHandler";
-import { IEdgeStatus } from "../../../src/graph/interfaces/IEdgeStatus";
+import { NavigationEdgeStatus } from "../../../src/graph/interfaces/NavigationEdgeStatus";
 import { State } from "../../../src/state/State";
 import { Container } from "../../../src/viewer/Container";
-import { EdgeDirection } from "../../../src/graph/edge/EdgeDirection";
+import { NavigationDirection } from "../../../src/graph/edge/NavigationDirection";
 
-interface ITestConfiguration extends IComponentConfiguration {
+interface TestConfiguration extends ComponentConfiguration {
     test: boolean;
 }
 
-class TestComponent extends Component<ITestConfiguration> {
+class TestComponent extends Component<TestConfiguration> {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
     }
     protected _activate(): void { /* noop */ }
     protected _deactivate(): void { /* noop */ }
-    protected _getDefaultConfiguration(): ITestConfiguration { return { test: false }; }
+    protected _getDefaultConfiguration(): TestConfiguration { return { test: false }; }
 }
 
 describe("KeyPlayHandler.ctor", () => {
@@ -92,12 +92,12 @@ describe("KeyPlayHandler.enable", () => {
 
     it("should not prevent default if modifier key is pressed", () => {
         (<Subject<boolean>>navigatorMock.playService.playing$).next(true);
-        (<Subject<EdgeDirection>>navigatorMock.playService.direction$).next(EdgeDirection.Next);
+        (<Subject<NavigationDirection>>navigatorMock.playService.direction$).next(NavigationDirection.Next);
         (<Subject<number>>navigatorMock.playService.speed$).next(0.5);
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
 
         const node: Node = nodeHelper.createNode();
-        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
         sequenceEdgesSubject.next({ cached: false, edges: [] });
@@ -130,12 +130,12 @@ describe("KeyPlayHandler.enable", () => {
 
     it("should change speed if `>` or `<` is pressed", () => {
         (<Subject<boolean>>navigatorMock.playService.playing$).next(true);
-        (<Subject<EdgeDirection>>navigatorMock.playService.direction$).next(EdgeDirection.Next);
+        (<Subject<NavigationDirection>>navigatorMock.playService.direction$).next(NavigationDirection.Next);
         (<Subject<number>>navigatorMock.playService.speed$).next(0.5);
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
 
         const node: Node = nodeHelper.createNode();
-        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
         sequenceEdgesSubject.next({ cached: false, edges: [] });
@@ -162,12 +162,12 @@ describe("KeyPlayHandler.enable", () => {
 
     it("should change direction when not playing", () => {
         (<Subject<boolean>>navigatorMock.playService.playing$).next(true);
-        (<Subject<EdgeDirection>>navigatorMock.playService.direction$).next(EdgeDirection.Next);
+        (<Subject<NavigationDirection>>navigatorMock.playService.direction$).next(NavigationDirection.Next);
         (<Subject<number>>navigatorMock.playService.speed$).next(0.5);
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
 
         const node: Node = nodeHelper.createNode();
-        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
         sequenceEdgesSubject.next({ cached: false, edges: [] });
@@ -181,18 +181,18 @@ describe("KeyPlayHandler.enable", () => {
         expect(setDirectionSpy.calls.count()).toBe(0);
 
         (<Subject<boolean>>navigatorMock.playService.playing$).next(false);
-        (<Subject<EdgeDirection>>navigatorMock.playService.direction$).next(EdgeDirection.Next);
+        (<Subject<NavigationDirection>>navigatorMock.playService.direction$).next(NavigationDirection.Next);
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(shiftKeyboardEvent);
         expect(shiftPreventDefaultSpy.calls.count()).toBe(2);
         expect(setDirectionSpy.calls.count()).toBe(1);
-        expect(setDirectionSpy.calls.argsFor(0)[0]).toBe(EdgeDirection.Prev);
+        expect(setDirectionSpy.calls.argsFor(0)[0]).toBe(NavigationDirection.Prev);
 
         (<Subject<boolean>>navigatorMock.playService.playing$).next(false);
-        (<Subject<EdgeDirection>>navigatorMock.playService.direction$).next(EdgeDirection.Prev);
+        (<Subject<NavigationDirection>>navigatorMock.playService.direction$).next(NavigationDirection.Prev);
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(shiftKeyboardEvent);
         expect(shiftPreventDefaultSpy.calls.count()).toBe(3);
         expect(setDirectionSpy.calls.count()).toBe(2);
-        expect(setDirectionSpy.calls.argsFor(1)[0]).toBe(EdgeDirection.Next);
+        expect(setDirectionSpy.calls.argsFor(1)[0]).toBe(NavigationDirection.Next);
     });
 
     it("should play when stopped edge direction exist and stop when playing", () => {
@@ -201,13 +201,13 @@ describe("KeyPlayHandler.enable", () => {
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
 
         const node: Node = nodeHelper.createNode();
-        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
         sequenceEdgesSubject.next({ cached: false, edges: [] });
 
         (<Subject<boolean>>navigatorMock.playService.playing$).next(false);
-        (<Subject<EdgeDirection>>navigatorMock.playService.direction$).next(EdgeDirection.Next);
+        (<Subject<NavigationDirection>>navigatorMock.playService.direction$).next(NavigationDirection.Next);
         (<Subject<number>>navigatorMock.playService.speed$).next(0.5);
 
         const spacebarKeyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keyDown", { key: " " });
@@ -217,13 +217,13 @@ describe("KeyPlayHandler.enable", () => {
         expect(playSpy.calls.count()).toBe(0);
         expect(stopSpy.calls.count()).toBe(0);
 
-        (<Subject<EdgeDirection>>navigatorMock.playService.direction$).next(EdgeDirection.Next);
+        (<Subject<NavigationDirection>>navigatorMock.playService.direction$).next(NavigationDirection.Next);
         sequenceEdgesSubject.next({
             cached: true,
             edges: [{
-                data: { direction: EdgeDirection.Next, worldMotionAzimuth: 0 },
-                from: node.key,
-                to: "toKey",
+                data: { direction: NavigationDirection.Next, worldMotionAzimuth: 0 },
+                source: node.key,
+                target: "toKey",
             }],
         });
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(spacebarKeyboardEvent);
@@ -245,13 +245,13 @@ describe("KeyPlayHandler.enable", () => {
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Earth);
 
         const node: Node = nodeHelper.createNode();
-        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
         (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
         sequenceEdgesSubject.next({ cached: false, edges: [] });
 
         (<Subject<boolean>>navigatorMock.playService.playing$).next(false);
-        (<Subject<EdgeDirection>>navigatorMock.playService.direction$).next(EdgeDirection.Next);
+        (<Subject<NavigationDirection>>navigatorMock.playService.direction$).next(NavigationDirection.Next);
         (<Subject<number>>navigatorMock.playService.speed$).next(0.5);
 
         const spacebarKeyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keyDown", { key: " " });
@@ -261,13 +261,13 @@ describe("KeyPlayHandler.enable", () => {
         expect(playSpy.calls.count()).toBe(0);
         expect(stopSpy.calls.count()).toBe(0);
 
-        (<Subject<EdgeDirection>>navigatorMock.playService.direction$).next(EdgeDirection.Next);
+        (<Subject<NavigationDirection>>navigatorMock.playService.direction$).next(NavigationDirection.Next);
         sequenceEdgesSubject.next({
             cached: true,
             edges: [{
-                data: { direction: EdgeDirection.Next, worldMotionAzimuth: 0 },
-                from: node.key,
-                to: "toKey",
+                data: { direction: NavigationDirection.Next, worldMotionAzimuth: 0 },
+                source: node.key,
+                target: "toKey",
             }],
         });
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(spacebarKeyboardEvent);

@@ -1,5 +1,5 @@
 import { take } from "rxjs/operators";
-import { IPopupOffset } from "../../../src/component/popup/interfaces/IPopupOffset";
+import { PopupOffset } from "../../../src/component/popup/interfaces/PopupOffset";
 import { Popup } from "../../../src/component/popup/popup/Popup";
 import { ViewportCoords } from "../../../src/geo/ViewportCoords";
 import { RenderCamera } from "../../../src/render/RenderCamera";
@@ -519,7 +519,7 @@ describe("Popup.offset", () => {
         const viewportCoords: ViewportCoords = new ViewportCoords();
         spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([40, 60]);
 
-        const offset: IPopupOffset = {
+        const offset: PopupOffset = {
             bottom: [0, 1],
             bottomLeft: [2, 3],
             bottomRight: [4, 5],
@@ -548,7 +548,7 @@ describe("Popup.offset", () => {
         const viewportCoords: ViewportCoords = new ViewportCoords();
         spyOn(viewportCoords, "basicToCanvasSafe").and.returnValue([40, 60]);
 
-        const offset: IPopupOffset = {
+        const offset: PopupOffset = {
             bottom: [-0, -1],
             bottomLeft: [-2, -3],
             bottomRight: [-4, -5],

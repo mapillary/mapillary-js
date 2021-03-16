@@ -1,17 +1,17 @@
 import { Component } from "../../src/component/Component";
-import { IComponentConfiguration } from "../../src/component/interfaces/IComponentConfiguration";
+import { ComponentConfiguration } from "../../src/component/interfaces/ComponentConfiguration";
 import { Container } from "../../src/viewer/Container";
 import { Navigator } from "../../src/viewer/Navigator";
 
-export interface ITestConfiguration extends IComponentConfiguration {
+export interface TestConfiguration extends ComponentConfiguration {
     test: boolean;
 }
 
-export class TestComponent extends Component<ITestConfiguration> {
+export class TestComponent extends Component<TestConfiguration> {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
     }
     protected _activate(): void { /* noop */ }
     protected _deactivate(): void { /* noop */ }
-    protected _getDefaultConfiguration(): ITestConfiguration { return { test: false }; }
+    protected _getDefaultConfiguration(): TestConfiguration { return { test: false }; }
 }

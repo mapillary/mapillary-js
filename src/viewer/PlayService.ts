@@ -29,18 +29,18 @@ import {
     withLatestFrom,
 } from "rxjs/operators";
 
-import { ILatLon } from "../api/interfaces/ILatLon";
+import { LatLonEnt } from "../api/ents/LatLonEnt";
 import { GraphCalculator } from "../graph/GraphCalculator";
 import { GraphMode } from "../graph/GraphMode";
 import { GraphService } from "../graph/GraphService";
 import { Node } from '../graph/Node';
 import { Sequence } from "../graph/Sequence";
-import { EdgeDirection } from "../graph/edge/EdgeDirection";
-import { IEdgeStatus } from "../graph/interfaces/IEdgeStatus";
+import { NavigationDirection } from "../graph/edge/NavigationDirection";
+import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
 import { State } from "../state/State";
 import { StateService } from "../state/StateService";
-import { ICurrentState } from "../state/interfaces/ICurrentState";
-import { IFrame } from "../state/interfaces/IFrame";
+import { IAnimationState } from "../state/interfaces/IAnimationState";
+import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
 export class PlayService {
@@ -54,8 +54,8 @@ export class PlayService {
     private _playing: boolean;
     private _speed: number;
 
-    private _direction$: Observable<EdgeDirection>;
-    private _directionSubject$: Subject<EdgeDirection>;
+    private _direction$: Observable<NavigationDirection>;
+    private _directionSubject$: Subject<NavigationDirection>;
     private _playing$: Observable<boolean>;
     private _playingSubject$: Subject<boolean>;
     private _speed$: Observable<number>;
@@ -78,9 +78,9 @@ export class PlayService {
 
         const subs = this._subscriptions;
 
-        this._directionSubject$ = new Subject<EdgeDirection>();
+        this._directionSubject$ = new Subject<NavigationDirection>();
         this._direction$ = this._directionSubject$.pipe(
-            startWith(EdgeDirection.Next),
+            startWith(NavigationDirection.Next),
             publishReplay(1),
             refCount());
 
@@ -113,7 +113,7 @@ export class PlayService {
         return this._playing;
     }
 
-    public get direction$(): Observable<EdgeDirection> {
+    public get direction$(): Observable<NavigationDirection> {
         return this._direction$;
     }
 
@@ -159,11 +159,11 @@ export class PlayService {
             this._graphService.graphMode$,
             this._direction$).pipe(
                 switchMap(
-                    ([[sequenceKey, nodeKey], mode, direction]: [[string, string], GraphMode, EdgeDirection]):
-                        Observable<[Sequence, EdgeDirection]> => {
+                    ([[sequenceKey, nodeKey], mode, direction]: [[string, string], GraphMode, NavigationDirection]):
+                        Observable<[Sequence, NavigationDirection]> => {
 
-                        if (direction !== EdgeDirection.Next && direction !== EdgeDirection.Prev) {
-                            return observableOf<[Sequence, EdgeDirection]>([undefined, direction]);
+                        if (direction !== NavigationDirection.Next && direction !== NavigationDirection.Prev) {
+                            return observableOf<[Sequence, NavigationDirection]>([undefined, direction]);
                         }
 
                         const sequence$: Observable<Sequence> = (mode === GraphMode.Sequence ?
@@ -182,19 +182,19 @@ export class PlayService {
                             observableOf(direction));
                     }),
                 switchMap(
-                    ([sequence, direction]: [Sequence, EdgeDirection]): Observable<string> => {
+                    ([sequence, direction]: [Sequence, NavigationDirection]): Observable<string> => {
                         if (sequence === undefined) {
                             return observableEmpty();
                         }
 
                         const sequenceKeys: string[] = sequence.keys.slice();
-                        if (direction === EdgeDirection.Prev) {
+                        if (direction === NavigationDirection.Prev) {
                             sequenceKeys.reverse();
                         }
 
                         return this._stateService.currentState$.pipe(
                             map(
-                                (frame: IFrame): [string, number] => {
+                                (frame: AnimationFrame): [string, number] => {
                                     return [frame.state.trajectory[frame.state.trajectory.length - 1].key, frame.state.nodesAhead];
                                 }),
                             scan(
@@ -241,16 +241,16 @@ export class PlayService {
 
         this._playingSubscription = this._stateService.currentState$.pipe(
             filter(
-                (frame: IFrame): boolean => {
+                (frame: AnimationFrame): boolean => {
                     return frame.state.nodesAhead < this._nodesAhead;
                 }),
             distinctUntilChanged(
                 undefined,
-                (frame: IFrame): string => {
+                (frame: AnimationFrame): string => {
                     return frame.state.lastNode.key;
                 }),
             map(
-                (frame: IFrame): [Node, boolean] => {
+                (frame: AnimationFrame): [Node, boolean] => {
                     const lastNode: Node = frame.state.lastNode;
                     const trajectory: Node[] = frame.state.trajectory;
                     let increasingTime: boolean = undefined;
@@ -271,22 +271,22 @@ export class PlayService {
                 }),
             withLatestFrom(this._direction$),
             switchMap(
-                ([[node, increasingTime], direction]: [[Node, boolean], EdgeDirection]): Observable<Node> => {
+                ([[node, increasingTime], direction]: [[Node, boolean], NavigationDirection]): Observable<Node> => {
                     return observableZip(
-                        ([EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
+                        ([NavigationDirection.Next, NavigationDirection.Prev].indexOf(direction) > -1 ?
                             node.sequenceEdges$ :
                             node.spatialEdges$).pipe(
                                 first(
-                                    (status: IEdgeStatus): boolean => {
+                                    (status: NavigationEdgeStatus): boolean => {
                                         return status.cached;
                                     }),
                                 timeout(15000)),
-                        observableOf<EdgeDirection>(direction)).pipe(
+                        observableOf<NavigationDirection>(direction)).pipe(
                             map(
-                                ([s, d]: [IEdgeStatus, EdgeDirection]): string => {
+                                ([s, d]: [NavigationEdgeStatus, NavigationDirection]): string => {
                                     for (let edge of s.edges) {
                                         if (edge.data.direction === d) {
-                                            return edge.to;
+                                            return edge.target;
                                         }
                                     }
 
@@ -323,23 +323,23 @@ export class PlayService {
 
         const currentLastNodes$: Observable<Node> = this._stateService.currentState$.pipe(
             map(
-                (frame: IFrame): ICurrentState => {
+                (frame: AnimationFrame): IAnimationState => {
                     return frame.state;
                 }),
             distinctUntilChanged(
                 ([kc1, kl1]: [string, string], [kc2, kl2]: [string, string]): boolean => {
                     return kc1 === kc2 && kl1 === kl2;
                 },
-                (state: ICurrentState): [string, string] => {
+                (state: IAnimationState): [string, string] => {
                     return [state.currentNode.key, state.lastNode.key];
                 }),
             filter(
-                (state: ICurrentState): boolean => {
+                (state: IAnimationState): boolean => {
                     return state.currentNode.key === state.lastNode.key &&
                         state.currentIndex === state.trajectory.length - 1;
                 }),
             map(
-                (state: ICurrentState): Node => {
+                (state: IAnimationState): Node => {
                     return state.currentNode;
                 }));
 
@@ -347,28 +347,28 @@ export class PlayService {
             currentLastNodes$,
             this._direction$).pipe(
                 switchMap(
-                    ([node, direction]: [Node, EdgeDirection]): Observable<boolean> => {
-                        const edgeStatus$: Observable<IEdgeStatus> = (
-                            [EdgeDirection.Next, EdgeDirection.Prev].indexOf(direction) > -1 ?
+                    ([node, direction]: [Node, NavigationDirection]): Observable<boolean> => {
+                        const edgeStatus$: Observable<NavigationEdgeStatus> = (
+                            [NavigationDirection.Next, NavigationDirection.Prev].indexOf(direction) > -1 ?
                                 node.sequenceEdges$ :
                                 node.spatialEdges$).pipe(
                                     first(
-                                        (status: IEdgeStatus): boolean => {
+                                        (status: NavigationEdgeStatus): boolean => {
                                             return status.cached;
                                         }),
                                     timeout(15000),
                                     catchError(
-                                        (error: Error): Observable<IEdgeStatus> => {
+                                        (error: Error): Observable<NavigationEdgeStatus> => {
                                             console.error(error);
 
-                                            return observableOf<IEdgeStatus>({ cached: false, edges: [] });
+                                            return observableOf<NavigationEdgeStatus>({ cached: false, edges: [] });
                                         }));
 
                         return observableCombineLatest(
                             observableOf(direction),
                             edgeStatus$).pipe(
                                 map(
-                                    ([d, es]: [EdgeDirection, IEdgeStatus]): boolean => {
+                                    ([d, es]: [NavigationDirection, NavigationEdgeStatus]): boolean => {
                                         for (const edge of es.edges) {
                                             if (edge.data.direction === d) {
                                                 return true;
@@ -435,7 +435,7 @@ export class PlayService {
         this._subscriptions.unsubscribe();
     }
 
-    public setDirection(direction: EdgeDirection): void {
+    public setDirection(direction: NavigationDirection): void {
         this._directionSubject$.next(direction);
     }
 
@@ -499,7 +499,7 @@ export class PlayService {
             return observableOf(null);
         }
 
-        const boundingBox: ILatLon[] = this._graphCalculator.boundingBoxCorners(node.latLon, 25);
+        const boundingBox: LatLonEnt[] = this._graphCalculator.boundingBoxCorners(node.latLon, 25);
 
         this._bridging$ = this._graphService.cacheBoundingBox$(boundingBox[0], boundingBox[1]).pipe(
             mergeMap(

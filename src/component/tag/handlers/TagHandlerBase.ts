@@ -4,16 +4,16 @@ import { RenderCamera } from "../../../render/RenderCamera";
 import { Container } from "../../../viewer/Container";
 import { Navigator } from "../../../viewer/Navigator";
 import { Component } from "../../Component";
-import { ITagConfiguration } from "../../interfaces/ITagConfiguration";
+import { TagConfiguration } from "../../interfaces/TagConfiguration";
 import { HandlerBase } from "../../utils/HandlerBase";
 
-export abstract class TagHandlerBase extends HandlerBase<ITagConfiguration> {
+export abstract class TagHandlerBase extends HandlerBase<TagConfiguration> {
     protected _name: string;
 
     protected _viewportCoords: ViewportCoords;
 
     constructor(
-        component: Component<ITagConfiguration>,
+        component: Component<TagConfiguration>,
         container: Container,
         navigator: Navigator,
         viewportCoords: ViewportCoords) {
@@ -24,7 +24,7 @@ export abstract class TagHandlerBase extends HandlerBase<ITagConfiguration> {
         this._viewportCoords = viewportCoords;
     }
 
-    protected _getConfiguration(enable: boolean): ITagConfiguration {
+    protected _getConfiguration(enable: boolean): TagConfiguration {
         return {};
     }
 

@@ -5,20 +5,20 @@ import { CreateTag } from "./CreateTag";
 
 import { PointsGeometry } from "../geometry/PointsGeometry";
 import { RectGeometry } from "../geometry/RectGeometry";
-import { IExtremePointCreateTagOptions } from "../interfaces/IExtremePointCreateTagOptions";
+import { ExtremePointCreateTagOptions } from "../interfaces/ExtremePointCreateTagOptions";
 
 import { Transform } from "../../../geo/Transform";
 import { ViewportCoords } from "../../../geo/ViewportCoords";
-import { ISize } from "../../../render/interfaces/ISize";
+import { ViewportSize } from "../../../render/interfaces/ViewportSize";
 
 export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
     private _rectGeometry: RectGeometry;
-    private _options: IExtremePointCreateTagOptions;
+    private _options: ExtremePointCreateTagOptions;
     private _outline: THREE.Line;
 
     constructor(
         geometry: PointsGeometry,
-        options: IExtremePointCreateTagOptions,
+        options: ExtremePointCreateTagOptions,
         transform: Transform,
         viewportCoords?: ViewportCoords) {
 
@@ -47,7 +47,7 @@ export class ExtremePointCreateTag extends CreateTag<PointsGeometry> {
         this._disposeObjects();
     }
 
-    public getDOMObjects(camera: THREE.Camera, size: ISize): vd.VNode[] {
+    public getDOMObjects(camera: THREE.Camera, size: ViewportSize): vd.VNode[] {
         const container: { offsetHeight: number, offsetWidth: number } = {
             offsetHeight: size.height, offsetWidth: size.width,
         };

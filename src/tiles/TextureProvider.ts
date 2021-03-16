@@ -14,7 +14,7 @@ import {
 
 import { ImageTileLoader } from "./ImageTileLoader";
 import { ImageTileStore } from "./ImageTileStore";
-import { IRegionOfInterest } from "./interfaces/IRegionOfInterest";
+import { TileRegionOfInterest } from "./interfaces/TileRegionOfInterest";
 
 /**
  * @class TextureProvider
@@ -28,7 +28,7 @@ export class TextureProvider {
     private _imageTileStore: ImageTileStore;
     private _renderer: THREE.WebGLRenderer;
     private _renderTarget: THREE.WebGLRenderTarget;
-    private _roi: IRegionOfInterest;
+    private _roi: TileRegionOfInterest;
 
     private _abortFunctions: Function[];
     private _tileSubscriptions: { [key: string]: Subscription };
@@ -231,9 +231,9 @@ export class TextureProvider {
      * are fetched from the store or the loader and renderedLevel
      * to the texture.
      *
-     * @param {IRegionOfInterest} roi - Spatial edges to cache.
+     * @param {TileRegionOfInterest} roi - Spatial edges to cache.
      */
-    public setRegionOfInterest(roi: IRegionOfInterest): void {
+    public setRegionOfInterest(roi: TileRegionOfInterest): void {
         if (this._width <= 0 || this._height <= 0) {
             return;
         }

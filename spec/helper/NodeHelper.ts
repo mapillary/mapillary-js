@@ -1,7 +1,7 @@
-import { CameraProjectionType } from "../../src/api/interfaces/CameraProjectionType";
-import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
-import { IFillNode } from "../../src/api/interfaces/IFillNode";
-import { IFullNode } from "../../src/api/interfaces/IFullNode";
+import { CameraType } from "../../src/geo/interfaces/CameraType";
+import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
+import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
+import { ImageEnt } from "../../src/api/ents/ImageEnt";
 import { Node } from "../../src/graph/Node";
 
 export class NodeHelper {
@@ -11,7 +11,7 @@ export class NodeHelper {
     private _userKey: string = "ukey";
     private _username: string = "uname";
 
-    public createCoreNode(): ICoreNode {
+    public createCoreNode(): CoreImageEnt {
         return {
             cl: { lat: 0, lon: 0 },
             key: this._nodeKey,
@@ -20,7 +20,7 @@ export class NodeHelper {
         };
     }
 
-    public createFillNode(): IFillNode {
+    public createFillNode(): SpatialImageEnt {
         return {
             atomic_scale: 0,
             c_rotation: [0, 0, 0],
@@ -42,7 +42,7 @@ export class NodeHelper {
         };
     }
 
-    public createFullNode(): IFullNode {
+    public createFullNode(): ImageEnt {
         return {
             atomic_scale: 0,
             c_rotation: [0, 0, 0],
@@ -68,7 +68,7 @@ export class NodeHelper {
         };
     }
 
-    public createNode(cameraType: CameraProjectionType = "perspective"): Node {
+    public createNode(cameraType: CameraType = "perspective"): Node {
         let fullNode = this.createFullNode();
         fullNode.camera_projection_type = cameraType;
         let node = new Node(fullNode);
@@ -77,7 +77,7 @@ export class NodeHelper {
     }
 
     public createUnmergedNode(): Node {
-        let fullNode: IFullNode = this.createFullNode();
+        let fullNode: ImageEnt = this.createFullNode();
 
         fullNode.atomic_scale = undefined;
         fullNode.ca = undefined;

@@ -1,9 +1,9 @@
 import { EdgeCalculator } from "../../../src/graph/edge/EdgeCalculator";
 import { EdgeCalculatorDirections } from "../../../src/graph/edge/EdgeCalculatorDirections";
 import { EdgeCalculatorSettings } from "../../../src/graph/edge/EdgeCalculatorSettings";
-import { EdgeDirection } from "../../../src/graph/edge/EdgeDirection";
-import { IEdge } from "../../../src/graph/edge/interfaces/IEdge";
-import { IPotentialEdge } from "../../../src/graph/edge/interfaces/IPotentialEdge";
+import { NavigationDirection } from "../../../src/graph/edge/NavigationDirection";
+import { NavigationEdge } from "../../../src/graph/edge/interfaces/NavigationEdge";
+import { PotentialEdge } from "../../../src/graph/edge/interfaces/PotentialEdge";
 import { Node } from "../../../src/graph/Node";
 import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper";
 
@@ -15,14 +15,14 @@ describe("EdgeCalculator.computeStepEdges", () => {
     let helper: EdgeCalculatorHelper;
 
     let node: Node;
-    let potentialEdge: IPotentialEdge;
+    let potentialEdge: PotentialEdge;
 
     beforeEach(() => {
         settings = new EdgeCalculatorSettings();
 
         directions = new EdgeCalculatorDirections();
-        directions.steps[EdgeDirection.StepForward].useFallback = true;
-        directions.steps[EdgeDirection.StepBackward].useFallback = false;
+        directions.steps[NavigationDirection.StepForward].useFallback = true;
+        directions.steps[NavigationDirection.StepBackward].useFallback = false;
 
         edgeCalculator = new EdgeCalculator(settings, directions);
 
@@ -45,59 +45,59 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should have a step forward edge", () => {
         potentialEdge.motionChange = 0;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(1);
 
-        let stepEdge: IEdge = stepEdges[0];
+        let stepEdge: NavigationEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge.key);
-        expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(stepEdge.target).toBe(potentialEdge.key);
+        expect(stepEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should have a step left edge", () => {
         potentialEdge.motionChange = Math.PI / 2;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(1);
 
-        let stepEdge: IEdge = stepEdges[0];
+        let stepEdge: NavigationEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge.key);
-        expect(stepEdge.data.direction).toBe(EdgeDirection.StepLeft);
+        expect(stepEdge.target).toBe(potentialEdge.key);
+        expect(stepEdge.data.direction).toBe(NavigationDirection.StepLeft);
     });
 
     it("should have a step right edge", () => {
         potentialEdge.motionChange = -Math.PI / 2;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(1);
 
-        let stepEdge: IEdge = stepEdges[0];
+        let stepEdge: NavigationEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge.key);
-        expect(stepEdge.data.direction).toBe(EdgeDirection.StepRight);
+        expect(stepEdge.target).toBe(potentialEdge.key);
+        expect(stepEdge.data.direction).toBe(NavigationDirection.StepRight);
     });
 
     it("should have a step back edge", () => {
         potentialEdge.motionChange = Math.PI;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(1);
 
-        let stepEdge: IEdge = stepEdges[0];
+        let stepEdge: NavigationEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge.key);
-        expect(stepEdge.data.direction).toBe(EdgeDirection.StepBackward);
+        expect(stepEdge.target).toBe(potentialEdge.key);
+        expect(stepEdge.data.direction).toBe(NavigationDirection.StepBackward);
     });
 
     it("should not have any edges because potential is spherical", () => {
         potentialEdge.spherical = true;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(0);
     });
@@ -105,7 +105,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should not have any edges because of max distance", () => {
         potentialEdge.distance = settings.stepMaxDistance + 1;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(0);
     });
@@ -113,7 +113,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should not have any edges because of direction change", () => {
         potentialEdge.directionChange = settings.stepMaxDirectionChange + Math.PI / 18;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(0);
     });
@@ -121,7 +121,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should not have any edges because of negative direction change", () => {
         potentialEdge.directionChange = -settings.stepMaxDirectionChange - Math.PI / 18;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(0);
     });
@@ -129,7 +129,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should not have any edges because of drift", () => {
         potentialEdge.motionChange = settings.stepMaxDrift + Math.PI / 18;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(0);
     });
@@ -137,7 +137,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should not have any edges because of negative drift", () => {
         potentialEdge.motionChange = -settings.stepMaxDrift - Math.PI / 18;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(0);
     });
@@ -146,7 +146,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
         potentialEdge.distance = settings.stepMaxDistance + 1;
         potentialEdge.motionChange = 0;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(
             node,
             [potentialEdge],
             potentialEdge.key,
@@ -154,17 +154,17 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
         expect(stepEdges.length).toBe(1);
 
-        let stepEdge: IEdge = stepEdges[0];
+        let stepEdge: NavigationEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge.key);
-        expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(stepEdge.target).toBe(potentialEdge.key);
+        expect(stepEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should not fallback to previous node with disabled fallback setting", () => {
         potentialEdge.distance = settings.stepMaxDistance + 1;
         potentialEdge.motionChange = Math.PI;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(
             node,
             [potentialEdge],
             null,
@@ -176,7 +176,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should not have any edges if node is spherical", () => {
         node = helper.createDefaultNode(true);
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(0);
     });
@@ -190,8 +190,8 @@ describe("EdgeCalculator.computeStepEdges", () => {
     let helper: EdgeCalculatorHelper;
 
     let node: Node;
-    let potentialEdge1: IPotentialEdge;
-    let potentialEdge2: IPotentialEdge;
+    let potentialEdge1: PotentialEdge;
+    let potentialEdge2: PotentialEdge;
 
     beforeEach(() => {
         settings = new EdgeCalculatorSettings();
@@ -212,84 +212,84 @@ describe("EdgeCalculator.computeStepEdges", () => {
         potentialEdge1.distance = settings.stepPreferredDistance + 1;
         potentialEdge2.distance = settings.stepPreferredDistance;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
-        let stepEdge: IEdge = stepEdges[0];
+        let stepEdge: NavigationEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.key);
-        expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(stepEdge.target).toBe(potentialEdge2.key);
+        expect(stepEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should have a step forward edge based on preferred distance", () => {
         potentialEdge1.distance = settings.stepPreferredDistance - 1;
         potentialEdge2.distance = settings.stepPreferredDistance;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
-        let stepEdge: IEdge = stepEdges[0];
+        let stepEdge: NavigationEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.key);
-        expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(stepEdge.target).toBe(potentialEdge2.key);
+        expect(stepEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should have a step forward edge for smallest motion change", () => {
         potentialEdge1.motionChange = settings.stepMaxDrift / 2;
         potentialEdge2.motionChange = settings.stepMaxDrift / 4;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
-        let stepEdge: IEdge = stepEdges[0];
+        let stepEdge: NavigationEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.key);
-        expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(stepEdge.target).toBe(potentialEdge2.key);
+        expect(stepEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should have a step forward edge for smallest motion change", () => {
         potentialEdge1.motionChange = -settings.stepMaxDrift / 2;
         potentialEdge2.motionChange = -settings.stepMaxDrift / 4;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
-        let stepEdge: IEdge = stepEdges[0];
+        let stepEdge: NavigationEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.key);
-        expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(stepEdge.target).toBe(potentialEdge2.key);
+        expect(stepEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should have a step forward edge for smallest vertical motion change", () => {
         potentialEdge1.verticalMotion = settings.stepMaxDrift / 2;
         potentialEdge2.verticalMotion = settings.stepMaxDrift / 4;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
-        let stepEdge: IEdge = stepEdges[0];
+        let stepEdge: NavigationEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.key);
-        expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(stepEdge.target).toBe(potentialEdge2.key);
+        expect(stepEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should have a step forward edge for smallest vertical motion change", () => {
         potentialEdge1.verticalMotion = -settings.stepMaxDrift / 2;
         potentialEdge2.verticalMotion = -settings.stepMaxDrift / 4;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
-        let stepEdge: IEdge = stepEdges[0];
+        let stepEdge: NavigationEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.key);
-        expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(stepEdge.target).toBe(potentialEdge2.key);
+        expect(stepEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should have a step forward edge for smallest combined motion change", () => {
@@ -299,55 +299,55 @@ describe("EdgeCalculator.computeStepEdges", () => {
         potentialEdge2.motionChange = -settings.stepMaxDrift / 3;
         potentialEdge2.verticalMotion = -settings.stepMaxDrift / 3;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
-        let stepEdge: IEdge = stepEdges[0];
+        let stepEdge: NavigationEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.key);
-        expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(stepEdge.target).toBe(potentialEdge2.key);
+        expect(stepEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should have a step forward edge with the same sequence", () => {
         potentialEdge1.sameSequence = false;
         potentialEdge2.sameSequence = true;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
-        let stepEdge: IEdge = stepEdges[0];
+        let stepEdge: NavigationEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.key);
-        expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(stepEdge.target).toBe(potentialEdge2.key);
+        expect(stepEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should have a step forward edge with the same merge cc", () => {
         potentialEdge1.sameMergeCC = false;
         potentialEdge2.sameMergeCC = true;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
-        let stepEdge: IEdge = stepEdges[0];
+        let stepEdge: NavigationEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.key);
-        expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(stepEdge.target).toBe(potentialEdge2.key);
+        expect(stepEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should have a step forward edge with smallest rotation", () => {
         potentialEdge1.rotation = 0.2;
         potentialEdge2.rotation = 0.1;
 
-        let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
-        let stepEdge: IEdge = stepEdges[0];
+        let stepEdge: NavigationEdge = stepEdges[0];
 
-        expect(stepEdge.to).toBe(potentialEdge2.key);
-        expect(stepEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(stepEdge.target).toBe(potentialEdge2.key);
+        expect(stepEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 });

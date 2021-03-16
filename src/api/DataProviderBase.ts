@@ -1,12 +1,12 @@
 import { MapillaryError } from "../error/MapillaryError";
 import { EventEmitter } from "../utils/EventEmitter";
-import { IClusterReconstruction } from "./interfaces/IClusterReconstruction";
-import { ICoreNode } from "./interfaces/ICoreNode";
-import { IFillNode } from "./interfaces/IFillNode";
-import { IFullNode } from "./interfaces/IFullNode";
-import { IMesh } from "./interfaces/IMesh";
-import { ISequence } from "./interfaces/ISequence";
+import { ReconstructionEnt } from "./ents/ReconstructionEnt";
+import { CoreImageEnt } from "./ents/CoreImageEnt";
+import { SpatialImageEnt } from "./ents/SpatialImageEnt";
+import { ImageEnt } from "./ents/ImageEnt";
+import { MeshEnt } from "./ents/MeshEnt";
 import { GeometryProviderBase } from "./GeometryProviderBase";
+import { SequenceEnt } from "./ents/SequenceEnt";
 
 /**
  * @class DataProviderBase
@@ -59,7 +59,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * @throws {Error} Rejects the promise on errors.
      */
     public getCoreImages(cellId: string):
-        Promise<{ [cellId: string]: { [imageKey: string]: ICoreNode } }> {
+        Promise<{ [cellId: string]: { [imageKey: string]: CoreImageEnt } }> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
@@ -70,12 +70,12 @@ export abstract class DataProviderBase extends EventEmitter {
      * to retrieve.
      * @param {Promise} [abort] - Optional promise for aborting
      * the request through rejection.
-     * @returns {Promise<IClusterReconstruction>} Promise to the
+     * @returns {Promise<ReconstructionEnt>} Promise to the
      * cluster reconstruction.
      * @throws {Error} Rejects the promise on errors.
      */
     public getClusterReconstruction(url: string, abort?: Promise<void>):
-        Promise<IClusterReconstruction> {
+        Promise<ReconstructionEnt> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
@@ -89,7 +89,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * @throws {Error} Rejects the promise on errors.
      */
     public getFillImages(imageKeys: string[]):
-        Promise<{ [imageKey: string]: IFillNode }> {
+        Promise<{ [imageKey: string]: SpatialImageEnt }> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
@@ -103,7 +103,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * @throws {Error} Rejects the promise on errors.
      */
     public getFullImages(imageKeys: string[]):
-        Promise<{ [imageKey: string]: IFullNode }> {
+        Promise<{ [imageKey: string]: ImageEnt }> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
@@ -156,10 +156,10 @@ export abstract class DataProviderBase extends EventEmitter {
      * @param {string} url - URL for mesh to retrieve.
      * @param {Promise} [abort] - Optional promise for aborting
      * the request through rejection.
-     * @returns {Promise<IMesh>} Promise to the mesh.
+     * @returns {Promise<MeshEnt>} Promise to the mesh.
      * @throws {Error} Rejects the promise on errors.
      */
-    public getMesh(url: string, abort?: Promise<void>): Promise<IMesh> {
+    public getMesh(url: string, abort?: Promise<void>): Promise<MeshEnt> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
@@ -173,7 +173,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * @throws {Error} Rejects the promise on errors.
      */
     public getSequences(sequenceKeys: string[]):
-        Promise<{ [sequenceKey: string]: ISequence }> {
+        Promise<{ [sequenceKey: string]: SequenceEnt }> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 

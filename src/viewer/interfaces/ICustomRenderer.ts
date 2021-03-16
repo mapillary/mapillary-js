@@ -1,4 +1,4 @@
-import { ILatLonAlt } from "../../geo/interfaces/ILatLonAlt";
+import { LatLonAltEnt } from "../../api/ents/LatLonAltEnt";
 import { Viewer } from "../Viewer";
 
 /**
@@ -41,14 +41,14 @@ export interface ICustomRenderer {
      *
      * @param {Viewer} viewer - The viewer this custom renderer
      * was just added to.
-     * @param {ILatLonAlt} reference - The viewer's current
+     * @param {LatLonAltEnt} reference - The viewer's current
      * reference position.
      * @param {WebGLRenderingContext | WebGL2RenderingContext} context -
      * The viewer's gl context.
      */
     onAdd(
         viewer: Viewer,
-        reference: ILatLonAlt,
+        reference: LatLonAltEnt,
         context: WebGLRenderingContext | WebGL2RenderingContext): void;
 
     /**
@@ -61,12 +61,12 @@ export interface ICustomRenderer {
      *
      * @param {Viewer} viewer - The viewer this custom renderer
      * is added to.
-     * @param {ILatLonAlt} reference - The viewer's current
+     * @param {LatLonAltEnt} reference - The viewer's current
      * reference position.
      */
     onReferenceChanged(
         viewer: Viewer,
-        reference: ILatLonAlt): void;
+        reference: LatLonAltEnt): void;
 
     /**
      * Method called when the renderer has been removed from the

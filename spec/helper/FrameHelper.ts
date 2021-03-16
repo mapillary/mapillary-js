@@ -1,17 +1,17 @@
 import { NodeHelper } from "./NodeHelper";
 import { TransformHelper } from "./TransformHelper";
 
-import { IFrame } from "../../src/state/interfaces/IFrame";
+import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
 import { State } from "../../src/state/State";
 import { Camera } from "../../src/geo/Camera";
-import { CameraProjectionType } from "../../src/api/interfaces/CameraProjectionType";
+import { CameraType } from "../../src/geo/interfaces/CameraType";
 
 export class FrameHelper {
     private _nodeHelper: NodeHelper = new NodeHelper();
     private _transformHelper: TransformHelper = new TransformHelper();
 
     public createFrame(
-        cameraType: CameraProjectionType = "perspective"): IFrame {
+        cameraType: CameraType = "perspective"): AnimationFrame {
 
         const currentNode =
             this._nodeHelper.createNode(cameraType);

@@ -1,12 +1,12 @@
 import * as THREE from "three";
 
 import { StateBase } from "./StateBase";
-import { IRotation } from "../interfaces/IRotation";
-import { IState } from "../interfaces/IState";
+import { EulerRotation } from "../interfaces/EulerRotation";
+import { IStateBase } from "../interfaces/IStateBase";
 import { Camera } from "../../geo/Camera";
 
 export class EarthState extends StateBase {
-    constructor(state: IState) {
+    constructor(state: IStateBase) {
         super(state);
 
         const viewingDirection: THREE.Vector3 = this._camera.lookat
@@ -37,7 +37,7 @@ export class EarthState extends StateBase {
         camera.position.copy(camera.lookat).add(offset);
     }
 
-    public orbit(rotation: IRotation): void {
+    public orbit(rotation: EulerRotation): void {
         const camera: Camera = this._camera;
         const q: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3(0, 0, 1));
         const qInverse: THREE.Quaternion = q.clone().invert();

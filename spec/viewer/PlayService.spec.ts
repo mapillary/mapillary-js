@@ -15,19 +15,19 @@ import { FrameHelper } from "../helper/FrameHelper";
 import { Node } from "../../src/graph/Node";
 import { APIWrapper } from "../../src/api/APIWrapper";
 import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
-import { IFullNode } from "../../src/api/interfaces/IFullNode";
+import { ImageEnt } from "../../src/api/ents/ImageEnt";
 import { Graph } from "../../src/graph/Graph";
 import { GraphMode } from "../../src/graph/GraphMode";
 import { GraphService } from "../../src/graph/GraphService";
-import { IEdgeStatus } from "../../src/graph/interfaces/IEdgeStatus";
+import { NavigationEdgeStatus } from "../../src/graph/interfaces/NavigationEdgeStatus";
 import { NodeCache } from "../../src/graph/NodeCache";
 import { Sequence } from "../../src/graph/Sequence";
-import { ICurrentState } from "../../src/state/interfaces/ICurrentState";
-import { IFrame } from "../../src/state/interfaces/IFrame";
+import { IAnimationState } from "../../src/state/interfaces/IAnimationState";
+import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
 import { State } from "../../src/state/State";
 import { StateService } from "../../src/state/StateService";
 import { PlayService } from "../../src/viewer/PlayService";
-import { EdgeDirection } from "../../src/graph/edge/EdgeDirection";
+import { NavigationDirection } from "../../src/graph/edge/NavigationDirection";
 
 describe("PlayService.ctor", () => {
     it("should be defined when constructed", () => {
@@ -53,8 +53,8 @@ describe("PlayService.ctor", () => {
             playService.speed$).pipe(
                 first())
             .subscribe(
-                ([d, p, s]: [EdgeDirection, boolean, number]): void => {
-                    expect(d).toBe(EdgeDirection.Next);
+                ([d, p, s]: [NavigationDirection, boolean, number]): void => {
+                    expect(d).toBe(NavigationDirection.Next);
                     expect(p).toBe(false);
                     expect(s).toBe(0.5);
 
@@ -199,7 +199,7 @@ describe("PlayService.speed$", () => {
     });
 });
 
-let createState: () => ICurrentState = (): ICurrentState => {
+let createState: () => IAnimationState = (): IAnimationState => {
     return {
         alpha: 0,
         camera: null,
@@ -260,13 +260,13 @@ describe("PlayService.play", () => {
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheBoundingBox$").and.returnValue(observableOf([]));
 
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
 
         playService.play();
 
-        const frame: IFrame = new FrameHelper().createFrame();
+        const frame: AnimationFrame = new FrameHelper().createFrame();
         frame.state.currentNode.initializeCache(new NodeCache(undefined));
-        (<Subject<IFrame>>stateService.currentState$).next(frame);
+        (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
         frame.state.currentNode.cacheSequenceEdges([]);
 
@@ -281,7 +281,7 @@ describe("PlayService.play", () => {
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheBoundingBox$").and.returnValue(observableOf([]));
 
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
 
         playService.play();
 
@@ -300,17 +300,17 @@ describe("PlayService.play", () => {
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Node[]>());
 
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
 
         playService.play();
 
-        const frame: IFrame = new FrameHelper().createFrame();
+        const frame: AnimationFrame = new FrameHelper().createFrame();
 
         const node: Node = frame.state.currentNode;
-        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
-        (<Subject<IFrame>>stateService.currentState$).next(frame);
+        (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
         sequenceEdgesSubject.error(new Error());
 
@@ -324,7 +324,7 @@ describe("PlayService.play", () => {
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheBoundingBox$").and.returnValue(observableOf([]));
 
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
 
         let firstEmit: boolean = true;
         playService.playing$.pipe(
@@ -345,9 +345,9 @@ describe("PlayService.play", () => {
 
         playService.play();
 
-        const frame: IFrame = new FrameHelper().createFrame();
+        const frame: AnimationFrame = new FrameHelper().createFrame();
         frame.state.currentNode.initializeCache(new NodeCache(undefined));
-        (<Subject<IFrame>>stateService.currentState$).next(frame);
+        (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
         frame.state.currentNode.cacheSequenceEdges([]);
     });
@@ -360,17 +360,17 @@ describe("PlayService.play", () => {
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheBoundingBox$").and.returnValue(observableOf([]));
 
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
 
         playService.play();
 
-        const frame: IFrame = new FrameHelper().createFrame();
+        const frame: AnimationFrame = new FrameHelper().createFrame();
         const node: Node = frame.state.currentNode;
         node.initializeCache(new NodeCache(undefined));
-        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
-        (<Subject<IFrame>>stateService.currentState$).next(frame);
+        (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
         sequenceEdgesSubject.next({ cached: false, edges: [] });
 
@@ -390,16 +390,16 @@ describe("PlayService.play", () => {
         const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
         spyOn(graphService, "cacheBoundingBox$").and.returnValue(cacheBoundingBoxSubject);
 
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
 
         playService.play();
 
-        const frame: IFrame = new FrameHelper().createFrame();
+        const frame: AnimationFrame = new FrameHelper().createFrame();
         const node: Node = frame.state.currentNode;
         node.initializeCache(new NodeCache(undefined));
-        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
 
-        const prevFullNode: IFullNode = new NodeHelper().createFullNode();
+        const prevFullNode: ImageEnt = new NodeHelper().createFullNode();
         prevFullNode.captured_at = -1;
         const prevNode: Node = new Node(prevFullNode);
         prevNode.makeFull(prevFullNode);
@@ -408,7 +408,7 @@ describe("PlayService.play", () => {
 
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
-        (<Subject<IFrame>>stateService.currentState$).next(frame);
+        (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
         sequenceEdgesSubject.next({ cached: false, edges: [] });
 
@@ -438,24 +438,24 @@ describe("PlayService.play", () => {
         const appendNodesSpy: jasmine.Spy = <jasmine.Spy>stateService.appendNodes;
         appendNodesSpy.and.stub();
 
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
 
         playService.play();
 
         const cameraUuid: string = "camera_uuid";
         const sequenceKey1: string = "sequence1";
 
-        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
         currentFullNode.captured_at = 0;
         currentFullNode.captured_with_camera_uuid = cameraUuid;
         currentFullNode.key = "currKey";
         currentFullNode.sequence_key = sequenceKey1;
         const currentNode: Node = new Node(currentFullNode);
         currentNode.makeFull(currentFullNode);
-        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", sequenceEdgesSubject);
 
-        const prevFullNode: IFullNode = new NodeHelper().createFullNode();
+        const prevFullNode: ImageEnt = new NodeHelper().createFullNode();
         prevFullNode.captured_at = -1;
         prevFullNode.captured_with_camera_uuid = cameraUuid;
         prevFullNode.key = "prevKey";
@@ -463,20 +463,20 @@ describe("PlayService.play", () => {
         const prevNode: Node = new Node(prevFullNode);
         prevNode.makeFull(prevFullNode);
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [prevNode, currentNode];
         state.lastNode = currentNode;
         state.currentNode = currentNode;
         state.nodesAhead = 0;
         state.currentIndex = 1;
 
-        (<Subject<IFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
+        (<Subject<AnimationFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
 
         sequenceEdgesSubject.next({ cached: true, edges: [] });
 
         expect(stopSpy.calls.count()).toBe(0);
 
-        const bridgeFullNode: IFullNode = new NodeHelper().createFullNode();
+        const bridgeFullNode: ImageEnt = new NodeHelper().createFullNode();
         bridgeFullNode.captured_at = 1;
         bridgeFullNode.captured_with_camera_uuid = cameraUuid;
         bridgeFullNode.key = "bridgeKey";
@@ -511,24 +511,24 @@ describe("PlayService.play", () => {
         const appendNodesSpy: jasmine.Spy = <jasmine.Spy>stateService.appendNodes;
         appendNodesSpy.and.stub();
 
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
 
         playService.play();
 
         const cameraUuid: string = "camera_uuid";
         const sequenceKey1: string = "sequence1";
 
-        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
         currentFullNode.captured_at = -1;
         currentFullNode.captured_with_camera_uuid = cameraUuid;
         currentFullNode.key = "currKey";
         currentFullNode.sequence_key = sequenceKey1;
         const currentNode: Node = new Node(currentFullNode);
         currentNode.makeFull(currentFullNode);
-        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", sequenceEdgesSubject);
 
-        const prevFullNode: IFullNode = new NodeHelper().createFullNode();
+        const prevFullNode: ImageEnt = new NodeHelper().createFullNode();
         prevFullNode.captured_at = 0;
         prevFullNode.captured_with_camera_uuid = cameraUuid;
         prevFullNode.key = "prevKey";
@@ -536,14 +536,14 @@ describe("PlayService.play", () => {
         const prevNode: Node = new Node(prevFullNode);
         prevNode.makeFull(prevFullNode);
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [prevNode, currentNode];
         state.lastNode = currentNode;
         state.currentNode = currentNode;
         state.nodesAhead = 0;
         state.currentIndex = 1;
 
-        (<Subject<IFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
+        (<Subject<AnimationFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
 
         sequenceEdgesSubject.next({ cached: true, edges: [] });
 
@@ -552,7 +552,7 @@ describe("PlayService.play", () => {
         const cacheBoudndingBoxNodex: Node[] = [1, -3, -5]
             .map(
                 (capturedAt: number): Node => {
-                    const bridgeFullNode: IFullNode = new NodeHelper().createFullNode();
+                    const bridgeFullNode: ImageEnt = new NodeHelper().createFullNode();
                     bridgeFullNode.captured_at = capturedAt;
                     bridgeFullNode.captured_with_camera_uuid = cameraUuid;
                     bridgeFullNode.key = "bridgeKey";
@@ -563,7 +563,7 @@ describe("PlayService.play", () => {
                     return bridgeNode;
                 });
 
-        const sameSequenceFullNode: IFullNode = new NodeHelper().createFullNode();
+        const sameSequenceFullNode: ImageEnt = new NodeHelper().createFullNode();
         sameSequenceFullNode.captured_at = -2;
         sameSequenceFullNode.captured_with_camera_uuid = cameraUuid;
         sameSequenceFullNode.key = "bridgeKey";
@@ -601,31 +601,31 @@ describe("PlayService.play", () => {
         const appendNodesSpy: jasmine.Spy = <jasmine.Spy>stateService.appendNodes;
         appendNodesSpy.and.stub();
 
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
 
         playService.play();
 
         const cameraUuid: string = "camera_uuid";
         const sequenceKey1: string = "sequence1";
 
-        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
         currentFullNode.captured_at = 0;
         currentFullNode.captured_with_camera_uuid = cameraUuid;
         currentFullNode.key = "currKey";
         currentFullNode.sequence_key = sequenceKey1;
         const currentNode: Node = new Node(currentFullNode);
         currentNode.makeFull(currentFullNode);
-        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", sequenceEdgesSubject);
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [currentNode];
         state.lastNode = currentNode;
         state.currentNode = currentNode;
         state.nodesAhead = 0;
         state.currentIndex = 0;
 
-        (<Subject<IFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
+        (<Subject<AnimationFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
 
         sequenceEdgesSubject.next({ cached: true, edges: [] });
 
@@ -648,28 +648,28 @@ describe("PlayService.play", () => {
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Node[]>());
 
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
 
         playService.play();
 
-        const frame: IFrame = new FrameHelper().createFrame();
+        const frame: AnimationFrame = new FrameHelper().createFrame();
         const node: Node = frame.state.currentNode;
         node.initializeCache(new NodeCache(undefined));
-        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
-        (<Subject<IFrame>>stateService.currentState$).next(frame);
+        (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
-        const fullToNode: IFullNode = nodeHelper.createFullNode();
+        const fullToNode: ImageEnt = nodeHelper.createFullNode();
         fullToNode.key = "toKey";
         const toNode: Node = new Node(fullToNode);
 
         sequenceEdgesSubject.next({
             cached: true,
             edges: [{
-                data: { direction: EdgeDirection.Next, worldMotionAzimuth: 0 },
-                from: node.key,
-                to: toNode.key,
+                data: { direction: NavigationDirection.Next, worldMotionAzimuth: 0 },
+                source: node.key,
+                target: toNode.key,
             }],
         });
 
@@ -700,28 +700,28 @@ describe("PlayService.play", () => {
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Node[]>());
 
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
 
         playService.play();
 
-        const frame: IFrame = new FrameHelper().createFrame();
+        const frame: AnimationFrame = new FrameHelper().createFrame();
         const node: Node = frame.state.currentNode;
         node.initializeCache(new NodeCache(undefined));
-        const sequenceEdgesSubject: Subject<IEdgeStatus> = new Subject<IEdgeStatus>();
+        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
         new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
 
-        (<Subject<IFrame>>stateService.currentState$).next(frame);
+        (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
-        const fullToNode: IFullNode = nodeHelper.createFullNode();
+        const fullToNode: ImageEnt = nodeHelper.createFullNode();
         fullToNode.key = "toKey";
         const toNode: Node = new Node(fullToNode);
 
         sequenceEdgesSubject.next({
             cached: true,
             edges: [{
-                data: { direction: EdgeDirection.Next, worldMotionAzimuth: 0 },
-                from: node.key,
-                to: toNode.key,
+                data: { direction: NavigationDirection.Next, worldMotionAzimuth: 0 },
+                source: node.key,
+                target: toNode.key,
             }],
         });
 
@@ -737,7 +737,7 @@ describe("PlayService.play", () => {
 
     it("should cache sequence when in spatial graph mode", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
         // Set speed to zero so that graph mode is set to spatial when calling play
         playService.setSpeed(0);
 
@@ -749,7 +749,7 @@ describe("PlayService.play", () => {
         playService.play();
 
         const currentNode: Node = nodeHelper.createNode();
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
         const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
         currentNodeSubject.next(currentNode);
@@ -764,7 +764,7 @@ describe("PlayService.play", () => {
 
     it("should cache sequence nodes when in sequence graph mode", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
         // Set speed to one so that graph mode is set to sequence when calling play
         playService.setSpeed(1);
 
@@ -776,7 +776,7 @@ describe("PlayService.play", () => {
         playService.play();
 
         const currentNode: Node = nodeHelper.createNode();
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
         const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
         currentNodeSubject.next(currentNode);
@@ -793,7 +793,7 @@ describe("PlayService.play", () => {
         graphService.setGraphMode(GraphMode.Spatial);
 
         const playService: PlayService = new PlayService(graphService, stateService);
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
 
         const cacheSequenceSubject: Subject<Sequence> = new Subject<Sequence>();
         spyOn(graphService, "cacheSequence$").and.returnValue(cacheSequenceSubject);
@@ -802,11 +802,11 @@ describe("PlayService.play", () => {
 
         const sequenceKey: string = "sequenceKey";
 
-        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
         currentFullNode.sequence_key = sequenceKey;
         currentFullNode.key = "node0";
         const currentNode: Node = new Node(currentFullNode);
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
         const prevNodeKey: string = "node1";
 
@@ -820,13 +820,13 @@ describe("PlayService.play", () => {
         const cacheNodeSubject: Subject<Node> = new Subject<Node>();
         cacheNodeSpy.and.returnValue(cacheNodeSubject);
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [currentNode];
         state.lastNode = currentNode;
         state.currentNode = currentNode;
         state.nodesAhead = 0;
 
-        (<Subject<IFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
+        (<Subject<AnimationFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
 
         expect(cacheNodeSpy.calls.count()).toBe(0);
 
@@ -837,7 +837,7 @@ describe("PlayService.play", () => {
         graphService.setGraphMode(GraphMode.Spatial);
 
         const playService: PlayService = new PlayService(graphService, stateService);
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
 
         const cacheSequenceSubject: Subject<Sequence> = new Subject<Sequence>();
         spyOn(graphService, "cacheSequence$").and.returnValue(cacheSequenceSubject);
@@ -846,11 +846,11 @@ describe("PlayService.play", () => {
 
         const sequenceKey: string = "sequenceKey";
 
-        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
         currentFullNode.sequence_key = sequenceKey;
         currentFullNode.key = "node0";
         const currentNode: Node = new Node(currentFullNode);
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
         const nextNodeKey: string = "node1";
 
@@ -864,13 +864,13 @@ describe("PlayService.play", () => {
         const cacheNodeSubject: Subject<Node> = new Subject<Node>();
         cacheNodeSpy.and.returnValue(cacheNodeSubject);
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [currentNode];
         state.lastNode = currentNode;
         state.currentNode = currentNode;
         state.nodesAhead = 0;
 
-        const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
+        const currentStateSubject$: Subject<AnimationFrame> = <Subject<AnimationFrame>>stateService.currentState$;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
         cacheNodeSubject.next(new NodeHelper().createNode());
@@ -885,7 +885,7 @@ describe("PlayService.play", () => {
         graphService.setGraphMode(GraphMode.Spatial);
 
         const playService: PlayService = new PlayService(graphService, stateService);
-        playService.setDirection(EdgeDirection.Prev);
+        playService.setDirection(NavigationDirection.Prev);
 
         const cacheSequenceSubject: Subject<Sequence> = new Subject<Sequence>();
         spyOn(graphService, "cacheSequence$").and.returnValue(cacheSequenceSubject);
@@ -894,11 +894,11 @@ describe("PlayService.play", () => {
 
         const sequenceKey: string = "sequenceKey";
 
-        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
         currentFullNode.sequence_key = sequenceKey;
         currentFullNode.key = "node0";
         const currentNode: Node = new Node(currentFullNode);
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
         const prevNodeKey: string = "node1";
 
@@ -912,13 +912,13 @@ describe("PlayService.play", () => {
         const cacheNodeSubject: Subject<Node> = new Subject<Node>();
         cacheNodeSpy.and.returnValue(cacheNodeSubject);
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [currentNode];
         state.lastNode = currentNode;
         state.currentNode = currentNode;
         state.nodesAhead = 0;
 
-        const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
+        const currentStateSubject$: Subject<AnimationFrame> = <Subject<AnimationFrame>>stateService.currentState$;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
         cacheNodeSubject.next(new NodeHelper().createNode());
@@ -937,7 +937,7 @@ describe("PlayService.play", () => {
         graphService.setGraphMode(GraphMode.Spatial);
 
         const playService: PlayService = new PlayService(graphService, stateService);
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
 
         const cacheSequenceSubject: Subject<Sequence> = new Subject<Sequence>();
         spyOn(graphService, "cacheSequence$").and.returnValue(cacheSequenceSubject);
@@ -946,12 +946,12 @@ describe("PlayService.play", () => {
 
         const sequenceKey: string = "sequenceKey";
 
-        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
         currentFullNode.sequence_key = sequenceKey;
         currentFullNode.key = "node0";
         const currentNode: Node = new Node(currentFullNode);
         currentNode.makeFull(currentFullNode);
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
         const nextNodeKey: string = "node1";
 
@@ -965,16 +965,16 @@ describe("PlayService.play", () => {
         const cacheNodeSubject: Subject<Node> = new Subject<Node>();
         cacheNodeSpy.and.returnValue(cacheNodeSubject);
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [currentNode];
         state.lastNode = currentNode;
         state.currentNode = currentNode;
         state.nodesAhead = 0;
 
-        const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
+        const currentStateSubject$: Subject<AnimationFrame> = <Subject<AnimationFrame>>stateService.currentState$;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
-        const nextFullNode: IFullNode = new NodeHelper().createFullNode();
+        const nextFullNode: ImageEnt = new NodeHelper().createFullNode();
         nextFullNode.sequence_key = sequenceKey;
         nextFullNode.key = nextNodeKey;
         const nextNode: Node = new Node(nextFullNode);
@@ -995,7 +995,7 @@ describe("PlayService.play", () => {
         graphService.setGraphMode(GraphMode.Spatial);
 
         const playService: PlayService = new PlayService(graphService, stateService);
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
 
         const cacheSequenceSubject: Subject<Sequence> = new Subject<Sequence>();
         spyOn(graphService, "cacheSequence$").and.returnValue(cacheSequenceSubject);
@@ -1004,20 +1004,20 @@ describe("PlayService.play", () => {
 
         const sequenceKey: string = "sequenceKey";
 
-        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
         currentFullNode.sequence_key = sequenceKey;
         currentFullNode.key = "node0";
         const currentNode: Node = new Node(currentFullNode);
         currentNode.makeFull(currentFullNode);
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
         const nextNodeKey: string = "node1";
-        const nextFullNode: IFullNode = new NodeHelper().createFullNode();
+        const nextFullNode: ImageEnt = new NodeHelper().createFullNode();
         nextFullNode.sequence_key = sequenceKey;
         nextFullNode.key = nextNodeKey;
         const nextNode: Node = new Node(nextFullNode);
         nextNode.makeFull(nextFullNode);
-        new MockCreator().mockProperty(nextNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+        new MockCreator().mockProperty(nextNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
         const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
         currentNodeSubject.next(currentNode);
@@ -1029,13 +1029,13 @@ describe("PlayService.play", () => {
         const cacheNodeSubject: Subject<Node> = new Subject<Node>();
         cacheNodeSpy.and.returnValue(cacheNodeSubject);
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [currentNode, nextNode];
         state.lastNode = nextNode;
         state.currentNode = currentNode;
         state.nodesAhead = 0;
 
-        const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
+        const currentStateSubject$: Subject<AnimationFrame> = <Subject<AnimationFrame>>stateService.currentState$;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
         expect(cacheNodeSpy.calls.count()).toBe(0);
@@ -1047,7 +1047,7 @@ describe("PlayService.play", () => {
         graphService.setGraphMode(GraphMode.Spatial);
 
         const playService: PlayService = new PlayService(graphService, stateService);
-        playService.setDirection(EdgeDirection.Next);
+        playService.setDirection(NavigationDirection.Next);
         // Zero speed means max ten nodes ahead
         playService.setSpeed(0);
 
@@ -1058,24 +1058,24 @@ describe("PlayService.play", () => {
 
         const sequenceKey: string = "sequenceKey";
 
-        const currentFullNode: IFullNode = new NodeHelper().createFullNode();
+        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
         currentFullNode.sequence_key = sequenceKey;
         currentFullNode.key = "currentNodeKey";
         const currentNode: Node = new Node(currentFullNode);
         currentNode.makeFull(currentFullNode);
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
         const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key] });
         const sequenceNodes: Node[] = [];
 
         for (let i: number = 0; i < 20; i++) {
             const sequenceNodeKey: string = `node${i}`;
-            const sequenceFullNode: IFullNode = new NodeHelper().createFullNode();
+            const sequenceFullNode: ImageEnt = new NodeHelper().createFullNode();
             sequenceFullNode.sequence_key = sequenceKey;
             sequenceFullNode.key = sequenceNodeKey;
             const sequenceNode: Node = new Node(sequenceFullNode);
             sequenceNode.makeFull(sequenceFullNode);
-            new MockCreator().mockProperty(sequenceNode, "sequenceEdges$", new Subject<IEdgeStatus>());
+            new MockCreator().mockProperty(sequenceNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
             sequence.keys.push(sequenceNode.key);
             sequenceNodes.push(sequenceNode);
@@ -1088,7 +1088,7 @@ describe("PlayService.play", () => {
 
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$").and.callFake(
             (key: string): Observable<Node> => {
-                const fullNode: IFullNode = new NodeHelper().createFullNode();
+                const fullNode: ImageEnt = new NodeHelper().createFullNode();
                 fullNode.sequence_key = sequenceKey;
                 fullNode.key = key;
                 const node: Node = new Node(fullNode);
@@ -1097,7 +1097,7 @@ describe("PlayService.play", () => {
                 return observableOf(node);
             });
 
-        const state: ICurrentState = createState();
+        const state: IAnimationState = createState();
         state.trajectory = [currentNode];
         state.lastNode = currentNode;
         state.currentNode = currentNode;
@@ -1105,7 +1105,7 @@ describe("PlayService.play", () => {
         state.nodesAhead = 0;
 
         // Cache ten nodes immediately
-        const currentStateSubject$: Subject<IFrame> = <Subject<IFrame>>stateService.currentState$;
+        const currentStateSubject$: Subject<AnimationFrame> = <Subject<AnimationFrame>>stateService.currentState$;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
         let cachedCount: number = 10;

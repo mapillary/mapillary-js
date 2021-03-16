@@ -1,4 +1,4 @@
-import { IUrlOptions } from "../viewer/interfaces/IUrlOptions";
+import { UrlOptions } from "../viewer/interfaces/UrlOptions";
 
 export class Urls {
     private static _exploreHost: string = "www.mapillary.com";
@@ -16,7 +16,7 @@ export class Urls {
         return `${Urls._scheme}://${Urls._exploreHost}/app/user/${username}`;
     }
 
-    public static setOptions(options: IUrlOptions): void {
+    public static setOptions(options: UrlOptions): void {
         if (!options) {
             return;
         }

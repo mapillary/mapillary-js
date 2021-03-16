@@ -1,4 +1,4 @@
-export { IPopupOffset } from "../component/popup/interfaces/IPopupOffset";
-export { IPopupOptions } from "../component/popup/interfaces/IPopupOptions";
+export { PopupOffset } from "../component/popup/interfaces/PopupOffset";
+export { PopupOptions } from "../component/popup/interfaces/PopupOptions";
 export { Popup } from "../component/popup/popup/Popup";
 export { PopupComponent } from "../component/popup/PopupComponent";

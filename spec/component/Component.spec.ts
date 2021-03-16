@@ -1,16 +1,16 @@
 import { skip } from "rxjs/operators";
 import { Component } from "../../src/component/Component";
-import { IComponentConfiguration } from "../../src/component/interfaces/IComponentConfiguration";
+import { ComponentConfiguration } from "../../src/component/interfaces/ComponentConfiguration";
 
-interface ITestConfiguration extends IComponentConfiguration {
+interface TestConfiguration extends ComponentConfiguration {
     test?: string;
 }
 
-class TestComponent extends Component<ITestConfiguration> {
+class TestComponent extends Component<TestConfiguration> {
     protected _activate(): void { /*noop*/ }
     protected _deactivate(): void { /*noop*/ }
 
-    protected _getDefaultConfiguration(): ITestConfiguration {
+    protected _getDefaultConfiguration(): TestConfiguration {
         return {};
     }
 }
@@ -29,7 +29,7 @@ describe("Component.configuration$", () => {
 
         component.configuration$
             .subscribe(
-                (configuration: IComponentConfiguration): void => {
+                (configuration: ComponentConfiguration): void => {
                     expect(Object.keys(configuration).length).toBe(0);
                 });
     });
@@ -40,7 +40,7 @@ describe("Component.configuration$", () => {
         component.configuration$.pipe(
             skip(1))
             .subscribe(
-                (configuration: ITestConfiguration): void => {
+                (configuration: TestConfiguration): void => {
                     expect(Object.keys(configuration).length).toBe(1);
                     expect(configuration.test).toBe("test");
                     done();
@@ -55,7 +55,7 @@ describe("Component.configuration$", () => {
         component.configuration$.pipe(
             skip(2))
             .subscribe(
-                (configuration: ITestConfiguration): void => {
+                (configuration: TestConfiguration): void => {
                     expect(Object.keys(configuration).length).toBe(1);
                     expect(configuration.test).toBe("testchanged");
                     done();

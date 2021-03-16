@@ -1,10 +1,10 @@
 import { StateBase } from "./StateBase";
-import { IState } from "../interfaces/IState";
+import { IStateBase } from "../interfaces/IStateBase";
 import { Node } from "../../graph/Node";
 import { isSpherical } from "../../geo/Geo";
 
 export class WaitingState extends StateBase {
-    constructor(state: IState) {
+    constructor(state: IStateBase) {
         super(state);
 
         this._zoom = 0;

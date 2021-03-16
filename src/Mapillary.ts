@@ -4,16 +4,21 @@
  * @name Mapillary
  */
 
-// Bootstrap spatial index.
-//
+// Bootstrap
 // This is a workaround to make the CommonJS unit testing
 // work with Jest. Once Jest/Node supports ES6 modules
-// fully this should be removed.
+// fully this should be removed. GeoRBush and UnitBezier
+// are registered here only to avoid loading them during
+// unit tests.
+
+// Bootstrap GeoRBush
 import { Graph } from "./graph/Graph";
 import { MarkerSet } from "./component/marker/MarkerSet";
 import { GeoRBush } from "./geo/GeoRBush";
 Graph.register(GeoRBush);
 MarkerSet.register(GeoRBush);
+
+// Bootstrap UnitBezier
 import UnitBezier from "@mapbox/unitbezier";
 import { TraversingState } from "./state/states/TraversingState";
 TraversingState.register(UnitBezier);
@@ -62,26 +67,30 @@ ComponentService.register(ZoomComponent);
 export { isFallbackSupported, isSupported } from "./utils/Support";
 
 // Viewer types
-export { RenderMode } from "./render/RenderMode";
-export { TransitionMode } from "./state/TransitionMode";
 export { Alignment } from "./viewer/Alignment";
-export { ImageSize } from "./viewer/ImageSize";
-export { Viewer } from "./viewer/Viewer";
-export { IComponentOptions } from "./viewer/interfaces/IComponentOptions";
 export { ComponentSize } from "./component/utils/ComponentSize";
 export { ICustomRenderer } from "./viewer/interfaces/ICustomRenderer";
-export { IPointOfView } from "./viewer/interfaces/IPointOfView";
-export { IUrlOptions } from "./viewer/interfaces/IUrlOptions";
-export { IViewerEvent } from "./viewer/interfaces/IViewerEvent";
-export { IViewerMouseEvent } from "./viewer/interfaces/IViewerMouseEvent";
-export { IViewerOptions } from "./viewer/interfaces/IViewerOptions";
+export { ImageSize } from "./viewer/ImageSize";
+export { PointOfView } from "./viewer/interfaces/PointOfView";
+export { RenderMode } from "./render/RenderMode";
+export { TransitionMode } from "./state/TransitionMode";
+export { Viewer } from "./viewer/Viewer";
+
+// Viewer events
+export { ViewerEvent } from "./viewer/interfaces/ViewerEvent";
+export { ViewerMouseEvent } from "./viewer/interfaces/ViewerMouseEvent";
+
+// Viewer configuration
+export { ComponentOptions } from "./viewer/interfaces/ComponentOptions";
+export { UrlOptions } from "./viewer/interfaces/UrlOptions";
+export { ViewerOptions } from "./viewer/interfaces/ViewerOptions";
 
 // Graph types
 export { Node } from "./graph/Node";
-export { EdgeDirection } from "./graph/edge/EdgeDirection";
-export { IEdge } from "./graph/edge/interfaces/IEdge";
-export { IEdgeData } from "./graph/edge/interfaces/IEdgeData";
-export { IEdgeStatus } from "./graph/interfaces/IEdgeStatus";
+export { NavigationDirection } from "./graph/edge/NavigationDirection";
+export { NavigationEdge } from "./graph/edge/interfaces/NavigationEdge";
+export { NavigationEdgeData } from "./graph/edge/interfaces/NavigationEdgeData";
+export { NavigationEdgeStatus } from "./graph/interfaces/NavigationEdgeStatus";
 export {
     FilterExpression,
     FilterOperation,

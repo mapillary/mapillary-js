@@ -25,54 +25,54 @@ import {
 import { GLRenderStage } from "./GLRenderStage";
 import { RenderCamera } from "./RenderCamera";
 import { RenderService } from "./RenderService";
-import { IGLRender } from "./interfaces/IGLRender";
-import { IGLRenderFunction } from "./interfaces/IGLRenderFunction";
-import { IGLRenderHash } from "./interfaces/IGLRenderHash";
-import { ISize } from "./interfaces/ISize";
+import { GLFrameRenderer } from "./interfaces/GLFrameRenderer";
+import { GLRenderFunction } from "./interfaces/GLRenderFunction";
+import { GLRenderHash } from "./interfaces/IGLRenderHash";
+import { ViewportSize } from "./interfaces/ViewportSize";
 
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
-interface IGLRenderer {
+interface GLRendererStatus {
     needsRender: boolean;
     renderer: THREE.WebGLRenderer;
 }
 
-interface IRenderCamera {
+interface GLRenderCamera {
     frameId: number;
     needsRender: boolean;
     perspective: THREE.PerspectiveCamera;
 }
 
-interface IGLRenderHashes {
-    [name: string]: IGLRender;
+interface GLRenderHashes {
+    [name: string]: GLFrameRenderer;
 }
 
-interface IForce {
+interface ForceRenderer {
     needsRender: boolean;
 }
 
-interface IGLRendererOperation {
-    (renderer: IGLRenderer): IGLRenderer;
+interface GLRendererOperation {
+    (renderer: GLRendererStatus): GLRendererStatus;
 }
 
-interface IRenderCameraOperation {
-    (camera: IRenderCamera): IRenderCamera;
+interface GLRenderCameraOperation {
+    (camera: GLRenderCamera): GLRenderCamera;
 }
 
-interface IGLRenderHashesOperation extends Function {
-    (hashes: IGLRenderHashes): IGLRenderHashes;
+interface GLRenderHashesOperation extends Function {
+    (hashes: GLRenderHashes): GLRenderHashes;
 }
 
-interface IForceOperation {
-    (forcer: IForce): IForce;
+interface ForceRendererOperation {
+    (forcer: ForceRenderer): ForceRenderer;
 }
 
-interface ICombination {
-    camera: IRenderCamera;
-    eraser: IForce;
-    trigger: IForce;
-    renderer: IGLRenderer;
-    renders: IGLRender[];
+interface GLRendererCombination {
+    camera: GLRenderCamera;
+    eraser: ForceRenderer;
+    trigger: ForceRenderer;
+    renderer: GLRendererStatus;
+    renders: GLFrameRenderer[];
 }
 
 export class GLRenderer {
@@ -81,24 +81,24 @@ export class GLRenderer {
     private _renderFrame$: Subject<RenderCamera> =
         new Subject<RenderCamera>();
 
-    private _renderCameraOperation$: Subject<IRenderCameraOperation> =
-        new Subject<IRenderCameraOperation>();
-    private _renderCamera$: Observable<IRenderCamera>;
+    private _renderCameraOperation$: Subject<GLRenderCameraOperation> =
+        new Subject<GLRenderCameraOperation>();
+    private _renderCamera$: Observable<GLRenderCamera>;
 
-    private _render$: Subject<IGLRenderHash> = new Subject<IGLRenderHash>();
+    private _render$: Subject<GLRenderHash> = new Subject<GLRenderHash>();
     private _clear$: Subject<string> = new Subject<string>();
-    private _renderOperation$: Subject<IGLRenderHashesOperation> =
-        new Subject<IGLRenderHashesOperation>();
-    private _renderCollection$: Observable<IGLRenderHashes>;
+    private _renderOperation$: Subject<GLRenderHashesOperation> =
+        new Subject<GLRenderHashesOperation>();
+    private _renderCollection$: Observable<GLRenderHashes>;
 
-    private _rendererOperation$: Subject<IGLRendererOperation> =
-        new Subject<IGLRendererOperation>();
-    private _renderer$: Observable<IGLRenderer>;
+    private _rendererOperation$: Subject<GLRendererOperation> =
+        new Subject<GLRendererOperation>();
+    private _renderer$: Observable<GLRendererStatus>;
 
-    private _eraserOperation$: Subject<IForceOperation> = new Subject<IForceOperation>();
-    private _eraser$: Observable<IForce>;
+    private _eraserOperation$: Subject<ForceRendererOperation> = new Subject<ForceRendererOperation>();
+    private _eraser$: Observable<ForceRenderer>;
 
-    private _triggerOperation$: Subject<IForceOperation> = new Subject<IForceOperation>();
+    private _triggerOperation$: Subject<ForceRendererOperation> = new Subject<ForceRendererOperation>();
 
     private _webGLRenderer$: Observable<THREE.WebGLRenderer>;
 
@@ -116,18 +116,18 @@ export class GLRenderer {
 
         this._renderer$ = this._rendererOperation$.pipe(
             scan(
-                (renderer: IGLRenderer, operation: IGLRendererOperation): IGLRenderer => {
+                (renderer: GLRendererStatus, operation: GLRendererOperation): GLRendererStatus => {
                     return operation(renderer);
                 },
                 { needsRender: false, renderer: null }),
             filter(
-                (renderer: IGLRenderer): boolean => {
+                (renderer: GLRendererStatus): boolean => {
                     return !!renderer.renderer;
                 }));
 
         this._renderCollection$ = this._renderOperation$.pipe(
             scan(
-                (hashes: IGLRenderHashes, operation: IGLRenderHashesOperation): IGLRenderHashes => {
+                (hashes: GLRenderHashes, operation: GLRenderHashesOperation): GLRenderHashes => {
                     return operation(hashes);
                 },
                 {}),
@@ -135,29 +135,29 @@ export class GLRenderer {
 
         this._renderCamera$ = this._renderCameraOperation$.pipe(
             scan(
-                (rc: IRenderCamera, operation: IRenderCameraOperation): IRenderCamera => {
+                (rc: GLRenderCamera, operation: GLRenderCameraOperation): GLRenderCamera => {
                     return operation(rc);
                 },
                 { frameId: -1, needsRender: false, perspective: null }));
 
         this._eraser$ = this._eraserOperation$.pipe(
             startWith(
-                (eraser: IForce): IForce => {
+                (eraser: ForceRenderer): ForceRenderer => {
                     return eraser;
                 }),
             scan(
-                (eraser: IForce, operation: IForceOperation): IForce => {
+                (eraser: ForceRenderer, operation: ForceRendererOperation): ForceRenderer => {
                     return operation(eraser);
                 },
                 { needsRender: false }));
 
         const trigger$ = this._triggerOperation$.pipe(
             startWith(
-                (trigger: IForce): IForce => {
+                (trigger: ForceRenderer): ForceRenderer => {
                     return trigger;
                 }),
             scan(
-                (trigger: IForce, operation: IForceOperation): IForce => {
+                (trigger: ForceRenderer, operation: ForceRendererOperation): ForceRenderer => {
                     return operation(trigger);
                 },
                 { needsRender: false }));
@@ -171,16 +171,16 @@ export class GLRenderer {
             trigger$).pipe(
                 map(
                     ([renderer, hashes, rc, eraser, trigger]:
-                        [IGLRenderer, IGLRenderHashes, IRenderCamera, IForce, IForce]): ICombination => {
-                        const renders: IGLRender[] = Object.keys(hashes)
-                            .map((key: string): IGLRender => {
+                        [GLRendererStatus, GLRenderHashes, GLRenderCamera, ForceRenderer, ForceRenderer]): GLRendererCombination => {
+                        const renders: GLFrameRenderer[] = Object.keys(hashes)
+                            .map((key: string): GLFrameRenderer => {
                                 return hashes[key];
                             });
 
                         return { camera: rc, eraser: eraser, trigger: trigger, renderer: renderer, renders: renders };
                     }),
                 filter(
-                    (co: ICombination): boolean => {
+                    (co: GLRendererCombination): boolean => {
                         let needsRender: boolean =
                             co.renderer.needsRender ||
                             co.camera.needsRender ||
@@ -203,12 +203,12 @@ export class GLRenderer {
                     (n1: number, n2: number): boolean => {
                         return n1 === n2;
                     },
-                    (co: ICombination): number => {
+                    (co: GLRendererCombination): number => {
                         return co.eraser.needsRender ||
                             co.trigger.needsRender ? -co.camera.frameId : co.camera.frameId;
                     }))
             .subscribe(
-                (co: ICombination): void => {
+                (co: GLRendererCombination): void => {
                     co.renderer.needsRender = false;
                     co.camera.needsRender = false;
                     co.eraser.needsRender = false;
@@ -216,8 +216,8 @@ export class GLRenderer {
 
                     const perspectiveCamera = co.camera.perspective;
 
-                    const backgroundRenders: IGLRenderFunction[] = [];
-                    const foregroundRenders: IGLRenderFunction[] = [];
+                    const backgroundRenders: GLRenderFunction[] = [];
+                    const foregroundRenders: GLRenderFunction[] = [];
 
                     for (const render of co.renders) {
                         if (render.stage === GLRenderStage.Background) {
@@ -248,8 +248,8 @@ export class GLRenderer {
         subs.push(renderSubscription);
         subs.push(this._renderFrame$.pipe(
             map(
-                (rc: RenderCamera): IRenderCameraOperation => {
-                    return (irc: IRenderCamera): IRenderCamera => {
+                (rc: RenderCamera): GLRenderCameraOperation => {
+                    return (irc: GLRenderCamera): GLRenderCamera => {
                         irc.frameId = rc.frameId;
                         irc.perspective = rc.perspective;
 
@@ -266,9 +266,9 @@ export class GLRenderer {
 
         const renderHash$ = this._render$.pipe(
             map(
-                (hash: IGLRenderHash) => {
-                    return (hashes: IGLRenderHashes): IGLRenderHashes => {
-                        hashes[hash.name] = hash.render;
+                (hash: GLRenderHash) => {
+                    return (hashes: GLRenderHashes): GLRenderHashes => {
+                        hashes[hash.name] = hash.renderer;
 
                         return hashes;
                     };
@@ -277,7 +277,7 @@ export class GLRenderer {
         const clearHash$ = this._clear$.pipe(
             map(
                 (name: string) => {
-                    return (hashes: IGLRenderHashes): IGLRenderHashes => {
+                    return (hashes: GLRenderHashes): GLRenderHashes => {
                         delete hashes[name];
 
                         return hashes;
@@ -309,8 +309,8 @@ export class GLRenderer {
         const createRenderer$ = this._webGLRenderer$.pipe(
             first(),
             map(
-                (webGLRenderer: THREE.WebGLRenderer): IGLRendererOperation => {
-                    return (renderer: IGLRenderer): IGLRenderer => {
+                (webGLRenderer: THREE.WebGLRenderer): GLRendererOperation => {
+                    return (renderer: GLRendererStatus): GLRendererStatus => {
                         renderer.needsRender = true;
                         renderer.renderer = webGLRenderer;
 
@@ -320,8 +320,8 @@ export class GLRenderer {
 
         const resizeRenderer$ = this._renderService.size$.pipe(
             map(
-                (size: ISize): IGLRendererOperation => {
-                    return (renderer: IGLRenderer): IGLRenderer => {
+                (size: ViewportSize): GLRendererOperation => {
+                    return (renderer: GLRendererStatus): GLRendererStatus => {
                         if (renderer.renderer == null) {
                             return renderer;
                         }
@@ -336,7 +336,7 @@ export class GLRenderer {
         const clearRenderer$ = this._clear$.pipe(
             map(
                 () => {
-                    return (renderer: IGLRenderer): IGLRenderer => {
+                    return (renderer: GLRendererStatus): GLRendererStatus => {
                         if (renderer.renderer == null) {
                             return renderer;
                         }
@@ -355,7 +355,7 @@ export class GLRenderer {
 
         const renderCollectionEmpty$ = this._renderCollection$.pipe(
             filter(
-                (hashes: IGLRenderHashes): boolean => {
+                (hashes: GLRenderHashes): boolean => {
                     return Object.keys(hashes).length === 0;
                 }),
             share());
@@ -375,8 +375,8 @@ export class GLRenderer {
 
         subs.push(renderCollectionEmpty$.pipe(
             map(
-                (): IForceOperation => {
-                    return (eraser: IForce): IForce => {
+                (): ForceRendererOperation => {
+                    return (eraser: ForceRenderer): ForceRenderer => {
                         eraser.needsRender = true;
 
                         return eraser;
@@ -385,7 +385,7 @@ export class GLRenderer {
             .subscribe(this._eraserOperation$));
     }
 
-    public get render$(): Subject<IGLRenderHash> {
+    public get render$(): Subject<GLRenderHash> {
         return this._render$;
     }
 
@@ -403,7 +403,7 @@ export class GLRenderer {
 
     public remove(): void {
         this._rendererOperation$.next(
-            (renderer: IGLRenderer): IGLRenderer => {
+            (renderer: GLRendererStatus): GLRendererStatus => {
                 if (renderer.renderer != null) {
                     const extension = renderer.renderer
                         .getContext()
@@ -433,7 +433,7 @@ export class GLRenderer {
             .subscribe(
                 (): void => {
                     this._triggerOperation$.next(
-                        (trigger: IForce): IForce => {
+                        (trigger: ForceRenderer): ForceRenderer => {
                             trigger.needsRender = true;
                             return trigger;
                         });
@@ -444,15 +444,15 @@ export class GLRenderer {
         this._render$.pipe(
             first(),
             map(
-                (): IRenderCameraOperation => {
-                    return (irc: IRenderCamera): IRenderCamera => {
+                (): GLRenderCameraOperation => {
+                    return (irc: GLRenderCamera): GLRenderCamera => {
                         irc.needsRender = true;
 
                         return irc;
                     };
                 }))
             .subscribe(
-                (operation: IRenderCameraOperation): void => {
+                (operation: GLRenderCameraOperation): void => {
                     this._renderCameraOperation$.next(operation);
                 });
 

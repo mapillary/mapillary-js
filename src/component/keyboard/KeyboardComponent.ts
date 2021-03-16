@@ -6,7 +6,7 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Spatial } from "../../geo/Spatial";
 import { ViewportCoords } from "../../geo/ViewportCoords";
-import { IKeyboardConfiguration } from "../interfaces/IKeyboardConfiguration";
+import { KeyboardConfiguration } from "../interfaces/KeyboardConfiguration";
 import { KeySequenceNavigationHandler } from "./KeySequenceNavigationHandler";
 import { KeySpatialNavigationHandler } from "./KeySpatialNavigationHandler";
 import { KeyZoomHandler } from "./KeyZoomHandler";
@@ -26,7 +26,7 @@ import { KeyPlayHandler } from "./KeyPlayHandler";
  * var keyboardComponent = viewer.getComponent("keyboard");
  * ```
  */
-export class KeyboardComponent extends Component<IKeyboardConfiguration> {
+export class KeyboardComponent extends Component<KeyboardConfiguration> {
     public static componentName: string = "keyboard";
 
     private _keyPlayHandler: KeyPlayHandler;
@@ -85,7 +85,7 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
     protected _activate(): void {
         this._configurationSubscription = this._configuration$
             .subscribe(
-                (configuration: IKeyboardConfiguration): void => {
+                (configuration: KeyboardConfiguration): void => {
                     if (configuration.keyPlay) {
                         this._keyPlayHandler.enable();
                     } else {
@@ -121,7 +121,7 @@ export class KeyboardComponent extends Component<IKeyboardConfiguration> {
         this._keyZoomHandler.disable();
     }
 
-    protected _getDefaultConfiguration(): IKeyboardConfiguration {
+    protected _getDefaultConfiguration(): KeyboardConfiguration {
         return { keyPlay: true, keySequenceNavigation: true, keySpatialNavigation: true, keyZoom: true };
     }
 }

@@ -1,8 +1,8 @@
 import { NodeHelper } from "../helper/NodeHelper";
 import { Node } from "../../src/graph/Node";
-import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
-import { IFillNode } from "../../src/api/interfaces/IFillNode";
-import { IMesh } from "../../src/api/interfaces/IMesh";
+import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
+import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
+import { MeshEnt } from "../../src/api/ents/MeshEnt";
 import { NodeCache } from "../../src/graph/NodeCache";
 
 describe("Node", () => {
@@ -13,7 +13,7 @@ describe("Node", () => {
     });
 
     it("should create a node", () => {
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         let node: Node = new Node(coreNode);
 
         expect(node).toBeDefined();
@@ -28,12 +28,12 @@ describe("Node.full", () => {
     });
 
     it("should make node full", () => {
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         let node: Node = new Node(coreNode);
 
         expect(node.full).toBe(false);
 
-        let fillNode: IFillNode = helper.createFillNode();
+        let fillNode: SpatialImageEnt = helper.createFillNode();
 
         node.makeFull(fillNode);
 
@@ -41,7 +41,7 @@ describe("Node.full", () => {
     });
 
     it("should throw when fill is null", () => {
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         let node: Node = new Node(coreNode);
 
         expect(() => { node.makeFull(null); }).toThrowError(Error);
@@ -56,9 +56,9 @@ describe("Node.dispose", () => {
     });
 
     it("should clear core and fill properties", () => {
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         let node: Node = new Node(coreNode);
-        let fillNode: IFillNode = helper.createFillNode();
+        let fillNode: SpatialImageEnt = helper.createFillNode();
         node.makeFull(fillNode);
 
         node.dispose();
@@ -69,7 +69,7 @@ describe("Node.dispose", () => {
     });
 
     it("should dipose cache", () => {
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         let node: Node = new Node(coreNode);
         let nodeCache: NodeCache = new NodeCache(undefined);
 
@@ -92,14 +92,14 @@ describe("Node.uncache", () => {
     });
 
     it("should handle when cache is not initilized", () => {
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         let node: Node = new Node(coreNode);
 
         node.uncache();
     });
 
     it("should dispose node cache", () => {
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         let node: Node = new Node(coreNode);
         let nodeCache: NodeCache = new NodeCache(undefined);
 
@@ -114,7 +114,7 @@ describe("Node.uncache", () => {
     });
 
     it("should be able to initialize cache again after uncache", () => {
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         let node: Node = new Node(coreNode);
         let nodeCache: NodeCache = new NodeCache(undefined);
 
@@ -137,16 +137,16 @@ describe("Node.merged", () => {
     });
 
     it("should not be merged when not full", () => {
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         let node: Node = new Node(coreNode);
 
         expect(node.merged).toBe(false);
     });
 
     it("should not be merged because merge version is zero", () => {
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         let node: Node = new Node(coreNode);
-        let fillNode: IFillNode = helper.createFillNode();
+        let fillNode: SpatialImageEnt = helper.createFillNode();
 
         fillNode.merge_version = 0;
 
@@ -156,9 +156,9 @@ describe("Node.merged", () => {
     });
 
     it("should be merged because merge version present and larger than zero", () => {
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         let node: Node = new Node(coreNode);
-        let fillNode: IFillNode = helper.createFillNode();
+        let fillNode: SpatialImageEnt = helper.createFillNode();
 
         fillNode.merge_version = 7;
 
@@ -176,7 +176,7 @@ describe("Node.assetsCached", () => {
     });
 
     it("should not be cached when core", () => {
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         let node: Node = new Node(coreNode);
 
         expect(node.assetsCached).toBe(false);
@@ -184,7 +184,7 @@ describe("Node.assetsCached", () => {
 
     class NodeCacheMock extends NodeCache {
         protected _overridingImage: HTMLImageElement;
-        protected _overridingMesh: IMesh;
+        protected _overridingMesh: MeshEnt;
 
         constructor() { super(undefined); }
 
@@ -196,19 +196,19 @@ describe("Node.assetsCached", () => {
             this._overridingImage = value;
         }
 
-        public get mesh(): IMesh {
+        public get mesh(): MeshEnt {
             return this._overridingMesh;
         }
 
-        public set mesh(value: IMesh) {
+        public set mesh(value: MeshEnt) {
             this._overridingMesh = value;
         }
     }
 
     it("should be cached when assets set", () => {
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         let node: Node = new Node(coreNode);
-        let fillNode: IFillNode = helper.createFillNode();
+        let fillNode: SpatialImageEnt = helper.createFillNode();
         node.makeFull(fillNode);
 
         let nodeCache: NodeCacheMock = new NodeCacheMock();

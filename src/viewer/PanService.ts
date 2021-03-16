@@ -22,19 +22,19 @@ import {
 
 import * as Geo from "../geo/Geo";
 
-import { ILatLon } from "../api/interfaces/ILatLon";
+import { LatLonEnt } from "../api/ents/LatLonEnt";
 import { GeoCoords } from "../geo/GeoCoords";
 import { Spatial } from "../geo/Spatial";
 import { Transform } from "../geo/Transform";
 import { ViewportCoords } from "../geo/ViewportCoords";
-import { ILatLonAlt } from "../geo/interfaces/ILatLonAlt";
+import { LatLonAltEnt } from "../api/ents/LatLonAltEnt";
 import { GraphCalculator } from "../graph/GraphCalculator";
 import { GraphService } from "../graph/GraphService";
 import { Node } from "../graph/Node";
 import { StateService } from "../state/StateService";
-import { IFrame } from "../state/interfaces/IFrame";
+import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
-import { CameraProjectionType } from "../api/interfaces/CameraProjectionType";
+import { CameraType } from "../geo/interfaces/CameraType";
 import { isSpherical } from "../geo/Geo";
 
 enum PanMode {
@@ -132,7 +132,7 @@ export class PanService {
 
                     const current$: Observable<Node> = observableOf(current);
 
-                    const bounds: ILatLon[] = this._graphCalculator.boundingBoxCorners(current.latLon, 20);
+                    const bounds: LatLonEnt[] = this._graphCalculator.boundingBoxCorners(current.latLon, 20);
 
                     const adjacent$: Observable<Node[]> = this._graphService
                         .cacheBoundingBox$(bounds[0], bounds[1]).pipe(
@@ -176,7 +176,7 @@ export class PanService {
                     return observableCombineLatest(current$, adjacent$).pipe(
                         withLatestFrom(this._stateService.reference$),
                         map(
-                            ([[cn, adjacent], reference]: [[Node, Node[]], ILatLonAlt]): [Node, Transform, number][] => {
+                            ([[cn, adjacent], reference]: [[Node, Node[]], LatLonAltEnt]): [Node, Transform, number][] => {
                                 const currentDirection: THREE.Vector3 = this._spatial.viewingDirection(cn.rotation);
                                 const currentTranslation: number[] = Geo.computeTranslation(
                                     { lat: cn.latLon.lat, lon: cn.latLon.lon, alt: cn.alt },
@@ -289,7 +289,7 @@ export class PanService {
 
         this._panNodesSubscription = this._stateService.currentState$.pipe(
             map(
-                (frame: IFrame): boolean => {
+                (frame: AnimationFrame): boolean => {
                     return frame.state.nodesAhead > 0;
                 }),
             distinctUntilChanged(),
@@ -345,7 +345,7 @@ export class PanService {
             undefined,
             node.ck1,
             node.ck2,
-            <CameraProjectionType>node.cameraType);
+            <CameraType>node.cameraType);
     }
 
     private _computeProjectedPoints(transform: Transform): number[][] {

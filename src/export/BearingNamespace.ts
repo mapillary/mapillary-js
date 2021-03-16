@@ -1,2 +1,2 @@
 export { BearingComponent } from "../component/BearingComponent";
-export { IBearingConfiguration } from "../component/interfaces/IBearingConfiguration";
+export { BearingConfiguration } from "../component/interfaces/BearingConfiguration";

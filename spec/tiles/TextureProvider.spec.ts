@@ -2,7 +2,7 @@ import { empty as observableEmpty } from "rxjs";
 import * as THREE from "three";
 import { ImageTileLoader } from "../../src/tiles/ImageTileLoader";
 import { ImageTileStore } from "../../src/tiles/ImageTileStore";
-import { IRegionOfInterest } from "../../src/tiles/interfaces/IRegionOfInterest";
+import { TileRegionOfInterest } from "../../src/tiles/interfaces/TileRegionOfInterest";
 import { TextureProvider } from "../../src/tiles/TextureProvider";
 
 import { MockCreator } from "../helper/MockCreator";
@@ -77,7 +77,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 imageTileStore,
                 rendererMock);
 
-        let roi: IRegionOfInterest = {
+        let roi: TileRegionOfInterest = {
             bbox: { maxX: 0, maxY: 0, minX: 0, minY: 0 },
             pixelHeight: 1 / height,
             pixelWidth: 1 / width,
@@ -129,7 +129,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 imageTileStore,
                 rendererMock);
 
-        let roi: IRegionOfInterest = {
+        let roi: TileRegionOfInterest = {
             bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0 },
             pixelHeight: 1 / height / 4,
             pixelWidth: 1 / width / 4,
@@ -181,7 +181,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 imageTileStore,
                 rendererMock);
 
-        let roi: IRegionOfInterest = {
+        let roi: TileRegionOfInterest = {
             bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0 },
             pixelHeight: 2 / height,
             pixelWidth: 2 / width,
@@ -233,7 +233,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 imageTileStore,
                 rendererMock);
 
-        let roi: IRegionOfInterest = {
+        let roi: TileRegionOfInterest = {
             bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0 },
             pixelHeight: 2,
             pixelWidth: 2,
@@ -285,7 +285,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 imageTileStore,
                 rendererMock);
 
-        let roi: IRegionOfInterest = {
+        let roi: TileRegionOfInterest = {
             bbox: { maxX: 1, maxY: 1, minX: 1, minY: 0 },
             pixelHeight: 1 / height / 2,
             pixelWidth: 1 / width / 2,
@@ -337,7 +337,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 imageTileStore,
                 rendererMock);
 
-        let roi: IRegionOfInterest = {
+        let roi: TileRegionOfInterest = {
             bbox: { maxX: 1, maxY: 1, minX: 0, minY: 1 },
             pixelHeight: 1 / height / 2,
             pixelWidth: 1 / width / 2,
@@ -389,7 +389,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 imageTileStore,
                 rendererMock);
 
-        let roi: IRegionOfInterest = {
+        let roi: TileRegionOfInterest = {
             bbox: { maxX: 1, maxY: 1, minX: 1, minY: 1 },
             pixelHeight: 1 / height / 2,
             pixelWidth: 1 / width / 2,
@@ -441,7 +441,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 imageTileStore,
                 rendererMock);
 
-        let roi: IRegionOfInterest = {
+        let roi: TileRegionOfInterest = {
             bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0 },
             pixelHeight: 1 / tileSize,
             pixelWidth: 1 / tileSize,
@@ -493,7 +493,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 imageTileStore,
                 rendererMock);
 
-        let roi: IRegionOfInterest = {
+        let roi: TileRegionOfInterest = {
             bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0 },
             pixelHeight: 2 / tileSize,
             pixelWidth: 2 / tileSize,
@@ -545,7 +545,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 imageTileStore,
                 rendererMock);
 
-        let roi: IRegionOfInterest = {
+        let roi: TileRegionOfInterest = {
             bbox: { maxX: 0.75, maxY: 0.25, minX: 0.25, minY: 0 },
             pixelHeight: 1 / width,
             pixelWidth: 1 / height,
@@ -606,7 +606,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
                 imageTileStore,
                 rendererMock);
 
-        let roi: IRegionOfInterest = {
+        let roi: TileRegionOfInterest = {
             bbox: { maxX: 0.25, maxY: 0.75, minX: 0, minY: 0.25 },
             pixelHeight: 1 / width,
             pixelWidth: 1 / height,

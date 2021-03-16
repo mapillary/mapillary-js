@@ -1,8 +1,8 @@
 import { EdgeCalculator } from "../../../src/graph/edge/EdgeCalculator";
 import { EdgeCalculatorDirections } from "../../../src/graph/edge/EdgeCalculatorDirections";
 import { EdgeCalculatorSettings } from "../../../src/graph/edge/EdgeCalculatorSettings";
-import { EdgeDirection } from "../../../src/graph/edge/EdgeDirection";
-import { IEdge } from "../../../src/graph/edge/interfaces/IEdge";
+import { NavigationDirection } from "../../../src/graph/edge/NavigationDirection";
+import { NavigationEdge } from "../../../src/graph/edge/interfaces/NavigationEdge";
 import { Node } from "../../../src/graph/Node";
 import { Sequence } from "../../../src/graph/Sequence";
 import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper";
@@ -52,14 +52,14 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let node: Node = helper.createFullNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
         let sequence: Sequence = new Sequence({ key: sequenceKey, keys: [key, nextKey] });
 
-        let sequenceEdges: IEdge[] = edgeCalculator.computeSequenceEdges(node, sequence);
+        let sequenceEdges: NavigationEdge[] = edgeCalculator.computeSequenceEdges(node, sequence);
 
         expect(sequenceEdges.length).toBe(1);
 
-        let sequenceEdge: IEdge = sequenceEdges[0];
+        let sequenceEdge: NavigationEdge = sequenceEdges[0];
 
-        expect(sequenceEdge.to).toBe(nextKey);
-        expect(sequenceEdge.data.direction).toBe(EdgeDirection.Next);
+        expect(sequenceEdge.target).toBe(nextKey);
+        expect(sequenceEdge.data.direction).toBe(NavigationDirection.Next);
     });
 
     it("should return a prev edge", () => {
@@ -70,14 +70,14 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let node: Node = helper.createFullNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
         let sequence: Sequence = new Sequence({ key: sequenceKey, keys: [prevKey, key] });
 
-        let sequenceEdges: IEdge[] = edgeCalculator.computeSequenceEdges(node, sequence);
+        let sequenceEdges: NavigationEdge[] = edgeCalculator.computeSequenceEdges(node, sequence);
 
         expect(sequenceEdges.length).toBe(1);
 
-        let sequenceEdge: IEdge = sequenceEdges[0];
+        let sequenceEdge: NavigationEdge = sequenceEdges[0];
 
-        expect(sequenceEdge.to).toBe(prevKey);
-        expect(sequenceEdge.data.direction).toBe(EdgeDirection.Prev);
+        expect(sequenceEdge.target).toBe(prevKey);
+        expect(sequenceEdge.data.direction).toBe(NavigationDirection.Prev);
     });
 
     it("should return a prev and a next edge", () => {
@@ -90,15 +90,15 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let node: Node = helper.createFullNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
         let sequence: Sequence = new Sequence({ key: sequenceKey, keys: [prevKey, key, nextKey] });
 
-        let sequenceEdges: IEdge[] = edgeCalculator.computeSequenceEdges(node, sequence);
+        let sequenceEdges: NavigationEdge[] = edgeCalculator.computeSequenceEdges(node, sequence);
 
         expect(sequenceEdges.length).toBe(2);
 
         for (let sequenceEdge of sequenceEdges) {
-            if (sequenceEdge.to === prevKey) {
-                expect(sequenceEdge.data.direction).toBe(EdgeDirection.Prev);
-            } else if (sequenceEdge.to === nextKey) {
-                expect(sequenceEdge.data.direction).toBe(EdgeDirection.Next);
+            if (sequenceEdge.target === prevKey) {
+                expect(sequenceEdge.data.direction).toBe(NavigationDirection.Prev);
+            } else if (sequenceEdge.target === nextKey) {
+                expect(sequenceEdge.data.direction).toBe(NavigationDirection.Next);
             }
         }
     });

@@ -26,17 +26,17 @@ import { Component } from "../Component";
 import { Node } from "../../graph/Node";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
-import { ILatLon } from "../../api/interfaces/ILatLon";
+import { LatLonEnt } from "../../api/ents/LatLonEnt";
 import { GeoCoords } from "../../geo/GeoCoords";
-import { ILatLonAlt } from "../../geo/interfaces/ILatLonAlt";
+import { LatLonAltEnt } from "../../api/ents/LatLonAltEnt";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { GraphCalculator } from "../../graph/GraphCalculator";
 import { GLRenderStage } from "../../render/GLRenderStage";
-import { IGLRenderHash } from "../../render/interfaces/IGLRenderHash";
+import { GLRenderHash } from "../../render/interfaces/IGLRenderHash";
 import { RenderCamera } from "../../render/RenderCamera";
-import { IFrame } from "../../state/interfaces/IFrame";
-import { IMarkerConfiguration } from "../interfaces/IMarkerConfiguration";
-import { IMarkerEvent } from "./interfaces/IMarkerEvent";
+import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
+import { MarkerConfiguration } from "../interfaces/MarkerConfiguration";
+import { MarkerEvent } from "./interfaces/MarkerEvent";
 import { Marker } from "./marker/Marker";
 import { MarkerSet } from "./MarkerSet";
 import { MarkerScene } from "./MarkerScene";
@@ -73,13 +73,13 @@ import { MarkerScene } from "./MarkerScene";
  * var markerComponent = viewer.getComponent("marker");
  * ```
  */
-export class MarkerComponent extends Component<IMarkerConfiguration> {
+export class MarkerComponent extends Component<MarkerConfiguration> {
     public static componentName: string = "marker";
 
     /**
      * Fired when the position of a marker is changed.
      * @event
-     * @type {IMarkerEvent} markerEvent - Marker event data.
+     * @type {MarkerEvent} markerEvent - Marker event data.
      * @example
      * ```
      * markerComponent.on("changed", function(e) {
@@ -92,7 +92,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     /**
      * Fired when a marker drag interaction starts.
      * @event
-     * @type {IMarkerEvent} markerEvent - Marker event data.
+     * @type {MarkerEvent} markerEvent - Marker event data.
      * @example
      * ```
      * markerComponent.on("dragstart", function(e) {
@@ -105,7 +105,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     /**
      * Fired when a marker drag interaction ends.
      * @event
-     * @type {IMarkerEvent} markerEvent - Marker event data.
+     * @type {MarkerEvent} markerEvent - Marker event data.
      * @example
      * ```
      * markerComponent.on("dragend", function(e) {
@@ -268,7 +268,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
     protected _activate(): void {
         const groundAltitude$: Observable<number> = this._navigator.stateService.currentState$.pipe(
             map(
-                (frame: IFrame): number => {
+                (frame: AnimationFrame): number => {
                     return frame.state.camera.position.z + this._relativeGroundAltitude;
                 }),
             distinctUntilChanged(
@@ -286,22 +286,22 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                 publishReplay(1),
                 refCount());
 
-        const clampedConfiguration$: Observable<IMarkerConfiguration> = this._configuration$.pipe(
+        const clampedConfiguration$: Observable<MarkerConfiguration> = this._configuration$.pipe(
             map(
-                (configuration: IMarkerConfiguration): IMarkerConfiguration => {
+                (configuration: MarkerConfiguration): MarkerConfiguration => {
                     return { visibleBBoxSize: Math.max(1, Math.min(200, configuration.visibleBBoxSize)) };
                 }));
 
-        const currentlatLon$: Observable<ILatLon> = this._navigator.stateService.currentNode$.pipe(
-            map((node: Node): ILatLon => { return node.latLon; }),
+        const currentlatLon$: Observable<LatLonEnt> = this._navigator.stateService.currentNode$.pipe(
+            map((node: Node): LatLonEnt => { return node.latLon; }),
             publishReplay(1),
             refCount());
 
-        const visibleBBox$: Observable<[ILatLon, ILatLon]> = observableCombineLatest(
+        const visibleBBox$: Observable<[LatLonEnt, LatLonEnt]> = observableCombineLatest(
             clampedConfiguration$,
             currentlatLon$).pipe(
                 map(
-                    ([configuration, latLon]: [IMarkerConfiguration, ILatLon]): [ILatLon, ILatLon] => {
+                    ([configuration, latLon]: [MarkerConfiguration, LatLonEnt]): [LatLonEnt, LatLonEnt] => {
                         return this._graphCalculator
                             .boundingBoxCorners(latLon, configuration.visibleBBoxSize / 2);
                     }),
@@ -314,20 +314,20 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                 this._markerSet.changed$),
             visibleBBox$).pipe(
                 map(
-                    ([set, bbox]: [MarkerSet, [ILatLon, ILatLon]]): Marker[] => {
+                    ([set, bbox]: [MarkerSet, [LatLonEnt, LatLonEnt]]): Marker[] => {
                         return set.search(bbox);
                     }));
 
         this._setChangedSubscription = geoInitiated$.pipe(
             switchMap(
-                (): Observable<[Marker[], ILatLonAlt, number]> => {
+                (): Observable<[Marker[], LatLonAltEnt, number]> => {
                     return visibleMarkers$.pipe(
                         withLatestFrom(
                             this._navigator.stateService.reference$,
                             groundAltitude$));
                 }))
             .subscribe(
-                ([markers, reference, alt]: [Marker[], ILatLonAlt, number]): void => {
+                ([markers, reference, alt]: [Marker[], LatLonAltEnt, number]): void => {
                     const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
                     const sceneMarkers: { [id: string]: Marker } = markerScene.markers;
@@ -361,7 +361,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
         this._markersUpdatedSubscription = geoInitiated$.pipe(
             switchMap(
-                (): Observable<[Marker[], [ILatLon, ILatLon], ILatLonAlt, number]> => {
+                (): Observable<[Marker[], [LatLonEnt, LatLonEnt], LatLonAltEnt, number]> => {
                     return this._markerSet.updated$.pipe(
                         withLatestFrom(
                             visibleBBox$,
@@ -369,7 +369,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                             groundAltitude$));
                 }))
             .subscribe(
-                ([markers, [sw, ne], reference, alt]: [Marker[], [ILatLon, ILatLon], ILatLonAlt, number]): void => {
+                ([markers, [sw, ne], reference, alt]: [Marker[], [LatLonEnt, LatLonEnt], LatLonAltEnt, number]): void => {
                     const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
 
@@ -401,7 +401,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
             skip(1),
             withLatestFrom(groundAltitude$))
             .subscribe(
-                ([reference, alt]: [ILatLonAlt, number]): void => {
+                ([reference, alt]: [LatLonAltEnt, number]): void => {
                     const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
 
@@ -425,7 +425,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                 this._navigator.stateService.reference$,
                 currentlatLon$))
             .subscribe(
-                ([alt, reference, latLon]: [number, ILatLonAlt, ILatLon]): void => {
+                ([alt, reference, latLon]: [number, LatLonAltEnt, LatLonEnt]): void => {
                     const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
 
@@ -462,12 +462,12 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
 
         this._renderSubscription = this._navigator.stateService.currentState$.pipe(
             map(
-                (frame: IFrame): IGLRenderHash => {
+                (frame: AnimationFrame): GLRenderHash => {
                     const scene: MarkerScene = this._markerScene;
 
                     return {
                         name: this._name,
-                        render: {
+                        renderer: {
                             frameId: frame.id,
                             needsRender: scene.needsRender,
                             render: scene.render.bind(scene),
@@ -531,7 +531,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     const eventType: string = dragging ? MarkerComponent.dragstart : MarkerComponent.dragend;
                     const id: string = dragging ? current[1] : previous[1];
                     const marker: Marker = this._markerScene.get(id);
-                    const markerEvent: IMarkerEvent = { marker: marker, target: this, type: eventType };
+                    const markerEvent: MarkerEvent = { marker: marker, target: this, type: eventType };
 
                     this.fire(eventType, markerEvent);
                 });
@@ -597,7 +597,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     clampedConfiguration$))
             .subscribe(
                 ([event, [marker, offset, render], reference, configuration]:
-                    [MouseEvent, [Marker, number[], RenderCamera], ILatLonAlt, IMarkerConfiguration]): void => {
+                    [MouseEvent, [Marker, number[], RenderCamera], LatLonAltEnt, MarkerConfiguration]): void => {
                     if (!this._markerScene.has(marker.id)) {
                         return;
                     }
@@ -646,7 +646,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
                     this._markerScene.update(marker.id, intersection.toArray(), { lat: lat, lon: lon });
                     this._markerSet.update(marker);
 
-                    const markerEvent: IMarkerEvent = { marker: marker, target: this, type: MarkerComponent.changed };
+                    const markerEvent: MarkerEvent = { marker: marker, target: this, type: MarkerComponent.changed };
                     this.fire(MarkerComponent.changed, markerEvent);
                 });
     }
@@ -664,7 +664,7 @@ export class MarkerComponent extends Component<IMarkerConfiguration> {
         this._markerScene.clear();
     }
 
-    protected _getDefaultConfiguration(): IMarkerConfiguration {
+    protected _getDefaultConfiguration(): MarkerConfiguration {
         return { visibleBBoxSize: 100 };
     }
 }

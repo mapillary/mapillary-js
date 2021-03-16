@@ -29,18 +29,18 @@ import { GraphCalculator } from "./GraphCalculator";
 import { Node } from "./Node";
 import { NodeCache } from "./NodeCache";
 import { Sequence } from "./Sequence";
-import { IGraphConfiguration } from "./interfaces/IGraphConfiguration";
+import { GraphConfiguration } from "./interfaces/GraphConfiguration";
 import { EdgeCalculator } from "./edge/EdgeCalculator";
-import { IEdge } from "./edge/interfaces/IEdge";
-import { IPotentialEdge } from "./edge/interfaces/IPotentialEdge";
+import { NavigationEdge } from "./edge/interfaces/NavigationEdge";
+import { PotentialEdge } from "./edge/interfaces/PotentialEdge";
 
 import { APIWrapper } from "../api/APIWrapper";
-import { ICoreNode } from "../api/interfaces/ICoreNode";
-import { IFillNode } from "../api/interfaces/IFillNode";
-import { IFullNode } from "../api/interfaces/IFullNode";
-import { ISequence } from "../api/interfaces/ISequence";
-import { ILatLon } from "../api/interfaces/ILatLon";
+import { CoreImageEnt } from "../api/ents/CoreImageEnt";
+import { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
+import { ImageEnt } from "../api/ents/ImageEnt";
+import { LatLonEnt } from "../api/ents/LatLonEnt";
 import { GraphMapillaryError } from "../error/GraphMapillaryError";
+import { SequenceEnt } from "../api/ents/SequenceEnt";
 
 type NodeTiles = {
     cache: string[];
@@ -144,7 +144,7 @@ export class Graph {
     private _defaultAlt: number;
     private _edgeCalculator: EdgeCalculator;
     private _graphCalculator: GraphCalculator;
-    private _configuration: IGraphConfiguration;
+    private _configuration: GraphConfiguration;
 
     private _filter: FilterFunction;
     private _filterCreator: FilterCreator;
@@ -202,7 +202,7 @@ export class Graph {
      * @param {GraphCalculator} [graphCalculator] - Instance for graph calculations.
      * @param {EdgeCalculator} [edgeCalculator] - Instance for edge calculations.
      * @param {FilterCreator} [filterCreator] - Instance for  filter creation.
-     * @param {IGraphConfiguration} [configuration] - Configuration struct.
+     * @param {GraphConfiguration} [configuration] - Configuration struct.
      */
     constructor(
         api: APIWrapper,
@@ -210,7 +210,7 @@ export class Graph {
         graphCalculator?: GraphCalculator,
         edgeCalculator?: EdgeCalculator,
         filterCreator?: FilterCreator,
-        configuration?: IGraphConfiguration) {
+        configuration?: GraphConfiguration) {
 
         this._api = api;
 
@@ -307,12 +307,12 @@ export class Graph {
      *
      * @description The node assets are not cached.
      *
-     * @param {ILatLon} sw - South west corner of bounding box.
-     * @param {ILatLon} ne - North east corner of bounding box.
+     * @param {LatLonEnt} sw - South west corner of bounding box.
+     * @param {LatLonEnt} ne - North east corner of bounding box.
      * @returns {Observable<Array<Node>>} Observable emitting
      * the full nodes in the bounding box.
      */
-    public cacheBoundingBox$(sw: ILatLon, ne: ILatLon): Observable<Node[]> {
+    public cacheBoundingBox$(sw: LatLonEnt, ne: LatLonEnt): Observable<Node[]> {
         const cacheTiles$: Observable<Graph>[] = this._api.data.geometry.bboxToCellIds(sw, ne)
             .filter(
                 (h: string): boolean => {
@@ -369,7 +369,7 @@ export class Graph {
                             (batch: string[]): Observable<Node[]> => {
                                 return this._api.imageByKeyFill$(batch).pipe(
                                     map(
-                                        (imageByKeyFill: { [key: string]: IFillNode }): Node[] => {
+                                        (imageByKeyFill: { [key: string]: SpatialImageEnt }): Node[] => {
                                             const filledNodes: Node[] = [];
 
                                             for (const fillKey in imageByKeyFill) {
@@ -445,7 +445,7 @@ export class Graph {
                 const fillNodes$ = coreNodeBatches
                     .map((batch: string[]): Observable<Node[]> => {
                         return this._api.imageByKeyFill$(batch).pipe(
-                            map((nodes: { [key: string]: IFillNode }):
+                            map((nodes: { [key: string]: SpatialImageEnt }):
                                 Node[] => {
                                 const filled: Node[] = [];
                                 for (const key in nodes) {
@@ -506,7 +506,7 @@ export class Graph {
 
         this._cachingFill$[key] = this._api.imageByKeyFill$([key]).pipe(
             tap(
-                (imageByKeyFill: { [key: string]: IFillNode }): void => {
+                (imageByKeyFill: { [key: string]: SpatialImageEnt }): void => {
                     if (!node.full) {
                         this._makeFull(node, imageByKeyFill[key]);
                     }
@@ -514,7 +514,7 @@ export class Graph {
                     delete this._cachingFill$[key];
                 }),
             map(
-                (imageByKeyFill: { [key: string]: IFillNode }): Graph => {
+                (imageByKeyFill: { [key: string]: SpatialImageEnt }): Graph => {
                     return this;
                 }),
             finalize(
@@ -551,8 +551,8 @@ export class Graph {
 
         this._cachingFull$[key] = this._api.imageByKeyFull$([key]).pipe(
             tap(
-                (imageByKeyFull: { [key: string]: IFullNode }): void => {
-                    let fn: IFullNode = imageByKeyFull[key];
+                (imageByKeyFull: { [key: string]: ImageEnt }): void => {
+                    let fn: ImageEnt = imageByKeyFull[key];
 
                     if (this.hasNode(key)) {
                         let node: Node = this.getNode(key);
@@ -576,7 +576,7 @@ export class Graph {
                     }
                 }),
             map(
-                (imageByKeyFull: { [key: string]: IFullNode }): Graph => {
+                (imageByKeyFull: { [key: string]: ImageEnt }): Graph => {
                     return this;
                 }),
             finalize(
@@ -647,7 +647,7 @@ export class Graph {
         }
 
         let sequence: Sequence = this._sequences[node.sequenceKey].sequence;
-        let edges: IEdge[] = this._edgeCalculator.computeSequenceEdges(node, sequence);
+        let edges: NavigationEdge[] = this._edgeCalculator.computeSequenceEdges(node, sequence);
 
         node.cacheSequenceEdges(edges);
     }
@@ -702,13 +702,13 @@ export class Graph {
                 (batch: string[]): Observable<Graph> => {
                     return this._api.imageByKeyFull$(batch).pipe(
                         tap(
-                            (imageByKeyFull: { [key: string]: IFullNode }): void => {
+                            (imageByKeyFull: { [key: string]: ImageEnt }): void => {
                                 for (const fullKey in imageByKeyFull) {
                                     if (!imageByKeyFull.hasOwnProperty(fullKey)) {
                                         continue;
                                     }
 
-                                    const fn: IFullNode = imageByKeyFull[fullKey];
+                                    const fn: ImageEnt = imageByKeyFull[fullKey];
 
                                     if (this.hasNode(fullKey)) {
                                         const node: Node = this.getNode(fn.key);
@@ -733,7 +733,7 @@ export class Graph {
                                 batchesToCache--;
                             }),
                         map(
-                            (imageByKeyFull: { [key: string]: IFullNode }): Graph => {
+                            (imageByKeyFull: { [key: string]: ImageEnt }): Graph => {
                                 return this;
                             }));
                 },
@@ -797,7 +797,7 @@ export class Graph {
         for (let batch of batches) {
             let spatialNodeBatch$: Observable<Graph> = this._api.imageByKeyFill$(batch).pipe(
                 tap(
-                    (imageByKeyFill: { [key: string]: IFillNode }): void => {
+                    (imageByKeyFill: { [key: string]: SpatialImageEnt }): void => {
                         for (let fillKey in imageByKeyFill) {
                             if (!imageByKeyFill.hasOwnProperty(fillKey)) {
                                 continue;
@@ -809,7 +809,7 @@ export class Graph {
                                 continue;
                             }
 
-                            let fillNode: IFillNode = imageByKeyFill[fillKey];
+                            let fillNode: SpatialImageEnt = imageByKeyFill[fillKey];
                             this._makeFull(spatialNode, fillNode);
 
                             delete spatialArea.cacheNodes[fillKey];
@@ -820,7 +820,7 @@ export class Graph {
                         }
                     }),
                 map(
-                    (imageByKeyFill: { [key: string]: IFillNode }): Graph => {
+                    (imageByKeyFill: { [key: string]: SpatialImageEnt }): Graph => {
                         return this;
                     }),
                 catchError(
@@ -899,10 +899,10 @@ export class Graph {
             }
         }
 
-        let potentialEdges: IPotentialEdge[] =
+        let potentialEdges: PotentialEdge[] =
             this._edgeCalculator.getPotentialEdges(node, potentialNodes, fallbackKeys);
 
-        let edges: IEdge[] =
+        let edges: NavigationEdge[] =
             this._edgeCalculator.computeStepEdges(
                 node,
                 potentialEdges,
@@ -1195,7 +1195,7 @@ export class Graph {
         }
 
         let node: Node = this.getNode(key);
-        let bbox: [ILatLon, ILatLon] = this._graphCalculator.boundingBoxCorners(node.latLon, this._tileThreshold);
+        let bbox: [LatLonEnt, LatLonEnt] = this._graphCalculator.boundingBoxCorners(node.latLon, this._tileThreshold);
 
         let spatialItems: NodeIndexItem[] = this._nodeIndex.search({
             maxX: bbox[1].lat,
@@ -1628,7 +1628,7 @@ export class Graph {
 
         this._cachingSequences$[sequenceKey] = this._api.sequenceByKey$([sequenceKey]).pipe(
             tap(
-                (sequenceByKey: { [sequenceKey: string]: ISequence }): void => {
+                (sequenceByKey: { [sequenceKey: string]: SequenceEnt }): void => {
                     if (!(sequenceKey in this._sequences)) {
                         this._sequences[sequenceKey] = {
                             accessed: new Date().getTime(),
@@ -1639,7 +1639,7 @@ export class Graph {
                     delete this._cachingSequences$[sequenceKey];
                 }),
             map(
-                (sequenceByKey: { [sequenceKey: string]: ISequence }): Graph => {
+                (sequenceByKey: { [sequenceKey: string]: SequenceEnt }): Graph => {
                     return this;
                 }),
             finalize(
@@ -1659,8 +1659,8 @@ export class Graph {
     private _cacheTile$(h: string): Observable<Graph> {
         this._cachingTiles$[h] = this._api.imagesByH$(h).pipe(
             tap(
-                (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): void => {
-                    let coreNodes: { [index: string]: ICoreNode } = imagesByH[h];
+                (imagesByH: { [key: string]: { [index: string]: CoreImageEnt } }): void => {
+                    let coreNodes: { [index: string]: CoreImageEnt } = imagesByH[h];
 
                     if (h in this._cachedTiles) {
                         return;
@@ -1676,7 +1676,7 @@ export class Graph {
                             continue;
                         }
 
-                        let coreNode: ICoreNode = coreNodes[index];
+                        let coreNode: CoreImageEnt = coreNodes[index];
 
                         if (coreNode == null) {
                             break;
@@ -1727,7 +1727,7 @@ export class Graph {
                     delete this._cachingTiles$[h];
                 }),
             map(
-                (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): Graph => {
+                (imagesByH: { [key: string]: { [index: string]: CoreImageEnt } }): Graph => {
                     return this;
                 }),
             catchError(
@@ -1742,7 +1742,7 @@ export class Graph {
         return this._cachingTiles$[h];
     }
 
-    private _makeFull(node: Node, fillNode: IFillNode): void {
+    private _makeFull(node: Node, fillNode: SpatialImageEnt): void {
         if (fillNode.calt == null) {
             fillNode.calt = this._defaultAlt;
         }
@@ -1873,7 +1873,7 @@ export class Graph {
     private _updateCell$(cellId: string): Observable<string> {
         return this._api.imagesByH$(cellId).pipe(
             mergeMap(
-                (imagesByH: { [key: string]: { [index: string]: ICoreNode } }): Observable<string> => {
+                (imagesByH: { [key: string]: { [index: string]: CoreImageEnt } }): Observable<string> => {
                     if (!(cellId in this._cachedTiles)) {
                         return observableEmpty();
                     }

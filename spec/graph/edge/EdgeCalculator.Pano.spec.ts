@@ -2,9 +2,9 @@ import { Node } from "../../../src/graph/Node";
 import { EdgeCalculator } from "../../../src/graph/edge/EdgeCalculator";
 import { EdgeCalculatorDirections } from "../../../src/graph/edge/EdgeCalculatorDirections";
 import { EdgeCalculatorSettings } from "../../../src/graph/edge/EdgeCalculatorSettings";
-import { IPotentialEdge } from "../../../src/graph/edge/interfaces/IPotentialEdge";
+import { PotentialEdge } from "../../../src/graph/edge/interfaces/PotentialEdge";
 import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper";
-import { EdgeDirection } from "../../../src/graph/edge/EdgeDirection";
+import { NavigationDirection } from "../../../src/graph/edge/NavigationDirection";
 
 describe("EdgeCalculator.computeSphericalEdges", () => {
     let edgeCalculator: EdgeCalculator;
@@ -14,7 +14,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
     let helper: EdgeCalculatorHelper;
 
     let node: Node;
-    let potentialEdge1: IPotentialEdge;
+    let potentialEdge1: PotentialEdge;
 
     beforeEach(() => {
         settings = new EdgeCalculatorSettings();
@@ -52,8 +52,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.Spherical);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
     it("should have a spherical edge irrespective of rotation", () => {
@@ -65,8 +65,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.Spherical);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
     it("should not have a spherical edge with to long distance", () => {
@@ -91,7 +91,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
 
         for (let sphericalEdge of sphericalEdges) {
-            expect(sphericalEdge.data.direction === EdgeDirection.Spherical).toBe(false);
+            expect(sphericalEdge.data.direction === NavigationDirection.Spherical).toBe(false);
         }
     });
 
@@ -112,8 +112,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
     let helper: EdgeCalculatorHelper;
 
     let node: Node;
-    let potentialEdge1: IPotentialEdge;
-    let potentialEdge2: IPotentialEdge;
+    let potentialEdge1: PotentialEdge;
+    let potentialEdge2: PotentialEdge;
 
     beforeEach(() => {
         settings = new EdgeCalculatorSettings();
@@ -152,8 +152,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge2.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.Spherical);
+        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
     it("should have a spherical edge closest to preferred distance", () => {
@@ -166,8 +166,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge2.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.Spherical);
+        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
     it("should have a spherical edge with same sequence", () => {
@@ -180,8 +180,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge2.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.Spherical);
+        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
     it("should have a spherical edge with same sequence", () => {
@@ -194,8 +194,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge2.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.Spherical);
+        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
     it("should have a spherical edge with smallest motion change", () => {
@@ -208,8 +208,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge2.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.Spherical);
+        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 });
 
@@ -222,10 +222,10 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
     let node: Node;
 
-    let potentialEdge1: IPotentialEdge;
-    let potentialEdge2: IPotentialEdge;
-    let potentialEdge3: IPotentialEdge;
-    let potentialEdge4: IPotentialEdge;
+    let potentialEdge1: PotentialEdge;
+    let potentialEdge2: PotentialEdge;
+    let potentialEdge3: PotentialEdge;
+    let potentialEdge4: PotentialEdge;
 
     beforeEach(() => {
         settings = new EdgeCalculatorSettings();
@@ -276,8 +276,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge4.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.Spherical);
+        expect(sphericalEdge.target).toBe(potentialEdge4.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
     it("should have a spherical edge in four directions", () => {
@@ -302,12 +302,12 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         for (let key of keys) {
             let edge = null;
             for (let sphericalEdge of sphericalEdges) {
-                if (sphericalEdge.to === key) {
+                if (sphericalEdge.target === key) {
                     edge = sphericalEdge;
                 }
             }
 
-            expect(edge.data.direction).toBe(EdgeDirection.Spherical);
+            expect(edge.data.direction).toBe(NavigationDirection.Spherical);
         }
     });
 
@@ -331,12 +331,12 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         for (let key of keys) {
             let edge = null;
             for (let sphericalEdge of sphericalEdges) {
-                if (sphericalEdge.to === key) {
+                if (sphericalEdge.target === key) {
                     edge = sphericalEdge;
                 }
             }
 
-            expect(edge.data.direction).toBe(EdgeDirection.Spherical);
+            expect(edge.data.direction).toBe(NavigationDirection.Spherical);
         }
     });
 
@@ -352,8 +352,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.Spherical);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 });
 
@@ -365,7 +365,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
     let helper: EdgeCalculatorHelper;
 
     let node: Node;
-    let potentialEdge1: IPotentialEdge;
+    let potentialEdge1: PotentialEdge;
 
     beforeEach(() => {
         settings = new EdgeCalculatorSettings();
@@ -402,8 +402,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should have a step left edge", () => {
@@ -416,8 +416,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepLeft);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepLeft);
     });
 
     it("should have a step left edge for direction change", () => {
@@ -430,8 +430,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepLeft);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepLeft);
     });
 
     it("should have a step right edge", () => {
@@ -444,8 +444,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepRight);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepRight);
     });
 
     it("should have a step right edge for direction change", () => {
@@ -458,8 +458,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepRight);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepRight);
     });
 
     it("should have a step backward edge", () => {
@@ -472,8 +472,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepBackward);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepBackward);
     });
 
     it("should have a step backward edge for direction change", () => {
@@ -486,8 +486,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepBackward);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepBackward);
     });
 
     it("should have a step forward edge in opposite motion direction", () => {
@@ -500,8 +500,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should have a step forward edge in perpendicular motion direction", () => {
@@ -514,8 +514,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should have a step forward edge in perpendicular motion direction", () => {
@@ -528,8 +528,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should not have a step forward edge when turn is to large", () => {
@@ -577,8 +577,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
     let helper: EdgeCalculatorHelper;
 
     let node: Node;
-    let potentialEdge1: IPotentialEdge;
-    let potentialEdge2: IPotentialEdge;
+    let potentialEdge1: PotentialEdge;
+    let potentialEdge2: PotentialEdge;
 
     beforeEach(() => {
         settings = new EdgeCalculatorSettings();
@@ -619,8 +619,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge2.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should prefer a step forward edge with preferred distance", () => {
@@ -633,8 +633,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge2.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should prefer a step forward edge with smaller motion change", () => {
@@ -647,8 +647,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge2.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should prefer a step forward edge with smaller motion change", () => {
@@ -661,8 +661,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge2.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
     it("should prefer a step forward edge with same merge connected component", () => {
@@ -675,8 +675,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge2.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 });
 
@@ -689,10 +689,10 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
     let node: Node;
 
-    let potentialEdge1: IPotentialEdge;
-    let potentialEdge2: IPotentialEdge;
-    let potentialEdge3: IPotentialEdge;
-    let potentialEdge4: IPotentialEdge;
+    let potentialEdge1: PotentialEdge;
+    let potentialEdge2: PotentialEdge;
+    let potentialEdge3: PotentialEdge;
+    let potentialEdge4: PotentialEdge;
 
     beforeEach(() => {
         settings = new EdgeCalculatorSettings();
@@ -742,14 +742,14 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         expect(sphericalEdges.length).toBe(4);
 
         for (let sphericalEdge of sphericalEdges) {
-            if (sphericalEdge.to === potentialEdge1.key) {
-                expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepForward);
-            } else if (sphericalEdge.to === potentialEdge2.key) {
-                expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepLeft);
-            } else if (sphericalEdge.to === potentialEdge3.key) {
-                expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepBackward);
-            } else if (sphericalEdge.to === potentialEdge4.key) {
-                expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepRight);
+            if (sphericalEdge.target === potentialEdge1.key) {
+                expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
+            } else if (sphericalEdge.target === potentialEdge2.key) {
+                expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepLeft);
+            } else if (sphericalEdge.target === potentialEdge3.key) {
+                expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepBackward);
+            } else if (sphericalEdge.target === potentialEdge4.key) {
+                expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepRight);
             }
         }
     });
@@ -769,8 +769,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.Spherical);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
     it("should not have a step left or right edge based on step forward edges", () => {
@@ -791,8 +791,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.StepForward);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 });
 
@@ -804,8 +804,8 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
     let helper: EdgeCalculatorHelper;
 
     let node: Node;
-    let potentialEdge1: IPotentialEdge;
-    let potentialEdge2: IPotentialEdge;
+    let potentialEdge1: PotentialEdge;
+    let potentialEdge2: PotentialEdge;
 
     beforeEach(() => {
         settings = new EdgeCalculatorSettings();
@@ -841,8 +841,8 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge1.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.Spherical);
+        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
     it("should not return a spherical edge when node is spherical", () => {
@@ -869,8 +869,8 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge2.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.Spherical);
+        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
     it("should return the spherical edge preferring forward motion", () => {
@@ -883,8 +883,8 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge2.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.Spherical);
+        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
     it("should return the spherical edge preferring same connected component", () => {
@@ -897,7 +897,7 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.to).toBe(potentialEdge2.key);
-        expect(sphericalEdge.data.direction).toBe(EdgeDirection.Spherical);
+        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 });

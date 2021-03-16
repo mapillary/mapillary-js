@@ -3,7 +3,7 @@ import { Alignment } from "../../../viewer/Alignment";
 
 import { PolygonGeometry } from "../geometry/PolygonGeometry";
 import { VertexGeometry } from "../geometry/VertexGeometry";
-import { IOutlineTagOptions } from "../interfaces/IOutlineTagOptions";
+import { OutlineTagOptions } from "../interfaces/OutlineTagOptions";
 
 import { Tag } from "./Tag";
 import { TagDomain } from "./TagDomain";
@@ -59,10 +59,10 @@ export class OutlineTag extends Tag {
      * @constructor
      * @param {string} id - Unique identifier of the tag.
      * @param {VertexGeometry} geometry - Geometry defining vertices of tag.
-     * @param {IOutlineTagOptions} options - Options defining the visual appearance and
+     * @param {OutlineTagOptions} options - Options defining the visual appearance and
      * behavior of the outline tag.
      */
-    constructor(id: string, geometry: VertexGeometry, options?: IOutlineTagOptions) {
+    constructor(id: string, geometry: VertexGeometry, options?: OutlineTagOptions) {
         super(id, geometry);
 
         options = !!options ? options : {};
@@ -362,11 +362,11 @@ export class OutlineTag extends Tag {
      * @description Sets all the option properties provided and keeps
      * the rest of the values as is.
      *
-     * @param {IOutlineTagOptions} options - Outline tag options
+     * @param {OutlineTagOptions} options - Outline tag options
      *
      * @fires {Tag#changed}
      */
-    public setOptions(options: IOutlineTagOptions): void {
+    public setOptions(options: OutlineTagOptions): void {
         const twoDimensionalPolygon: boolean = this._twoDimensionalPolygon(this._domain, this._geometry);
 
         this._editable = twoDimensionalPolygon || options.editable == null ? this._editable : options.editable;

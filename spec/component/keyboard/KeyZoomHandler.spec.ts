@@ -11,24 +11,24 @@ import { TransformHelper } from "../../helper/TransformHelper";
 import { Navigator } from "../../../src/viewer/Navigator";
 import { Transform } from "../../../src/geo/Transform";
 import { Component } from "../../../src/component/Component";
-import { IComponentConfiguration } from "../../../src/component/interfaces/IComponentConfiguration";
+import { ComponentConfiguration } from "../../../src/component/interfaces/ComponentConfiguration";
 import { KeyZoomHandler } from "../../../src/component/keyboard/KeyZoomHandler";
 import { ViewportCoords } from "../../../src/geo/ViewportCoords";
 import { RenderCamera } from "../../../src/render/RenderCamera";
 import { Container } from "../../../src/viewer/Container";
 import { RenderMode } from "../../../src/render/RenderMode";
 
-interface ITestConfiguration extends IComponentConfiguration {
+interface TestConfiguration extends ComponentConfiguration {
     test: boolean;
 }
 
-class TestComponent extends Component<ITestConfiguration> {
+class TestComponent extends Component<TestConfiguration> {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
     }
     protected _activate(): void { /* noop */ }
     protected _deactivate(): void { /* noop */ }
-    protected _getDefaultConfiguration(): ITestConfiguration { return { test: false }; }
+    protected _getDefaultConfiguration(): TestConfiguration { return { test: false }; }
 }
 
 describe("KeyZoomHandler.ctor", () => {

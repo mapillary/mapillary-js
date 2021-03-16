@@ -19,11 +19,11 @@ import { Transform } from "../../geo/Transform";
 import { Node } from "../../graph/Node";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { RenderCamera } from "../../render/RenderCamera";
-import { IFrame } from "../../state/interfaces/IFrame";
+import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
-import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
+import { MouseConfiguration } from "../interfaces/MouseConfiguration";
 import { HandlerBase } from "../utils/HandlerBase";
 import { Spatial } from "../../geo/Spatial";
 import * as ImageBoundary from "./ImageBoundary";
@@ -32,14 +32,14 @@ import * as ImageBoundary from "./ImageBoundary";
  * The `BounceHandler` ensures that the viewer bounces back to the image
  * when drag panning outside of the image edge.
  */
-export class BounceHandler extends HandlerBase<IMouseConfiguration> {
+export class BounceHandler extends HandlerBase<MouseConfiguration> {
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
 
     private _bounceSubscription: Subscription;
 
     constructor(
-        component: Component<IMouseConfiguration>,
+        component: Component<MouseConfiguration>,
         container: Container,
         navigator: Navigator,
         viewportCoords: ViewportCoords,
@@ -53,7 +53,7 @@ export class BounceHandler extends HandlerBase<IMouseConfiguration> {
     protected _enable(): void {
         const inTransition$: Observable<boolean> = this._navigator.stateService.currentState$.pipe(
             map(
-                (frame: IFrame): boolean => {
+                (frame: AnimationFrame): boolean => {
                     return frame.state.alpha < 1;
                 }),
             distinctUntilChanged());
@@ -141,7 +141,7 @@ export class BounceHandler extends HandlerBase<IMouseConfiguration> {
         this._bounceSubscription.unsubscribe();
     }
 
-    protected _getConfiguration(): IMouseConfiguration {
+    protected _getConfiguration(): MouseConfiguration {
         return {};
     }
 }

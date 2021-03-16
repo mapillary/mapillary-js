@@ -1,6 +1,6 @@
 import { S2 } from "s2-geometry";
-import { ICellCorners } from "../../src/api/interfaces/ICellCorners";
-import { ILatLon } from "../../src/api/interfaces/ILatLon";
+import { CellCorners } from "../../src/api/interfaces/CellCorners";
+import { LatLonEnt } from "../../src/api/ents/LatLonEnt";
 import { S2GeometryProvider } from "../../src/api/S2GeometryProvider";
 import { MapillaryError } from "../../src/error/MapillaryError";
 import { GeoCoords } from "../../src/geo/GeoCoords";
@@ -217,7 +217,7 @@ describe("S2GeometryProvider.getCorners", () => {
     it("should be correctly placed relative to each other", () => {
         const geometry: S2GeometryProvider = new S2GeometryProvider();
 
-        const latLons: ILatLon[] = [
+        const latLons: LatLonEnt[] = [
             { lat: 0, lon: 0 },
             { lat: 45, lon: 0 },
             { lat: 0, lon: 45 },
@@ -232,7 +232,7 @@ describe("S2GeometryProvider.getCorners", () => {
 
         for (let latLon of latLons) {
             const cellId: string = geometry.latLonToCellId(latLon);
-            const corners: ICellCorners = geometry.getCorners(cellId);
+            const corners: CellCorners = geometry.getCorners(cellId);
 
             expect(corners.se.lat).toBeLessThan(corners.ne.lat);
             expect(corners.se.lat).toBeLessThan(corners.nw.lat);

@@ -1,10 +1,10 @@
 import { NodeHelper } from "../helper/NodeHelper";
 
 import { Node } from "../../src/graph/Node";
-import { ICoreNode } from "../../src/api/interfaces/ICoreNode";
-import { IFullNode } from "../../src/api/interfaces/IFullNode";
-import { IRotation } from "../../src/state/interfaces/IRotation";
-import { IState } from "../../src/state/interfaces/IState";
+import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
+import { ImageEnt } from "../../src/api/ents/ImageEnt";
+import { EulerRotation } from "../../src/state/interfaces/EulerRotation";
+import { IStateBase } from "../../src/state/interfaces/IStateBase";
 import { StateBase } from "../../src/state/states/StateBase";
 import { Camera } from "../../src/geo/Camera";
 import { TransitionMode } from "../../src/state/TransitionMode";
@@ -15,9 +15,9 @@ class TestStateBase extends StateBase {
     public waitInteractively(): StateBase { return null; }
     public move(delta: number): void { return; }
     public moveTo(position: number): void { return; }
-    public rotate(delta: IRotation): void { return; }
-    public rotateUnbounded(delta: IRotation): void { return; }
-    public rotateWithoutInertia(delta: IRotation): void { return; }
+    public rotate(delta: EulerRotation): void { return; }
+    public rotateUnbounded(delta: EulerRotation): void { return; }
+    public rotateWithoutInertia(delta: EulerRotation): void { return; }
     public rotateBasic(basicRotation: number[]): void { return; }
     public rotateBasicUnbounded(basic: number[]): void { return; }
     public rotateBasicWithoutInertia(basic: number[]): void { return; }
@@ -34,7 +34,7 @@ class TestStateBase extends StateBase {
 }
 
 class TestNode extends Node {
-    constructor(core: ICoreNode) {
+    constructor(core: CoreImageEnt) {
         super(core);
     }
 
@@ -47,7 +47,7 @@ class TestNode extends Node {
     }
 }
 
-let createState: () => IState = (): IState => {
+let createState: () => IStateBase = (): IStateBase => {
     return {
         alpha: 1,
         camera: new Camera(),
@@ -69,12 +69,12 @@ let createFullNode: () => Node = (): Node => {
 
 describe("StateBase.transitionMode", () => {
     it("should set transition mode", () => {
-        const state1: IState = createState();
+        const state1: IStateBase = createState();
         const stateBase1: TestStateBase = new TestStateBase(state1);
 
         expect(stateBase1.transitionMode).toBe(TransitionMode.Default);
 
-        const state2: IState = createState();
+        const state2: IStateBase = createState();
         state2.transitionMode = TransitionMode.Instantaneous;
         const stateBase2: TestStateBase = new TestStateBase(state2);
 
@@ -84,25 +84,25 @@ describe("StateBase.transitionMode", () => {
 
 describe("StateBase.motionlessTransition", () => {
     it("should be false if not both nodes set", () => {
-        const state: IState = createState();
+        const state: IStateBase = createState();
         const stateBase: TestStateBase = new TestStateBase(state);
 
         expect(stateBase.motionlessTransition()).toBe(false);
     });
 
     it("should be false if nodes in same connected component", () => {
-        const state: IState = createState();
+        const state: IStateBase = createState();
         const stateBase: TestStateBase = new TestStateBase(state);
 
         const helper: NodeHelper = new NodeHelper();
 
-        const fullNode1: IFullNode = helper.createFullNode();
+        const fullNode1: ImageEnt = helper.createFullNode();
         fullNode1.merge_cc = 1;
         fullNode1.merge_version = 1;
         const node1: Node = new TestNode(fullNode1);
         node1.makeFull(fullNode1);
 
-        const fullNode2: IFullNode = helper.createFullNode();
+        const fullNode2: ImageEnt = helper.createFullNode();
         fullNode2.merge_cc = 1;
         fullNode2.merge_version = 1;
         const node2: Node = new TestNode(fullNode2);
@@ -115,19 +115,19 @@ describe("StateBase.motionlessTransition", () => {
     });
 
     it("should be true if instantaneous transition mode", () => {
-        const state: IState = createState();
+        const state: IStateBase = createState();
         state.transitionMode = TransitionMode.Instantaneous;
         const stateBase: TestStateBase = new TestStateBase(state);
 
         const helper: NodeHelper = new NodeHelper();
 
-        const fullNode1: IFullNode = helper.createFullNode();
+        const fullNode1: ImageEnt = helper.createFullNode();
         fullNode1.merge_cc = 1;
         fullNode1.merge_version = 1;
         const node1: Node = new TestNode(fullNode1);
         node1.makeFull(fullNode1);
 
-        const fullNode2: IFullNode = helper.createFullNode();
+        const fullNode2: ImageEnt = helper.createFullNode();
         fullNode2.merge_cc = 1;
         fullNode2.merge_version = 1;
         const node2: Node = new TestNode(fullNode2);
@@ -142,7 +142,7 @@ describe("StateBase.motionlessTransition", () => {
 
 describe("StateBase.set", () => {
     it("should set current node", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
         let stateBase: TestStateBase = new TestStateBase(state);
 
         let node: Node = createFullNode();
@@ -154,7 +154,7 @@ describe("StateBase.set", () => {
     });
 
     it("should set multiple nodes", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
         let stateBase: TestStateBase = new TestStateBase(state);
 
         stateBase.set([
@@ -177,14 +177,14 @@ describe("StateBase.remove", () => {
     });
 
     it("should throw when removing negative number", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
         let stateBase: TestStateBase = new TestStateBase(state);
 
         expect((): void => { stateBase.remove(-1); }).toThrowError(Error);
     });
 
     it("should throw when removing current node", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
         let stateBase: TestStateBase = new TestStateBase(state);
 
         let node: Node = createFullNode();
@@ -194,7 +194,7 @@ describe("StateBase.remove", () => {
     });
 
     it("should throw when removing previous node", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
@@ -205,11 +205,11 @@ describe("StateBase.remove", () => {
     });
 
     it("should remove one node", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         coreNode.key = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
@@ -226,11 +226,11 @@ describe("StateBase.remove", () => {
     });
 
     it("should remove multiple nodes", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         coreNode.key = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
@@ -260,7 +260,7 @@ describe("StateBase.clear", () => {
     });
 
     it("should clear empty state without affecting it", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
         let stateBase: TestStateBase = new TestStateBase(state);
 
         stateBase.clear();
@@ -269,11 +269,11 @@ describe("StateBase.clear", () => {
     });
 
     it("should remove one previous node", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         coreNode.key = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
@@ -290,11 +290,11 @@ describe("StateBase.clear", () => {
     });
 
     it("should remove multiple previous nodes", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         coreNode.key = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
@@ -316,11 +316,11 @@ describe("StateBase.clear", () => {
     });
 
     it("should remove one coming node", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         coreNode.key = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
@@ -337,11 +337,11 @@ describe("StateBase.clear", () => {
     });
 
     it("should remove multiple coming nodes", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         coreNode.key = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
@@ -363,11 +363,11 @@ describe("StateBase.clear", () => {
     });
 
     it("should remove one previous and one coming node", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         coreNode.key = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
@@ -393,7 +393,7 @@ describe("StateBase.clearPrior", () => {
     });
 
     it("should clear prior of empty state without affecting it", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
         let stateBase: TestStateBase = new TestStateBase(state);
 
         stateBase.clearPrior();
@@ -402,11 +402,11 @@ describe("StateBase.clearPrior", () => {
     });
 
     it("should remove one previous node", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         coreNode.key = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
@@ -423,11 +423,11 @@ describe("StateBase.clearPrior", () => {
     });
 
     it("should remove multiple previous nodes", () => {
-        let state: IState = createState();
+        let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: ICoreNode = helper.createCoreNode();
+        let coreNode: CoreImageEnt = helper.createCoreNode();
         coreNode.key = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());

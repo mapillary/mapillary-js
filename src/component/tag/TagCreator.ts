@@ -14,7 +14,7 @@ import {
 import { CreateTag } from "./tag/CreateTag";
 import { Geometry } from "./geometry/Geometry";
 import { Component } from "../Component";
-import { ITagConfiguration } from "../interfaces/ITagConfiguration";
+import { TagConfiguration } from "../interfaces/TagConfiguration";
 
 import { Navigator } from "../../viewer/Navigator";
 import { Transform } from "../../geo/Transform";
@@ -24,15 +24,15 @@ import { RectGeometry } from "./geometry/RectGeometry";
 import { OutlineCreateTag } from "./tag/OutlineCreateTag";
 import { PolygonGeometry } from "./geometry/PolygonGeometry";
 
-interface ICreateTagOperation {
+interface CreateTagOperation {
     (tag: CreateTag<Geometry>): CreateTag<Geometry>;
 }
 
 export class TagCreator {
-    private _component: Component<ITagConfiguration>;
+    private _component: Component<TagConfiguration>;
     private _navigator: Navigator;
 
-    private _tagOperation$: Subject<ICreateTagOperation>;
+    private _tagOperation$: Subject<CreateTagOperation>;
     private _tag$: Observable<CreateTag<Geometry>>;
     private _replayedTag$: Observable<CreateTag<Geometry>>;
 
@@ -41,11 +41,11 @@ export class TagCreator {
     private _createRect$: Subject<number[]>;
     private _delete$: Subject<void>;
 
-    constructor(component: Component<ITagConfiguration>, navigator: Navigator) {
+    constructor(component: Component<TagConfiguration>, navigator: Navigator) {
         this._component = component;
         this._navigator = navigator;
 
-        this._tagOperation$ = new Subject<ICreateTagOperation>();
+        this._tagOperation$ = new Subject<CreateTagOperation>();
         this._createPoints$ = new Subject<number[]>();
         this._createPolygon$ = new Subject<number[]>();
         this._createRect$ = new Subject<number[]>();
@@ -53,7 +53,7 @@ export class TagCreator {
 
         this._tag$ = this._tagOperation$.pipe(
             scan(
-                (tag: CreateTag<Geometry>, operation: ICreateTagOperation): CreateTag<Geometry> => {
+                (tag: CreateTag<Geometry>, operation: CreateTagOperation): CreateTag<Geometry> => {
                     return operation(tag);
                 },
                 null),
@@ -70,7 +70,7 @@ export class TagCreator {
                 this._component.configuration$,
                 this._navigator.stateService.currentTransform$),
             map(
-                ([coord, conf, transform]: [number[], ITagConfiguration, Transform]): ICreateTagOperation => {
+                ([coord, conf, transform]: [number[], TagConfiguration, Transform]): CreateTagOperation => {
                     return (): CreateTag<Geometry> => {
                         const geometry: PointsGeometry = new PointsGeometry([
                             [coord[0], coord[1]],
@@ -93,7 +93,7 @@ export class TagCreator {
                 this._component.configuration$,
                 this._navigator.stateService.currentTransform$),
             map(
-                ([coord, conf, transform]: [number[], ITagConfiguration, Transform]): ICreateTagOperation => {
+                ([coord, conf, transform]: [number[], TagConfiguration, Transform]): CreateTagOperation => {
                     return (): CreateTag<Geometry> => {
                         const geometry: RectGeometry = new RectGeometry([
                             coord[0],
@@ -112,7 +112,7 @@ export class TagCreator {
                 this._component.configuration$,
                 this._navigator.stateService.currentTransform$),
             map(
-                ([coord, conf, transform]: [number[], ITagConfiguration, Transform]): ICreateTagOperation => {
+                ([coord, conf, transform]: [number[], TagConfiguration, Transform]): CreateTagOperation => {
                     return (): CreateTag<Geometry> => {
                         const geometry: PolygonGeometry = new PolygonGeometry([
                             [coord[0], coord[1]],
@@ -127,7 +127,7 @@ export class TagCreator {
 
         this._delete$.pipe(
             map(
-                (): ICreateTagOperation => {
+                (): CreateTagOperation => {
                     return (): CreateTag<Geometry> => {
                         return null;
                     };

@@ -8,12 +8,12 @@ import { Subscription } from "rxjs";
 import { Transform } from "../../geo/Transform";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { RenderCamera } from "../../render/RenderCamera";
-import { ICurrentState } from "../../state/interfaces/ICurrentState";
-import { IFrame } from "../../state/interfaces/IFrame";
+import { IAnimationState } from "../../state/interfaces/IAnimationState";
+import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
-import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
+import { MouseConfiguration } from "../interfaces/MouseConfiguration";
 import { HandlerBase } from "../utils/HandlerBase";
 import { isSpherical } from "../../geo/Geo";
 
@@ -30,7 +30,7 @@ import { isSpherical } from "../../geo/Geo";
  * var isEnabled = mouseComponent.scrollZoom.isEnabled;
  * ```
  */
-export class ScrollZoomHandler extends HandlerBase<IMouseConfiguration> {
+export class ScrollZoomHandler extends HandlerBase<MouseConfiguration> {
     private _viewportCoords: ViewportCoords;
 
     private _preventDefaultSubscription: Subscription;
@@ -38,7 +38,7 @@ export class ScrollZoomHandler extends HandlerBase<IMouseConfiguration> {
 
     /** @ignore */
     constructor(
-        component: Component<IMouseConfiguration>,
+        component: Component<MouseConfiguration>,
         container: Container,
         navigator: Navigator,
         viewportCoords: ViewportCoords) {
@@ -60,17 +60,17 @@ export class ScrollZoomHandler extends HandlerBase<IMouseConfiguration> {
             .filteredWheel$(this._component.name, this._container.mouseService.mouseWheel$).pipe(
                 withLatestFrom(
                     this._navigator.stateService.currentState$,
-                    (w: WheelEvent, f: IFrame): [WheelEvent, IFrame] => {
+                    (w: WheelEvent, f: AnimationFrame): [WheelEvent, AnimationFrame] => {
                         return [w, f];
                     }),
                 filter(
-                    (args: [WheelEvent, IFrame]): boolean => {
-                        let state: ICurrentState = args[1].state;
+                    (args: [WheelEvent, AnimationFrame]): boolean => {
+                        let state: IAnimationState = args[1].state;
                         return isSpherical(state.currentNode.cameraType) ||
                             state.nodesAhead < 1;
                     }),
                 map(
-                    (args: [WheelEvent, IFrame]): WheelEvent => {
+                    (args: [WheelEvent, AnimationFrame]): WheelEvent => {
                         return args[0];
                     }),
                 withLatestFrom(
@@ -123,7 +123,7 @@ export class ScrollZoomHandler extends HandlerBase<IMouseConfiguration> {
         this._zoomSubscription = null;
     }
 
-    protected _getConfiguration(enable: boolean): IMouseConfiguration {
+    protected _getConfiguration(enable: boolean): MouseConfiguration {
         return { scrollZoom: enable };
     }
 }

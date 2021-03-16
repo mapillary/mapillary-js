@@ -11,7 +11,7 @@ import {
 import { Component } from "../../Component";
 import { Transform } from "../../../geo/Transform";
 import { ViewportCoords } from "../../../geo/ViewportCoords";
-import { ITagConfiguration } from "../../interfaces/ITagConfiguration";
+import { TagConfiguration } from "../../interfaces/TagConfiguration";
 import { RenderCamera } from "../../../render/RenderCamera";
 import { Container } from "../../../viewer/Container";
 import { Navigator } from "../../../viewer/Navigator";
@@ -25,7 +25,7 @@ export abstract class CreateHandlerBase extends TagHandlerBase {
     protected _geometryCreated$: Subject<Geometry>;
 
     constructor(
-        component: Component<ITagConfiguration>,
+        component: Component<TagConfiguration>,
         container: Container,
         navigator: Navigator,
         viewportCoords: ViewportCoords,

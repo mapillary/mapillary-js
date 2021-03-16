@@ -1,22 +1,22 @@
 import * as THREE from "three";
 
 import { InteractiveStateBase } from "./InteractiveStateBase";
-import { IState } from "../interfaces/IState";
+import { IStateBase } from "../interfaces/IStateBase";
 import { Node } from "../../graph/Node";
-import { IInterpolator } from "../../utils/interfaces/IInterpolator";
+import { Interpolator } from "../interfaces/IInterpolator";
 import { isSpherical } from "../../geo/Geo";
 
 export class TraversingState extends InteractiveStateBase {
-    private static _interpolator: new (...args: number[]) => IInterpolator;
+    private static _interpolator: new (...args: number[]) => Interpolator;
 
     private _baseAlpha: number;
 
     private _speedCoefficient: number;
 
-    private _unitBezier: IInterpolator;
+    private _unitBezier: Interpolator;
     private _useBezier: boolean;
 
-    constructor(state: IState) {
+    constructor(state: IStateBase) {
         super(state);
 
         this._adjustCameras();

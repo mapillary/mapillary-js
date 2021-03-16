@@ -1,6 +1,6 @@
 import { Tag } from "./Tag";
 import { Geometry } from "../geometry/Geometry";
-import { ISpotTagOptions } from "../interfaces/ISpotTagOptions";
+import { SpotTagOptions } from "../interfaces/SpotTagOptions";
 
 /**
  * @class SpotTag
@@ -37,7 +37,7 @@ export class SpotTag extends Tag {
      * @param {IOutlineTagOptions} options - Options defining the visual appearance and
      * behavior of the spot tag.
      */
-    constructor(id: string, geometry: Geometry, options?: ISpotTagOptions) {
+    constructor(id: string, geometry: Geometry, options?: SpotTagOptions) {
         super(id, geometry);
 
         options = !!options ? options : {};
@@ -150,11 +150,11 @@ export class SpotTag extends Tag {
      * @description Sets all the option properties provided and keps
      * the rest of the values as is.
      *
-     * @param {ISpotTagOptions} options - Spot tag options
+     * @param {SpotTagOptions} options - Spot tag options
      *
      * @fires {Tag#changed}
      */
-    public setOptions(options: ISpotTagOptions): void {
+    public setOptions(options: SpotTagOptions): void {
         this._color = options.color == null ? this._color : options.color;
         this._editable = options.editable == null ? this._editable : options.editable;
         this._icon = options.icon === undefined ? this._icon : options.icon;

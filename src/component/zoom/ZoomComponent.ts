@@ -12,15 +12,15 @@ import {
 } from "rxjs/operators";
 
 import { Component } from "../Component";
-import { IZoomConfiguration } from "../interfaces/IZoomConfiguration";
+import { ZoomConfiguration } from "../interfaces/ZoomConfiguration";
 
 import { Transform } from "../../geo/Transform";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { RenderCamera } from "../../render/RenderCamera";
-import { ISize } from "../../render/interfaces/ISize";
-import { IVNodeHash } from "../../render/interfaces/IVNodeHash";
+import { ViewportSize } from "../../render/interfaces/ViewportSize";
+import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
 import { State } from "../../state/State";
-import { IFrame } from "../../state/interfaces/IFrame";
+import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { ComponentSize } from "../utils/ComponentSize";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
@@ -37,7 +37,7 @@ import { Navigator } from "../../viewer/Navigator";
  * zoomComponent.configure({ size: Mapillary.ComponentSize.Small });
  * ```
  */
-export class ZoomComponent extends Component<IZoomConfiguration> {
+export class ZoomComponent extends Component<ZoomConfiguration> {
     public static componentName: string = "zoom";
 
     private _viewportCoords: ViewportCoords;
@@ -62,7 +62,7 @@ export class ZoomComponent extends Component<IZoomConfiguration> {
             this._configuration$,
             this._container.renderService.size$).pipe(
                 map(
-                    ([frame, state, configuration, size]: [IFrame, State, IZoomConfiguration, ISize]): IVNodeHash => {
+                    ([frame, state, configuration, size]: [AnimationFrame, State, ZoomConfiguration, ViewportSize]): VirtualNodeHash => {
                         const zoom: number = frame.state.zoom;
 
                         const zoomInIcon: vd.VNode = vd.h("div.mapillary-zoom-in-icon", []);
@@ -107,7 +107,7 @@ export class ZoomComponent extends Component<IZoomConfiguration> {
         this._zoomSubscription.unsubscribe();
     }
 
-    protected _getDefaultConfiguration(): IZoomConfiguration {
+    protected _getDefaultConfiguration(): ZoomConfiguration {
         return { size: ComponentSize.Automatic };
     }
 }

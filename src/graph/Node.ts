@@ -2,15 +2,14 @@ import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { NodeCache } from "./NodeCache";
-import { IEdge } from "./edge/interfaces/IEdge";
-import { IEdgeStatus } from "./interfaces/IEdgeStatus";
+import { NavigationEdge } from "./edge/interfaces/NavigationEdge";
+import { NavigationEdgeStatus } from "./interfaces/NavigationEdgeStatus";
 
-import { ICoreNode } from "../api/interfaces/ICoreNode";
-import { IFillNode } from "../api/interfaces/IFillNode";
-import { ILatLon } from "../api/interfaces/ILatLon";
-import { IMesh } from "../api/interfaces/IMesh";
+import { CoreImageEnt } from "../api/ents/CoreImageEnt";
+import { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
+import { LatLonEnt } from "../api/ents/LatLonEnt";
+import { MeshEnt } from "../api/ents/MeshEnt";
 import { ImageSize } from "../viewer/ImageSize";
-import { CameraProjectionType } from "../api/interfaces/CameraProjectionType";
 import { isSpherical } from "../geo/Geo";
 
 /**
@@ -44,8 +43,8 @@ import { isSpherical } from "../geo/Geo";
  */
 export class Node {
     private _cache: NodeCache;
-    private _core: ICoreNode;
-    private _fill: IFillNode;
+    private _core: CoreImageEnt;
+    private _fill: SpatialImageEnt;
 
     /**
      * Create a new node instance.
@@ -53,10 +52,10 @@ export class Node {
      * @description Nodes are always created internally by the library.
      * Nodes can not be added to the library through any API method.
      *
-     * @param {ICoreNode} coreNode - Raw core node data.
+     * @param {CoreImageEnt} coreNode - Raw core node data.
      * @ignore
      */
-    constructor(core: ICoreNode) {
+    constructor(core: CoreImageEnt) {
         this._cache = null;
         this._core = core;
         this._fill = null;
@@ -203,10 +202,10 @@ export class Node {
      *
      * @description Will not be set if SfM has not been run.
      *
-     * @returns {ILatLon} SfM computed latitude longitude in WGS84 datum,
+     * @returns {LatLonEnt} SfM computed latitude longitude in WGS84 datum,
      * measured in degrees.
      */
-    public get computedLatLon(): ILatLon {
+    public get computedLatLon(): LatLonEnt {
         return this._core.cl;
     }
 
@@ -285,10 +284,10 @@ export class Node {
      * it will be returned, otherwise the original EXIF latitude
      * longitude.
      *
-     * @returns {ILatLon} Latitude longitude in WGS84 datum,
+     * @returns {LatLonEnt} Latitude longitude in WGS84 datum,
      * measured in degrees.
      */
-    public get latLon(): ILatLon {
+    public get latLon(): LatLonEnt {
         return this._core.cl != null ? this._core.cl : this._core.l;
     }
 
@@ -332,10 +331,10 @@ export class Node {
      *
      * @description The mesh will always be set on the current node.
      *
-     * @returns {IMesh} SfM triangulated mesh of reconstructed
+     * @returns {MeshEnt} SfM triangulated mesh of reconstructed
      * atomic 3D points.
      */
-    public get mesh(): IMesh {
+    public get mesh(): MeshEnt {
         return this._cache.mesh;
     }
 
@@ -381,10 +380,10 @@ export class Node {
     /**
      * Get originalLatLon.
      *
-     * @returns {ILatLon} Original EXIF latitude longitude in
+     * @returns {LatLonEnt} Original EXIF latitude longitude in
      * WGS84 datum, measured in degrees.
      */
-    public get originalLatLon(): ILatLon {
+    public get originalLatLon(): LatLonEnt {
         return this._core.l;
     }
 
@@ -466,12 +465,12 @@ export class Node {
     /**
      * Get sequenceEdges.
      *
-     * @returns {IEdgeStatus} Value describing the status of the
+     * @returns {NavigationEdgeStatus} Value describing the status of the
      * sequence edges.
      *
      * @ignore
      */
-    public get sequenceEdges(): IEdgeStatus {
+    public get sequenceEdges(): NavigationEdgeStatus {
         return this._cache.sequenceEdges;
     }
 
@@ -480,24 +479,24 @@ export class Node {
      *
      * @description Internal observable, should not be used as an API.
      *
-     * @returns {Observable<IEdgeStatus>} Observable emitting
+     * @returns {Observable<NavigationEdgeStatus>} Observable emitting
      * values describing the status of the sequence edges.
      *
      * @ignore
      */
-    public get sequenceEdges$(): Observable<IEdgeStatus> {
+    public get sequenceEdges$(): Observable<NavigationEdgeStatus> {
         return this._cache.sequenceEdges$;
     }
 
     /**
      * Get spatialEdges.
      *
-     * @returns {IEdgeStatus} Value describing the status of the
+     * @returns {NavigationEdgeStatus} Value describing the status of the
      * spatial edges.
      *
      * @ignore
      */
-    public get spatialEdges(): IEdgeStatus {
+    public get spatialEdges(): NavigationEdgeStatus {
         return this._cache.spatialEdges;
     }
 
@@ -506,12 +505,12 @@ export class Node {
      *
      * @description Internal observable, should not be used as an API.
      *
-     * @returns {Observable<IEdgeStatus>} Observable emitting
+     * @returns {Observable<NavigationEdgeStatus>} Observable emitting
      * values describing the status of the spatial edges.
      *
      * @ignore
      */
-    public get spatialEdges$(): Observable<IEdgeStatus> {
+    public get spatialEdges$(): Observable<NavigationEdgeStatus> {
         return this._cache.spatialEdges$;
     }
 
@@ -594,10 +593,10 @@ export class Node {
      * @description The sequence edges are cached asynchronously
      * internally by the library.
      *
-     * @param {Array<IEdge>} edges - Sequence edges to cache.
+     * @param {Array<NavigationEdge>} edges - Sequence edges to cache.
      * @ignore
      */
-    public cacheSequenceEdges(edges: IEdge[]): void {
+    public cacheSequenceEdges(edges: NavigationEdge[]): void {
         this._cache.cacheSequenceEdges(edges);
     }
 
@@ -607,10 +606,10 @@ export class Node {
      * @description The spatial edges are cached asynchronously
      * internally by the library.
      *
-     * @param {Array<IEdge>} edges - Spatial edges to cache.
+     * @param {Array<NavigationEdge>} edges - Spatial edges to cache.
      * @ignore
      */
-    public cacheSpatialEdges(edges: IEdge[]): void {
+    public cacheSpatialEdges(edges: NavigationEdge[]): void {
         this._cache.cacheSpatialEdges(edges);
     }
 
@@ -653,10 +652,10 @@ export class Node {
      * @description The node is filled internally by
      * the library.
      *
-     * @param {IFillNode} fill - The fill node struct.
+     * @param {SpatialImageEnt} fill - The fill node struct.
      * @ignore
      */
-    public makeFull(fill: IFillNode): void {
+    public makeFull(fill: SpatialImageEnt): void {
         if (fill == null) {
             throw new Error("Fill can not be null.");
         }

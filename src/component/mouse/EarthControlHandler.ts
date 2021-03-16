@@ -16,19 +16,19 @@ import {
 
 import { Transform } from "../../geo/Transform";
 import { Spatial } from "../../geo/Spatial";
-import { IRotation } from "../../state/interfaces/IRotation";
+import { EulerRotation } from "../../state/interfaces/EulerRotation";
 import { State } from "../../state/State";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { RenderCamera } from "../../render/RenderCamera";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
-import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
+import { MouseConfiguration } from "../interfaces/MouseConfiguration";
 import { HandlerBase } from "../utils/HandlerBase";
 import { MouseOperator } from "../utils/MouseOperator";
 
 
-export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
+export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
     private _viewportCoords: ViewportCoords;
     private _spatial: Spatial;
 
@@ -39,7 +39,7 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
     private _truckSubscription: Subscription;
 
     constructor(
-        component: Component<IMouseConfiguration>,
+        component: Component<MouseConfiguration>,
         container: Container,
         navigator: Navigator,
         viewportCoords: ViewportCoords,
@@ -140,11 +140,11 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                             }));
                 }),
             map(
-                ([previous, current]: [MouseEvent, MouseEvent]): IRotation => {
+                ([previous, current]: [MouseEvent, MouseEvent]): EulerRotation => {
                     return this._mousePairToRotation(previous, current);
                 }))
             .subscribe(
-                (rotation: IRotation): void => {
+                (rotation: EulerRotation): void => {
                     this._navigator.stateService.orbit(rotation);
                 });
 
@@ -162,11 +162,11 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
                             }));
                 }),
             map(
-                ([previous, current]: [MouseEvent, MouseEvent]): IRotation => {
+                ([previous, current]: [MouseEvent, MouseEvent]): EulerRotation => {
                     return this._mousePairToRotation(previous, current);
                 }))
             .subscribe(
-                (rotation: IRotation): void => {
+                (rotation: EulerRotation): void => {
                     this._navigator.stateService.orbit(rotation);
                 });
 
@@ -208,7 +208,7 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
         this._truckSubscription.unsubscribe();
     }
 
-    protected _getConfiguration(): IMouseConfiguration {
+    protected _getConfiguration(): MouseConfiguration {
         return {};
     }
 
@@ -219,7 +219,7 @@ export class EarthControlHandler extends HandlerBase<IMouseConfiguration> {
     }
 
     private _mousePairToRotation(
-        previous: MouseEvent, current: MouseEvent): IRotation {
+        previous: MouseEvent, current: MouseEvent): EulerRotation {
         const [currentX, currentY] =
             this._eventToViewport(current, this._container.container);
         const [previousX, previousY]: number[] =

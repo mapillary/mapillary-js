@@ -1,6 +1,6 @@
 import { Tag } from "./Tag";
 import { PointsGeometry } from "../geometry/PointsGeometry";
-import { IExtremePointTagOptions } from "../interfaces/IExtremePointTagOptions";
+import { ExtremePointTagOptions } from "../interfaces/ExtremePointTagOptions";
 
 /**
  * @class ExtremePointTag
@@ -37,10 +37,10 @@ export class ExtremePointTag extends Tag {
      * @constructor
      * @param {string} id - Unique identifier of the tag.
      * @param {PointsGeometry} geometry - Geometry defining points of tag.
-     * @param {IExtremePointTagOptions} options - Options defining the visual appearance and
+     * @param {ExtremePointTagOptions} options - Options defining the visual appearance and
      * behavior of the extreme point tag.
      */
-    constructor(id: string, geometry: PointsGeometry, options?: IExtremePointTagOptions) {
+    constructor(id: string, geometry: PointsGeometry, options?: ExtremePointTagOptions) {
         super(id, geometry);
 
         options = !!options ? options : {};
@@ -199,11 +199,11 @@ export class ExtremePointTag extends Tag {
      * @description Sets all the option properties provided and keeps
      * the rest of the values as is.
      *
-     * @param {IExtremePointTagOptions} options - Extreme point tag options
+     * @param {ExtremePointTagOptions} options - Extreme point tag options
      *
      * @fires {Tag#changed}
      */
-    public setOptions(options: IExtremePointTagOptions): void {
+    public setOptions(options: ExtremePointTagOptions): void {
         this._editable = options.editable == null ? this._editable : options.editable;
         this._indicateVertices = options.indicateVertices == null ? this._indicateVertices : options.indicateVertices;
         this._lineColor = options.lineColor == null ? this._lineColor : options.lineColor;

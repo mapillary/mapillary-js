@@ -31,11 +31,11 @@ import {
 } from "rxjs/operators";
 
 import {
-    ISliderNodes,
-    ISliderCombination,
-    IGLRendererOperation,
+    SliderNodes,
+    SliderCombination,
+    GLRendererOperation,
     PositionLookat,
-} from "./interfaces/interfaces";
+} from "./interfaces/SliderInterfaces";
 
 import { Node } from "../../graph/Node";
 import { Container } from "../../viewer/Container";
@@ -43,22 +43,22 @@ import { Navigator } from "../../viewer/Navigator";
 import { Spatial } from "../../geo/Spatial";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { GLRenderStage } from "../../render/GLRenderStage";
-import { IGLRenderHash } from "../../render/interfaces/IGLRenderHash";
-import { ISize } from "../../render/interfaces/ISize";
-import { IVNodeHash } from "../../render/interfaces/IVNodeHash";
+import { GLRenderHash } from "../../render/interfaces/IGLRenderHash";
+import { ViewportSize } from "../../render/interfaces/ViewportSize";
+import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
 import { RenderCamera } from "../../render/RenderCamera";
-import { ICurrentState } from "../../state/interfaces/ICurrentState";
-import { IFrame } from "../../state/interfaces/IFrame";
+import { IAnimationState } from "../../state/interfaces/IAnimationState";
+import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { State } from "../../state/State";
 import { ImageTileLoader } from "../../tiles/ImageTileLoader";
 import { ImageTileStore } from "../../tiles/ImageTileStore";
-import { IBoundingBox } from "../../tiles/interfaces/IBoundingBox";
-import { IRegionOfInterest } from "../../tiles/interfaces/IRegionOfInterest";
+import { TileBoundingBox } from "../../tiles/interfaces/TileBoundingBox";
+import { TileRegionOfInterest } from "../../tiles/interfaces/TileRegionOfInterest";
 import { RegionOfInterestCalculator } from "../../tiles/RegionOfInterestCalculator";
 import { TextureProvider } from "../../tiles/TextureProvider";
 import { Settings } from "../../utils/Settings";
 import { Component } from "../Component";
-import { ISliderConfiguration, ISliderKeys, SliderMode } from "../interfaces/ISliderConfiguration";
+import { SliderConfiguration, SliderConfigurationKeys, SliderConfigurationMode } from "../interfaces/SliderConfiguration";
 import { SliderGLRenderer } from "./SliderGLRenderer";
 import { Transform } from "../../geo/Transform";
 import { ImageSize } from "../../viewer/ImageSize";
@@ -90,7 +90,7 @@ import { isSpherical } from "../../geo/Geo";
  * var sliderComponent = viewer.getComponent("slider");
  * ```
  */
-export class SliderComponent extends Component<ISliderConfiguration> {
+export class SliderComponent extends Component<SliderConfiguration> {
     public static componentName: string = "slider";
 
     private _viewportCoords: ViewportCoords;
@@ -99,7 +99,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     private _roiCalculator: RegionOfInterestCalculator;
     private _spatial: Spatial;
 
-    private _glRendererOperation$: Subject<IGLRendererOperation>;
+    private _glRendererOperation$: Subject<GLRendererOperation>;
     private _glRenderer$: Observable<SliderGLRenderer>;
     private _glRendererCreator$: Subject<void>;
     private _glRendererDisposer$: Subject<void>;
@@ -142,13 +142,13 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         this._roiCalculator = new RegionOfInterestCalculator();
         this._spatial = new Spatial();
 
-        this._glRendererOperation$ = new Subject<IGLRendererOperation>();
+        this._glRendererOperation$ = new Subject<GLRendererOperation>();
         this._glRendererCreator$ = new Subject<void>();
         this._glRendererDisposer$ = new Subject<void>();
 
         this._glRenderer$ = this._glRendererOperation$.pipe(
             scan(
-                (glRenderer: SliderGLRenderer, operation: IGLRendererOperation): SliderGLRenderer => {
+                (glRenderer: SliderGLRenderer, operation: GLRendererOperation): SliderGLRenderer => {
                     return operation(glRenderer);
                 },
                 null),
@@ -164,7 +164,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._glRendererCreator$.pipe(
             map(
-                (): IGLRendererOperation => {
+                (): GLRendererOperation => {
                     return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
                         if (glRenderer != null) {
                             throw new Error("Multiple slider states can not be created at the same time");
@@ -177,7 +177,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._glRendererDisposer$.pipe(
             map(
-                (): IGLRendererOperation => {
+                (): GLRendererOperation => {
                     return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
                         glRenderer.dispose();
 
@@ -206,10 +206,10 @@ export class SliderComponent extends Component<ISliderConfiguration> {
      * @description Configures the component to show the image
      * planes for the supplied image keys.
      *
-     * @param {ISliderKeys} keys - Slider keys object specifying
+     * @param {SliderConfigurationKeys} keys - Slider keys object specifying
      * the images to be shown in the foreground and the background.
      */
-    public setKeys(keys: ISliderKeys): void {
+    public setKeys(keys: SliderConfigurationKeys): void {
         this.configure({ keys: keys });
     }
 
@@ -219,9 +219,9 @@ export class SliderComponent extends Component<ISliderConfiguration> {
      * @description Configures the mode for transitions between
      * image pairs.
      *
-     * @param {SliderMode} mode - Slider mode to be set.
+     * @param {SliderConfigurationMode} mode - Slider mode to be set.
      */
-    public setSliderMode(mode: SliderMode): void {
+    public setSliderMode(mode: SliderConfigurationMode): void {
         this.configure({ mode: mode });
     }
 
@@ -238,16 +238,16 @@ export class SliderComponent extends Component<ISliderConfiguration> {
     protected _activate(): void {
         this._modeSubcription = this._domRenderer.mode$
             .subscribe(
-                (mode: SliderMode): void => {
+                (mode: SliderConfigurationMode): void => {
                     this.setSliderMode(mode);
                 });
 
         this._glRenderSubscription = this._glRenderer$.pipe(
             map(
-                (glRenderer: SliderGLRenderer): IGLRenderHash => {
-                    let renderHash: IGLRenderHash = {
+                (glRenderer: SliderGLRenderer): GLRenderHash => {
+                    let renderHash: GLRenderHash = {
                         name: this._name,
-                        render: {
+                        renderer: {
                             frameId: glRenderer.frameId,
                             needsRender: glRenderer.needsRender,
                             render: glRenderer.render.bind(glRenderer),
@@ -262,30 +262,30 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         const position$: Observable<number> = observableConcat(
             this.configuration$.pipe(
                 map(
-                    (configuration: ISliderConfiguration): number => {
+                    (configuration: SliderConfiguration): number => {
                         return configuration.initialPosition != null ?
                             configuration.initialPosition : 1;
                     }),
                 first()),
             this._domRenderer.position$);
 
-        const mode$: Observable<SliderMode> = this.configuration$.pipe(
+        const mode$: Observable<SliderConfigurationMode> = this.configuration$.pipe(
             map(
-                (configuration: ISliderConfiguration): SliderMode => {
+                (configuration: SliderConfiguration): SliderConfigurationMode => {
                     return configuration.mode;
                 }),
             distinctUntilChanged());
 
         const motionless$: Observable<boolean> = this._navigator.stateService.currentState$.pipe(
             map(
-                (frame: IFrame): boolean => {
+                (frame: AnimationFrame): boolean => {
                     return frame.state.motionless;
                 }),
             distinctUntilChanged());
 
         const spherical$: Observable<boolean> = this._navigator.stateService.currentState$.pipe(
             map(
-                (frame: IFrame): boolean => {
+                (frame: AnimationFrame): boolean => {
                     return isSpherical(frame.state.currentNode.cameraType);
                 }),
             distinctUntilChanged());
@@ -293,12 +293,12 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         const sliderVisible$: Observable<boolean> = observableCombineLatest(
             this._configuration$.pipe(
                 map(
-                    (configuration: ISliderConfiguration): boolean => {
+                    (configuration: SliderConfiguration): boolean => {
                         return configuration.sliderVisible;
                     })),
             this._navigator.stateService.currentState$.pipe(
                 map(
-                    (frame: IFrame): boolean => {
+                    (frame: AnimationFrame): boolean => {
                         return !(frame.state.currentNode == null ||
                             frame.state.previousNode == null ||
                             (isSpherical(
@@ -320,9 +320,12 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             sliderVisible$).pipe(
                 withLatestFrom(this._navigator.stateService.state$))
             .subscribe(
-                ([[mode, motionless, spherical, sliderVisible], state]: [[SliderMode, boolean, boolean, boolean], State]): void => {
+                ([[mode, motionless, spherical, sliderVisible], state]:
+                    [[SliderConfigurationMode, boolean, boolean, boolean], State]): void => {
                     const interactive: boolean = sliderVisible &&
-                        (motionless || mode === SliderMode.Stationary || spherical);
+                        (motionless ||
+                            mode === SliderConfigurationMode.Stationary ||
+                            spherical);
 
                     if (interactive && state !== State.WaitingInteractively) {
                         this._navigator.stateService.waitInteractively();
@@ -338,8 +341,8 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             spherical$,
             sliderVisible$)
             .subscribe(
-                ([position, mode, motionless, spherical]: [number, SliderMode, boolean, boolean, boolean]): void => {
-                    if (motionless || mode === SliderMode.Stationary || spherical) {
+                ([position, mode, motionless, spherical]: [number, SliderConfigurationMode, boolean, boolean, boolean]): void => {
+                    if (motionless || mode === SliderConfigurationMode.Stationary || spherical) {
                         this._navigator.stateService.moveTo(1);
                     } else {
                         this._navigator.stateService.moveTo(position);
@@ -355,7 +358,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             this._container.renderService.size$).pipe(
                 map(
                     ([position, mode, motionless, spherical, sliderVisible]:
-                        [number, SliderMode, boolean, boolean, boolean, ISize]): IVNodeHash => {
+                        [number, SliderConfigurationMode, boolean, boolean, boolean, ViewportSize]): VirtualNodeHash => {
                         return {
                             name: this._name,
                             vnode: this._domRenderer.render(position, mode, motionless, spherical, sliderVisible),
@@ -386,7 +389,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                         return basicPosition > 1 ? basicPosition - 1 : basicPosition;
                     }),
                 map(
-                    (position: number): IGLRendererOperation => {
+                    (position: number): GLRendererOperation => {
                         return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
                             glRenderer.updateCurtain(position);
 
@@ -399,7 +402,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             this._navigator.stateService.currentState$,
             mode$).pipe(
                 map(
-                    ([frame, mode]: [IFrame, SliderMode]): IGLRendererOperation => {
+                    ([frame, mode]: [AnimationFrame, SliderConfigurationMode]): GLRendererOperation => {
                         return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
                             glRenderer.update(frame, mode);
 
@@ -410,27 +413,27 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._setKeysSubscription = this._configuration$.pipe(
             filter(
-                (configuration: ISliderConfiguration): boolean => {
+                (configuration: SliderConfiguration): boolean => {
                     return configuration.keys != null;
                 }),
             switchMap(
-                (configuration: ISliderConfiguration): Observable<ISliderCombination> => {
+                (configuration: SliderConfiguration): Observable<SliderCombination> => {
                     return observableZip(
                         observableZip(
                             this._catchCacheNode$(configuration.keys.background),
                             this._catchCacheNode$(configuration.keys.foreground)).pipe(
                                 map(
-                                    (nodes: [Node, Node]): ISliderNodes => {
+                                    (nodes: [Node, Node]): SliderNodes => {
                                         return { background: nodes[0], foreground: nodes[1] };
                                     })),
                         this._navigator.stateService.currentState$.pipe(first())).pipe(
                             map(
-                                (nf: [ISliderNodes, IFrame]): ISliderCombination => {
+                                (nf: [SliderNodes, AnimationFrame]): SliderCombination => {
                                     return { nodes: nf[0], state: nf[1].state };
                                 }));
                 }))
             .subscribe(
-                (co: ISliderCombination): void => {
+                (co: SliderCombination): void => {
                     if (co.state.currentNode != null &&
                         co.state.previousNode != null &&
                         co.state.currentNode.key === co.nodes.foreground.key &&
@@ -460,15 +463,15 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         const textureProvider$: Observable<TextureProvider> = this._navigator.stateService.currentState$.pipe(
             distinctUntilChanged(
                 undefined,
-                (frame: IFrame): string => {
+                (frame: AnimationFrame): string => {
                     return frame.state.currentNode.key;
                 }),
             withLatestFrom(
                 this._container.glRenderer.webGLRenderer$,
                 this._container.renderService.size$),
             map(
-                ([frame, renderer, size]: [IFrame, THREE.WebGLRenderer, ISize]): TextureProvider => {
-                    const state: ICurrentState = frame.state;
+                ([frame, renderer, size]: [AnimationFrame, THREE.WebGLRenderer, ViewportSize]): TextureProvider => {
+                    const state: IAnimationState = frame.state;
                     const viewportSize: number = Math.max(size.width, size.height);
 
                     const currentNode: Node = state.currentNode;
@@ -492,7 +495,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._setTextureProviderSubscription = textureProvider$.pipe(
             map(
-                (provider: TextureProvider): IGLRendererOperation => {
+                (provider: TextureProvider): GLRendererOperation => {
                     return (renderer: SliderGLRenderer): SliderGLRenderer => {
                         renderer.setTextureProvider(provider.key, provider);
 
@@ -503,14 +506,14 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._setTileSizeSubscription = this._container.renderService.size$.pipe(
             switchMap(
-                (size: ISize): Observable<[TextureProvider, ISize]> => {
+                (size: ViewportSize): Observable<[TextureProvider, ViewportSize]> => {
                     return observableCombineLatest(
                         textureProvider$,
-                        observableOf<ISize>(size)).pipe(
+                        observableOf<ViewportSize>(size)).pipe(
                             first());
                 }))
             .subscribe(
-                ([provider, size]: [TextureProvider, ISize]): void => {
+                ([provider, size]: [TextureProvider, ViewportSize]): void => {
                     let viewportSize: number = Math.max(size.width, size.height);
                     let tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
 
@@ -525,11 +528,11 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     previous.abort();
                 });
 
-        let roiTrigger$: Observable<[RenderCamera, ISize, Transform]> = observableCombineLatest(
+        let roiTrigger$: Observable<[RenderCamera, ViewportSize, Transform]> = observableCombineLatest(
             this._container.renderService.renderCameraFrame$,
             this._container.renderService.size$.pipe(debounceTime(250))).pipe(
                 map(
-                    ([camera, size]: [RenderCamera, ISize]): PositionLookat => {
+                    ([camera, size]: [RenderCamera, ViewportSize]): PositionLookat => {
                         return [
                             camera.camera.position.clone(),
                             camera.camera.lookat.clone(),
@@ -568,11 +571,11 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._setRegionOfInterestSubscription = textureProvider$.pipe(
             switchMap(
-                (provider: TextureProvider): Observable<[IRegionOfInterest, TextureProvider]> => {
+                (provider: TextureProvider): Observable<[TileRegionOfInterest, TextureProvider]> => {
                     return roiTrigger$.pipe(
                         map(
-                            ([camera, size, transform]: [RenderCamera, ISize, Transform]):
-                                [IRegionOfInterest, TextureProvider] => {
+                            ([camera, size, transform]: [RenderCamera, ViewportSize, Transform]):
+                                [TileRegionOfInterest, TextureProvider] => {
                                 return [
                                     this._roiCalculator.computeRegionOfInterest(camera, size, transform),
                                     provider,
@@ -580,12 +583,12 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                             }));
                 }),
             filter(
-                (args: [IRegionOfInterest, TextureProvider]): boolean => {
+                (args: [TileRegionOfInterest, TextureProvider]): boolean => {
                     return !args[1].disposed;
                 }))
             .subscribe(
-                (args: [IRegionOfInterest, TextureProvider]): void => {
-                    let roi: IRegionOfInterest = args[0];
+                (args: [TileRegionOfInterest, TextureProvider]): void => {
+                    let roi: TileRegionOfInterest = args[0];
                     let provider: TextureProvider = args[1];
 
                     provider.setRegionOfInterest(roi);
@@ -604,11 +607,11 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         let nodeImage$: Observable<[HTMLImageElement, Node]> = this._navigator.stateService.currentState$.pipe(
             filter(
-                (frame: IFrame): boolean => {
+                (frame: AnimationFrame): boolean => {
                     return frame.state.nodesAhead === 0;
                 }),
             map(
-                (frame: IFrame): Node => {
+                (frame: AnimationFrame): Node => {
                     return frame.state.currentNode;
                 }),
             distinctUntilChanged(
@@ -682,7 +685,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._updateTextureImageSubscription = nodeImage$.pipe(
             map(
-                (imn: [HTMLImageElement, Node]): IGLRendererOperation => {
+                (imn: [HTMLImageElement, Node]): GLRendererOperation => {
                     return (renderer: SliderGLRenderer): SliderGLRenderer => {
                         renderer.updateTextureImage(imn[0], imn[1]);
 
@@ -693,20 +696,20 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         const textureProviderPrev$: Observable<TextureProvider> = this._navigator.stateService.currentState$.pipe(
             filter(
-                (frame: IFrame): boolean => {
+                (frame: AnimationFrame): boolean => {
                     return !!frame.state.previousNode;
                 }),
             distinctUntilChanged(
                 undefined,
-                (frame: IFrame): string => {
+                (frame: AnimationFrame): string => {
                     return frame.state.previousNode.key;
                 }),
             withLatestFrom(
                 this._container.glRenderer.webGLRenderer$,
                 this._container.renderService.size$),
             map(
-                ([frame, renderer, size]: [IFrame, THREE.WebGLRenderer, ISize]): TextureProvider => {
-                    const state: ICurrentState = frame.state;
+                ([frame, renderer, size]: [AnimationFrame, THREE.WebGLRenderer, ViewportSize]): TextureProvider => {
+                    const state: IAnimationState = frame.state;
                     const viewportSize: number = Math.max(size.width, size.height);
 
                     const previousNode: Node = state.previousNode;
@@ -730,7 +733,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._setTextureProviderSubscriptionPrev = textureProviderPrev$.pipe(
             map(
-                (provider: TextureProvider): IGLRendererOperation => {
+                (provider: TextureProvider): GLRendererOperation => {
                     return (renderer: SliderGLRenderer): SliderGLRenderer => {
                         renderer.setTextureProviderPrev(provider.key, provider);
 
@@ -741,14 +744,14 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._setTileSizeSubscriptionPrev = this._container.renderService.size$.pipe(
             switchMap(
-                (size: ISize): Observable<[TextureProvider, ISize]> => {
+                (size: ViewportSize): Observable<[TextureProvider, ViewportSize]> => {
                     return observableCombineLatest(
                         textureProviderPrev$,
-                        observableOf<ISize>(size)).pipe(
+                        observableOf<ViewportSize>(size)).pipe(
                             first());
                 }))
             .subscribe(
-                ([provider, size]: [TextureProvider, ISize]): void => {
+                ([provider, size]: [TextureProvider, ViewportSize]): void => {
                     let viewportSize: number = Math.max(size.width, size.height);
                     let tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
 
@@ -763,11 +766,11 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                     previous.abort();
                 });
 
-        let roiTriggerPrev$: Observable<[RenderCamera, ISize, Transform]> = observableCombineLatest(
+        let roiTriggerPrev$: Observable<[RenderCamera, ViewportSize, Transform]> = observableCombineLatest(
             this._container.renderService.renderCameraFrame$,
             this._container.renderService.size$.pipe(debounceTime(250))).pipe(
                 map(
-                    ([camera, size]: [RenderCamera, ISize]): PositionLookat => {
+                    ([camera, size]: [RenderCamera, ViewportSize]): PositionLookat => {
                         return [
                             camera.camera.position.clone(),
                             camera.camera.lookat.clone(),
@@ -806,11 +809,11 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._setRegionOfInterestSubscriptionPrev = textureProviderPrev$.pipe(
             switchMap(
-                (provider: TextureProvider): Observable<[IRegionOfInterest, TextureProvider]> => {
+                (provider: TextureProvider): Observable<[TileRegionOfInterest, TextureProvider]> => {
                     return roiTriggerPrev$.pipe(
                         map(
-                            ([camera, size, transform]: [RenderCamera, ISize, Transform]):
-                                [IRegionOfInterest, TextureProvider] => {
+                            ([camera, size, transform]: [RenderCamera, ViewportSize, Transform]):
+                                [TileRegionOfInterest, TextureProvider] => {
                                 return [
                                     this._roiCalculator.computeRegionOfInterest(camera, size, transform),
                                     provider,
@@ -818,13 +821,13 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                             }));
                 }),
             filter(
-                (args: [IRegionOfInterest, TextureProvider]): boolean => {
+                (args: [TileRegionOfInterest, TextureProvider]): boolean => {
                     return !args[1].disposed;
                 }),
             withLatestFrom(this._navigator.stateService.currentState$))
             .subscribe(
-                ([[roi, provider], frame]: [[IRegionOfInterest, TextureProvider], IFrame]): void => {
-                    let shiftedRoi: IRegionOfInterest = null;
+                ([[roi, provider], frame]: [[TileRegionOfInterest, TextureProvider], AnimationFrame]): void => {
+                    let shiftedRoi: TileRegionOfInterest = null;
 
                     if (isSpherical(frame.state.previousNode.cameraType)) {
                         if (isSpherical(frame.state.currentNode.cameraType)) {
@@ -841,7 +844,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
                             const shift: number = directionDiff / (2 * Math.PI);
 
-                            const bbox: IBoundingBox = {
+                            const bbox: TileBoundingBox = {
                                 maxX: this._spatial.wrap(roi.bbox.maxX + shift, 0, 1),
                                 maxY: roi.bbox.maxY,
                                 minX: this._spatial.wrap(roi.bbox.minX + shift, 0, 1),
@@ -898,7 +901,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                             const minY: number = 0.5 + shiftY + spanningHeight * zoomShiftY - basicHeight / 2;
                             const maxY: number = 0.5 + shiftY + spanningHeight * zoomShiftY + basicHeight / 2;
 
-                            const bbox: IBoundingBox = {
+                            const bbox: TileBoundingBox = {
                                 maxX: this._spatial.wrap(maxX, 0, 1),
                                 maxY: maxY,
                                 minX: this._spatial.wrap(minX, 0, 1),
@@ -929,7 +932,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                         const minY: number = (basicHeight - 1) / (2 * basicHeight) + roi.bbox.minY / basicHeight;
                         const maxY: number = (basicHeight - 1) / (2 * basicHeight) + roi.bbox.maxY / basicHeight;
 
-                        const bbox: IBoundingBox = {
+                        const bbox: TileBoundingBox = {
                             maxX: maxX,
                             maxY: maxY,
                             minX: minX,
@@ -961,11 +964,11 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         let nodeImagePrev$: Observable<[HTMLImageElement, Node]> = this._navigator.stateService.currentState$.pipe(
             filter(
-                (frame: IFrame): boolean => {
+                (frame: AnimationFrame): boolean => {
                     return frame.state.nodesAhead === 0 && !!frame.state.previousNode;
                 }),
             map(
-                (frame: IFrame): Node => {
+                (frame: AnimationFrame): Node => {
                     return frame.state.previousNode;
                 }),
             distinctUntilChanged(
@@ -1040,7 +1043,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._updateTextureImageSubscriptionPrev = nodeImagePrev$.pipe(
             map(
-                (imn: [HTMLImageElement, Node]): IGLRendererOperation => {
+                (imn: [HTMLImageElement, Node]): GLRendererOperation => {
                     return (renderer: SliderGLRenderer): SliderGLRenderer => {
                         renderer.updateTextureImage(imn[0], imn[1]);
 
@@ -1094,10 +1097,10 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         this.configure({ keys: null });
     }
 
-    protected _getDefaultConfiguration(): ISliderConfiguration {
+    protected _getDefaultConfiguration(): SliderConfiguration {
         return {
             initialPosition: 1,
-            mode: SliderMode.Motion,
+            mode: SliderConfigurationMode.Motion,
             sliderVisible: true,
         };
     }
@@ -1127,7 +1130,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         return [[0.5 - offsetX, 0.5 - offsetY], [0.5 + offsetX, 0.5 + offsetY]];
     }
 
-    private _clipBoundingBox(bbox: IBoundingBox): void {
+    private _clipBoundingBox(bbox: TileBoundingBox): void {
         bbox.minX = Math.max(0, Math.min(1, bbox.minX));
         bbox.maxX = Math.max(0, Math.min(1, bbox.maxX));
         bbox.minY = Math.max(0, Math.min(1, bbox.minY));

@@ -11,13 +11,13 @@ import {
     Subject,
 } from "rxjs";
 
-import { IComponentConfiguration } from "./interfaces/IComponentConfiguration";
+import { ComponentConfiguration } from "./interfaces/ComponentConfiguration";
 
 import { Container } from "../viewer/Container";
 import { Navigator } from "../viewer/Navigator";
 import { EventEmitter } from "../utils/EventEmitter";
 
-export abstract class Component<TConfiguration extends IComponentConfiguration> extends EventEmitter {
+export abstract class Component<TConfiguration extends ComponentConfiguration> extends EventEmitter {
     public static componentName: string = "not_worthy";
 
     protected _activated: boolean;

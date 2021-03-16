@@ -4,7 +4,7 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Spatial } from "../../geo/Spatial";
 import { ViewportCoords } from "../../geo/ViewportCoords";
-import { IMouseConfiguration } from "../interfaces/IMouseConfiguration";
+import { MouseConfiguration } from "../interfaces/MouseConfiguration";
 import { BounceHandler } from "./BounceHandler";
 import { DragPanHandler } from "./DragPanHandler";
 import { EarthControlHandler } from "./EarthControlHandler";
@@ -25,7 +25,7 @@ import { TouchZoomHandler } from "./TouchZoomHandler";
  * var mouseComponent = viewer.getComponent("mouse");
  * ```
  */
-export class MouseComponent extends Component<IMouseConfiguration> {
+export class MouseComponent extends Component<MouseConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "mouse";
 
@@ -84,7 +84,7 @@ export class MouseComponent extends Component<IMouseConfiguration> {
 
         this._configurationSubscription = this._configuration$
             .subscribe(
-                (configuration: IMouseConfiguration): void => {
+                (configuration: MouseConfiguration): void => {
                     if (configuration.dragPan) {
                         this._dragPanHandler.enable();
                     } else {
@@ -119,7 +119,7 @@ export class MouseComponent extends Component<IMouseConfiguration> {
         this._touchZoomHandler.disable();
     }
 
-    protected _getDefaultConfiguration(): IMouseConfiguration {
+    protected _getDefaultConfiguration(): MouseConfiguration {
         return {
             dragPan: true,
             scrollZoom: true,

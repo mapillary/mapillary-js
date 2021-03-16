@@ -29,9 +29,9 @@ import { GraphMode } from "./GraphMode";
 import { Node } from "./Node";
 import { Sequence } from "./Sequence";
 
-import { ILatLon } from "../api/interfaces/ILatLon";
+import { LatLonEnt } from "../api/ents/LatLonEnt";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
-import { IDataAddedEvent } from "../api/interfaces/IDataAddedEvent";
+import { DataAddedProviderEvent } from "../api/interfaces/DataAddedProviderEvent";
 
 /**
  * @class GraphService
@@ -135,13 +135,13 @@ export class GraphService {
      * retrieved, {@link cacheNode$} needs to be called for caching
      * assets.
      *
-     * @param {ILatLon} sw - South west corner of bounding box.
-     * @param {ILatLon} ne - North east corner of bounding box.
+     * @param {LatLonEnt} sw - South west corner of bounding box.
+     * @param {LatLonEnt} ne - North east corner of bounding box.
      * @return {Observable<Array<Node>>} Observable emitting a single item,
      * the nodes of the bounding box, when they have all been retrieved.
      * @throws {Error} Propagates any IO node caching errors to the caller.
      */
-    public cacheBoundingBox$(sw: ILatLon, ne: ILatLon): Observable<Node[]> {
+    public cacheBoundingBox$(sw: LatLonEnt, ne: LatLonEnt): Observable<Node[]> {
         return this._graph$.pipe(
             first(),
             mergeMap(
@@ -578,7 +578,7 @@ export class GraphService {
         }
     }
 
-    private _onDataAdded = (event: IDataAddedEvent): void => {
+    private _onDataAdded = (event: DataAddedProviderEvent): void => {
         this._graph$
             .pipe(
                 first(),
