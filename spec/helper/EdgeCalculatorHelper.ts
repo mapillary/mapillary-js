@@ -76,12 +76,12 @@ export class EdgeCalculatorHelper {
         return node;
     }
 
-    public createDefaultNode(fullPano: boolean = false): Node {
+    public createDefaultNode(spherical: boolean = false): Node {
         let key: string = "key";
         let sequenceKey: string = "skey";
         let latLonAlt: ILatLonAlt = { alt: 0, lat: 0, lon: 0 };
 
-        let cameraType: CameraProjectionType = fullPano ?
+        let cameraType: CameraProjectionType = spherical ?
             "equirectangular" :
             null;
 

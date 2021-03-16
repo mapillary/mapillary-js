@@ -311,7 +311,7 @@ export class PolygonGeometry extends VertexGeometry {
     /** @ignore */
     public getTriangles3d(transform: Transform): number[] {
         if (isSpherical(transform.cameraType)) {
-            return this._triangulatePano(
+            return this._triangulateSpherical(
                 this._polygon.slice(),
                 this.holes.slice(),
                 transform);

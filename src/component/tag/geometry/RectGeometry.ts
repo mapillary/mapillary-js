@@ -66,7 +66,7 @@ export class RectGeometry extends VertexGeometry {
      * Get inverted property.
      *
      * @returns {boolean} Boolean determining whether the rect geometry is
-     * inverted. For panoramas the rect geometrye may be inverted.
+     * inverted. For spherical the rect geometrye may be inverted.
      * @ignore
      */
     public get inverted(): boolean {
@@ -195,7 +195,7 @@ export class RectGeometry extends VertexGeometry {
                     this._anchorIndex = anchor[1] > changed[1] ? 3 : 2;
                 }
             } else {
-                // if still not inverted treat as non full pano
+                // if still not inverted treat as non spherical
                 if (anchor[0] <= changed[0] && anchor[1] > changed[1]) {
                     this._anchorIndex = 0;
                 } else if (anchor[0] <= changed[0] && anchor[1] <= changed[1]) {

@@ -283,7 +283,7 @@ export class SliderComponent extends Component<ISliderConfiguration> {
                 }),
             distinctUntilChanged());
 
-        const fullPano$: Observable<boolean> = this._navigator.stateService.currentState$.pipe(
+        const spherical$: Observable<boolean> = this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: IFrame): boolean => {
                     return isSpherical(frame.state.currentNode.cameraType);
@@ -316,13 +316,13 @@ export class SliderComponent extends Component<ISliderConfiguration> {
         this._waitSubscription = observableCombineLatest(
             mode$,
             motionless$,
-            fullPano$,
+            spherical$,
             sliderVisible$).pipe(
                 withLatestFrom(this._navigator.stateService.state$))
             .subscribe(
-                ([[mode, motionless, fullPano, sliderVisible], state]: [[SliderMode, boolean, boolean, boolean], State]): void => {
+                ([[mode, motionless, spherical, sliderVisible], state]: [[SliderMode, boolean, boolean, boolean], State]): void => {
                     const interactive: boolean = sliderVisible &&
-                        (motionless || mode === SliderMode.Stationary || fullPano);
+                        (motionless || mode === SliderMode.Stationary || spherical);
 
                     if (interactive && state !== State.WaitingInteractively) {
                         this._navigator.stateService.waitInteractively();
@@ -335,11 +335,11 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             position$,
             mode$,
             motionless$,
-            fullPano$,
+            spherical$,
             sliderVisible$)
             .subscribe(
-                ([position, mode, motionless, fullPano]: [number, SliderMode, boolean, boolean, boolean]): void => {
-                    if (motionless || mode === SliderMode.Stationary || fullPano) {
+                ([position, mode, motionless, spherical]: [number, SliderMode, boolean, boolean, boolean]): void => {
+                    if (motionless || mode === SliderMode.Stationary || spherical) {
                         this._navigator.stateService.moveTo(1);
                     } else {
                         this._navigator.stateService.moveTo(position);
@@ -350,15 +350,15 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             position$,
             mode$,
             motionless$,
-            fullPano$,
+            spherical$,
             sliderVisible$,
             this._container.renderService.size$).pipe(
                 map(
-                    ([position, mode, motionless, fullPano, sliderVisible]:
+                    ([position, mode, motionless, spherical, sliderVisible]:
                         [number, SliderMode, boolean, boolean, boolean, ISize]): IVNodeHash => {
                         return {
                             name: this._name,
-                            vnode: this._domRenderer.render(position, mode, motionless, fullPano, sliderVisible),
+                            vnode: this._domRenderer.render(position, mode, motionless, spherical, sliderVisible),
                         };
                     }))
             .subscribe(this._container.domRenderer.render$);
@@ -367,13 +367,13 @@ export class SliderComponent extends Component<ISliderConfiguration> {
 
         this._updateCurtainSubscription = observableCombineLatest(
             position$,
-            fullPano$,
+            spherical$,
             sliderVisible$,
             this._container.renderService.renderCamera$,
             this._navigator.stateService.currentTransform$).pipe(
                 map(
-                    ([position, fullPano, visible, render, transform]: [number, boolean, boolean, RenderCamera, Transform]): number => {
-                        if (!fullPano) {
+                    ([position, spherical, visible, render, transform]: [number, boolean, boolean, RenderCamera, Transform]): number => {
+                        if (!spherical) {
                             return visible ? position : 1;
                         }
 
@@ -629,13 +629,13 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             filter(
                 (node: Node): boolean => {
                     return isSpherical(node.cameraType) ?
-                        Settings.maxImageSize > Settings.basePanoramaSize :
+                        Settings.maxImageSize > Settings.baseSphericalSize :
                         Settings.maxImageSize > Settings.baseImageSize;
                 }),
             switchMap(
                 (node: Node): Observable<[HTMLImageElement, Node]> => {
                     let baseImageSize: ImageSize = isSpherical(node.cameraType) ?
-                        Settings.basePanoramaSize :
+                        Settings.baseSphericalSize :
                         Settings.baseImageSize;
 
                     if (Math.max(node.image.width, node.image.height) > baseImageSize) {
@@ -986,14 +986,14 @@ export class SliderComponent extends Component<ISliderConfiguration> {
             filter(
                 (node: Node): boolean => {
                     return isSpherical(node.cameraType) ?
-                        Settings.maxImageSize > Settings.basePanoramaSize :
+                        Settings.maxImageSize > Settings.baseSphericalSize :
                         Settings.maxImageSize > Settings.baseImageSize;
                 }),
             switchMap(
                 (node: Node): Observable<[HTMLImageElement, Node]> => {
                     let baseImageSize: ImageSize =
                         isSpherical(node.cameraType) ?
-                            Settings.basePanoramaSize :
+                            Settings.baseSphericalSize :
                             Settings.baseImageSize;
 
                     if (Math.max(node.image.width, node.image.height) > baseImageSize) {

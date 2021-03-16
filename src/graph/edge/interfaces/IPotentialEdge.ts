@@ -26,7 +26,7 @@ export interface IPotentialEdge {
 
     /**
      * Determines if the destination node is spherical.
-     * @property {boolean} fullPano
+     * @property {boolean} spherical
      */
     spherical: boolean;
 

@@ -35,8 +35,8 @@ export class RenderCamera {
     private _currentNodeId: string;
     private _previousNodeId: string;
 
-    private _currentPano: boolean;
-    private _previousPano: boolean;
+    private _currentSpherical: boolean;
+    private _previousSpherical: boolean;
 
     private _state: State;
 
@@ -66,8 +66,8 @@ export class RenderCamera {
         this._currentNodeId = null;
         this._previousNodeId = null;
 
-        this._currentPano = false;
-        this._previousPano = false;
+        this._currentSpherical = false;
+        this._previousSpherical = false;
 
         this._state = null;
 
@@ -156,7 +156,7 @@ export class RenderCamera {
 
         if (currentNodeId !== this._currentNodeId) {
             this._currentNodeId = currentNodeId;
-            this._currentPano = isSpherical(state.currentTransform.cameraType);
+            this._currentSpherical = isSpherical(state.currentTransform.cameraType);
             this._currentProjectedPoints = this._computeProjectedPoints(state.currentTransform);
 
             this._changed = true;
@@ -164,7 +164,7 @@ export class RenderCamera {
 
         if (previousNodeId !== this._previousNodeId) {
             this._previousNodeId = previousNodeId;
-            this._previousPano =
+            this._previousSpherical =
                 isSpherical(state.previousTransform.cameraType);
             this._previousProjectedPoints = this._computeProjectedPoints(state.previousTransform);
 
@@ -258,7 +258,7 @@ export class RenderCamera {
             return this._initialFov;
         }
 
-        return this._currentPano ?
+        return this._currentSpherical ?
             this._yToFov(1, zoom) :
             this._computeVerticalFov(this._currentProjectedPoints, this._renderMode, zoom, this.perspective.aspect);
     }
@@ -281,7 +281,7 @@ export class RenderCamera {
 
         return !this._previousNodeId ?
             this._currentFov :
-            this._previousPano ?
+            this._previousSpherical ?
                 this._yToFov(1, zoom) :
                 this._computeVerticalFov(this._previousProjectedPoints, this._renderMode, zoom, this.perspective.aspect);
     }

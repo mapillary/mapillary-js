@@ -351,8 +351,8 @@ export class TagComponent extends Component<ITagConfiguration> {
      * in the points geometry.
      *
      * @description The result may be different depending on if the
-     * current node is an equirectangular panorama or not. If the
-     * current node is an equirectangular panorama the rectangle may
+     * current node is an equirectangular spherical or not. If the
+     * current node is an equirectangular spherical the rectangle may
      * wrap the horizontal border of the image.
      *
      * @returns {Promise<Array<number>>} Promise to the rectangle
@@ -478,8 +478,8 @@ export class TagComponent extends Component<ITagConfiguration> {
      * tags that do not have a fill will also be returned if the point is inside
      * the geometry of the tag. Tags with point geometries can not be retrieved.
      *
-     * No tag ids will be returned for polygons rendered in cropped panoramas or
-     * rectangles rendered in panoramas.
+     * No tag ids will be returned for polygons rendered in cropped spherical or
+     * rectangles rendered in spherical.
      *
      * Notice that the pixelPoint argument requires x, y coordinates from pixel space.
      *

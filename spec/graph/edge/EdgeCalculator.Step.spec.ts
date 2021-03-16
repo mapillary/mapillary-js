@@ -94,7 +94,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
         expect(stepEdge.data.direction).toBe(EdgeDirection.StepBackward);
     });
 
-    it("should not have any edges because potential is full pano", () => {
+    it("should not have any edges because potential is spherical", () => {
         potentialEdge.spherical = true;
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
@@ -173,7 +173,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
         expect(stepEdges.length).toBe(0);
     });
 
-    it("should not have any edges if node is full pano", () => {
+    it("should not have any edges if node is spherical", () => {
         node = helper.createDefaultNode(true);
 
         let stepEdges: IEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);

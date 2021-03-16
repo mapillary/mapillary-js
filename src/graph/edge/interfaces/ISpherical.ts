@@ -1,6 +1,6 @@
 import { EdgeDirection } from "../EdgeDirection";
 
-export interface IPano {
+export interface ISpherical {
     direction: EdgeDirection;
     prev: EdgeDirection;
     next: EdgeDirection;

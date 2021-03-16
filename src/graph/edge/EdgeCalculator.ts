@@ -5,7 +5,7 @@ import { EdgeCalculatorDirections } from "./EdgeCalculatorDirections";
 import { EdgeCalculatorSettings } from "./EdgeCalculatorSettings";
 import { EdgeDirection } from "./EdgeDirection";
 import { IEdge } from "./interfaces/IEdge";
-import { IPano } from "./interfaces/IPano";
+import { ISpherical } from "./interfaces/ISpherical";
 import { IPotentialEdge } from "./interfaces/IPotentialEdge";
 import { IStep } from "./interfaces/IStep";
 import { ITurn } from "./interfaces/ITurn";
@@ -208,9 +208,9 @@ export class EdgeCalculator {
     /**
      * Computes the similar edges for a node.
      *
-     * @description Similar edges for perspective images and cropped panoramas
+     * @description Similar edges for perspective images
      * look roughly in the same direction and are positioned closed to the node.
-     * Similar edges for full panoramas only target other full panoramas.
+     * Similar edges for spherical only target other spherical.
      *
      * @param {Node} node - Source node.
      * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
@@ -316,7 +316,7 @@ export class EdgeCalculator {
      * Computes the step edges for a perspective node.
      *
      * @description Step edge targets can only be other perspective nodes.
-     * Returns an empty array for cropped and full panoramas.
+     * Returns an empty array for spherical.
      *
      * @param {Node} node - Source node.
      * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
@@ -419,7 +419,7 @@ export class EdgeCalculator {
      * Computes the turn edges for a perspective node.
      *
      * @description Turn edge targets can only be other perspective images.
-     * Returns an empty array for cropped and full panoramas.
+     * Returns an empty array for spherical.
      *
      * @param {Node} node - Source node.
      * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
@@ -512,16 +512,16 @@ export class EdgeCalculator {
     }
 
     /**
-     * Computes the pano edges for a perspective node.
+     * Computes the spherical edges for a perspective node.
      *
-     * @description Perspective to pano edge targets can only be
-     * full pano nodes. Returns an empty array for cropped and full panoramas.
+     * @description Perspective to spherical edge targets can only be
+     * spherical nodes. Returns an empty array for spherical.
      *
      * @param {Node} node - Source node.
      * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public computePerspectiveToPanoEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computePerspectiveToSphericalEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
@@ -539,11 +539,11 @@ export class EdgeCalculator {
             }
 
             let score: number =
-                this._coefficients.panoPreferredDistance *
-                Math.abs(potential.distance - this._settings.panoPreferredDistance) /
-                this._settings.panoMaxDistance +
-                this._coefficients.panoMotion * Math.abs(potential.motionChange) / Math.PI +
-                this._coefficients.panoMergeCCPenalty * (potential.sameMergeCC ? 0 : 1);
+                this._coefficients.sphericalPreferredDistance *
+                Math.abs(potential.distance - this._settings.sphericalPreferredDistance) /
+                this._settings.sphericalMaxDistance +
+                this._coefficients.sphericalMotion * Math.abs(potential.motionChange) / Math.PI +
+                this._coefficients.sphericalMergeCCPenalty * (potential.sameMergeCC ? 0 : 1);
 
             if (score < lowestScore) {
                 lowestScore = score;
@@ -558,7 +558,7 @@ export class EdgeCalculator {
         return [
             {
                 data: {
-                    direction: EdgeDirection.Pano,
+                    direction: EdgeDirection.Spherical,
                     worldMotionAzimuth: edge.worldMotionAzimuth,
                 },
                 from: node.key,
@@ -568,18 +568,17 @@ export class EdgeCalculator {
     }
 
     /**
-     * Computes the full pano and step edges for a full pano node.
+     * Computes the spherical and step edges for a spherical node.
      *
-     * @description Pano to pano edge targets can only be
-     * full pano nodes. Pano to step edge targets can only be perspective
+     * @description Spherical to spherical edge targets can only be
+     * spherical nodes. spherical to step edge targets can only be perspective
      * nodes.
-     * Returns an empty array for cropped panoramas and perspective nodes.
      *
      * @param {Node} node - Source node.
      * @param {Array<IPotentialEdge>} potentialEdges - Potential edges.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public computePanoEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
+    public computeSphericalEdges(node: Node, potentialEdges: IPotentialEdge[]): IEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
@@ -588,40 +587,40 @@ export class EdgeCalculator {
             return [];
         }
 
-        let panoEdges: IEdge[] = [];
-        let potentialPanos: IPotentialEdge[] = [];
+        let sphericalEdges: IEdge[] = [];
+        let potentialSpherical: IPotentialEdge[] = [];
         let potentialSteps: [EdgeDirection, IPotentialEdge][] = [];
 
         for (let potential of potentialEdges) {
-            if (potential.distance > this._settings.panoMaxDistance) {
+            if (potential.distance > this._settings.sphericalMaxDistance) {
                 continue;
             }
 
             if (potential.spherical) {
-                if (potential.distance < this._settings.panoMinDistance) {
+                if (potential.distance < this._settings.sphericalMinDistance) {
                     continue;
                 }
 
-                potentialPanos.push(potential);
+                potentialSpherical.push(potential);
             } else {
-                for (let k in this._directions.panos) {
-                    if (!this._directions.panos.hasOwnProperty(k)) {
+                for (let k in this._directions.spherical) {
+                    if (!this._directions.spherical.hasOwnProperty(k)) {
                         continue;
                     }
 
-                    let pano: IPano = this._directions.panos[k];
+                    let spherical: ISpherical = this._directions.spherical[k];
 
                     let turn: number = this._spatial.angleDifference(
                         potential.directionChange,
                         potential.motionChange);
 
-                    let turnChange: number = this._spatial.angleDifference(pano.directionChange, turn);
+                    let turnChange: number = this._spatial.angleDifference(spherical.directionChange, turn);
 
-                    if (Math.abs(turnChange) > this._settings.panoMaxStepTurnChange) {
+                    if (Math.abs(turnChange) > this._settings.sphericalMaxStepTurnChange) {
                         continue;
                     }
 
-                    potentialSteps.push([pano.direction, potential]);
+                    potentialSteps.push([spherical.direction, potential]);
 
                     // break if step direction found
                     break;
@@ -629,17 +628,17 @@ export class EdgeCalculator {
             }
         }
 
-        let maxRotationDifference: number = Math.PI / this._settings.panoMaxItems;
+        let maxRotationDifference: number = Math.PI / this._settings.sphericalMaxItems;
         let occupiedAngles: number[] = [];
         let stepAngles: number[] = [];
 
-        for (let index: number = 0; index < this._settings.panoMaxItems; index++) {
-            let rotation: number = index / this._settings.panoMaxItems * 2 * Math.PI;
+        for (let index: number = 0; index < this._settings.sphericalMaxItems; index++) {
+            let rotation: number = index / this._settings.sphericalMaxItems * 2 * Math.PI;
 
             let lowestScore: number = Number.MAX_VALUE;
             let edge: IPotentialEdge = null;
 
-            for (let potential of potentialPanos) {
+            for (let potential of potentialSpherical) {
                 let motionDifference: number = this._spatial.angleDifference(rotation, potential.motionChange);
 
                 if (Math.abs(motionDifference) > maxRotationDifference) {
@@ -659,12 +658,12 @@ export class EdgeCalculator {
                 }
 
                 let score: number =
-                    this._coefficients.panoPreferredDistance *
-                    Math.abs(potential.distance - this._settings.panoPreferredDistance) /
-                    this._settings.panoMaxDistance +
-                    this._coefficients.panoMotion * Math.abs(motionDifference) / maxRotationDifference +
-                    this._coefficients.panoSequencePenalty * (potential.sameSequence ? 0 : 1) +
-                    this._coefficients.panoMergeCCPenalty * (potential.sameMergeCC ? 0 : 1);
+                    this._coefficients.sphericalPreferredDistance *
+                    Math.abs(potential.distance - this._settings.sphericalPreferredDistance) /
+                    this._settings.sphericalMaxDistance +
+                    this._coefficients.sphericalMotion * Math.abs(motionDifference) / maxRotationDifference +
+                    this._coefficients.sphericalSequencePenalty * (potential.sameSequence ? 0 : 1) +
+                    this._coefficients.sphericalMergeCCPenalty * (potential.sameMergeCC ? 0 : 1);
 
                 if (score < lowestScore) {
                     lowestScore = score;
@@ -674,9 +673,9 @@ export class EdgeCalculator {
 
             if (edge != null) {
                 occupiedAngles.push(edge.motionChange);
-                panoEdges.push({
+                sphericalEdges.push({
                     data: {
-                        direction: EdgeDirection.Pano,
+                        direction: EdgeDirection.Spherical,
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
                     from: node.key,
@@ -688,7 +687,7 @@ export class EdgeCalculator {
         }
 
         let occupiedStepAngles: { [direction: string]: number[] } = {};
-        occupiedStepAngles[EdgeDirection.Pano] = occupiedAngles;
+        occupiedStepAngles[EdgeDirection.Spherical] = occupiedAngles;
         occupiedStepAngles[EdgeDirection.StepForward] = [];
         occupiedStepAngles[EdgeDirection.StepLeft] = [];
         occupiedStepAngles[EdgeDirection.StepBackward] = [];
@@ -697,23 +696,23 @@ export class EdgeCalculator {
         for (let stepAngle of stepAngles) {
             let occupations: [EdgeDirection, IPotentialEdge][] = [];
 
-            for (let k in this._directions.panos) {
-                if (!this._directions.panos.hasOwnProperty(k)) {
+            for (let k in this._directions.spherical) {
+                if (!this._directions.spherical.hasOwnProperty(k)) {
                     continue;
                 }
 
-                let pano: IPano = this._directions.panos[k];
+                let spherical: ISpherical = this._directions.spherical[k];
 
-                let allOccupiedAngles: number[] = occupiedStepAngles[EdgeDirection.Pano]
-                    .concat(occupiedStepAngles[pano.direction])
-                    .concat(occupiedStepAngles[pano.prev])
-                    .concat(occupiedStepAngles[pano.next]);
+                let allOccupiedAngles: number[] = occupiedStepAngles[EdgeDirection.Spherical]
+                    .concat(occupiedStepAngles[spherical.direction])
+                    .concat(occupiedStepAngles[spherical.prev])
+                    .concat(occupiedStepAngles[spherical.next]);
 
                 let lowestScore: number = Number.MAX_VALUE;
                 let edge: [EdgeDirection, IPotentialEdge] = null;
 
                 for (let potential of potentialSteps) {
-                    if (potential[0] !== pano.direction) {
+                    if (potential[0] !== spherical.direction) {
                         continue;
                     }
 
@@ -737,11 +736,11 @@ export class EdgeCalculator {
                         continue;
                     }
 
-                    let score: number = this._coefficients.panoPreferredDistance *
-                        Math.abs(potential[1].distance - this._settings.panoPreferredDistance) /
-                        this._settings.panoMaxDistance +
-                        this._coefficients.panoMotion * Math.abs(motionChange) / maxRotationDifference +
-                        this._coefficients.panoMergeCCPenalty * (potential[1].sameMergeCC ? 0 : 1);
+                    let score: number = this._coefficients.sphericalPreferredDistance *
+                        Math.abs(potential[1].distance - this._settings.sphericalPreferredDistance) /
+                        this._settings.sphericalMaxDistance +
+                        this._coefficients.sphericalMotion * Math.abs(motionChange) / maxRotationDifference +
+                        this._coefficients.sphericalMergeCCPenalty * (potential[1].sameMergeCC ? 0 : 1);
 
                     if (score < lowestScore) {
                         lowestScore = score;
@@ -751,7 +750,7 @@ export class EdgeCalculator {
 
                 if (edge != null) {
                     occupations.push(edge);
-                    panoEdges.push({
+                    sphericalEdges.push({
                         data: {
                             direction: edge[0],
                             worldMotionAzimuth: edge[1].worldMotionAzimuth,
@@ -767,6 +766,6 @@ export class EdgeCalculator {
             }
         }
 
-        return panoEdges;
+        return sphericalEdges;
     }
 }

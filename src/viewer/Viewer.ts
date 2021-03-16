@@ -983,7 +983,7 @@ export class Viewer extends EventEmitter {
      * in a filter) and common use cases:
      *
      * ```
-     * fullPano        // Show only full 360 panoramas or not
+     * cameraType      // Show only spherical or not
      * organizationKey // Show images from one or several organizations
      * sequenceKey     // Show images from one or several sequences
      * userKey         // Show images from one or several users
@@ -1000,7 +1000,7 @@ export class Viewer extends EventEmitter {
      * // Other examples
      * // viewer.setFilter(["==", "organizationKey", "<my organization key>"]);
      * // viewer.setFilter(["in", "userKey", "<my user key #1>", "<my user key #2>"]);
-     * // viewer.setFilter(["==", "fullPano", true]);
+     * // viewer.setFilter(["==", "cameraType", "equirectangular"]);
      * // viewer.setFilter([">=", "capturedAt", <my time stamp>]);
      * ```
      */

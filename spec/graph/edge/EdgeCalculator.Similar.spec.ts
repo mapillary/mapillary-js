@@ -71,7 +71,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         expect(similarEdges.length).toBe(0);
     });
 
-    it("should not have a similar edge if node is full pano and potential node is not full pano", () => {
+    it("should not have a similar edge if node is spherical and potential node is not spherical", () => {
         potentialEdge.sameMergeCC = true;
         potentialEdge.sameSequence = true;
         potentialEdge.sequenceKey = "other";
@@ -133,7 +133,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         expect(similarEdges.length).toBe(0);
     });
 
-    it("should have a similar edge even if rotation is above threshold when potential is full pano", () => {
+    it("should have a similar edge even if rotation is above threshold when potential is spherical", () => {
         settings.similarMaxDirectionChange = 0.5;
 
         potentialEdge.directionChange = 1;

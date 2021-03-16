@@ -287,7 +287,7 @@ export class Transform {
      * @param {Array<number>} distance - Distance to unproject from camera center.
      * @param {boolean} [depth] - Treat the distance value as depth from camera center.
      *                            Only applicable for perspective images. Will be
-     *                            ignored for panoramas.
+     *                            ignored for spherical.
      * @returns {Array<number>} Unprojected 3D world coordinates.
      */
     public unprojectBasic(basic: number[], distance: number, depth?: boolean): number[] {
@@ -314,7 +314,7 @@ export class Transform {
      * @param {Array<number>} distance - Distance to unproject from camera center.
      * @param {boolean} [depth] - Treat the distance value as depth from camera center.
      *                            Only applicable for perspective images. Will be
-     *                            ignored for panoramas.
+     *                            ignored for spherical.
      * @returns {Array<number>} Unprojected 3D world coordinates.
      */
     public unprojectSfM(

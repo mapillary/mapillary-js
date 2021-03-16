@@ -138,7 +138,7 @@ describe("WaitingState.currentCamera.lookat", () => {
         expect(waitingState.currentCamera.lookat.z).toBeGreaterThan(0);
     });
 
-    it("should correspond to lookat of camera when full pano", () => {
+    it("should correspond to lookat of camera when spherical", () => {
         let camera: Camera = new Camera();
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
@@ -264,7 +264,7 @@ describe("WaitingState.previousCamera.lookat", () => {
         expect(waitingState.previousCamera.lookat.z).toBeGreaterThan(0);
     });
 
-    it("should correspond to direction of current camera when full pano and previous node set", () => {
+    it("should correspond to direction of current camera when spherical and previous node set", () => {
         let camera: Camera = new Camera();
 
         let state: IState = {

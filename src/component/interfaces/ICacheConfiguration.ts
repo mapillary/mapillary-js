@@ -11,7 +11,7 @@ import { IComponentConfiguration } from "./IComponentConfiguration";
  *     component: {
  *         cache: {
  *             depth: {
- *                 pano: 2,
+ *                 spherical: 2,
  *                 sequence: 3,
  *             }
  *         },
@@ -31,13 +31,13 @@ export interface ICacheDepth {
     sequence: number;
 
     /**
-     * Cache depth in the pano direction.
+     * Cache depth in the spherical direction.
      *
      * @description Max value is 2. Value will be clamped
      * to the interval [0, 2].
      * @default 1
      */
-    pano: number;
+    spherical: number;
 
     /**
      * Cache depth in the step directions.

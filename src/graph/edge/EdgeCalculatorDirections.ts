@@ -1,5 +1,5 @@
 import { EdgeDirection } from "./EdgeDirection";
-import { IPano } from "./interfaces/IPano";
+import { ISpherical } from "./interfaces/ISpherical";
 import { IStep } from "./interfaces/IStep";
 import { ITurn } from "./interfaces/ITurn";
 
@@ -7,7 +7,7 @@ export class EdgeCalculatorDirections {
 
     public steps: { [direction: string]: IStep } = {};
     public turns: { [direction: string]: ITurn } = {};
-    public panos: { [direction: string]: IPano } = {};
+    public spherical: { [direction: string]: ISpherical } = {};
 
     constructor() {
         this.steps[EdgeDirection.StepForward] = {
@@ -52,28 +52,28 @@ export class EdgeCalculatorDirections {
             motionChange: null,
         };
 
-        this.panos[EdgeDirection.StepForward] = {
+        this.spherical[EdgeDirection.StepForward] = {
             direction: EdgeDirection.StepForward,
             directionChange: 0,
             next: EdgeDirection.StepLeft,
             prev: EdgeDirection.StepRight,
         };
 
-        this.panos[EdgeDirection.StepBackward] = {
+        this.spherical[EdgeDirection.StepBackward] = {
             direction: EdgeDirection.StepBackward,
             directionChange: Math.PI,
             next: EdgeDirection.StepRight,
             prev: EdgeDirection.StepLeft,
         };
 
-        this.panos[EdgeDirection.StepLeft] = {
+        this.spherical[EdgeDirection.StepLeft] = {
             direction: EdgeDirection.StepLeft,
             directionChange: Math.PI / 2,
             next: EdgeDirection.StepBackward,
             prev: EdgeDirection.StepForward,
         };
 
-        this.panos[EdgeDirection.StepRight] = {
+        this.spherical[EdgeDirection.StepRight] = {
             direction: EdgeDirection.StepRight,
             directionChange: -Math.PI / 2,
             next: EdgeDirection.StepForward,

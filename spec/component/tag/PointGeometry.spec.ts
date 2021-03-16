@@ -1,18 +1,17 @@
-import { Node } from "../../../src/graph/Node";
-import { Transform } from "../../../src/geo/Transform";
 import { PointGeometry } from "../../../src/component/tag/geometry/PointGeometry";
-import { CameraProjectionType } from "../../../src/api/interfaces/CameraProjectionType";
+import { TransformHelper } from "../../helper/TransformHelper";
 
+const transformHelper = new TransformHelper();
 
 describe("PointGeometry.ctor", () => {
     it("should be defined", () => {
-        let pointGeometry: PointGeometry = new PointGeometry([0.5, 0.5]);
+        let pointGeometry = new PointGeometry([0.5, 0.5]);
 
         expect(pointGeometry).toBeDefined();
     });
 
     it("point should be set", () => {
-        let pointGeometry: PointGeometry = new PointGeometry([0.5, 0.5]);
+        let pointGeometry = new PointGeometry([0.5, 0.5]);
 
         expect(pointGeometry.point[0]).toBe(0.5);
         expect(pointGeometry.point[1]).toBe(0.5);
@@ -30,58 +29,12 @@ describe("PointGeometry.ctor", () => {
 });
 
 describe("PointGeometry.setVertex2d", () => {
-    let createNode = (cameraType: CameraProjectionType): Node => {
-        let node: Node = new Node({
-            cl: { lat: 0, lon: 0 },
-            key: "key",
-            l: { lat: 0, lon: 0 },
-            sequence_key: "skey",
-        });
-
-        node.makeFull({
-            atomic_scale: 0,
-            c_rotation: [0, 0, 0],
-            ca: 0,
-            calt: 0,
-            camera_projection_type: cameraType,
-            captured_at: 0,
-            cca: 0,
-            cfocal: 0,
-            cluster_key: "ckey",
-            height: 0,
-            merge_cc: 0,
-            merge_version: 0,
-            orientation: 0,
-            private: false,
-            user: { key: "key", username: "username" },
-            width: 0,
-        });
-
-        return node;
-    };
-
-    let createTransform: (pano: boolean) => Transform = (pano: boolean): Transform => {
-        let cameraType: CameraProjectionType =
-            pano ? "equirectangular" : "perspective";
-        let node: Node = createNode(cameraType);
-
-        return new Transform(
-            node.orientation,
-            node.width,
-            node.height,
-            node.focal,
-            node.scale,
-            node.rotation,
-            [0, 0, 0],
-            null);
-    };
-
     it("should set point to value", () => {
-        let original: number[] = [0, 0];
-        let pointGeometry: PointGeometry = new PointGeometry(original);
+        let original = [0, 0];
+        let pointGeometry = new PointGeometry(original);
 
-        let point: number[] = [0.5, 0.5];
-        let transform: Transform = createTransform(true);
+        let point = [0.5, 0.5];
+        let transform = transformHelper.createTransform("equirectangular");
 
         pointGeometry.setCentroid2d(point, transform);
 
@@ -90,11 +43,11 @@ describe("PointGeometry.setVertex2d", () => {
     });
 
     it("should clamp negative input value to [0, 1] interval", () => {
-        let original: number[] = [0.5, 0.5];
-        let pointGeometry: PointGeometry = new PointGeometry(original);
+        let original = [0.5, 0.5];
+        let pointGeometry = new PointGeometry(original);
 
-        let point: number[] = [-1, -1];
-        let transform: Transform = createTransform(true);
+        let point = [-1, -1];
+        let transform = transformHelper.createTransform("equirectangular");
 
         pointGeometry.setCentroid2d(point, transform);
 
@@ -103,11 +56,11 @@ describe("PointGeometry.setVertex2d", () => {
     });
 
     it("should clamp input value larger than 1 to [0, 1] interval", () => {
-        let original: number[] = [0.5, 0.5];
-        let pointGeometry: PointGeometry = new PointGeometry(original);
+        let original = [0.5, 0.5];
+        let pointGeometry = new PointGeometry(original);
 
-        let point: number[] = [2, 2];
-        let transform: Transform = createTransform(true);
+        let point = [2, 2];
+        let transform = transformHelper.createTransform("equirectangular");
 
         pointGeometry.setCentroid2d(point, transform);
 
@@ -118,10 +71,10 @@ describe("PointGeometry.setVertex2d", () => {
 
 describe("PointGeometry.getCentroid2d", () => {
     it("should get an array that is equal to the point", () => {
-        const point: number[] = [0.5, 0.6];
-        const pointGeometry: PointGeometry = new PointGeometry(point);
+        const point = [0.5, 0.6];
+        const pointGeometry = new PointGeometry(point);
 
-        const result: number[] = pointGeometry.getCentroid2d();
+        const result = pointGeometry.getCentroid2d();
 
         expect(result).not.toBe(pointGeometry.point);
         expect(result).not.toBe(point);

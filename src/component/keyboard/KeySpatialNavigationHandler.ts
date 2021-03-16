@@ -77,20 +77,20 @@ export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfigurat
                 spatialEdges$,
                 this._navigator.stateService.currentState$))
             .subscribe(([event, edgeStatus, frame]: [KeyboardEvent, IEdgeStatus, IFrame]): void => {
-                let pano = isSpherical(frame.state.currentNode.cameraType);
+                let spherical = isSpherical(frame.state.currentNode.cameraType);
                 let direction: EdgeDirection = null;
                 switch (event.keyCode) {
                     case 37: // left
-                        direction = event.shiftKey && !pano ? EdgeDirection.TurnLeft : EdgeDirection.StepLeft;
+                        direction = event.shiftKey && !spherical ? EdgeDirection.TurnLeft : EdgeDirection.StepLeft;
                         break;
                     case 38: // up
-                        direction = event.shiftKey && !pano ? EdgeDirection.Pano : EdgeDirection.StepForward;
+                        direction = event.shiftKey && !spherical ? EdgeDirection.Spherical : EdgeDirection.StepForward;
                         break;
                     case 39: // right
-                        direction = event.shiftKey && !pano ? EdgeDirection.TurnRight : EdgeDirection.StepRight;
+                        direction = event.shiftKey && !spherical ? EdgeDirection.TurnRight : EdgeDirection.StepRight;
                         break;
                     case 40: // down
-                        direction = event.shiftKey && !pano ? EdgeDirection.TurnU : EdgeDirection.StepBackward;
+                        direction = event.shiftKey && !spherical ? EdgeDirection.TurnU : EdgeDirection.StepBackward;
                         break;
                     default:
                         return;
@@ -99,11 +99,11 @@ export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfigurat
                 event.preventDefault();
 
                 if (event.altKey || !edgeStatus.cached ||
-                    (event.shiftKey && pano)) {
+                    (event.shiftKey && spherical)) {
                     return;
                 }
 
-                if (!pano) {
+                if (!spherical) {
                     this._moveDir(direction, edgeStatus);
                 } else {
                     const shifts: { [dir: number]: number } = {};
@@ -118,7 +118,7 @@ export class KeySpatialNavigationHandler extends HandlerBase<IKeyboardConfigurat
                     const threshold: number = Math.PI / 4;
                     const edges: IEdge[] = edgeStatus.edges.filter(
                         (e: IEdge): boolean => {
-                            return e.data.direction === EdgeDirection.Pano || e.data.direction === direction;
+                            return e.data.direction === EdgeDirection.Spherical || e.data.direction === direction;
                         });
 
                     let smallestAngle: number = Number.MAX_VALUE;

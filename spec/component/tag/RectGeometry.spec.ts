@@ -383,7 +383,7 @@ describe("RectGeometry.setCentroid2d", () => {
         expect(rectGeometry.rect[3]).toBeCloseTo(0.5, precision);
     });
 
-    it("should limit x-axis translation for non pano", () => {
+    it("should limit x-axis translation for non spherical", () => {
         let original = [0.1, 0.1, 0.3, 0.3];
         let rectGeometry = new RectGeometry(original);
 
@@ -398,7 +398,7 @@ describe("RectGeometry.setCentroid2d", () => {
         expect(rectGeometry.rect[3]).toBeCloseTo(0.3, precision);
     });
 
-    it("should not limit x-axis translation for non pano", () => {
+    it("should not limit x-axis translation for non spherical", () => {
         let original = [0.1, 0.1, 0.3, 0.3];
         let rectGeometry = new RectGeometry(original);
 
@@ -413,7 +413,7 @@ describe("RectGeometry.setCentroid2d", () => {
         expect(rectGeometry.rect[3]).toBeCloseTo(0.3, precision);
     });
 
-    it("should limit y-axis translation for non pano", () => {
+    it("should limit y-axis translation for non spherical", () => {
         let original = [0.1, 0.1, 0.3, 0.3];
         let rectGeometry = new RectGeometry(original);
 
@@ -428,7 +428,7 @@ describe("RectGeometry.setCentroid2d", () => {
         expect(rectGeometry.rect[3]).toBeCloseTo(0.2, precision);
     });
 
-    it("should limit y-axis translation for non pano", () => {
+    it("should limit y-axis translation for non spherical", () => {
         let original = [0.1, 0.1, 0.3, 0.3];
         let rectGeometry = new RectGeometry(original);
 
@@ -678,7 +678,7 @@ describe("RectGeometry.inverted", () => {
 });
 
 describe("RectGeometry.setOppositeVertex", () => {
-    it("should invert for pano when right side passes boundary rightward", () => {
+    it("should invert for spherical when right side passes boundary rightward", () => {
         const rect = [0.9, 0.5, 0.99, 0.6];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");
@@ -692,7 +692,7 @@ describe("RectGeometry.setOppositeVertex", () => {
         expect(rectGeometry.rect).toEqual([0.9, 0.5, 0.01, 0.6]);
     });
 
-    it("should invert for pano when left side passes right side and boundary rightward", () => {
+    it("should invert for spherical when left side passes right side and boundary rightward", () => {
         const rect = [0.9, 0.5, 0.99, 0.6];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");
@@ -706,7 +706,7 @@ describe("RectGeometry.setOppositeVertex", () => {
         expect(rectGeometry.rect).toEqual([0.99, 0.5, 0.01, 0.6]);
     });
 
-    it("should uninvert for pano when left side passes boundary rightward", () => {
+    it("should uninvert for spherical when left side passes boundary rightward", () => {
         const rect = [0.9, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");
@@ -720,7 +720,7 @@ describe("RectGeometry.setOppositeVertex", () => {
         expect(rectGeometry.rect).toEqual([0.01, 0.5, 0.1, 0.6]);
     });
 
-    it("should uninvert for pano when left side passes right side and boundary rightward", () => {
+    it("should uninvert for spherical when left side passes right side and boundary rightward", () => {
         const rect = [0.99, 0.5, 0.01, 0.6];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");
@@ -734,7 +734,7 @@ describe("RectGeometry.setOppositeVertex", () => {
         expect(rectGeometry.rect).toEqual([0.01, 0.5, 0.1, 0.6]);
     });
 
-    it("should invert for pano when left side passes boundary leftward", () => {
+    it("should invert for spherical when left side passes boundary leftward", () => {
         const rect = [0.01, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");
@@ -748,7 +748,7 @@ describe("RectGeometry.setOppositeVertex", () => {
         expect(rectGeometry.rect).toEqual([0.99, 0.5, 0.1, 0.6]);
     });
 
-    it("should invert for pano when right side passes left side and boundary leftward", () => {
+    it("should invert for spherical when right side passes left side and boundary leftward", () => {
         const rect = [0.01, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");
@@ -762,7 +762,7 @@ describe("RectGeometry.setOppositeVertex", () => {
         expect(rectGeometry.rect).toEqual([0.9, 0.5, 0.01, 0.6]);
     });
 
-    it("should uninvert for pano when right side passes boundary leftward", () => {
+    it("should uninvert for spherical when right side passes boundary leftward", () => {
         const rect = [0.9, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");
@@ -776,7 +776,7 @@ describe("RectGeometry.setOppositeVertex", () => {
         expect(rectGeometry.rect).toEqual([0.9, 0.5, 0.99, 0.6]);
     });
 
-    it("should uninvert for pano when right side passes left side and boundary leftward", () => {
+    it("should uninvert for spherical when right side passes left side and boundary leftward", () => {
         const rect = [0.99, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");
@@ -916,7 +916,7 @@ describe("RectGeometry.setOppositeVertex", () => {
 });
 
 describe("RectGeometry.setOppositeVertex", () => {
-    it("should rotate anchor index clockwise for pano", () => {
+    it("should rotate anchor index clockwise for spherical", () => {
         const rect = [0.5, 0.5, 0.6, 0.6];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");
@@ -941,7 +941,7 @@ describe("RectGeometry.setOppositeVertex", () => {
         expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.6, 0.6]);
     });
 
-    it("should rotate anchor index counterclockwise for pano", () => {
+    it("should rotate anchor index counterclockwise for spherical", () => {
         const rect = [0.5, 0.5, 0.6, 0.6];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");
@@ -966,7 +966,7 @@ describe("RectGeometry.setOppositeVertex", () => {
         expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.6, 0.6]);
     });
 
-    it("should rotate anchor index diagonally se-nw for pano", () => {
+    it("should rotate anchor index diagonally se-nw for spherical", () => {
         const rect = [0.5, 0.5, 0.6, 0.6];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");
@@ -983,7 +983,7 @@ describe("RectGeometry.setOppositeVertex", () => {
         expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.6, 0.6]);
     });
 
-    it("should rotate anchor index diagonally ne-sw for pano", () => {
+    it("should rotate anchor index diagonally ne-sw for spherical", () => {
         const rect = [0.5, 0.4, 0.6, 0.5];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");
@@ -1000,7 +1000,7 @@ describe("RectGeometry.setOppositeVertex", () => {
         expect(rectGeometry.rect).toEqual([0.5, 0.4, 0.6, 0.5]);
     });
 
-    it("should not change anchor index when opposite decreases to equal anchor for pano", () => {
+    it("should not change anchor index when opposite decreases to equal anchor for spherical", () => {
         const rect = [0.5, 0.5, 0.6, 0.6];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");
@@ -1016,7 +1016,7 @@ describe("RectGeometry.setOppositeVertex", () => {
         expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.5, 0.5]);
     });
 
-    it("should not change anchor index when opposite increases to equal anchor for pano", () => {
+    it("should not change anchor index when opposite increases to equal anchor for spherical", () => {
         const rect = [0.4, 0.4, 0.5, 0.5];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");
@@ -1032,7 +1032,7 @@ describe("RectGeometry.setOppositeVertex", () => {
         expect(rectGeometry.rect).toEqual([0.5, 0.5, 0.5, 0.5]);
     });
 
-    it("should always have a larger right x than left x except when equal for pano", () => {
+    it("should always have a larger right x than left x except when equal for spherical", () => {
         const rect = [0.5, 0.5, 0.6, 0.6];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");
@@ -1049,7 +1049,7 @@ describe("RectGeometry.setOppositeVertex", () => {
         expect(rectGeometry.rect[0] === rectGeometry.rect[2]).toBe(true);
     });
 
-    it("should always have a larger bottom y than top y except when equal for pano", () => {
+    it("should always have a larger bottom y than top y except when equal for spherical", () => {
         const rect = [0.5, 0.5, 0.6, 0.6];
         const rectGeometry = new RectGeometry(rect);
         const transform = transformHelper.createTransform("equirectangular");

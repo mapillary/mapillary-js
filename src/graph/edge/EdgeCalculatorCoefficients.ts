@@ -1,8 +1,8 @@
 export class EdgeCalculatorCoefficients {
-    public panoPreferredDistance: number;
-    public panoMotion: number;
-    public panoSequencePenalty: number;
-    public panoMergeCCPenalty: number;
+    public sphericalPreferredDistance: number;
+    public sphericalMotion: number;
+    public sphericalSequencePenalty: number;
+    public sphericalMergeCCPenalty: number;
 
     public stepPreferredDistance: number;
     public stepMotion: number;
@@ -19,10 +19,10 @@ export class EdgeCalculatorCoefficients {
     public turnMergeCCPenalty: number;
 
     constructor() {
-        this.panoPreferredDistance = 2;
-        this.panoMotion = 2;
-        this.panoSequencePenalty = 1;
-        this.panoMergeCCPenalty = 4;
+        this.sphericalPreferredDistance = 2;
+        this.sphericalMotion = 2;
+        this.sphericalSequencePenalty = 1;
+        this.sphericalMergeCCPenalty = 4;
 
         this.stepPreferredDistance = 4;
         this.stepMotion = 3;
