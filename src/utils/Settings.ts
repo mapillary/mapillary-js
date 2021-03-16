@@ -3,15 +3,15 @@ import { IViewerOptions } from "../viewer/interfaces/IViewerOptions";
 
 export class Settings {
     private static _baseImageSize: number;
-    private static _basePanoramaSize: number;
+    private static _baseSphericalSize: number;
     private static _maxImageSize: number;
 
     public static get baseImageSize(): number {
         return Settings._baseImageSize;
     }
 
-    public static get basePanoramaSize(): number {
-        return Settings._basePanoramaSize;
+    public static get baseSphericalSize(): number {
+        return Settings._baseSphericalSize;
     }
 
     public static get maxImageSize(): number {
@@ -23,8 +23,8 @@ export class Settings {
             options.baseImageSize :
             ImageSize.Size640;
 
-        Settings._basePanoramaSize = options.basePanoramaSize != null ?
-            options.basePanoramaSize :
+        Settings._baseSphericalSize = options.baseSphericalSize != null ?
+            options.baseSphericalSize :
             ImageSize.Size2048;
 
         Settings._maxImageSize = options.maxImageSize != null ?

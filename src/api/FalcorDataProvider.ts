@@ -220,7 +220,6 @@ export class FalcorDataProvider extends DataProviderBase {
             "cfocal",
             "ck1",
             "ck2",
-            "gpano",
             "height",
             "merge_cc",
             "merge_version",

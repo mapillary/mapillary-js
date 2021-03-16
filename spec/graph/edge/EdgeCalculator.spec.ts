@@ -711,7 +711,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.sameMergeCC).toBe(false);
     });
 
-    it("should be full pano when gpano existing and correct", () => {
+    it("should be spherical when camera type equirectangular", () => {
         let key: string = "key";
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";

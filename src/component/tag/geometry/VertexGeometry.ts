@@ -219,7 +219,10 @@ export abstract class VertexGeometry extends Geometry {
         return triangles;
     }
 
-    protected _triangulatePano(points2d: number[][], holes2d: number[][][], transform: Transform): number[] {
+    protected _triangulateSpherical(
+        points2d: number[][],
+        holes2d: number[][][],
+        transform: Transform): number[] {
         const triangles: number[] = [];
 
         const epsilon: number = 1e-9;

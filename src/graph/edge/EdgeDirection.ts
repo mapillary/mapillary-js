@@ -52,9 +52,9 @@ export enum EdgeDirection {
     TurnU,
 
     /**
-     * Panorama in general direction.
+     * Spherical in general direction.
      */
-    Pano,
+    Spherical,
 
     /**
      * Looking in roughly the same direction at rougly the same position.

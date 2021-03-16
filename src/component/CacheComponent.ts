@@ -73,10 +73,10 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                         let status: IEdgeStatus = nc[0];
                         let configuration: ICacheConfiguration = nc[1];
 
-                        let sequenceDepth: number = Math.max(0, Math.min(4, configuration.depth.sequence));
+                        let sequenceDepth = Math.max(0, Math.min(4, configuration.depth.sequence));
 
-                        let next$: Observable<EdgesDepth> = this._cache$(status.edges, EdgeDirection.Next, sequenceDepth);
-                        let prev$: Observable<EdgesDepth> = this._cache$(status.edges, EdgeDirection.Prev, sequenceDepth);
+                        let next$ = this._cache$(status.edges, EdgeDirection.Next, sequenceDepth);
+                        let prev$ = this._cache$(status.edges, EdgeDirection.Prev, sequenceDepth);
 
                         return observableMerge<EdgesDepth>(
                             next$,
@@ -108,29 +108,30 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                         let edges: IEdge[] = edgeStatus.edges;
                         let depth: ICacheDepth = configuration.depth;
 
-                        let panoDepth: number = Math.max(0, Math.min(2, depth.pano));
-                        let stepDepth: number = isSpherical(node.cameraType) ?
+                        let sphericalDepth =
+                            Math.max(0, Math.min(2, depth.spherical));
+                        let stepDepth = isSpherical(node.cameraType) ?
                             0 : Math.max(0, Math.min(3, depth.step));
-                        let turnDepth: number = isSpherical(node.cameraType) ?
+                        let turnDepth = isSpherical(node.cameraType) ?
                             0 : Math.max(0, Math.min(1, depth.turn));
 
-                        let pano$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.Pano, panoDepth);
+                        let spherical$ = this._cache$(edges, EdgeDirection.Spherical, sphericalDepth);
 
-                        let forward$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.StepForward, stepDepth);
-                        let backward$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.StepBackward, stepDepth);
-                        let left$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.StepLeft, stepDepth);
-                        let right$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.StepRight, stepDepth);
+                        let forward$ = this._cache$(edges, EdgeDirection.StepForward, stepDepth);
+                        let backward$ = this._cache$(edges, EdgeDirection.StepBackward, stepDepth);
+                        let left$ = this._cache$(edges, EdgeDirection.StepLeft, stepDepth);
+                        let right$ = this._cache$(edges, EdgeDirection.StepRight, stepDepth);
 
-                        let turnLeft$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.TurnLeft, turnDepth);
-                        let turnRight$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.TurnRight, turnDepth);
-                        let turnU$: Observable<EdgesDepth> = this._cache$(edges, EdgeDirection.TurnU, turnDepth);
+                        let turnLeft$ = this._cache$(edges, EdgeDirection.TurnLeft, turnDepth);
+                        let turnRight$ = this._cache$(edges, EdgeDirection.TurnRight, turnDepth);
+                        let turnU$ = this._cache$(edges, EdgeDirection.TurnU, turnDepth);
 
                         return observableMerge<EdgesDepth>(
                             forward$,
                             backward$,
                             left$,
                             right$,
-                            pano$,
+                            spherical$,
                             turnLeft$,
                             turnRight$,
                             turnU$).pipe(
@@ -150,7 +151,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
     }
 
     protected _getDefaultConfiguration(): ICacheConfiguration {
-        return { depth: { pano: 1, sequence: 2, step: 1, turn: 0 } };
+        return { depth: { spherical: 1, sequence: 2, step: 1, turn: 0 } };
     }
 
     private _cache$(edges: IEdge[], direction: EdgeDirection, depth: number): Observable<EdgesDepth> {
@@ -160,7 +161,7 @@ export class CacheComponent extends Component<ICacheConfiguration> {
                 expand(
                     (ed: EdgesDepth): Observable<EdgesDepth> => {
                         let es: IEdge[] = ed[0];
-                        let d: number = ed[1];
+                        let d = ed[1];
 
                         let edgesDepths$: Observable<EdgesDepth>[] = [];
 

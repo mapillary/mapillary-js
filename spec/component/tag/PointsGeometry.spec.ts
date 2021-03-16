@@ -131,7 +131,7 @@ describe("PointsGeometry.getRect2d", () => {
         ]);
     });
 
-    it("should get the smallest wrapping rectangle containing all points for pano", () => {
+    it("should get the smallest wrapping rectangle containing all points for image", () => {
         const points = [[0.9, 0.6], [0.2, 0.8]];
         const pointsGeometry = new PointsGeometry(points);
 
@@ -148,7 +148,7 @@ describe("PointsGeometry.getRect2d", () => {
         ]);
     });
 
-    it("should get the smallest wrapping rectangle containing all points for pano irrespective of order", () => {
+    it("should get the smallest wrapping rectangle containing all points for image irrespective of order", () => {
         const points = [[0.2, 0.8], [0.9, 0.6]];
         const pointsGeometry = new PointsGeometry(points);
 

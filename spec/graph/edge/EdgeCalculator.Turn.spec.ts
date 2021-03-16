@@ -38,7 +38,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         expect(() => { edgeCalculator.computeTurnEdges(node, []); }).toThrowError(Error);
     });
 
-    it("should not have any edges because potential is full pano", () => {
+    it("should not have any edges because potential is spherical", () => {
         potentialEdge.directionChange = Math.PI / 2;
         potentialEdge.spherical = true;
 
@@ -86,7 +86,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
         expect(turnEdge.data.direction).toBe(EdgeDirection.TurnU);
     });
 
-    it("should not have a u-turn edge when node is full pano", () => {
+    it("should not have a u-turn edge when node is spherical", () => {
         node = helper.createDefaultNode(true);
 
         potentialEdge.directionChange = Math.PI;

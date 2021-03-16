@@ -355,13 +355,13 @@ export class ImagePlaneComponent extends Component<IComponentConfiguration> {
             filter(
                 (node: GraphNode): boolean => {
                     return isSpherical(node.cameraType) ?
-                        Settings.maxImageSize > Settings.basePanoramaSize :
+                        Settings.maxImageSize > Settings.baseSphericalSize :
                         Settings.maxImageSize > Settings.baseImageSize;
                 }),
             switchMap(
                 (node: GraphNode): Observable<[HTMLImageElement, GraphNode]> => {
                     let baseImageSize = isSpherical(node.cameraType) ?
-                        Settings.basePanoramaSize :
+                        Settings.baseSphericalSize :
                         Settings.baseImageSize;
 
                     if (Math.max(node.image.width, node.image.height) > baseImageSize) {

@@ -39,7 +39,7 @@ describe("ExtremePointRenderTag.getRetrievableObjects", () => {
         expect(retrievableTransparentObjects[0] instanceof THREE.Mesh).toBe(true);
     });
 
-    it("should not return any objects in panoramas", () => {
+    it("should not return any objects in spherical", () => {
         const geometry = new PointsGeometry([[0, 0], [1, 1]]);
         const extremePointTag = new ExtremePointTag("id", geometry, { fillOpacity: 1 });
         const extremePointRenderTag =

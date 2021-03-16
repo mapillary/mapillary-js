@@ -1,9 +1,9 @@
 export class EdgeCalculatorSettings {
-    public panoMinDistance: number;
-    public panoMaxDistance: number;
-    public panoPreferredDistance: number;
-    public panoMaxItems: number;
-    public panoMaxStepTurnChange: number;
+    public sphericalMinDistance: number;
+    public sphericalMaxDistance: number;
+    public sphericalPreferredDistance: number;
+    public sphericalMaxItems: number;
+    public sphericalMaxStepTurnChange: number;
 
     public rotationMaxDistance: number;
     public rotationMaxDirectionChange: number;
@@ -24,11 +24,11 @@ export class EdgeCalculatorSettings {
     public turnMinRigDirectionChange: number;
 
     constructor() {
-        this.panoMinDistance = 0.1;
-        this.panoMaxDistance = 20;
-        this.panoPreferredDistance = 5;
-        this.panoMaxItems = 4;
-        this.panoMaxStepTurnChange = Math.PI / 8;
+        this.sphericalMinDistance = 0.1;
+        this.sphericalMaxDistance = 20;
+        this.sphericalPreferredDistance = 5;
+        this.sphericalMaxItems = 4;
+        this.sphericalMaxStepTurnChange = Math.PI / 8;
 
         this.rotationMaxDistance = this.turnMaxRigDistance;
         this.rotationMaxDirectionChange = Math.PI / 6;
@@ -51,7 +51,7 @@ export class EdgeCalculatorSettings {
 
     public get maxDistance(): number {
         return Math.max(
-            this.panoMaxDistance,
+            this.sphericalMaxDistance,
             this.similarMaxDistance,
             this.stepMaxDistance,
             this.turnMaxDistance);

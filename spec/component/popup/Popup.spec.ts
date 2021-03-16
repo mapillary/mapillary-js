@@ -379,7 +379,7 @@ describe("Popup.setBasicRect", () => {
 
         basicToCanvasSafeSpy = spyOn(viewportCoords, "basicToCanvasSafe").and.callFake(
             (basicX: number, basicY: number): number[] => {
-                // if basic X has been wrapped over pano border
+                // if basic X has been wrapped over image border
                 // interpret as if it was centered horizontally.
                 basicX = basicX > 1 ? 0.5 : basicX;
 
@@ -457,7 +457,7 @@ describe("Popup.setBasicRect", () => {
             .toBe(1);
     });
 
-    it("should shift basic x when rect is wrapping pano border", () => {
+    it("should shift basic x when rect is wrapping image border", () => {
         const popup: Popup = new Popup({}, viewportCoords, dom);
 
         const parentContainer: HTMLElement = document.createElement("div");

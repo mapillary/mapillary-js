@@ -62,13 +62,18 @@ export class SliderDOMRenderer {
         this._stopInteractionSubscription = null;
     }
 
-    public render(position: number, mode: SliderMode, motionless: boolean, pano: boolean, visible: boolean): vd.VNode {
+    public render(
+        position: number,
+        mode: SliderMode,
+        motionless: boolean,
+        spherical: boolean,
+        visible: boolean): vd.VNode {
         const children: vd.VNode[] = [];
 
         if (visible) {
             children.push(vd.h("div.mapillary-slider-border", []));
 
-            const modeVisible: boolean = !(motionless || pano);
+            const modeVisible: boolean = !(motionless || spherical);
             if (modeVisible) {
                 children.push(this._createModeButton(mode));
                 children.push(this._createModeButton2d(mode));

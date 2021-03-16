@@ -79,7 +79,7 @@ export class RegionOfInterestCalculator {
                 });
 
         if (isSpherical(transform.cameraType)) {
-            return this._boundingBoxPano(basicPoints);
+            return this._boundingBoxSpherical(basicPoints);
         } else {
             return this._boundingBox(basicPoints);
         }
@@ -103,7 +103,7 @@ export class RegionOfInterestCalculator {
         return bbox;
     }
 
-    private _boundingBoxPano(points: number[][]): IBoundingBox {
+    private _boundingBoxSpherical(points: number[][]): IBoundingBox {
         let xs: number[] = [];
         let ys: number[] = [];
         for (let i: number = 0; i < points.length; ++i) {
@@ -113,7 +113,7 @@ export class RegionOfInterestCalculator {
         xs.sort((a, b) => { return this._sign(a - b); });
         ys.sort((a, b) => { return this._sign(a - b); });
 
-        let intervalX: number[] = this._intervalPano(xs);
+        let intervalX: number[] = this._intervalSpherical(xs);
 
         return {
             maxX: intervalX[1],
@@ -128,7 +128,7 @@ export class RegionOfInterestCalculator {
      * Assumes numbers are between 0 and 1, sorted and that
      * x is equivalent to x + 1.
      */
-    private _intervalPano(xs: number[]): number[] {
+    private _intervalSpherical(xs: number[]): number[] {
         let maxdx: number = 0;
         let maxi: number = -1;
         for (let i: number = 0; i < xs.length - 1; ++i) {

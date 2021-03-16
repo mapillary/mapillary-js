@@ -30,10 +30,10 @@ export interface IViewerOptions {
     baseImageSize?: ImageSize;
 
     /**
-     * Default size of the thumbnail used for panoramas in the viewer
+     * Default size of the thumbnail used for spherical in the viewer
      * @default {ImageSize.Size2048}
      */
-    basePanoramaSize?: ImageSize;
+    baseSphericalSize?: ImageSize;
 
     /**
      * Value specifying if combined panning should be enabled.

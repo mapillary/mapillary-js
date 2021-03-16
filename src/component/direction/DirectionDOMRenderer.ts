@@ -35,7 +35,7 @@ export class DirectionDOMRenderer {
 
     private _stepEdges: IEdge[];
     private _turnEdges: IEdge[];
-    private _panoEdges: IEdge[];
+    private _sphericalEdges: IEdge[];
     private _sequenceEdgeKeys: string[];
 
     private _stepDirections: EdgeDirection[];
@@ -60,7 +60,7 @@ export class DirectionDOMRenderer {
 
         this._stepEdges = [];
         this._turnEdges = [];
-        this._panoEdges = [];
+        this._sphericalEdges = [];
         this._sequenceEdgeKeys = [];
 
         this._stepDirections = [
@@ -109,9 +109,10 @@ export class DirectionDOMRenderer {
         let turns: vd.VNode[] = [];
 
         if (isSpherical(this._node.cameraType)) {
-            steps = steps.concat(this._createPanoArrows(navigator, rotation));
+            steps = steps.concat(this._createSphericalArrows(navigator, rotation));
         } else {
-            steps = steps.concat(this._createPerspectiveToPanoArrows(navigator, rotation));
+            steps = steps.concat(
+                this._createPerspectiveToSphericalArrows(navigator, rotation));
             steps = steps.concat(this._createStepArrows(navigator, rotation));
             turns = turns.concat(this._createTurnArrows(navigator));
         }
@@ -201,14 +202,14 @@ export class DirectionDOMRenderer {
     private _clearEdges(): void {
         this._stepEdges = [];
         this._turnEdges = [];
-        this._panoEdges = [];
+        this._sphericalEdges = [];
         this._sequenceEdgeKeys = [];
     }
 
     private _setEdges(edgeStatus: IEdgeStatus, sequence: Sequence): void {
         this._stepEdges = [];
         this._turnEdges = [];
-        this._panoEdges = [];
+        this._sphericalEdges = [];
         this._sequenceEdgeKeys = [];
 
         for (let edge of edgeStatus.edges) {
@@ -224,13 +225,13 @@ export class DirectionDOMRenderer {
                 continue;
             }
 
-            if (edge.data.direction === EdgeDirection.Pano) {
-                this._panoEdges.push(edge);
+            if (edge.data.direction === EdgeDirection.Spherical) {
+                this._sphericalEdges.push(edge);
             }
         }
 
         if (this._distinguishSequence && sequence != null) {
-            let edges: IEdge[] = this._panoEdges
+            let edges: IEdge[] = this._sphericalEdges
                 .concat(this._stepEdges)
                 .concat(this._turnEdges);
 
@@ -247,23 +248,23 @@ export class DirectionDOMRenderer {
         }
     }
 
-    private _createPanoArrows(navigator: Navigator, rotation: IRotation): vd.VNode[] {
+    private _createSphericalArrows(navigator: Navigator, rotation: IRotation): vd.VNode[] {
         let arrows: vd.VNode[] = [];
 
-        for (let panoEdge of this._panoEdges) {
+        for (let sphericalEdge of this._sphericalEdges) {
             arrows.push(
                 this._createVNodeByKey(
                     navigator,
-                    panoEdge.to,
-                    panoEdge.data.worldMotionAzimuth,
+                    sphericalEdge.to,
+                    sphericalEdge.data.worldMotionAzimuth,
                     rotation,
                     this._calculator.outerRadius,
-                    "mapillary-direction-arrow-pano"));
+                    "mapillary-direction-arrow-spherical"));
         }
 
         for (let stepEdge of this._stepEdges) {
             arrows.push(
-                this._createPanoToPerspectiveArrow(
+                this._createSphericalToPerspectiveArrow(
                     navigator,
                     stepEdge.to,
                     stepEdge.data.worldMotionAzimuth,
@@ -274,7 +275,7 @@ export class DirectionDOMRenderer {
         return arrows;
     }
 
-    private _createPanoToPerspectiveArrow(
+    private _createSphericalToPerspectiveArrow(
         navigator: Navigator,
         key: string,
         azimuth: number,
@@ -312,18 +313,18 @@ export class DirectionDOMRenderer {
         return this._createVNodeInactive(key, azimuth, rotation);
     }
 
-    private _createPerspectiveToPanoArrows(navigator: Navigator, rotation: IRotation): vd.VNode[] {
+    private _createPerspectiveToSphericalArrows(navigator: Navigator, rotation: IRotation): vd.VNode[] {
         let arrows: vd.VNode[] = [];
 
-        for (let panoEdge of this._panoEdges) {
+        for (let sphericalEdge of this._sphericalEdges) {
             arrows.push(
                 this._createVNodeByKey(
                     navigator,
-                    panoEdge.to,
-                    panoEdge.data.worldMotionAzimuth,
+                    sphericalEdge.to,
+                    sphericalEdge.data.worldMotionAzimuth,
                     rotation,
                     this._calculator.innerRadius,
-                    "mapillary-direction-arrow-pano",
+                    "mapillary-direction-arrow-spherical",
                     true));
         }
 

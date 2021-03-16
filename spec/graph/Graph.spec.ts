@@ -1818,8 +1818,8 @@ describe("Graph.cacheSpatialEdges", () => {
 
         spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
         spyOn(edgeCalculator, "computeTurnEdges").and.returnValue([]);
-        spyOn(edgeCalculator, "computePanoEdges").and.returnValue([]);
-        spyOn(edgeCalculator, "computePerspectiveToPanoEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computeSphericalEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computePerspectiveToSphericalEdges").and.returnValue([]);
         spyOn(edgeCalculator, "computeSimilarEdges").and.returnValue([]);
 
         graph.initializeCache(fullNode.key);
@@ -1911,8 +1911,8 @@ describe("Graph.cacheSpatialEdges", () => {
 
         spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
         spyOn(edgeCalculator, "computeTurnEdges").and.returnValue([]);
-        spyOn(edgeCalculator, "computePanoEdges").and.returnValue([]);
-        spyOn(edgeCalculator, "computePerspectiveToPanoEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computeSphericalEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computePerspectiveToSphericalEdges").and.returnValue([]);
         spyOn(edgeCalculator, "computeSimilarEdges").and.returnValue([]);
 
         graph.setFilter(["==", "sequenceKey", "otherSequenceKey"]);
@@ -1969,8 +1969,8 @@ describe("Graph.cacheSpatialEdges", () => {
 
         spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
         spyOn(edgeCalculator, "computeTurnEdges").and.returnValue([]);
-        spyOn(edgeCalculator, "computePanoEdges").and.returnValue([]);
-        spyOn(edgeCalculator, "computePerspectiveToPanoEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computeSphericalEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computePerspectiveToSphericalEdges").and.returnValue([]);
         spyOn(edgeCalculator, "computeSimilarEdges").and.returnValue([]);
 
         graph.setFilter(["==", "sequenceKey", "none"]);
@@ -2329,8 +2329,8 @@ describe("Graph.resetSpatialEdges", () => {
 
         spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
         spyOn(edgeCalculator, "computeTurnEdges").and.returnValue([]);
-        spyOn(edgeCalculator, "computePanoEdges").and.returnValue([]);
-        spyOn(edgeCalculator, "computePerspectiveToPanoEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computeSphericalEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computePerspectiveToSphericalEdges").and.returnValue([]);
         spyOn(edgeCalculator, "computeSimilarEdges").and.returnValue([]);
 
         graph.initializeCache(fullNode.key);
@@ -2414,8 +2414,8 @@ describe("Graph.resetSpatialEdges", () => {
 
         spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
         spyOn(edgeCalculator, "computeTurnEdges").and.returnValue([]);
-        spyOn(edgeCalculator, "computePanoEdges").and.returnValue([]);
-        spyOn(edgeCalculator, "computePerspectiveToPanoEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computeSphericalEdges").and.returnValue([]);
+        spyOn(edgeCalculator, "computePerspectiveToSphericalEdges").and.returnValue([]);
         spyOn(edgeCalculator, "computeSimilarEdges").and.returnValue([]);
 
         graph.initializeCache(fullNode.key);

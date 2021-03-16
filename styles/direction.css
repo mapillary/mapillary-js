@@ -45,7 +45,7 @@
 }
 
 .mapillary-direction-arrow-step,
-.mapillary-direction-arrow-pano,
+.mapillary-direction-arrow-spherical,
 .mapillary-direction-arrow-inactive {
     position: absolute;
     top: 44%;
@@ -67,7 +67,7 @@
     z-index: -1;
 }
 
-.mapillary-direction-arrow-pano {
+.mapillary-direction-arrow-spherical {
     background: svg-load('svg/pointer-wheat.svg');
     background-repeat: no-repeat;
 }

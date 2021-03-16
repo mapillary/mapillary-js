@@ -40,7 +40,7 @@ describe("OutlineRenderTag.getRetrievableObjects", () => {
         expect(retrievableTransparentObjects[0] instanceof THREE.Mesh).toBe(true);
     });
 
-    it("should not return any objects for rects in panoramas", () => {
+    it("should not return any objects for rects in spherical", () => {
         const geometry = new RectGeometry([0, 0, 1, 1]);
         const outlineTag = new OutlineTag("id", geometry, { fillOpacity: 1 });
         const outlineRenderTag =
@@ -54,7 +54,7 @@ describe("OutlineRenderTag.getRetrievableObjects", () => {
         expect(retrievableObjects.length).toBe(0);
     });
 
-    it("should return mesh object for polygon in panoramas", () => {
+    it("should return mesh object for polygon in spherical", () => {
         const geometry: PolygonGeometry = new PolygonGeometry([
             [0, 0],
             [1, 0],
