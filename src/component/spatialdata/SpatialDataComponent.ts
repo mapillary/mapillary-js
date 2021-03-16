@@ -33,7 +33,7 @@ import {
     CellNeighbors,
     CellCorners,
 } from "../../api/interfaces/CellCorners";
-import { ReconstructionEnt } from "../../api/ents/ReconstructionEnt";
+import { ClusterReconstructionEnt } from "../../api/ents/ClusterReconstructionEnt";
 import { GeoCoords } from "../../geo/GeoCoords";
 import { LatLonAltEnt } from "../../api/ents/LatLonAltEnt";
 import { Spatial } from "../../geo/Spatial";
@@ -253,16 +253,16 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
 
         subs.push(tile$.pipe(
             concatMap(
-                (cell: Cell): Observable<[string, ReconstructionEnt]> => {
+                (cell: Cell): Observable<[string, ClusterReconstructionEnt]> => {
                     const cellId = cell.id;
-                    let reconstructions$: Observable<ReconstructionEnt>;
+                    let reconstructions$: Observable<ClusterReconstructionEnt>;
                     if (this._cache.hasClusterReconstructions(cellId)) {
                         reconstructions$ = observableFrom(this._cache.getClusterReconstructions(cellId));
                     } else if (this._cache.isCachingClusterReconstructions(cellId)) {
                         reconstructions$ = this._cache.cacheClusterReconstructions$(cellId).pipe(
                             last(null, {}),
                             switchMap(
-                                (): Observable<ReconstructionEnt> => {
+                                (): Observable<ClusterReconstructionEnt> => {
                                     return observableFrom(this._cache.getClusterReconstructions(cellId));
                                 }));
                     } else if (this._cache.hasTile(cellId)) {
@@ -275,7 +275,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                 }),
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([[hash, reconstruction], reference]: [[string, ReconstructionEnt], LatLonAltEnt]): void => {
+                ([[hash, reconstruction], reference]: [[string, ClusterReconstructionEnt], LatLonAltEnt]): void => {
                     if (this._scene.hasClusterReconstruction(reconstruction.key, hash)) {
                         return;
                     }
@@ -482,10 +482,10 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         subs.push(updatedCell$
             .pipe(
                 concatMap(
-                    ([cell]: [Cell, LatLonAltEnt]): Observable<[string, ReconstructionEnt]> => {
+                    ([cell]: [Cell, LatLonAltEnt]): Observable<[string, ClusterReconstructionEnt]> => {
                         const cellId = cell.id;
                         const cache = this._cache;
-                        let reconstructions$: Observable<ReconstructionEnt>;
+                        let reconstructions$: Observable<ClusterReconstructionEnt>;
                         if (cache.hasClusterReconstructions(cellId)) {
                             reconstructions$ =
                                 cache.updateClusterReconstructions$(cellId);
@@ -493,7 +493,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                             reconstructions$ = this._cache.cacheClusterReconstructions$(cellId).pipe(
                                 last(null, {}),
                                 switchMap(
-                                    (): Observable<ReconstructionEnt> => {
+                                    (): Observable<ClusterReconstructionEnt> => {
                                         return observableFrom(
                                             cache.updateClusterReconstructions$(cellId));
                                     }));
@@ -507,7 +507,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                     }),
                 withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([[hash, reconstruction], reference]: [[string, ReconstructionEnt], LatLonAltEnt]): void => {
+                ([[hash, reconstruction], reference]: [[string, ClusterReconstructionEnt], LatLonAltEnt]): void => {
                     if (this._scene.hasClusterReconstruction(reconstruction.key, hash)) {
                         return;
                     }
@@ -549,7 +549,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         const cellId = cell.id;
         const nodes = cell.nodes;
         for (const node of nodes) {
-            if (this._scene.hasNode(node.key, cellId)) { continue; }
+            if (this._scene.hasNode(node.id, cellId)) { continue; }
 
             this._scene.addNode(
                 node,
@@ -608,7 +608,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         return this._geoCoords.geodeticToEnu(
             node.originalLatLon.lat,
             node.originalLatLon.lon,
-            node.originalAlt != null ? node.originalAlt : node.alt,
+            node.originalAltitude != null ? node.originalAltitude : node.computedAltitude,
             reference.lat,
             reference.lon,
             reference.alt);
@@ -639,7 +639,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
 
     private _createTransform(node: Node, reference: LatLonAltEnt): Transform {
         const translation: number[] = Geo.computeTranslation(
-            { alt: node.alt, lat: node.latLon.lat, lon: node.latLon.lon },
+            { alt: node.computedAltitude, lat: node.latLon.lat, lon: node.latLon.lon },
             node.rotation,
             reference);
 
@@ -697,7 +697,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         }
     }
 
-    private _computeTranslation(reconstruction: ReconstructionEnt, reference: LatLonAltEnt): number[] {
+    private _computeTranslation(reconstruction: ClusterReconstructionEnt, reference: LatLonAltEnt): number[] {
         return this._geoCoords.geodeticToEnu(
             reconstruction.reference.lat,
             reconstruction.reference.lon,

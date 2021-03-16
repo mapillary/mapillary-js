@@ -116,7 +116,7 @@ export class BearingComponent extends Component<BearingConfiguration> {
                 distinctUntilChanged(
                     undefined,
                     (frame: AnimationFrame): string => {
-                        return frame.state.currentNode.key;
+                        return frame.state.currentNode.id;
                     })),
             this._navigator.panService.panNodes$).pipe(
                 map(
@@ -135,7 +135,7 @@ export class BearingComponent extends Component<BearingConfiguration> {
                         let hFovRight: number = hFov / 2;
 
                         for (const [n, , f] of panNodes) {
-                            const diff: number = this._spatial.wrap(n.ca - node.ca, -180, 180);
+                            const diff: number = this._spatial.wrap(n.compassAngle - node.compassAngle, -180, 180);
                             if (diff < 0) {
                                 hFovLeft = this._spatial.degToRad(Math.abs(diff)) + f / 2;
                             } else {
@@ -159,12 +159,12 @@ export class BearingComponent extends Component<BearingConfiguration> {
                 distinctUntilChanged(
                     undefined,
                     (frame: AnimationFrame): string => {
-                        return frame.state.currentNode.key;
+                        return frame.state.currentNode.id;
                     })),
             this._container.renderService.bearing$).pipe(
                 map(
                     ([frame, bearing]: [AnimationFrame, number]): number => {
-                        const offset: number = this._spatial.degToRad(frame.state.currentNode.ca - bearing);
+                        const offset: number = this._spatial.degToRad(frame.state.currentNode.compassAngle - bearing);
 
                         return offset;
                     }));

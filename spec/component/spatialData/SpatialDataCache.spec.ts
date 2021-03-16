@@ -3,7 +3,7 @@ import { Subject } from "rxjs";
 import { Node } from "../../../src/graph/Node";
 import { FalcorDataProvider } from "../../../src/api/FalcorDataProvider";
 import { GeohashGeometryProvider } from "../../../src/api/GeohashGeometryProvider";
-import { ReconstructionEnt } from "../../../src/api/ents/ReconstructionEnt";
+import { ClusterReconstructionEnt } from "../../../src/api/ents/ClusterReconstructionEnt";
 import { SpatialDataCache } from "../../../src/component/spatialdata/SpatialDataCache";
 import { GraphService } from "../../../src/graph/GraphService";
 import { GraphServiceMockCreator } from "../../helper/GraphServiceMockCreator";
@@ -107,7 +107,7 @@ describe("SpatialDataCache.cacheTile$", () => {
         expect(cache.isCachingTile(hash)).toBe(false);
         expect(cache.hasTile(hash)).toBe(true);
         expect(cache.getTile(hash).length).toBe(1);
-        expect(cache.getTile(hash)[0].key).toBe(node.key);
+        expect(cache.getTile(hash)[0].id).toBe(node.id);
     });
 
     it("should catch error", (done: Function) => {
@@ -172,8 +172,8 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         let emitCount: number = 0;
         cache.cacheClusterReconstructions$(hash)
             .subscribe(
-                (r: ReconstructionEnt): void => {
-                    expect(r.key).toBe(node.clusterKey);
+                (r: ClusterReconstructionEnt): void => {
+                    expect(r.key).toBe(node.clusterId);
                     emitCount++;
                 },
                 undefined,
@@ -183,7 +183,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
                     done();
                 });
 
-        resolver({ key: node.clusterKey });
+        resolver({ key: node.clusterId });
     });
 
     it("should not have an errored reconstruction", (done: Function) => {
@@ -263,7 +263,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
 
         let resolver: Function;
         const promise: any = {
-            then: (resolve: (value: ReconstructionEnt) => void): void => {
+            then: (resolve: (value: ClusterReconstructionEnt) => void): void => {
                 resolver = resolve;
             },
         };
@@ -298,7 +298,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         expect(emitCount2).toBe(0);
 
         resolver({
-            key: node.clusterKey,
+            key: node.clusterId,
             points: [],
             refererence_lla: { altitude: 0, latitude: 0, longitude: 0 },
         });
@@ -311,7 +311,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         expect(cache.isCachingClusterReconstructions(hash)).toBe(false);
         expect(cache.hasClusterReconstructions(hash)).toBe(true);
         expect(cache.getClusterReconstructions(hash).length).toBe(1);
-        expect(cache.getClusterReconstructions(hash)[0].key).toBe(node.clusterKey);
+        expect(cache.getClusterReconstructions(hash)[0].key).toBe(node.clusterId);
     });
 });
 
@@ -365,7 +365,7 @@ describe("SpatialDataCache.updateCell$", () => {
         expect(cache.hasTile(cellId)).toBe(true);
         expect(cacheCellSpy.calls.count()).toBe(2);
         expect(cache.getTile(cellId).length).toBe(1);
-        expect(cache.getTile(cellId)[0].key).toBe(node.key);
+        expect(cache.getTile(cellId)[0].id).toBe(node.id);
     });
 
     it("should add new nodes to cell", () => {
@@ -397,12 +397,12 @@ describe("SpatialDataCache.updateCell$", () => {
         cacheCell2$.next([node]);
 
         expect(cache.getTile(cellId).length).toBe(1);
-        expect(cache.getTile(cellId)[0].key).toBe(node.key);
+        expect(cache.getTile(cellId)[0].id).toBe(node.id);
     });
 });
 
 describe("SpatialDataCache.updateReconstructions$", () => {
-    const createCluster = (key: string): ReconstructionEnt => {
+    const createCluster = (key: string): ClusterReconstructionEnt => {
         return {
             cameras: {},
             key,
@@ -418,7 +418,7 @@ describe("SpatialDataCache.updateReconstructions$", () => {
             { clientToken: "cid" }, geometryProvider);
         spyOn(dataProvider, "getClusterReconstruction").and
             .returnValue(
-                new Promise<ReconstructionEnt>(() => { /* noop */ }));
+                new Promise<ClusterReconstructionEnt>(() => { /* noop */ }));
 
         const graphService = new GraphServiceMockCreator().create();
         const cache = new SpatialDataCache(graphService, dataProvider);
@@ -432,7 +432,7 @@ describe("SpatialDataCache.updateReconstructions$", () => {
 
         let resolver: Function;
         const promise: any = {
-            then: (resolve: (value: ReconstructionEnt) => void): void => {
+            then: (resolve: (value: ClusterReconstructionEnt) => void): void => {
                 resolver = resolve;
             },
         };
@@ -450,7 +450,7 @@ describe("SpatialDataCache.updateReconstructions$", () => {
 
         cache.cacheClusterReconstructions$(cellId).subscribe();
 
-        const cluster = createCluster(node.clusterKey);
+        const cluster = createCluster(node.clusterId);
         resolver(cluster);
 
         expect(cache.hasClusterReconstructions(cellId)).toBe(true);
@@ -472,7 +472,7 @@ describe("SpatialDataCache.updateReconstructions$", () => {
 
         let resolver: Function;
         const promise: any = {
-            then: (resolve: (value: ReconstructionEnt) => void): void => {
+            then: (resolve: (value: ClusterReconstructionEnt) => void): void => {
                 resolver = resolve;
             },
         };
@@ -516,12 +516,12 @@ describe("SpatialDataCache.updateReconstructions$", () => {
                     expect(cache.hasClusterReconstructions(cellId)).toBe(true);
                     const cs = cache.getClusterReconstructions(cellId);
                     expect(cs.length).toBe(1);
-                    expect(cs[0].key).toBe(node.clusterKey);
+                    expect(cs[0].key).toBe(node.clusterId);
                     expect(clusterSpy.calls.count()).toBe(1);
                     done();
                 });
 
-        const cluster = createCluster(node.clusterKey);
+        const cluster = createCluster(node.clusterId);
         resolver(cluster);
     });
 });

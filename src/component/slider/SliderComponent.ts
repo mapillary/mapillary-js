@@ -436,17 +436,17 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 (co: SliderCombination): void => {
                     if (co.state.currentNode != null &&
                         co.state.previousNode != null &&
-                        co.state.currentNode.key === co.nodes.foreground.key &&
-                        co.state.previousNode.key === co.nodes.background.key) {
+                        co.state.currentNode.id === co.nodes.foreground.id &&
+                        co.state.previousNode.id === co.nodes.background.id) {
                         return;
                     }
 
-                    if (co.state.currentNode.key === co.nodes.background.key) {
+                    if (co.state.currentNode.id === co.nodes.background.id) {
                         this._navigator.stateService.setNodes([co.nodes.foreground]);
                         return;
                     }
 
-                    if (co.state.currentNode.key === co.nodes.foreground.key &&
+                    if (co.state.currentNode.id === co.nodes.foreground.id &&
                         co.state.trajectory.length === 1) {
                         this._navigator.stateService.prependNodes([co.nodes.background]);
                         return;
@@ -464,7 +464,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
             distinctUntilChanged(
                 undefined,
                 (frame: AnimationFrame): string => {
-                    return frame.state.currentNode.key;
+                    return frame.state.currentNode.id;
                 }),
             withLatestFrom(
                 this._container.glRenderer.webGLRenderer$,
@@ -479,7 +479,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     const tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
 
                     return new TextureProvider(
-                        currentNode.key,
+                        currentNode.id,
                         currentTransform.basicWidth,
                         currentTransform.basicHeight,
                         tileSize,
@@ -617,7 +617,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
             distinctUntilChanged(
                 undefined,
                 (node: Node): string => {
-                    return node.key;
+                    return node.id;
                 }),
             debounceTime(1000),
             withLatestFrom(hasTexture$),
@@ -663,7 +663,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
                         catchError(
                             (error: Error):
                                 Observable<[HTMLImageElement, Node]> => {
-                                console.error(`Failed to fetch high res image (${node.key})`, error);
+                                console.error(`Failed to fetch high res image (${node.id})`, error);
 
                                 return observableEmpty();
                             }));
@@ -675,7 +675,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
             withLatestFrom(textureProvider$))
             .subscribe(
                 (args: [[HTMLImageElement, Node], TextureProvider]): void => {
-                    if (args[0][1].key !== args[1].key ||
+                    if (args[0][1].id !== args[1].key ||
                         args[1].disposed) {
                         return;
                     }
@@ -702,7 +702,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
             distinctUntilChanged(
                 undefined,
                 (frame: AnimationFrame): string => {
-                    return frame.state.previousNode.key;
+                    return frame.state.previousNode.id;
                 }),
             withLatestFrom(
                 this._container.glRenderer.webGLRenderer$,
@@ -717,7 +717,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     const tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
 
                     return new TextureProvider(
-                        previousNode.key,
+                        previousNode.id,
                         previousTransform.basicWidth,
                         previousTransform.basicHeight,
                         tileSize,
@@ -974,7 +974,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
             distinctUntilChanged(
                 undefined,
                 (node: Node): string => {
-                    return node.key;
+                    return node.id;
                 }),
             debounceTime(1000),
             withLatestFrom(hasTexturePrev$),
@@ -1021,7 +1021,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
                         catchError(
                             (error: Error):
                                 Observable<[HTMLImageElement, Node]> => {
-                                console.error(`Failed to fetch high res image (${node.key})`, error);
+                                console.error(`Failed to fetch high res image (${node.id})`, error);
 
                                 return observableEmpty();
                             }));
@@ -1033,7 +1033,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
             withLatestFrom(textureProviderPrev$))
             .subscribe(
                 (args: [[HTMLImageElement, Node], TextureProvider]): void => {
-                    if (args[0][1].key !== args[1].key ||
+                    if (args[0][1].id !== args[1].key ||
                         args[1].disposed) {
                         return;
                     }

@@ -80,23 +80,23 @@ export class EdgeCalculator {
 
         for (let potential of potentialNodes) {
             if (!potential.merged ||
-                potential.key === node.key) {
+                potential.id === node.id) {
                 continue;
             }
 
             let enu: number[] = this._geoCoords.geodeticToEnu(
                 potential.latLon.lat,
                 potential.latLon.lon,
-                potential.alt,
+                potential.computedAltitude,
                 node.latLon.lat,
                 node.latLon.lon,
-                node.alt);
+                node.computedAltitude);
 
             let motion: THREE.Vector3 = new THREE.Vector3(enu[0], enu[1], enu[2]);
             let distance: number = motion.length();
 
             if (distance > this._settings.maxDistance &&
-                fallbackKeys.indexOf(potential.key) < 0) {
+                fallbackKeys.indexOf(potential.id) < 0) {
                 continue;
             }
 
@@ -127,29 +127,29 @@ export class EdgeCalculator {
             let worldMotionAzimuth: number =
                 this._spatial.angleBetweenVector2(1, 0, motion.x, motion.y);
 
-            let sameSequence: boolean = potential.sequenceKey != null &&
-                node.sequenceKey != null &&
-                potential.sequenceKey === node.sequenceKey;
+            let sameSequence: boolean = potential.sequenceId != null &&
+                node.sequenceId != null &&
+                potential.sequenceId === node.sequenceId;
 
             let sameMergeCC: boolean =
                 (potential.mergeCC == null && node.mergeCC == null) ||
                 potential.mergeCC === node.mergeCC;
 
             let sameUser: boolean =
-                potential.userKey === node.userKey;
+                potential.userId === node.userId;
 
             let potentialEdge: PotentialEdge = {
                 capturedAt: potential.capturedAt,
                 directionChange: directionChange,
                 distance: distance,
                 spherical: isSpherical(potential.cameraType),
-                key: potential.key,
+                key: potential.id,
                 motionChange: motionChange,
                 rotation: rotation,
                 sameMergeCC: sameMergeCC,
                 sameSequence: sameSequence,
                 sameUser: sameUser,
-                sequenceKey: potential.sequenceKey,
+                sequenceKey: potential.sequenceId,
                 verticalDirectionChange: verticalDirectionChange,
                 verticalMotion: verticalMotion,
                 worldMotionAzimuth: worldMotionAzimuth,
@@ -172,32 +172,32 @@ export class EdgeCalculator {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
 
-        if (node.sequenceKey !== sequence.key) {
+        if (node.sequenceId !== sequence.key) {
             throw new ArgumentMapillaryError("Node and sequence does not correspond.");
         }
 
         let edges: NavigationEdge[] = [];
 
-        let nextKey: string = sequence.findNextKey(node.key);
+        let nextKey: string = sequence.findNextKey(node.id);
         if (nextKey != null) {
             edges.push({
                 data: {
                     direction: NavigationDirection.Next,
                     worldMotionAzimuth: Number.NaN,
                 },
-                source: node.key,
+                source: node.id,
                 target: nextKey,
             });
         }
 
-        let prevKey: string = sequence.findPrevKey(node.key);
+        let prevKey: string = sequence.findPrevKey(node.id);
         if (prevKey != null) {
             edges.push({
                 data: {
                     direction: NavigationDirection.Prev,
                     worldMotionAzimuth: Number.NaN,
                 },
-                source: node.key,
+                source: node.id,
                 target: prevKey,
             });
         }
@@ -306,7 +306,7 @@ export class EdgeCalculator {
                             direction: NavigationDirection.Similar,
                             worldMotionAzimuth: potentialEdge.worldMotionAzimuth,
                         },
-                        source: node.key,
+                        source: node.id,
                         target: potentialEdge.key,
                     };
                 });
@@ -406,7 +406,7 @@ export class EdgeCalculator {
                         direction: step.direction,
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
-                    source: node.key,
+                    source: node.id,
                     target: edge.key,
                 });
             }
@@ -502,7 +502,7 @@ export class EdgeCalculator {
                         direction: turn.direction,
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
-                    source: node.key,
+                    source: node.id,
                     target: edge.key,
                 });
             }
@@ -561,7 +561,7 @@ export class EdgeCalculator {
                     direction: NavigationDirection.Spherical,
                     worldMotionAzimuth: edge.worldMotionAzimuth,
                 },
-                source: node.key,
+                source: node.id,
                 target: edge.key,
             },
         ];
@@ -678,7 +678,7 @@ export class EdgeCalculator {
                         direction: NavigationDirection.Spherical,
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
-                    source: node.key,
+                    source: node.id,
                     target: edge.key,
                 });
             } else {
@@ -755,7 +755,7 @@ export class EdgeCalculator {
                             direction: edge[0],
                             worldMotionAzimuth: edge[1].worldMotionAzimuth,
                         },
-                        source: node.key,
+                        source: node.id,
                         target: edge[1].key,
                     });
                 }

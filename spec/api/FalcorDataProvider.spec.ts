@@ -1,7 +1,7 @@
 import * as pako from "pako";
 import * as falcor from "falcor";
 import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
-import { ReconstructionEnt } from "../../src/api/ents/ReconstructionEnt";
+import { ClusterReconstructionEnt } from "../../src/api/ents/ClusterReconstructionEnt";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { ModelCreator } from "../../src/api/ModelCreator";
@@ -507,9 +507,9 @@ describe("FalcorDataProvider.getSequences", () => {
                 (result: { [key: string]: SequenceEnt }): void => {
                     expect(result).toBeDefined();
                     expect(result[skey]).toBeDefined();
-                    expect(result[skey].key).toBe(skey);
-                    expect(result[skey].keys.length).toBe(1);
-                    expect(result[skey].keys[0]).toBe(nkey);
+                    expect(result[skey].id).toBe(skey);
+                    expect(result[skey].image_ids.length).toBe(1);
+                    expect(result[skey].image_ids[0]).toBe(nkey);
 
                     done();
                 });
@@ -545,8 +545,8 @@ describe("FalcorDataProvider.getSequences", () => {
                 (result: { [key: string]: SequenceEnt }): void => {
                     expect(result).toBeDefined();
                     expect(result[skey]).toBeDefined();
-                    expect(result[skey].key).toBe(skey);
-                    expect(result[skey].keys.length).toBe(0);
+                    expect(result[skey].id).toBe(skey);
+                    expect(result[skey].image_ids.length).toBe(0);
 
                     done();
                 });
@@ -582,8 +582,8 @@ describe("FalcorDataProvider.getSequences", () => {
                 (result: { [key: string]: SequenceEnt }): void => {
                     expect(result).toBeDefined();
                     expect(result[skey]).toBeDefined();
-                    expect(result[skey].key).toBe(skey);
-                    expect(result[skey].keys.length).toBe(0);
+                    expect(result[skey].id).toBe(skey);
+                    expect(result[skey].image_ids.length).toBe(0);
 
                     done();
                 });
@@ -763,7 +763,7 @@ describe("FalcorDataProvider.getClusterReconstruction", () => {
 
         provider.getClusterReconstruction("url")
             .then(
-                (r: ReconstructionEnt): void => {
+                (r: ClusterReconstructionEnt): void => {
                     expect(r.points).toEqual({});
                     expect(r.reference.alt).toBe(1);
                     expect(r.reference.lat).toBe(2);

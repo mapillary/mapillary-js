@@ -6,8 +6,8 @@ describe("Sequence", () => {
 
     beforeEach(() => {
         let response: SequenceEnt = {
-            key: "A",
-            keys: ["B", "C", "D", "E"],
+            id: "A",
+            image_ids: ["B", "C", "D", "E"],
         };
 
         sequence = new Sequence(response);

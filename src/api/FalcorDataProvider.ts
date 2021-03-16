@@ -9,7 +9,7 @@ import { GeohashGeometryProvider } from "./GeohashGeometryProvider";
 import { JsonInflator } from "./JsonInflator";
 import { ModelCreator } from "./ModelCreator";
 import { PbfMeshReader } from "./PbfMeshReader";
-import { ReconstructionEnt } from "./ents/ReconstructionEnt";
+import { ClusterReconstructionEnt } from "./ents/ClusterReconstructionEnt";
 import { CoreImageEnt } from "./ents/CoreImageEnt";
 import { FalcorDataProviderOptions } from "./interfaces/FalcorDataProviderOptions";
 import { SpatialImageEnt } from "./ents/SpatialImageEnt";
@@ -22,6 +22,8 @@ import { GeometryProviderBase } from "./GeometryProviderBase";
 import { SequenceEnt } from "./ents/SequenceEnt";
 import { LatLonAltEnt } from "./ents/LatLonAltEnt";
 import { CameraEnt } from "./ents/CameraEnt";
+import { LatLonEnt } from "./ents/LatLonEnt";
+import { UserEnt } from "./ents/UserEnt";
 
 interface ImageByKey<T> {
     imageByKey: { [key: string]: T };
@@ -40,6 +42,10 @@ type APIPath =
     "imagesByH" |
     "sequenceByKey";
 
+interface FalcorUserEnt extends UserEnt {
+    key: string;
+}
+
 interface FalcorCameraEnt extends CameraEnt {
     cfocal?: number;
     ck1?: number;
@@ -50,7 +56,7 @@ interface FalcorCameraEnt extends CameraEnt {
     projection_type?: string;
 }
 
-interface FalcorReconstructionEnt extends ReconstructionEnt {
+interface FalcorClusterReconstructionEnt extends ClusterReconstructionEnt {
     cameras: { [key: string]: FalcorCameraEnt };
     reference_lla?: {
         altitude: number,
@@ -59,11 +65,28 @@ interface FalcorReconstructionEnt extends ReconstructionEnt {
     }
 }
 
+interface FalcorCoreImageEnt extends CoreImageEnt {
+    cl: LatLonEnt,
+    l: LatLonEnt,
+    sequence_key: string;
+}
+
 interface FalcorSpatialImageEnt extends SpatialImageEnt, FalcorCameraEnt {
+    c_rotation: number[];
+    ca: number;
+    calt: number;
     camera_projection_type: string;
+    cca: number;
+    cluster_key: string;
+    organization_key: string;
 }
 
 interface FalcorImageEnt extends ImageEnt, FalcorSpatialImageEnt { }
+
+interface FalcorSequenceEnt extends SequenceEnt {
+    key?: string;
+    keys?: string[];
+}
 
 /**
  * @class PointsGeometry
@@ -221,7 +244,6 @@ export class FalcorDataProvider extends DataProviderBase {
             "captured_with_camera_uuid",
             "organization_key",
             "private",
-            "project",
             "quality_score",
             "user",
         ];
@@ -263,7 +285,7 @@ export class FalcorDataProvider extends DataProviderBase {
      */
     public getCoreImages(cellId: string):
         Promise<{ [cellId: string]: { [imageKey: string]: CoreImageEnt } }> {
-        return Promise.resolve(<PromiseLike<JSONEnvelope<ImagesByH<CoreImageEnt>>>>this._model
+        return Promise.resolve(<PromiseLike<JSONEnvelope<ImagesByH<FalcorCoreImageEnt>>>>this._model
             .get([
                 this._pathImagesByH,
                 [cellId],
@@ -271,7 +293,7 @@ export class FalcorDataProvider extends DataProviderBase {
                 this._propertiesKey
                     .concat(this._propertiesCore)]))
             .then(
-                (value: JSONEnvelope<ImagesByH<CoreImageEnt>>): { [h: string]: { [index: string]: CoreImageEnt } } => {
+                (value: JSONEnvelope<ImagesByH<FalcorCoreImageEnt>>): { [h: string]: { [index: string]: FalcorCoreImageEnt } } => {
                     if (!value) {
                         value = { json: { imagesByH: {} } };
                         for (const h of [cellId]) {
@@ -280,6 +302,14 @@ export class FalcorDataProvider extends DataProviderBase {
                                 value.json.imagesByH[h][i] = null;
                             }
                         }
+                    }
+
+                    for (const key in value.json.imagesByH) {
+                        if (!value.json.imagesByH.hasOwnProperty(key)) {
+                            continue;
+                        }
+                        this._populateCoreProperties(
+                            value.json.imagesByH[key]);
                     }
 
                     return value.json.imagesByH;
@@ -295,11 +325,11 @@ export class FalcorDataProvider extends DataProviderBase {
      */
     public getClusterReconstruction(
         url: string,
-        abort?: Promise<void>): Promise<ReconstructionEnt> {
+        abort?: Promise<void>): Promise<ClusterReconstructionEnt> {
         return BufferFetcher.getArrayBuffer(url, abort)
             .then(
-                (buffer: ArrayBuffer): FalcorReconstructionEnt => {
-                    const reconstructions: FalcorReconstructionEnt[] =
+                (buffer: ArrayBuffer): FalcorClusterReconstructionEnt => {
+                    const reconstructions: FalcorClusterReconstructionEnt[] =
                         JsonInflator.decompress(buffer);
 
                     if (reconstructions.length < 1) {
@@ -335,7 +365,7 @@ export class FalcorDataProvider extends DataProviderBase {
 
                     return reconstructions[0];
                 },
-                (reason: Error): FalcorReconstructionEnt => {
+                (reason: Error): FalcorClusterReconstructionEnt => {
                     throw reason;
                 });
     }
@@ -360,7 +390,8 @@ export class FalcorDataProvider extends DataProviderBase {
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
                     }
 
-                    return this._populateProperties(value.json.imageByKey);
+                    return this._populateSpatialProperties(
+                        value.json.imageByKey);
                 },
                 (error: Error) => {
                     this._invalidateGet(this._pathImageByKey, keys);
@@ -389,7 +420,8 @@ export class FalcorDataProvider extends DataProviderBase {
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
                     }
 
-                    return this._populateProperties(value.json.imageByKey);
+                    return this._populateSpatialProperties(
+                        value.json.imageByKey);
                 },
                 (error: Error) => {
                     this._invalidateGet(this._pathImageByKey, keys);
@@ -442,23 +474,32 @@ export class FalcorDataProvider extends DataProviderBase {
      */
     public getSequences(sequenceKeys: string[]):
         Promise<{ [sequenceKey: string]: SequenceEnt }> {
-        return Promise.resolve(<PromiseLike<JSONEnvelope<SequenceByKey<SequenceEnt>>>>this._model
+        return Promise.resolve(<PromiseLike<JSONEnvelope<SequenceByKey<FalcorSequenceEnt>>>>this._model
             .get([
                 this._pathSequenceByKey,
                 sequenceKeys,
                 this._propertiesKey
                     .concat(this._propertiesSequence)]))
             .then(
-                (value: JSONEnvelope<SequenceByKey<SequenceEnt>>): { [sequenceKey: string]: SequenceEnt } => {
+                (value: JSONEnvelope<SequenceByKey<FalcorSequenceEnt>>): { [sequenceKey: string]: FalcorSequenceEnt } => {
                     if (!value) {
                         value = { json: { sequenceByKey: {} } };
                     }
 
                     for (const sequenceKey of sequenceKeys) {
                         if (!(sequenceKey in value.json.sequenceByKey)) {
-                            console.warn(`Sequence data missing (${sequenceKey})`);
+                            console.warn(
+                                `Sequence data missing (${sequenceKey})`);
 
-                            value.json.sequenceByKey[sequenceKey] = { key: sequenceKey, keys: [] };
+                            value.json.sequenceByKey[sequenceKey] = {
+                                id: sequenceKey,
+                                image_ids: []
+                            };
+                        } else {
+                            const sequence =
+                                value.json.sequenceByKey[sequenceKey];
+                            sequence.id = sequenceKey;
+                            sequence.image_ids = sequence.keys;
                         }
                     }
 
@@ -484,11 +525,25 @@ export class FalcorDataProvider extends DataProviderBase {
         this._model.invalidate([path, paths]);
     }
 
-    private _populateProperties<T extends FalcorSpatialImageEnt>(ibk: { [key: string]: T }): { [key: string]: T } {
+    private _populateCoreProperties<T extends FalcorCoreImageEnt>(
+        ibk: { [key: string]: T }): { [key: string]: T } {
         for (let key in ibk) {
-            if (!ibk.hasOwnProperty(key)) {
-                continue;
-            }
+            if (!ibk.hasOwnProperty(key)) { continue; }
+            if (!ibk[key]) { continue; }
+
+            const image: T = ibk[key];
+            image.sequence = { id: image.sequence_key };
+            image.computed_geometry = image.cl;
+            image.geometry = image.l;
+        }
+        return ibk;
+    }
+
+    private _populateSpatialProperties<T extends FalcorSpatialImageEnt>(
+        ibk: { [key: string]: T }): { [key: string]: T } {
+        for (let key in ibk) {
+            if (!ibk.hasOwnProperty(key)) { continue; }
+            if (!ibk[key]) { continue; }
 
             const image: T = ibk[key];
             image.camera_type = image.camera_projection_type;
@@ -497,7 +552,17 @@ export class FalcorDataProvider extends DataProviderBase {
                 image.ck1,
                 image.ck2
             ];
-            image.cluster_url = this._urls.clusterReconstruction(image.cluster_key);
+            image.cluster = {
+                id: image.cluster_key,
+                url: this._urls.clusterReconstruction(image.cluster_key),
+            };
+            image.compass_angle = image.ca;
+            image.computed_altitude = image.calt;
+            image.computed_compass_angle = image.cca;
+            image.computed_rotation = image.c_rotation;
+            image.organization = { id: image.organization_key };
+            image.user.id = (<FalcorUserEnt>image.user).key;
+
             image.mesh_url = this._urls.protoMesh(key);
             image.thumb320_url = this._urls.thumbnail(
                 key, ImageSize.Size320, this._urls.origin);
@@ -508,7 +573,6 @@ export class FalcorDataProvider extends DataProviderBase {
             image.thumb2048_url = this._urls.thumbnail(
                 key, ImageSize.Size2048, this._urls.origin);
         }
-
         return ibk;
     }
 }

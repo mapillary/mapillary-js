@@ -123,10 +123,10 @@ describe("Navigator.moveToKey$", () => {
         const sequenceKey: string = "sequenceKey";
         spyOn(graphService, "cacheNode$").and.returnValue(observableOf<Node>(
             new Node({
-                cl: { lat: 0, lon: 0 },
-                key: key,
-                l: { lat: 0, lon: 0 },
-                sequence_key: sequenceKey,
+                computed_geometry: { lat: 0, lon: 0 },
+                id: key,
+                geometry: { lat: 0, lon: 0 },
+                sequence: { id: sequenceKey },
             })));
 
         const stateSpy: jasmine.Spy = spyOn(stateService, "setNodes").and.stub();
@@ -230,10 +230,10 @@ describe("Navigator.moveToKey$", () => {
         const key: string = "key";
         const sequenceKey: string = "sequenceKey";
         const node: Node = new Node({
-            cl: { lat: 0, lon: 0 },
-            key: key,
-            l: { lat: 0, lon: 0 },
-            sequence_key: sequenceKey,
+            computed_geometry: { lat: 0, lon: 0 },
+            id: key,
+            geometry: { lat: 0, lon: 0 },
+            sequence: { id: sequenceKey },
         });
 
         spyOn(graphService, "cacheNode$").and.returnValue(observableOf<Node>(node));
@@ -250,7 +250,7 @@ describe("Navigator.moveToKey$", () => {
         navigator.moveToKey$(key)
             .subscribe(
                 (n: Node) => {
-                    expect(n.key).toBe(node.key);
+                    expect(n.id).toBe(node.id);
                     done();
                 });
     });
@@ -269,10 +269,10 @@ describe("Navigator.moveToKey$", () => {
         const sequenceKey: string = "sequenceKey";
         const cacheNodeSubject$: Subject<Node> = new Subject<Node>();
         const node: Node = new Node({
-            cl: { lat: 0, lon: 0 },
-            key: key,
-            l: { lat: 0, lon: 0 },
-            sequence_key: sequenceKey,
+            computed_geometry: { lat: 0, lon: 0 },
+            id: key,
+            geometry: { lat: 0, lon: 0 },
+            sequence: { id: sequenceKey },
         });
 
         spyOn(graphService, "cacheNode$").and.returnValue(cacheNodeSubject$);
@@ -289,7 +289,7 @@ describe("Navigator.moveToKey$", () => {
         navigator.moveToKey$(key)
             .subscribe(
                 (n: Node) => {
-                    expect(n.key).toBe(node.key);
+                    expect(n.id).toBe(node.id);
                     done();
                 });
 
@@ -312,10 +312,10 @@ describe("Navigator.moveToKey$", () => {
             const sequenceKey: string = "sequenceKey";
             const cacheNodeSubject$: Subject<Node> = new Subject<Node>();
             const node: Node = new Node({
-                cl: { lat: 0, lon: 0 },
-                key: key,
-                l: { lat: 0, lon: 0 },
-                sequence_key: sequenceKey,
+                computed_geometry: { lat: 0, lon: 0 },
+                id: key,
+                geometry: { lat: 0, lon: 0 },
+                sequence: { id: sequenceKey },
             });
 
             spyOn(graphService, "cacheNode$").and.returnValue(cacheNodeSubject$);
@@ -372,10 +372,10 @@ describe("Navigator.movedToKey$", () => {
         const sequenceKey: string = "sequenceKey";
         spyOn(graphService, "cacheNode$").and.returnValue(observableOf<Node>(
             new Node({
-                cl: { lat: 0, lon: 0 },
-                key: key,
-                l: { lat: 0, lon: 0 },
-                sequence_key: sequenceKey,
+                computed_geometry: { lat: 0, lon: 0 },
+                id: key,
+                geometry: { lat: 0, lon: 0 },
+                sequence: { id: sequenceKey },
             })));
 
         spyOn(stateService, "setNodes").and.stub();
@@ -614,7 +614,7 @@ describe("Navigator.setFilter$", () => {
         navigator.moveToKey$("key").subscribe(() => { /*noop*/ });
 
         const coreNode0: CoreImageEnt = helper.createCoreNode();
-        coreNode0.key = "node0";
+        coreNode0.id = "node0";
         const node0: Node = new Node(coreNode0);
 
         cacheNodeSubject1$.next(node0);
@@ -636,11 +636,11 @@ describe("Navigator.setFilter$", () => {
                 });
 
         const coreNode1: CoreImageEnt = helper.createCoreNode();
-        coreNode1.key = "node1";
+        coreNode1.id = "node1";
         const node1: Node = new Node(coreNode1);
 
         const coreNode2: CoreImageEnt = helper.createCoreNode();
-        coreNode2.key = "node2";
+        coreNode2.id = "node2";
         const node2: Node = new Node(coreNode2);
 
         const state: IAnimationState = createState();
@@ -759,7 +759,7 @@ describe("Navigator.setToken$", () => {
         navigator.moveToKey$("key").subscribe(() => { /*noop*/ });
 
         const coreNode0: CoreImageEnt = helper.createCoreNode();
-        coreNode0.key = "node0";
+        coreNode0.id = "node0";
         const node0: Node = new Node(coreNode0);
 
         cacheNodeSubject1$.next(node0);
@@ -787,11 +787,11 @@ describe("Navigator.setToken$", () => {
                 });
 
         const coreNode1: CoreImageEnt = helper.createCoreNode();
-        coreNode1.key = "node1";
+        coreNode1.id = "node1";
         const node1: Node = new Node(coreNode1);
 
         const coreNode2: CoreImageEnt = helper.createCoreNode();
-        coreNode2.key = "node2";
+        coreNode2.id = "node2";
         const node2: Node = new Node(coreNode2);
 
         const state: IAnimationState = createState();

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { PointEnt } from "../../api/ents/PointEnt";
-import { ReconstructionEnt } from "../../api/ents/ReconstructionEnt";
+import { ClusterReconstructionEnt } from "../../api/ents/ClusterReconstructionEnt";
 import { MapillaryError } from "../../error/MapillaryError";
 import { isSpherical } from "../../geo/Geo";
 import { Transform } from "../../geo/Transform";
@@ -414,7 +414,7 @@ class SphericalCameraFrame extends CameraFrameBase {
 class ClusterPoints extends THREE.Points {
     constructor(
         private readonly _originalSize: number,
-        reconstruction: ReconstructionEnt,
+        reconstruction: ClusterReconstructionEnt,
         translation: number[],
         scale: number) {
         super();
@@ -449,7 +449,7 @@ class ClusterPoints extends THREE.Points {
     }
 
     private _getArrays(
-        reconstruction: ReconstructionEnt,
+        reconstruction: ClusterReconstructionEnt,
         translation: number[]): [Float32Array, Float32Array] {
         const points = Object
             .keys(reconstruction.points)
@@ -744,7 +744,7 @@ class NodeCell {
 
     public addNode(props: NodeProps): void {
         const node = props.node;
-        const id = node.key;
+        const id = node.id;
         if (this.hasNode(id)) { throw new Error(`Node exists ${id}`); }
         const ccId = props.idMap.ccId;
         if (!(this._connectedComponents.has(ccId))) {
@@ -784,7 +784,7 @@ class NodeCell {
         for (const props of Object.values(this._props)) {
             const node = props.node;
             const visible = filter(node);
-            const key = node.key;
+            const key = node.id;
             positionLines[key].visible = visible;
             const camera = cameraFrames[key];
             this._setCameraVisibility(camera, visible, interactiveLayer);
@@ -1012,7 +1012,7 @@ export class SpatialDataScene {
     public get intersection(): Intersection { return this._intersection; }
 
     public addClusterReconstruction(
-        reconstruction: ReconstructionEnt,
+        reconstruction: ClusterReconstructionEnt,
         translation: number[],
         cellId: string): void {
 
@@ -1060,14 +1060,14 @@ export class SpatialDataScene {
         originalPosition: number[],
         cellId: string): void {
 
-        const key = node.key;
+        const key = node.id;
         const idMap = {
-            clusterId: !!node.clusterKey ?
-                node.clusterKey : "default_cluster_key",
-            sequenceId: !!node.sequenceKey ?
-                node.sequenceKey : "default_sequence_key",
+            clusterId: !!node.clusterId ?
+                node.clusterId : "default_cluster_id",
+            sequenceId: !!node.sequenceId ?
+                node.sequenceId : "default_sequence_id",
             ccId: !!node.mergeCC ?
-                node.mergeCC.toString() : "default_mergecc_key",
+                node.mergeCC.toString() : "default_mergecc_id",
         }
 
         if (!(cellId in this._nodes)) {
@@ -1088,7 +1088,7 @@ export class SpatialDataScene {
         const color = this._assets.getColor(colorId);
         const visible = this._filter(node);
         cell.visualize({
-            id: node.key,
+            id: node.id,
             color,
             positionMode: this._positionMode,
             scale: this._cameraSize,

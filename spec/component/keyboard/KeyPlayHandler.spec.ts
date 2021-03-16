@@ -222,7 +222,7 @@ describe("KeyPlayHandler.enable", () => {
             cached: true,
             edges: [{
                 data: { direction: NavigationDirection.Next, worldMotionAzimuth: 0 },
-                source: node.key,
+                source: node.id,
                 target: "toKey",
             }],
         });
@@ -266,7 +266,7 @@ describe("KeyPlayHandler.enable", () => {
             cached: true,
             edges: [{
                 data: { direction: NavigationDirection.Next, worldMotionAzimuth: 0 },
-                source: node.key,
+                source: node.id,
                 target: "toKey",
             }],
         });

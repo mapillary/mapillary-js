@@ -238,7 +238,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
         cacheSequenceNodesSpy.and.returnValue(cacheSequenceNodes$);
 
         const getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
-        getSequenceSpy.and.returnValue(new Sequence({ key: "skey", keys: [] }));
+        getSequenceSpy.and.returnValue(new Sequence({ id: "skey", image_ids: [] }));
 
         const graphService: GraphService = new GraphService(graph);
 
@@ -264,7 +264,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
         cacheSequenceNodesSpy.and.returnValue(cacheSequenceNodes$);
 
         const getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
-        getSequenceSpy.and.returnValue(new Sequence({ key: "skey", keys: [] }));
+        getSequenceSpy.and.returnValue(new Sequence({ id: "skey", image_ids: [] }));
 
         const graphService: GraphService = new GraphService(graph);
 
@@ -290,7 +290,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
         cacheSequenceNodesSpy.and.returnValue(cacheSequenceNodes$);
 
         const getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
-        getSequenceSpy.and.returnValue(new Sequence({ key: "skey", keys: [] }));
+        getSequenceSpy.and.returnValue(new Sequence({ id: "skey", image_ids: [] }));
 
         const graphService: GraphService = new GraphService(graph);
 
@@ -316,7 +316,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
         cacheSequenceNodesSpy.and.returnValue(cacheSequenceNodes$);
 
         const getSequenceSpy: jasmine.Spy = spyOn(graph, "getSequence");
-        getSequenceSpy.and.returnValue(new Sequence({ key: "skey", keys: [] }));
+        getSequenceSpy.and.returnValue(new Sequence({ id: "skey", image_ids: [] }));
 
         const graphService: GraphService = new GraphService(graph);
 
@@ -434,7 +434,7 @@ describe("GraphService.graphMode$", () => {
 
         spyOn(graph, "getNode").and.returnValue(node);
 
-        graphService.cacheNode$(node.key)
+        graphService.cacheNode$(node.id)
             .subscribe(
                 (n: Node): void => {
                     expect(n).toBeDefined();
@@ -525,7 +525,7 @@ describe("GraphService.cacheNode$", () => {
 
         spyOn(graph, "getNode").and.returnValue(node);
 
-        graphService.cacheNode$(node.key)
+        graphService.cacheNode$(node.id)
             .subscribe(
                 (): void => {
                     expect(cacheFullSpy.calls.count()).toBe(1);
@@ -577,7 +577,7 @@ describe("GraphService.cacheNode$", () => {
 
         spyOn(graph, "getNode").and.returnValue(node);
 
-        graphService.cacheNode$(node.key)
+        graphService.cacheNode$(node.id)
             .subscribe(
                 (): void => {
                     expect(cacheFillSpy.calls.count()).toBe(1);
@@ -627,7 +627,7 @@ describe("GraphService.cacheNode$", () => {
 
         spyOn(graph, "getNode").and.returnValue(node);
 
-        graphService.cacheNode$(node.key).subscribe(() => { /*noop*/ });
+        graphService.cacheNode$(node.id).subscribe(() => { /*noop*/ });
 
         cacheFull$.next(graph);
 
@@ -635,11 +635,11 @@ describe("GraphService.cacheNode$", () => {
 
         expect(cacheNodeSequenceSpy.calls.count()).toBe(1);
         expect(cacheNodeSequenceSpy.calls.first().args.length).toBe(1);
-        expect(cacheNodeSequenceSpy.calls.first().args[0]).toBe(node.key);
+        expect(cacheNodeSequenceSpy.calls.first().args[0]).toBe(node.id);
 
         expect(cacheSequenceEdgesSpy.calls.count()).toBe(1);
         expect(cacheSequenceEdgesSpy.calls.first().args.length).toBe(1);
-        expect(cacheSequenceEdgesSpy.calls.first().args[0]).toBe(node.key);
+        expect(cacheSequenceEdgesSpy.calls.first().args[0]).toBe(node.id);
     });
 
     it("should cache spatial edges", () => {
@@ -672,13 +672,13 @@ describe("GraphService.cacheNode$", () => {
 
         spyOn(graph, "getNode").and.returnValue(node);
 
-        graphService.cacheNode$(node.key).subscribe(() => { /*noop*/ });
+        graphService.cacheNode$(node.id).subscribe(() => { /*noop*/ });
 
         cacheFull$.next(graph);
 
         expect(cacheSpatialEdgesSpy.calls.count()).toBe(1);
         expect(cacheSpatialEdgesSpy.calls.first().args.length).toBe(1);
-        expect(cacheSpatialEdgesSpy.calls.first().args[0]).toBe(node.key);
+        expect(cacheSpatialEdgesSpy.calls.first().args[0]).toBe(node.id);
     });
 
     it("should cache spatial edges if in spatial mode", () => {
@@ -715,7 +715,7 @@ describe("GraphService.cacheNode$", () => {
 
         graphService.setGraphMode(GraphMode.Spatial);
 
-        graphService.cacheNode$(node.key).subscribe(() => { /*noop*/ });
+        graphService.cacheNode$(node.id).subscribe(() => { /*noop*/ });
 
         cacheFull$.next(graph);
 
@@ -752,7 +752,7 @@ describe("GraphService.cacheNode$", () => {
 
         graphService.setGraphMode(GraphMode.Sequence);
 
-        graphService.cacheNode$(node.key).subscribe(() => { /*noop*/ });
+        graphService.cacheNode$(node.id).subscribe(() => { /*noop*/ });
 
         cacheFull$.next(graph);
 
@@ -804,7 +804,7 @@ describe("GraphService.reset$", () => {
 
         spyOn(graph, "getNode").and.returnValue(node);
 
-        graphService.cacheNode$(node.key)
+        graphService.cacheNode$(node.id)
             .subscribe(
                 (): void => { return; },
                 (e: Error): void => {
@@ -863,7 +863,7 @@ describe("GraphService.reset$", () => {
 
         spyOn(graph, "getNode").and.returnValue(node);
 
-        graphService.cacheNode$(node.key)
+        graphService.cacheNode$(node.id)
             .subscribe(
                 (n: Node): void => {
                     expect(n).toBeDefined();
@@ -921,7 +921,7 @@ describe("GraphService.reset$", () => {
 
         spyOn(graph, "getNode").and.returnValue(node);
 
-        graphService.cacheNode$(node.key)
+        graphService.cacheNode$(node.id)
             .subscribe(
                 (n: Node): void => {
                     expect(n).toBeDefined();
@@ -1009,7 +1009,7 @@ describe("GraphService.setFilter$", () => {
 
         spyOn(graph, "getNode").and.returnValue(node);
 
-        graphService.cacheNode$(node.key)
+        graphService.cacheNode$(node.id)
             .subscribe(
                 (n: Node): void => {
                     expect(n).toBeDefined();

@@ -126,11 +126,11 @@ describe("CacheService.start", () => {
         cacheService.start();
 
         const coreNode1: CoreImageEnt = helper.createCoreNode();
-        coreNode1.key = "node1";
+        coreNode1.id = "node1";
         const node1: Node = new Node(coreNode1);
 
         const coreNode2: CoreImageEnt = helper.createCoreNode();
-        coreNode2.key = "node2";
+        coreNode2.id = "node2";
         const node2: Node = new Node(coreNode2);
 
         const state: IAnimationState = createState();
@@ -145,8 +145,8 @@ describe("CacheService.start", () => {
         expect(uncacheSpy.calls.count()).toBe(1);
         expect(uncacheSpy.calls.first().args.length).toBe(2);
         expect(uncacheSpy.calls.first().args[0].length).toBe(2);
-        expect(uncacheSpy.calls.first().args[0][0]).toBe(coreNode1.key);
-        expect(uncacheSpy.calls.first().args[0][1]).toBe(coreNode2.key);
+        expect(uncacheSpy.calls.first().args[0][0]).toBe(coreNode1.id);
+        expect(uncacheSpy.calls.first().args[0][1]).toBe(coreNode2.id);
         expect(uncacheSpy.calls.first().args[1]).toBeUndefined();
     });
 
@@ -168,12 +168,12 @@ describe("CacheService.start", () => {
         cacheService.start();
 
         const coreNode1: CoreImageEnt = helper.createCoreNode();
-        coreNode1.key = "node1";
+        coreNode1.id = "node1";
         const node1: Node = new Node(coreNode1);
 
         const coreNode2: CoreImageEnt = helper.createCoreNode();
-        coreNode2.key = "node2";
-        coreNode2.sequence_key = "sequence2";
+        coreNode2.id = "node2";
+        coreNode2.sequence.id = "sequence2";
         const node2: Node = new Node(coreNode2);
 
         const state: IAnimationState = createState();
@@ -188,9 +188,9 @@ describe("CacheService.start", () => {
         expect(uncacheSpy.calls.count()).toBe(1);
         expect(uncacheSpy.calls.first().args.length).toBe(2);
         expect(uncacheSpy.calls.first().args[0].length).toBe(2);
-        expect(uncacheSpy.calls.first().args[0][0]).toBe(coreNode1.key);
-        expect(uncacheSpy.calls.first().args[0][1]).toBe(coreNode2.key);
-        expect(uncacheSpy.calls.first().args[1]).toBe(coreNode2.sequence_key);
+        expect(uncacheSpy.calls.first().args[0][0]).toBe(coreNode1.id);
+        expect(uncacheSpy.calls.first().args[0][1]).toBe(coreNode2.id);
+        expect(uncacheSpy.calls.first().args[1]).toBe(coreNode2.sequence.id);
     });
 
     it("should cache current node if switching to sequence graph mode", () => {
@@ -214,11 +214,11 @@ describe("CacheService.start", () => {
         cacheService.start();
 
         const coreNode1: CoreImageEnt = helper.createCoreNode();
-        coreNode1.key = "node1";
+        coreNode1.id = "node1";
         const node1: Node = new Node(coreNode1);
 
         const coreNode2: CoreImageEnt = helper.createCoreNode();
-        coreNode2.key = "node2";
+        coreNode2.id = "node2";
         const node2: Node = new Node(coreNode2);
 
         const state: IAnimationState = createState();
@@ -231,7 +231,7 @@ describe("CacheService.start", () => {
 
         expect(cacheNodeSpy.calls.count()).toBe(1);
         expect(cacheNodeSpy.calls.first().args.length).toBe(1);
-        expect(cacheNodeSpy.calls.first().args[0]).toBe(coreNode1.key);
+        expect(cacheNodeSpy.calls.first().args[0]).toBe(coreNode1.id);
 
         cacheService.stop();
     });
@@ -257,15 +257,15 @@ describe("CacheService.start", () => {
         cacheService.start();
 
         const coreNode1: CoreImageEnt = helper.createCoreNode();
-        coreNode1.key = "node1";
+        coreNode1.id = "node1";
         const node1: Node = new Node(coreNode1);
 
         const coreNode2: CoreImageEnt = helper.createCoreNode();
-        coreNode2.key = "node2";
+        coreNode2.id = "node2";
         const node2: Node = new Node(coreNode2);
 
         const coreNode3: CoreImageEnt = helper.createCoreNode();
-        coreNode3.key = "node3";
+        coreNode3.id = "node3";
         const node3: Node = new Node(coreNode3);
 
         const state: IAnimationState = createState();
@@ -279,9 +279,9 @@ describe("CacheService.start", () => {
 
         expect(cacheNodeSpy.calls.count()).toBe(2);
         expect(cacheNodeSpy.calls.first().args.length).toBe(1);
-        expect(cacheNodeSpy.calls.first().args[0]).toBe(coreNode2.key);
+        expect(cacheNodeSpy.calls.first().args[0]).toBe(coreNode2.id);
         expect(cacheNodeSpy.calls.argsFor(1).length).toBe(1);
-        expect(cacheNodeSpy.calls.argsFor(1)[0]).toBe(coreNode3.key);
+        expect(cacheNodeSpy.calls.argsFor(1)[0]).toBe(coreNode3.id);
 
         cacheService.stop();
     });
@@ -305,7 +305,7 @@ describe("CacheService.start", () => {
         cacheService.start();
 
         const coreNode1: CoreImageEnt = helper.createCoreNode();
-        coreNode1.key = "node1";
+        coreNode1.id = "node1";
         const node1: Node = new Node(coreNode1);
 
         const state: IAnimationState = createState();

@@ -78,9 +78,9 @@ describe("Graph.cacheBoundingBox$", () => {
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.key = key;
-        fullNode.cl.lat = 0.5;
-        fullNode.cl.lon = 0.5;
+        fullNode.id = key;
+        fullNode.computed_geometry.lat = 0.5;
+        fullNode.computed_geometry.lon = 0.5;
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
@@ -88,7 +88,7 @@ describe("Graph.cacheBoundingBox$", () => {
             .subscribe(
                 (nodes: Node[]): void => {
                     expect(nodes.length).toBe(1);
-                    expect(nodes[0].key).toBe(fullNode.key);
+                    expect(nodes[0].id).toBe(fullNode.id);
                     expect(nodes[0].full).toBe(true);
 
                     expect(graph.hasNode(key)).toBe(true);
@@ -136,21 +136,21 @@ describe("Graph.cacheBoundingBox$", () => {
         imageByKeyFullSpy.and.returnValue(imageByKeyFull);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.key = key;
-        fullNode.cl.lat = 0.5;
-        fullNode.cl.lon = 0.5;
+        fullNode.id = key;
+        fullNode.computed_geometry.lat = 0.5;
+        fullNode.computed_geometry.lon = 0.5;
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fullResult: { [key: string]: ImageEnt } = {};
-        fullResult[fullNode.key] = fullNode;
+        fullResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fullResult);
         imageByKeyFull.complete();
 
-        graph.hasTiles(fullNode.key);
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        graph.hasTiles(fullNode.id);
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -160,8 +160,8 @@ describe("Graph.cacheBoundingBox$", () => {
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
-        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
+        expect(graph.hasTiles(fullNode.id)).toBe(true);
 
         expect(imagesByHSpy.calls.count()).toBe(1);
         expect(imageByKeyFillSpy.calls.count()).toBe(0);
@@ -171,7 +171,7 @@ describe("Graph.cacheBoundingBox$", () => {
             .subscribe(
                 (nodes: Node[]): void => {
                     expect(nodes.length).toBe(1);
-                    expect(nodes[0].key).toBe(fullNode.key);
+                    expect(nodes[0].id).toBe(fullNode.id);
                     expect(nodes[0].full).toBe(true);
 
                     expect(graph.hasNode(key)).toBe(true);
@@ -204,9 +204,9 @@ describe("Graph.cacheBoundingBox$", () => {
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.key = key;
-        fullNode.cl.lat = 0.5;
-        fullNode.cl.lon = 0.5;
+        fullNode.id = key;
+        fullNode.computed_geometry.lat = 0.5;
+        fullNode.computed_geometry.lon = 0.5;
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
@@ -217,7 +217,7 @@ describe("Graph.cacheBoundingBox$", () => {
             .subscribe(
                 (nodes: Node[]): void => {
                     expect(nodes.length).toBe(1);
-                    expect(nodes[0].key).toBe(fullNode.key);
+                    expect(nodes[0].id).toBe(fullNode.id);
                     expect(nodes[0].full).toBe(true);
 
                     expect(graph.hasNode(key)).toBe(true);
@@ -262,11 +262,11 @@ describe("Graph.cacheFull$", () => {
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const graph: Graph = new Graph(api, undefined, calculator);
-        graph.cacheFull$(fullNode.key);
+        graph.cacheFull$(fullNode.id);
 
-        expect(graph.isCachingFull(fullNode.key)).toBe(true);
-        expect(graph.hasNode(fullNode.key)).toBe(false);
-        expect(graph.getNode(fullNode.key)).toBeUndefined();
+        expect(graph.isCachingFull(fullNode.id)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(false);
+        expect(graph.getNode(fullNode.id)).toBeUndefined();
     });
 
     it("should fetch", (done: Function) => {
@@ -280,14 +280,14 @@ describe("Graph.cacheFull$", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key)
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id)
             .subscribe(
                 (g: Graph): void => {
-                    expect(g.isCachingFull(fullNode.key)).toBe(false);
-                    expect(g.hasNode(fullNode.key)).toBe(true);
-                    expect(g.getNode(fullNode.key)).toBeDefined();
-                    expect(g.getNode(fullNode.key).key).toBe(fullNode.key);
+                    expect(g.isCachingFull(fullNode.id)).toBe(false);
+                    expect(g.hasNode(fullNode.id)).toBe(true);
+                    expect(g.getNode(fullNode.id)).toBeDefined();
+                    expect(g.getNode(fullNode.id).id).toBe(fullNode.id);
 
                     done();
                 });
@@ -295,10 +295,10 @@ describe("Graph.cacheFull$", () => {
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.isCachingFull(fullNode.key)).toBe(false);
-        expect(graph.hasNode(fullNode.key)).toBe(true);
-        expect(graph.getNode(fullNode.key)).toBeDefined();
-        expect(graph.getNode(fullNode.key).key).toBe(fullNode.key);
+        expect(graph.isCachingFull(fullNode.id)).toBe(false);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
+        expect(graph.getNode(fullNode.id)).toBeDefined();
+        expect(graph.getNode(fullNode.id).id).toBe(fullNode.id);
     });
 
     it("should not make additional calls when fetching same node twice", () => {
@@ -313,8 +313,8 @@ describe("Graph.cacheFull$", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         expect(imageByKeyFullSpy.calls.count()).toBe(1);
     });
@@ -330,15 +330,15 @@ describe("Graph.cacheFull$", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
 
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
+        result[fullNode.id] = fullNode;
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.isCachingFull(fullNode.key)).toBe(false);
-        expect(() => { graph.cacheFull$(fullNode.key); }).toThrowError(Error);
+        expect(graph.isCachingFull(fullNode.id)).toBe(false);
+        expect(() => { graph.cacheFull$(fullNode.id); }).toThrowError(Error);
     });
 
     it("should throw if sequence key is missing", (done: Function) => {
@@ -351,9 +351,9 @@ describe("Graph.cacheFull$", () => {
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.sequence_key = undefined;
+        fullNode.sequence.id = undefined;
 
-        graph.cacheFull$(fullNode.key)
+        graph.cacheFull$(fullNode.id)
             .subscribe(
                 (): void => { return; },
                 (): void => {
@@ -361,7 +361,7 @@ describe("Graph.cacheFull$", () => {
                 });
 
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
+        result[fullNode.id] = fullNode;
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
     });
@@ -400,25 +400,25 @@ describe("Graph.cacheFull$", () => {
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const otherNode: ImageEnt = helper.createFullNode();
-        otherNode.key = otherKey;
-        graph.cacheFull$(otherNode.key).subscribe(() => { /*noop*/ });
+        otherNode.id = otherKey;
+        graph.cacheFull$(otherNode.id).subscribe(() => { /*noop*/ });
 
         const otherFullResult: { [key: string]: ImageEnt } = {};
-        otherFullResult[otherNode.key] = otherNode;
+        otherFullResult[otherNode.id] = otherNode;
         imageByKeyFullOther.next(otherFullResult);
         imageByKeyFullOther.complete();
 
-        graph.hasTiles(otherNode.key);
-        observableFrom(graph.cacheTiles$(otherNode.key)).pipe(
+        graph.hasTiles(otherNode.id);
+        observableFrom(graph.cacheTiles$(otherNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.key = key;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        fullNode.id = key;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        expect(graph.hasNode(fullNode.key)).toBe(false);
-        expect(graph.isCachingFull(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(false);
+        expect(graph.isCachingFull(fullNode.id)).toBe(true);
 
         const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         tileResult[h] = {};
@@ -427,15 +427,15 @@ describe("Graph.cacheFull$", () => {
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
-        expect(graph.getNode(fullNode.key).full).toBe(false);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
+        expect(graph.getNode(fullNode.id).full).toBe(false);
 
         const fullResult: { [key: string]: ImageEnt } = {};
-        fullResult[fullNode.key] = fullNode;
+        fullResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fullResult);
         imageByKeyFull.complete();
 
-        expect(graph.getNode(fullNode.key).full).toBe(true);
+        expect(graph.getNode(fullNode.id).full).toBe(true);
     });
 });
 
@@ -471,31 +471,31 @@ describe("Graph.cacheFill$", () => {
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.hasTiles(fullNode.key);
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        graph.hasTiles(fullNode.id);
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
         const tileNode: CoreImageEnt = helper.createCoreNode();
-        tileNode.key = "tileNodeKey";
+        tileNode.id = "tileNodeKey";
         const result: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         result[h] = {};
         result[h]["0"] = tileNode;
         imagesByH.next(result);
 
-        expect(graph.getNode(tileNode.key).full).toBe(false);
-        expect(graph.isCachingFill(tileNode.key)).toBe(false);
+        expect(graph.getNode(tileNode.id).full).toBe(false);
+        expect(graph.isCachingFill(tileNode.id)).toBe(false);
 
-        graph.cacheFill$(tileNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFill$(tileNode.id).subscribe(() => { /*noop*/ });
 
-        expect(graph.getNode(tileNode.key).full).toBe(false);
-        expect(graph.isCachingFill(tileNode.key)).toBe(true);
+        expect(graph.getNode(tileNode.id).full).toBe(false);
+        expect(graph.isCachingFill(tileNode.id)).toBe(true);
     });
 
     it("should fill", () => {
@@ -523,36 +523,36 @@ describe("Graph.cacheFill$", () => {
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.hasTiles(fullNode.key);
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        graph.hasTiles(fullNode.id);
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
         const tileNode: CoreImageEnt = helper.createCoreNode();
-        tileNode.key = "tileNodeKey";
+        tileNode.id = "tileNodeKey";
         const result: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         result[h] = {};
         result[h]["0"] = tileNode;
         imagesByH.next(result);
 
-        expect(graph.getNode(tileNode.key).full).toBe(false);
-        expect(graph.isCachingFill(tileNode.key)).toBe(false);
+        expect(graph.getNode(tileNode.id).full).toBe(false);
+        expect(graph.isCachingFill(tileNode.id)).toBe(false);
 
-        graph.cacheFill$(tileNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFill$(tileNode.id).subscribe(() => { /*noop*/ });
 
         const fillTileNode: SpatialImageEnt = helper.createFullNode();
         const fillResult: { [key: string]: SpatialImageEnt } = {};
-        fillResult[tileNode.key] = fillTileNode;
+        fillResult[tileNode.id] = fillTileNode;
         imageByKeyFill.next(fillResult);
 
-        expect(graph.getNode(tileNode.key).full).toBe(true);
-        expect(graph.isCachingFill(tileNode.key)).toBe(false);
+        expect(graph.getNode(tileNode.id).full).toBe(true);
+        expect(graph.isCachingFill(tileNode.id)).toBe(false);
     });
 
     it("should not make additional calls when filling same node twice", () => {
@@ -581,29 +581,29 @@ describe("Graph.cacheFill$", () => {
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.hasTiles(fullNode.key);
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        graph.hasTiles(fullNode.id);
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
         const tileNode: CoreImageEnt = helper.createCoreNode();
-        tileNode.key = "tileNodeKey";
+        tileNode.id = "tileNodeKey";
         const result: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         result[h] = {};
         result[h]["0"] = tileNode;
         imagesByH.next(result);
 
-        expect(graph.getNode(tileNode.key).full).toBe(false);
-        expect(graph.isCachingFill(tileNode.key)).toBe(false);
+        expect(graph.getNode(tileNode.id).full).toBe(false);
+        expect(graph.isCachingFill(tileNode.id)).toBe(false);
 
-        graph.cacheFill$(tileNode.key).subscribe(() => { /*noop*/ });
-        graph.cacheFill$(tileNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFill$(tileNode.id).subscribe(() => { /*noop*/ });
+        graph.cacheFill$(tileNode.id).subscribe(() => { /*noop*/ });
 
         expect(imageByKeyFillSpy.calls.count()).toBe(1);
     });
@@ -630,11 +630,11 @@ describe("Graph.cacheFill$", () => {
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        graph.cacheFull$(fullNode.key);
+        graph.cacheFull$(fullNode.id);
 
-        expect(graph.isCachingFull(fullNode.key)).toBe(true);
+        expect(graph.isCachingFull(fullNode.id)).toBe(true);
 
-        expect(() => { graph.cacheFill$(fullNode.key); }).toThrowError(Error);
+        expect(() => { graph.cacheFill$(fullNode.id); }).toThrowError(Error);
     });
 
     it("should throw if node does not exist", () => {
@@ -662,13 +662,13 @@ describe("Graph.cacheFill$", () => {
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        graph.cacheFull$(fullNode.key);
+        graph.cacheFull$(fullNode.id);
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        expect(() => { graph.cacheFill$(fullNode.key); }).toThrowError(Error);
+        expect(() => { graph.cacheFill$(fullNode.id); }).toThrowError(Error);
     });
 });
 
@@ -700,13 +700,13 @@ describe("Graph.cacheTiles$", () => {
         spyOn(graph, "hasNode").and.returnValue(true);
         spyOn(graph, "getNode").and.returnValue(node);
 
-        expect(graph.hasTiles(node.key)).toBe(false);
-        expect(graph.isCachingTiles(node.key)).toBe(false);
+        expect(graph.hasTiles(node.id)).toBe(false);
+        expect(graph.isCachingTiles(node.id)).toBe(false);
 
-        graph.cacheTiles$(node.key);
+        graph.cacheTiles$(node.id);
 
-        expect(graph.hasTiles(node.key)).toBe(false);
-        expect(graph.isCachingTiles(node.key)).toBe(true);
+        expect(graph.hasTiles(node.id)).toBe(false);
+        expect(graph.isCachingTiles(node.id)).toBe(true);
     });
 
     it("should cache tiles", () => {
@@ -724,7 +724,7 @@ describe("Graph.cacheTiles$", () => {
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
         const imageByKeyResult: { [key: string]: ImageEnt } = {};
-        imageByKeyResult[fullNode.key] = fullNode;
+        imageByKeyResult[fullNode.id] = fullNode;
         const imageByKeyFull: Observable<{ [key: string]: ImageEnt }> = observableOf<{ [key: string]: ImageEnt }>(imageByKeyResult);
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
@@ -733,12 +733,12 @@ describe("Graph.cacheTiles$", () => {
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         const graph: Graph = new Graph(api, undefined, calculator);
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        expect(graph.hasTiles(fullNode.key)).toBe(false);
-        expect(graph.isCachingTiles(fullNode.key)).toBe(false);
+        expect(graph.hasTiles(fullNode.id)).toBe(false);
+        expect(graph.isCachingTiles(fullNode.id)).toBe(false);
 
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -747,8 +747,8 @@ describe("Graph.cacheTiles$", () => {
         result[h]["0"] = fullNode;
         imagesByH.next(result);
 
-        expect(graph.hasTiles(fullNode.key)).toBe(true);
-        expect(graph.isCachingTiles(fullNode.key)).toBe(false);
+        expect(graph.hasTiles(fullNode.id)).toBe(true);
+        expect(graph.isCachingTiles(fullNode.id)).toBe(false);
     });
 
     it("should encode hs only once when checking tiles cache", () => {
@@ -774,8 +774,8 @@ describe("Graph.cacheTiles$", () => {
         spyOn(graph, "hasNode").and.returnValue(true);
         spyOn(graph, "getNode").and.returnValue(node);
 
-        expect(graph.hasTiles(node.key)).toBe(false);
-        expect(graph.hasTiles(node.key)).toBe(false);
+        expect(graph.hasTiles(node.id)).toBe(false);
+        expect(graph.hasTiles(node.id)).toBe(false);
 
         expect(encodeHsSpy.calls.count()).toBe(1);
     });
@@ -796,7 +796,7 @@ describe("Graph.cacheTiles$", () => {
         encodeHsSpy.and.returnValue([h]);
 
         const imageByKeyResult: { [key: string]: ImageEnt } = {};
-        imageByKeyResult[fullNode.key] = fullNode;
+        imageByKeyResult[fullNode.id] = fullNode;
         const imageByKeyFull: Observable<{ [key: string]: ImageEnt }> = observableOf<{ [key: string]: ImageEnt }>(imageByKeyResult);
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
@@ -805,11 +805,11 @@ describe("Graph.cacheTiles$", () => {
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         const graph: Graph = new Graph(api, undefined, calculator);
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        expect(graph.hasTiles(fullNode.key)).toBe(false);
+        expect(graph.hasTiles(fullNode.id)).toBe(false);
 
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -818,7 +818,7 @@ describe("Graph.cacheTiles$", () => {
         result[h]["0"] = fullNode;
         imagesByH.next(result);
 
-        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        expect(graph.hasTiles(fullNode.id)).toBe(true);
 
         expect(encodeHsSpy.calls.count()).toBe(1);
     });
@@ -860,7 +860,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequence$(sequenceKey).subscribe();
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [key] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -886,7 +886,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequence$(sequenceKey).subscribe();
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [key] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -914,7 +914,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequence$(sequenceKey).subscribe();
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -922,14 +922,14 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const imageResult: { [key: string]: ImageEnt } = {};
         imageResult[nodeKey] = helper.createFullNode();
-        imageResult[nodeKey].key = nodeKey;
+        imageResult[nodeKey].id = nodeKey;
         imageByKey.next(imageResult);
         imageByKey.complete();
 
         expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
         expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(false);
         expect(graph.hasNode(nodeKey)).toBe(true);
-        expect(graph.getNode(nodeKey).key).toBe(nodeKey);
+        expect(graph.getNode(nodeKey).id).toBe(nodeKey);
     });
 
     it("should not be cached after uncaching sequence node", () => {
@@ -963,7 +963,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequence$(sequenceKey).subscribe();
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -971,9 +971,9 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.key = nodeKey;
-        fullNode.sequence_key = sequenceKey;
-        imageResult[fullNode.key] = fullNode;
+        fullNode.id = nodeKey;
+        fullNode.sequence.id = sequenceKey;
+        imageResult[fullNode.id] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
 
@@ -1015,7 +1015,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequence$(sequenceKey).subscribe();
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1023,13 +1023,13 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.key = nodeKey;
-        fullNode.sequence_key = sequenceKey;
-        imageResult[fullNode.key] = fullNode;
+        fullNode.id = nodeKey;
+        fullNode.sequence.id = sequenceKey;
+        imageResult[fullNode.id] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
 
-        graph.initializeCache(fullNode.key);
+        graph.initializeCache(fullNode.id);
 
         expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
 
@@ -1069,7 +1069,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequence$(sequenceKey).subscribe();
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1077,9 +1077,9 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.key = nodeKey;
-        fullNode.sequence_key = sequenceKey;
-        imageResult[fullNode.key] = fullNode;
+        fullNode.id = nodeKey;
+        fullNode.sequence.id = sequenceKey;
+        imageResult[fullNode.id] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
 
@@ -1121,7 +1121,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequence$(sequenceKey).subscribe();
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1129,15 +1129,15 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.key = nodeKey;
-        fullNode.sequence_key = sequenceKey;
-        imageResult[fullNode.key] = fullNode;
+        fullNode.id = nodeKey;
+        fullNode.sequence.id = sequenceKey;
+        imageResult[fullNode.id] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
 
         expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
 
-        graph.uncache([fullNode.key]);
+        graph.uncache([fullNode.id]);
 
         expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
     });
@@ -1175,7 +1175,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequence$(sequenceKey).subscribe();
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1183,20 +1183,20 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.key = nodeKey;
-        fullNode.sequence_key = sequenceKey;
-        imageResult[fullNode.key] = fullNode;
+        fullNode.id = nodeKey;
+        fullNode.sequence.id = sequenceKey;
+        imageResult[fullNode.id] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
 
-        graph.initializeCache(fullNode.key);
+        graph.initializeCache(fullNode.id);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        graph.hasTiles(fullNode.key);
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        graph.hasTiles(fullNode.id);
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -1205,11 +1205,11 @@ describe("Graph.cacheSequenceNodes$", () => {
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
-        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        expect(graph.hasTiles(fullNode.id)).toBe(true);
 
         expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
         const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
@@ -1254,7 +1254,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequence$(sequenceKey).subscribe();
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1262,20 +1262,20 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.key = nodeKey;
-        fullNode.sequence_key = sequenceKey;
-        imageResult[fullNode.key] = fullNode;
+        fullNode.id = nodeKey;
+        fullNode.sequence.id = sequenceKey;
+        imageResult[fullNode.id] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
 
-        graph.initializeCache(fullNode.key);
+        graph.initializeCache(fullNode.id);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        graph.hasTiles(fullNode.key);
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        graph.hasTiles(fullNode.id);
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -1284,11 +1284,11 @@ describe("Graph.cacheSequenceNodes$", () => {
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
-        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        expect(graph.hasTiles(fullNode.id)).toBe(true);
 
         expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
         const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
@@ -1319,7 +1319,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequence$(sequenceKey).subscribe();
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1327,7 +1327,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const imageResult: { [key: string]: ImageEnt } = {};
         imageResult[nodeKey] = helper.createFullNode();
-        imageResult[nodeKey].key = nodeKey;
+        imageResult[nodeKey].id = nodeKey;
         imageByKey.next(imageResult);
         imageByKey.complete();
 
@@ -1354,7 +1354,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequence$(sequenceKey).subscribe();
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1363,7 +1363,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const imageResult: { [key: string]: ImageEnt } = {};
         imageResult[nodeKey] = helper.createFullNode();
-        imageResult[nodeKey].key = nodeKey;
+        imageResult[nodeKey].id = nodeKey;
         imageByKey.next(imageResult);
         imageByKey.complete();
 
@@ -1389,7 +1389,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequence$(sequenceKey).subscribe();
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [nodeKey] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1424,7 +1424,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequence$(sequenceKey).subscribe();
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: Array(200).fill(undefined).map((value, i) => { return i.toString(); }) };
+        result[sequenceKey] = { id: sequenceKey, image_ids: Array(200).fill(undefined).map((value, i) => { return i.toString(); }) };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1460,7 +1460,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequence$(sequenceKey).subscribe();
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: Array(201).fill(undefined).map((value, i) => { return i.toString(); }) };
+        result[sequenceKey] = { id: sequenceKey, image_ids: Array(201).fill(undefined).map((value, i) => { return i.toString(); }) };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1499,8 +1499,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const referenceNodeKey: string = "referenceNodeKey";
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(400), (x, i): string => i.toString()) };
-        result[sequenceKey].keys.splice(0, 1, referenceNodeKey);
+        result[sequenceKey] = { id: sequenceKey, image_ids: Array.from(new Array(400), (x, i): string => i.toString()) };
+        result[sequenceKey].image_ids.splice(0, 1, referenceNodeKey);
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1541,8 +1541,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const referenceNodeKey: string = "referenceNodeKey";
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(400), (x, i): string => i.toString()) };
-        result[sequenceKey].keys.splice(399, 1, referenceNodeKey);
+        result[sequenceKey] = { id: sequenceKey, image_ids: Array.from(new Array(400), (x, i): string => i.toString()) };
+        result[sequenceKey].image_ids.splice(399, 1, referenceNodeKey);
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1584,8 +1584,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const referenceNodeKey: string = "referenceNodeKey";
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(400), (x, i): string => i.toString()) };
-        result[sequenceKey].keys.splice(200, 1, referenceNodeKey);
+        result[sequenceKey] = { id: sequenceKey, image_ids: Array.from(new Array(400), (x, i): string => i.toString()) };
+        result[sequenceKey].image_ids.splice(200, 1, referenceNodeKey);
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1628,8 +1628,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const referenceNodeKey: string = "referenceNodeKey";
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(400), (x, i): string => i.toString()) };
-        result[sequenceKey].keys.splice(200, 1, referenceNodeKey);
+        result[sequenceKey] = { id: sequenceKey, image_ids: Array.from(new Array(400), (x, i): string => i.toString()) };
+        result[sequenceKey].image_ids.splice(200, 1, referenceNodeKey);
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1637,7 +1637,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
         expect(graph.getSequence(sequenceKey).keys.length).toBe(400);
-        expect(graph.getSequence(sequenceKey).keys).toEqual(result[sequenceKey].keys);
+        expect(graph.getSequence(sequenceKey).keys).toEqual(result[sequenceKey].image_ids);
     });
 
     it("should create single batch when fewer than or equal to 50 nodes", () => {
@@ -1661,8 +1661,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const referenceNodeKey: string = "referenceNodeKey";
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: Array.from(new Array(50), (x, i): string => i.toString()) };
-        result[sequenceKey].keys.splice(20, 1, referenceNodeKey);
+        result[sequenceKey] = { id: sequenceKey, image_ids: Array.from(new Array(50), (x, i): string => i.toString()) };
+        result[sequenceKey].image_ids.splice(20, 1, referenceNodeKey);
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -1706,17 +1706,17 @@ describe("Graph.cacheSpatialArea$", () => {
         spyOn(api, "imageByKeyFull$").and.returnValue(imageByKeyFull);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
-        expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
+        expect(graph.hasSpatialArea(fullNode.id)).toBe(true);
     });
 
     test("should not be cached", () => {
@@ -1739,23 +1739,23 @@ describe("Graph.cacheSpatialArea$", () => {
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
         expect(node).toBeDefined();
 
         spyOn(graphCalculator, "boundingBoxCorners")
             .and.returnValue([{ lat: -0.5, lon: -0.5 }, { lat: 0.5, lon: 0.5 }]);
 
         const coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.key = "otherKey";
+        coreNode.id = "otherKey";
 
-        graph.hasTiles(fullNode.key);
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        graph.hasTiles(fullNode.id);
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -1765,10 +1765,10 @@ describe("Graph.cacheSpatialArea$", () => {
         result[h]["1"] = coreNode;
         imagesByH.next(result);
 
-        const otherNode: Node = graph.getNode(coreNode.key);
+        const otherNode: Node = graph.getNode(coreNode.id);
         expect(otherNode).toBeDefined();
 
-        expect(graph.hasSpatialArea(fullNode.key)).toBe(false);
+        expect(graph.hasSpatialArea(fullNode.id)).toBe(false);
     });
 });
 
@@ -1793,25 +1793,25 @@ describe("Graph.cacheSpatialEdges", () => {
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
+        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: ["prev", fullNode.id, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
-        expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
+        expect(graph.hasSpatialArea(fullNode.id)).toBe(true);
 
         const getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
         getPotentialSpy.and.returnValue([]);
@@ -1822,14 +1822,14 @@ describe("Graph.cacheSpatialEdges", () => {
         spyOn(edgeCalculator, "computePerspectiveToSphericalEdges").and.returnValue([]);
         spyOn(edgeCalculator, "computeSimilarEdges").and.returnValue([]);
 
-        graph.initializeCache(fullNode.key);
-        graph.cacheSpatialEdges(fullNode.key);
+        graph.initializeCache(fullNode.id);
+        graph.cacheSpatialEdges(fullNode.id);
 
         expect(getPotentialSpy.calls.first().args.length).toBe(3);
         expect(getPotentialSpy.calls.first().args[2].length).toBe(2);
         expect(getPotentialSpy.calls.first().args[2].indexOf("prev")).not.toBe(-1);
         expect(getPotentialSpy.calls.first().args[2].indexOf("next")).not.toBe(-1);
-        expect(getPotentialSpy.calls.first().args[2].indexOf(fullNode.key)).toBe(-1);
+        expect(getPotentialSpy.calls.first().args[2].indexOf(fullNode.id)).toBe(-1);
     });
 
     test("should apply filter", () => {
@@ -1845,8 +1845,8 @@ describe("Graph.cacheSpatialEdges", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const otherFullNode: ImageEnt = helper.createFullNode();
-        otherFullNode.key = "other-key";
-        otherFullNode.sequence_key = "otherSequenceKey";
+        otherFullNode.id = "other-key";
+        otherFullNode.sequence.id = "otherSequenceKey";
 
         const imageByKeyFill = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "imageByKeyFill$").and.returnValue(imageByKeyFill);
@@ -1862,28 +1862,28 @@ describe("Graph.cacheSpatialEdges", () => {
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
+        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: ["prev", fullNode.id, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        const node = graph.getNode(fullNode.key);
+        const node = graph.getNode(fullNode.id);
         expect(node).toBeDefined();
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        expect(graph.hasTiles(fullNode.key)).toBe(false);
-        expect(graph.isCachingTiles(fullNode.key)).toBe(false);
+        expect(graph.hasTiles(fullNode.id)).toBe(false);
+        expect(graph.isCachingTiles(fullNode.id)).toBe(false);
 
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -1893,18 +1893,18 @@ describe("Graph.cacheSpatialEdges", () => {
         coreResult[cellId]["1"] = otherFullNode;
         imagesByH.next(coreResult);
 
-        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        expect(graph.hasTiles(fullNode.id)).toBe(true);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: -0.5, lon: -0.5 }, { lat: 0.5, lon: 0.5 }]);
 
-        graph.cacheFill$(otherFullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFill$(otherFullNode.id).subscribe(() => { /*noop*/ });
 
         const otherFetchResult: { [key: string]: ImageEnt } = {};
-        otherFetchResult[otherFullNode.key] = otherFullNode;
+        otherFetchResult[otherFullNode.id] = otherFullNode;
         imageByKeyFill.next(otherFetchResult);
         imageByKeyFill.complete();
 
-        expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
+        expect(graph.hasSpatialArea(fullNode.id)).toBe(true);
 
         const getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
         getPotentialSpy.and.returnValue([]);
@@ -1915,14 +1915,14 @@ describe("Graph.cacheSpatialEdges", () => {
         spyOn(edgeCalculator, "computePerspectiveToSphericalEdges").and.returnValue([]);
         spyOn(edgeCalculator, "computeSimilarEdges").and.returnValue([]);
 
-        graph.setFilter(["==", "sequenceKey", "otherSequenceKey"]);
+        graph.setFilter(["==", "sequenceId", "otherSequenceKey"]);
 
-        graph.initializeCache(fullNode.key);
-        graph.cacheSpatialEdges(fullNode.key);
+        graph.initializeCache(fullNode.id);
+        graph.cacheSpatialEdges(fullNode.id);
 
         expect(getPotentialSpy.calls.first().args.length).toBe(3);
         expect(getPotentialSpy.calls.first().args[1].length).toBe(1);
-        expect(getPotentialSpy.calls.first().args[1][0].sequenceKey).toBe("otherSequenceKey");
+        expect(getPotentialSpy.calls.first().args[1][0].sequenceId).toBe("otherSequenceKey");
     });
 
     it("should apply remove by filtering", () => {
@@ -1939,30 +1939,30 @@ describe("Graph.cacheSpatialEdges", () => {
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
+        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: ["prev", fullNode.id, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
         const otherFullNode: ImageEnt = helper.createFullNode();
-        otherFullNode.sequence_key = "otherSequenceKey";
+        otherFullNode.sequence.id = "otherSequenceKey";
         const otherNode: Node = new Node(otherFullNode);
         otherNode.makeFull(otherFullNode);
 
-        expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
+        expect(graph.hasSpatialArea(fullNode.id)).toBe(true);
 
         const getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
         getPotentialSpy.and.returnValue([]);
@@ -1975,8 +1975,8 @@ describe("Graph.cacheSpatialEdges", () => {
 
         graph.setFilter(["==", "sequenceKey", "none"]);
 
-        graph.initializeCache(fullNode.key);
-        graph.cacheSpatialEdges(fullNode.key);
+        graph.initializeCache(fullNode.id);
+        graph.cacheSpatialEdges(fullNode.id);
 
         expect(getPotentialSpy.calls.first().args.length).toBe(3);
         expect(getPotentialSpy.calls.first().args[1].length).toBe(0);
@@ -2001,13 +2001,13 @@ describe("Graph.cacheNodeSequence$", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
 
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        expect(graph.hasNodeSequence(fullNode.key)).toBe(false);
+        expect(graph.hasNodeSequence(fullNode.id)).toBe(false);
     });
 
     it("should be caching", () => {
@@ -2024,17 +2024,17 @@ describe("Graph.cacheNodeSequence$", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
 
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
-        graph.cacheNodeSequence$(fullNode.key);
+        graph.cacheNodeSequence$(fullNode.id);
 
-        expect(graph.hasNodeSequence(fullNode.key)).toBe(false);
-        expect(graph.isCachingNodeSequence(fullNode.key)).toBe(true);
+        expect(graph.hasNodeSequence(fullNode.id)).toBe(false);
+        expect(graph.isCachingNodeSequence(fullNode.id)).toBe(true);
     });
 
     it("should be cached", () => {
@@ -2050,28 +2050,28 @@ describe("Graph.cacheNodeSequence$", () => {
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.sequence_key = "sequenceKey";
+        fullNode.sequence.id = "sequenceKey";
 
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.cacheNodeSequence$(fullNode.key)
+        graph.cacheNodeSequence$(fullNode.id)
             .subscribe(
                 (g: Graph): void => {
-                    expect(g.hasNodeSequence(fullNode.key)).toBe(true);
-                    expect(g.isCachingNodeSequence(fullNode.key)).toBe(false);
+                    expect(g.hasNodeSequence(fullNode.id)).toBe(true);
+                    expect(g.isCachingNodeSequence(fullNode.id)).toBe(false);
                 });
 
         const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: [fullNode.key] };
+        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: [fullNode.id] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        expect(graph.hasNodeSequence(fullNode.key)).toBe(true);
-        expect(graph.isCachingNodeSequence(fullNode.key)).toBe(false);
+        expect(graph.hasNodeSequence(fullNode.id)).toBe(true);
+        expect(graph.isCachingNodeSequence(fullNode.id)).toBe(false);
     });
 
     it("should throw if node not in graph", () => {
@@ -2087,9 +2087,9 @@ describe("Graph.cacheNodeSequence$", () => {
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.sequence_key = "sequenceKey";
+        fullNode.sequence.id = "sequenceKey";
 
-        expect(() => { graph.cacheNodeSequence$(fullNode.key); }).toThrowError(Error);
+        expect(() => { graph.cacheNodeSequence$(fullNode.id); }).toThrowError(Error);
     });
 
     it("should throw if already cached", () => {
@@ -2105,24 +2105,24 @@ describe("Graph.cacheNodeSequence$", () => {
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.sequence_key = "sequenceKey";
+        fullNode.sequence.id = "sequenceKey";
 
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: [fullNode.key] };
+        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: [fullNode.id] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        expect(graph.hasNodeSequence(fullNode.key)).toBe(true);
+        expect(graph.hasNodeSequence(fullNode.id)).toBe(true);
 
-        expect(() => { graph.cacheNodeSequence$(fullNode.key); }).toThrowError(Error);
+        expect(() => { graph.cacheNodeSequence$(fullNode.id); }).toThrowError(Error);
     });
 
     it("should call api only once when caching the same sequence twice in succession", () => {
@@ -2139,16 +2139,16 @@ describe("Graph.cacheNodeSequence$", () => {
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.sequence_key = "sequenceKey";
+        fullNode.sequence.id = "sequenceKey";
 
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
-        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
+        graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
         expect(sequenceByKeySpy.calls.count()).toBe(1);
     });
@@ -2166,28 +2166,28 @@ describe("Graph.cacheNodeSequence$", () => {
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.sequence_key = "sequenceKey";
+        fullNode.sequence.id = "sequenceKey";
 
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
         graph.changed$.pipe(
             first())
             .subscribe(
                 (g: Graph): void => {
-                    expect(g.hasNodeSequence(fullNode.key)).toBe(true);
-                    expect(g.isCachingNodeSequence(fullNode.key)).toBe(false);
+                    expect(g.hasNodeSequence(fullNode.id)).toBe(true);
+                    expect(g.isCachingNodeSequence(fullNode.id)).toBe(false);
 
                     done();
                 });
 
         const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: [fullNode.key] };
+        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: [fullNode.id] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
     });
@@ -2259,7 +2259,7 @@ describe("Graph.cacheSequence$", () => {
                 });
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [key] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [key] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
     });
@@ -2304,25 +2304,25 @@ describe("Graph.resetSpatialEdges", () => {
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
+        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: ["prev", fullNode.id, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
-        expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
+        expect(graph.hasSpatialArea(fullNode.id)).toBe(true);
 
         const getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
         getPotentialSpy.and.returnValue([]);
@@ -2333,8 +2333,8 @@ describe("Graph.resetSpatialEdges", () => {
         spyOn(edgeCalculator, "computePerspectiveToSphericalEdges").and.returnValue([]);
         spyOn(edgeCalculator, "computeSimilarEdges").and.returnValue([]);
 
-        graph.initializeCache(fullNode.key);
-        graph.cacheSpatialEdges(fullNode.key);
+        graph.initializeCache(fullNode.id);
+        graph.cacheSpatialEdges(fullNode.id);
 
         const nodeSequenceResetSpy: jasmine.Spy = spyOn(node, "resetSequenceEdges").and.stub();
         const nodeSpatialResetSpy: jasmine.Spy = spyOn(node, "resetSpatialEdges").and.stub();
@@ -2344,7 +2344,7 @@ describe("Graph.resetSpatialEdges", () => {
         expect(nodeSequenceResetSpy.calls.count()).toBe(0);
         expect(nodeSpatialResetSpy.calls.count()).toBe(1);
 
-        expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
+        expect(graph.hasSpatialArea(fullNode.id)).toBe(true);
     });
 
     it("should have to re-encode hs after spatial edges reset", () => {
@@ -2370,28 +2370,28 @@ describe("Graph.resetSpatialEdges", () => {
         spyOn(api, "sequenceByKey$").and.returnValue(sequenceByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.key] = fullNode;
+        fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
         imageByKeyFull.complete();
 
-        graph.cacheNodeSequence$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence_key] = { key: fullNode.sequence_key, keys: ["prev", fullNode.key, "next"] };
+        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: ["prev", fullNode.id, "next"] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
-        expect(graph.hasTiles(fullNode.key)).toBe(false);
-        expect(graph.isCachingTiles(fullNode.key)).toBe(false);
+        expect(graph.hasTiles(fullNode.id)).toBe(false);
+        expect(graph.isCachingTiles(fullNode.id)).toBe(false);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -2400,14 +2400,14 @@ describe("Graph.resetSpatialEdges", () => {
         imagesByHresult[h]["0"] = fullNode;
         imagesByH.next(imagesByHresult);
 
-        expect(graph.hasTiles(fullNode.key)).toBe(true);
-        expect(graph.isCachingTiles(fullNode.key)).toBe(false);
+        expect(graph.hasTiles(fullNode.id)).toBe(true);
+        expect(graph.isCachingTiles(fullNode.id)).toBe(false);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
-        expect(graph.hasSpatialArea(fullNode.key)).toBe(true);
+        expect(graph.hasSpatialArea(fullNode.id)).toBe(true);
 
         const getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
         getPotentialSpy.and.returnValue([]);
@@ -2418,8 +2418,8 @@ describe("Graph.resetSpatialEdges", () => {
         spyOn(edgeCalculator, "computePerspectiveToSphericalEdges").and.returnValue([]);
         spyOn(edgeCalculator, "computeSimilarEdges").and.returnValue([]);
 
-        graph.initializeCache(fullNode.key);
-        graph.cacheSpatialEdges(fullNode.key);
+        graph.initializeCache(fullNode.id);
+        graph.cacheSpatialEdges(fullNode.id);
 
         const nodeSequenceResetSpy: jasmine.Spy = spyOn(node, "resetSequenceEdges").and.stub();
         const nodeSpatialResetSpy: jasmine.Spy = spyOn(node, "resetSpatialEdges").and.stub();
@@ -2430,7 +2430,7 @@ describe("Graph.resetSpatialEdges", () => {
         expect(nodeSpatialResetSpy.calls.count()).toBe(1);
 
         const countBefore: number = encodeHsSpy.calls.count();
-        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        expect(graph.hasTiles(fullNode.id)).toBe(true);
         const countAfter: number = encodeHsSpy.calls.count();
 
         expect(countAfter - countBefore).toBe(1);
@@ -2463,15 +2463,15 @@ describe("Graph.reset", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
 
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
         nodeDisposeSpy.and.stub();
@@ -2479,7 +2479,7 @@ describe("Graph.reset", () => {
         graph.reset([]);
 
         expect(nodeDisposeSpy.calls.count()).toBe(0);
-        expect(graph.hasNode(node.key)).toBe(false);
+        expect(graph.hasNode(node.id)).toBe(false);
     });
 
     it("should dispose cache initialized node", () => {
@@ -2500,16 +2500,16 @@ describe("Graph.reset", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.key);
-        graph.initializeCache(node.key);
+        const node: Node = graph.getNode(fullNode.id);
+        graph.initializeCache(node.id);
 
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
         nodeDisposeSpy.and.stub();
@@ -2517,7 +2517,7 @@ describe("Graph.reset", () => {
         graph.reset([]);
 
         expect(nodeDisposeSpy.calls.count()).toBe(1);
-        expect(graph.hasNode(node.key)).toBe(false);
+        expect(graph.hasNode(node.id)).toBe(false);
     });
 
     it("should keep supplied node", () => {
@@ -2538,16 +2538,16 @@ describe("Graph.reset", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.key);
-        graph.initializeCache(node.key);
+        const node: Node = graph.getNode(fullNode.id);
+        graph.initializeCache(node.id);
 
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
         nodeDisposeSpy.and.stub();
@@ -2556,12 +2556,12 @@ describe("Graph.reset", () => {
         const nodeResetSpatialSpy: jasmine.Spy = spyOn(node, "resetSpatialEdges");
         nodeResetSpatialSpy.and.stub();
 
-        graph.reset([node.key]);
+        graph.reset([node.id]);
 
         expect(nodeDisposeSpy.calls.count()).toBe(0);
         expect(nodeResetSequenceSpy.calls.count()).toBe(1);
         expect(nodeResetSpatialSpy.calls.count()).toBe(1);
-        expect(graph.hasNode(node.key)).toBe(true);
+        expect(graph.hasNode(node.id)).toBe(true);
     });
 });
 
@@ -2597,15 +2597,15 @@ describe("Graph.uncache", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
         const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
@@ -2614,7 +2614,7 @@ describe("Graph.uncache", () => {
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(1);
 
-        expect(graph.hasNode(fullNode.key)).toBe(false);
+        expect(graph.hasNode(fullNode.id)).toBe(false);
     });
 
     it("should not remove prestored node if in kept sequence", () => {
@@ -2641,26 +2641,26 @@ describe("Graph.uncache", () => {
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.sequence_key = "sequencKey";
+        fullNode.sequence.id = "sequencKey";
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
         const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([], fullNode.sequence_key);
+        graph.uncache([], fullNode.sequence.id);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
     });
 
     it("should remove prestored node if cache initialized", () => {
@@ -2688,24 +2688,24 @@ describe("Graph.uncache", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        graph.initializeCache(fullNode.key);
+        graph.initializeCache(fullNode.id);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
         expect(nodeDisposeSpy.calls.count()).toBe(1);
 
-        expect(graph.hasNode(fullNode.key)).toBe(false);
+        expect(graph.hasNode(fullNode.id)).toBe(false);
     });
 
     it("should not remove prestored node when in keys to keep", () => {
@@ -2733,26 +2733,26 @@ describe("Graph.uncache", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        graph.initializeCache(fullNode.key);
+        graph.initializeCache(fullNode.id);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
         const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([fullNode.key]);
+        graph.uncache([fullNode.id]);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
     });
 
     it("should not remove prestored node if below threshold", () => {
@@ -2780,17 +2780,17 @@ describe("Graph.uncache", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        graph.initializeCache(fullNode.key);
+        graph.initializeCache(fullNode.id);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
         const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
@@ -2799,7 +2799,7 @@ describe("Graph.uncache", () => {
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
     });
 
     it("should remove prestored node accessed earliest", () => {
@@ -2825,60 +2825,60 @@ describe("Graph.uncache", () => {
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode1: ImageEnt = helper.createFullNode();
-        fullNode1.key = "key1";
+        fullNode1.id = "key1";
         const result1: { [key: string]: ImageEnt } = {};
-        result1[fullNode1.key] = fullNode1;
+        result1[fullNode1.id] = fullNode1;
 
         const imageByKeyFull1: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull1);
 
-        graph.cacheFull$(fullNode1.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode1.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull1.next(result1);
         imageByKeyFull1.complete();
 
-        expect(graph.hasNode(fullNode1.key)).toBe(true);
+        expect(graph.hasNode(fullNode1.id)).toBe(true);
 
         const fullNode2: ImageEnt = helper.createFullNode();
-        fullNode2.key = "key2";
+        fullNode2.id = "key2";
         const result2: { [key: string]: ImageEnt } = {};
-        result2[fullNode2.key] = fullNode2;
+        result2[fullNode2.id] = fullNode2;
 
         const imageByKeyFull2: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull2);
 
-        graph.cacheFull$(fullNode2.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode2.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull2.next(result2);
         imageByKeyFull2.complete();
 
-        const node1: Node = graph.getNode(fullNode1.key);
-        graph.initializeCache(node1.key);
+        const node1: Node = graph.getNode(fullNode1.id);
+        graph.initializeCache(node1.id);
 
-        expect(graph.hasInitializedCache(node1.key)).toBe(true);
+        expect(graph.hasInitializedCache(node1.id)).toBe(true);
 
-        const node2: Node = graph.getNode(fullNode2.key);
-        graph.initializeCache(node2.key);
+        const node2: Node = graph.getNode(fullNode2.id);
+        graph.initializeCache(node2.id);
 
-        expect(graph.hasInitializedCache(node2.key)).toBe(true);
+        expect(graph.hasInitializedCache(node2.id)).toBe(true);
 
         const nodeDisposeSpy1: jasmine.Spy = spyOn(node1, "dispose").and.stub();
         const nodeDisposeSpy2: jasmine.Spy = spyOn(node2, "dispose").and.stub();
 
         const time: number = new Date().getTime();
         while (new Date().getTime() === time) {
-            graph.hasNode(node2.key);
+            graph.hasNode(node2.id);
         }
 
-        graph.hasNode(node2.key);
+        graph.hasNode(node2.id);
 
         graph.uncache([]);
 
         expect(nodeDisposeSpy1.calls.count()).toBe(1);
         expect(nodeDisposeSpy2.calls.count()).toBe(0);
 
-        expect(graph.hasNode(fullNode1.key)).toBe(false);
-        expect(graph.hasNode(fullNode2.key)).toBe(true);
+        expect(graph.hasNode(fullNode1.id)).toBe(false);
+        expect(graph.hasNode(fullNode2.id)).toBe(true);
 
     });
 
@@ -2908,24 +2908,24 @@ describe("Graph.uncache", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        graph.initializeCache(fullNode.key);
+        graph.initializeCache(fullNode.id);
 
-        expect(graph.hasInitializedCache(fullNode.key)).toBe(true);
+        expect(graph.hasInitializedCache(fullNode.id)).toBe(true);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        graph.hasTiles(fullNode.key);
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        graph.hasTiles(fullNode.id);
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -2934,15 +2934,15 @@ describe("Graph.uncache", () => {
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
         const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
 
         graph.uncache([]);
 
         expect(nodeUncacheSpy.calls.count()).toBe(1);
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
-        expect(graph.hasInitializedCache(fullNode.key)).toBe(false);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
+        expect(graph.hasInitializedCache(fullNode.id)).toBe(false);
     });
 
     it("should not uncache cache initialized node if below threshold", () => {
@@ -2971,24 +2971,24 @@ describe("Graph.uncache", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        graph.initializeCache(fullNode.key);
+        graph.initializeCache(fullNode.id);
 
-        expect(graph.hasInitializedCache(fullNode.key)).toBe(true);
+        expect(graph.hasInitializedCache(fullNode.id)).toBe(true);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        graph.hasTiles(fullNode.key);
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        graph.hasTiles(fullNode.id);
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -2997,7 +2997,7 @@ describe("Graph.uncache", () => {
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
         const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
@@ -3006,8 +3006,8 @@ describe("Graph.uncache", () => {
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
-        expect(graph.hasInitializedCache(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
+        expect(graph.hasInitializedCache(fullNode.id)).toBe(true);
     });
 
     it("should not uncache cache initialized node if key should be kept", () => {
@@ -3036,25 +3036,25 @@ describe("Graph.uncache", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.key);
-        graph.initializeCache(node.key);
+        const node: Node = graph.getNode(fullNode.id);
+        graph.initializeCache(node.id);
 
-        expect(graph.hasInitializedCache(node.key)).toBe(true);
+        expect(graph.hasInitializedCache(node.id)).toBe(true);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        graph.hasTiles(fullNode.key);
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        graph.hasTiles(fullNode.id);
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -3066,12 +3066,12 @@ describe("Graph.uncache", () => {
         const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache");
         nodeUncacheSpy.and.stub();
 
-        graph.uncache([node.key]);
+        graph.uncache([node.id]);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
 
-        expect(graph.hasNode(node.key)).toBe(true);
-        expect(graph.hasInitializedCache(node.key)).toBe(true);
+        expect(graph.hasNode(node.id)).toBe(true);
+        expect(graph.hasInitializedCache(node.id)).toBe(true);
     });
 
     it("should not uncache cache initialized node if key in use", () => {
@@ -3100,25 +3100,25 @@ describe("Graph.uncache", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.key);
-        graph.initializeCache(node.key);
+        const node: Node = graph.getNode(fullNode.id);
+        graph.initializeCache(node.id);
 
-        expect(graph.hasInitializedCache(node.key)).toBe(true);
+        expect(graph.hasInitializedCache(node.id)).toBe(true);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        graph.hasTiles(node.key);
-        observableFrom(graph.cacheTiles$(node.key)).pipe(
+        graph.hasTiles(node.id);
+        observableFrom(graph.cacheTiles$(node.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -3130,8 +3130,8 @@ describe("Graph.uncache", () => {
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
 
-        expect(graph.hasNode(node.key)).toBe(true);
-        expect(graph.hasInitializedCache(node.key)).toBe(true);
+        expect(graph.hasNode(node.id)).toBe(true);
+        expect(graph.hasInitializedCache(node.id)).toBe(true);
     });
 
     it("should uncache cache initialized node accessed earliest", () => {
@@ -3158,51 +3158,51 @@ describe("Graph.uncache", () => {
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode1: ImageEnt = helper.createFullNode();
-        fullNode1.key = "key1";
+        fullNode1.id = "key1";
         const result1: { [key: string]: ImageEnt } = {};
-        result1[fullNode1.key] = fullNode1;
+        result1[fullNode1.id] = fullNode1;
 
         const imageByKeyFull1: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull1);
 
-        graph.cacheFull$(fullNode1.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode1.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull1.next(result1);
         imageByKeyFull1.complete();
 
-        expect(graph.hasNode(fullNode1.key)).toBe(true);
+        expect(graph.hasNode(fullNode1.id)).toBe(true);
 
         const fullNode2: ImageEnt = helper.createFullNode();
-        fullNode2.key = "key2";
+        fullNode2.id = "key2";
         const result2: { [key: string]: ImageEnt } = {};
-        result2[fullNode2.key] = fullNode2;
+        result2[fullNode2.id] = fullNode2;
 
         const imageByKeyFull2: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull2);
 
-        graph.cacheFull$(fullNode2.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode2.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull2.next(result2);
         imageByKeyFull2.complete();
 
-        expect(graph.hasNode(fullNode2.key)).toBe(true);
+        expect(graph.hasNode(fullNode2.id)).toBe(true);
 
-        const node1: Node = graph.getNode(fullNode1.key);
-        graph.initializeCache(node1.key);
+        const node1: Node = graph.getNode(fullNode1.id);
+        graph.initializeCache(node1.id);
 
-        expect(graph.hasInitializedCache(node1.key)).toBe(true);
+        expect(graph.hasInitializedCache(node1.id)).toBe(true);
 
-        const node2: Node = graph.getNode(fullNode2.key);
-        graph.initializeCache(node2.key);
+        const node2: Node = graph.getNode(fullNode2.id);
+        graph.initializeCache(node2.id);
 
-        expect(graph.hasInitializedCache(node2.key)).toBe(true);
+        expect(graph.hasInitializedCache(node2.id)).toBe(true);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        graph.hasTiles(fullNode1.key);
-        observableFrom(graph.cacheTiles$(fullNode1.key)).pipe(
+        graph.hasTiles(fullNode1.id);
+        observableFrom(graph.cacheTiles$(fullNode1.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -3217,20 +3217,20 @@ describe("Graph.uncache", () => {
 
         const time: number = new Date().getTime();
         while (new Date().getTime() === time) {
-            graph.hasNode(node2.key);
+            graph.hasNode(node2.id);
         }
 
-        graph.hasNode(node2.key);
+        graph.hasNode(node2.id);
 
         graph.uncache([]);
 
         expect(nodeUncacheSpy1.calls.count()).toBe(1);
-        expect(graph.hasNode(node1.key)).toBe(true);
-        expect(graph.hasInitializedCache(node1.key)).toBe(false);
+        expect(graph.hasNode(node1.id)).toBe(true);
+        expect(graph.hasInitializedCache(node1.id)).toBe(false);
 
         expect(nodeUncacheSpy2.calls.count()).toBe(0);
-        expect(graph.hasNode(node2.key)).toBe(true);
-        expect(graph.hasInitializedCache(node2.key)).toBe(true);
+        expect(graph.hasNode(node2.id)).toBe(true);
+        expect(graph.hasInitializedCache(node2.id)).toBe(true);
     });
 
     it("should uncache sequence", () => {
@@ -3254,7 +3254,7 @@ describe("Graph.uncache", () => {
         graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -3293,7 +3293,7 @@ describe("Graph.uncache", () => {
         graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -3332,7 +3332,7 @@ describe("Graph.uncache", () => {
         graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
 
         const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { key: sequenceKey, keys: [] };
+        result[sequenceKey] = { id: sequenceKey, image_ids: [] };
         sequenceByKey.next(result);
         sequenceByKey.complete();
 
@@ -3373,7 +3373,7 @@ describe("Graph.uncache", () => {
         graph.cacheSequence$(sequenceKey1).subscribe(() => { /*noop*/ });
 
         const result1: { [sequenceKey: string]: SequenceEnt } = {};
-        result1[sequenceKey1] = { key: sequenceKey1, keys: [] };
+        result1[sequenceKey1] = { id: sequenceKey1, image_ids: [] };
         sequenceByKey1.next(result1);
         sequenceByKey1.complete();
 
@@ -3391,7 +3391,7 @@ describe("Graph.uncache", () => {
         graph.cacheSequence$(sequenceKey2).subscribe(() => { /*noop*/ });
 
         const result2: { [sequenceKey: string]: SequenceEnt } = {};
-        result2[sequenceKey2] = { key: sequenceKey2, keys: [] };
+        result2[sequenceKey2] = { id: sequenceKey2, image_ids: [] };
         sequenceByKey2.next(result2);
         sequenceByKey2.complete();
 
@@ -3443,20 +3443,20 @@ describe("Graph.uncache", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        graph.hasTiles(fullNode.key);
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        graph.hasTiles(fullNode.id);
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -3465,9 +3465,9 @@ describe("Graph.uncache", () => {
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
-        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        expect(graph.hasTiles(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
 
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
         nodeDisposeSpy.and.stub();
@@ -3476,7 +3476,7 @@ describe("Graph.uncache", () => {
 
         expect(nodeDisposeSpy.calls.count()).toBe(1);
 
-        expect(graph.hasNode(fullNode.key)).toBe(false);
+        expect(graph.hasNode(fullNode.id)).toBe(false);
     });
 
     it("should not dispose node by uncaching tile if in specified sequence", () => {
@@ -3504,22 +3504,22 @@ describe("Graph.uncache", () => {
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.sequence_key = "sequenceKey";
+        fullNode.sequence.id = "sequenceKey";
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        graph.hasTiles(fullNode.key);
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        graph.hasTiles(fullNode.id);
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -3528,19 +3528,19 @@ describe("Graph.uncache", () => {
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
-        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        expect(graph.hasTiles(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
 
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
         const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
 
-        graph.uncache([], fullNode.sequence_key);
+        graph.uncache([], fullNode.sequence.id);
 
         expect(nodeDisposeSpy.calls.count()).toBe(0);
         expect(nodeUncacheSpy.calls.count()).toBe(1);
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
     });
 
     it("should not uncache node by uncaching tile when number below threshold", () => {
@@ -3569,20 +3569,20 @@ describe("Graph.uncache", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        graph.hasTiles(fullNode.key);
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        graph.hasTiles(fullNode.id);
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -3591,9 +3591,9 @@ describe("Graph.uncache", () => {
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
-        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        expect(graph.hasTiles(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
         const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
@@ -3602,8 +3602,8 @@ describe("Graph.uncache", () => {
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
-        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
+        expect(graph.hasTiles(fullNode.id)).toBe(true);
     });
 
     it("should not uncache and dispose node by uncaching tile when tile is related to kept key", () => {
@@ -3632,20 +3632,20 @@ describe("Graph.uncache", () => {
 
         const fullNode: ImageEnt = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.key] = fullNode;
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        result[fullNode.id] = fullNode;
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         imageByKeyFull.next(result);
         imageByKeyFull.complete();
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
 
         const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "imagesByH$").and.returnValue(imagesByH);
 
-        graph.hasTiles(fullNode.key);
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        graph.hasTiles(fullNode.id);
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -3654,19 +3654,19 @@ describe("Graph.uncache", () => {
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
-        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        expect(graph.hasTiles(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.key);
+        const node: Node = graph.getNode(fullNode.id);
         const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([node.key]);
+        graph.uncache([node.id]);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
-        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
+        expect(graph.hasTiles(fullNode.id)).toBe(true);
     });
 });
 
@@ -3691,7 +3691,7 @@ describe("Graph.cacheCell$", () => {
 
         const key = "full-key";
         const fullNode = new NodeHelper().createFullNode();
-        fullNode.key = key;
+        fullNode.id = key;
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -3699,7 +3699,7 @@ describe("Graph.cacheCell$", () => {
             .subscribe(
                 (nodes: Node[]): void => {
                     expect(nodes.length).toBe(1);
-                    expect(nodes[0].key).toBe(key);
+                    expect(nodes[0].id).toBe(key);
                     expect(nodes[0].full).toBe(true);
 
                     expect(graph.hasNode(key)).toBe(true);
@@ -3749,19 +3749,19 @@ describe("Graph.cacheCell$", () => {
 
         const key = "full-key";
         const fullNode: ImageEnt = new NodeHelper().createFullNode();
-        fullNode.key = key;
+        fullNode.id = key;
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        graph.cacheFull$(fullNode.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fullResult: { [key: string]: ImageEnt } = {};
-        fullResult[fullNode.key] = fullNode;
+        fullResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fullResult);
         imageByKeyFull.complete();
 
-        graph.hasTiles(fullNode.key);
-        observableFrom(graph.cacheTiles$(fullNode.key)).pipe(
+        graph.hasTiles(fullNode.id);
+        observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
@@ -3770,8 +3770,8 @@ describe("Graph.cacheCell$", () => {
         tileResult[cellId]["0"] = fullNode;
         imagesByH.next(tileResult);
 
-        expect(graph.hasNode(fullNode.key)).toBe(true);
-        expect(graph.hasTiles(fullNode.key)).toBe(true);
+        expect(graph.hasNode(fullNode.id)).toBe(true);
+        expect(graph.hasTiles(fullNode.id)).toBe(true);
 
         expect(imagesByHSpy.calls.count()).toBe(1);
         expect(imageByKeyFullSpy.calls.count()).toBe(1);
@@ -3780,7 +3780,7 @@ describe("Graph.cacheCell$", () => {
             .subscribe(
                 (nodes: Node[]): void => {
                     expect(nodes.length).toBe(1);
-                    expect(nodes[0].key).toBe(key);
+                    expect(nodes[0].id).toBe(key);
                     expect(nodes[0].full).toBe(true);
 
                     expect(graph.hasNode(key)).toBe(true);
@@ -3821,38 +3821,38 @@ describe("Graph.cacheCell$", () => {
         const key1 = "full-key-1";
         const key2 = "full-key-2";
         const fullNode1 = new NodeHelper().createFullNode();
-        fullNode1.key = key1;
+        fullNode1.id = key1;
 
         const graph = new Graph(api, undefined, calculator);
 
-        graph.cacheFull$(fullNode1.key).subscribe(() => { /*noop*/ });
+        graph.cacheFull$(fullNode1.id).subscribe(() => { /*noop*/ });
 
         const fullResult: { [key: string]: ImageEnt } = {};
-        fullResult[fullNode1.key] = fullNode1;
+        fullResult[fullNode1.id] = fullNode1;
         imageByKeyFull.next(fullResult);
         imageByKeyFull.complete();
 
-        graph.hasTiles(fullNode1.key);
-        observableFrom(graph.cacheTiles$(fullNode1.key)).pipe(
+        graph.hasTiles(fullNode1.id);
+        observableFrom(graph.cacheTiles$(fullNode1.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
         const fullNode2 = new NodeHelper().createFullNode();
-        fullNode2.key = key2;
+        fullNode2.id = key2;
         const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
         tileResult[cellId] = {};
         tileResult[cellId]["0"] = fullNode1;
         tileResult[cellId]["1"] = fullNode2;
         imagesByH.next(tileResult);
 
-        expect(graph.hasNode(fullNode1.key)).toBe(true);
-        expect(graph.hasNode(fullNode2.key)).toBe(true);
-        expect(graph.hasTiles(fullNode1.key)).toBe(true);
-        expect(graph.hasTiles(fullNode2.key)).toBe(true);
+        expect(graph.hasNode(fullNode1.id)).toBe(true);
+        expect(graph.hasNode(fullNode2.id)).toBe(true);
+        expect(graph.hasTiles(fullNode1.id)).toBe(true);
+        expect(graph.hasTiles(fullNode2.id)).toBe(true);
 
 
-        expect(graph.getNode(fullNode1.key).full).toBe(true);
-        expect(graph.getNode(fullNode2.key).full).toBe(false);
+        expect(graph.getNode(fullNode1.id).full).toBe(true);
+        expect(graph.getNode(fullNode2.id).full).toBe(false);
 
         expect(imagesByHSpy.calls.count()).toBe(1);
         expect(imageByKeyFullSpy.calls.count()).toBe(1);
@@ -3861,8 +3861,8 @@ describe("Graph.cacheCell$", () => {
             .subscribe(
                 (nodes: Node[]): void => {
                     expect(nodes.length).toBe(2);
-                    expect([key1, key2].includes(nodes[0].key)).toBe(true);
-                    expect([key1, key2].includes(nodes[1].key)).toBe(true);
+                    expect([key1, key2].includes(nodes[0].id)).toBe(true);
+                    expect([key1, key2].includes(nodes[1].id)).toBe(true);
                     expect(nodes[0].full).toBe(true);
                     expect(nodes[1].full).toBe(true);
 
@@ -3877,7 +3877,7 @@ describe("Graph.cacheCell$", () => {
                 });
 
         const fillResult: { [key: string]: SpatialImageEnt } = {};
-        fillResult[fullNode2.key] = fullNode2;
+        fillResult[fullNode2.id] = fullNode2;
         imageByKeyFill.next(fillResult);
         imageByKeyFill.complete();
     });
@@ -3905,7 +3905,7 @@ describe("Graph.cacheCell$", () => {
 
         const key = "full-key";
         const fullNode = new NodeHelper().createFullNode();
-        fullNode.key = key;
+        fullNode.id = key;
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -3918,12 +3918,12 @@ describe("Graph.cacheCell$", () => {
                     count++;
 
                     expect(nodes.length).toBe(1);
-                    expect(nodes[0].key).toBe(fullNode.key);
+                    expect(nodes[0].id).toBe(fullNode.id);
                     expect(nodes[0].full).toBe(true);
 
                     expect(graph.hasNode(key)).toBe(true);
-                    expect(graph.hasTiles(fullNode.key)).toBe(true);
-                    expect(graph.getNode(fullNode.key).full).toBe(true);
+                    expect(graph.hasTiles(fullNode.id)).toBe(true);
+                    expect(graph.getNode(fullNode.id).full).toBe(true);
                 },
                 undefined,
                 (): void => {
@@ -3941,7 +3941,7 @@ describe("Graph.cacheCell$", () => {
         imagesByH.complete();
 
         const fillResult: { [key: string]: SpatialImageEnt } = {};
-        fillResult[fullNode.key] = fullNode;
+        fillResult[fullNode.id] = fullNode;
         imageByKeyFill.next(fillResult);
         imageByKeyFill.complete();
     });
@@ -3991,7 +3991,7 @@ describe("Graph.updateCells$", () => {
 
         const key = "full-key";
         const fullNode = new NodeHelper().createFullNode();
-        fullNode.key = key;
+        fullNode.id = key;
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -4047,7 +4047,7 @@ describe("Graph.updateCells$", () => {
 
         const key = "full-key";
         const fullNode = new NodeHelper().createFullNode();
-        fullNode.key = key;
+        fullNode.id = key;
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -4105,7 +4105,7 @@ describe("Graph.updateCells$", () => {
 
         const key1 = "full-key-1";
         const fullNode1 = new NodeHelper().createFullNode();
-        fullNode1.key = key1;
+        fullNode1.id = key1;
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -4147,7 +4147,7 @@ describe("Graph.updateCells$", () => {
 
         const key2 = "full-key-2";
         const fullNode2 = new NodeHelper().createFullNode();
-        fullNode2.key = key2;
+        fullNode2.id = key2;
         tileResult[cellId]["1"] = fullNode2;
         imagesByHUpdate.next(tileResult);
         imagesByHUpdate.complete();

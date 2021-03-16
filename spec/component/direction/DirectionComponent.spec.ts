@@ -77,7 +77,7 @@ describe("DirectionComponent.activate", () => {
         directionComponent.configure({ distinguishSequence: true });
         directionComponent.activate();
 
-        const sequence: Sequence = new Sequence({ key: "skey", keys: [] });
+        const sequence: Sequence = new Sequence({ id: "skey", image_ids: [] });
         (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(observableOf<Sequence>(sequence));
 
         const node: Node = new NodeHelper().createNode();
@@ -105,7 +105,7 @@ describe("DirectionComponent.activate", () => {
         directionComponent.configure({ distinguishSequence: true });
         directionComponent.activate();
 
-        const sequence: Sequence = new Sequence({ key: "skey", keys: [] });
+        const sequence: Sequence = new Sequence({ id: "skey", image_ids: [] });
         const cacheSequence$: Subject<Sequence> = new Subject<Sequence>();
         (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(cacheSequence$);
 

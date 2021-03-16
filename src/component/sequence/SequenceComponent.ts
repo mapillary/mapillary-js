@@ -250,13 +250,13 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
             distinctUntilChanged(
                 undefined,
                 (node: Node): string => {
-                    return node.sequenceKey;
+                    return node.sequenceId;
                 }),
             switchMap(
                 (node: Node): Observable<Sequence> => {
                     return observableConcat(
                         observableOf(null),
-                        this._navigator.graphService.cacheSequence$(node.sequenceKey).pipe(
+                        this._navigator.graphService.cacheSequence$(node.sequenceId).pipe(
                             retry(3),
                             catchError(
                                 (e: Error): Observable<Sequence> => {
@@ -333,7 +333,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                 }),
             switchMap(
                 (node: Node): Observable<Node> => {
-                    return this._navigator.graphService.cacheNode$(node.key).pipe(
+                    return this._navigator.graphService.cacheNode$(node.id).pipe(
                         catchError(
                             (): Observable<Node> => {
                                 return observableEmpty();
@@ -360,7 +360,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                     switchMap(
                         ([[mode, changing], node]: [[GraphMode, boolean], Node]): Observable<Sequence> => {
                             return changing && mode === GraphMode.Sequence ?
-                                this._navigator.graphService.cacheSequenceNodes$(node.sequenceKey, node.key).pipe(
+                                this._navigator.graphService.cacheSequenceNodes$(node.sequenceId, node.id).pipe(
                                     retry(3),
                                     catchError(
                                         (error: Error): Observable<Sequence> => {
@@ -394,7 +394,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                                     this._navigator.stateService.currentNode$.pipe(
                                         map(
                                             (node: Node): string => {
-                                                return node.key;
+                                                return node.id;
                                             }),
                                         distinctUntilChanged(),
                                         skip(skipCount));

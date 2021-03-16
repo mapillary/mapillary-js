@@ -381,14 +381,12 @@ describe("PlayService.play", () => {
         expect(stopSpy.calls.count()).toBe(1);
     });
 
-    it("should not stop until bridge call completes", () => {
+    it("should stop if no more nodes", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
 
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
-        const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
-        spyOn(graphService, "cacheBoundingBox$").and.returnValue(cacheBoundingBoxSubject);
 
         playService.setDirection(NavigationDirection.Next);
 
@@ -416,223 +414,7 @@ describe("PlayService.play", () => {
 
         sequenceEdgesSubject.next({ cached: true, edges: [] });
 
-        expect(stopSpy.calls.count()).toBe(0);
-
-        cacheBoundingBoxSubject.next([]);
-
         expect(stopSpy.calls.count()).toBe(1);
-    });
-
-    it("should bridge if camera id corresponds and time monotonic", () => {
-        const playService: PlayService = new PlayService(graphService, stateService);
-
-        const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
-        spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
-        const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
-        spyOn(graphService, "cacheBoundingBox$").and.returnValue(cacheBoundingBoxSubject);
-        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
-        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
-        cacheNodeSpy.and.returnValue(cacheNodeSubject);
-
-        const appendNodesSpy: jasmine.Spy = <jasmine.Spy>stateService.appendNodes;
-        appendNodesSpy.and.stub();
-
-        playService.setDirection(NavigationDirection.Next);
-
-        playService.play();
-
-        const cameraUuid: string = "camera_uuid";
-        const sequenceKey1: string = "sequence1";
-
-        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
-        currentFullNode.captured_at = 0;
-        currentFullNode.captured_with_camera_uuid = cameraUuid;
-        currentFullNode.key = "currKey";
-        currentFullNode.sequence_key = sequenceKey1;
-        const currentNode: Node = new Node(currentFullNode);
-        currentNode.makeFull(currentFullNode);
-        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", sequenceEdgesSubject);
-
-        const prevFullNode: ImageEnt = new NodeHelper().createFullNode();
-        prevFullNode.captured_at = -1;
-        prevFullNode.captured_with_camera_uuid = cameraUuid;
-        prevFullNode.key = "prevKey";
-        prevFullNode.sequence_key = sequenceKey1;
-        const prevNode: Node = new Node(prevFullNode);
-        prevNode.makeFull(prevFullNode);
-
-        const state: IAnimationState = createState();
-        state.trajectory = [prevNode, currentNode];
-        state.lastNode = currentNode;
-        state.currentNode = currentNode;
-        state.nodesAhead = 0;
-        state.currentIndex = 1;
-
-        (<Subject<AnimationFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
-
-        sequenceEdgesSubject.next({ cached: true, edges: [] });
-
-        expect(stopSpy.calls.count()).toBe(0);
-
-        const bridgeFullNode: ImageEnt = new NodeHelper().createFullNode();
-        bridgeFullNode.captured_at = 1;
-        bridgeFullNode.captured_with_camera_uuid = cameraUuid;
-        bridgeFullNode.key = "bridgeKey";
-        bridgeFullNode.sequence_key = "sequenceBrdige";
-        const bridgeNode: Node = new Node(bridgeFullNode);
-        bridgeNode.makeFull(bridgeFullNode);
-
-        cacheBoundingBoxSubject.next([bridgeNode]);
-        cacheNodeSubject.next(bridgeNode);
-
-        expect(stopSpy.calls.count()).toBe(0);
-
-        expect(appendNodesSpy.calls.count()).toBe(1);
-        expect(appendNodesSpy.calls.argsFor(0)[0][0].key).toBe(bridgeNode.key);
-
-        expect(cacheNodeSpy.calls.count()).toBe(1);
-        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(bridgeNode.key);
-    });
-
-    it("should bridge to closest node in decreasing time", () => {
-        const playService: PlayService = new PlayService(graphService, stateService);
-
-        const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
-        spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
-        const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
-        spyOn(graphService, "cacheBoundingBox$").and.returnValue(cacheBoundingBoxSubject);
-        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
-        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
-        cacheNodeSpy.and.returnValue(cacheNodeSubject);
-
-        const appendNodesSpy: jasmine.Spy = <jasmine.Spy>stateService.appendNodes;
-        appendNodesSpy.and.stub();
-
-        playService.setDirection(NavigationDirection.Next);
-
-        playService.play();
-
-        const cameraUuid: string = "camera_uuid";
-        const sequenceKey1: string = "sequence1";
-
-        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
-        currentFullNode.captured_at = -1;
-        currentFullNode.captured_with_camera_uuid = cameraUuid;
-        currentFullNode.key = "currKey";
-        currentFullNode.sequence_key = sequenceKey1;
-        const currentNode: Node = new Node(currentFullNode);
-        currentNode.makeFull(currentFullNode);
-        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", sequenceEdgesSubject);
-
-        const prevFullNode: ImageEnt = new NodeHelper().createFullNode();
-        prevFullNode.captured_at = 0;
-        prevFullNode.captured_with_camera_uuid = cameraUuid;
-        prevFullNode.key = "prevKey";
-        prevFullNode.sequence_key = sequenceKey1;
-        const prevNode: Node = new Node(prevFullNode);
-        prevNode.makeFull(prevFullNode);
-
-        const state: IAnimationState = createState();
-        state.trajectory = [prevNode, currentNode];
-        state.lastNode = currentNode;
-        state.currentNode = currentNode;
-        state.nodesAhead = 0;
-        state.currentIndex = 1;
-
-        (<Subject<AnimationFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
-
-        sequenceEdgesSubject.next({ cached: true, edges: [] });
-
-        expect(stopSpy.calls.count()).toBe(0);
-
-        const cacheBoudndingBoxNodex: Node[] = [1, -3, -5]
-            .map(
-                (capturedAt: number): Node => {
-                    const bridgeFullNode: ImageEnt = new NodeHelper().createFullNode();
-                    bridgeFullNode.captured_at = capturedAt;
-                    bridgeFullNode.captured_with_camera_uuid = cameraUuid;
-                    bridgeFullNode.key = "bridgeKey";
-                    bridgeFullNode.sequence_key = "sequenceBrdige";
-                    const bridgeNode: Node = new Node(bridgeFullNode);
-                    bridgeNode.makeFull(bridgeFullNode);
-
-                    return bridgeNode;
-                });
-
-        const sameSequenceFullNode: ImageEnt = new NodeHelper().createFullNode();
-        sameSequenceFullNode.captured_at = -2;
-        sameSequenceFullNode.captured_with_camera_uuid = cameraUuid;
-        sameSequenceFullNode.key = "bridgeKey";
-        sameSequenceFullNode.sequence_key = sequenceKey1;
-        const sameSequenceNode: Node = new Node(sameSequenceFullNode);
-        sameSequenceNode.makeFull(sameSequenceFullNode);
-
-        cacheBoudndingBoxNodex.push(sameSequenceNode);
-
-        cacheBoundingBoxSubject.next(cacheBoudndingBoxNodex);
-        cacheNodeSubject.next(cacheBoudndingBoxNodex[1]);
-
-        expect(stopSpy.calls.count()).toBe(0);
-
-        expect(appendNodesSpy.calls.count()).toBe(1);
-        expect(appendNodesSpy.calls.argsFor(0)[0][0].key).toBe(cacheBoudndingBoxNodex[1].key);
-
-        expect(cacheNodeSpy.calls.count()).toBe(1);
-        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(cacheBoudndingBoxNodex[1].key);
-    });
-
-    it("should not bridge if time direction cannot be determined", () => {
-        const playService: PlayService = new PlayService(graphService, stateService);
-
-        const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
-        spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
-        const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
-        const cacheBoudningBoxSpy: jasmine.Spy = spyOn(graphService, "cacheBoundingBox$");
-        cacheBoudningBoxSpy.and.returnValue(cacheBoundingBoxSubject);
-        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
-        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
-        cacheNodeSpy.and.returnValue(cacheNodeSubject);
-
-        const appendNodesSpy: jasmine.Spy = <jasmine.Spy>stateService.appendNodes;
-        appendNodesSpy.and.stub();
-
-        playService.setDirection(NavigationDirection.Next);
-
-        playService.play();
-
-        const cameraUuid: string = "camera_uuid";
-        const sequenceKey1: string = "sequence1";
-
-        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
-        currentFullNode.captured_at = 0;
-        currentFullNode.captured_with_camera_uuid = cameraUuid;
-        currentFullNode.key = "currKey";
-        currentFullNode.sequence_key = sequenceKey1;
-        const currentNode: Node = new Node(currentFullNode);
-        currentNode.makeFull(currentFullNode);
-        const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", sequenceEdgesSubject);
-
-        const state: IAnimationState = createState();
-        state.trajectory = [currentNode];
-        state.lastNode = currentNode;
-        state.currentNode = currentNode;
-        state.nodesAhead = 0;
-        state.currentIndex = 0;
-
-        (<Subject<AnimationFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
-
-        sequenceEdgesSubject.next({ cached: true, edges: [] });
-
-        expect(stopSpy.calls.count()).toBe(1);
-        expect(cacheBoudningBoxSpy.calls.count()).toBe(0);
-        expect(appendNodesSpy.calls.count()).toBe(0);
-        expect(cacheNodeSpy.calls.count()).toBe(0);
     });
 
     it("should append node when cached", () => {
@@ -661,26 +443,26 @@ describe("PlayService.play", () => {
         (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
         const fullToNode: ImageEnt = nodeHelper.createFullNode();
-        fullToNode.key = "toKey";
+        fullToNode.id = "toKey";
         const toNode: Node = new Node(fullToNode);
 
         sequenceEdgesSubject.next({
             cached: true,
             edges: [{
                 data: { direction: NavigationDirection.Next, worldMotionAzimuth: 0 },
-                source: node.key,
-                target: toNode.key,
+                source: node.id,
+                target: toNode.id,
             }],
         });
 
         cacheNodeSubject.next(toNode);
 
         expect(cacheNodeSpy.calls.count()).toBe(1);
-        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(toNode.key);
+        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(toNode.id);
 
         expect(appendNodesSpy.calls.count()).toBe(1);
         expect(appendNodesSpy.calls.argsFor(0)[0].length).toBe(1);
-        expect(appendNodesSpy.calls.argsFor(0)[0][0].key).toBe(toNode.key);
+        expect(appendNodesSpy.calls.argsFor(0)[0][0].id).toBe(toNode.id);
     });
 
     it("should stop on node caching error", () => {
@@ -713,22 +495,22 @@ describe("PlayService.play", () => {
         (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
         const fullToNode: ImageEnt = nodeHelper.createFullNode();
-        fullToNode.key = "toKey";
+        fullToNode.id = "toKey";
         const toNode: Node = new Node(fullToNode);
 
         sequenceEdgesSubject.next({
             cached: true,
             edges: [{
                 data: { direction: NavigationDirection.Next, worldMotionAzimuth: 0 },
-                source: node.key,
-                target: toNode.key,
+                source: node.id,
+                target: toNode.id,
             }],
         });
 
         cacheNodeSubject.error(new Error());
 
         expect(cacheNodeSpy.calls.count()).toBe(1);
-        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(toNode.key);
+        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(toNode.id);
 
         expect(appendNodesSpy.calls.count()).toBe(0);
 
@@ -755,7 +537,7 @@ describe("PlayService.play", () => {
         currentNodeSubject.next(currentNode);
 
         expect(cacheSequenceSpy.calls.count()).toBe(1);
-        expect(cacheSequenceSpy.calls.argsFor(0)[0]).toBe(currentNode.sequenceKey);
+        expect(cacheSequenceSpy.calls.argsFor(0)[0]).toBe(currentNode.sequenceId);
 
         expect(cacheSequenceNodesSpy.calls.count()).toBe(0);
 
@@ -784,7 +566,7 @@ describe("PlayService.play", () => {
         expect(cacheSequenceSpy.calls.count()).toBe(0);
 
         expect(cacheSequenceNodesSpy.calls.count()).toBe(1);
-        expect(cacheSequenceNodesSpy.calls.argsFor(0)[0]).toBe(currentNode.sequenceKey);
+        expect(cacheSequenceNodesSpy.calls.argsFor(0)[0]).toBe(currentNode.sequenceId);
 
         playService.stop();
     });
@@ -803,8 +585,8 @@ describe("PlayService.play", () => {
         const sequenceKey: string = "sequenceKey";
 
         const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
-        currentFullNode.sequence_key = sequenceKey;
-        currentFullNode.key = "node0";
+        currentFullNode.sequence.id = sequenceKey;
+        currentFullNode.id = "node0";
         const currentNode: Node = new Node(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
@@ -813,7 +595,7 @@ describe("PlayService.play", () => {
         const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
         currentNodeSubject.next(currentNode);
 
-        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [prevNodeKey, currentNode.key] });
+        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [prevNodeKey, currentNode.id] });
         cacheSequenceSubject.next(sequence);
 
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
@@ -847,8 +629,8 @@ describe("PlayService.play", () => {
         const sequenceKey: string = "sequenceKey";
 
         const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
-        currentFullNode.sequence_key = sequenceKey;
-        currentFullNode.key = "node0";
+        currentFullNode.sequence.id = sequenceKey;
+        currentFullNode.id = "node0";
         const currentNode: Node = new Node(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
@@ -857,7 +639,7 @@ describe("PlayService.play", () => {
         const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
         currentNodeSubject.next(currentNode);
 
-        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key, nextNodeKey] });
+        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [currentNode.id, nextNodeKey] });
         cacheSequenceSubject.next(sequence);
 
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
@@ -895,8 +677,8 @@ describe("PlayService.play", () => {
         const sequenceKey: string = "sequenceKey";
 
         const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
-        currentFullNode.sequence_key = sequenceKey;
-        currentFullNode.key = "node0";
+        currentFullNode.sequence.id = sequenceKey;
+        currentFullNode.id = "node0";
         const currentNode: Node = new Node(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
@@ -905,7 +687,7 @@ describe("PlayService.play", () => {
         const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
         currentNodeSubject.next(currentNode);
 
-        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [prevNodeKey, currentNode.key] });
+        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [prevNodeKey, currentNode.id] });
         cacheSequenceSubject.next(sequence);
 
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
@@ -928,7 +710,7 @@ describe("PlayService.play", () => {
 
         // Sequence should not have changed because of internal reversing
         expect(sequence.keys[0]).toBe(prevNodeKey);
-        expect(sequence.keys[1]).toBe(currentNode.key);
+        expect(sequence.keys[1]).toBe(currentNode.id);
 
         playService.stop();
     });
@@ -947,8 +729,8 @@ describe("PlayService.play", () => {
         const sequenceKey: string = "sequenceKey";
 
         const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
-        currentFullNode.sequence_key = sequenceKey;
-        currentFullNode.key = "node0";
+        currentFullNode.sequence.id = sequenceKey;
+        currentFullNode.id = "node0";
         const currentNode: Node = new Node(currentFullNode);
         currentNode.makeFull(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
@@ -958,7 +740,7 @@ describe("PlayService.play", () => {
         const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
         currentNodeSubject.next(currentNode);
 
-        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key, nextNodeKey] });
+        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [currentNode.id, nextNodeKey] });
         cacheSequenceSubject.next(sequence);
 
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
@@ -975,8 +757,8 @@ describe("PlayService.play", () => {
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
         const nextFullNode: ImageEnt = new NodeHelper().createFullNode();
-        nextFullNode.sequence_key = sequenceKey;
-        nextFullNode.key = nextNodeKey;
+        nextFullNode.sequence.id = sequenceKey;
+        nextFullNode.id = nextNodeKey;
         const nextNode: Node = new Node(nextFullNode);
         nextNode.makeFull(nextFullNode);
         cacheNodeSubject.next(nextNode);
@@ -1005,16 +787,16 @@ describe("PlayService.play", () => {
         const sequenceKey: string = "sequenceKey";
 
         const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
-        currentFullNode.sequence_key = sequenceKey;
-        currentFullNode.key = "node0";
+        currentFullNode.sequence.id = sequenceKey;
+        currentFullNode.id = "node0";
         const currentNode: Node = new Node(currentFullNode);
         currentNode.makeFull(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
         const nextNodeKey: string = "node1";
         const nextFullNode: ImageEnt = new NodeHelper().createFullNode();
-        nextFullNode.sequence_key = sequenceKey;
-        nextFullNode.key = nextNodeKey;
+        nextFullNode.sequence.id = sequenceKey;
+        nextFullNode.id = nextNodeKey;
         const nextNode: Node = new Node(nextFullNode);
         nextNode.makeFull(nextFullNode);
         new MockCreator().mockProperty(nextNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
@@ -1022,7 +804,7 @@ describe("PlayService.play", () => {
         const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
         currentNodeSubject.next(currentNode);
 
-        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key, nextNodeKey] });
+        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [currentNode.id, nextNodeKey] });
         cacheSequenceSubject.next(sequence);
 
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
@@ -1059,25 +841,25 @@ describe("PlayService.play", () => {
         const sequenceKey: string = "sequenceKey";
 
         const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
-        currentFullNode.sequence_key = sequenceKey;
-        currentFullNode.key = "currentNodeKey";
+        currentFullNode.sequence.id = sequenceKey;
+        currentFullNode.id = "currentNodeKey";
         const currentNode: Node = new Node(currentFullNode);
         currentNode.makeFull(currentFullNode);
         new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
-        const sequence: Sequence = new Sequence({ key: sequenceKey, keys: [currentNode.key] });
+        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [currentNode.id] });
         const sequenceNodes: Node[] = [];
 
         for (let i: number = 0; i < 20; i++) {
             const sequenceNodeKey: string = `node${i}`;
             const sequenceFullNode: ImageEnt = new NodeHelper().createFullNode();
-            sequenceFullNode.sequence_key = sequenceKey;
-            sequenceFullNode.key = sequenceNodeKey;
+            sequenceFullNode.sequence.id = sequenceKey;
+            sequenceFullNode.id = sequenceNodeKey;
             const sequenceNode: Node = new Node(sequenceFullNode);
             sequenceNode.makeFull(sequenceFullNode);
             new MockCreator().mockProperty(sequenceNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
-            sequence.keys.push(sequenceNode.key);
+            sequence.keys.push(sequenceNode.id);
             sequenceNodes.push(sequenceNode);
         }
 
@@ -1089,8 +871,8 @@ describe("PlayService.play", () => {
         const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$").and.callFake(
             (key: string): Observable<Node> => {
                 const fullNode: ImageEnt = new NodeHelper().createFullNode();
-                fullNode.sequence_key = sequenceKey;
-                fullNode.key = key;
+                fullNode.sequence.id = sequenceKey;
+                fullNode.id = key;
                 const node: Node = new Node(fullNode);
                 node.makeFull(fullNode);
 

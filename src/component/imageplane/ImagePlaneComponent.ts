@@ -177,7 +177,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
             distinctUntilChanged(
                 undefined,
                 (frame: AnimationFrame): string => {
-                    return frame.state.currentNode.key;
+                    return frame.state.currentNode.id;
                 }),
             withLatestFrom(
                 this._container.glRenderer.webGLRenderer$,
@@ -192,7 +192,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                     let tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
 
                     return new TextureProvider(
-                        currentNode.key,
+                        currentNode.id,
                         currentTransform.basicWidth,
                         currentTransform.basicHeight,
                         tileSize,
@@ -340,7 +340,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
             distinctUntilChanged(
                 undefined,
                 (node: GraphNode): string => {
-                    return node.key;
+                    return node.id;
                 }),
             debounceTime(1000),
             withLatestFrom(hasTexture$),
@@ -386,7 +386,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                         catchError(
                             (error: Error):
                                 Observable<[HTMLImageElement, GraphNode]> => {
-                                console.error(`Failed to fetch high res image (${node.key})`, error);
+                                console.error(`Failed to fetch high res image (${node.id})`, error);
 
                                 return observableEmpty();
                             }));
@@ -398,7 +398,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
             withLatestFrom(textureProvider$))
             .subscribe(
                 (args: [[HTMLImageElement, GraphNode], TextureProvider]): void => {
-                    if (args[0][1].key !== args[1].key ||
+                    if (args[0][1].id !== args[1].key ||
                         args[1].disposed) {
                         return;
                     }
@@ -439,10 +439,10 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                         mergeMap(
                             ([n, t]: [GraphNode, Transform, number]): Observable<[GraphNode, Transform]> => {
                                 return observableCombineLatest(
-                                    this._navigator.graphService.cacheNode$(n.key).pipe(
+                                    this._navigator.graphService.cacheNode$(n.id).pipe(
                                         catchError(
                                             (error: Error): Observable<GraphNode> => {
-                                                console.error(`Failed to cache periphery node (${n.key})`, error);
+                                                console.error(`Failed to cache periphery node (${n.id})`, error);
 
                                                 return observableEmpty();
                                             })),
@@ -545,7 +545,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
 
                         if (a < closest[0]) {
                             closest[0] = a;
-                            closest[1] = n.key;
+                            closest[1] = n.id;
                         }
                     }
 

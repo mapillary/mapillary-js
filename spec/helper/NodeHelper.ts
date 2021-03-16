@@ -13,31 +13,33 @@ export class NodeHelper {
 
     public createCoreNode(): CoreImageEnt {
         return {
-            cl: { lat: 0, lon: 0 },
-            key: this._nodeKey,
-            l: { lat: 0, lon: 0 },
-            sequence_key: this._sequenceKey,
+            computed_geometry: { lat: 0, lon: 0 },
+            id: this._nodeKey,
+            geometry: { lat: 0, lon: 0 },
+            sequence: { id: this._sequenceKey },
         };
     }
 
     public createFillNode(): SpatialImageEnt {
         return {
             atomic_scale: 0,
-            c_rotation: [0, 0, 0],
-            ca: 0,
-            calt: 0,
             camera_parameters: [1, 0, 0],
             camera_type: "perspective",
             captured_at: 0,
-            cca: 0,
-            cluster_key: this._clusterKey,
-            cluster_url: this._clusterKey = "_url",
+            computed_rotation: [0, 0, 0],
+            compass_angle: 0,
+            computed_altitude: 0,
+            computed_compass_angle: 0,
+            cluster: {
+                id: this._clusterKey,
+                url: this._clusterKey + "_url",
+            },
             height: 1,
             merge_cc: 0,
             merge_version: 0,
             orientation: 0,
             private: false,
-            user: { key: this._userKey, username: this._username },
+            user: { id: this._userKey, username: this._username },
             width: 1,
         };
     }
@@ -46,26 +48,27 @@ export class NodeHelper {
         return {
             altitude: 0,
             atomic_scale: 0,
-            c_rotation: [0, 0, 0],
-            ca: 0,
-            calt: 0,
+            computed_rotation: [0, 0, 0],
+            compass_angle: 0,
+            computed_altitude: 0,
             camera_parameters: [1, 0, 0],
             camera_type: "perspective",
             captured_at: 0,
-            captured_with_camera_uuid: "",
-            cca: 0,
-            cl: { lat: 0, lon: 0 },
-            cluster_key: this._clusterKey,
-            cluster_url: this._clusterKey = "_url",
+            computed_compass_angle: 0,
+            computed_geometry: { lat: 0, lon: 0 },
+            cluster: {
+                id: this._clusterKey,
+                url: this._clusterKey + "_url",
+            },
             height: 1,
-            key: this._nodeKey,
-            l: { lat: 0, lon: 0 },
+            id: this._nodeKey,
+            geometry: { lat: 0, lon: 0 },
             merge_cc: 1,
             merge_version: 1,
             orientation: 0,
             private: false,
-            sequence_key: this._sequenceKey,
-            user: { key: this._userKey, username: this._username },
+            sequence: { id: this._sequenceKey },
+            user: { id: this._userKey, username: this._username },
             width: 1,
         };
     }
@@ -82,11 +85,11 @@ export class NodeHelper {
         let fullNode: ImageEnt = this.createFullNode();
 
         fullNode.atomic_scale = undefined;
-        fullNode.ca = undefined;
-        fullNode.calt = undefined;
+        fullNode.compass_angle = undefined;
+        fullNode.computed_altitude = undefined;
         fullNode.camera_parameters = undefined;
         fullNode.camera_type = undefined;
-        fullNode.cl = undefined;
+        fullNode.computed_geometry = undefined;
         fullNode.merge_cc = undefined;
         fullNode.merge_version = undefined;
 

@@ -3,7 +3,7 @@ import { CameraShotEnt } from "./CameraShotEnt";
 import { LatLonAltEnt } from "./LatLonAltEnt";
 import { PointEnt } from "./PointEnt";
 
-export interface ReconstructionEnt {
+export interface ClusterReconstructionEnt {
     /**
      * The unique key of the reconstruction.
      */

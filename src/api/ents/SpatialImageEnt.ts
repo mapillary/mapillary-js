@@ -1,4 +1,6 @@
 import { CameraEnt } from "./CameraEnt";
+import { ClusterEnt } from "./ClusterEnt";
+import { IDEnt } from "./IDEnt";
 import { URLImageEnt } from "./URLImageEnt";
 import { UserEnt } from "./UserEnt";
 
@@ -21,20 +23,17 @@ export interface SpatialImageEnt extends CameraEnt, URLImageEnt {
     /**
      * Rotation vector in angle axis representation.
      */
-    c_rotation?: number[];
+    computed_rotation?: number[];
 
     /**
      * Original EXIF compass angle, measured in degrees.
      */
-    ca: number;
+    compass_angle: number;
 
     /**
-     * SfM computed altitude, in meters.
-     *
-     * @description If SfM has not been run the computed altitude is
-     * set to two meters.
+     * Computed altitude, in meters.
      */
-    calt?: number;
+    computed_altitude?: number;
 
     /**
      * Timestamp when the image was captured.
@@ -42,20 +41,14 @@ export interface SpatialImageEnt extends CameraEnt, URLImageEnt {
     captured_at: number;
 
     /**
-     * Universally unique id for camera used when capturing
-     * image.
-     */
-    captured_with_camera_uuid?: string;
-
-    /**
      * SfM computed compass angle, measured in degrees.
      */
-    cca?: number;
+    computed_compass_angle?: number;
 
     /**
-     * Key of SfM reconstruction that the image is part of.
+     * cluster to which the image belongs.
      */
-    cluster_key: string;
+    cluster?: ClusterEnt;
 
     /**
      * Height of original image, not adjusted for orientation.
@@ -63,7 +56,7 @@ export interface SpatialImageEnt extends CameraEnt, URLImageEnt {
     height: number;
 
     /**
-     * SfM connected component key to which the image belongs.
+     * SfM connected component id to which the image belongs.
      */
     merge_cc?: number;
 
@@ -73,9 +66,9 @@ export interface SpatialImageEnt extends CameraEnt, URLImageEnt {
     merge_version?: number;
 
     /**
-     * Key of the organization to which the image belongs.
+     * Organization to which the image belongs.
      */
-    organization_key?: string;
+    organization?: IDEnt;
 
     /**
      * EXIF orientation of original image.
@@ -94,7 +87,7 @@ export interface SpatialImageEnt extends CameraEnt, URLImageEnt {
     quality_score?: number;
 
     /**
-     * User who uploaded the image.
+     * User who created the image.
      */
     user?: UserEnt;
 

@@ -210,7 +210,7 @@ describe("StateBase.remove", () => {
         let stateBase: TestStateBase = new TestStateBase(state);
 
         let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.key = "currentNode";
+        coreNode.id = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
 
@@ -220,7 +220,7 @@ describe("StateBase.remove", () => {
         stateBase.remove(1);
 
         expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.key).toBe(node.key);
+        expect(stateBase.currentNode.id).toBe(node.id);
         expect(stateBase.currentIndex).toBe(1);
         expect(stateBase.trajectory.length).toBe(2);
     });
@@ -231,7 +231,7 @@ describe("StateBase.remove", () => {
         let stateBase: TestStateBase = new TestStateBase(state);
 
         let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.key = "currentNode";
+        coreNode.id = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
 
@@ -246,7 +246,7 @@ describe("StateBase.remove", () => {
         stateBase.remove(3);
 
         expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.key).toBe(node.key);
+        expect(stateBase.currentNode.id).toBe(node.id);
         expect(stateBase.currentIndex).toBe(1);
         expect(stateBase.trajectory.length).toBe(2);
     });
@@ -274,7 +274,7 @@ describe("StateBase.clear", () => {
         let stateBase: TestStateBase = new TestStateBase(state);
 
         let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.key = "currentNode";
+        coreNode.id = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
 
@@ -284,7 +284,7 @@ describe("StateBase.clear", () => {
         stateBase.clear();
 
         expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.key).toBe(node.key);
+        expect(stateBase.currentNode.id).toBe(node.id);
         expect(stateBase.currentIndex).toBe(1);
         expect(stateBase.trajectory.length).toBe(2);
     });
@@ -295,7 +295,7 @@ describe("StateBase.clear", () => {
         let stateBase: TestStateBase = new TestStateBase(state);
 
         let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.key = "currentNode";
+        coreNode.id = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
 
@@ -310,7 +310,7 @@ describe("StateBase.clear", () => {
         stateBase.clear();
 
         expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.key).toBe(node.key);
+        expect(stateBase.currentNode.id).toBe(node.id);
         expect(stateBase.currentIndex).toBe(1);
         expect(stateBase.trajectory.length).toBe(2);
     });
@@ -321,7 +321,7 @@ describe("StateBase.clear", () => {
         let stateBase: TestStateBase = new TestStateBase(state);
 
         let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.key = "currentNode";
+        coreNode.id = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
 
@@ -331,7 +331,7 @@ describe("StateBase.clear", () => {
         stateBase.clear();
 
         expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.key).toBe(node.key);
+        expect(stateBase.currentNode.id).toBe(node.id);
         expect(stateBase.currentIndex).toBe(0);
         expect(stateBase.trajectory.length).toBe(1);
     });
@@ -342,7 +342,7 @@ describe("StateBase.clear", () => {
         let stateBase: TestStateBase = new TestStateBase(state);
 
         let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.key = "currentNode";
+        coreNode.id = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
 
@@ -357,7 +357,7 @@ describe("StateBase.clear", () => {
         stateBase.clear();
 
         expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.key).toBe(node.key);
+        expect(stateBase.currentNode.id).toBe(node.id);
         expect(stateBase.currentIndex).toBe(0);
         expect(stateBase.trajectory.length).toBe(1);
     });
@@ -368,7 +368,7 @@ describe("StateBase.clear", () => {
         let stateBase: TestStateBase = new TestStateBase(state);
 
         let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.key = "currentNode";
+        coreNode.id = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
 
@@ -379,7 +379,7 @@ describe("StateBase.clear", () => {
         stateBase.clear();
 
         expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.key).toBe(node.key);
+        expect(stateBase.currentNode.id).toBe(node.id);
         expect(stateBase.currentIndex).toBe(1);
         expect(stateBase.trajectory.length).toBe(2);
     });
@@ -407,7 +407,7 @@ describe("StateBase.clearPrior", () => {
         let stateBase: TestStateBase = new TestStateBase(state);
 
         let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.key = "currentNode";
+        coreNode.id = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
 
@@ -417,7 +417,7 @@ describe("StateBase.clearPrior", () => {
         stateBase.clearPrior();
 
         expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.key).toBe(node.key);
+        expect(stateBase.currentNode.id).toBe(node.id);
         expect(stateBase.currentIndex).toBe(1);
         expect(stateBase.trajectory.length).toBe(2);
     });
@@ -428,7 +428,7 @@ describe("StateBase.clearPrior", () => {
         let stateBase: TestStateBase = new TestStateBase(state);
 
         let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.key = "currentNode";
+        coreNode.id = "currentNode";
         let node: TestNode = new TestNode(coreNode);
         node.makeFull(helper.createFillNode());
 
@@ -443,7 +443,7 @@ describe("StateBase.clearPrior", () => {
         stateBase.clearPrior();
 
         expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.key).toBe(node.key);
+        expect(stateBase.currentNode.id).toBe(node.id);
         expect(stateBase.currentIndex).toBe(1);
         expect(stateBase.trajectory.length).toBe(2);
     });

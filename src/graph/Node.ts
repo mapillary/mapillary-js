@@ -83,31 +83,6 @@ export class Node {
     }
 
     /**
-     * Get alt.
-     *
-     * @description If SfM has not been run the computed altitude is
-     * set to a default value of two meters.
-     *
-     * @returns {number} Altitude, in meters.
-     */
-    public get alt(): number {
-        return this._spatial.calt;
-    }
-
-    /**
-     * Get ca.
-     *
-     * @description If the SfM computed compass angle exists it will
-     * be returned, otherwise the original EXIF compass angle.
-     *
-     * @returns {number} Compass angle, measured in degrees
-     * clockwise with respect to north.
-     */
-    public get ca(): number {
-        return this._spatial.cca != null ? this._spatial.cca : this._spatial.ca;
-    }
-
-    /**
      * Get cameraParameters.
      *
      * @description Will be undefined if SfM has
@@ -155,26 +130,17 @@ export class Node {
     }
 
     /**
-     * Get camera uuid.
+     * Get clusterId.
      *
-     * @description Will be undefined if the camera uuid was not
-     * recorded in the image exif information.
-     *
-     * @returns {string} Universally unique id for camera used
-     * when capturing image.
-     */
-    public get cameraUuid(): string {
-        return this._spatial.captured_with_camera_uuid;
-    }
-
-    /**
-     * Get clusterKey.
-     *
-     * @returns {string} Unique key of the SfM cluster to which
+     * @returns {string} Globally unique id of the SfM cluster to which
      * the node belongs.
+     *
+     * @ignore
      */
-    public get clusterKey(): string {
-        return this._spatial.cluster_key;
+    public get clusterId(): string {
+        return !!this._spatial.cluster ?
+            this._spatial.cluster.id :
+            null;
     }
 
     /**
@@ -185,19 +151,48 @@ export class Node {
      * @ignore
      */
     public get clusterUrl(): string {
-        return this._spatial.cluster_url;
+        return !!this._spatial.cluster ?
+            this._spatial.cluster.url :
+            null;
     }
 
     /**
-     * Get computedCA.
+     * Get compassAngle.
+     *
+     * @description If the SfM computed compass angle exists it will
+     * be returned, otherwise the original EXIF compass angle.
+     *
+     * @returns {number} Compass angle, measured in degrees
+     * clockwise with respect to north.
+     */
+    public get compassAngle(): number {
+        return this._spatial.computed_compass_angle != null ?
+            this._spatial.computed_compass_angle :
+            this._spatial.compass_angle;
+    }
+
+    /**
+     * Get computedAltitude.
+     *
+     * @description If SfM has not been run the computed altitude is
+     * set to a default value of two meters.
+     *
+     * @returns {number} Altitude, in meters.
+     */
+    public get computedAltitude(): number {
+        return this._spatial.computed_altitude;
+    }
+
+    /**
+     * Get computedCompassAngle.
      *
      * @description Will not be set if SfM has not been run.
      *
      * @returns {number} SfM computed compass angle, measured
      * in degrees clockwise with respect to north.
      */
-    public get computedCA(): number {
-        return this._spatial.cca;
+    public get computedCompassAngle(): number {
+        return this._spatial.computed_compass_angle;
     }
 
     /**
@@ -209,7 +204,7 @@ export class Node {
      * measured in degrees.
      */
     public get computedLatLon(): LatLonEnt {
-        return this._core.cl;
+        return this._core.computed_geometry;
     }
 
     /**
@@ -261,12 +256,12 @@ export class Node {
     }
 
     /**
-     * Get key.
+     * Get id.
      *
-     * @returns {string} Unique key of the node.
+     * @returns {string} Globally unique id of the node.
      */
-    public get key(): string {
-        return this._core.key;
+    public get id(): string {
+        return this._core.id;
     }
 
     /**
@@ -280,7 +275,9 @@ export class Node {
      * measured in degrees.
      */
     public get latLon(): LatLonEnt {
-        return this._core.cl != null ? this._core.cl : this._core.l;
+        return this._core.computed_geometry != null ?
+            this._core.computed_geometry :
+            this._core.geometry;
     }
 
     /**
@@ -302,7 +299,7 @@ export class Node {
      * @description Will not be set if SfM has not yet been run on
      * node.
      *
-     * @returns {number} SfM connected component key to which
+     * @returns {number} SfM connected component id to which
      * image belongs.
      */
     public get mergeCC(): number {
@@ -331,14 +328,16 @@ export class Node {
     }
 
     /**
-     * Get organizationKey.
+     * Get organizationId.
      *
-     * @returns {string} Unique key of the organization to which
+     * @returns {string} Globally unique id of the organization to which
      * the node belongs. If the node does not belong to an
-     * organization the organization key will be undefined.
+     * organization the organization id will be undefined.
      */
-    public get organizationKey(): string {
-        return this._spatial.organization_key;
+    public get organizationId(): string {
+        return !!this._spatial.organization ?
+            this._spatial.organization.id :
+            null;
     }
 
     /**
@@ -351,22 +350,22 @@ export class Node {
     }
 
     /**
-     * Get originalAlt.
+     * Get originalAltitude.
      *
      * @returns {number} EXIF altitude, in meters, if available.
      */
-    public get originalAlt(): number {
+    public get originalAltitude(): number {
         return this._spatial.altitude;
     }
 
     /**
-     * Get originalCA.
+     * Get originalCompassAngle.
      *
      * @returns {number} Original EXIF compass angle, measured in
      * degrees.
      */
-    public get originalCA(): number {
-        return this._spatial.ca;
+    public get originalCompassAngle(): number {
+        return this._spatial.compass_angle;
     }
 
     /**
@@ -376,7 +375,7 @@ export class Node {
      * WGS84 datum, measured in degrees.
      */
     public get originalLatLon(): LatLonEnt {
-        return this._core.l;
+        return this._core.geometry;
     }
 
     /**
@@ -390,7 +389,7 @@ export class Node {
     }
 
     /**
-     * Get quality score.
+     * Get qualityScore.
      *
      * @returns {number} A number between zero and one
      * determining the quality of the image. Blurriness
@@ -412,7 +411,7 @@ export class Node {
      * @returns {Array<number>} Rotation vector in angle axis representation.
      */
     public get rotation(): number[] {
-        return this._spatial.c_rotation;
+        return this._spatial.computed_rotation;
     }
 
     /**
@@ -427,13 +426,15 @@ export class Node {
     }
 
     /**
-     * Get sequenceKey.
+     * Get sequenceId.
      *
-     * @returns {string} Unique key of the sequence to which
-     * the node belongs.
+     * @returns {string} Globally unique id of the sequence
+     * to which the node belongs.
      */
-    public get sequenceKey(): string {
-        return this._core.sequence_key;
+    public get sequenceId(): string {
+        return !!this._core.sequence ?
+            this._core.sequence.id :
+            null;
     }
 
     /**
@@ -489,13 +490,13 @@ export class Node {
     }
 
     /**
-     * Get userKey.
+     * Get userId.
      *
-     * @returns {string} Unique key of the user who uploaded
+     * @returns {string} Globally unique id of the user who uploaded
      * the image.
      */
-    public get userKey(): string {
-        return this._spatial.user.key;
+    public get userId(): string {
+        return this._spatial.user.id;
     }
 
     /**
@@ -614,7 +615,7 @@ export class Node {
      */
     public initializeCache(cache: NodeCache): void {
         if (this._cache != null) {
-            throw new Error(`Node cache already initialized (${this.key}).`);
+            throw new Error(`Node cache already initialized (${this.id}).`);
         }
 
         this._cache = cache;

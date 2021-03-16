@@ -65,7 +65,7 @@ describe("Node.dispose", () => {
 
         expect(node.full).toBe(false);
 
-        expect(() => { return node.key; }).toThrowError(Error);
+        expect(() => { return node.id; }).toThrowError(Error);
     });
 
     it("should dipose cache", () => {
