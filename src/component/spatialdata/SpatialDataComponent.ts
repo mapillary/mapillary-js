@@ -647,14 +647,12 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             translation,
             undefined,
             undefined,
-            node.ck1,
-            node.ck2,
+            node.cameraParameters,
             <CameraType>node.cameraType);
 
         return transform;

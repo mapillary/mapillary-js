@@ -6,6 +6,7 @@ import { GeoHelper } from "../helper/GeoHelper";
 import { Node } from "../../src/graph/Node";
 import { Transform } from "../../src/geo/Transform";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
+import { CameraType } from "../../src/geo/interfaces/CameraType";
 
 
 describe("Transform.rt", () => {
@@ -30,11 +31,13 @@ describe("Transform.rt", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let rt: THREE.Matrix4 = transform.rt;
 
@@ -72,11 +75,13 @@ describe("Transform.rt", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let rt: THREE.Matrix4 = transform.rt;
 
@@ -114,11 +119,13 @@ describe("Transform.rt", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let rt: THREE.Matrix4 = transform.rt;
 
@@ -156,11 +163,13 @@ describe("Transform.rt", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let rt: THREE.Matrix4 = transform.rt;
 
@@ -209,11 +218,13 @@ describe("Transform.srt", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let sRt: THREE.Matrix4 = transform.srt;
 
@@ -252,11 +263,13 @@ describe("Transform.srt", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let sRt: THREE.Matrix4 = transform.srt;
 
@@ -295,11 +308,13 @@ describe("Transform.srt", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let sRt: THREE.Matrix4 = transform.srt;
 
@@ -347,11 +362,13 @@ describe("Transform.basicWidth", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         expect(transform.basicWidth).toBe(width);
     });
@@ -371,11 +388,13 @@ describe("Transform.basicWidth", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         expect(transform.basicWidth).toBe(height);
     });
@@ -403,11 +422,13 @@ describe("Transform.basicHeight", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         expect(transform.basicHeight).toBe(height);
     });
@@ -427,11 +448,13 @@ describe("Transform.basicHeight", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         expect(transform.basicHeight).toBe(width);
     });
@@ -457,11 +480,13 @@ describe("Transform.width", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         expect(transform.width).toBe(4);
     });
@@ -480,11 +505,13 @@ describe("Transform.width", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         expect(transform.width).toBe(width);
     });
@@ -510,11 +537,13 @@ describe("Transform.height", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         expect(transform.height).toBe(3);
     });
@@ -534,11 +563,13 @@ describe("Transform.height", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         expect(transform.height).toBe(height);
     });
@@ -562,11 +593,13 @@ describe("Transform.focal", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         expect(transform.focal).toBe(1);
     });
@@ -578,18 +611,20 @@ describe("Transform.focal", () => {
 
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.cfocal = focal;
+        fillNode.camera_parameters = [focal, 0, 0];
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         expect(transform.focal).toBe(focal);
     });
@@ -613,11 +648,13 @@ describe("Transform.orientation", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         expect(transform.orientation).toBe(1);
     });
@@ -636,11 +673,13 @@ describe("Transform.orientation", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         expect(transform.orientation).toBe(orientation);
     });
@@ -663,11 +702,13 @@ describe("Transform.scale", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         expect(transform.scale).toBe(0);
     });
@@ -686,11 +727,13 @@ describe("Transform.scale", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         expect(transform.scale).toBe(scale);
     });
@@ -717,11 +760,13 @@ describe("Transform.unprojectSfM", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let sfm: number[] = transform.unprojectSfM([0, 0], 0);
 
@@ -740,11 +785,13 @@ describe("Transform.unprojectSfM", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let sfm: number[] = transform.unprojectSfM([0, 0], 0);
 
@@ -767,11 +814,13 @@ describe("Transform.unprojectSfM", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let sfm: number[] = transform.unprojectSfM([0, 0], 0);
 
@@ -790,11 +839,13 @@ describe("Transform.unprojectSfM", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let depth: number = 10;
         let sfm: number[] = transform.unprojectSfM([0, 0], depth);
@@ -817,11 +868,13 @@ describe("Transform.unprojectSfM", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let depth: number = 5;
         let sfm: number[] = transform.unprojectSfM([0.5, 0], depth);
@@ -851,11 +904,13 @@ describe("Transform.projectBasic", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let pixel: number[] = transform.projectBasic([0, 0, 10]);
 
@@ -873,11 +928,13 @@ describe("Transform.projectBasic", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let pixel: number[] = transform.projectBasic([1, 1, 10]);
 
@@ -908,11 +965,13 @@ describe("Transform.unprojectBasic", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -937,11 +996,13 @@ describe("Transform.unprojectBasic", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -966,11 +1027,13 @@ describe("Transform.unprojectBasic", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -995,11 +1058,13 @@ describe("Transform.unprojectBasic", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -1025,11 +1090,13 @@ describe("Transform.unprojectBasic", () => {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             t,
-            null);
+            null,
+            null,
+            node.cameraParameters,
+            <CameraType>node.cameraType);
 
         let basicPixel: number[] = [0.4534546, 0.72344564];
 

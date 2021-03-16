@@ -23,7 +23,6 @@ import { SequenceEnt } from "./ents/SequenceEnt";
 import { LatLonAltEnt } from "./ents/LatLonAltEnt";
 import { CameraEnt } from "./ents/CameraEnt";
 
-
 interface ImageByKey<T> {
     imageByKey: { [key: string]: T };
 }
@@ -42,6 +41,9 @@ type APIPath =
     "sequenceByKey";
 
 interface FalcorCameraEnt extends CameraEnt {
+    cfocal?: number;
+    ck1?: number;
+    ck2?: number;
     focal?: number;
     k1?: number;
     k2?: number;
@@ -57,7 +59,7 @@ interface FalcorReconstructionEnt extends ReconstructionEnt {
     }
 }
 
-interface FalcorSpatialImageEnt extends SpatialImageEnt {
+interface FalcorSpatialImageEnt extends SpatialImageEnt, FalcorCameraEnt {
     camera_projection_type: string;
 }
 
@@ -319,12 +321,13 @@ export class FalcorDataProvider extends DataProviderBase {
                         if (reconstruction.cameras.hasOwnProperty(cameraId)) {
                             continue;
                         }
-
                         const camera = cameras[cameraId];
                         cameraEnts[cameraId] = {
-                            cfocal: camera.focal,
-                            ck1: camera.ck1,
-                            ck2: camera.ck2,
+                            camera_parameters: [
+                                camera.focal,
+                                camera.k1,
+                                camera.k2
+                            ],
                             camera_type: camera.projection_type,
                         };
                     }
@@ -489,6 +492,11 @@ export class FalcorDataProvider extends DataProviderBase {
 
             const image: T = ibk[key];
             image.camera_type = image.camera_projection_type;
+            image.camera_parameters = [
+                image.cfocal,
+                image.ck1,
+                image.ck2
+            ];
             image.cluster_url = this._urls.clusterReconstruction(image.cluster_key);
             image.mesh_url = this._urls.protoMesh(key);
             image.thumb320_url = this._urls.thumbnail(

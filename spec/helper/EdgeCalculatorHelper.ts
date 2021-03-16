@@ -57,10 +57,11 @@ export class EdgeCalculatorHelper {
             c_rotation: r,
             ca: 0,
             calt: latLonAlt.alt,
+            camera_parameters: cameraType === "equirectangular" ?
+                [] : [1, 0, 0],
             camera_type: cameraType,
             captured_at: capturedAt,
             cca: 0,
-            cfocal: 0,
             cluster_key: "ckey",
             height: 0,
             merge_cc: mergeCC,

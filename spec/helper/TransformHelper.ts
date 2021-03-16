@@ -15,14 +15,12 @@ export class TransformHelper {
             node.orientation,
             node.width,
             node.height,
-            node.focal,
             node.scale,
             node.rotation,
             [0, 0, 0],
             null,
             null,
-            null,
-            null,
+            node.cameraParameters,
             cameraType);
     }
 }

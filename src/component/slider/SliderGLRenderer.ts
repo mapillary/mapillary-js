@@ -332,14 +332,12 @@ export class SliderGLRenderer {
                     state.currentNode.orientation,
                     width,
                     height,
-                    state.currentNode.focal,
                     state.currentNode.scale,
                     rotation,
                     translation,
                     previousNode.image,
                     textureScale,
-                    null,
-                    null,
+                    state.currentNode.cameraParameters,
                     <CameraType>state.currentNode.cameraType);
 
                 let mesh: THREE.Mesh = undefined;
