@@ -103,7 +103,7 @@ describe("Navigator.moveToKey$", () => {
 
         const key: string = "key";
 
-        navigator.moveToKey$(key);
+        navigator.moveTo$(key);
 
         expect(loadingSpy.calls.count()).toBe(1);
         expect(loadingSpy.calls.first().args[0]).toBe("navigator");
@@ -139,7 +139,7 @@ describe("Navigator.moveToKey$", () => {
                 loadingService,
                 stateService);
 
-        navigator.moveToKey$(key).subscribe(() => { /*noop*/ });
+        navigator.moveTo$(key).subscribe(() => { /*noop*/ });
 
         expect(stateSpy.calls.count()).toBe(1);
 
@@ -173,7 +173,7 @@ describe("Navigator.moveToKey$", () => {
 
         const key: string = "key";
 
-        navigator.moveToKey$(key)
+        navigator.moveTo$(key)
             .subscribe(
                 (): void => { return; },
                 (): void => { return; });
@@ -205,7 +205,7 @@ describe("Navigator.moveToKey$", () => {
                 stateService,
                 cacheService);
 
-        navigator.moveToKey$("key1")
+        navigator.moveTo$("key1")
             .subscribe(
                 undefined,
                 (e: Error): void => {
@@ -214,7 +214,7 @@ describe("Navigator.moveToKey$", () => {
                     done();
                 });
 
-        navigator.moveToKey$("key2");
+        navigator.moveTo$("key2");
     });
 
     it("should succeed when node is cached", (done: () => void) => {
@@ -247,7 +247,7 @@ describe("Navigator.moveToKey$", () => {
                 loadingService,
                 stateService);
 
-        navigator.moveToKey$(key)
+        navigator.moveTo$(key)
             .subscribe(
                 (n: Node) => {
                     expect(n.id).toBe(node.id);
@@ -286,7 +286,7 @@ describe("Navigator.moveToKey$", () => {
                 loadingService,
                 stateService);
 
-        navigator.moveToKey$(key)
+        navigator.moveTo$(key)
             .subscribe(
                 (n: Node) => {
                     expect(n.id).toBe(node.id);
@@ -334,10 +334,10 @@ describe("Navigator.moveToKey$", () => {
             let errorCount: number = 0;
             let completeCount: number = 0;
 
-            navigator.moveToKey$(key)
+            navigator.moveTo$(key)
                 .subscribe(
                     (): void => {
-                        navigator.moveToKey$("key2").subscribe();
+                        navigator.moveTo$("key2").subscribe();
                         successCount++;
                     },
                     (): void => {
@@ -389,7 +389,7 @@ describe("Navigator.movedToKey$", () => {
                 stateService,
                 cacheService);
 
-        navigator.movedToKey$.pipe(
+        navigator.movedToId$.pipe(
             first(
                 (k: string): boolean => {
                     return k != null;
@@ -401,7 +401,7 @@ describe("Navigator.movedToKey$", () => {
                     done();
                 });
 
-        navigator.moveToKey$(key).subscribe(() => { /*noop*/ });
+        navigator.moveTo$(key).subscribe(() => { /*noop*/ });
     });
 });
 
@@ -497,7 +497,7 @@ describe("Navigator.setFilter$", () => {
         navigator.setFilter$(["==", "key", "value"]).subscribe();
 
         // trigger key requested
-        navigator.moveToKey$("key").subscribe();
+        navigator.moveTo$("key").subscribe();
 
         expect(setFilterSpy.calls.count()).toBe(1);
     });
@@ -542,7 +542,7 @@ describe("Navigator.setFilter$", () => {
                 stateService,
                 cacheService);
 
-        navigator.moveToKey$("moveToKey").subscribe(() => { /*noop*/ });
+        navigator.moveTo$("moveToKey").subscribe(() => { /*noop*/ });
 
         navigator.setFilter$(["==", "key", "value"])
             .subscribe(
@@ -611,7 +611,7 @@ describe("Navigator.setFilter$", () => {
                 stateService,
                 cacheService);
 
-        navigator.moveToKey$("key").subscribe(() => { /*noop*/ });
+        navigator.moveTo$("key").subscribe(() => { /*noop*/ });
 
         const coreNode0: CoreImageEnt = helper.createCoreNode();
         coreNode0.id = "node0";
@@ -756,7 +756,7 @@ describe("Navigator.setToken$", () => {
                 stateService,
                 cacheService);
 
-        navigator.moveToKey$("key").subscribe(() => { /*noop*/ });
+        navigator.moveTo$("key").subscribe(() => { /*noop*/ });
 
         const coreNode0: CoreImageEnt = helper.createCoreNode();
         coreNode0.id = "node0";
@@ -829,7 +829,7 @@ describe("Navigator.setToken$", () => {
                 stateService,
                 cacheService);
 
-        navigator.moveToKey$("key1")
+        navigator.moveTo$("key1")
             .subscribe(
                 undefined,
                 (e: Error): void => {

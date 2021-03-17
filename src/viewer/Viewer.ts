@@ -33,7 +33,7 @@ import { CustomRenderer } from "./CustomRenderer";
  * @class Viewer
  *
  * @classdesc The Viewer object represents the navigable image viewer.
- * Create a Viewer by specifying a container, client ID, image key and
+ * Create a Viewer by specifying a container, client ID, image id and
  * other options. The viewer exposes methods and events for programmatic
  * interaction.
  *
@@ -188,10 +188,10 @@ export class Viewer extends EventEmitter {
      * Fired when the navigable state of the viewer changes.
      *
      * @description The navigable state indicates if the viewer supports
-     * moving, i.e. calling the `moveToKey` and `moveDir`
+     * moving, i.e. calling the `moveTo` and `moveDir`
      * methods. The viewer will not be in a navigable state if the cover
-     * is activated and the viewer has been supplied a key. When the cover
-     * is deactivated or activated without being supplied a key it will
+     * is activated and the viewer has been supplied a id. When the cover
+     * is deactivated or activated without being supplied a id it will
      * be navigable.
      *
      * @event
@@ -283,33 +283,33 @@ export class Viewer extends EventEmitter {
      * Create a new viewer instance.
      *
      * @description It is possible to initialize the viewer with or
-     * without a key.
+     * without a id.
      *
      * When you want to show a specific image in the viewer from
-     * the start you should initialize it with a key.
+     * the start you should initialize it with a id.
      *
-     * When you do not know the first image key at implementation
+     * When you do not know the first image id at implementation
      * time, e.g. in a map-viewer application you should initialize
-     * the viewer without a key and call `moveToKey` instead.
+     * the viewer without a id and call `moveTo` instead.
      *
-     * When initializing with a key the viewer is bound to that key
-     * until the node for that key has been successfully loaded.
-     * Also, a cover with the image of the key will be shown.
-     * If the data for that key can not be loaded because the key is
+     * When initializing with a id the viewer is bound to that id
+     * until the node for that id has been successfully loaded.
+     * Also, a cover with the image of the id will be shown.
+     * If the data for that id can not be loaded because the id is
      * faulty or other errors occur it is not possible to navigate
-     * to another key because the viewer is not navigable. The viewer
-     * becomes navigable when the data for the key has been loaded and
+     * to another id because the viewer is not navigable. The viewer
+     * becomes navigable when the data for the id has been loaded and
      * the image is shown in the viewer. This way of initializing
      * the viewer is mostly for embedding in blog posts and similar
      * where one wants to show a specific image initially.
      *
-     * If the viewer is initialized without a key (with null or
-     * undefined) it is not bound to any particular key and it is
-     * possible to move to any key with `viewer.moveToKey("<my-image-key>")`.
-     * If the first move to a key fails it is possible to move to another
-     * key. The viewer will show a black background until a move
+     * If the viewer is initialized without a id (with null or
+     * undefined) it is not bound to any particular id and it is
+     * possible to move to any id with `viewer.moveTo("<my-image-id>")`.
+     * If the first move to a id fails it is possible to move to another
+     * id. The viewer will show a black background until a move
      * succeeds. This way of intitializing is suited for a map-viewer
-     * application when the initial key is not known at implementation
+     * application when the initial id is not known at implementation
      * time.
      *
      * @param {ViewerOptions} options - Optional configuration object
@@ -336,7 +336,7 @@ export class Viewer extends EventEmitter {
             this._container,
             this._navigator,
             this._observer,
-            options.imageKey,
+            options.imageId,
             options.component);
         this._customRenderer = new CustomRenderer(this._container, this._navigator);
     }
@@ -345,12 +345,12 @@ export class Viewer extends EventEmitter {
      * Return a boolean indicating if the viewer is in a navigable state.
      *
      * @description The navigable state indicates if the viewer supports
-     * moving, i.e. calling the {@link moveToKey} and {@link moveDir}
+     * moving, i.e. calling the {@link moveTo} and {@link moveDir}
      * methods or changing the authentication state,
      * i.e. calling {@link setUserToken}. The viewer will not be in a navigable
-     * state if the cover is activated and the viewer has been supplied a key.
+     * state if the cover is activated and the viewer has been supplied a id.
      * When the cover is deactivated or the viewer is activated without being
-     * supplied a key it will be navigable.
+     * supplied a id it will be navigable.
      *
      * @returns {boolean} Boolean indicating whether the viewer is navigable.
      */
@@ -708,30 +708,30 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Navigate to a given image key.
+     * Navigate to a given image id.
      *
-     * @param {string} key - A valid Mapillary image key.
+     * @param {string} id - A valid Mapillary image id.
      * @returns {Promise<Node>} Promise to the node that was navigated to.
      * @throws {Error} Propagates any IO errors to the caller.
      * @throws {Error} When viewer is not navigable.
      * @throws {@link AbortMapillaryError} When a subsequent move request is made
-     * before the move to key call has completed.
+     * before the move to id call has completed.
      *
      * @example
      * ```
-     * viewer.moveToKey("<my key>").then(
+     * viewer.moveTo("<my id>").then(
      *     (n) => { console.log(n); },
      *     (e) => { console.error(e); });
      * ```
      */
-    public moveToKey(key: string): Promise<Node> {
-        const moveToKey$: Observable<Node> = this.isNavigable ?
-            this._navigator.moveToKey$(key) :
-            observableThrowError(new Error("Calling moveToKey is not supported when viewer is not navigable."));
+    public moveTo(id: string): Promise<Node> {
+        const moveTo$: Observable<Node> = this.isNavigable ?
+            this._navigator.moveTo$(id) :
+            observableThrowError(new Error("Calling moveTo is not supported when viewer is not navigable."));
 
         return new Promise<Node>(
             (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
-                moveToKey$.subscribe(
+                moveTo$.subscribe(
                     (node: Node): void => {
                         resolve(node);
                     },
@@ -984,9 +984,9 @@ export class Viewer extends EventEmitter {
      *
      * ```
      * cameraType      // Show only spherical or not
-     * organizationKey // Show images from one or several organizations
-     * sequenceKey     // Show images from one or several sequences
-     * userKey         // Show images from one or several users
+     * organizationId // Show images from one or several organizations
+     * sequenceId     // Show images from one or several sequences
+     * userId         // Show images from one or several users
      * capturedAt      // Show images from a certain time interval
      * ```
      *
@@ -995,11 +995,11 @@ export class Viewer extends EventEmitter {
      *
      * @example
      * ```
-     * viewer.setFilter(["==", "sequenceKey", "<my sequence key>"]);
+     * viewer.setFilter(["==", "sequenceId", "<my sequence id>"]);
      *
      * // Other examples
-     * // viewer.setFilter(["==", "organizationKey", "<my organization key>"]);
-     * // viewer.setFilter(["in", "userKey", "<my user key #1>", "<my user key #2>"]);
+     * // viewer.setFilter(["==", "organizationId", "<my organization id>"]);
+     * // viewer.setFilter(["in", "userId", "<my user id #1>", "<my user id #2>"]);
      * // viewer.setFilter(["==", "cameraType", "equirectangular"]);
      * // viewer.setFilter([">=", "capturedAt", <my time stamp>]);
      * ```

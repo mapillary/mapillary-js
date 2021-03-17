@@ -337,15 +337,15 @@ export class SequenceDOMRenderer {
     }
 
     private _createPlayingButton(
-        nextKey: string,
-        prevKey: string,
+        nextId: string,
+        prevId: string,
         playEnabled: boolean,
         configuration: SequenceConfiguration,
         component: SequenceComponent): vd.VNode {
 
         let canPlay: boolean =
-            (configuration.direction === NavigationDirection.Next && nextKey != null) ||
-            (configuration.direction === NavigationDirection.Prev && prevKey != null);
+            (configuration.direction === NavigationDirection.Next && nextId != null) ||
+            (configuration.direction === NavigationDirection.Prev && prevId != null);
         canPlay = canPlay && playEnabled;
 
         let onclick: (e: Event) => void = configuration.playing ?
@@ -431,14 +431,14 @@ export class SequenceDOMRenderer {
     }
 
     private _createSequenceArrows(
-        nextKey: string,
-        prevKey: string,
+        nextId: string,
+        prevId: string,
         containerWidth: number,
         configuration: SequenceConfiguration,
         navigator: Navigator): vd.VNode[] {
 
         let nextProperties: vd.createProperties = {
-            onclick: nextKey != null ?
+            onclick: nextId != null ?
                 (): void => {
                     navigator.moveDir$(NavigationDirection.Next)
                         .subscribe(
@@ -456,7 +456,7 @@ export class SequenceDOMRenderer {
 
         const borderRadius: number = Math.round(8 / this._stepperDefaultWidth * containerWidth);
         let prevProperties: vd.createProperties = {
-            onclick: prevKey != null ?
+            onclick: prevId != null ?
                 (): void => {
                     navigator.moveDir$(NavigationDirection.Prev)
                         .subscribe(
@@ -476,8 +476,8 @@ export class SequenceDOMRenderer {
             },
         };
 
-        let nextClass: string = this._getStepClassName(NavigationDirection.Next, nextKey, configuration.highlightKey);
-        let prevClass: string = this._getStepClassName(NavigationDirection.Prev, prevKey, configuration.highlightKey);
+        let nextClass: string = this._getStepClassName(NavigationDirection.Next, nextId, configuration.highlightId);
+        let prevClass: string = this._getStepClassName(NavigationDirection.Prev, prevId, configuration.highlightId);
 
         let nextIcon: vd.VNode = vd.h("div.mapillary-sequence-icon", []);
         let prevIcon: vd.VNode = vd.h("div.mapillary-sequence-icon", []);
@@ -497,22 +497,22 @@ export class SequenceDOMRenderer {
         navigator: Navigator,
     ): vd.VNode {
 
-        let nextKey: string = null;
-        let prevKey: string = null;
+        let nextId: string = null;
+        let prevId: string = null;
 
         for (let edge of edgeStatus.edges) {
             if (edge.data.direction === NavigationDirection.Next) {
-                nextKey = edge.target;
+                nextId = edge.target;
             }
 
             if (edge.data.direction === NavigationDirection.Prev) {
-                prevKey = edge.target;
+                prevId = edge.target;
             }
         }
 
         const playingButton: vd.VNode = this._createPlayingButton(
-            nextKey, prevKey, playEnabled, configuration, component);
-        const buttons: vd.VNode[] = this._createSequenceArrows(nextKey, prevKey, containerWidth, configuration, navigator);
+            nextId, prevId, playEnabled, configuration, component);
+        const buttons: vd.VNode[] = this._createSequenceArrows(nextId, prevId, containerWidth, configuration, navigator);
         buttons.splice(1, 0, playingButton);
 
         const containerProperties: vd.createProperties = {
@@ -549,15 +549,15 @@ export class SequenceDOMRenderer {
         return vd.h("div.mapillary-sequence-timeline", playbackProperties, [positionInput, closeButton]);
     }
 
-    private _getStepClassName(direction: NavigationDirection, key: string, highlightKey: string): string {
+    private _getStepClassName(direction: NavigationDirection, imageId: string, highlightId: string): string {
         let className: string = direction === NavigationDirection.Next ?
             "mapillary-sequence-step-next" :
             "mapillary-sequence-step-prev";
 
-        if (key == null) {
+        if (imageId == null) {
             className += "-inactive";
         } else {
-            if (highlightKey === key) {
+            if (highlightId === imageId) {
                 className += "-highlight";
             }
         }

@@ -153,13 +153,13 @@ export class PlayService {
                     }),
                 distinctUntilChanged(
                     undefined,
-                    ([sequenceKey, nodeKey]: [string, string]): string => {
-                        return sequenceKey;
+                    ([sequenceId, nodeKey]: [string, string]): string => {
+                        return sequenceId;
                     })),
             this._graphService.graphMode$,
             this._direction$).pipe(
                 switchMap(
-                    ([[sequenceKey, nodeKey], mode, direction]: [[string, string], GraphMode, NavigationDirection]):
+                    ([[sequenceId, nodeKey], mode, direction]: [[string, string], GraphMode, NavigationDirection]):
                         Observable<[Sequence, NavigationDirection]> => {
 
                         if (direction !== NavigationDirection.Next && direction !== NavigationDirection.Prev) {
@@ -167,8 +167,8 @@ export class PlayService {
                         }
 
                         const sequence$: Observable<Sequence> = (mode === GraphMode.Sequence ?
-                            this._graphService.cacheSequenceNodes$(sequenceKey, nodeKey) :
-                            this._graphService.cacheSequence$(sequenceKey)).pipe(
+                            this._graphService.cacheSequenceNodes$(sequenceId, nodeKey) :
+                            this._graphService.cacheSequence$(sequenceId)).pipe(
                                 retry(3),
                                 catchError(
                                     (error: Error): Observable<Sequence> => {
@@ -187,9 +187,9 @@ export class PlayService {
                             return observableEmpty();
                         }
 
-                        const sequenceKeys: string[] = sequence.keys.slice();
+                        const imageIds: string[] = sequence.imageIds.slice();
                         if (direction === NavigationDirection.Prev) {
-                            sequenceKeys.reverse();
+                            imageIds.reverse();
                         }
 
                         return this._stateService.currentState$.pipe(
@@ -207,20 +207,20 @@ export class PlayService {
                                         lastRequestKey = lastTrajectoryKey;
                                     }
 
-                                    const lastIndex: number = sequenceKeys.length - 1;
-                                    if (nodesAhead >= this._nodesAhead || sequenceKeys[lastIndex] === lastRequestKey) {
+                                    const lastIndex: number = imageIds.length - 1;
+                                    if (nodesAhead >= this._nodesAhead || imageIds[lastIndex] === lastRequestKey) {
                                         return [lastRequestKey, []];
                                     }
 
-                                    const current: number = sequenceKeys.indexOf(lastTrajectoryKey);
-                                    const start: number = sequenceKeys.indexOf(lastRequestKey) + 1;
+                                    const current: number = imageIds.indexOf(lastTrajectoryKey);
+                                    const start: number = imageIds.indexOf(lastRequestKey) + 1;
                                     const end: number = Math.min(lastIndex, current + this._nodesAhead - nodesAhead) + 1;
 
                                     if (end <= start) {
                                         return [lastRequestKey, []];
                                     }
 
-                                    return [sequenceKeys[end - 1], sequenceKeys.slice(start, end)];
+                                    return [imageIds[end - 1], imageIds.slice(start, end)];
                                 },
                                 [undefined, []]),
                             mergeMap(

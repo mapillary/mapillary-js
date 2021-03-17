@@ -48,7 +48,7 @@ export class CoverComponent extends Component<CoverConfiguration> {
         const originalSrc$: Observable<string> = this.configuration$.pipe(
             first(
                 (c: CoverConfiguration): boolean => {
-                    return !!c.key;
+                    return !!c.id;
                 }),
             filter(
                 (c: CoverConfiguration): boolean => {
@@ -56,7 +56,7 @@ export class CoverComponent extends Component<CoverConfiguration> {
                 }),
             switchMap(
                 (c: CoverConfiguration): Observable<string> => {
-                    return this._getImageSrc$(c.key).pipe(
+                    return this._getImageSrc$(c.id).pipe(
                         catchError(
                             (error: Error): Observable<string> => {
                                 console.error(error);
@@ -124,7 +124,7 @@ export class CoverComponent extends Component<CoverConfiguration> {
                 }),
             map(
                 ([key, src]: [string, string]): CoverConfiguration => {
-                    return { key: key, src: src };
+                    return { id: key, src: src };
                 }))
             .subscribe(this._configurationSubject$);
 

@@ -47,8 +47,8 @@ export class Navigator {
     private _playService: PlayService;
     private _stateService: StateService;
 
-    private _keyRequested$: BehaviorSubject<string>;
-    private _movedToKey$: BehaviorSubject<string>;
+    private _idRequested$: BehaviorSubject<string>;
+    private _movedToId$: BehaviorSubject<string>;
 
     private _request$: ReplaySubject<Node>;
     private _requestSubscription: Subscription;
@@ -98,8 +98,8 @@ export class Navigator {
             panService :
             new PanService(this._graphService, this._stateService, options.combinedPanning);
 
-        this._keyRequested$ = new BehaviorSubject<string>(null);
-        this._movedToKey$ = new BehaviorSubject<string>(null);
+        this._idRequested$ = new BehaviorSubject<string>(null);
+        this._movedToId$ = new BehaviorSubject<string>(null);
 
         this._request$ = null;
         this._requestSubscription = null;
@@ -122,8 +122,8 @@ export class Navigator {
         return this._loadingService;
     }
 
-    public get movedToKey$(): Observable<string> {
-        return this._movedToKey$;
+    public get movedToId$(): Observable<string> {
+        return this._movedToId$;
     }
 
     public get panService(): PanService {
@@ -148,12 +148,12 @@ export class Navigator {
         this._stateService.dispose();
     }
 
-    public moveToKey$(key: string): Observable<Node> {
-        this._abortRequest(`to key ${key}`);
+    public moveTo$(id: string): Observable<Node> {
+        this._abortRequest(`to id ${id}`);
 
         this._loadingService.startLoading(this._loadingName);
 
-        const node$: Observable<Node> = this._moveToKey$(key);
+        const node$: Observable<Node> = this._moveTo$(id);
 
         return this._makeRequest$(node$);
     }
@@ -183,14 +183,14 @@ export class Navigator {
                                 }));
                 }),
             mergeMap(
-                (directionKey: string) => {
-                    if (directionKey == null) {
+                (directionId: string) => {
+                    if (directionId == null) {
                         this._loadingService.stopLoading(this._loadingName);
 
                         return observableThrowError(new Error(`Direction (${direction}) does not exist for current node.`));
                     }
 
-                    return this._moveToKey$(directionKey);
+                    return this._moveTo$(directionId);
                 }));
 
         return this._makeRequest$(node$);
@@ -199,32 +199,32 @@ export class Navigator {
     public setFilter$(filter: FilterExpression): Observable<void> {
         this._stateService.clearNodes();
 
-        return this._movedToKey$.pipe(
+        return this._movedToId$.pipe(
             first(),
             mergeMap(
-                (key: string): Observable<Node> => {
-                    if (key != null) {
-                        return this._trajectoryKeys$().pipe(
+                (id: string): Observable<Node> => {
+                    if (id != null) {
+                        return this._trajectoryIds$().pipe(
                             mergeMap(
-                                (keys: string[]): Observable<Node> => {
+                                (ids: string[]): Observable<Node> => {
                                     return this._graphService.setFilter$(filter).pipe(
                                         mergeMap(
                                             (): Observable<Node> => {
-                                                return this._cacheKeys$(keys);
+                                                return this._cacheIds$(ids);
                                             }));
                                 }),
                             last());
                     }
 
-                    return this._keyRequested$.pipe(
+                    return this._idRequested$.pipe(
                         first(),
                         mergeMap(
-                            (requestedKey: string): Observable<Node> => {
-                                if (requestedKey != null) {
+                            (requestedId: string): Observable<Node> => {
+                                if (requestedId != null) {
                                     return this._graphService.setFilter$(filter).pipe(
                                         mergeMap(
                                             (): Observable<Node> => {
-                                                return this._graphService.cacheNode$(requestedKey);
+                                                return this._graphService.cacheNode$(requestedId);
                                             }));
                                 }
 
@@ -246,23 +246,23 @@ export class Navigator {
 
         this._stateService.clearNodes();
 
-        return this._movedToKey$.pipe(
+        return this._movedToId$.pipe(
             first(),
             tap(
                 (): void => {
                     this._api.setUserToken(userToken);
                 }),
             mergeMap(
-                (key: string): Observable<void> => {
-                    return key == null ?
+                (id: string): Observable<void> => {
+                    return id == null ?
                         this._graphService.reset$([]) :
-                        this._trajectoryKeys$().pipe(
+                        this._trajectoryIds$().pipe(
                             mergeMap(
-                                (keys: string[]): Observable<Node> => {
-                                    return this._graphService.reset$(keys).pipe(
+                                (ids: string[]): Observable<Node> => {
+                                    return this._graphService.reset$(ids).pipe(
                                         mergeMap(
                                             (): Observable<Node> => {
-                                                return this._cacheKeys$(keys);
+                                                return this._cacheIds$(ids);
                                             }));
                                 }),
                             last(),
@@ -273,11 +273,11 @@ export class Navigator {
                 }));
     }
 
-    private _cacheKeys$(keys: string[]): Observable<Node> {
-        let cacheNodes$: Observable<Node>[] = keys
+    private _cacheIds$(ids: string[]): Observable<Node> {
+        let cacheNodes$: Observable<Node>[] = ids
             .map(
-                (key: string): Observable<Node> => {
-                    return this._graphService.cacheNode$(key);
+                (id: string): Observable<Node> => {
+                    return this._graphService.cacheNode$(id);
                 });
 
         return observableFrom(cacheNodes$).pipe(
@@ -328,14 +328,14 @@ export class Navigator {
         return request$;
     }
 
-    private _moveToKey$(key: string): Observable<Node> {
-        this._keyRequested$.next(key);
+    private _moveTo$(id: string): Observable<Node> {
+        this._idRequested$.next(id);
 
-        return this._graphService.cacheNode$(key).pipe(
+        return this._graphService.cacheNode$(id).pipe(
             tap(
                 (node: Node) => {
                     this._stateService.setNodes([node]);
-                    this._movedToKey$.next(node.id);
+                    this._movedToId$.next(node.id);
                 }),
             finalize(
                 (): void => {
@@ -343,7 +343,7 @@ export class Navigator {
                 }));
     }
 
-    private _trajectoryKeys$(): Observable<string[]> {
+    private _trajectoryIds$(): Observable<string[]> {
         return this._stateService.currentState$.pipe(
             first(),
             map(

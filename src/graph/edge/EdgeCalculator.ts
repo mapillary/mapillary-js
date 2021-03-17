@@ -58,11 +58,12 @@ export class EdgeCalculator {
      *
      * @param {Node} node - Source node.
      * @param {Array<Node>} nodes - Potential destination nodes.
-     * @param {Array<string>} fallbackKeys - Keys for destination nodes that should
-     * be returned even if they do not meet the criteria for a potential edge.
+     * @param {Array<string>} fallbackIds - Ids for destination nodes
+     * that should be returned even if they do not meet the
+     * criteria for a potential edge.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public getPotentialEdges(node: Node, potentialNodes: Node[], fallbackKeys: string[]): PotentialEdge[] {
+    public getPotentialEdges(node: Node, potentialNodes: Node[], fallbackIds: string[]): PotentialEdge[] {
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
@@ -96,7 +97,7 @@ export class EdgeCalculator {
             let distance: number = motion.length();
 
             if (distance > this._settings.maxDistance &&
-                fallbackKeys.indexOf(potential.id) < 0) {
+                fallbackIds.indexOf(potential.id) < 0) {
                 continue;
             }
 
@@ -143,13 +144,13 @@ export class EdgeCalculator {
                 directionChange: directionChange,
                 distance: distance,
                 spherical: isSpherical(potential.cameraType),
-                key: potential.id,
+                id: potential.id,
                 motionChange: motionChange,
                 rotation: rotation,
                 sameMergeCC: sameMergeCC,
                 sameSequence: sameSequence,
                 sameUser: sameUser,
-                sequenceKey: potential.sequenceId,
+                sequenceId: potential.sequenceId,
                 verticalDirectionChange: verticalDirectionChange,
                 verticalMotion: verticalMotion,
                 worldMotionAzimuth: worldMotionAzimuth,
@@ -172,33 +173,33 @@ export class EdgeCalculator {
             throw new ArgumentMapillaryError("Node has to be full.");
         }
 
-        if (node.sequenceId !== sequence.key) {
+        if (node.sequenceId !== sequence.id) {
             throw new ArgumentMapillaryError("Node and sequence does not correspond.");
         }
 
         let edges: NavigationEdge[] = [];
 
-        let nextKey: string = sequence.findNextKey(node.id);
-        if (nextKey != null) {
+        let nextId: string = sequence.findNext(node.id);
+        if (nextId != null) {
             edges.push({
                 data: {
                     direction: NavigationDirection.Next,
                     worldMotionAzimuth: Number.NaN,
                 },
                 source: node.id,
-                target: nextKey,
+                target: nextId,
             });
         }
 
-        let prevKey: string = sequence.findPrevKey(node.id);
-        if (prevKey != null) {
+        let prevId: string = sequence.findPrev(node.id);
+        if (prevId != null) {
             edges.push({
                 data: {
                     direction: NavigationDirection.Prev,
                     worldMotionAzimuth: Number.NaN,
                 },
                 source: node.id,
-                target: prevKey,
+                target: prevId,
             });
         }
 
@@ -225,7 +226,7 @@ export class EdgeCalculator {
         let sequenceGroups: { [key: string]: PotentialEdge[] } = {};
 
         for (let potentialEdge of potentialEdges) {
-            if (potentialEdge.sequenceKey == null) {
+            if (potentialEdge.sequenceId == null) {
                 continue;
             }
 
@@ -254,11 +255,11 @@ export class EdgeCalculator {
                 continue;
             }
 
-            if (sequenceGroups[potentialEdge.sequenceKey] == null) {
-                sequenceGroups[potentialEdge.sequenceKey] = [];
+            if (sequenceGroups[potentialEdge.sequenceId] == null) {
+                sequenceGroups[potentialEdge.sequenceId] = [];
             }
 
-            sequenceGroups[potentialEdge.sequenceKey].push(potentialEdge);
+            sequenceGroups[potentialEdge.sequenceId].push(potentialEdge);
 
         }
 
@@ -274,15 +275,15 @@ export class EdgeCalculator {
                         this._coefficients.similarRotation * potentialEdge.rotation;
                 };
 
-        for (let sequenceKey in sequenceGroups) {
-            if (!sequenceGroups.hasOwnProperty(sequenceKey)) {
+        for (let sequenceId in sequenceGroups) {
+            if (!sequenceGroups.hasOwnProperty(sequenceId)) {
                 continue;
             }
 
             let lowestScore: number = Number.MAX_VALUE;
             let similarEdge: PotentialEdge = null;
 
-            for (let potentialEdge of sequenceGroups[sequenceKey]) {
+            for (let potentialEdge of sequenceGroups[sequenceId]) {
                 let score: number = calculateScore(potentialEdge);
 
                 if (score < lowestScore) {
@@ -307,7 +308,7 @@ export class EdgeCalculator {
                             worldMotionAzimuth: potentialEdge.worldMotionAzimuth,
                         },
                         source: node.id,
-                        target: potentialEdge.key,
+                        target: potentialEdge.id,
                     };
                 });
     }
@@ -320,15 +321,15 @@ export class EdgeCalculator {
      *
      * @param {Node} node - Source node.
      * @param {Array<PotentialEdge>} potentialEdges - Potential edges.
-     * @param {string} prevKey - Key of previous node in sequence.
-     * @param {string} prevKey - Key of next node in sequence.
+     * @param {string} prevId - Id of previous node in sequence.
+     * @param {string} nextId - Id of next node in sequence.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
     public computeStepEdges(
         node: Node,
         potentialEdges: PotentialEdge[],
-        prevKey: string,
-        nextKey: string): NavigationEdge[] {
+        prevId: string,
+        nextId: string): NavigationEdge[] {
 
         if (!node.full) {
             throw new ArgumentMapillaryError("Node has to be full.");
@@ -371,8 +372,8 @@ export class EdgeCalculator {
                     continue;
                 }
 
-                let potentialKey: string = potential.key;
-                if (step.useFallback && (potentialKey === prevKey || potentialKey === nextKey)) {
+                let potentialId: string = potential.id;
+                if (step.useFallback && (potentialId === prevId || potentialId === nextId)) {
                     fallback = potential;
                 }
 
@@ -407,7 +408,7 @@ export class EdgeCalculator {
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
                     source: node.id,
-                    target: edge.key,
+                    target: edge.id,
                 });
             }
         }
@@ -503,7 +504,7 @@ export class EdgeCalculator {
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
                     source: node.id,
-                    target: edge.key,
+                    target: edge.id,
                 });
             }
         }
@@ -562,7 +563,7 @@ export class EdgeCalculator {
                     worldMotionAzimuth: edge.worldMotionAzimuth,
                 },
                 source: node.id,
-                target: edge.key,
+                target: edge.id,
             },
         ];
     }
@@ -679,7 +680,7 @@ export class EdgeCalculator {
                         worldMotionAzimuth: edge.worldMotionAzimuth,
                     },
                     source: node.id,
-                    target: edge.key,
+                    target: edge.id,
                 });
             } else {
                 stepAngles.push(rotation);
@@ -756,7 +757,7 @@ export class EdgeCalculator {
                             worldMotionAzimuth: edge[1].worldMotionAzimuth,
                         },
                         source: node.id,
-                        target: edge[1].key,
+                        target: edge[1].id,
                     });
                 }
             }

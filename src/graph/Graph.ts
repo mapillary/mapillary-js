@@ -672,12 +672,12 @@ export class Graph {
         }
 
         const sequence: Sequence = this.getSequence(sequenceKey);
-        if (sequence.key in this._cachingSequenceNodes$) {
-            return this._cachingSequenceNodes$[sequence.key];
+        if (sequence.id in this._cachingSequenceNodes$) {
+            return this._cachingSequenceNodes$[sequence.id];
         }
 
         const batches: string[][] = [];
-        const keys: string[] = sequence.keys.slice();
+        const keys: string[] = sequence.imageIds.slice();
 
         const referenceBatchSize: number = 50;
         if (!!referenceNodeKey && keys.length > referenceBatchSize) {
@@ -741,16 +741,16 @@ export class Graph {
             last(),
             finalize(
                 (): void => {
-                    delete this._cachingSequenceNodes$[sequence.key];
+                    delete this._cachingSequenceNodes$[sequence.id];
 
                     if (batchesToCache === 0) {
-                        this._cachedSequenceNodes[sequence.key] = true;
+                        this._cachedSequenceNodes[sequence.id] = true;
                     }
                 }),
             publish(),
             refCount());
 
-        this._cachingSequenceNodes$[sequence.key] = sequenceNodes$;
+        this._cachingSequenceNodes$[sequence.id] = sequenceNodes$;
 
         return sequenceNodes$;
     }
@@ -874,12 +874,12 @@ export class Graph {
         let sequence: Sequence = this._sequences[node.sequenceId].sequence;
 
         let fallbackKeys: string[] = [];
-        let prevKey: string = sequence.findPrevKey(node.id);
+        let prevKey: string = sequence.findPrev(node.id);
         if (prevKey != null) {
             fallbackKeys.push(prevKey);
         }
 
-        let nextKey: string = sequence.findNextKey(node.id);
+        let nextKey: string = sequence.findNext(node.id);
         if (nextKey != null) {
             fallbackKeys.push(nextKey);
         }
@@ -1549,7 +1549,7 @@ export class Graph {
             .slice(this._configuration.maxSequences);
 
         for (let sequenceAccess of uncacheSequences) {
-            let sequenceKey: string = sequenceAccess.sequence.key;
+            let sequenceKey: string = sequenceAccess.sequence.id;
 
             delete this._sequences[sequenceKey];
 

@@ -52,7 +52,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
@@ -65,7 +65,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
@@ -152,7 +152,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.target).toBe(potentialEdge2.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
@@ -166,7 +166,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.target).toBe(potentialEdge2.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
@@ -180,7 +180,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.target).toBe(potentialEdge2.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
@@ -194,7 +194,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.target).toBe(potentialEdge2.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
@@ -208,7 +208,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.target).toBe(potentialEdge2.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 });
@@ -276,7 +276,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge4.key);
+        expect(sphericalEdge.target).toBe(potentialEdge4.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
@@ -293,10 +293,10 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         expect(sphericalEdges.length).toBe(4);
 
         let keys: string[] = [
-            potentialEdge1.key,
-            potentialEdge2.key,
-            potentialEdge3.key,
-            potentialEdge4.key,
+            potentialEdge1.id,
+            potentialEdge2.id,
+            potentialEdge3.id,
+            potentialEdge4.id,
         ];
 
         for (let key of keys) {
@@ -324,8 +324,8 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         expect(sphericalEdges.length).toBe(2);
 
         let keys: string[] = [
-            potentialEdge1.key,
-            potentialEdge3.key,
+            potentialEdge1.id,
+            potentialEdge3.id,
         ];
 
         for (let key of keys) {
@@ -352,7 +352,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 });
@@ -402,7 +402,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
@@ -416,7 +416,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepLeft);
     });
 
@@ -430,7 +430,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepLeft);
     });
 
@@ -444,7 +444,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepRight);
     });
 
@@ -458,7 +458,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepRight);
     });
 
@@ -472,7 +472,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepBackward);
     });
 
@@ -486,7 +486,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepBackward);
     });
 
@@ -500,7 +500,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
@@ -514,7 +514,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
@@ -528,7 +528,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
@@ -619,7 +619,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.target).toBe(potentialEdge2.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
@@ -633,7 +633,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.target).toBe(potentialEdge2.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
@@ -647,7 +647,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.target).toBe(potentialEdge2.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
@@ -661,7 +661,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.target).toBe(potentialEdge2.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
@@ -675,7 +675,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.target).toBe(potentialEdge2.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 });
@@ -742,13 +742,13 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         expect(sphericalEdges.length).toBe(4);
 
         for (let sphericalEdge of sphericalEdges) {
-            if (sphericalEdge.target === potentialEdge1.key) {
+            if (sphericalEdge.target === potentialEdge1.id) {
                 expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
-            } else if (sphericalEdge.target === potentialEdge2.key) {
+            } else if (sphericalEdge.target === potentialEdge2.id) {
                 expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepLeft);
-            } else if (sphericalEdge.target === potentialEdge3.key) {
+            } else if (sphericalEdge.target === potentialEdge3.id) {
                 expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepBackward);
-            } else if (sphericalEdge.target === potentialEdge4.key) {
+            } else if (sphericalEdge.target === potentialEdge4.id) {
                 expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepRight);
             }
         }
@@ -769,7 +769,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
@@ -791,7 +791,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 });
@@ -841,7 +841,7 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge1.key);
+        expect(sphericalEdge.target).toBe(potentialEdge1.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
@@ -869,7 +869,7 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.target).toBe(potentialEdge2.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
@@ -883,7 +883,7 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.target).toBe(potentialEdge2.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
@@ -897,7 +897,7 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
 
         let sphericalEdge = sphericalEdges[0];
 
-        expect(sphericalEdge.target).toBe(potentialEdge2.key);
+        expect(sphericalEdge.target).toBe(potentialEdge2.id);
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 });

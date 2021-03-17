@@ -56,7 +56,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: NavigationEdge = turnEdges[0];
 
-        expect(turnEdge.target).toBe(potentialEdge.key);
+        expect(turnEdge.target).toBe(potentialEdge.id);
         expect(turnEdge.data.direction).toBe(NavigationDirection.TurnLeft);
     });
 
@@ -69,7 +69,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: NavigationEdge = turnEdges[0];
 
-        expect(turnEdge.target).toBe(potentialEdge.key);
+        expect(turnEdge.target).toBe(potentialEdge.id);
         expect(turnEdge.data.direction).toBe(NavigationDirection.TurnRight);
     });
 
@@ -82,7 +82,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: NavigationEdge = turnEdges[0];
 
-        expect(turnEdge.target).toBe(potentialEdge.key);
+        expect(turnEdge.target).toBe(potentialEdge.id);
         expect(turnEdge.data.direction).toBe(NavigationDirection.TurnU);
     });
 
@@ -139,7 +139,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: NavigationEdge = turnEdges[0];
 
-        expect(turnEdge.target).toBe(potentialEdge2.key);
+        expect(turnEdge.target).toBe(potentialEdge2.id);
         expect(turnEdge.data.direction).toBe(NavigationDirection.TurnLeft);
     });
 
@@ -156,7 +156,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: NavigationEdge = turnEdges[0];
 
-        expect(turnEdge.target).toBe(potentialEdge2.key);
+        expect(turnEdge.target).toBe(potentialEdge2.id);
         expect(turnEdge.data.direction).toBe(NavigationDirection.TurnLeft);
     });
 
@@ -173,7 +173,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: NavigationEdge = turnEdges[0];
 
-        expect(turnEdge.target).toBe(potentialEdge2.key);
+        expect(turnEdge.target).toBe(potentialEdge2.id);
         expect(turnEdge.data.direction).toBe(NavigationDirection.TurnLeft);
     });
 
@@ -193,7 +193,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: NavigationEdge = turnEdges[0];
 
-        expect(turnEdge.target).toBe(potentialEdge2.key);
+        expect(turnEdge.target).toBe(potentialEdge2.id);
         expect(turnEdge.data.direction).toBe(NavigationDirection.TurnLeft);
     });
 
@@ -210,7 +210,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: NavigationEdge = turnEdges[0];
 
-        expect(turnEdge.target).toBe(potentialEdge2.key);
+        expect(turnEdge.target).toBe(potentialEdge2.id);
         expect(turnEdge.data.direction).toBe(NavigationDirection.TurnLeft);
     });
 
@@ -227,7 +227,7 @@ describe("EdgeCalculator.computeTurnEdges", () => {
 
         let turnEdge: NavigationEdge = turnEdges[0];
 
-        expect(turnEdge.target).toBe(potentialEdge2.key);
+        expect(turnEdge.target).toBe(potentialEdge2.id);
         expect(turnEdge.data.direction).toBe(NavigationDirection.TurnRight);
     });
 

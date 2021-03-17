@@ -60,7 +60,7 @@ export class ComponentController {
             this._initilizeCoverComponent();
             this._subscribeCoverComponent();
         } else {
-            this._navigator.movedToKey$.pipe(
+            this._navigator.movedToId$.pipe(
                 first(
                     (k: string): boolean => {
                         return k != null;
@@ -69,7 +69,7 @@ export class ComponentController {
                     (k: string): void => {
                         this._key = k;
                         this._componentService.deactivateCover();
-                        this._coverComponent.configure({ key: this._key, state: CoverState.Hidden });
+                        this._coverComponent.configure({ id: this._key, state: CoverState.Hidden });
                         this._subscribeCoverComponent();
                         this._navigator.stateService.start();
                         this._navigator.cacheService.start();
@@ -136,7 +136,7 @@ export class ComponentController {
     private _initilizeCoverComponent(): void {
         let options: ComponentOptions = this._options;
 
-        this._coverComponent.configure({ key: this._key });
+        this._coverComponent.configure({ id: this._key });
         if (options.cover === undefined || options.cover) {
             this.activateCover();
         } else {
@@ -163,18 +163,18 @@ export class ComponentController {
                     }))
                 .subscribe((conf: CoverConfiguration) => {
                     if (conf.state === CoverState.Loading) {
-                        this._navigator.stateService.currentKey$.pipe(
+                        this._navigator.stateService.currentId$.pipe(
                             first(),
                             switchMap(
                                 (key: string): Observable<Node> => {
-                                    const keyChanged: boolean = key == null || key !== conf.key;
+                                    const keyChanged: boolean = key == null || key !== conf.id;
 
                                     if (keyChanged) {
                                         this._setNavigable(false);
                                     }
 
                                     return keyChanged ?
-                                        this._navigator.moveToKey$(conf.key) :
+                                        this._navigator.moveTo$(conf.id) :
                                         this._navigator.stateService.currentNode$.pipe(
                                             first());
                                 }))
@@ -200,7 +200,7 @@ export class ComponentController {
                         this._navigator.playService.stop();
                         this._navigator.panService.stop();
                         this._componentService.activateCover();
-                        this._setNavigable(conf.key == null);
+                        this._setNavigable(conf.id == null);
                     }
                 });
     }

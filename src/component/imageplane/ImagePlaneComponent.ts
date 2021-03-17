@@ -210,7 +210,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
             map(
                 (provider: TextureProvider): ImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
-                        renderer.setTextureProvider(provider.key, provider);
+                        renderer.setTextureProvider(provider.id, provider);
 
                         return renderer;
                     };
@@ -398,7 +398,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
             withLatestFrom(textureProvider$))
             .subscribe(
                 (args: [[HTMLImageElement, GraphNode], TextureProvider]): void => {
-                    if (args[0][1].id !== args[1].key ||
+                    if (args[0][1].id !== args[1].id ||
                         args[1].disposed) {
                         return;
                     }
@@ -553,7 +553,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                         return observableEmpty();
                     }
 
-                    return this._navigator.moveToKey$(closest[1]).pipe(
+                    return this._navigator.moveTo$(closest[1]).pipe(
                         catchError(
                             (): Observable<GraphNode> => {
                                 return observableEmpty();

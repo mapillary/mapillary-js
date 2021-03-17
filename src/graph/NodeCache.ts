@@ -175,14 +175,14 @@ export class NodeCache {
     /**
      * Cache the image and mesh assets.
      *
-     * @param {string} key - Key of the node to cache.
+     * @param {URLImageEnt} urls - URLs of the node to cache.
      * @param {boolean} spherical - Value indicating whether node is a spherical.
      * @param {boolean} merged - Value indicating whether node is merged.
      * @returns {Observable<NodeCache>} Observable emitting this node
      * cache whenever the load status has changed and when the mesh or image
      * has been fully loaded.
      */
-    public cacheAssets$(nodeUrls: URLImageEnt, spherical: boolean, merged: boolean): Observable<NodeCache> {
+    public cacheAssets$(urls: URLImageEnt, spherical: boolean, merged: boolean): Observable<NodeCache> {
         if (this._cachingAssets$ != null) {
             return this._cachingAssets$;
         }
@@ -192,8 +192,8 @@ export class NodeCache {
             Settings.baseImageSize;
 
         this._cachingAssets$ = observableCombineLatest(
-            this._cacheImage$(nodeUrls, imageSize),
-            this._cacheMesh$(nodeUrls, merged)).pipe(
+            this._cacheImage$(urls, imageSize),
+            this._cacheMesh$(urls, merged)).pipe(
                 map(
                     ([image, mesh]: [HTMLImageElement, MeshEnt]): NodeCache => {
                         this._image = image;

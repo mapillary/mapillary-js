@@ -18,18 +18,18 @@ describe("Sequence", () => {
     });
 
     it("should find next key when it exists", () => {
-        expect(sequence.findNextKey("C")).toEqual("D");
+        expect(sequence.findNext("C")).toEqual("D");
     });
 
     it("should find prev key when it exists", () => {
-        expect(sequence.findPrevKey("C")).toEqual("B");
+        expect(sequence.findPrev("C")).toEqual("B");
     });
 
     it("should return null if no next key", () => {
-        expect(sequence.findNextKey("E")).toBe(null);
+        expect(sequence.findNext("E")).toBe(null);
     });
 
     it("should return null if no prev key", () => {
-        expect(sequence.findPrevKey("B")).toBe(null);
+        expect(sequence.findPrev("B")).toBe(null);
     });
 });

@@ -8,8 +8,8 @@ export class Urls {
         return `${Urls._scheme}://${Urls._exploreHost}`;
     }
 
-    public static exploreImage(key: string): string {
-        return `${Urls._scheme}://${Urls._exploreHost}/app/?pKey=${key}&focus=photo`;
+    public static exploreImage(id: string): string {
+        return `${Urls._scheme}://${Urls._exploreHost}/app/?pKey=${id}&focus=photo`;
     }
 
     public static exploreUser(username: string): string {

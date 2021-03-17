@@ -38,18 +38,18 @@ export enum SliderConfigurationMode {
 }
 
 /**
- * Interface for configuration of slider keys.
+ * Interface for configuration of slider ids.
  *
  * @interface
  */
-export interface SliderConfigurationKeys {
+export interface SliderConfigurationIds {
     /**
-     * Key for the image plane in the background.
+     * Id for the image plane in the background.
      */
     background: string;
 
     /**
-     * Key for the image plane in the foreground.
+     * Id for the image plane in the foreground.
      */
     foreground: string;
 }
@@ -64,9 +64,9 @@ export interface SliderConfigurationKeys {
  *     component: {
  *         slider: {
  *             initialPosition: 0.5,
- *             keys: {
- *                 background: '<background-key>',
- *                 foreground: '<foreground-key>',
+ *             ids: {
+ *                 background: '<background-id>',
+ *                 foreground: '<foreground-id>',
  *             },
  *             sliderVisible: true,
  *         },
@@ -84,9 +84,9 @@ export interface SliderConfiguration extends ComponentConfiguration {
     initialPosition?: number;
 
     /**
-     * Slider keys.
+     * Slider ids.
      */
-    keys?: SliderConfigurationKeys;
+    ids?: SliderConfigurationIds;
 
     /**
      * Value indicating whether the slider should be visible.

@@ -31,10 +31,10 @@ export interface PotentialEdge {
     spherical: boolean;
 
     /**
-     * Unique image key.
-     * @property {string} key
+     * Unique image id.
+     * @property {string} id
      */
-    key: string;
+    id: string;
 
     /**
      * Change in motion with respect to the viewing direction
@@ -73,9 +73,9 @@ export interface PotentialEdge {
     /**
      * Determines which sequence the destination node of the potential edge
      * belongs to.
-     * @property {string} sequenceKey
+     * @property {string} sequenceId
      */
-    sequenceKey: string;
+    sequenceId: string;
 
     /**
      * Change in viewing direction with respect to the XY-plane.

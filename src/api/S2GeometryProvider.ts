@@ -42,11 +42,11 @@ export class S2GeometryProvider extends GeometryProviderBase {
 
     /** @inheritdoc */
     public getNeighbors(cellId: string): CellNeighbors {
-        const key: string = S2.idToKey(cellId);
-        const position: string = key.split('/')[1];
+        const s2key: string = S2.idToKey(cellId);
+        const position: string = s2key.split('/')[1];
         const level: number = position.length;
 
-        const [w, n, e, s]: string[] = this._getNeighbors(key, level);
+        const [w, n, e, s]: string[] = this._getNeighbors(s2key, level);
         const [, nw, , sw]: string[] = this._getNeighbors(w, level);
         const [, ne, , se]: string[] = this._getNeighbors(e, level);
 
@@ -144,8 +144,8 @@ export class S2GeometryProvider extends GeometryProviderBase {
             });
     }
 
-    private _getNeighbors(key: string, level: number): string[] {
-        const latlng: S2.ILatLng = S2.keyToLatLng(key);
+    private _getNeighbors(s2key: string, level: number): string[] {
+        const latlng: S2.ILatLng = S2.keyToLatLng(s2key);
         const neighbors: string[] = S2.latLngToNeighborKeys(
             latlng.lat,
             latlng.lng,
@@ -155,11 +155,11 @@ export class S2GeometryProvider extends GeometryProviderBase {
     }
 
     private _latLonToId(latLon: LatLonEnt, level: number): string {
-        const key: string = S2.latLngToKey(
+        const s2key: string = S2.latLngToKey(
             latLon.lat,
             latLon.lon,
             level);
 
-        return S2.keyToId(key);
+        return S2.keyToId(s2key);
     }
 }

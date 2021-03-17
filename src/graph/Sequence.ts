@@ -6,8 +6,8 @@ import { SequenceEnt } from "../api/ents/SequenceEnt";
  * @classdesc Represents a sequence of ordered nodes.
  */
 export class Sequence {
-    private _key: string;
-    private _keys: string[];
+    private _id: string;
+    private _imageIds: string[];
 
     /**
      * Create a new sequene instance.
@@ -15,26 +15,26 @@ export class Sequence {
      * @param {SequenceEnt} sequence - Raw sequence data.
      */
     constructor(sequence: SequenceEnt) {
-        this._key = sequence.id;
-        this._keys = sequence.image_ids;
+        this._id = sequence.id;
+        this._imageIds = sequence.image_ids;
     }
 
     /**
-     * Get key.
+     * Get id.
      *
-     * @returns {string} Unique sequence key.
+     * @returns {string} Unique sequence id.
      */
-    public get key(): string {
-        return this._key;
+    public get id(): string {
+        return this._id;
     }
 
     /**
-     * Get keys.
+     * Get ids.
      *
-     * @returns {Array<string>} Array of ordered node keys in the sequence.
+     * @returns {Array<string>} Array of ordered node ids in the sequence.
      */
-    public get keys(): string[] {
-        return this._keys;
+    public get imageIds(): string[] {
+        return this._imageIds;
     }
 
     /**
@@ -43,41 +43,41 @@ export class Sequence {
      * @description Disposes all cached assets.
      */
     public dispose(): void {
-        this._key = null;
-        this._keys = null;
+        this._id = null;
+        this._imageIds = null;
     }
 
     /**
-     * Find the next node key in the sequence with respect to
-     * the provided node key.
+     * Find the next node id in the sequence with respect to
+     * the provided node id.
      *
-     * @param {string} key - Reference node key.
-     * @returns {string} Next key in sequence if it exists, null otherwise.
+     * @param {string} id - Reference node id.
+     * @returns {string} Next id in sequence if it exists, null otherwise.
      */
-    public findNextKey(key: string): string {
-        let i: number = this._keys.indexOf(key);
+    public findNext(id: string): string {
+        let i: number = this._imageIds.indexOf(id);
 
-        if ((i + 1) >= this._keys.length || i === -1) {
+        if ((i + 1) >= this._imageIds.length || i === -1) {
             return null;
         } else {
-            return this._keys[i + 1];
+            return this._imageIds[i + 1];
         }
     }
 
     /**
-     * Find the previous node key in the sequence with respect to
-     * the provided node key.
+     * Find the previous node id in the sequence with respect to
+     * the provided node id.
      *
-     * @param {string} key - Reference node key.
-     * @returns {string} Previous key in sequence if it exists, null otherwise.
+     * @param {string} id - Reference node id.
+     * @returns {string} Previous id in sequence if it exists, null otherwise.
      */
-    public findPrevKey(key: string): string {
-        let i: number = this._keys.indexOf(key);
+    public findPrev(id: string): string {
+        let i: number = this._imageIds.indexOf(id);
 
         if (i === 0 || i === -1) {
             return null;
         } else {
-            return this._keys[i - 1];
+            return this._imageIds[i - 1];
         }
     }
 }

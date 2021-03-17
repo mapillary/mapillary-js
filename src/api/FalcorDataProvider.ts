@@ -62,7 +62,8 @@ interface FalcorClusterReconstructionEnt extends ClusterReconstructionEnt {
         altitude: number,
         latitude: number,
         longitude: number,
-    }
+    },
+    key: string;
 }
 
 interface FalcorCoreImageEnt extends CoreImageEnt {

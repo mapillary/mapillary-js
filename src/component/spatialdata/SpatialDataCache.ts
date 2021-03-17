@@ -346,31 +346,31 @@ export class SpatialDataCache {
                 }),
             tap(
                 (reconstruction: ClusterReconstructionEnt): void => {
-                    if (!this._hasClusterReconstruction(reconstruction.key)) {
-                        this._clusterReconstructions[reconstruction.key] = reconstruction;
+                    if (!this._hasClusterReconstruction(reconstruction.id)) {
+                        this._clusterReconstructions[reconstruction.id] = reconstruction;
                     }
 
-                    if (!(reconstruction.key in this._clusterReconstructionTiles)) {
-                        this._clusterReconstructionTiles[reconstruction.key] = [];
+                    if (!(reconstruction.id in this._clusterReconstructionTiles)) {
+                        this._clusterReconstructionTiles[reconstruction.id] = [];
                     }
 
-                    if (this._clusterReconstructionTiles[reconstruction.key].indexOf(cellId) === -1) {
-                        this._clusterReconstructionTiles[reconstruction.key].push(cellId);
+                    if (this._clusterReconstructionTiles[reconstruction.id].indexOf(cellId) === -1) {
+                        this._clusterReconstructionTiles[reconstruction.id].push(cellId);
                     }
                 }))
     }
 
-    private _getClusterReconstruction(key: string): ClusterReconstructionEnt {
-        return this._clusterReconstructions[key];
+    private _getClusterReconstruction(id: string): ClusterReconstructionEnt {
+        return this._clusterReconstructions[id];
     }
 
-    private _getClusterReconstruction$(url: string, clusterKey: string, abort: Promise<void>): Observable<ClusterReconstructionEnt> {
+    private _getClusterReconstruction$(url: string, clusterId: string, abort: Promise<void>): Observable<ClusterReconstructionEnt> {
         return Observable.create(
             (subscriber: Subscriber<ClusterReconstructionEnt>): void => {
                 this._data.getClusterReconstruction(url, abort)
                     .then(
                         (reconstruction: ClusterReconstructionEnt): void => {
-                            reconstruction.key = clusterKey;
+                            reconstruction.id = clusterId;
                             subscriber.next(reconstruction);
                             subscriber.complete();
                         },
@@ -380,7 +380,7 @@ export class SpatialDataCache {
             });
     }
 
-    private _hasClusterReconstruction(key: string): boolean {
-        return key in this._clusterReconstructions;
+    private _hasClusterReconstruction(id: string): boolean {
+        return id in this._clusterReconstructions;
     }
 }

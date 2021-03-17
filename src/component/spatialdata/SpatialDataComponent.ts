@@ -276,7 +276,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
                 ([[hash, reconstruction], reference]: [[string, ClusterReconstructionEnt], LatLonAltEnt]): void => {
-                    if (this._scene.hasClusterReconstruction(reconstruction.key, hash)) {
+                    if (this._scene.hasClusterReconstruction(reconstruction.id, hash)) {
                         return;
                     }
 
@@ -349,11 +349,11 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                         canvasY,
                         element);
 
-                    const key = this._scene.intersection
+                    const id = this._scene.intersection
                         .intersectObjects(viewport, render.perspective);
 
-                    return !!key ?
-                        this._navigator.moveToKey$(key).pipe(
+                    return !!id ?
+                        this._navigator.moveTo$(id).pipe(
                             catchError(
                                 (): Observable<Node> => {
                                     return observableEmpty();
@@ -432,10 +432,10 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                     this._scene.setHoveredNode(key);
                 }));
 
-        subs.push(this._navigator.stateService.currentKey$
+        subs.push(this._navigator.stateService.currentId$
             .subscribe(
-                (key: string): void => {
-                    this._scene.setSelectedNode(key);
+                (id: string): void => {
+                    this._scene.setSelectedNode(id);
                 }));
 
         subs.push(this._navigator.stateService.currentState$
@@ -508,7 +508,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                 withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
                 ([[hash, reconstruction], reference]: [[string, ClusterReconstructionEnt], LatLonAltEnt]): void => {
-                    if (this._scene.hasClusterReconstruction(reconstruction.key, hash)) {
+                    if (this._scene.hasClusterReconstruction(reconstruction.id, hash)) {
                         return;
                     }
 

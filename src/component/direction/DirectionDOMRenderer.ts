@@ -162,9 +162,9 @@ export class DirectionDOMRenderer {
      */
     public setConfiguration(configuration: DirectionConfiguration): void {
         let needsRender: boolean = false;
-        if (this._highlightKey !== configuration.highlightKey ||
+        if (this._highlightKey !== configuration.highlightId ||
             this._distinguishSequence !== configuration.distinguishSequence) {
-            this._highlightKey = configuration.highlightKey;
+            this._highlightKey = configuration.highlightId;
             this._distinguishSequence = configuration.distinguishSequence;
 
             needsRender = true;
@@ -238,7 +238,7 @@ export class DirectionDOMRenderer {
             for (let edge of edges) {
                 let edgeKey: string = edge.target;
 
-                for (let sequenceKey of sequence.keys) {
+                for (let sequenceKey of sequence.imageIds) {
                     if (sequenceKey === edgeKey) {
                         this._sequenceEdgeKeys.push(edgeKey);
                         break;
@@ -376,7 +376,7 @@ export class DirectionDOMRenderer {
 
         let onClick: (e: Event) => void =
             (e: Event): void => {
-                navigator.moveToKey$(key)
+                navigator.moveTo$(key)
                     .subscribe(
                         undefined,
                         (error: Error): void => {
@@ -469,7 +469,7 @@ export class DirectionDOMRenderer {
 
         let circleProperties: vd.createProperties = {
             attributes: {
-                "data-key": key,
+                "data-id": key,
             },
             onclick: onClick,
             style: style,
@@ -538,7 +538,7 @@ export class DirectionDOMRenderer {
             `translate(${translationX}px, ${translationY}px) rotate(${azimuthDeg}deg)`;
 
         let circleProperties: vd.createProperties = {
-            attributes: { "data-key": key },
+            attributes: { "data-id": key },
             onclick: onClick,
             style: {
                 height: this._calculator.stepCircleSizeCss,

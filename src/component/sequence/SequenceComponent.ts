@@ -64,29 +64,29 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
     public static playingchanged: string = "playingchanged";
 
     /**
-     * Event fired when the hovered key changes.
+     * Event fired when the hovered id changes.
      *
-     * @description Emits the key of the node for the direction
+     * @description Emits the id of the node for the direction
      * arrow that is being hovered. When the mouse leaves a
      * direction arrow null is emitted.
      *
-     * @event SequenceComponent#hoveredkeychanged
-     * @type {string} The hovered key, null if no key is hovered.
+     * @event SequenceComponent#hoveredidchanged
+     * @type {string} The hovered id, null if no id is hovered.
      */
-    public static hoveredkeychanged: string = "hoveredkeychanged";
+    public static hoveredidchanged: string = "hoveredidchanged";
 
     private _sequenceDOMRenderer: SequenceDOMRenderer;
     private _scheduler: Scheduler;
 
-    private _hoveredKeySubject$: Subject<string>;
-    private _hoveredKey$: Observable<string>;
+    private _hoveredIdSubject$: Subject<string>;
+    private _hoveredId$: Observable<string>;
     private _containerWidth$: Subject<number>;
 
-    private _emitHoveredKeySubscription: Subscription;
+    private _emitHoveredSubscription: Subscription;
     private _renderSubscription: Subscription;
     private _playingSubscription: Subscription;
     private _containerWidthSubscription: Subscription;
-    private _hoveredKeySubscription: Subscription;
+    private _hoveredSubscription: Subscription;
     private _setSpeedSubscription: Subscription;
     private _setDirectionSubscription: Subscription;
     private _setSequenceGraphModeSubscription: Subscription;
@@ -109,9 +109,9 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
         this._scheduler = scheduler;
 
         this._containerWidth$ = new Subject<number>();
-        this._hoveredKeySubject$ = new Subject<string>();
+        this._hoveredIdSubject$ = new Subject<string>();
 
-        this._hoveredKey$ = this._hoveredKeySubject$.pipe(share());
+        this._hoveredId$ = this._hoveredIdSubject$.pipe(share());
 
         this._navigator.playService.playing$.pipe(
             skip(1),
@@ -143,16 +143,16 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
     }
 
     /**
-     * Get hovered key observable.
+     * Get hovered id observable.
      *
-     * @description An observable emitting the key of the node for the direction
+     * @description An observable emitting the id of the node for the direction
      * arrow that is being hovered. When the mouse leaves a direction arrow null
      * is emitted.
      *
      * @returns {Observable<string>}
      */
-    public get hoveredKey$(): Observable<string> {
-        return this._hoveredKey$;
+    public get hoveredId$(): Observable<string> {
+        return this._hoveredId$;
     }
 
     /**
@@ -183,15 +183,15 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
     }
 
     /**
-     * Set highlight key.
+     * Set highlight id.
      *
      * @description The arrow pointing towards the node corresponding to the
-     * highlight key will be highlighted.
+     * highlight id will be highlighted.
      *
-     * @param {string} highlightKey Key of node to be highlighted if existing.
+     * @param {string} highlightId id of node to be highlighted if existing.
      */
-    public setHighlightKey(highlightKey: string): void {
-        this.configure({ highlightKey: highlightKey });
+    public setHighlightId(highlightId: string): void {
+        this.configure({ highlightId });
     }
 
     /**
@@ -271,27 +271,27 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
 
         this._sequenceSubscription = sequence$.subscribe();
 
-        const rendererKey$: Observable<string> = this._sequenceDOMRenderer.index$.pipe(
+        const rendererId$: Observable<string> = this._sequenceDOMRenderer.index$.pipe(
             withLatestFrom(sequence$),
             map(
                 ([index, sequence]: [number, Sequence]): string => {
-                    return sequence != null ? sequence.keys[index] : null;
+                    return sequence != null ? sequence.imageIds[index] : null;
                 }),
             filter(
-                (key: string): boolean => {
-                    return !!key;
+                (id: string): boolean => {
+                    return !!id;
                 }),
             distinctUntilChanged(),
             publish(),
             refCount());
 
         this._moveSubscription = observableMerge(
-            rendererKey$.pipe(debounceTime(100, this._scheduler)),
-            rendererKey$.pipe(auditTime(400, this._scheduler))).pipe(
+            rendererId$.pipe(debounceTime(100, this._scheduler)),
+            rendererId$.pipe(auditTime(400, this._scheduler))).pipe(
                 distinctUntilChanged(),
                 switchMap(
-                    (key: string): Observable<Node> => {
-                        return this._navigator.moveToKey$(key).pipe(
+                    (id: string): Observable<Node> => {
+                        return this._navigator.moveTo$(id).pipe(
                             catchError(
                                 (): Observable<Node> => {
                                     return observableEmpty();
@@ -379,18 +379,21 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                         return observableOf({ index: null, max: null });
                     }
 
-                    let firstCurrentKey: boolean = true;
+                    let firstCurrentId: boolean = true;
 
                     return this._sequenceDOMRenderer.changingPositionChanged$.pipe(
                         startWith(false),
                         distinctUntilChanged(),
                         switchMap(
                             (changingPosition: boolean): Observable<string> => {
-                                const skipCount: number = !changingPosition && firstCurrentKey ? 0 : 1;
-                                firstCurrentKey = false;
+                                const skipCount: number =
+                                    !changingPosition &&
+                                        firstCurrentId ?
+                                        0 : 1;
+                                firstCurrentId = false;
 
                                 return changingPosition ?
-                                    rendererKey$ :
+                                    rendererId$ :
                                     this._navigator.stateService.currentNode$.pipe(
                                         map(
                                             (node: Node): string => {
@@ -400,14 +403,14 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                                         skip(skipCount));
                             }),
                         map(
-                            (key: string): { index: number, max: number } => {
-                                const index: number = sequence.keys.indexOf(key);
+                            (imageId: string): { index: number, max: number } => {
+                                const index: number = sequence.imageIds.indexOf(imageId);
 
                                 if (index === -1) {
                                     return { index: null, max: null };
                                 }
 
-                                return { index: index, max: sequence.keys.length - 1 };
+                                return { index: index, max: sequence.imageIds.length - 1 };
                             }));
                 }));
 
@@ -505,7 +508,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                     }
                 });
 
-        this._hoveredKeySubscription = this._sequenceDOMRenderer.mouseEnterDirection$.pipe(
+        this._hoveredSubscription = this._sequenceDOMRenderer.mouseEnterDirection$.pipe(
             switchMap(
                 (direction: NavigationDirection): Observable<string> => {
                     const edgeTo$: Observable<string> = edgeStatus$.pipe(
@@ -524,21 +527,21 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                     return observableConcat(edgeTo$, observableOf<string>(null));
                 }),
             distinctUntilChanged())
-            .subscribe(this._hoveredKeySubject$);
+            .subscribe(this._hoveredIdSubject$);
 
-        this._emitHoveredKeySubscription = this._hoveredKey$
+        this._emitHoveredSubscription = this._hoveredId$
             .subscribe(
-                (key: string): void => {
-                    this.fire(SequenceComponent.hoveredkeychanged, key);
+                (id: string): void => {
+                    this.fire(SequenceComponent.hoveredidchanged, id);
                 });
     }
 
     protected _deactivate(): void {
-        this._emitHoveredKeySubscription.unsubscribe();
+        this._emitHoveredSubscription.unsubscribe();
         this._renderSubscription.unsubscribe();
         this._playingSubscription.unsubscribe();
         this._containerWidthSubscription.unsubscribe();
-        this._hoveredKeySubscription.unsubscribe();
+        this._hoveredSubscription.unsubscribe();
         this._setSpeedSubscription.unsubscribe();
         this._setDirectionSubscription.unsubscribe();
         this._setSequenceGraphModeSubscription.unsubscribe();

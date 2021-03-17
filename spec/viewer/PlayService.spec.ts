@@ -709,8 +709,8 @@ describe("PlayService.play", () => {
         expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(prevNodeKey);
 
         // Sequence should not have changed because of internal reversing
-        expect(sequence.keys[0]).toBe(prevNodeKey);
-        expect(sequence.keys[1]).toBe(currentNode.id);
+        expect(sequence.imageIds[0]).toBe(prevNodeKey);
+        expect(sequence.imageIds[1]).toBe(currentNode.id);
 
         playService.stop();
     });
@@ -859,7 +859,7 @@ describe("PlayService.play", () => {
             sequenceNode.makeFull(sequenceFullNode);
             new MockCreator().mockProperty(sequenceNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
-            sequence.keys.push(sequenceNode.id);
+            sequence.imageIds.push(sequenceNode.id);
             sequenceNodes.push(sequenceNode);
         }
 
@@ -966,7 +966,7 @@ describe("PlayService.play", () => {
         expect(cacheNodeSpy.calls.count()).toBe(20);
 
         for (let i: number = 0; i < 20; i++) {
-            expect(cacheNodeSpy.calls.argsFor(i)[0]).toBe(sequence.keys[i + 1]);
+            expect(cacheNodeSpy.calls.argsFor(i)[0]).toBe(sequence.imageIds[i + 1]);
         }
 
         playService.stop();

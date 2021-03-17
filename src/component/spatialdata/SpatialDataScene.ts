@@ -11,7 +11,7 @@ import { CameraVisualizationMode } from "./CameraVisualizationMode";
 import { OriginalPositionMode } from "./OriginalPositionMode";
 
 type ClusterReconstructions = {
-    [key: string]: {
+    [id: string]: {
         tiles: string[];
         points: THREE.Object3D;
     };
@@ -1016,11 +1016,11 @@ export class SpatialDataScene {
         translation: number[],
         cellId: string): void {
 
-        if (this.hasClusterReconstruction(reconstruction.key, cellId)) {
+        if (this.hasClusterReconstruction(reconstruction.id, cellId)) {
             return;
         }
 
-        const clusterId = reconstruction.key;
+        const clusterId = reconstruction.id;
 
         if (!(clusterId in this._clusters)) {
             this._clusters[clusterId] = {
