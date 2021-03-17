@@ -29,13 +29,13 @@ export interface SequenceConfiguration extends ComponentConfiguration {
     direction?: NavigationDirection;
 
     /**
-     * The node key representing the direction arrow to be highlighted.
+     * The node id representing the direction arrow to be highlighted.
      *
      * @description When set to null no direction will be highlighted.
      *
      * @default undefined
      */
-    highlightKey?: string;
+    highlightId?: string;
 
     /**
      * The max width of the sequence container.

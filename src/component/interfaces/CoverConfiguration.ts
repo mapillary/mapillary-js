@@ -7,7 +7,7 @@ export enum CoverState {
 }
 
 export interface CoverConfiguration extends ComponentConfiguration {
-    key?: string;
+    id?: string;
     src?: string;
     state?: CoverState;
 }

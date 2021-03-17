@@ -32,11 +32,11 @@ export interface DirectionConfiguration extends ComponentConfiguration {
     distinguishSequence?: boolean;
 
     /**
-     * The node key representing the direction arrow to be highlighted.
+     * The node id representing the direction arrow to be highlighted.
      *
      * @default undefined
      */
-    highlightKey?: string;
+    highlightId?: string;
 
     /**
      * The min width of the non transformed container element holding

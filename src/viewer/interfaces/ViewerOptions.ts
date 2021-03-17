@@ -54,14 +54,14 @@ export interface ViewerOptions {
     container: string | HTMLElement;
 
     /**
-     * Optional `image-key` to start from. The key
-     * can be any Mapillary image. If a key is provided the viewer is
-     * bound to that key until it has been fully loaded. If null is provided
+     * Optional `image-id` to start from. The id
+     * can be any Mapillary image. If a id is provided the viewer is
+     * bound to that id until it has been fully loaded. If null is provided
      * no image is loaded at viewer initialization and the viewer is not
-     * bound to any particular key. Any image can then be navigated to
-     * with e.g. `viewer.moveToKey("<my-image-key>")`.
+     * bound to any particular id. Any image can then be navigated to
+     * with e.g. `viewer.moveToId("<my-image-id>")`.
      */
-    imageKey?: string;
+    imageId?: string;
 
     /**
      * The max size of an image shown in the viewer

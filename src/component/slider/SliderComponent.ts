@@ -58,7 +58,7 @@ import { RegionOfInterestCalculator } from "../../tiles/RegionOfInterestCalculat
 import { TextureProvider } from "../../tiles/TextureProvider";
 import { Settings } from "../../utils/Settings";
 import { Component } from "../Component";
-import { SliderConfiguration, SliderConfigurationKeys, SliderConfigurationMode } from "../interfaces/SliderConfiguration";
+import { SliderConfiguration, SliderConfigurationIds, SliderConfigurationMode } from "../interfaces/SliderConfiguration";
 import { SliderGLRenderer } from "./SliderGLRenderer";
 import { Transform } from "../../geo/Transform";
 import { ImageSize } from "../../viewer/ImageSize";
@@ -201,16 +201,16 @@ export class SliderComponent extends Component<SliderConfiguration> {
     }
 
     /**
-     * Set the image keys.
+     * Set the image idss.
      *
      * @description Configures the component to show the image
-     * planes for the supplied image keys.
+     * planes for the supplied image idss.
      *
-     * @param {SliderConfigurationKeys} keys - Slider keys object specifying
+     * @param {SliderConfigurationIds} keys - Slider keys object specifying
      * the images to be shown in the foreground and the background.
      */
-    public setKeys(keys: SliderConfigurationKeys): void {
-        this.configure({ keys: keys });
+    public setKeys(keys: SliderConfigurationIds): void {
+        this.configure({ ids: keys });
     }
 
     /**
@@ -414,14 +414,14 @@ export class SliderComponent extends Component<SliderConfiguration> {
         this._setKeysSubscription = this._configuration$.pipe(
             filter(
                 (configuration: SliderConfiguration): boolean => {
-                    return configuration.keys != null;
+                    return configuration.ids != null;
                 }),
             switchMap(
                 (configuration: SliderConfiguration): Observable<SliderCombination> => {
                     return observableZip(
                         observableZip(
-                            this._catchCacheNode$(configuration.keys.background),
-                            this._catchCacheNode$(configuration.keys.foreground)).pipe(
+                            this._catchCacheNode$(configuration.ids.background),
+                            this._catchCacheNode$(configuration.ids.foreground)).pipe(
                                 map(
                                     (nodes: [Node, Node]): SliderNodes => {
                                         return { background: nodes[0], foreground: nodes[1] };
@@ -497,7 +497,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
             map(
                 (provider: TextureProvider): GLRendererOperation => {
                     return (renderer: SliderGLRenderer): SliderGLRenderer => {
-                        renderer.setTextureProvider(provider.key, provider);
+                        renderer.setTextureProvider(provider.id, provider);
 
                         return renderer;
                     };
@@ -675,7 +675,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
             withLatestFrom(textureProvider$))
             .subscribe(
                 (args: [[HTMLImageElement, Node], TextureProvider]): void => {
-                    if (args[0][1].id !== args[1].key ||
+                    if (args[0][1].id !== args[1].id ||
                         args[1].disposed) {
                         return;
                     }
@@ -735,7 +735,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
             map(
                 (provider: TextureProvider): GLRendererOperation => {
                     return (renderer: SliderGLRenderer): SliderGLRenderer => {
-                        renderer.setTextureProviderPrev(provider.key, provider);
+                        renderer.setTextureProviderPrev(provider.id, provider);
 
                         return renderer;
                     };
@@ -1033,7 +1033,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
             withLatestFrom(textureProviderPrev$))
             .subscribe(
                 (args: [[HTMLImageElement, Node], TextureProvider]): void => {
-                    if (args[0][1].id !== args[1].key ||
+                    if (args[0][1].id !== args[1].id ||
                         args[1].disposed) {
                         return;
                     }
@@ -1094,7 +1094,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
         this._updateBackgroundSubscriptionPrev.unsubscribe();
         this._updateTextureImageSubscriptionPrev.unsubscribe();
 
-        this.configure({ keys: null });
+        this.configure({ ids: null });
     }
 
     protected _getDefaultConfiguration(): SliderConfiguration {

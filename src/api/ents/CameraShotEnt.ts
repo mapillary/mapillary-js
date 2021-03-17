@@ -6,7 +6,7 @@
  */
 export interface CameraShotEnt {
     /**
-     * Key of the camera for the shot.
+     * Id of the camera for the shot.
      */
     camera: string;
 

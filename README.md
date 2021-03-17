@@ -29,7 +29,7 @@ You can use MapillaryJS as a `<script>` tag from a [CDN](https://unpkg.com/brows
         var mly = new Mapillary.Viewer({
             apiClient: '<your client id>',
             container: 'mly',
-            imageKey: '<your image key for initializing the viewer>',
+            imageId: '<your image id for initializing the viewer>',
         });
     </script>
 </body>

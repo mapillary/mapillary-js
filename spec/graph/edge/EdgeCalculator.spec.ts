@@ -78,7 +78,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.distance).toBeCloseTo(10, precision);
         expect(potentialEdge.motionChange).toBeCloseTo(0, precision);
         expect(potentialEdge.verticalMotion).toBeCloseTo(0, precision);
@@ -129,7 +129,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.distance).toBeCloseTo(5, precision);
     });
 
@@ -153,7 +153,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.motionChange).toBeCloseTo(Math.PI / 4, precision);
     });
 
@@ -177,7 +177,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.motionChange).toBeCloseTo(-Math.PI / 4, precision);
     });
 
@@ -201,7 +201,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(Math.abs(potentialEdge.motionChange)).toBeCloseTo(Math.PI, precision);
     });
 
@@ -225,7 +225,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.verticalMotion).toBeCloseTo(Math.PI / 4, precision);
     });
 
@@ -249,7 +249,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.verticalMotion).toBeCloseTo(-Math.PI / 4, precision);
     });
 
@@ -273,7 +273,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.directionChange).toBeCloseTo(Math.PI / 2, precision);
     });
 
@@ -297,7 +297,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.directionChange).toBeCloseTo(-Math.PI / 2, precision);
     });
 
@@ -321,7 +321,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(Math.abs(potentialEdge.directionChange)).toBeCloseTo(Math.PI, precision);
     });
 
@@ -345,7 +345,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.verticalDirectionChange).toBeCloseTo(Math.PI / 4, precision);
     });
 
@@ -369,7 +369,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.verticalDirectionChange).toBeCloseTo(-Math.PI / 6, precision);
     });
 
@@ -393,7 +393,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.rotation).toBeCloseTo(Math.PI / 2, precision);
     });
 
@@ -422,7 +422,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.rotation).toBeCloseTo(theta, precision);
     });
 
@@ -449,7 +449,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(0, precision);
     });
 
@@ -476,7 +476,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(Math.PI / 2, precision);
     });
 
@@ -503,7 +503,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(Math.abs(potentialEdge.worldMotionAzimuth)).toBeCloseTo(Math.PI, precision);
     });
 
@@ -530,7 +530,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(-Math.PI / 2, precision);
     });
 
@@ -557,7 +557,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.worldMotionAzimuth).toBeCloseTo(Math.PI / 4, precision);
     });
 
@@ -581,7 +581,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.sameSequence).toBe(true);
     });
 
@@ -606,7 +606,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.sameSequence).toBe(false);
     });
 
@@ -632,7 +632,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.sameMergeCC).toBe(true);
     });
 
@@ -659,7 +659,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.sameMergeCC).toBe(false);
     });
 
@@ -683,7 +683,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.sameMergeCC).toBe(true);
     });
 
@@ -707,7 +707,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.sameMergeCC).toBe(false);
     });
 
@@ -731,7 +731,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let potentialEdge: PotentialEdge = potentialEdges[0];
 
-        expect(potentialEdge.key).toBe(edgeKey);
+        expect(potentialEdge.id).toBe(edgeKey);
         expect(potentialEdge.spherical).toBe(true);
     });
 });

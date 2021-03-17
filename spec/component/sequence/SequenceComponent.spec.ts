@@ -444,7 +444,7 @@ describe("SequenceComponent.activate", () => {
         (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
         (<jasmine.Spy>navigatorMock.graphService.cacheNode$).and.returnValue(new Subject<Node>());
 
-        (<jasmine.Spy>navigatorMock.moveToKey$).and.returnValue(new Subject<Node>());
+        (<jasmine.Spy>navigatorMock.moveTo$).and.returnValue(new Subject<Node>());
 
         const changedSubject$: Subject<SequenceDOMRenderer> = new Subject<SequenceDOMRenderer>();
         mockCreator.mockProperty(renderer, "changed$", changedSubject$);
@@ -494,7 +494,7 @@ describe("SequenceComponent.activate", () => {
         (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
         (<jasmine.Spy>navigatorMock.graphService.cacheNode$).and.returnValue(new Subject<Node>());
 
-        (<jasmine.Spy>navigatorMock.moveToKey$).and.returnValue(new Subject<Node>());
+        (<jasmine.Spy>navigatorMock.moveTo$).and.returnValue(new Subject<Node>());
 
         const changedSubject$: Subject<SequenceDOMRenderer> = new Subject<SequenceDOMRenderer>();
         mockCreator.mockProperty(renderer, "changed$", changedSubject$);
@@ -577,7 +577,7 @@ describe("SequenceComponent.activate", () => {
         (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
         (<jasmine.Spy>navigatorMock.graphService.cacheNode$).and.returnValue(new Subject<Node>());
 
-        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigatorMock.moveToKey$;
+        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigatorMock.moveTo$;
         moveToKeySpy.and.returnValue(new Subject<Node>());
 
         const indexSubject$: Subject<number> = new Subject<number>();
@@ -622,7 +622,7 @@ describe("SequenceComponent.activate", () => {
         (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
         (<jasmine.Spy>navigatorMock.graphService.cacheNode$).and.returnValue(new Subject<Node>());
 
-        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigatorMock.moveToKey$;
+        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigatorMock.moveTo$;
         moveToKeySpy.and.returnValue(new Subject<Node>());
 
         const indexSubject$: Subject<number> = new Subject<number>();
@@ -668,7 +668,7 @@ describe("SequenceComponent.activate", () => {
         (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
         (<jasmine.Spy>navigatorMock.graphService.cacheNode$).and.returnValue(new Subject<Node>());
 
-        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigatorMock.moveToKey$;
+        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigatorMock.moveTo$;
         moveToKeySpy.and.returnValue(new Subject<Node>());
 
         const indexSubject$: Subject<number> = new Subject<number>();
@@ -713,7 +713,7 @@ describe("SequenceComponent.activate", () => {
         (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
         (<jasmine.Spy>navigatorMock.graphService.cacheNode$).and.returnValue(new Subject<Node>());
 
-        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigatorMock.moveToKey$;
+        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigatorMock.moveTo$;
         moveToKeySpy.and.returnValue(new Subject<Node>());
 
         const indexSubject$: Subject<number> = new Subject<number>();
@@ -767,7 +767,7 @@ describe("SequenceComponent.activate", () => {
         (<jasmine.Spy>navigatorMock.graphService.cacheSequenceNodes$).and.returnValue(new Subject<Sequence>());
         (<jasmine.Spy>navigatorMock.graphService.cacheNode$).and.returnValue(new Subject<Node>());
 
-        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigatorMock.moveToKey$;
+        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigatorMock.moveTo$;
         moveToKeySpy.and.returnValue(new Subject<Node>());
 
         const indexSubject$: Subject<number> = new Subject<number>();

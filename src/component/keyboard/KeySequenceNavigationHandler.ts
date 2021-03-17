@@ -65,7 +65,7 @@ export class KeySequenceNavigationHandler extends HandlerBase<KeyboardConfigurat
 
                     for (const edge of edgeStatus.edges) {
                         if (edge.data.direction === direction) {
-                            this._navigator.moveToKey$(edge.target)
+                            this._navigator.moveTo$(edge.target)
                                 .subscribe(
                                     undefined,
                                     (error: Error): void => {

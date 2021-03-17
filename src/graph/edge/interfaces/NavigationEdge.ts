@@ -9,12 +9,12 @@ import { NavigationEdgeData } from "./NavigationEdgeData";
  */
 export interface NavigationEdge {
     /**
-     * The key of the source node.
+     * The id of the source node.
      */
     source: string;
 
     /**
-     * The key of the target node.
+     * The id of the target node.
      */
     target: string;
 

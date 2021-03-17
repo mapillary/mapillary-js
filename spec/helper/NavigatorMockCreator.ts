@@ -20,7 +20,7 @@ export class NavigatorMockCreator extends MockCreatorBase<Navigator> {
         this._mockProperty(mock, "cacheService", new MockCreator().create(CacheService, "CacheService"));
         this._mockProperty(mock, "graphService", new GraphServiceMockCreator().create());
         this._mockProperty(mock, "loadingService", new LoadingServiceMockCreator().create());
-        this._mockProperty(mock, "movedToKey$", new Subject<string>());
+        this._mockProperty(mock, "movedToId$", new Subject<string>());
         this._mockProperty(mock, "panService", new PanServiceMockCreator().create());
         this._mockProperty(mock, "playService", new PlayServiceMockCreator().create());
         this._mockProperty(mock, "stateService", new StateServiceMockCreator().create());

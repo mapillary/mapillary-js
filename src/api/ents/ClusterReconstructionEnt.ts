@@ -5,14 +5,14 @@ import { PointEnt } from "./PointEnt";
 
 export interface ClusterReconstructionEnt {
     /**
-     * The unique key of the reconstruction.
+     * The unique id of the reconstruction.
      */
-    key: string;
+    id: string;
 
     /**
      * The cameras of the reconstruction.
      */
-    cameras: { [key: string]: CameraEnt };
+    cameras: { [id: string]: CameraEnt };
 
     /**
      * The points of the reconstruction.
@@ -30,5 +30,5 @@ export interface ClusterReconstructionEnt {
     /**
      * The shots of the reconstruction.
      */
-    shots: { [key: string]: CameraShotEnt };
+    shots: { [id: string]: CameraShotEnt };
 }

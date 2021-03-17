@@ -186,12 +186,12 @@ export class GraphService {
      * retrieved. The sequence and spatial edges may be set before
      * or after the node is returned.
      *
-     * @param {string} key - Key of the node to cache.
+     * @param {string} id - Id of the node to cache.
      * @return {Observable<Node>} Observable emitting a single item,
      * the node, when it has been retrieved and its assets are cached.
      * @throws {Error} Propagates any IO node caching errors to the caller.
      */
-    public cacheNode$(key: string): Observable<Node> {
+    public cacheNode$(id: string): Observable<Node> {
         const firstGraphSubject$: Subject<Graph> = new Subject<Graph>();
 
         this._firstGraphSubjects$.push(firstGraphSubject$);
@@ -203,7 +203,7 @@ export class GraphService {
         const node$: Observable<Node> = firstGraph$.pipe(
             map(
                 (graph: Graph): Node => {
-                    return graph.getNode(key);
+                    return graph.getNode(id);
                 }),
             mergeMap(
                 (node: Node): Observable<Node> => {
@@ -217,7 +217,7 @@ export class GraphService {
         node$.subscribe(
             undefined,
             (error: Error): void => {
-                console.error(`Failed to cache node (${key})`, error);
+                console.error(`Failed to cache node (${id})`, error);
             });
 
         let initializeCacheSubscription: Subscription;
@@ -225,20 +225,20 @@ export class GraphService {
             first(),
             mergeMap(
                 (graph: Graph): Observable<Graph> => {
-                    if (graph.isCachingFull(key) || !graph.hasNode(key)) {
-                        return graph.cacheFull$(key);
+                    if (graph.isCachingFull(id) || !graph.hasNode(id)) {
+                        return graph.cacheFull$(id);
                     }
 
-                    if (graph.isCachingFill(key) || !graph.getNode(key).full) {
-                        return graph.cacheFill$(key);
+                    if (graph.isCachingFill(id) || !graph.getNode(id).full) {
+                        return graph.cacheFill$(id);
                     }
 
                     return observableOf<Graph>(graph);
                 }),
             tap(
                 (graph: Graph): void => {
-                    if (!graph.hasInitializedCache(key)) {
-                        graph.initializeCache(key);
+                    if (!graph.hasInitializedCache(id)) {
+                        graph.initializeCache(id);
                     }
                 }),
             finalize(
@@ -266,8 +266,8 @@ export class GraphService {
         const graphSequence$: Observable<Graph> = firstGraph$.pipe(
             mergeMap(
                 (graph: Graph): Observable<Graph> => {
-                    if (graph.isCachingNodeSequence(key) || !graph.hasNodeSequence(key)) {
-                        return graph.cacheNodeSequence$(key);
+                    if (graph.isCachingNodeSequence(id) || !graph.hasNodeSequence(id)) {
+                        return graph.cacheNodeSequence$(id);
                     }
 
                     return observableOf<Graph>(graph);
@@ -279,8 +279,8 @@ export class GraphService {
         sequenceSubscription = graphSequence$.pipe(
             tap(
                 (graph: Graph): void => {
-                    if (!graph.getNode(key).sequenceEdges.cached) {
-                        graph.cacheSequenceEdges(key);
+                    if (!graph.getNode(id).sequenceEdges.cached) {
+                        graph.cacheSequenceEdges(id);
                     }
                 }),
             finalize(
@@ -294,7 +294,7 @@ export class GraphService {
             .subscribe(
                 (): void => { return; },
                 (error: Error): void => {
-                    console.error(`Failed to cache sequence edges (${key}).`, error);
+                    console.error(`Failed to cache sequence edges (${id}).`, error);
                 });
 
         if (!sequenceSubscription.closed) {
@@ -306,17 +306,17 @@ export class GraphService {
             spatialSubscription = firstGraph$.pipe(
                 expand(
                     (graph: Graph): Observable<Graph> => {
-                        if (graph.hasTiles(key)) {
+                        if (graph.hasTiles(id)) {
                             return observableEmpty();
                         }
 
-                        return observableFrom(graph.cacheTiles$(key)).pipe(
+                        return observableFrom(graph.cacheTiles$(id)).pipe(
                             mergeMap(
                                 (graph$: Observable<Graph>): Observable<Graph> => {
                                     return graph$.pipe(
                                         mergeMap(
                                             (g: Graph): Observable<Graph> => {
-                                                if (g.isCachingTiles(key)) {
+                                                if (g.isCachingTiles(id)) {
                                                     return observableEmpty();
                                                 }
 
@@ -324,7 +324,7 @@ export class GraphService {
                                             }),
                                         catchError(
                                             (error: Error): Observable<Graph> => {
-                                                console.error(`Failed to cache tile data (${key}).`, error);
+                                                console.error(`Failed to cache tile data (${id}).`, error);
 
                                                 return observableEmpty();
                                             }));
@@ -333,17 +333,17 @@ export class GraphService {
                 last(),
                 mergeMap(
                     (graph: Graph): Observable<Graph> => {
-                        if (graph.hasSpatialArea(key)) {
+                        if (graph.hasSpatialArea(id)) {
                             return observableOf<Graph>(graph);
                         }
 
-                        return observableFrom(graph.cacheSpatialArea$(key)).pipe(
+                        return observableFrom(graph.cacheSpatialArea$(id)).pipe(
                             mergeMap(
                                 (graph$: Observable<Graph>): Observable<Graph> => {
                                     return graph$.pipe(
                                         catchError(
                                             (error: Error): Observable<Graph> => {
-                                                console.error(`Failed to cache spatial nodes (${key}).`, error);
+                                                console.error(`Failed to cache spatial nodes (${id}).`, error);
 
                                                 return observableEmpty();
                                             }));
@@ -352,14 +352,14 @@ export class GraphService {
                 last(),
                 mergeMap(
                     (graph: Graph): Observable<Graph> => {
-                        return graph.hasNodeSequence(key) ?
+                        return graph.hasNodeSequence(id) ?
                             observableOf<Graph>(graph) :
-                            graph.cacheNodeSequence$(key);
+                            graph.cacheNodeSequence$(id);
                     }),
                 tap(
                     (graph: Graph): void => {
-                        if (!graph.getNode(key).spatialEdges.cached) {
-                            graph.cacheSpatialEdges(key);
+                        if (!graph.getNode(id).spatialEdges.cached) {
+                            graph.cacheSpatialEdges(id);
                         }
                     }),
                 finalize(
@@ -373,7 +373,7 @@ export class GraphService {
                 .subscribe(
                     (): void => { return; },
                     (error: Error): void => {
-                        console.error(`Failed to cache spatial edges (${key}).`, error);
+                        console.error(`Failed to cache spatial edges (${id}).`, error);
                     });
 
             if (!spatialSubscription.closed) {
@@ -391,25 +391,25 @@ export class GraphService {
     /**
      * Cache a sequence in the graph and retrieve it.
      *
-     * @param {string} sequenceKey - Sequence key.
+     * @param {string} sequenceId - Sequence id.
      * @returns {Observable<Sequence>} Observable emitting a single item,
      * the sequence, when it has been retrieved and its assets are cached.
      * @throws {Error} Propagates any IO node caching errors to the caller.
      */
-    public cacheSequence$(sequenceKey: string): Observable<Sequence> {
+    public cacheSequence$(sequenceId: string): Observable<Sequence> {
         return this._graph$.pipe(
             first(),
             mergeMap(
                 (graph: Graph): Observable<Graph> => {
-                    if (graph.isCachingSequence(sequenceKey) || !graph.hasSequence(sequenceKey)) {
-                        return graph.cacheSequence$(sequenceKey);
+                    if (graph.isCachingSequence(sequenceId) || !graph.hasSequence(sequenceId)) {
+                        return graph.cacheSequence$(sequenceId);
                     }
 
                     return observableOf<Graph>(graph);
                 }),
             map(
                 (graph: Graph): Sequence => {
-                    return graph.getSequence(sequenceKey);
+                    return graph.getSequence(sequenceId);
                 }));
     }
 
@@ -420,36 +420,36 @@ export class GraphService {
      * retrieves all nodes belonging to the sequence. The node assets
      * or edges will not be cached.
      *
-     * @param {string} sequenceKey - Sequence key.
-     * @param {string} referenceNodeKey - Key of node to use as reference
+     * @param {string} sequenceId - Sequence id.
+     * @param {string} referenceNodeId - Id of node to use as reference
      * for optimized caching.
      * @returns {Observable<Sequence>} Observable emitting a single item,
      * the sequence, when it has been retrieved, its assets are cached and
      * all nodes belonging to the sequence has been retrieved.
      * @throws {Error} Propagates any IO node caching errors to the caller.
      */
-    public cacheSequenceNodes$(sequenceKey: string, referenceNodeKey?: string): Observable<Sequence> {
+    public cacheSequenceNodes$(sequenceId: string, referenceNodeId?: string): Observable<Sequence> {
         return this._graph$.pipe(
             first(),
             mergeMap(
                 (graph: Graph): Observable<Graph> => {
-                    if (graph.isCachingSequence(sequenceKey) || !graph.hasSequence(sequenceKey)) {
-                        return graph.cacheSequence$(sequenceKey);
+                    if (graph.isCachingSequence(sequenceId) || !graph.hasSequence(sequenceId)) {
+                        return graph.cacheSequence$(sequenceId);
                     }
 
                     return observableOf<Graph>(graph);
                 }),
             mergeMap(
                 (graph: Graph): Observable<Graph> => {
-                    if (graph.isCachingSequenceNodes(sequenceKey) || !graph.hasSequenceNodes(sequenceKey)) {
-                        return graph.cacheSequenceNodes$(sequenceKey, referenceNodeKey);
+                    if (graph.isCachingSequenceNodes(sequenceId) || !graph.hasSequenceNodes(sequenceId)) {
+                        return graph.cacheSequenceNodes$(sequenceId, referenceNodeId);
                     }
 
                     return observableOf<Graph>(graph);
                 }),
             map(
                 (graph: Graph): Sequence => {
-                    return graph.getSequence(sequenceKey);
+                    return graph.getSequence(sequenceId);
                 }));
     }
 
@@ -518,13 +518,13 @@ export class GraphService {
      * Reset the graph.
      *
      * @description Resets the graph but keeps the nodes of the
-     * supplied keys.
+     * supplied ids.
      *
-     * @param {Array<string>} keepKeys - Keys of nodes to keep in graph.
+     * @param {Array<string>} keepIds - Ids of nodes to keep in graph.
      * @return {Observable<Node>} Observable emitting a single item,
      * the graph, when it has been reset.
      */
-    public reset$(keepKeys: string[]): Observable<void> {
+    public reset$(keepIds: string[]): Observable<void> {
         this._abortSubjects(this._firstGraphSubjects$);
         this._resetSubscriptions(this._initializeCacheSubscriptions);
         this._resetSubscriptions(this._sequenceSubscriptions);
@@ -534,7 +534,7 @@ export class GraphService {
             first(),
             tap(
                 (graph: Graph): void => {
-                    graph.reset(keepKeys);
+                    graph.reset(keepIds);
                 }),
             map(
                 (): void => {
@@ -546,23 +546,23 @@ export class GraphService {
      * Uncache the graph.
      *
      * @description Uncaches the graph by removing tiles, nodes and
-     * sequences. Keeps the nodes of the supplied keys and the tiles
+     * sequences. Keeps the nodes of the supplied ids and the tiles
      * related to those nodes.
      *
-     * @param {Array<string>} keepKeys - Keys of nodes to keep in graph.
-     * @param {string} keepSequenceKey - Optional key of sequence
+     * @param {Array<string>} keepIds - Ids of nodes to keep in graph.
+     * @param {string} keepSequenceId - Optional id of sequence
      * for which the belonging nodes should not be disposed or
      * removed from the graph. These nodes may still be uncached if
-     * not specified in keep keys param.
+     * not specified in keep ids param.
      * @return {Observable<Graph>} Observable emitting a single item,
      * the graph, when the graph has been uncached.
      */
-    public uncache$(keepKeys: string[], keepSequenceKey?: string): Observable<void> {
+    public uncache$(keepIds: string[], keepSequenceId?: string): Observable<void> {
         return this._graph$.pipe(
             first(),
             tap(
                 (graph: Graph): void => {
-                    graph.uncache(keepKeys, keepSequenceKey);
+                    graph.uncache(keepIds, keepSequenceId);
                 }),
             map(
                 (): void => {

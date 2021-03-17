@@ -47,7 +47,7 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
         return {};
     }
 
-    private _getAttributionNode(username: string, key: string, capturedAt: number, width: number): vd.VNode {
+    private _getAttributionNode(username: string, id: string, capturedAt: number, width: number): vd.VNode {
         const compact: boolean = width <= 640;
 
         const mapillaryIcon: vd.VNode = vd.h("div.AttributionMapillaryLogo", []);
@@ -71,7 +71,7 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
         const imageLink: vd.VNode =
             vd.h(
                 "a.mapillary-attribution-image-container",
-                { href: Urls.exploreImage(key), target: "_blank" },
+                { href: Urls.exploreImage(id), target: "_blank" },
                 [imageByContent, dateContent]);
 
         const compactClass: string = compact ? ".mapillary-attribution-compact" : "";

@@ -43,7 +43,7 @@ export class TextureProvider {
 
     private _disposed: boolean;
     private _height: number;
-    private _key: string;
+    private _id: string;
     private _tileSize: number;
     private _maxLevel: number;
     private _currentLevel: number;
@@ -54,7 +54,7 @@ export class TextureProvider {
     /**
      * Create a new node texture provider instance.
      *
-     * @param {string} key - The identifier of the image for which to request tiles.
+     * @param {string} id - The identifier of the image for which to request tiles.
      * @param {number} width - The full width of the original image.
      * @param {number} height - The full height of the original image.
      * @param {number} tileSize - The size used when requesting tiles.
@@ -64,7 +64,7 @@ export class TextureProvider {
      * @param {THREE.WebGLRenderer} renderer - Renderer used for rendering tiles to texture.
      */
     constructor(
-        key: string,
+        id: string,
         width: number,
         height: number,
         tileSize: number,
@@ -75,10 +75,10 @@ export class TextureProvider {
 
         this._disposed = false;
 
-        this._key = key;
+        this._id = id;
 
         if (width <= 0 || height <= 0) {
-            console.warn(`Original image size (${width}, ${height}) is invalid (${key}). Tiles will not be loaded.`);
+            console.warn(`Original image size (${width}, ${height}) is invalid (${id}). Tiles will not be loaded.`);
         }
 
         this._width = width;
@@ -139,13 +139,13 @@ export class TextureProvider {
     }
 
     /**
-     * Get key.
+     * Get id.
      *
      * @returns {boolean} The identifier of the image for
      * which to render textures.
      */
-    public get key(): string {
-        return this._key;
+    public get id(): string {
+        return this._id;
     }
 
     /**
@@ -197,7 +197,7 @@ export class TextureProvider {
      */
     public dispose(): void {
         if (this._disposed) {
-            console.warn(`Texture already disposed (${this._key})`);
+            console.warn(`Texture already disposed (${this._id})`);
             return;
         }
 
@@ -343,7 +343,7 @@ export class TextureProvider {
         scaledY: number): void {
 
         let getTile: [Observable<HTMLImageElement>, Function] =
-            this._imageTileLoader.getTile(this._key, x, y, w, h, scaledX, scaledY);
+            this._imageTileLoader.getTile(this._id, x, y, w, h, scaledX, scaledY);
 
         let tile$: Observable<HTMLImageElement> = getTile[0];
         let abort: Function = getTile[1];

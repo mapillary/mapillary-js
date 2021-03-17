@@ -42,25 +42,25 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
     public static componentName: string = "direction";
 
     /**
-     * Event fired when the hovered key changes.
+     * Event fired when the hovered id changes.
      *
-     * @description Emits the key of the node for the direction
+     * @description Emits the id of the node for the direction
      * arrow that is being hovered. When the mouse leaves a
      * direction arrow null is emitted.
      *
-     * @event DirectionComponent#hoveredkeychanged
-     * @type {string} The hovered key, null if no key is hovered.
+     * @event DirectionComponent#hoveredidchanged
+     * @type {string} The hovered id, null if no id is hovered.
      */
-    public static hoveredkeychanged: string = "hoveredkeychanged";
+    public static hoveredidchanged: string = "hoveredidchanged";
 
     private _renderer: DirectionDOMRenderer;
 
-    private _hoveredKeySubject$: Subject<string>;
-    private _hoveredKey$: Observable<string>;
+    private _hoveredIdSubject$: Subject<string>;
+    private _hoveredId$: Observable<string>;
 
     private _configurationSubscription: Subscription;
-    private _emitHoveredKeySubscription: Subscription;
-    private _hoveredKeySubscription: Subscription;
+    private _emitHoveredIdSubscription: Subscription;
+    private _hoveredIdSubscription: Subscription;
     private _nodeSubscription: Subscription;
     private _renderCameraSubscription: Subscription;
     private _resizeSubscription: Subscription;
@@ -74,35 +74,35 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
                 this.defaultConfiguration,
                 { height: container.container.offsetHeight, width: container.container.offsetWidth });
 
-        this._hoveredKeySubject$ = new Subject<string>();
+        this._hoveredIdSubject$ = new Subject<string>();
 
-        this._hoveredKey$ = this._hoveredKeySubject$.pipe(share());
+        this._hoveredId$ = this._hoveredIdSubject$.pipe(share());
     }
 
     /**
-     * Get hovered key observable.
+     * Get hovered id observable.
      *
-     * @description An observable emitting the key of the node for the direction
+     * @description An observable emitting the id of the node for the direction
      * arrow that is being hovered. When the mouse leaves a direction arrow null
      * is emitted.
      *
      * @returns {Observable<string>}
      */
-    public get hoveredKey$(): Observable<string> {
-        return this._hoveredKey$;
+    public get hoveredId$(): Observable<string> {
+        return this._hoveredId$;
     }
 
     /**
-     * Set highlight key.
+     * Set highlight id.
      *
      * @description The arrow pointing towards the node corresponding to the
-     * highlight key will be highlighted.
+     * highlight id will be highlighted.
      *
-     * @param {string} highlightKey Key of node to be highlighted if existing
+     * @param {string} highlightId id of node to be highlighted if existing
      * among arrows.
      */
-    public setHighlightKey(highlightKey: string): void {
-        this.configure({ highlightKey: highlightKey });
+    public setHighlightId(highlightId: string): void {
+        this.configure({ highlightId: highlightId });
     }
 
     /**
@@ -196,7 +196,7 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
                 }))
             .subscribe(this._container.domRenderer.render$);
 
-        this._hoveredKeySubscription = observableCombineLatest(
+        this._hoveredIdSubscription = observableCombineLatest(
             this._container.domRenderer.element$,
             this._container.renderService.renderCamera$,
             this._container.mouseService.mouseMove$.pipe(startWith(null)),
@@ -209,27 +209,27 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
                         for (let i: number = 0; i < elements.length; i++) {
                             let hovered: Element = elements.item(i).querySelector(":hover");
 
-                            if (hovered != null && hovered.hasAttribute("data-key")) {
-                                return hovered.getAttribute("data-key");
+                            if (hovered != null && hovered.hasAttribute("data-id")) {
+                                return hovered.getAttribute("data-id");
                             }
                         }
 
                         return null;
                     }),
                 distinctUntilChanged())
-            .subscribe(this._hoveredKeySubject$);
+            .subscribe(this._hoveredIdSubject$);
 
-        this._emitHoveredKeySubscription = this._hoveredKey$
+        this._emitHoveredIdSubscription = this._hoveredId$
             .subscribe(
-                (key: string): void => {
-                    this.fire(DirectionComponent.hoveredkeychanged, key);
+                (id: string): void => {
+                    this.fire(DirectionComponent.hoveredidchanged, id);
                 });
     }
 
     protected _deactivate(): void {
         this._configurationSubscription.unsubscribe();
-        this._emitHoveredKeySubscription.unsubscribe();
-        this._hoveredKeySubscription.unsubscribe();
+        this._emitHoveredIdSubscription.unsubscribe();
+        this._hoveredIdSubscription.unsubscribe();
         this._nodeSubscription.unsubscribe();
         this._renderCameraSubscription.unsubscribe();
         this._resizeSubscription.unsubscribe();

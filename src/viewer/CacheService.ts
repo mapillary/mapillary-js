@@ -110,10 +110,10 @@ export class CacheService {
             .subscribe(() => { /*noop*/ }));
 
         subs.push(this._graphService.dataAdded$.pipe(
-            withLatestFrom(this._stateService.currentKey$),
+            withLatestFrom(this._stateService.currentId$),
             switchMap(
-                ([_, imageKey]: [string, string]): Observable<Node> => {
-                    return this._graphService.cacheNode$(imageKey)
+                ([_, imageId]: [string, string]): Observable<Node> => {
+                    return this._graphService.cacheNode$(imageId)
                 }))
             .subscribe(() => { /*noop*/ }))
 

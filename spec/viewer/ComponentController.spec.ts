@@ -204,7 +204,7 @@ describe("ComponentController.navigable", () => {
             take(1))
             .subscribe(
                 (c: CoverConfiguration): void => {
-                    expect(c.key).toBe(key);
+                    expect(c.id).toBe(key);
                 });
 
         let navigableChangedCount: number = 0;
@@ -214,7 +214,7 @@ describe("ComponentController.navigable", () => {
                 navigableChangedCount++;
             });
 
-        (<Subject<string>>navigator.movedToKey$).next(key);
+        (<Subject<string>>navigator.movedToId$).next(key);
 
         expect(componentController.navigable).toBe(true);
         expect(navigableChangedCount).toBe(0);
@@ -233,7 +233,7 @@ describe("ComponentController.navigable", () => {
         (<jasmine.Spy>container.mouseService.filtered$).and.returnValue(new Subject<MouseEvent>());
         (<jasmine.Spy>container.mouseService.filteredWheel$).and.returnValue(new Subject<MouseEvent>());
         const moveToKey$: Subject<Node> = new Subject<Node>();
-        (<jasmine.Spy>navigator.moveToKey$).and.returnValue(moveToKey$);
+        (<jasmine.Spy>navigator.moveTo$).and.returnValue(moveToKey$);
 
         const key: string = "key";
         const componentController: ComponentController =
@@ -259,7 +259,7 @@ describe("ComponentController.navigable", () => {
             .subscribe(
                 (c: CoverConfiguration): void => {
                     configurationCount++;
-                    expect(c.key).toBe(key);
+                    expect(c.id).toBe(key);
                 });
 
         let navigableChangedCount: number = 0;
@@ -270,7 +270,7 @@ describe("ComponentController.navigable", () => {
                 expect(navigable).toBe(true);
             });
 
-        (<Subject<string>>navigator.stateService.currentKey$).next(null);
+        (<Subject<string>>navigator.stateService.currentId$).next(null);
         moveToKey$.next(new NodeMockCreator().create({ key: "key" }));
 
         expect(componentController.navigable).toBe(true);
@@ -292,7 +292,7 @@ describe("ComponentController.navigable", () => {
 
         (<jasmine.Spy>container.mouseService.filtered$).and.returnValue(new Subject<MouseEvent>());
         const moveToKey$: Subject<Node> = new Subject<Node>();
-        (<jasmine.Spy>navigator.moveToKey$).and.returnValue(moveToKey$);
+        (<jasmine.Spy>navigator.moveTo$).and.returnValue(moveToKey$);
 
         const key: string = "key";
         const componentController: ComponentController =
@@ -314,7 +314,7 @@ describe("ComponentController.navigable", () => {
                 navigableChangedCount++;
             });
 
-        (<Subject<string>>navigator.stateService.currentKey$).next(null);
+        (<Subject<string>>navigator.stateService.currentId$).next(null);
         moveToKey$.error(new Error("Move to key failed"));
 
         expect(componentController.navigable).toBe(false);
@@ -334,7 +334,7 @@ describe("ComponentController.navigable", () => {
         (<jasmine.Spy>container.mouseService.filtered$).and.returnValue(new Subject<MouseEvent>());
         (<jasmine.Spy>container.mouseService.filteredWheel$).and.returnValue(new Subject<MouseEvent>());
         const moveToKey$: Subject<Node> = new Subject<Node>();
-        (<jasmine.Spy>navigator.moveToKey$).and.returnValue(moveToKey$);
+        (<jasmine.Spy>navigator.moveTo$).and.returnValue(moveToKey$);
 
         const key: string = "key";
         const componentController: ComponentController =
@@ -346,7 +346,7 @@ describe("ComponentController.navigable", () => {
                 { cover: false },
                 componentService);
 
-        (<Subject<string>>navigator.stateService.currentKey$).next(null);
+        (<Subject<string>>navigator.stateService.currentId$).next(null);
         moveToKey$.next(new NodeMockCreator().create({ key: "key" }));
 
         expect(componentController.navigable).toBe(true);
@@ -380,7 +380,7 @@ describe("ComponentController.activateCover", () => {
         (<jasmine.Spy>container.mouseService.filtered$).and.returnValue(new Subject<MouseEvent>());
         (<jasmine.Spy>container.mouseService.filteredWheel$).and.returnValue(new Subject<MouseEvent>());
 
-        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigator.moveToKey$;
+        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigator.moveTo$;
         const moveToKey$: Subject<Node> = new Subject<Node>();
         moveToKeySpy.and.returnValue(moveToKey$);
 
@@ -396,13 +396,13 @@ describe("ComponentController.activateCover", () => {
 
         componentController.deactivateCover();
 
-        (<Subject<string>>navigator.stateService.currentKey$).next(null);
+        (<Subject<string>>navigator.stateService.currentId$).next(null);
 
         expect(moveToKeySpy.calls.count()).toBe(1);
 
         componentController.deactivateCover();
 
-        (<Subject<string>>navigator.stateService.currentKey$).next(null);
+        (<Subject<string>>navigator.stateService.currentId$).next(null);
 
         expect(moveToKeySpy.calls.count()).toBe(1);
     });
@@ -418,7 +418,7 @@ describe("ComponentController.activateCover", () => {
         (<jasmine.Spy>container.mouseService.filtered$).and.returnValue(new Subject<MouseEvent>());
         (<jasmine.Spy>container.mouseService.filteredWheel$).and.returnValue(new Subject<MouseEvent>());
 
-        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigator.moveToKey$;
+        const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigator.moveTo$;
         const moveToKey$: Subject<Node> = new Subject<Node>();
         moveToKeySpy.and.returnValue(moveToKey$);
 

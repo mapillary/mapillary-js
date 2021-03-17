@@ -173,7 +173,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         cache.cacheClusterReconstructions$(hash)
             .subscribe(
                 (r: ClusterReconstructionEnt): void => {
-                    expect(r.key).toBe(node.clusterId);
+                    expect(r.id).toBe(node.clusterId);
                     emitCount++;
                 },
                 undefined,
@@ -311,7 +311,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         expect(cache.isCachingClusterReconstructions(hash)).toBe(false);
         expect(cache.hasClusterReconstructions(hash)).toBe(true);
         expect(cache.getClusterReconstructions(hash).length).toBe(1);
-        expect(cache.getClusterReconstructions(hash)[0].key).toBe(node.clusterId);
+        expect(cache.getClusterReconstructions(hash)[0].id).toBe(node.clusterId);
     });
 });
 
@@ -405,7 +405,7 @@ describe("SpatialDataCache.updateReconstructions$", () => {
     const createCluster = (key: string): ClusterReconstructionEnt => {
         return {
             cameras: {},
-            key,
+            id: key,
             points: {},
             reference: { lat: 0, lon: 0, alt: 0 },
             shots: {},
@@ -516,7 +516,7 @@ describe("SpatialDataCache.updateReconstructions$", () => {
                     expect(cache.hasClusterReconstructions(cellId)).toBe(true);
                     const cs = cache.getClusterReconstructions(cellId);
                     expect(cs.length).toBe(1);
-                    expect(cs[0].key).toBe(node.clusterId);
+                    expect(cs[0].id).toBe(node.clusterId);
                     expect(clusterSpy.calls.count()).toBe(1);
                     done();
                 });

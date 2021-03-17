@@ -1636,8 +1636,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequenceNodes$(sequenceKey, referenceNodeKey).subscribe();
 
         expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
-        expect(graph.getSequence(sequenceKey).keys.length).toBe(400);
-        expect(graph.getSequence(sequenceKey).keys).toEqual(result[sequenceKey].image_ids);
+        expect(graph.getSequence(sequenceKey).imageIds.length).toBe(400);
+        expect(graph.getSequence(sequenceKey).imageIds).toEqual(result[sequenceKey].image_ids);
     });
 
     it("should create single batch when fewer than or equal to 50 nodes", () => {
@@ -2251,9 +2251,9 @@ describe("Graph.cacheSequence$", () => {
                     expect(g.hasSequence(sequenceKey)).toBe(true);
                     expect(g.isCachingSequence(sequenceKey)).toBe(false);
                     expect(g.getSequence(sequenceKey)).toBeDefined();
-                    expect(g.getSequence(sequenceKey).key).toBe(sequenceKey);
-                    expect(g.getSequence(sequenceKey).keys.length).toBe(1);
-                    expect(g.getSequence(sequenceKey).keys[0]).toBe(key);
+                    expect(g.getSequence(sequenceKey).id).toBe(sequenceKey);
+                    expect(g.getSequence(sequenceKey).imageIds.length).toBe(1);
+                    expect(g.getSequence(sequenceKey).imageIds[0]).toBe(key);
 
                     done();
                 });
@@ -3269,7 +3269,7 @@ describe("Graph.uncache", () => {
 
         expect(sequenceDisposeSpy.calls.count()).toBe(1);
 
-        expect(graph.hasSequence(sequence.key)).toBe(false);
+        expect(graph.hasSequence(sequence.id)).toBe(false);
     });
 
     it("should not uncache sequence if specified to keep", () => {
@@ -3308,7 +3308,7 @@ describe("Graph.uncache", () => {
 
         expect(sequenceDisposeSpy.calls.count()).toBe(0);
 
-        expect(graph.hasSequence(sequence.key)).toBe(true);
+        expect(graph.hasSequence(sequence.id)).toBe(true);
     });
 
     it("should not uncache sequence if number below threshold", () => {
@@ -3347,7 +3347,7 @@ describe("Graph.uncache", () => {
 
         expect(sequenceDisposeSpy.calls.count()).toBe(0);
 
-        expect(graph.hasSequence(sequence.key)).toBe(true);
+        expect(graph.hasSequence(sequence.id)).toBe(true);
     });
 
     it("should not uncache sequence accessed last", () => {
@@ -3411,10 +3411,10 @@ describe("Graph.uncache", () => {
         graph.uncache([]);
 
         expect(sequenceDisposeSpy1.calls.count()).toBe(1);
-        expect(graph.hasSequence(sequence1.key)).toBe(false);
+        expect(graph.hasSequence(sequence1.id)).toBe(false);
 
         expect(sequenceDisposeSpy2.calls.count()).toBe(0);
-        expect(graph.hasSequence(sequence2.key)).toBe(true);
+        expect(graph.hasSequence(sequence2.id)).toBe(true);
     });
 
     it("should uncache node by uncaching tile", () => {

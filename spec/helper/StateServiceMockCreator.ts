@@ -15,7 +15,7 @@ export class StateServiceMockCreator extends MockCreatorBase<StateService> {
         const mock: StateService = new MockCreator().create(StateService, "StateService");
 
         this._mockProperty(mock, "currentCamera$", new Subject<Node>());
-        this._mockProperty(mock, "currentKey$", new Subject<Node>());
+        this._mockProperty(mock, "currentId$", new Subject<Node>());
         this._mockProperty(mock, "currentNode$", new Subject<Node>());
         this._mockProperty(mock, "currentNodeExternal$", new Subject<Node>());
         this._mockProperty(mock, "currentState$", new Subject<AnimationFrame>());

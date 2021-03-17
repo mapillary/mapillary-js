@@ -55,7 +55,7 @@ export class StateService {
     private _currentNode$: Observable<Node>;
     private _currentNodeExternal$: Observable<Node>;
     private _currentCamera$: Observable<Camera>;
-    private _currentKey$: BehaviorSubject<string>;
+    private _currentId$: BehaviorSubject<string>;
     private _currentTransform$: Observable<Transform>;
     private _reference$: Observable<LatLonAltEnt>;
 
@@ -161,14 +161,14 @@ export class StateService {
         subs.push(nodeChanged$
             .subscribe(nodeChangedSubject$));
 
-        this._currentKey$ = new BehaviorSubject<string>(null);
+        this._currentId$ = new BehaviorSubject<string>(null);
 
         subs.push(nodeChangedSubject$.pipe(
             map(
                 (f: AnimationFrame): string => {
                     return f.state.currentNode.id;
                 }))
-            .subscribe(this._currentKey$));
+            .subscribe(this._currentId$));
 
         this._currentNode$ = nodeChangedSubject$.pipe(
             map(
@@ -342,8 +342,8 @@ export class StateService {
         return this._currentNode$;
     }
 
-    public get currentKey$(): Observable<string> {
-        return this._currentKey$;
+    public get currentId$(): Observable<string> {
+        return this._currentId$;
     }
 
     public get currentNodeExternal$(): Observable<Node> {
