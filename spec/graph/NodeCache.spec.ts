@@ -1,5 +1,5 @@
 import { first, skip } from "rxjs/operators";
-import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
+import { FalcorDataProvider } from "../../src/api/falcor/FalcorDataProvider";
 import { NavigationDirection } from "../../src/graph/edge/NavigationDirection";
 import { NavigationEdge } from "../../src/graph/edge/interfaces/NavigationEdge";
 import { NavigationEdgeStatus } from "../../src/graph/interfaces/NavigationEdgeStatus";

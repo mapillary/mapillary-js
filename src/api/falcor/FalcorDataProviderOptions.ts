@@ -1,4 +1,4 @@
-import { ModelCreator } from "../ModelCreator";
+import { ModelCreator } from "./ModelCreator";
 
 /**
  * Interface for the options that can be provided to

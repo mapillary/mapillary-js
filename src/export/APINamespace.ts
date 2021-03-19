@@ -1,6 +1,6 @@
 export { BufferFetcher } from "../api/BufferFetcher";
 export { DataProviderBase } from "../api/DataProviderBase";
-export { FalcorDataProvider } from "../api/FalcorDataProvider";
+export { FalcorDataProvider } from "../api/falcor/FalcorDataProvider";
 export { GeometryProviderBase } from "../api/GeometryProviderBase";
 export { GeohashGeometryProvider } from "../api/GeohashGeometryProvider";
 export { JsonInflator } from "../api/JsonInflator";
@@ -8,7 +8,7 @@ export { PbfMeshReader } from "../api/PbfMeshReader";
 export { S2GeometryProvider } from "../api/S2GeometryProvider";
 
 export { CellCorners } from "../api/interfaces/CellCorners";
-export { FalcorDataProviderOptions } from "../api/interfaces/FalcorDataProviderOptions";
+export { FalcorDataProviderOptions } from "../api/falcor/FalcorDataProviderOptions";
 
 export { CameraEnt } from "../api/ents/CameraEnt";
 export { CameraShotEnt } from "../api/ents/CameraShotEnt";

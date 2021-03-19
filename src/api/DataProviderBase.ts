@@ -1,12 +1,12 @@
 import { MapillaryError } from "../error/MapillaryError";
 import { EventEmitter } from "../utils/EventEmitter";
 import { ClusterReconstructionEnt } from "./ents/ClusterReconstructionEnt";
-import { CoreImageEnt } from "./ents/CoreImageEnt";
-import { SpatialImageEnt } from "./ents/SpatialImageEnt";
-import { ImageEnt } from "./ents/ImageEnt";
 import { MeshEnt } from "./ents/MeshEnt";
 import { GeometryProviderBase } from "./GeometryProviderBase";
-import { SequenceEnt } from "./ents/SequenceEnt";
+import { CoreImagesResult } from "./interfaces/CoreImagesResult";
+import { SpatialImagesResult } from "./interfaces/SpatialImagesResult";
+import { ImagesResult } from "./interfaces/ImagesResult";
+import { SequencesResult } from "./interfaces/SequencesResult";
 
 /**
  * @class DataProviderBase
@@ -58,8 +58,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * requested cell id.
      * @throws {Error} Rejects the promise on errors.
      */
-    public getCoreImages(cellId: string):
-        Promise<{ [cellId: string]: { [imageKey: string]: CoreImageEnt } }> {
+    public getCoreImages(cellId: string): Promise<CoreImagesResult> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
@@ -74,8 +73,9 @@ export abstract class DataProviderBase extends EventEmitter {
      * cluster reconstruction.
      * @throws {Error} Rejects the promise on errors.
      */
-    public getClusterReconstruction(url: string, abort?: Promise<void>):
-        Promise<ClusterReconstructionEnt> {
+    public getClusterReconstruction(
+        url: string,
+        abort?: Promise<void>): Promise<ClusterReconstructionEnt> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
@@ -88,8 +88,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * requested image keys.
      * @throws {Error} Rejects the promise on errors.
      */
-    public getFillImages(imageKeys: string[]):
-        Promise<{ [imageKey: string]: SpatialImageEnt }> {
+    public getFillImages(imageKeys: string[]): Promise<SpatialImagesResult> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
@@ -102,8 +101,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * requested image keys.
      * @throws {Error} Rejects the promise on errors.
      */
-    public getFullImages(imageKeys: string[]):
-        Promise<{ [imageKey: string]: ImageEnt }> {
+    public getFullImages(imageKeys: string[]): Promise<ImagesResult> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
@@ -117,8 +115,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * buffer containing the image.
      * @throws {Error} Rejects the promise on errors.
      */
-    public getImage(url: string, abort?: Promise<void>):
-        Promise<ArrayBuffer> {
+    public getImage(url: string, abort?: Promise<void>): Promise<ArrayBuffer> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
@@ -172,8 +169,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * requested image keys.
      * @throws {Error} Rejects the promise on errors.
      */
-    public getSequences(sequenceKeys: string[]):
-        Promise<{ [sequenceKey: string]: SequenceEnt }> {
+    public getSequences(sequenceKeys: string[]): Promise<SequencesResult> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 

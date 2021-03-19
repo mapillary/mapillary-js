@@ -25,7 +25,7 @@ import { ViewerOptions } from "./interfaces/ViewerOptions";
 
 import { APIWrapper } from "../api/APIWrapper";
 import { DataProviderBase } from "../api/DataProviderBase";
-import { FalcorDataProvider } from "../api/FalcorDataProvider";
+import { FalcorDataProvider } from "../api/falcor/FalcorDataProvider";
 import { AbortMapillaryError } from "../error/AbortMapillaryError";
 import { FilterExpression } from "../graph/FilterExpression";
 import { Graph } from "../graph/Graph";

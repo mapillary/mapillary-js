@@ -1,7 +1,7 @@
 import { Subject } from "rxjs";
 
 import { Node } from "../../../src/graph/Node";
-import { FalcorDataProvider } from "../../../src/api/FalcorDataProvider";
+import { FalcorDataProvider } from "../../../src/api/falcor/FalcorDataProvider";
 import { GeohashGeometryProvider } from "../../../src/api/GeohashGeometryProvider";
 import { ClusterReconstructionEnt } from "../../../src/api/ents/ClusterReconstructionEnt";
 import { SpatialDataCache } from "../../../src/component/spatialdata/SpatialDataCache";
