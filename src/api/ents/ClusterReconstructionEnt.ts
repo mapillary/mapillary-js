@@ -12,12 +12,12 @@ export interface ClusterReconstructionEnt {
     /**
      * The cameras of the reconstruction.
      */
-    cameras: { [id: string]: CameraEnt };
+    cameras: { [cameraId: string]: CameraEnt };
 
     /**
      * The points of the reconstruction.
      */
-    points: { [id: string]: PointEnt };
+    points: { [pointId: string]: PointEnt };
 
     /**
      * The reference latitude, longitue, altitude of
@@ -30,5 +30,5 @@ export interface ClusterReconstructionEnt {
     /**
      * The shots of the reconstruction.
      */
-    shots: { [id: string]: CameraShotEnt };
+    shots: { [imageId: string]: CameraShotEnt };
 }

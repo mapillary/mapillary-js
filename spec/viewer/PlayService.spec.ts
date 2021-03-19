@@ -14,7 +14,7 @@ import { StateServiceMockCreator } from "../helper/StateServiceMockCreator";
 import { FrameHelper } from "../helper/FrameHelper";
 import { Node } from "../../src/graph/Node";
 import { APIWrapper } from "../../src/api/APIWrapper";
-import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
+import { FalcorDataProvider } from "../../src/api/falcor/FalcorDataProvider";
 import { ImageEnt } from "../../src/api/ents/ImageEnt";
 import { Graph } from "../../src/graph/Graph";
 import { GraphMode } from "../../src/graph/GraphMode";

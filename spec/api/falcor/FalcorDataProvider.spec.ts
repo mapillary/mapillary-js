@@ -1,12 +1,12 @@
 import * as pako from "pako";
 import * as falcor from "falcor";
-import { FalcorDataProvider } from "../../src/api/FalcorDataProvider";
-import { ClusterReconstructionEnt } from "../../src/api/ents/ClusterReconstructionEnt";
-import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
-import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
-import { ModelCreator } from "../../src/api/ModelCreator";
-import { MapillaryError } from "../../src/error/MapillaryError";
-import { SequenceEnt } from "../../src/api/ents/SequenceEnt";
+import { FalcorDataProvider } from "../../../src/api/falcor/FalcorDataProvider";
+import { ClusterReconstructionEnt } from "../../../src/api/ents/ClusterReconstructionEnt";
+import { CoreImageEnt } from "../../../src/api/ents/CoreImageEnt";
+import { SpatialImageEnt } from "../../../src/api/ents/SpatialImageEnt";
+import { ModelCreator } from "../../../src/api/falcor/ModelCreator";
+import { MapillaryError } from "../../../src/error/MapillaryError";
+import { SequenceEnt } from "../../../src/api/ents/SequenceEnt";
 
 describe("FalcorDataProvider.ctor", () => {
     it("should create a data provider", () => {

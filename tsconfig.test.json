@@ -4,6 +4,6 @@
         "declaration": false,
         "module": "commonjs",
         "outDir": "build/cjs/",
-        "target": "ES5",
+        "target": "ES5"
     }
 }
