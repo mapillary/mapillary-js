@@ -4,6 +4,7 @@ import { Shaders } from "../shaders/Shaders";
 
 import { Transform } from "../../geo/Transform";
 import { Node } from "../../graph/Node";
+import { isFisheye, isSpherical } from "../../geo/Geo";
 
 
 
@@ -17,9 +18,9 @@ export class MeshFactory {
     }
 
     public createMesh(node: Node, transform: Transform): THREE.Mesh {
-        if (transform.cameraType === "equirectangular") {
+        if (isSpherical(transform.cameraType)) {
             return this._createImageSphere(node, transform);
-        } else if (transform.cameraType === "fisheye") {
+        } else if (isFisheye(transform.cameraType)) {
             return this._createImagePlaneFisheye(node, transform);
         } else {
             return this._createImagePlane(node, transform);
@@ -45,9 +46,9 @@ export class MeshFactory {
     }
 
     public createCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
-        if (transform.cameraType === "equirectangular") {
+        if (isSpherical(transform.cameraType)) {
             return this._createSphereCurtainMesh(node, transform);
-        } else if (transform.cameraType === "fisheye") {
+        } else if (isFisheye(transform.cameraType)) {
             return this._createCurtainMeshFisheye(node, transform);
         } else {
             return this._createCurtainMesh(node, transform);

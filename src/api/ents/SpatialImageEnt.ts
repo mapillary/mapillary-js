@@ -82,7 +82,7 @@ export interface SpatialImageEnt extends CameraEnt, URLImageEnt {
     private?: boolean;
 
     /**
-     * Image quality score.
+     * Image quality score on the interval [0, 1].
      */
     quality_score?: number;
 
