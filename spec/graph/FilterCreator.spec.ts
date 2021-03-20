@@ -84,7 +84,7 @@ describe("FilterCreator.createFilter", () => {
     it("should compare ==, null", () => {
         let creator: FilterCreator = new FilterCreator();
 
-        let filter: FilterFunction = creator.createFilter(["==", "userId", null]);
+        let filter = creator.createFilter(["==", "creatorId", null]);
 
         let node1: Node = new Node(helper.createCoreNode());
         let node2: Node = new Node(helper.createCoreNode());
@@ -96,10 +96,10 @@ describe("FilterCreator.createFilter", () => {
         let fillNode3: SpatialImageEnt = helper.createFillNode();
         let fillNode4: SpatialImageEnt = helper.createFillNode();
 
-        fillNode1.user.id = null;
-        fillNode2.user.id = "ukey";
-        fillNode3.user.id = "null";
-        fillNode4.user.id = undefined;
+        fillNode1.creator.id = null;
+        fillNode2.creator.id = "ukey";
+        fillNode3.creator.id = "null";
+        fillNode4.creator.id = undefined;
 
         node1.makeFull(fillNode1);
         node2.makeFull(fillNode2);
@@ -182,7 +182,7 @@ describe("FilterCreator.createFilter", () => {
     it("should compare !=, null", () => {
         let creator: FilterCreator = new FilterCreator();
 
-        let filter: FilterFunction = creator.createFilter(["!=", "userId", null]);
+        let filter = creator.createFilter(["!=", "creatorId", null]);
 
         let node1: Node = new Node(helper.createCoreNode());
         let node2: Node = new Node(helper.createCoreNode());
@@ -194,10 +194,10 @@ describe("FilterCreator.createFilter", () => {
         let fillNode3: SpatialImageEnt = helper.createFillNode();
         let fillNode4: SpatialImageEnt = helper.createFillNode();
 
-        fillNode1.user.id = null;
-        fillNode2.user.id = "ukey";
-        fillNode3.user.id = "null";
-        fillNode4.user.id = undefined;
+        fillNode1.creator.id = null;
+        fillNode2.creator.id = "ukey";
+        fillNode3.creator.id = "null";
+        fillNode4.creator.id = undefined;
 
         node1.makeFull(fillNode1);
         node2.makeFull(fillNode2);

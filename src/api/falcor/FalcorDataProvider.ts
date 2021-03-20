@@ -13,13 +13,13 @@ import { MapillaryError } from "../../error/MapillaryError";
 import { GeometryProviderBase } from "../GeometryProviderBase";
 import { FalcorDataProviderUrls } from "./FalcorDataProviderUrls";
 import { FalcorConverter } from "./FalcorConverter";
-import { FalcorClusterReconstructionEnt } from "./FalcorEnts";
 import {
+    FalcorClusterReconstructionContract,
     ImageByKey,
     ImagesByH,
     SequenceByKey,
     SpatialImageByKey,
-} from "./FalcorDataContracts";
+} from "./FalcorContracts";
 import { CoreImagesContract } from "../contracts/CoreImagesContract";
 import { SpatialImagesContract } from "../contracts/SpatialImagesContract";
 import { SequencesContract } from "../contracts/SequencesContract";
@@ -145,7 +145,7 @@ export class FalcorDataProvider extends DataProviderBase {
             .then(
                 (buffer: ArrayBuffer): ClusterReconstructionContract => {
                     const reconstructions =
-                        <FalcorClusterReconstructionEnt[]>
+                        <FalcorClusterReconstructionContract[]>
                         decompress(buffer);
                     if (reconstructions.length < 1) {
                         throw new MapillaryError("Cluster reconstruction is empty.");

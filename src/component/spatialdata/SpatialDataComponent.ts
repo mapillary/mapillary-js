@@ -644,7 +644,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             reference);
 
         const transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,

@@ -334,7 +334,7 @@ export class PanService {
 
     private _createTransform(node: Node, translation: number[]): Transform {
         return new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,

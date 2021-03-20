@@ -136,7 +136,7 @@ export class EdgeCalculator {
                 potential.mergeCC === node.mergeCC;
 
             let sameUser: boolean =
-                potential.userId === node.userId;
+                potential.creatorId === node.creatorId;
 
             let potentialEdge: PotentialEdge = {
                 capturedAt: potential.capturedAt,

@@ -33,7 +33,7 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
                     ([node, size]: [Node, ViewportSize]): VirtualNodeHash => {
                         return {
                             name: this._name,
-                            vnode: this._getAttributionNode(node.username, node.id, node.capturedAt, size.width),
+                            vnode: this._getAttributionNode(node.creatorUsername, node.id, node.capturedAt, size.width),
                         };
                     }))
             .subscribe(this._container.domRenderer.render$);

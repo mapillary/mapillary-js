@@ -1748,7 +1748,7 @@ export class Graph {
         }
 
         if (fillNode.computed_rotation == null) {
-            fillNode.computed_rotation = this._graphCalculator.rotationFromCompass(fillNode.compass_angle, fillNode.orientation);
+            fillNode.computed_rotation = this._graphCalculator.rotationFromCompass(fillNode.compass_angle, fillNode.exif_orientation);
         }
 
         node.makeFull(fillNode);

@@ -69,9 +69,9 @@ export class EdgeCalculatorHelper {
             height: 0,
             merge_cc: mergeCC,
             merge_version: mergeVersion,
-            orientation: 0,
+            exif_orientation: 0,
             private: false,
-            user: { id: "ukey", username: "uname" },
+            creator: { id: "ukey", username: "uname" },
             width: 0,
         };
 

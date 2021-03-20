@@ -1,7 +1,6 @@
 import { ImageSize } from "../../viewer/ImageSize";
 import { FalcorDataProviderUrls } from "./FalcorDataProviderUrls";
 import {
-    FalcorClusterReconstructionEnt,
     FalcorCoreImageEnt,
     FalcorSequenceEnt,
     FalcorSpatialImageEnt,
@@ -13,6 +12,7 @@ import { SequenceEnt } from "../ents/SequenceEnt";
 import { ClusterReconstructionContract } from "../contracts/ClusterReconstructionContract";
 import { LatLonAlt } from "../interfaces/LatLonAlt";
 import { CameraEnt } from "../ents/CameraEnt";
+import { FalcorClusterReconstructionContract } from "./FalcorContracts";
 
 function convertCameraType(falcorProjectionType: string): string {
     return falcorProjectionType === "equirectangular" ?
@@ -44,26 +44,25 @@ export class FalcorConverter {
         this.propertiesSpatial = [
             "altitude",
             "atomic_scale",
-            "cluster_key",
             "c_rotation",
             "ca",
             "calt",
             "camera_projection_type",
+            "captured_at",
             "cca",
             "cfocal",
+            "cluster_key",
             "ck1",
             "ck2",
             "height",
             "merge_cc",
             "merge_version",
-            "orientation",
-            "width",
-            "captured_at",
-            "captured_with_camera_uuid",
             "organization_key",
+            "orientation",
             "private",
             "quality_score",
             "user",
+            "width",
         ];
 
         this.propertiesUser = [
@@ -72,7 +71,7 @@ export class FalcorConverter {
     }
 
     public clusterReconstruction(
-        item: FalcorClusterReconstructionEnt): ClusterReconstructionContract {
+        item: FalcorClusterReconstructionContract): ClusterReconstructionContract {
         const cameras: { [cameraId: string]: CameraEnt } = {};
         for (const cameraId in item.cameras) {
             if (!item.cameras.hasOwnProperty(cameraId)) { continue; }
@@ -148,13 +147,11 @@ export class FalcorConverter {
         const height = item.height;
         const mergeCc = item.merge_cc;
         const mergeVersion = item.merge_version;
-        const organization = {
-            id: !!item.organization ? item.organization_key : null,
-        };
-        const orientation = item.orientation;
+        const owner = { id: item.organization_key };
+        const exifOrientation = item.orientation;
         const priv = item.private;
         const qualityScore = item.quality_score;
-        const user = {
+        const creator = {
             id: !!item.user ? item.user.key : null,
             username: !!item.user ? item.user.username : null,
         };
@@ -181,19 +178,19 @@ export class FalcorConverter {
             computed_altitude: computedAltitude,
             computed_compass_angle: computedCompassAngle,
             computed_rotation: computedRotation,
+            creator,
+            exif_orientation: exifOrientation,
             height,
             merge_cc: mergeCc,
             merge_version: mergeVersion,
             mesh_url: meshUrl,
-            organization,
-            orientation,
+            owner,
             private: priv,
             quality_score: qualityScore,
             thumb1024_url: thumb1024Url,
             thumb2048_url: thumb2048Url,
             thumb320_url: thumb320Url,
             thumb640_url: thumb640Url,
-            user,
             width,
         }
     }

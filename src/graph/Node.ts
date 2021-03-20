@@ -328,15 +328,15 @@ export class Node {
     }
 
     /**
-     * Get organizationId.
+     * Get ownerId.
      *
-     * @returns {string} Globally unique id of the organization to which
+     * @returns {string} Globally unique id of the owner to which
      * the node belongs. If the node does not belong to an
-     * organization the organization id will be undefined.
+     * owner the owner id will be undefined.
      */
-    public get organizationId(): string {
-        return !!this._spatial.organization ?
-            this._spatial.organization.id :
+    public get ownerId(): string {
+        return !!this._spatial.owner ?
+            this._spatial.owner.id :
             null;
     }
 
@@ -345,8 +345,8 @@ export class Node {
      *
      * @returns {number} EXIF orientation of original image.
      */
-    public get orientation(): number {
-        return this._spatial.orientation;
+    public get exifOrientation(): number {
+        return this._spatial.exif_orientation;
     }
 
     /**
@@ -495,18 +495,18 @@ export class Node {
      * @returns {string} Globally unique id of the user who uploaded
      * the image.
      */
-    public get userId(): string {
-        return this._spatial.user.id;
+    public get creatorId(): string {
+        return this._spatial.creator.id;
     }
 
     /**
-     * Get username.
+     * Get creatorUsername.
      *
-     * @returns {string} Username of the user who uploaded
+     * @returns {string} Username of the creator who uploaded
      * the image.
      */
-    public get username(): string {
-        return this._spatial.user.username;
+    public get creatorUsername(): string {
+        return this._spatial.creator.username;
     }
 
     /**

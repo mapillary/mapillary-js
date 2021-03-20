@@ -2,7 +2,7 @@ import { CameraEnt } from "./CameraEnt";
 import { ClusterEnt } from "./ClusterEnt";
 import { IDEnt } from "./IDEnt";
 import { URLImageEnt } from "./URLImageEnt";
-import { UserEnt } from "./UserEnt";
+import { CreatorEnt } from "./CreatorEnt";
 
 /**
  * Interface that describes the raw spatial image properties.
@@ -51,6 +51,16 @@ export interface SpatialImageEnt extends CameraEnt, URLImageEnt {
     cluster?: ClusterEnt;
 
     /**
+     * Image creator.
+     */
+    creator?: CreatorEnt;
+
+    /**
+     * EXIF orientation of original image.
+     */
+    exif_orientation: number;
+
+    /**
      * Height of original image, not adjusted for orientation.
      */
     height: number;
@@ -66,14 +76,9 @@ export interface SpatialImageEnt extends CameraEnt, URLImageEnt {
     merge_version?: number;
 
     /**
-     * Organization to which the image belongs.
+     * Owner to which the image belongs.
      */
-    organization?: IDEnt;
-
-    /**
-     * EXIF orientation of original image.
-     */
-    orientation: number;
+    owner?: IDEnt;
 
     /**
      * Value specifying if image is accessible to organization members only
@@ -85,11 +90,6 @@ export interface SpatialImageEnt extends CameraEnt, URLImageEnt {
      * Image quality score on the interval [0, 1].
      */
     quality_score?: number;
-
-    /**
-     * User who created the image.
-     */
-    user?: UserEnt;
 
     /**
      * Width of original image, not adjusted for orientation.

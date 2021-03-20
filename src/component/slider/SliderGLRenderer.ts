@@ -329,7 +329,7 @@ export class SliderGLRenderer {
                 }
 
                 const transform: Transform = new Transform(
-                    state.currentNode.orientation,
+                    state.currentNode.exifOrientation,
                     width,
                     height,
                     state.currentNode.scale,

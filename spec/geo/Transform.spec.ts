@@ -28,7 +28,7 @@ describe("Transform.rt", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -72,7 +72,7 @@ describe("Transform.rt", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -116,7 +116,7 @@ describe("Transform.rt", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -160,7 +160,7 @@ describe("Transform.rt", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -215,7 +215,7 @@ describe("Transform.srt", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -260,7 +260,7 @@ describe("Transform.srt", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -305,7 +305,7 @@ describe("Transform.srt", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -355,11 +355,11 @@ describe("Transform.basicWidth", () => {
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
         fillNode.width = width;
-        fillNode.orientation = 1;
+        fillNode.exif_orientation = 1;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -381,11 +381,11 @@ describe("Transform.basicWidth", () => {
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
         fillNode.height = height;
-        fillNode.orientation = 5;
+        fillNode.exif_orientation = 5;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -415,11 +415,11 @@ describe("Transform.basicHeight", () => {
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
         fillNode.height = height;
-        fillNode.orientation = 1;
+        fillNode.exif_orientation = 1;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -441,11 +441,11 @@ describe("Transform.basicHeight", () => {
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
         fillNode.width = width;
-        fillNode.orientation = 5;
+        fillNode.exif_orientation = 5;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -477,7 +477,7 @@ describe("Transform.width", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -502,7 +502,7 @@ describe("Transform.width", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -530,11 +530,11 @@ describe("Transform.height", () => {
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
         fillNode.height = -1;
-        fillNode.orientation = 1;
+        fillNode.exif_orientation = 1;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -556,11 +556,11 @@ describe("Transform.height", () => {
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
         fillNode.height = height;
-        fillNode.orientation = 1;
+        fillNode.exif_orientation = 1;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -590,7 +590,7 @@ describe("Transform.focal", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -615,7 +615,7 @@ describe("Transform.focal", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -645,7 +645,7 @@ describe("Transform.orientation", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -666,11 +666,11 @@ describe("Transform.orientation", () => {
 
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.orientation = 3;
+        fillNode.exif_orientation = 3;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -699,7 +699,7 @@ describe("Transform.scale", () => {
         node.makeFull(helper.createFillNode());
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -724,7 +724,7 @@ describe("Transform.scale", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -757,7 +757,7 @@ describe("Transform.unprojectSfM", () => {
         node.makeFull(helper.createFillNode());
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -782,7 +782,7 @@ describe("Transform.unprojectSfM", () => {
         node.makeFull(helper.createFillNode());
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -811,7 +811,7 @@ describe("Transform.unprojectSfM", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -836,7 +836,7 @@ describe("Transform.unprojectSfM", () => {
         node.makeFull(helper.createFillNode());
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -865,7 +865,7 @@ describe("Transform.unprojectSfM", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -901,7 +901,7 @@ describe("Transform.projectBasic", () => {
         node.makeFull(helper.createFillNode());
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -925,7 +925,7 @@ describe("Transform.projectBasic", () => {
         node.makeFull(helper.createFillNode());
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -958,11 +958,11 @@ describe("Transform.unprojectBasic", () => {
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
         fillNode.computed_rotation = [0.1, 0.2, 0.3];
-        fillNode.orientation = 1;
+        fillNode.exif_orientation = 1;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -989,11 +989,11 @@ describe("Transform.unprojectBasic", () => {
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
         fillNode.computed_rotation = [0.1, 0.2, 0.3];
-        fillNode.orientation = 3;
+        fillNode.exif_orientation = 3;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -1020,11 +1020,11 @@ describe("Transform.unprojectBasic", () => {
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
         fillNode.computed_rotation = [0.1, 0.2, 0.3];
-        fillNode.orientation = 6;
+        fillNode.exif_orientation = 6;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -1051,11 +1051,11 @@ describe("Transform.unprojectBasic", () => {
         let node: Node = new Node(helper.createCoreNode());
         let fillNode: SpatialImageEnt = helper.createFillNode();
         fillNode.computed_rotation = [0.1, 0.2, 0.3];
-        fillNode.orientation = 8;
+        fillNode.exif_orientation = 8;
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
@@ -1087,7 +1087,7 @@ describe("Transform.unprojectBasic", () => {
         node.makeFull(fillNode);
 
         let transform: Transform = new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,
