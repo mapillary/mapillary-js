@@ -12,7 +12,7 @@ export interface DataAddedProviderEvent {
     /**
      * Event type.
      */
-    type: string;
+    type: "dataadded";
 
     /**
      * Data provider target that emitted the event.

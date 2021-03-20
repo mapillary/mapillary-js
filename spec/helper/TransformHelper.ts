@@ -12,7 +12,7 @@ export class TransformHelper {
             .createNode(cameraType);
 
         return new Transform(
-            node.orientation,
+            node.exifOrientation,
             node.width,
             node.height,
             node.scale,

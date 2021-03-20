@@ -37,9 +37,9 @@ export class NodeHelper {
             height: 1,
             merge_cc: 0,
             merge_version: 0,
-            orientation: 0,
+            exif_orientation: 0,
             private: false,
-            user: { id: this._userKey, username: this._username },
+            creator: { id: this._userKey, username: this._username },
             width: 1,
         };
     }
@@ -65,10 +65,10 @@ export class NodeHelper {
             geometry: { lat: 0, lon: 0 },
             merge_cc: 1,
             merge_version: 1,
-            orientation: 0,
+            exif_orientation: 0,
             private: false,
             sequence: { id: this._sequenceKey },
-            user: { id: this._userKey, username: this._username },
+            creator: { id: this._userKey, username: this._username },
             width: 1,
         };
     }

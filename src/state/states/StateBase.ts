@@ -61,7 +61,7 @@ export abstract class StateBase implements IStateBase {
         for (let node of this._trajectory) {
             let translation: number[] = this._nodeToTranslation(node, this._reference);
             let transform: Transform = new Transform(
-                node.orientation,
+                node.exifOrientation,
                 node.width,
                 node.height,
                 node.scale,
@@ -363,7 +363,7 @@ export abstract class StateBase implements IStateBase {
 
             let translation: number[] = this._nodeToTranslation(node, this.reference);
             let transform: Transform = new Transform(
-                node.orientation,
+                node.exifOrientation,
                 node.width,
                 node.height,
                 node.scale,
@@ -387,7 +387,7 @@ export abstract class StateBase implements IStateBase {
 
             let translation: number[] = this._nodeToTranslation(node, this.reference);
             let transform: Transform = new Transform(
-                node.orientation,
+                node.exifOrientation,
                 node.width,
                 node.height,
                 node.scale,
