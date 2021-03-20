@@ -1,10 +1,8 @@
 // Class
-export { BufferFetcher } from "../api/BufferFetcher";
+export * as Common from "../api/Common";
 export { DataProviderBase } from "../api/DataProviderBase";
 export { GeohashGeometryProvider } from "../api/GeohashGeometryProvider";
 export { GeometryProviderBase } from "../api/GeometryProviderBase";
-export { JsonInflator } from "../api/JsonInflator";
-export { PbfMeshReader } from "../api/PbfMeshReader";
 export { S2GeometryProvider } from "../api/S2GeometryProvider";
 
 // Falcor

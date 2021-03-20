@@ -1,6 +1,6 @@
 /**
- * Interface that represents a shot (a camera frame) in a
- * reconstruction.
+ * Interface that represents a camera shot
+ * (or camera frame) in a reconstruction.
  *
  * @interface CameraShotEnt
  */
