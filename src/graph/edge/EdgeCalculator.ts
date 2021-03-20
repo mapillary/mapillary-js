@@ -5,7 +5,6 @@ import { EdgeCalculatorDirections } from "./EdgeCalculatorDirections";
 import { EdgeCalculatorSettings } from "./EdgeCalculatorSettings";
 import { NavigationDirection } from "./NavigationDirection";
 import { NavigationEdge } from "./interfaces/NavigationEdge";
-import { SphericalDirection } from "./interfaces/SphericalDirection";
 import { PotentialEdge } from "./interfaces/PotentialEdge";
 import { StepDirection } from "./interfaces/StepDirection";
 import { TurnDirection } from "./interfaces/TurnDirection";

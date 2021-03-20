@@ -114,7 +114,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [0.5, 0.5];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(0, vertex, transform);
 
@@ -129,7 +129,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [0.5, 0.5];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -144,7 +144,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [0.5, 0.5];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(2, vertex, transform);
 
@@ -159,7 +159,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [0.5, 0.5];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(3, vertex, transform);
 
@@ -174,7 +174,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [-1, -1];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -189,7 +189,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [2, 2];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(3, vertex, transform);
 
@@ -204,7 +204,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [0.3, original[3]];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(3, vertex, transform);
 
@@ -219,7 +219,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [0.6, original[1]];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -234,7 +234,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [original[2], 0.4];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(3, vertex, transform);
 
@@ -249,7 +249,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [original[0], 0.6];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -264,7 +264,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [0.9, original[1]];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -279,7 +279,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [0.1, original[3]];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(3, vertex, transform);
 
@@ -294,7 +294,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [0.8, original[1]];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -309,7 +309,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [0.9, original[3]];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(3, vertex, transform);
 
@@ -324,7 +324,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [0.1, original[1]];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -339,7 +339,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [0.99, original[3]];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(3, vertex, transform);
 
@@ -354,7 +354,7 @@ describe("RectGeometry.setVertex2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let vertex = [0.01, original[1]];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setVertex2d(1, vertex, transform);
 
@@ -403,7 +403,7 @@ describe("RectGeometry.setCentroid2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let centroid = [0, 0.2];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setCentroid2d(centroid, transform);
 
@@ -433,7 +433,7 @@ describe("RectGeometry.setCentroid2d", () => {
         let rectGeometry = new RectGeometry(original);
 
         let centroid = [0.2, 0];
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.setCentroid2d(centroid, transform);
 
@@ -681,7 +681,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should invert for spherical when right side passes boundary rightward", () => {
         const rect = [0.9, 0.5, 0.99, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(0);
 
@@ -695,7 +695,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should invert for spherical when left side passes right side and boundary rightward", () => {
         const rect = [0.9, 0.5, 0.99, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(3);
 
@@ -709,7 +709,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should uninvert for spherical when left side passes boundary rightward", () => {
         const rect = [0.9, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(3);
 
@@ -723,7 +723,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should uninvert for spherical when left side passes right side and boundary rightward", () => {
         const rect = [0.99, 0.5, 0.01, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(3);
 
@@ -737,7 +737,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should invert for spherical when left side passes boundary leftward", () => {
         const rect = [0.01, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(3);
 
@@ -751,7 +751,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should invert for spherical when right side passes left side and boundary leftward", () => {
         const rect = [0.01, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(0);
 
@@ -765,7 +765,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should uninvert for spherical when right side passes boundary leftward", () => {
         const rect = [0.9, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(0);
 
@@ -779,7 +779,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should uninvert for spherical when right side passes left side and boundary leftward", () => {
         const rect = [0.99, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(0);
 
@@ -793,7 +793,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should keep inversion for anchor index 0", () => {
         const rect = [0.9, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(0);
 
@@ -807,7 +807,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should keep inversion for anchor index 1", () => {
         const rect = [0.9, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(1);
 
@@ -821,7 +821,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should keep inversion for anchor index 2", () => {
         const rect = [0.9, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(2);
 
@@ -835,7 +835,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should keep inversion for anchor index 2", () => {
         const rect = [0.9, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(3);
 
@@ -849,7 +849,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should keep inversion when passing vertically to the right", () => {
         const rect = [0.9, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(1);
 
@@ -869,7 +869,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should keep inversion when passing vertically to the left", () => {
         const rect = [0.9, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(2);
 
@@ -889,7 +889,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should reset loop when right passes left", () => {
         const rect = [0.15, 0.5, 0.1, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(0);
 
@@ -903,7 +903,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should reset loop when left passes right", () => {
         const rect = [0.2, 0.5, 0.15, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(3);
 
@@ -919,7 +919,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should rotate anchor index clockwise for spherical", () => {
         const rect = [0.5, 0.5, 0.6, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(1);
         expect(rectGeometry.anchorIndex).toBe(1);
@@ -944,7 +944,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should rotate anchor index counterclockwise for spherical", () => {
         const rect = [0.5, 0.5, 0.6, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(1);
         expect(rectGeometry.anchorIndex).toBe(1);
@@ -969,7 +969,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should rotate anchor index diagonally se-nw for spherical", () => {
         const rect = [0.5, 0.5, 0.6, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(1);
         expect(rectGeometry.anchorIndex).toBe(1);
@@ -986,7 +986,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should rotate anchor index diagonally ne-sw for spherical", () => {
         const rect = [0.5, 0.4, 0.6, 0.5];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(0);
         expect(rectGeometry.anchorIndex).toBe(0);
@@ -1003,7 +1003,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should not change anchor index when opposite decreases to equal anchor for spherical", () => {
         const rect = [0.5, 0.5, 0.6, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(1);
 
@@ -1019,7 +1019,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should not change anchor index when opposite increases to equal anchor for spherical", () => {
         const rect = [0.4, 0.4, 0.5, 0.5];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(3);
 
@@ -1035,7 +1035,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should always have a larger right x than left x except when equal for spherical", () => {
         const rect = [0.5, 0.5, 0.6, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(1);
 
@@ -1052,7 +1052,7 @@ describe("RectGeometry.setOppositeVertex", () => {
     it("should always have a larger bottom y than top y except when equal for spherical", () => {
         const rect = [0.5, 0.5, 0.6, 0.6];
         const rectGeometry = new RectGeometry(rect);
-        const transform = transformHelper.createTransform("equirectangular");
+        const transform = transformHelper.createTransform("spherical");
 
         rectGeometry.initializeAnchorIndexing(1);
 

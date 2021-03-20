@@ -351,8 +351,8 @@ export class TagComponent extends Component<TagConfiguration> {
      * in the points geometry.
      *
      * @description The result may be different depending on if the
-     * current node is an equirectangular spherical or not. If the
-     * current node is an equirectangular spherical the rectangle may
+     * current node is an spherical or not. If the
+     * current node is an spherical the rectangle may
      * wrap the horizontal border of the image.
      *
      * @returns {Promise<Array<number>>} Promise to the rectangle

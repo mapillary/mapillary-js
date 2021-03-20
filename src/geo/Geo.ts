@@ -10,7 +10,7 @@ const geoCoords = new GeoCoords();
 const spatial = new Spatial();
 
 export function isSpherical(cameraType: string): boolean {
-    return cameraType === "equirectangular";
+    return cameraType === "spherical";
 }
 
 export function isFisheye(cameraType: string): boolean {

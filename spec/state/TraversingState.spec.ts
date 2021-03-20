@@ -165,7 +165,7 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let currentNode: TestNode = new TestNode();
         let currentFillNode: SpatialImageEnt = helper.createFillNode();
-        currentFillNode.camera_type = "equirectangular";
+        currentFillNode.camera_type = "spherical";
 
         currentNode.makeFull(currentFillNode);
 

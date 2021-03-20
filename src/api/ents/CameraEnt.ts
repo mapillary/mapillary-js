@@ -17,7 +17,7 @@ export interface CameraEnt {
      * where focal is the camera focal length,
      * and k1, k2 are radial distortion parameters.
      *
-     * For equirectangular camera type the camera
+     * For spherical camera type the camera
      * parameters are unset or emtpy array.
      */
     camera_parameters?: number[];
@@ -28,7 +28,7 @@ export interface CameraEnt {
      * Supported camera types are :
      *
      * ```
-     *   'equirectangular'
+     *   'spherical'
      *   'fisheye'
      *   'perspective'
      * ```

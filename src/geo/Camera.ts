@@ -132,7 +132,7 @@ export class Camera {
      * Get the focal length based on the transform.
      *
      * @description Returns the focal length corresponding
-     * to a 90 degree field of view for equirectangular
+     * to a 90 degree field of view for spherical
      * transforms.
      *
      * Returns the transform focal length for other

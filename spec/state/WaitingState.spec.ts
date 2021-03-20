@@ -162,7 +162,7 @@ describe("WaitingState.currentCamera.lookat", () => {
 
         let currentNode: TestNode = new TestNode();
         let currentFillNode: SpatialImageEnt = helper.createFillNode();
-        currentFillNode.camera_type = "equirectangular";
+        currentFillNode.camera_type = "spherical";
 
         currentNode.makeFull(currentFillNode);
 
@@ -281,7 +281,7 @@ describe("WaitingState.previousCamera.lookat", () => {
 
         let previousNode: TestNode = new TestNode();
         let previousFillNode: SpatialImageEnt = helper.createFillNode();
-        previousFillNode.camera_type = "equirectangular";
+        previousFillNode.camera_type = "spherical";
 
         previousNode.makeFull(previousFillNode);
 

@@ -47,7 +47,7 @@ describe("OutlineRenderTag.getRetrievableObjects", () => {
             new OutlineRenderTag(
                 outlineTag,
                 transformHelper.createTransform(
-                    "equirectangular"));
+                    "spherical"));
 
         const retrievableObjects = outlineRenderTag.getRetrievableObjects();
 
@@ -67,7 +67,7 @@ describe("OutlineRenderTag.getRetrievableObjects", () => {
             new OutlineRenderTag(
                 outlineTag,
                 transformHelper.createTransform(
-                    "equirectangular"));
+                    "spherical"));
 
         const retrievableObjects = outlineRenderTag.getRetrievableObjects();
 
