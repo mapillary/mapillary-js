@@ -121,7 +121,7 @@ export class BearingComponent extends Component<BearingConfiguration> {
                         const transform: Transform = frame.state.currentTransform;
 
                         if (isSpherical(node.cameraType)) {
-                            return [Math.PI / 2, Math.PI / 2];
+                            return [Math.PI, Math.PI];
                         }
 
                         const currentProjectedPoints: number[][] = this._computeProjectedPoints(transform);

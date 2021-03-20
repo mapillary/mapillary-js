@@ -119,11 +119,10 @@ export class FalcorDataProvider extends DataProviderBase {
                                 continue;
                             }
                             const item = imagesByH[cid][index];
-                            if (!item) { cell[index] = null; }
-                            else {
-                                const core = this._convert.core(item);
-                                cell[core.id] = core;
-                            }
+                            const core = !!item ?
+                                this._convert.core(item) :
+                                null;
+                            cell[index] = core;
                         }
                         result[cid] = cell;
                     }
