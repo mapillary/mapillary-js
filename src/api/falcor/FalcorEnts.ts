@@ -1,6 +1,6 @@
-import { CameraShotEnt } from "../ents/CameraShotEnt";
+import { CameraShotContract } from "../contracts/CameraShotContract";
 import { LatLon } from "../interfaces/LatLon";
-import { PointEnt } from "../ents/PointEnt";
+import { PointContract } from "../contracts/PointContract";
 import { SpatialImageEnt } from "../ents/SpatialImageEnt";
 import { UserEnt } from "../ents/UserEnt";
 
@@ -24,14 +24,14 @@ export interface FalcorCameraEnt {
 
 export interface FalcorClusterReconstructionEnt {
     cameras: { [cameraId: string]: FalcorCameraEnt };
-    points: { [pointId: string]: PointEnt };
+    points: { [pointId: string]: PointContract };
     reference_lla: {
         altitude: number,
         latitude: number,
         longitude: number,
     },
     key: string;
-    shots: { [imageKey: string]: CameraShotEnt };
+    shots: { [imageKey: string]: CameraShotContract };
 }
 
 export interface FalcorCoreImageEnt extends FalcorKeyEnt {

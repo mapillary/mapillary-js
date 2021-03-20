@@ -10,7 +10,7 @@ import { CoreImageEnt } from "../ents/CoreImageEnt";
 import { IDEnt } from "../ents/IDEnt";
 import { SpatialImageEnt } from "../ents/SpatialImageEnt";
 import { SequenceEnt } from "../ents/SequenceEnt";
-import { ClusterReconstructionEnt } from "../ents/ClusterReconstructionEnt";
+import { ClusterReconstructionContract } from "../contracts/ClusterReconstructionContract";
 import { LatLonAlt } from "../interfaces/LatLonAlt";
 import { CameraEnt } from "../ents/CameraEnt";
 
@@ -72,7 +72,7 @@ export class FalcorConverter {
     }
 
     public clusterReconstruction(
-        item: FalcorClusterReconstructionEnt): ClusterReconstructionEnt {
+        item: FalcorClusterReconstructionEnt): ClusterReconstructionContract {
         const cameras: { [cameraId: string]: CameraEnt } = {};
         for (const cameraId in item.cameras) {
             if (!item.cameras.hasOwnProperty(cameraId)) { continue; }

@@ -1,9 +1,9 @@
 /**
  * Interface that represents a reconstruction point.
  *
- * @interface PointEnt
+ * @interface PointContract
  */
-export interface PointEnt {
+export interface PointContract {
     /**
      * RGB color vector of the point.
      */

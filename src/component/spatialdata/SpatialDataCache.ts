@@ -17,7 +17,7 @@ import {
 } from "rxjs/operators";
 
 import { DataProviderBase } from "../../api/DataProviderBase";
-import { ClusterReconstructionEnt } from "../../api/ents/ClusterReconstructionEnt";
+import { ClusterReconstructionContract } from "../../api/contracts/ClusterReconstructionContract";
 import { AbortMapillaryError } from "../../error/AbortMapillaryError";
 import { GraphService } from "../../graph/GraphService";
 import { Node } from "../../graph/Node";
@@ -34,11 +34,11 @@ export class SpatialDataCache {
     private _cacheRequests: { [hash: string]: Function[] };
     private _tiles: { [hash: string]: Node[] };
 
-    private _clusterReconstructions: { [key: string]: ClusterReconstructionEnt };
+    private _clusterReconstructions: { [key: string]: ClusterReconstructionContract };
     private _clusterReconstructionTiles: { [key: string]: string[] };
     private _tileClusters: { [hash: string]: ClusterData[] };
 
-    private _cachingClusterReconstructions$: { [hash: string]: Observable<ClusterReconstructionEnt> };
+    private _cachingClusterReconstructions$: { [hash: string]: Observable<ClusterReconstructionContract> };
     private _cachingTiles$: { [hash: string]: Observable<Node[]> };
 
     constructor(graphService: GraphService, provider: DataProviderBase) {
@@ -56,7 +56,7 @@ export class SpatialDataCache {
         this._cachingClusterReconstructions$ = {};
     }
 
-    public cacheClusterReconstructions$(hash: string): Observable<ClusterReconstructionEnt> {
+    public cacheClusterReconstructions$(hash: string): Observable<ClusterReconstructionContract> {
         if (!this.hasTile(hash)) {
             throw new Error("Cannot cache reconstructions of a non-existing tile.");
         }
@@ -182,15 +182,15 @@ export class SpatialDataCache {
         return !(hash in this._cachingTiles$) && hash in this._tiles;
     }
 
-    public getClusterReconstructions(hash: string): ClusterReconstructionEnt[] {
+    public getClusterReconstructions(hash: string): ClusterReconstructionContract[] {
         return hash in this._tileClusters ?
             this._tileClusters[hash]
                 .map(
-                    (cd: ClusterData): ClusterReconstructionEnt => {
+                    (cd: ClusterData): ClusterReconstructionContract => {
                         return this._clusterReconstructions[cd.key];
                     })
                 .filter(
-                    (reconstruction: ClusterReconstructionEnt): boolean => {
+                    (reconstruction: ClusterReconstructionContract): boolean => {
                         return !!reconstruction;
                     }) :
             [];
@@ -276,7 +276,7 @@ export class SpatialDataCache {
     }
 
     public updateClusterReconstructions$(hash: string):
-        Observable<ClusterReconstructionEnt> {
+        Observable<ClusterReconstructionContract> {
         if (!this.hasTile(hash)) {
             throw new Error("Cannot update reconstructions of a non-existing tile.");
         }
@@ -315,10 +315,10 @@ export class SpatialDataCache {
     private _cacheClusterReconstructions$(
         clusters: ClusterData[],
         cellId: string,
-        cancellation: Promise<void>): Observable<ClusterReconstructionEnt> {
+        cancellation: Promise<void>): Observable<ClusterReconstructionContract> {
         return observableFrom(clusters).pipe(
             mergeMap(
-                (cd: ClusterData): Observable<ClusterReconstructionEnt> => {
+                (cd: ClusterData): Observable<ClusterReconstructionContract> => {
                     if (this._hasClusterReconstruction(cd.key)) {
                         return observableOf(
                             this._getClusterReconstruction(cd.key));
@@ -330,7 +330,7 @@ export class SpatialDataCache {
                         cancellation)
                         .pipe(
                             catchError(
-                                (error: Error): Observable<ClusterReconstructionEnt> => {
+                                (error: Error): Observable<ClusterReconstructionContract> => {
                                     if (error instanceof AbortMapillaryError) {
                                         return observableEmpty();
                                     }
@@ -345,7 +345,7 @@ export class SpatialDataCache {
                     return cellId in this._tileClusters;
                 }),
             tap(
-                (reconstruction: ClusterReconstructionEnt): void => {
+                (reconstruction: ClusterReconstructionContract): void => {
                     if (!this._hasClusterReconstruction(reconstruction.id)) {
                         this._clusterReconstructions[reconstruction.id] = reconstruction;
                     }
@@ -360,16 +360,16 @@ export class SpatialDataCache {
                 }))
     }
 
-    private _getClusterReconstruction(id: string): ClusterReconstructionEnt {
+    private _getClusterReconstruction(id: string): ClusterReconstructionContract {
         return this._clusterReconstructions[id];
     }
 
-    private _getClusterReconstruction$(url: string, clusterId: string, abort: Promise<void>): Observable<ClusterReconstructionEnt> {
+    private _getClusterReconstruction$(url: string, clusterId: string, abort: Promise<void>): Observable<ClusterReconstructionContract> {
         return Observable.create(
-            (subscriber: Subscriber<ClusterReconstructionEnt>): void => {
+            (subscriber: Subscriber<ClusterReconstructionContract>): void => {
                 this._data.getClusterReconstruction(url, abort)
                     .then(
-                        (reconstruction: ClusterReconstructionEnt): void => {
+                        (reconstruction: ClusterReconstructionContract): void => {
                             reconstruction.id = clusterId;
                             subscriber.next(reconstruction);
                             subscriber.complete();

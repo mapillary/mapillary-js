@@ -20,7 +20,7 @@ import {
 import { NavigationEdge } from "./edge/interfaces/NavigationEdge";
 import { NavigationEdgeStatus } from "./interfaces/NavigationEdgeStatus";
 
-import { MeshEnt } from "../api/ents/MeshEnt";
+import { MeshContract } from "../api/contracts/MeshContract";
 import { URLImageEnt } from "../api/ents/URLImageEnt";
 import { Settings } from "../utils/Settings";
 import { ImageSize } from "../viewer/ImageSize";
@@ -37,7 +37,7 @@ export class NodeCache {
     private _provider: DataProviderBase;
 
     private _image: HTMLImageElement;
-    private _mesh: MeshEnt;
+    private _mesh: MeshContract;
     private _sequenceEdges: NavigationEdgeStatus;
     private _spatialEdges: NavigationEdgeStatus;
 
@@ -125,10 +125,10 @@ export class NodeCache {
      * @description Will not be set when assets have not been cached
      * or when the object has been disposed.
      *
-     * @returns {MeshEnt} SfM triangulated mesh of reconstructed
+     * @returns {MeshContract} SfM triangulated mesh of reconstructed
      * atomic 3D points.
      */
-    public get mesh(): MeshEnt {
+    public get mesh(): MeshContract {
         return this._mesh;
     }
 
@@ -195,7 +195,7 @@ export class NodeCache {
             this._cacheImage$(urls, imageSize),
             this._cacheMesh$(urls, merged)).pipe(
                 map(
-                    ([image, mesh]: [HTMLImageElement, MeshEnt]): NodeCache => {
+                    ([image, mesh]: [HTMLImageElement, MeshContract]): NodeCache => {
                         this._image = image;
                         this._mesh = mesh;
 
@@ -394,13 +394,13 @@ export class NodeCache {
      *
      * @param {URLImageEnt} nodeUrls - Node URLs.
      * @param {boolean} merged - Value indicating whether node is merged.
-     * @returns {Observable<ILoadStatusObject<MeshEnt>>} Observable emitting
+     * @returns {Observable<ILoadStatusObject<MeshContract>>} Observable emitting
      * a load status object every time the load status changes and completes
      * when the mesh is fully loaded.
      */
-    private _cacheMesh$(nodeUrls: URLImageEnt, merged: boolean): Observable<MeshEnt> {
+    private _cacheMesh$(nodeUrls: URLImageEnt, merged: boolean): Observable<MeshContract> {
         return Observable.create(
-            (subscriber: Subscriber<MeshEnt>): void => {
+            (subscriber: Subscriber<MeshContract>): void => {
                 if (!merged) {
                     subscriber.next(this._createEmptyMesh());
                     subscriber.complete();
@@ -414,7 +414,7 @@ export class NodeCache {
 
                 this._provider.getMesh(nodeUrls.mesh_url, abort)
                     .then(
-                        (mesh: MeshEnt): void => {
+                        (mesh: MeshContract): void => {
                             this._meshAborter = null;
 
                             if (this._disposed) {
@@ -436,10 +436,10 @@ export class NodeCache {
     /**
      * Create a load status object with an empty mesh.
      *
-     * @returns {ILoadStatusObject<MeshEnt>} Load status object
+     * @returns {ILoadStatusObject<MeshContract>} Load status object
      * with empty mesh.
      */
-    private _createEmptyMesh(): MeshEnt {
+    private _createEmptyMesh(): MeshContract {
         return { faces: [], vertices: [] };
     }
 

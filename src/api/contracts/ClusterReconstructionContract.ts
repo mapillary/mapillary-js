@@ -1,9 +1,9 @@
-import { CameraEnt } from "./CameraEnt";
-import { CameraShotEnt } from "./CameraShotEnt";
+import { CameraContract } from "./CameraContract";
+import { CameraShotContract } from "./CameraShotContract";
 import { LatLonAlt } from "../interfaces/LatLonAlt";
-import { PointEnt } from "./PointEnt";
+import { PointContract } from "./PointContract";
 
-export interface ClusterReconstructionEnt {
+export interface ClusterReconstructionContract {
     /**
      * The unique id of the reconstruction.
      */
@@ -12,12 +12,12 @@ export interface ClusterReconstructionEnt {
     /**
      * The cameras of the reconstruction.
      */
-    cameras: { [cameraId: string]: CameraEnt };
+    cameras: { [cameraId: string]: CameraContract };
 
     /**
      * The points of the reconstruction.
      */
-    points: { [pointId: string]: PointEnt };
+    points: { [pointId: string]: PointContract };
 
     /**
      * The reference latitude, longitue, altitude of
@@ -30,5 +30,5 @@ export interface ClusterReconstructionEnt {
     /**
      * The shots of the reconstruction.
      */
-    shots: { [imageId: string]: CameraShotEnt };
+    shots: { [imageId: string]: CameraShotContract };
 }

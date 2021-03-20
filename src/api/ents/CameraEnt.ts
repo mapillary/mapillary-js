@@ -1,6 +1,5 @@
 /**
- * Interface that represents a camera type in a
- * reconstruction.
+ * Interface that represents camera properties.
  *
  * @interface CameraEnt
  */
