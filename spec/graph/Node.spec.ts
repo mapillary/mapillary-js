@@ -2,7 +2,7 @@ import { NodeHelper } from "../helper/NodeHelper";
 import { Node } from "../../src/graph/Node";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
-import { MeshEnt } from "../../src/api/ents/MeshEnt";
+import { MeshContract } from "../../src/api/contracts/MeshContract";
 import { NodeCache } from "../../src/graph/NodeCache";
 
 describe("Node", () => {
@@ -184,7 +184,7 @@ describe("Node.assetsCached", () => {
 
     class NodeCacheMock extends NodeCache {
         protected _overridingImage: HTMLImageElement;
-        protected _overridingMesh: MeshEnt;
+        protected _overridingMesh: MeshContract;
 
         constructor() { super(undefined); }
 
@@ -196,11 +196,11 @@ describe("Node.assetsCached", () => {
             this._overridingImage = value;
         }
 
-        public get mesh(): MeshEnt {
+        public get mesh(): MeshContract {
             return this._overridingMesh;
         }
 
-        public set mesh(value: MeshEnt) {
+        public set mesh(value: MeshContract) {
             this._overridingMesh = value;
         }
     }

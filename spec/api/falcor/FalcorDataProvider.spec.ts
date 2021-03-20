@@ -1,7 +1,7 @@
 import * as pako from "pako";
 import * as falcor from "falcor";
 import { FalcorDataProvider } from "../../../src/api/falcor/FalcorDataProvider";
-import { ClusterReconstructionEnt } from "../../../src/api/ents/ClusterReconstructionEnt";
+import { ClusterReconstructionContract } from "../../../src/api/contracts/ClusterReconstructionContract";
 import { CoreImageEnt } from "../../../src/api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../../../src/api/ents/SpatialImageEnt";
 import { ModelCreator } from "../../../src/api/falcor/ModelCreator";
@@ -763,7 +763,7 @@ describe("FalcorDataProvider.getClusterReconstruction", () => {
 
         provider.getClusterReconstruction("url")
             .then(
-                (r: ClusterReconstructionEnt): void => {
+                (r: ClusterReconstructionContract): void => {
                     expect(r.points).toEqual({});
                     expect(r.reference.alt).toBe(1);
                     expect(r.reference.lat).toBe(2);

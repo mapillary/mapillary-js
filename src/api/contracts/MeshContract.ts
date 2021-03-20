@@ -1,9 +1,9 @@
 /**
  * Interface that describes SfM triangulated meshes.
  *
- * @interface MeshEnt
+ * @interface MeshContract
  */
-export interface MeshEnt {
+export interface MeshContract {
     /**
      * Flattened array of faces for the mesh. Each face consist
      * three vertex indices.

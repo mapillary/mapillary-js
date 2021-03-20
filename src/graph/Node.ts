@@ -8,7 +8,7 @@ import { NavigationEdgeStatus } from "./interfaces/NavigationEdgeStatus";
 import { CoreImageEnt } from "../api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
 import { LatLon } from "../api/interfaces/LatLon";
-import { MeshEnt } from "../api/ents/MeshEnt";
+import { MeshContract } from "../api/contracts/MeshContract";
 import { ImageSize } from "../viewer/ImageSize";
 import { isSpherical } from "../geo/Geo";
 
@@ -320,10 +320,10 @@ export class Node {
      *
      * @description The mesh will always be set on the current node.
      *
-     * @returns {MeshEnt} SfM triangulated mesh of reconstructed
+     * @returns {MeshContract} SfM triangulated mesh of reconstructed
      * atomic 3D points.
      */
-    public get mesh(): MeshEnt {
+    public get mesh(): MeshContract {
         return this._cache.mesh;
     }
 

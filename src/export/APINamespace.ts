@@ -17,13 +17,13 @@ export { SpatialImagesContract } from "../api/contracts/SpatialImagesContract";
 
 // Ent
 export { CameraEnt } from "../api/ents/CameraEnt";
-export { CameraShotEnt } from "../api/ents/CameraShotEnt";
+export { CameraShotContract as CameraShotEnt } from "../api/contracts/CameraShotContract";
 export { CoreImageEnt } from "../api/ents/CoreImageEnt";
 export { ImageEnt } from "../api/ents/ImageEnt";
 export { IDEnt } from "../api/ents/IDEnt";
-export { MeshEnt } from "../api/ents/MeshEnt";
-export { PointEnt } from "../api/ents/PointEnt";
-export { ClusterReconstructionEnt } from "../api/ents/ClusterReconstructionEnt";
+export { MeshContract as MeshEnt } from "../api/contracts/MeshContract";
+export { PointContract as PointEnt } from "../api/contracts/PointContract";
+export { ClusterReconstructionContract as ClusterReconstructionEnt } from "../api/contracts/ClusterReconstructionContract";
 export { SequenceEnt } from "../api/ents/SequenceEnt";
 export { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
 export { URLImageEnt } from "../api/ents/URLImageEnt";

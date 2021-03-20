@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { PointEnt } from "../../api/ents/PointEnt";
-import { ClusterReconstructionEnt } from "../../api/ents/ClusterReconstructionEnt";
+import { PointContract } from "../../api/contracts/PointContract";
+import { ClusterReconstructionContract } from "../../api/contracts/ClusterReconstructionContract";
 import { MapillaryError } from "../../error/MapillaryError";
 import { isSpherical } from "../../geo/Geo";
 import { Transform } from "../../geo/Transform";
@@ -414,7 +414,7 @@ class SphericalCameraFrame extends CameraFrameBase {
 class ClusterPoints extends THREE.Points {
     constructor(
         private readonly _originalSize: number,
-        reconstruction: ClusterReconstructionEnt,
+        reconstruction: ClusterReconstructionContract,
         translation: number[],
         scale: number) {
         super();
@@ -449,12 +449,12 @@ class ClusterPoints extends THREE.Points {
     }
 
     private _getArrays(
-        reconstruction: ClusterReconstructionEnt,
+        reconstruction: ClusterReconstructionContract,
         translation: number[]): [Float32Array, Float32Array] {
         const points = Object
             .keys(reconstruction.points)
             .map(
-                (key: string): PointEnt => {
+                (key: string): PointContract => {
                     return reconstruction.points[key];
                 });
 
@@ -1012,7 +1012,7 @@ export class SpatialDataScene {
     public get intersection(): Intersection { return this._intersection; }
 
     public addClusterReconstruction(
-        reconstruction: ClusterReconstructionEnt,
+        reconstruction: ClusterReconstructionContract,
         translation: number[],
         cellId: string): void {
 

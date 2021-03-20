@@ -1,7 +1,7 @@
 import * as pako from "pako";
 import Pbf from "pbf";
 import { MapillaryError } from "../error/MapillaryError";
-import { MeshEnt } from "./ents/MeshEnt";
+import { MeshContract } from "./contracts/MeshContract";
 
 /**
  * Decompress and parse an array buffer containing zipped
@@ -77,15 +77,15 @@ export function fetchArrayBuffer(
  *
  * @param {ArrayBuffer} buffer - Protobuf array buffer
  * to read from.
- * @returns {MeshEnt} Mesh object.
+ * @returns {MeshContract} Mesh object.
  */
-export function readMeshPbf(buffer: ArrayBuffer): MeshEnt {
+export function readMeshPbf(buffer: ArrayBuffer): MeshContract {
     const pbf = new Pbf(buffer);
-    const mesh: MeshEnt = { faces: [], vertices: [] };
+    const mesh: MeshContract = { faces: [], vertices: [] };
     return pbf.readFields(readMeshPbfField, mesh);
 }
 
-function readMeshPbfField(tag: number, mesh: MeshEnt, pbf: Pbf): void {
+function readMeshPbfField(tag: number, mesh: MeshContract, pbf: Pbf): void {
     if (tag === 1) { mesh.vertices.push(pbf.readFloat()); }
     else if (tag === 2) { mesh.faces.push(pbf.readVarint()); }
     else { console.warn(`Unsupported pbf tag (${tag})`); }

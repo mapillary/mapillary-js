@@ -5,9 +5,9 @@ import {
 import { DataProviderBase } from "../DataProviderBase";
 import { GeohashGeometryProvider } from "../GeohashGeometryProvider";
 import { ModelCreator } from "./ModelCreator";
-import { ClusterReconstructionEnt } from "../ents/ClusterReconstructionEnt";
+import { ClusterReconstructionContract } from "../contracts/ClusterReconstructionContract";
 import { FalcorDataProviderOptions } from "./FalcorDataProviderOptions";
-import { MeshEnt } from "../ents/MeshEnt";
+import { MeshContract } from "../contracts/MeshContract";
 
 import { MapillaryError } from "../../error/MapillaryError";
 import { GeometryProviderBase } from "../GeometryProviderBase";
@@ -140,10 +140,10 @@ export class FalcorDataProvider extends DataProviderBase {
      */
     public getClusterReconstruction(
         url: string,
-        abort?: Promise<void>): Promise<ClusterReconstructionEnt> {
+        abort?: Promise<void>): Promise<ClusterReconstructionContract> {
         return fetchArrayBuffer(url, abort)
             .then(
-                (buffer: ArrayBuffer): ClusterReconstructionEnt => {
+                (buffer: ArrayBuffer): ClusterReconstructionContract => {
                     const reconstructions =
                         <FalcorClusterReconstructionEnt[]>
                         decompress(buffer);
@@ -260,10 +260,10 @@ export class FalcorDataProvider extends DataProviderBase {
     /**
      * @inheritdoc
      */
-    public getMesh(url: string, abort?: Promise<void>): Promise<MeshEnt> {
+    public getMesh(url: string, abort?: Promise<void>): Promise<MeshContract> {
         return fetchArrayBuffer(url, abort)
             .then(
-                (buffer: ArrayBuffer): MeshEnt => {
+                (buffer: ArrayBuffer): MeshContract => {
                     return readMeshPbf(buffer);
                 },
                 (reason: Error) => { throw reason; });
