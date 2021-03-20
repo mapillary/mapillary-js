@@ -320,7 +320,7 @@ export class MeshFactory {
     }
 
     private _getImageSphereGeo(transform: Transform, node: Node): THREE.BufferGeometry {
-        let t: THREE.Matrix4 = new THREE.Matrix4().copy(transform.srt).invert();
+        const t = transform.srtInverse;
 
         // push everything at least 5 meters in front of the camera
         let minZ: number = 5.0 * transform.scale;
@@ -363,7 +363,7 @@ export class MeshFactory {
 
     private _getImagePlaneGeo(transform: Transform, node: Node): THREE.BufferGeometry {
         const undistortionMarginFactor: number = 3;
-        let t: THREE.Matrix4 = new THREE.Matrix4().copy(transform.srt).invert();
+        const t = transform.srtInverse;
 
         // push everything at least 5 meters in front of the camera
         let minZ: number = 5.0 * transform.scale;
@@ -409,7 +409,7 @@ export class MeshFactory {
     }
 
     private _getImagePlaneGeoFisheye(transform: Transform, node: Node): THREE.BufferGeometry {
-        let t: THREE.Matrix4 = new THREE.Matrix4().copy(transform.srt).invert();
+        const t = transform.srtInverse;
 
         // push everything at least 5 meters in front of the camera
         let minZ: number = 5.0 * transform.scale;
@@ -451,9 +451,10 @@ export class MeshFactory {
     }
 
     private _getFlatImageSphereGeo(transform: Transform): THREE.BufferGeometry {
-        let geometry =
+        const geometry =
             new THREE.SphereGeometry(this._imageSphereRadius, 20, 40);
-        geometry.applyMatrix4(new THREE.Matrix4().copy(transform.rt).invert());
+        const t = transform.srtInverse;
+        geometry.applyMatrix4(t);
         return geometry;
     }
 

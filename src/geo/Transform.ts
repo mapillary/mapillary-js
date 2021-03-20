@@ -21,10 +21,11 @@ export class Transform {
     private _basicHeight: number;
     private _basicAspect: number;
 
-    private _rt: THREE.Matrix4;
-    private _srt: THREE.Matrix4;
-
-    private _basicRt: THREE.Matrix4;
+    private _worldToCamera: THREE.Matrix4;
+    private _worldToCameraInverse: THREE.Matrix4;
+    private _scaledWorldToCamera: THREE.Matrix4;
+    private _scaledWorldToCameraInverse: THREE.Matrix4;
+    private _basicWorldToCamera: THREE.Matrix4;
 
     private _textureScale: number[];
 
@@ -83,10 +84,19 @@ export class Transform {
         this._focal = this._getValue(focal, 1);
         this._scale = this._getValue(scale, 0);
 
-        this._rt = this._getRt(rotation, translation);
-        this._srt = this._getSrt(this._rt, this._scale);
+        this._worldToCamera = this.createWorldToCamera(rotation, translation);
+        this._worldToCameraInverse = new THREE.Matrix4()
+            .copy(this._worldToCamera)
+            .invert()
+        this._scaledWorldToCamera =
+            this._createScaledWorldToCamera(this._worldToCamera, this._scale);
+        this._scaledWorldToCameraInverse = new THREE.Matrix4()
+            .copy(this._scaledWorldToCamera)
+            .invert();
 
-        this._basicRt = this._getBasicRt(this._rt, orientation);
+        this._basicWorldToCamera = this._createBasicWorldToCamera(
+            this._worldToCamera,
+            orientation);
 
         this._textureScale = !!textureScale ? textureScale : [1, 1];
 
@@ -133,7 +143,7 @@ export class Transform {
     }
 
     public get basicRt(): THREE.Matrix4 {
-        return this._basicRt;
+        return this._basicWorldToCamera;
     }
 
     /**
@@ -182,7 +192,7 @@ export class Transform {
      * @returns {THREE.Matrix4} The extrinsic camera matrix.
      */
     public get rt(): THREE.Matrix4 {
-        return this._rt;
+        return this._worldToCamera;
     }
 
     /**
@@ -190,7 +200,15 @@ export class Transform {
      * @returns {THREE.Matrix4} The scaled extrinsic camera matrix.
      */
     public get srt(): THREE.Matrix4 {
-        return this._srt;
+        return this._scaledWorldToCamera;
+    }
+
+    /**
+     * Get srtInverse.
+     * @returns {THREE.Matrix4} The scaled extrinsic camera matrix.
+     */
+    public get srtInverse(): THREE.Matrix4 {
+        return this._scaledWorldToCameraInverse;
     }
 
     /**
@@ -236,7 +254,7 @@ export class Transform {
      * @returns {THREE.Vector3} Normalized and orientation adjusted up vector.
      */
     public upVector(): THREE.Vector3 {
-        let rte: number[] = this._rt.elements;
+        let rte: number[] = this._worldToCamera.elements;
 
         switch (this._orientation) {
             case 1:
@@ -270,7 +288,7 @@ export class Transform {
             0, 0, 1, 0);
 
         projector.multiply(projection);
-        projector.multiply(this._rt);
+        projector.multiply(this._worldToCamera);
 
         return projector;
     }
@@ -309,7 +327,7 @@ export class Transform {
      */
     public projectSfM(point3d: number[]): number[] {
         let v: THREE.Vector4 = new THREE.Vector4(point3d[0], point3d[1], point3d[2], 1);
-        v.applyMatrix4(this._rt);
+        v.applyMatrix4(this._worldToCamera);
         return this._bearingToSfm([v.x, v.y, v.z]);
     }
 
@@ -317,10 +335,11 @@ export class Transform {
      * Unproject SfM coordinates to a 3D world coordinates.
      *
      * @param {Array<number>} sfm - 2D SfM coordinates.
-     * @param {Array<number>} distance - Distance to unproject from camera center.
-     * @param {boolean} [depth] - Treat the distance value as depth from camera center.
-     *                            Only applicable for perspective images. Will be
-     *                            ignored for spherical.
+     * @param {Array<number>} distance - Distance to unproject
+     * from camera center.
+     * @param {boolean} [depth] - Treat the distance value as
+     * depth from camera center. Only applicable for perspective
+     * images. Will be ignored for spherical.
      * @returns {Array<number>} Unprojected 3D world coordinates.
      */
     public unprojectSfM(
@@ -328,7 +347,7 @@ export class Transform {
         distance: number,
         depth?: boolean): number[] {
         const bearing = this._sfmToBearing(sfm);
-        const v = depth && !isSpherical(this._cameraType) ?
+        const unprojectedCamera = depth && !isSpherical(this._cameraType) ?
             new THREE.Vector4(
                 distance * bearing[0] / bearing[2],
                 distance * bearing[1] / bearing[2],
@@ -340,8 +359,13 @@ export class Transform {
                 distance * bearing[2],
                 1);
 
-        v.applyMatrix4(new THREE.Matrix4().copy(this._rt).invert());
-        return [v.x / v.w, v.y / v.w, v.z / v.w];
+        const unprojectedWorld = unprojectedCamera
+            .applyMatrix4(this._worldToCameraInverse);
+        return [
+            unprojectedWorld.x / unprojectedWorld.w,
+            unprojectedWorld.y / unprojectedWorld.w,
+            unprojectedWorld.z / unprojectedWorld.w,
+        ];
     }
 
     /**
@@ -581,45 +605,46 @@ export class Transform {
      * @param {Array<number>} translation - Translation vector.
      * @returns {THREE.Matrix4} Extrisic camera matrix.
      */
-    private _getRt(rotation: number[], translation: number[]): THREE.Matrix4 {
-        let axis: THREE.Vector3 = new THREE.Vector3(rotation[0], rotation[1], rotation[2]);
-        let angle: number = axis.length();
+    private createWorldToCamera(
+        rotation: number[],
+        translation: number[]): THREE.Matrix4 {
+        const axis = new THREE.Vector3(rotation[0], rotation[1], rotation[2]);
+        const angle = axis.length();
         if (angle > 0) {
             axis.normalize();
         }
 
-        let rt: THREE.Matrix4 = new THREE.Matrix4();
-        rt.makeRotationAxis(axis, angle);
-        rt.setPosition(
+        const worldToCamera = new THREE.Matrix4();
+        worldToCamera.makeRotationAxis(axis, angle);
+        worldToCamera.setPosition(
             new THREE.Vector3(
                 translation[0],
                 translation[1],
                 translation[2]));
 
-        return rt;
+        return worldToCamera;
     }
 
     /**
      * Calculates the scaled extrinsic camera matrix scale * [ R | t ].
      *
-     * @param {THREE.Matrix4} rt - Extrisic camera matrix.
+     * @param {THREE.Matrix4} worldToCamera - Extrisic camera matrix.
      * @param {number} scale - Scale factor.
      * @returns {THREE.Matrix4} Scaled extrisic camera matrix.
      */
-    private _getSrt(rt: THREE.Matrix4, scale: number): THREE.Matrix4 {
-        let srt: THREE.Matrix4 = rt.clone();
-        let elements: number[] = srt.elements;
-
+    private _createScaledWorldToCamera(
+        worldToCamera: THREE.Matrix4,
+        scale: number): THREE.Matrix4 {
+        const scaledWorldToCamera = worldToCamera.clone();
+        const elements = scaledWorldToCamera.elements;
         elements[12] = scale * elements[12];
         elements[13] = scale * elements[13];
         elements[14] = scale * elements[14];
-
-        srt.scale(new THREE.Vector3(scale, scale, scale));
-
-        return srt;
+        scaledWorldToCamera.scale(new THREE.Vector3(scale, scale, scale));
+        return scaledWorldToCamera;
     }
 
-    private _getBasicRt(rt: THREE.Matrix4, orientation: number): THREE.Matrix4 {
+    private _createBasicWorldToCamera(rt: THREE.Matrix4, orientation: number): THREE.Matrix4 {
         const axis: THREE.Vector3 = new THREE.Vector3(0, 0, 1);
         let angle: number = 0;
 

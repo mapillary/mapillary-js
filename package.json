@@ -99,7 +99,7 @@
     "serve": "node server.js",
     "serve-docs": "python3 -m http.server",
     "start": "yarn start-init && concurrently --kill-others-on-fail -n 'compile,bundle,serve' 'yarn compile-watch' 'yarn bundle-watch' 'yarn serve'",
-    "start-init": "yarn clean-dist && yarn build-styles && yarn compile-incremental",
+    "start-init": "yarn clean-build && yarn clean-dist && yarn build-styles && yarn compile-incremental",
     "test": "yarn clean-build && yarn compile-test && jest"
   }
 }
