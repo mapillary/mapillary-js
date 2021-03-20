@@ -2,7 +2,7 @@ import * as geohash from "latlon-geohash";
 
 import { GeometryProviderBase } from "./GeometryProviderBase";
 import { CellCorners, CellNeighbors } from "./interfaces/CellCorners";
-import { LatLonEnt } from "./ents/LatLonEnt";
+import { LatLon } from "./interfaces/LatLon";
 
 import { GeoCoords } from "../geo/GeoCoords";
 
@@ -44,22 +44,22 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
      * The method currently uses the largest side as the threshold leading to
      * more tiles being returned than needed in edge cases.
      *
-     * @param {LatLonEnt} sw - South west corner of bounding box.
-     * @param {LatLonEnt} ne - North east corner of bounding box.
+     * @param {LatLon} sw - South west corner of bounding box.
+     * @param {LatLon} ne - North east corner of bounding box.
      *
      * @returns {string} The geohash tiles containing the bounding box.
      */
-    public bboxToCellIds(sw: LatLonEnt, ne: LatLonEnt): string[] {
+    public bboxToCellIds(sw: LatLon, ne: LatLon): string[] {
         return this._bboxSquareToCellIds(sw, ne);
     }
 
     /** @inheritdoc */
     public getCorners(cellId: string): CellCorners {
         const bounds: geohash.Bounds = geohash.bounds(cellId);
-        const nw: LatLonEnt = { lat: bounds.ne.lat, lon: bounds.sw.lon };
-        const ne: LatLonEnt = { lat: bounds.ne.lat, lon: bounds.ne.lon };
-        const se: LatLonEnt = { lat: bounds.ne.lat, lon: bounds.sw.lon };
-        const sw: LatLonEnt = { lat: bounds.sw.lat, lon: bounds.sw.lon };
+        const nw: LatLon = { lat: bounds.ne.lat, lon: bounds.sw.lon };
+        const ne: LatLon = { lat: bounds.ne.lat, lon: bounds.ne.lon };
+        const se: LatLon = { lat: bounds.ne.lat, lon: bounds.sw.lon };
+        const sw: LatLon = { lat: bounds.sw.lat, lon: bounds.sw.lon };
         return { nw, ne, se, sw };
     }
 
@@ -71,13 +71,13 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
     /**
      * Encode the geohash tile for geodetic coordinates.
      *
-     * @param {LatLonEnt} latlon - Latitude and longitude to encode.
+     * @param {LatLon} latlon - Latitude and longitude to encode.
      * @param {number} precision - Precision of the encoding.
      *
      * @returns {string} The geohash tile for the lat, lon and precision.
      */
     public latLonToCellId(
-        latLon: LatLonEnt,
+        latLon: LatLon,
         relativeLevel: number = 0): string {
 
         return geohash.encode(
@@ -90,7 +90,7 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
      * Encode the geohash tiles within a threshold from a position
      * using Manhattan distance.
      *
-     * @param {LatLonEnt} latlon - Latitude and longitude to encode.
+     * @param {LatLon} latlon - Latitude and longitude to encode.
      * @param {number} precision - Precision of the encoding.
      * @param {number} threshold - Threshold of the encoding in meters.
      *
@@ -98,7 +98,7 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
      * threshold.
      */
     public latLonToCellIds(
-        latLon: LatLonEnt,
+        latLon: LatLon,
         threshold: number,
         relativeLevel: number = 0): string[] {
 
@@ -124,7 +124,7 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
     }
 
     private _filterNeighbors(
-        latLon: LatLonEnt,
+        latLon: LatLon,
         threshold: number,
         cellId: string,
         corners: CellCorners,

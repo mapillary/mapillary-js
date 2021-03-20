@@ -1,6 +1,6 @@
 import { CameraEnt } from "./CameraEnt";
 import { CameraShotEnt } from "./CameraShotEnt";
-import { LatLonAltEnt } from "./LatLonAltEnt";
+import { LatLonAlt } from "../interfaces/LatLonAlt";
 import { PointEnt } from "./PointEnt";
 
 export interface ClusterReconstructionEnt {
@@ -25,7 +25,7 @@ export interface ClusterReconstructionEnt {
      * position of the reconstruction in world reference
      * frame.
      */
-    reference: LatLonAltEnt;
+    reference: LatLonAlt;
 
     /**
      * The shots of the reconstruction.

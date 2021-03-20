@@ -3,11 +3,10 @@ import {
     Subscriber,
 } from "rxjs";
 import { DataProviderBase } from "./DataProviderBase";
-
-import { CoreImageEnt } from "./ents/CoreImageEnt";
-import { SpatialImageEnt } from "./ents/SpatialImageEnt";
-import { ImageEnt } from "./ents/ImageEnt";
-import { SequenceEnt } from "./ents/SequenceEnt";
+import { CoreImagesContract } from "./contracts/CoreImagesContract";
+import { ImagesContract } from "./contracts/ImagesContract";
+import { SpatialImagesContract } from "./contracts/SpatialImagesContract";
+import { SequencesContract } from "./contracts/SequencesContract";
 
 /**
  * @class API
@@ -15,33 +14,34 @@ import { SequenceEnt } from "./ents/SequenceEnt";
  * @classdesc Provides methods for access to the API.
  */
 export class APIWrapper {
-    constructor(private _data: DataProviderBase) { }
+    constructor(private readonly _data: DataProviderBase) { }
 
     public get data(): DataProviderBase {
         return this._data;
     }
 
-    public imageByKeyFill$(keys: string[]): Observable<{ [key: string]: SpatialImageEnt }> {
-        return this._wrapPromise$(this._data.getFillImages(keys));
+    public getSpatialImages$(
+        imageIds: string[]): Observable<SpatialImagesContract> {
+        return this._wrap$(this._data.getSpatialImages(imageIds));
     }
 
-    public imageByKeyFull$(keys: string[]): Observable<{ [key: string]: ImageEnt }> {
-        return this._wrapPromise$(this._data.getFullImages(keys));
+    public getImages$(imageIds: string[]): Observable<ImagesContract> {
+        return this._wrap$(this._data.getImages(imageIds));
     }
 
-    public imagesByH$(h: string): Observable<{ [h: string]: { [index: string]: CoreImageEnt } }> {
-        return this._wrapPromise$(this._data.getCoreImages(h));
+    public getCoreImages$(cellId: string): Observable<CoreImagesContract> {
+        return this._wrap$(this._data.getCoreImages(cellId));
     }
 
-    public sequenceByKey$(sequenceKeys: string[]): Observable<{ [sequenceKey: string]: SequenceEnt }> {
-        return this._wrapPromise$(this._data.getSequences(sequenceKeys));
+    public getSequences$(sequenceIds: string[]): Observable<SequencesContract> {
+        return this._wrap$(this._data.getSequences(sequenceIds));
     }
 
     public setUserToken(userToken?: string): void {
         this._data.setUserToken(userToken);
     }
 
-    private _wrapPromise$<T>(promise: Promise<T>): Observable<T> {
+    private _wrap$<T>(promise: Promise<T>): Observable<T> {
         return Observable
             .create(
                 (subscriber: Subscriber<T>): void => {

@@ -7,7 +7,7 @@ import { NavigationEdgeStatus } from "./interfaces/NavigationEdgeStatus";
 
 import { CoreImageEnt } from "../api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
-import { LatLonEnt } from "../api/ents/LatLonEnt";
+import { LatLon } from "../api/interfaces/LatLon";
 import { MeshEnt } from "../api/ents/MeshEnt";
 import { ImageSize } from "../viewer/ImageSize";
 import { isSpherical } from "../geo/Geo";
@@ -200,10 +200,10 @@ export class Node {
      *
      * @description Will not be set if SfM has not been run.
      *
-     * @returns {LatLonEnt} SfM computed latitude longitude in WGS84 datum,
+     * @returns {LatLon} SfM computed latitude longitude in WGS84 datum,
      * measured in degrees.
      */
-    public get computedLatLon(): LatLonEnt {
+    public get computedLatLon(): LatLon {
         return this._core.computed_geometry;
     }
 
@@ -271,10 +271,10 @@ export class Node {
      * it will be returned, otherwise the original EXIF latitude
      * longitude.
      *
-     * @returns {LatLonEnt} Latitude longitude in WGS84 datum,
+     * @returns {LatLon} Latitude longitude in WGS84 datum,
      * measured in degrees.
      */
-    public get latLon(): LatLonEnt {
+    public get latLon(): LatLon {
         return this._core.computed_geometry != null ?
             this._core.computed_geometry :
             this._core.geometry;
@@ -371,10 +371,10 @@ export class Node {
     /**
      * Get originalLatLon.
      *
-     * @returns {LatLonEnt} Original EXIF latitude longitude in
+     * @returns {LatLon} Original EXIF latitude longitude in
      * WGS84 datum, measured in degrees.
      */
-    public get originalLatLon(): LatLonEnt {
+    public get originalLatLon(): LatLon {
         return this._core.geometry;
     }
 

@@ -35,7 +35,7 @@ import {
 } from "../../api/interfaces/CellCorners";
 import { ClusterReconstructionEnt } from "../../api/ents/ClusterReconstructionEnt";
 import { GeoCoords } from "../../geo/GeoCoords";
-import { LatLonAltEnt } from "../../api/ents/LatLonAltEnt";
+import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
 import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
 import { ViewportCoords } from "../../geo/ViewportCoords";
@@ -234,7 +234,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         subs.push(tile$.pipe(
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([cell, reference]: [Cell, LatLonAltEnt]): void => {
+                ([cell, reference]: [Cell, LatLonAlt]): void => {
                     if (this._scene.hasTile(cell.id)) {
                         return;
                     }
@@ -247,7 +247,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         subs.push(tile$.pipe(
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([cell, reference]: [Cell, LatLonAltEnt]): void => {
+                ([cell, reference]: [Cell, LatLonAlt]): void => {
                     this._addSceneNodes(cell, reference);
                 }));
 
@@ -275,7 +275,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                 }),
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([[hash, reconstruction], reference]: [[string, ClusterReconstructionEnt], LatLonAltEnt]): void => {
+                ([[hash, reconstruction], reference]: [[string, ClusterReconstructionEnt], LatLonAlt]): void => {
                     if (this._scene.hasClusterReconstruction(reconstruction.id, hash)) {
                         return;
                     }
@@ -462,7 +462,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                         return this._cache.hasTile(cellId);
                     }),
                 mergeMap(
-                    (cellId: string): Observable<[Cell, LatLonAltEnt]> => {
+                    (cellId: string): Observable<[Cell, LatLonAlt]> => {
                         return this._cache.updateCell$(cellId).pipe(
                             map((nodes: Node[]) => ({ id: cellId, nodes })),
                             withLatestFrom(
@@ -470,19 +470,19 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                             )
                         );
                     }),
-                publish<[Cell, LatLonAltEnt]>(),
+                publish<[Cell, LatLonAlt]>(),
                 refCount())
 
         subs.push(updatedCell$
             .subscribe(
-                ([cell, reference]: [Cell, LatLonAltEnt]): void => {
+                ([cell, reference]: [Cell, LatLonAlt]): void => {
                     this._addSceneNodes(cell, reference);
                 }));
 
         subs.push(updatedCell$
             .pipe(
                 concatMap(
-                    ([cell]: [Cell, LatLonAltEnt]): Observable<[string, ClusterReconstructionEnt]> => {
+                    ([cell]: [Cell, LatLonAlt]): Observable<[string, ClusterReconstructionEnt]> => {
                         const cellId = cell.id;
                         const cache = this._cache;
                         let reconstructions$: Observable<ClusterReconstructionEnt>;
@@ -507,7 +507,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                     }),
                 withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([[hash, reconstruction], reference]: [[string, ClusterReconstructionEnt], LatLonAltEnt]): void => {
+                ([[hash, reconstruction], reference]: [[string, ClusterReconstructionEnt], LatLonAlt]): void => {
                     if (this._scene.hasClusterReconstruction(reconstruction.id, hash)) {
                         return;
                     }
@@ -545,7 +545,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         };
     }
 
-    private _addSceneNodes(cell: Cell, reference: LatLonAltEnt): void {
+    private _addSceneNodes(cell: Cell, reference: LatLonAlt): void {
         const cellId = cell.id;
         const nodes = cell.nodes;
         for (const node of nodes) {
@@ -604,7 +604,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         this._adjacentComponentRecursive(hashSet, newHashes, currentDepth + 1, maxDepth);
     }
 
-    private _computeOriginalPosition(node: Node, reference: LatLonAltEnt): number[] {
+    private _computeOriginalPosition(node: Node, reference: LatLonAlt): number[] {
         return this._geoCoords.geodeticToEnu(
             node.originalLatLon.lat,
             node.originalLatLon.lon,
@@ -614,7 +614,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             reference.alt);
     }
 
-    private _computeTileBBox(hash: string, reference: LatLonAltEnt): number[][] {
+    private _computeTileBBox(hash: string, reference: LatLonAlt): number[][] {
         const corners: CellCorners =
             this._navigator.api.data.geometry.getCorners(hash);
 
@@ -637,7 +637,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         return [sw, ne];
     }
 
-    private _createTransform(node: Node, reference: LatLonAltEnt): Transform {
+    private _createTransform(node: Node, reference: LatLonAlt): Transform {
         const translation: number[] = Geo.computeTranslation(
             { alt: node.computedAltitude, lat: node.latLon.lat, lon: node.latLon.lon },
             node.rotation,
@@ -697,7 +697,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         }
     }
 
-    private _computeTranslation(reconstruction: ClusterReconstructionEnt, reference: LatLonAltEnt): number[] {
+    private _computeTranslation(reconstruction: ClusterReconstructionEnt, reference: LatLonAlt): number[] {
         return this._geoCoords.geodeticToEnu(
             reconstruction.reference.lat,
             reconstruction.reference.lon,

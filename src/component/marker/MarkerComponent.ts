@@ -26,9 +26,9 @@ import { Component } from "../Component";
 import { Node } from "../../graph/Node";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
-import { LatLonEnt } from "../../api/ents/LatLonEnt";
+import { LatLon } from "../../api/interfaces/LatLon";
 import { GeoCoords } from "../../geo/GeoCoords";
-import { LatLonAltEnt } from "../../api/ents/LatLonAltEnt";
+import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { GraphCalculator } from "../../graph/GraphCalculator";
 import { GLRenderStage } from "../../render/GLRenderStage";
@@ -292,16 +292,16 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                     return { visibleBBoxSize: Math.max(1, Math.min(200, configuration.visibleBBoxSize)) };
                 }));
 
-        const currentlatLon$: Observable<LatLonEnt> = this._navigator.stateService.currentNode$.pipe(
-            map((node: Node): LatLonEnt => { return node.latLon; }),
+        const currentlatLon$: Observable<LatLon> = this._navigator.stateService.currentNode$.pipe(
+            map((node: Node): LatLon => { return node.latLon; }),
             publishReplay(1),
             refCount());
 
-        const visibleBBox$: Observable<[LatLonEnt, LatLonEnt]> = observableCombineLatest(
+        const visibleBBox$: Observable<[LatLon, LatLon]> = observableCombineLatest(
             clampedConfiguration$,
             currentlatLon$).pipe(
                 map(
-                    ([configuration, latLon]: [MarkerConfiguration, LatLonEnt]): [LatLonEnt, LatLonEnt] => {
+                    ([configuration, latLon]: [MarkerConfiguration, LatLon]): [LatLon, LatLon] => {
                         return this._graphCalculator
                             .boundingBoxCorners(latLon, configuration.visibleBBoxSize / 2);
                     }),
@@ -314,20 +314,20 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                 this._markerSet.changed$),
             visibleBBox$).pipe(
                 map(
-                    ([set, bbox]: [MarkerSet, [LatLonEnt, LatLonEnt]]): Marker[] => {
+                    ([set, bbox]: [MarkerSet, [LatLon, LatLon]]): Marker[] => {
                         return set.search(bbox);
                     }));
 
         this._setChangedSubscription = geoInitiated$.pipe(
             switchMap(
-                (): Observable<[Marker[], LatLonAltEnt, number]> => {
+                (): Observable<[Marker[], LatLonAlt, number]> => {
                     return visibleMarkers$.pipe(
                         withLatestFrom(
                             this._navigator.stateService.reference$,
                             groundAltitude$));
                 }))
             .subscribe(
-                ([markers, reference, alt]: [Marker[], LatLonAltEnt, number]): void => {
+                ([markers, reference, alt]: [Marker[], LatLonAlt, number]): void => {
                     const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
                     const sceneMarkers: { [id: string]: Marker } = markerScene.markers;
@@ -361,7 +361,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
 
         this._markersUpdatedSubscription = geoInitiated$.pipe(
             switchMap(
-                (): Observable<[Marker[], [LatLonEnt, LatLonEnt], LatLonAltEnt, number]> => {
+                (): Observable<[Marker[], [LatLon, LatLon], LatLonAlt, number]> => {
                     return this._markerSet.updated$.pipe(
                         withLatestFrom(
                             visibleBBox$,
@@ -369,7 +369,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                             groundAltitude$));
                 }))
             .subscribe(
-                ([markers, [sw, ne], reference, alt]: [Marker[], [LatLonEnt, LatLonEnt], LatLonAltEnt, number]): void => {
+                ([markers, [sw, ne], reference, alt]: [Marker[], [LatLon, LatLon], LatLonAlt, number]): void => {
                     const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
 
@@ -401,7 +401,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
             skip(1),
             withLatestFrom(groundAltitude$))
             .subscribe(
-                ([reference, alt]: [LatLonAltEnt, number]): void => {
+                ([reference, alt]: [LatLonAlt, number]): void => {
                     const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
 
@@ -425,7 +425,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                 this._navigator.stateService.reference$,
                 currentlatLon$))
             .subscribe(
-                ([alt, reference, latLon]: [number, LatLonAltEnt, LatLonEnt]): void => {
+                ([alt, reference, latLon]: [number, LatLonAlt, LatLon]): void => {
                     const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
 
@@ -597,7 +597,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                     clampedConfiguration$))
             .subscribe(
                 ([event, [marker, offset, render], reference, configuration]:
-                    [MouseEvent, [Marker, number[], RenderCamera], LatLonAltEnt, MarkerConfiguration]): void => {
+                    [MouseEvent, [Marker, number[], RenderCamera], LatLonAlt, MarkerConfiguration]): void => {
                     if (!this._markerScene.has(marker.id)) {
                         return;
                     }

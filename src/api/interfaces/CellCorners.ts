@@ -1,4 +1,4 @@
-import { LatLonEnt } from "../ents/LatLonEnt";
+import { LatLon } from "./LatLon";
 
 /**
  * Interface that describes a cell neighbors object.
@@ -56,20 +56,20 @@ export interface CellCorners {
     /**
      * North east corner.
      */
-    ne: LatLonEnt;
+    ne: LatLon;
 
     /**
      * North west corner.
      */
-    nw: LatLonEnt;
+    nw: LatLon;
 
     /**
      * South east corner.
      */
-    se: LatLonEnt;
+    se: LatLon;
 
     /**
      * South west corner.
      */
-    sw: LatLonEnt;
+    sw: LatLon;
 }

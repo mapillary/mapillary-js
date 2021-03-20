@@ -10,7 +10,7 @@ import { WaitingState } from "./states/WaitingState";
 
 import { Camera } from "../geo/Camera";
 import { Transform } from "../geo/Transform";
-import { LatLonAltEnt } from "../api/ents/LatLonAltEnt";
+import { LatLonAlt } from "../api/interfaces/LatLonAlt";
 import { Node } from "../graph/Node";
 
 type StateCreators = Map<string, new (state: StateBase) => StateBase>;
@@ -89,7 +89,7 @@ export class StateContext implements IStateContext {
         return this._transitions.getState(this._state);
     }
 
-    public get reference(): LatLonAltEnt {
+    public get reference(): LatLonAlt {
         return this._state.reference;
     }
 

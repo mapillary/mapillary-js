@@ -1,5 +1,5 @@
 import { SpatialImageEnt } from "../ents/SpatialImageEnt";
 
-export interface SpatialImagesResult {
+export interface SpatialImagesContract {
     [imageId: string]: SpatialImageEnt;
 }

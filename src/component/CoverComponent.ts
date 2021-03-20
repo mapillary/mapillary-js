@@ -205,7 +205,7 @@ export class CoverComponent extends Component<CoverConfiguration> {
     private _getImageSrc$(key: string): Observable<string> {
         return Observable.create(
             (subscriber: Subscriber<string>): void => {
-                this._navigator.api.imageByKeyFull$([key])
+                this._navigator.api.getImages$([key])
                     .subscribe(
                         (fullNodes: { [key: string]: ImageEnt; }): void => {
                             if (!fullNodes[key]) {
@@ -214,7 +214,7 @@ export class CoverComponent extends Component<CoverConfiguration> {
                             }
 
                             this._navigator.api.data
-                                .getImage(fullNodes[key].thumb640_url)
+                                .getImageBuffer(fullNodes[key].thumb640_url)
                                 .then(
                                     (buffer: ArrayBuffer): void => {
                                         const image: HTMLImageElement = new Image();

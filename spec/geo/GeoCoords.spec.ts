@@ -1,5 +1,5 @@
 import { GeoCoords } from "../../src/geo/GeoCoords";
-import { LatLonAltEnt } from "../../src/api/ents/LatLonAltEnt";
+import { LatLonAlt } from "../../src/api/interfaces/LatLonAlt";
 
 let precision: number = 8;
 
@@ -14,7 +14,7 @@ describe("GeoCoords.geodeticToEcef", () => {
     });
 
     it("should convert Equator - Greenwich to X axis value", () => {
-        let position: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let position: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
 
         let ecef: number[] = geoCoords.geodeticToEcef(position.lat, position.lon, position.alt);
 
@@ -24,7 +24,7 @@ describe("GeoCoords.geodeticToEcef", () => {
     });
 
     it("should convert positions on Equator to WGS84 a distance", () => {
-        let position1: LatLonAltEnt = { alt: 0, lat: 0, lon: 90 };
+        let position1: LatLonAlt = { alt: 0, lat: 0, lon: 90 };
 
         let ecef1: number[] = geoCoords.geodeticToEcef(position1.lat, position1.lon, position1.alt);
 
@@ -32,7 +32,7 @@ describe("GeoCoords.geodeticToEcef", () => {
         expect(ecef1[1]).toBeCloseTo(wgs84a, precision);
         expect(ecef1[2]).toBeCloseTo(0, precision);
 
-        let position2: LatLonAltEnt = { alt: 0, lat: 0, lon: 180 };
+        let position2: LatLonAlt = { alt: 0, lat: 0, lon: 180 };
 
         let ecef2: number[] = geoCoords.geodeticToEcef(position2.lat, position2.lon, position2.alt);
 
@@ -40,7 +40,7 @@ describe("GeoCoords.geodeticToEcef", () => {
         expect(ecef2[1]).toBeCloseTo(0, precision);
         expect(ecef2[2]).toBeCloseTo(0, precision);
 
-        let position3: LatLonAltEnt = { alt: 0, lat: 0, lon: -90 };
+        let position3: LatLonAlt = { alt: 0, lat: 0, lon: -90 };
 
         let ecef3: number[] = geoCoords.geodeticToEcef(position3.lat, position3.lon, position3.alt);
 
@@ -50,7 +50,7 @@ describe("GeoCoords.geodeticToEcef", () => {
     });
 
     it("should convert random Equator postion correctly", () => {
-        let position: LatLonAltEnt = { alt: 0, lat: 0, lon: 35.6589 };
+        let position: LatLonAlt = { alt: 0, lat: 0, lon: 35.6589 };
 
         let ecef: number[] = geoCoords.geodeticToEcef(position.lat, position.lon, position.alt);
 
@@ -60,7 +60,7 @@ describe("GeoCoords.geodeticToEcef", () => {
     });
 
     it("should convert value with altitude correctly", () => {
-        let position: LatLonAltEnt = { alt: 452.43537987, lat: 0, lon: 0 };
+        let position: LatLonAlt = { alt: 452.43537987, lat: 0, lon: 0 };
 
         let ecef: number[] = geoCoords.geodeticToEcef(position.lat, position.lon, position.alt);
 
@@ -70,7 +70,7 @@ describe("GeoCoords.geodeticToEcef", () => {
     });
 
     it("should convert North Pole value correctly", () => {
-        let position: LatLonAltEnt = { alt: 0, lat: 90, lon: 0 };
+        let position: LatLonAlt = { alt: 0, lat: 90, lon: 0 };
 
         let ecef: number[] = geoCoords.geodeticToEcef(position.lat, position.lon, position.alt);
 
@@ -80,7 +80,7 @@ describe("GeoCoords.geodeticToEcef", () => {
     });
 
     it("should convert back and forth between WGS84 and ECEF and correspond", () => {
-        let position: LatLonAltEnt = { alt: 25.34543543, lat: 12.469889789, lon: -33.34589734 };
+        let position: LatLonAlt = { alt: 25.34543543, lat: 12.469889789, lon: -33.34589734 };
 
         let ecef: number[] = geoCoords.geodeticToEcef(position.lat, position.lon, position.alt);
         let rePosition: number[] = geoCoords.ecefToGeodetic(ecef[0], ecef[1], ecef[2]);
@@ -166,7 +166,7 @@ describe("GeoCoords.ecefToEnu", () => {
     });
 
     it("should convert to ECEF position corresponding to geodetic to ENU at origin", () => {
-        let ref: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let ref: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let ecef: number[] = [wgs84a, 0, 0];
 
         let enu: number[] = geoCoords.ecefToEnu(ecef[0], ecef[1], ecef[2], ref.lat, ref.lon, ref.alt);
@@ -177,7 +177,7 @@ describe("GeoCoords.ecefToEnu", () => {
     });
 
     it("should convert positions on Equator to ENU positions at origin", () => {
-        let ref1: LatLonAltEnt = { alt: 0, lat: 0, lon: 90 };
+        let ref1: LatLonAlt = { alt: 0, lat: 0, lon: 90 };
         let ecef1: number[] = [0, wgs84a, 0];
 
         let enu1: number[] = geoCoords.ecefToEnu(ecef1[0], ecef1[1], ecef1[2], ref1.lat, ref1.lon, ref1.alt);
@@ -186,7 +186,7 @@ describe("GeoCoords.ecefToEnu", () => {
         expect(enu1[1]).toBeCloseTo(0, precision);
         expect(enu1[2]).toBeCloseTo(0, precision);
 
-        let ref2: LatLonAltEnt = { alt: 0, lat: 0, lon: 180 };
+        let ref2: LatLonAlt = { alt: 0, lat: 0, lon: 180 };
         let ecef2: number[] = [-wgs84a, 0, 0];
 
         let enu2: number[] = geoCoords.ecefToEnu(ecef2[0], ecef2[1], ecef2[2], ref2.lat, ref2.lon, ref2.alt);
@@ -195,7 +195,7 @@ describe("GeoCoords.ecefToEnu", () => {
         expect(enu2[1]).toBeCloseTo(0, precision);
         expect(enu2[2]).toBeCloseTo(0, precision);
 
-        let ref3: LatLonAltEnt = { alt: 0, lat: 0, lon: -90 };
+        let ref3: LatLonAlt = { alt: 0, lat: 0, lon: -90 };
         let ecef3: number[] = [0, -wgs84a, 0];
 
         let enu3: number[] = geoCoords.ecefToEnu(ecef3[0], ecef3[1], ecef3[2], ref3.lat, ref3.lon, ref3.alt);
@@ -206,7 +206,7 @@ describe("GeoCoords.ecefToEnu", () => {
     });
 
     it("should convert ECEF position with altitude to ENU with correct z-value", () => {
-        let ref: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let ref: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
 
         let altitude: number = 5.38973284;
         let ecef: number[] = [wgs84a + altitude, 0, 0];
@@ -219,7 +219,7 @@ describe("GeoCoords.ecefToEnu", () => {
     });
 
     it("should convert ECEF position with translation to correct ENU position", () => {
-        let ref: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let ref: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
 
         let translation: number = 1.38973284;
         let ecef: number[] = [wgs84a, translation, translation];
@@ -240,7 +240,7 @@ describe("GeoCoords.enuToEcef", () => {
     });
 
     it("should convert to ENU position at origin to ECEF X-value", () => {
-        let ref: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let ref: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let enu: number[] = [0, 0, 0];
 
         let ecef: number[] = geoCoords.enuToEcef(enu[0], enu[1], enu[2], ref.lat, ref.lon, ref.alt);
@@ -251,7 +251,7 @@ describe("GeoCoords.enuToEcef", () => {
     });
 
     it("should convert to ENU position with up value to ECEF X-value", () => {
-        let ref: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let ref: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let enu: number[] = [0, 0, 7.3823847239847];
 
         let ecef: number[] = geoCoords.enuToEcef(enu[0], enu[1], enu[2], ref.lat, ref.lon, ref.alt);
@@ -262,7 +262,7 @@ describe("GeoCoords.enuToEcef", () => {
     });
 
     it("should convert ECEF position with translation to correct ENU position", () => {
-        let ref: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let ref: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
 
         let translation: number = -2.34875843758493;
         let enu: number[] = [translation, translation, 0];
@@ -283,8 +283,8 @@ describe("GeoCoords.geodeticToEnu", () => {
     });
 
     it("should convert to ENU position at origin when lla is at reference", () => {
-        let ref: LatLonAltEnt = { alt: 12.523892390, lat: 12.9450823, lon: 133.34589734 };
-        let lla: LatLonAltEnt = { alt: ref.alt, lat: ref.lat, lon: ref.lon };
+        let ref: LatLonAlt = { alt: 12.523892390, lat: 12.9450823, lon: 133.34589734 };
+        let lla: LatLonAlt = { alt: ref.alt, lat: ref.lat, lon: ref.lon };
 
         let enu: number[] = geoCoords.geodeticToEnu(lla.lat, lla.lon, lla.alt, ref.lat, ref.lon, ref.alt);
 
@@ -294,10 +294,10 @@ describe("GeoCoords.geodeticToEnu", () => {
     });
 
     it("should convert to ENU z value corresponding to diff with reference lla", () => {
-        let ref: LatLonAltEnt = { alt: 12.523892390, lat: 12.9450823, lon: 133.34589734 };
+        let ref: LatLonAlt = { alt: 12.523892390, lat: 12.9450823, lon: 133.34589734 };
 
         let altTranslation: number = 4.4556433242;
-        let lla: LatLonAltEnt = { alt: ref.alt + altTranslation, lat: ref.lat, lon: ref.lon };
+        let lla: LatLonAlt = { alt: ref.alt + altTranslation, lat: ref.lat, lon: ref.lon };
 
         let enu: number[] = geoCoords.geodeticToEnu(lla.lat, lla.lon, lla.alt, ref.lat, ref.lon, ref.alt);
 
@@ -307,8 +307,8 @@ describe("GeoCoords.geodeticToEnu", () => {
     });
 
     it("should convert back and forth between WGS84 and ENU and correspond", () => {
-        let ref: LatLonAltEnt = { alt: -3.645563324, lat: 13.469889789, lon: 92.376689734 };
-        let lla: LatLonAltEnt = { alt: ref.alt + 20, lat: ref.lat - 0.01, lon: ref.lon + 0.01 };
+        let ref: LatLonAlt = { alt: -3.645563324, lat: 13.469889789, lon: 92.376689734 };
+        let lla: LatLonAlt = { alt: ref.alt + 20, lat: ref.lat - 0.01, lon: ref.lon + 0.01 };
 
         let enu: number[] = geoCoords.geodeticToEnu(lla.lat, lla.lon, lla.alt, ref.lat, ref.lon, ref.alt);
         let reLla: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], ref.lat, ref.lon, ref.alt);
@@ -327,7 +327,7 @@ describe("GeoCoords.enuToGeodetic", () => {
     });
 
     it("should convert to reference WGS84 when ENU position is origin", () => {
-        let ref: LatLonAltEnt = { alt: 12.523892390, lat: 12.9450823, lon: 133.34589734 };
+        let ref: LatLonAlt = { alt: 12.523892390, lat: 12.9450823, lon: 133.34589734 };
         let enu: number[] = [0, 0, 0];
 
         let lla: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], ref.lat, ref.lon, ref.alt);
@@ -338,7 +338,7 @@ describe("GeoCoords.enuToGeodetic", () => {
     });
 
     it("should convert to reference WGS84 at correct altitude when ENU position has non zero z value", () => {
-        let ref: LatLonAltEnt = { alt: 12.523892390, lat: 12.9450823, lon: 133.34589734 };
+        let ref: LatLonAlt = { alt: 12.523892390, lat: 12.9450823, lon: 133.34589734 };
         let enu: number[] = [0, 0, 5.234872384927];
 
         let lla: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], ref.lat, ref.lon, ref.alt);
@@ -349,7 +349,7 @@ describe("GeoCoords.enuToGeodetic", () => {
     });
 
     it("should convert back and forth between ENU and WGS84 and correspond", () => {
-        let ref: LatLonAltEnt = { alt: 7.34543543, lat: -52.469889789, lon: -113.34589734 };
+        let ref: LatLonAlt = { alt: 7.34543543, lat: -52.469889789, lon: -113.34589734 };
         let enu: number[] = [12.435534543, -55.34242121, 5.98023489];
 
         let lla: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], ref.lat, ref.lon, ref.alt);

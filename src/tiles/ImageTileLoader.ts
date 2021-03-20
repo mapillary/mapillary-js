@@ -56,7 +56,7 @@ export class ImageTileLoader {
             Observable.create(
                 (subscriber: Subscriber<HTMLImageElement>): void => {
                     this._provider
-                        .getImageTile(
+                        .getImageTileBuffer(
                             identifier,
                             x,
                             y,

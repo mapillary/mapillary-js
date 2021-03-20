@@ -3,10 +3,10 @@ import { EventEmitter } from "../utils/EventEmitter";
 import { ClusterReconstructionEnt } from "./ents/ClusterReconstructionEnt";
 import { MeshEnt } from "./ents/MeshEnt";
 import { GeometryProviderBase } from "./GeometryProviderBase";
-import { CoreImagesResult } from "./interfaces/CoreImagesResult";
-import { SpatialImagesResult } from "./interfaces/SpatialImagesResult";
-import { ImagesResult } from "./interfaces/ImagesResult";
-import { SequencesResult } from "./interfaces/SequencesResult";
+import { CoreImagesContract } from "./contracts/CoreImagesContract";
+import { SpatialImagesContract } from "./contracts/SpatialImagesContract";
+import { ImagesContract } from "./contracts/ImagesContract";
+import { SequencesContract } from "./contracts/SequencesContract";
 
 /**
  * @class DataProviderBase
@@ -54,11 +54,11 @@ export abstract class DataProviderBase extends EventEmitter {
      * Get core properties for images in a geometry cell.
      *
      * @param {string} cellId - The id of the geometry cell.
-     * @returns {Promise} Promise to the core nodes of the
+     * @returns {Promise} Promise to the core images of the
      * requested cell id.
      * @throws {Error} Rejects the promise on errors.
      */
-    public getCoreImages(cellId: string): Promise<CoreImagesResult> {
+    public getCoreImages(cellId: string): Promise<CoreImagesContract> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
@@ -82,26 +82,26 @@ export abstract class DataProviderBase extends EventEmitter {
     /**
      * Get fill properties for images.
      *
-     * @param {Array<string>} imageKeys - The keys for the
+     * @param {Array<string>} imageIds - The ids for the
      * images to retrieve.
-     * @returns {Promise} Promise to the fill nodes of the
-     * requested image keys.
+     * @returns {Promise} Promise to the spatial images of the
+     * requested image ids.
      * @throws {Error} Rejects the promise on errors.
      */
-    public getFillImages(imageKeys: string[]): Promise<SpatialImagesResult> {
+    public getSpatialImages(imageIds: string[]): Promise<SpatialImagesContract> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
     /**
      * Get all properties for images.
      *
-     * @param {Array<string>} imageKeys - The keys for the
+     * @param {Array<string>} imageIds - The ids for the
      * images to retrieve.
-     * @returns {Promise} Promise to the full nodes of the
-     * requested image keys.
+     * @returns {Promise} Promise to the images of the
+     * requested image ids.
      * @throws {Error} Rejects the promise on errors.
      */
-    public getFullImages(imageKeys: string[]): Promise<ImagesResult> {
+    public getImages(imageIds: string[]): Promise<ImagesContract> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
@@ -115,14 +115,16 @@ export abstract class DataProviderBase extends EventEmitter {
      * buffer containing the image.
      * @throws {Error} Rejects the promise on errors.
      */
-    public getImage(url: string, abort?: Promise<void>): Promise<ArrayBuffer> {
+    public getImageBuffer(
+        url: string,
+        abort?: Promise<void>): Promise<ArrayBuffer> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
     /**
      * Get an image tile as an array buffer.
      *
-     * @param {string} imageKey - Image key.
+     * @param {string} imageId - Image id.
      * @param {number} x - Pixel coordinate.
      * @param {number} y - Pixel coordinate.
      * @param {number} w - Pixel width.
@@ -135,8 +137,8 @@ export abstract class DataProviderBase extends EventEmitter {
      * buffer containing the image.
      * @throws {Error} Rejects the promise on errors.
      */
-    public getImageTile(
-        imageKey: string,
+    public getImageTileBuffer(
+        imageId: string,
         x: number,
         y: number,
         w: number,
@@ -163,13 +165,13 @@ export abstract class DataProviderBase extends EventEmitter {
     /**
      * Get sequences.
      *
-     * @param {Array<string>} sequenceKeys - The keys for the
+     * @param {Array<string>} sequenceIds - The ids for the
      * sequences to retrieve.
      * @returns {Promise} Promise to the sequences of the
-     * requested image keys.
+     * requested image ids.
      * @throws {Error} Rejects the promise on errors.
      */
-    public getSequences(sequenceKeys: string[]): Promise<SequencesResult> {
+    public getSequences(sequenceIds: string[]): Promise<SequencesContract> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 

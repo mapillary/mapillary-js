@@ -38,7 +38,7 @@ import { APIWrapper } from "../api/APIWrapper";
 import { CoreImageEnt } from "../api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
 import { ImageEnt } from "../api/ents/ImageEnt";
-import { LatLonEnt } from "../api/ents/LatLonEnt";
+import { LatLon } from "../api/interfaces/LatLon";
 import { GraphMapillaryError } from "../error/GraphMapillaryError";
 import { SequenceEnt } from "../api/ents/SequenceEnt";
 
@@ -307,12 +307,12 @@ export class Graph {
      *
      * @description The node assets are not cached.
      *
-     * @param {LatLonEnt} sw - South west corner of bounding box.
-     * @param {LatLonEnt} ne - North east corner of bounding box.
+     * @param {LatLon} sw - South west corner of bounding box.
+     * @param {LatLon} ne - North east corner of bounding box.
      * @returns {Observable<Array<Node>>} Observable emitting
      * the full nodes in the bounding box.
      */
-    public cacheBoundingBox$(sw: LatLonEnt, ne: LatLonEnt): Observable<Node[]> {
+    public cacheBoundingBox$(sw: LatLon, ne: LatLon): Observable<Node[]> {
         const cacheTiles$: Observable<Graph>[] = this._api.data.geometry.bboxToCellIds(sw, ne)
             .filter(
                 (h: string): boolean => {
@@ -367,7 +367,7 @@ export class Graph {
                     const fillNodes$: Observable<Node[]>[] = coreNodeBatches
                         .map(
                             (batch: string[]): Observable<Node[]> => {
-                                return this._api.imageByKeyFill$(batch).pipe(
+                                return this._api.getSpatialImages$(batch).pipe(
                                     map(
                                         (imageByKeyFill: { [key: string]: SpatialImageEnt }): Node[] => {
                                             const filledNodes: Node[] = [];
@@ -444,7 +444,7 @@ export class Graph {
                 const fullNodes$ = observableOf(fullNodes);
                 const fillNodes$ = coreNodeBatches
                     .map((batch: string[]): Observable<Node[]> => {
-                        return this._api.imageByKeyFill$(batch).pipe(
+                        return this._api.getSpatialImages$(batch).pipe(
                             map((nodes: { [key: string]: SpatialImageEnt }):
                                 Node[] => {
                                 const filled: Node[] = [];
@@ -504,7 +504,7 @@ export class Graph {
             throw new GraphMapillaryError(`Cannot fill node that is already full (${key}).`);
         }
 
-        this._cachingFill$[key] = this._api.imageByKeyFill$([key]).pipe(
+        this._cachingFill$[key] = this._api.getSpatialImages$([key]).pipe(
             tap(
                 (imageByKeyFill: { [key: string]: SpatialImageEnt }): void => {
                     if (!node.full) {
@@ -549,7 +549,7 @@ export class Graph {
             throw new GraphMapillaryError(`Cannot cache full node that already exist in graph (${key}).`);
         }
 
-        this._cachingFull$[key] = this._api.imageByKeyFull$([key]).pipe(
+        this._cachingFull$[key] = this._api.getImages$([key]).pipe(
             tap(
                 (imageByKeyFull: { [key: string]: ImageEnt }): void => {
                     let fn: ImageEnt = imageByKeyFull[key];
@@ -700,7 +700,7 @@ export class Graph {
         const sequenceNodes$: Observable<Graph> = observableFrom(batches).pipe(
             mergeMap(
                 (batch: string[]): Observable<Graph> => {
-                    return this._api.imageByKeyFull$(batch).pipe(
+                    return this._api.getImages$(batch).pipe(
                         tap(
                             (imageByKeyFull: { [key: string]: ImageEnt }): void => {
                                 for (const fullKey in imageByKeyFull) {
@@ -795,7 +795,7 @@ export class Graph {
         let spatialNodes$: Observable<Graph>[] = [];
 
         for (let batch of batches) {
-            let spatialNodeBatch$: Observable<Graph> = this._api.imageByKeyFill$(batch).pipe(
+            let spatialNodeBatch$: Observable<Graph> = this._api.getSpatialImages$(batch).pipe(
                 tap(
                     (imageByKeyFill: { [key: string]: SpatialImageEnt }): void => {
                         for (let fillKey in imageByKeyFill) {
@@ -1195,7 +1195,7 @@ export class Graph {
         }
 
         let node: Node = this.getNode(key);
-        let bbox: [LatLonEnt, LatLonEnt] = this._graphCalculator.boundingBoxCorners(node.latLon, this._tileThreshold);
+        let bbox: [LatLon, LatLon] = this._graphCalculator.boundingBoxCorners(node.latLon, this._tileThreshold);
 
         let spatialItems: NodeIndexItem[] = this._nodeIndex.search({
             maxX: bbox[1].lat,
@@ -1626,7 +1626,7 @@ export class Graph {
             return this._cachingSequences$[sequenceKey];
         }
 
-        this._cachingSequences$[sequenceKey] = this._api.sequenceByKey$([sequenceKey]).pipe(
+        this._cachingSequences$[sequenceKey] = this._api.getSequences$([sequenceKey]).pipe(
             tap(
                 (sequenceByKey: { [sequenceKey: string]: SequenceEnt }): void => {
                     if (!(sequenceKey in this._sequences)) {
@@ -1657,7 +1657,7 @@ export class Graph {
     }
 
     private _cacheTile$(h: string): Observable<Graph> {
-        this._cachingTiles$[h] = this._api.imagesByH$(h).pipe(
+        this._cachingTiles$[h] = this._api.getCoreImages$(h).pipe(
             tap(
                 (imagesByH: { [key: string]: { [index: string]: CoreImageEnt } }): void => {
                     let coreNodes: { [index: string]: CoreImageEnt } = imagesByH[h];
@@ -1871,7 +1871,7 @@ export class Graph {
     }
 
     private _updateCell$(cellId: string): Observable<string> {
-        return this._api.imagesByH$(cellId).pipe(
+        return this._api.getCoreImages$(cellId).pipe(
             mergeMap(
                 (imagesByH: { [key: string]: { [index: string]: CoreImageEnt } }): Observable<string> => {
                     if (!(cellId in this._cachedTiles)) {

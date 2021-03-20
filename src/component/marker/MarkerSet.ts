@@ -2,7 +2,7 @@ import {
     Observable,
     Subject,
 } from "rxjs";
-import { LatLonEnt } from "../../api/ents/LatLonEnt";
+import { LatLon } from "../../api/interfaces/LatLon";
 import { Marker } from "./marker/Marker";
 
 type MarkerIndexItem = {
@@ -117,7 +117,7 @@ export class MarkerSet {
         this._indexChanged$.next(this);
     }
 
-    public search([sw, ne]: [LatLonEnt, LatLonEnt]): Marker[] {
+    public search([sw, ne]: [LatLon, LatLon]): Marker[] {
         return this._index
             .search({
                 maxX: ne.lat,

@@ -8,7 +8,7 @@ import { Camera } from "../../geo/Camera";
 import { GeoCoords } from "../../geo/GeoCoords";
 import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
-import { LatLonAltEnt } from "../../api/ents/LatLonAltEnt";
+import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
 import { Node } from "../../graph/Node";
 import { CameraType } from "../../geo/interfaces/CameraType";
 
@@ -16,7 +16,7 @@ export abstract class StateBase implements IStateBase {
     protected _spatial: Spatial;
     protected _geoCoords: GeoCoords;
 
-    protected _reference: LatLonAltEnt;
+    protected _reference: LatLonAlt;
 
     protected _alpha: number;
     protected _camera: Camera;
@@ -93,7 +93,7 @@ export abstract class StateBase implements IStateBase {
             this._currentCamera.clone();
     }
 
-    public get reference(): LatLonAltEnt {
+    public get reference(): LatLonAlt {
         return this._reference;
     }
 
@@ -403,7 +403,7 @@ export abstract class StateBase implements IStateBase {
         }
     }
 
-    private _nodeToTranslation(node: Node, reference: LatLonAltEnt): number[] {
+    private _nodeToTranslation(node: Node, reference: LatLonAlt): number[] {
         return Geo.computeTranslation(
             { alt: node.computedAltitude, lat: node.latLon.lat, lon: node.latLon.lon },
             node.rotation,

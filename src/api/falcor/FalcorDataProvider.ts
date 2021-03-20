@@ -23,10 +23,10 @@ import {
     SequenceByKey,
     SpatialImageByKey,
 } from "./FalcorDataContracts";
-import { CoreImagesResult } from "../interfaces/CoreImagesResult";
-import { SpatialImagesResult } from "../interfaces/SpatialImagesResult";
-import { SequencesResult } from "../interfaces/SequencesResult";
-import { ImagesResult } from "../interfaces/ImagesResult";
+import { CoreImagesContract } from "../contracts/CoreImagesContract";
+import { SpatialImagesContract } from "../contracts/SpatialImagesContract";
+import { SequencesContract } from "../contracts/SequencesContract";
+import { ImagesContract } from "../contracts/ImagesContract";
 import { CoreImageEnt } from "../ents/CoreImageEnt";
 
 
@@ -89,7 +89,7 @@ export class FalcorDataProvider extends DataProviderBase {
     /**
      * @inheritdoc
      */
-    public getCoreImages(cellId: string): Promise<CoreImagesResult> {
+    public getCoreImages(cellId: string): Promise<CoreImagesContract> {
         return Promise
             .resolve(<PromiseLike<ImagesByH>>this._model
                 .get([
@@ -99,7 +99,7 @@ export class FalcorDataProvider extends DataProviderBase {
                     this._convert.propertiesKey
                         .concat(this._convert.propertiesCore)]))
             .then(
-                (value: ImagesByH): CoreImagesResult => {
+                (value: ImagesByH): CoreImagesContract => {
                     if (!value) {
                         value = { json: { imagesByH: {} } };
                         for (const h of [cellId]) {
@@ -109,7 +109,7 @@ export class FalcorDataProvider extends DataProviderBase {
                             }
                         }
                     }
-                    const result: CoreImagesResult = {};
+                    const result: CoreImagesContract = {};
                     const imagesByH = value.json.imagesByH;
                     for (const cid in imagesByH) {
                         if (!imagesByH.hasOwnProperty(cid)) { continue; }
@@ -159,7 +159,7 @@ export class FalcorDataProvider extends DataProviderBase {
     /**
      * @inheritdoc
      */
-    public getFillImages(keys: string[]): Promise<SpatialImagesResult> {
+    public getSpatialImages(keys: string[]): Promise<SpatialImagesContract> {
         return Promise
             .resolve(<PromiseLike<SpatialImageByKey>>this._model
                 .get([
@@ -170,14 +170,14 @@ export class FalcorDataProvider extends DataProviderBase {
                     this._convert.propertiesKey
                         .concat(this._convert.propertiesUser)]))
             .then(
-                (value: SpatialImageByKey): SpatialImagesResult => {
+                (value: SpatialImageByKey): SpatialImagesContract => {
                     if (!value) {
                         this._invalidateGet(this._pathImageByKey, keys);
                         throw new Error(
                             `Images (${keys.join(", ")}) ` +
                             `could not be found.`);
                     }
-                    const result: SpatialImagesResult = {};
+                    const result: SpatialImagesContract = {};
                     const imageByKey = value.json.imageByKey;
                     for (const key in imageByKey) {
                         if (!imageByKey.hasOwnProperty(key)) { continue; }
@@ -196,7 +196,7 @@ export class FalcorDataProvider extends DataProviderBase {
     /**
      * @inheritdoc
      */
-    public getFullImages(keys: string[]): Promise<ImagesResult> {
+    public getImages(keys: string[]): Promise<ImagesContract> {
         return Promise
             .resolve(<PromiseLike<ImageByKey>>this._model
                 .get([
@@ -208,13 +208,13 @@ export class FalcorDataProvider extends DataProviderBase {
                     this._convert.propertiesKey
                         .concat(this._convert.propertiesUser)]))
             .then(
-                (value: ImageByKey): ImagesResult => {
+                (value: ImageByKey): ImagesContract => {
                     if (!value) {
                         this._invalidateGet(this._pathImageByKey, keys);
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
                     }
 
-                    const result: ImagesResult = {};
+                    const result: ImagesContract = {};
                     const imageByKey = value.json.imageByKey;
                     for (const key in imageByKey) {
                         if (!imageByKey.hasOwnProperty(key)) { continue; }
@@ -234,14 +234,14 @@ export class FalcorDataProvider extends DataProviderBase {
     /**
      * @inheritdoc
      */
-    public getImage(url: string, abort?: Promise<void>): Promise<ArrayBuffer> {
+    public getImageBuffer(url: string, abort?: Promise<void>): Promise<ArrayBuffer> {
         return BufferFetcher.getArrayBuffer(url, abort);
     }
 
     /**
      * @inheritdoc
      */
-    public getImageTile(
+    public getImageTileBuffer(
         imageKey: string,
         x: number,
         y: number,
@@ -273,7 +273,7 @@ export class FalcorDataProvider extends DataProviderBase {
     /**
      * @inheritdoc
      */
-    public getSequences(sequenceKeys: string[]): Promise<SequencesResult> {
+    public getSequences(sequenceKeys: string[]): Promise<SequencesContract> {
         return Promise
             .resolve(<PromiseLike<SequenceByKey>>this._model
                 .get([
@@ -282,9 +282,9 @@ export class FalcorDataProvider extends DataProviderBase {
                     this._convert.propertiesKey
                         .concat(this._convert.propertiesSequence)]))
             .then(
-                (value: SequenceByKey): SequencesResult => {
+                (value: SequenceByKey): SequencesContract => {
                     if (!value) { value = { json: { sequenceByKey: {} } }; }
-                    const result: SequencesResult = {};
+                    const result: SequencesContract = {};
                     for (const sequenceKey of sequenceKeys) {
                         const exists = sequenceKey in value.json.sequenceByKey;
                         if (!exists) {

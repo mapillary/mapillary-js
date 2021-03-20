@@ -1,9 +1,9 @@
 import * as THREE from "three";
-import { LatLonEnt } from "../../../src/api/ents/LatLonEnt";
+import { LatLon } from "../../../src/api/interfaces/LatLon";
 import { Marker } from "../../../src/component/marker/marker/Marker";
 
 class TestMarker extends Marker {
-    constructor(id: string, latLon: LatLonEnt) { super(id, latLon); }
+    constructor(id: string, latLon: LatLon) { super(id, latLon); }
     protected _createGeometry(position: number[]): void {
         this._geometry = new THREE.Object3D();
         this._geometry.position.fromArray(position);

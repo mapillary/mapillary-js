@@ -29,11 +29,11 @@ import { AnimationFrame } from "./interfaces/AnimationFrame";
 import { EulerRotation } from "./interfaces/EulerRotation";
 import { IStateContext } from "./interfaces/IStateContext";
 
-import { LatLonEnt } from "../api/ents/LatLonEnt";
+import { LatLon } from "../api/interfaces/LatLon";
 import { Camera } from "../geo/Camera";
 import { Node } from "../graph/Node";
 import { Transform } from "../geo/Transform";
-import { LatLonAltEnt } from "../api/ents/LatLonAltEnt";
+import { LatLonAlt } from "../api/interfaces/LatLonAlt";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 
 interface IContextOperation {
@@ -57,7 +57,7 @@ export class StateService {
     private _currentCamera$: Observable<Camera>;
     private _currentId$: BehaviorSubject<string>;
     private _currentTransform$: Observable<Transform>;
-    private _reference$: Observable<LatLonAltEnt>;
+    private _reference$: Observable<LatLonAlt>;
 
     private _inMotionOperation$: Subject<boolean>;
     private _inMotion$: Observable<boolean>;
@@ -196,14 +196,14 @@ export class StateService {
 
         this._reference$ = nodeChangedSubject$.pipe(
             map(
-                (f: AnimationFrame): LatLonAltEnt => {
+                (f: AnimationFrame): LatLonAlt => {
                     return f.state.reference;
                 }),
             distinctUntilChanged(
-                (r1: LatLonEnt, r2: LatLonEnt): boolean => {
+                (r1: LatLon, r2: LatLon): boolean => {
                     return r1.lat === r2.lat && r1.lon === r2.lon;
                 },
-                (reference: LatLonAltEnt): LatLonEnt => {
+                (reference: LatLonAlt): LatLon => {
                     return { lat: reference.lat, lon: reference.lon };
                 }),
             publishReplay(1),
@@ -362,7 +362,7 @@ export class StateService {
         return this._state$;
     }
 
-    public get reference$(): Observable<LatLonAltEnt> {
+    public get reference$(): Observable<LatLonAlt> {
         return this._reference$;
     }
 

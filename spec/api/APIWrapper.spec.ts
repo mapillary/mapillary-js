@@ -23,14 +23,14 @@ describe("APIWrapperimageByKeyFill$", () => {
         };
 
         const provider = new DataProvider();
-        const providerSpy: jasmine.Spy = spyOn(provider, "getFillImages");
+        const providerSpy: jasmine.Spy = spyOn(provider, "getSpatialImages");
         providerSpy.and.returnValue(promise);
 
         const api: APIWrapper = new APIWrapper(provider);
 
         const key: string = "key";
 
-        api.imageByKeyFill$([key])
+        api.getSpatialImages$([key])
             .subscribe(
                 (result: { [key: string]: SpatialImageEnt }): void => {
                     expect(result).toBeDefined();
@@ -51,14 +51,14 @@ describe("APIWrapperimageByKeyFill$", () => {
         };
 
         const provider = new DataProvider();
-        const providerSpy: jasmine.Spy = spyOn(provider, "getFillImages");
+        const providerSpy: jasmine.Spy = spyOn(provider, "getSpatialImages");
         providerSpy.and.returnValue(promise);
 
         const api: APIWrapper = new APIWrapper(provider);
 
         const key: string = "key";
 
-        api.imageByKeyFill$([key]).pipe(
+        api.getSpatialImages$([key]).pipe(
             catchError(
                 (err: Error): Observable<{}> => {
                     expect(err).toBeDefined();
@@ -82,14 +82,14 @@ describe("APIWrapperimageByKeyFull$", () => {
         };
 
         const provider = new DataProvider();
-        const providerSpy: jasmine.Spy = spyOn(provider, "getFullImages");
+        const providerSpy: jasmine.Spy = spyOn(provider, "getImages");
         providerSpy.and.returnValue(promise);
 
         const api: APIWrapper = new APIWrapper(provider);
 
         const key: string = "key";
 
-        api.imageByKeyFull$([key])
+        api.getImages$([key])
             .subscribe(
                 (result: { [key: string]: SpatialImageEnt }): void => {
                     expect(result).toBeDefined();
@@ -110,14 +110,14 @@ describe("APIWrapperimageByKeyFull$", () => {
         };
 
         const provider = new DataProvider();
-        const providerSpy: jasmine.Spy = spyOn(provider, "getFullImages");
+        const providerSpy: jasmine.Spy = spyOn(provider, "getImages");
         providerSpy.and.returnValue(promise);
 
         const api: APIWrapper = new APIWrapper(provider);
 
         const key: string = "key";
 
-        api.imageByKeyFull$([key]).pipe(
+        api.getImages$([key]).pipe(
             catchError(
                 (err: Error): Observable<{}> => {
                     expect(err).toBeDefined();
@@ -148,7 +148,7 @@ describe("APIWrapperimagesByH$", () => {
 
         const h: string = "h";
 
-        api.imagesByH$(h)
+        api.getCoreImages$(h)
             .subscribe(
                 (result: { [key: string]: { [index: string]: CoreImageEnt } }): void => {
                     expect(result).toBeDefined();
@@ -176,7 +176,7 @@ describe("APIWrapperimagesByH$", () => {
 
         const h: string = "h";
 
-        api.imagesByH$(h).pipe(
+        api.getCoreImages$(h).pipe(
             catchError(
                 (err: Error): Observable<{}> => {
                     expect(err).toBeDefined();
@@ -207,7 +207,7 @@ describe("APIWrappersequenceByKey$", () => {
 
         const skey: string = "skey";
 
-        api.sequenceByKey$([skey])
+        api.getSequences$([skey])
             .subscribe(
                 (result: { [key: string]: SequenceEnt }): void => {
                     expect(result).toBeDefined();
@@ -235,7 +235,7 @@ describe("APIWrappersequenceByKey$", () => {
 
         const skey: string = "skey";
 
-        api.sequenceByKey$([skey]).pipe(
+        api.getSequences$([skey]).pipe(
             catchError(
                 (err: Error): Observable<{}> => {
                     expect(err).toBeDefined();

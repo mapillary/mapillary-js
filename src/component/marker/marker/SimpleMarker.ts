@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { LatLonEnt } from "../../../api/ents/LatLonEnt";
+import { LatLon } from "../../../api/interfaces/LatLon";
 import { SimpleMarkerOptions } from "../interfaces/SimpleMarkerOptions";
 import { Marker } from "./Marker";
 
@@ -44,7 +44,7 @@ export class SimpleMarker extends Marker {
     private _opacity: number;
     private _radius: number;
 
-    constructor(id: string, latLon: LatLonEnt, options?: SimpleMarkerOptions) {
+    constructor(id: string, latLon: LatLon, options?: SimpleMarkerOptions) {
         super(id, latLon);
 
         options = !!options ? options : {};

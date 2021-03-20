@@ -5,7 +5,7 @@ import { MockCreatorBase } from "./MockCreatorBase";
 
 import { Node } from "../../src/graph/Node";
 import { Transform } from "stream";
-import { LatLonAltEnt } from "../../src/api/ents/LatLonAltEnt";
+import { LatLonAlt } from "../../src/api/interfaces/LatLonAlt";
 import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
 import { State } from "../../src/state/State";
 import { StateService } from "../../src/state/StateService";
@@ -22,7 +22,7 @@ export class StateServiceMockCreator extends MockCreatorBase<StateService> {
         this._mockProperty(mock, "currentTransform$", new Subject<Transform>());
         this._mockProperty(mock, "inMotion$", new Subject<boolean>());
         this._mockProperty(mock, "inTranslation$", new Subject<boolean>());
-        this._mockProperty(mock, "reference$", new Subject<LatLonAltEnt>());
+        this._mockProperty(mock, "reference$", new Subject<LatLonAlt>());
         this._mockProperty(mock, "state$", new Subject<State>());
 
         return mock;

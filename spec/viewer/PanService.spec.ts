@@ -3,7 +3,7 @@ import { skip } from "rxjs/operators";
 
 import { Node } from "../../src/graph/Node";
 import { Transform } from "../../src/geo/Transform";
-import { LatLonAltEnt } from "../../src/api/ents/LatLonAltEnt";
+import { LatLonAlt } from "../../src/api/interfaces/LatLonAlt";
 import { GraphService } from "../../src/graph/GraphService";
 import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
 import { StateService } from "../../src/state/StateService";
@@ -42,7 +42,7 @@ describe("PanService.panNodes$", () => {
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
         (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());
-        (<Subject<LatLonAltEnt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
+        (<Subject<LatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
     });
 
     it("should emit", (done: Function) => {
@@ -65,7 +65,7 @@ describe("PanService.panNodes$", () => {
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
         (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());
-        (<Subject<LatLonAltEnt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
+        (<Subject<LatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
         cacheBoundingBoxSubject.next([]);
     });
 
@@ -89,7 +89,7 @@ describe("PanService.panNodes$", () => {
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
         (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createUnmergedNode());
-        (<Subject<LatLonAltEnt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
+        (<Subject<LatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
         cacheBoundingBoxSubject.next([]);
     });
 
@@ -114,7 +114,7 @@ describe("PanService.panNodes$", () => {
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
         (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());
-        (<Subject<LatLonAltEnt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
+        (<Subject<LatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
         erroredCacheBoundingBoxSubject.error(new Error());
 
         expect(emitCount).toBe(1);
@@ -123,7 +123,7 @@ describe("PanService.panNodes$", () => {
         (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(cacheBoundingBoxSubject);
 
         (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());
-        (<Subject<LatLonAltEnt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
+        (<Subject<LatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
 
         cacheBoundingBoxSubject.next([]);
 
@@ -152,7 +152,7 @@ describe("PanService.panNodes$", () => {
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
         (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());
-        (<Subject<LatLonAltEnt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
+        (<Subject<LatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
         cacheBoundingBoxSubject.next([]);
     });
 });

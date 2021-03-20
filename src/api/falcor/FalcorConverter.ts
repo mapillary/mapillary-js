@@ -11,7 +11,7 @@ import { IDEnt } from "../ents/IDEnt";
 import { SpatialImageEnt } from "../ents/SpatialImageEnt";
 import { SequenceEnt } from "../ents/SequenceEnt";
 import { ClusterReconstructionEnt } from "../ents/ClusterReconstructionEnt";
-import { LatLonAltEnt } from "../ents/LatLonAltEnt";
+import { LatLonAlt } from "../interfaces/LatLonAlt";
 import { CameraEnt } from "../ents/CameraEnt";
 
 export class FalcorConverter {
@@ -87,7 +87,7 @@ export class FalcorConverter {
         const id = item.key;
         const points = item.points;
         const lla = item.reference_lla;
-        const reference: LatLonAltEnt = {
+        const reference: LatLonAlt = {
             alt: lla.altitude,
             lat: lla.latitude,
             lon: lla.longitude,
