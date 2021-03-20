@@ -2,12 +2,9 @@ import {
     Model,
 } from "falcor";
 
-import { BufferFetcher } from "../BufferFetcher";
 import { DataProviderBase } from "../DataProviderBase";
 import { GeohashGeometryProvider } from "../GeohashGeometryProvider";
-import { JsonInflator } from "../JsonInflator";
 import { ModelCreator } from "./ModelCreator";
-import { PbfMeshReader } from "../PbfMeshReader";
 import { ClusterReconstructionEnt } from "../ents/ClusterReconstructionEnt";
 import { FalcorDataProviderOptions } from "./FalcorDataProviderOptions";
 import { MeshEnt } from "../ents/MeshEnt";
@@ -28,7 +25,11 @@ import { SpatialImagesContract } from "../contracts/SpatialImagesContract";
 import { SequencesContract } from "../contracts/SequencesContract";
 import { ImagesContract } from "../contracts/ImagesContract";
 import { CoreImageEnt } from "../ents/CoreImageEnt";
-
+import {
+    decompress,
+    fetchArrayBuffer,
+    readMeshPbf,
+} from "../Common";
 
 type APIPath =
     "imageByKey" |
@@ -140,13 +141,12 @@ export class FalcorDataProvider extends DataProviderBase {
     public getClusterReconstruction(
         url: string,
         abort?: Promise<void>): Promise<ClusterReconstructionEnt> {
-        return BufferFetcher
-            .getArrayBuffer(url, abort)
+        return fetchArrayBuffer(url, abort)
             .then(
                 (buffer: ArrayBuffer): ClusterReconstructionEnt => {
                     const reconstructions =
                         <FalcorClusterReconstructionEnt[]>
-                        JsonInflator.decompress(buffer);
+                        decompress(buffer);
                     if (reconstructions.length < 1) {
                         throw new MapillaryError("Cluster reconstruction is empty.");
                     }
@@ -235,7 +235,7 @@ export class FalcorDataProvider extends DataProviderBase {
      * @inheritdoc
      */
     public getImageBuffer(url: string, abort?: Promise<void>): Promise<ArrayBuffer> {
-        return BufferFetcher.getArrayBuffer(url, abort);
+        return fetchArrayBuffer(url, abort);
     }
 
     /**
@@ -252,20 +252,19 @@ export class FalcorDataProvider extends DataProviderBase {
         abort?: Promise<void>): Promise<ArrayBuffer> {
         const coords: string = `${x},${y},${w},${h}`
         const size: string = `${scaledW},${scaledH}`;
-        return BufferFetcher
-            .getArrayBuffer(
-                this._urls.imageTile(imageKey, coords, size),
-                abort);
+        return fetchArrayBuffer(
+            this._urls.imageTile(imageKey, coords, size),
+            abort);
     }
 
     /**
      * @inheritdoc
      */
     public getMesh(url: string, abort?: Promise<void>): Promise<MeshEnt> {
-        return BufferFetcher.getArrayBuffer(url, abort)
+        return fetchArrayBuffer(url, abort)
             .then(
                 (buffer: ArrayBuffer): MeshEnt => {
-                    return PbfMeshReader.read(buffer);
+                    return readMeshPbf(buffer);
                 },
                 (reason: Error) => { throw reason; });
     }

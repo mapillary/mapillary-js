@@ -1,4 +1,4 @@
-import { BufferFetcher } from "../../src/api/BufferFetcher";
+import { fetchArrayBuffer } from "../../src/api/Common";
 import { DataProviderBase } from "../../src/api/DataProviderBase";
 import { MapillaryError } from "../../src/error/MapillaryError";
 import { GeometryProvider } from "../helper/ProviderHelper";
@@ -22,7 +22,7 @@ class XMLHTTPRequestMock {
 export class DataProvider extends DataProviderBase {
     constructor() { super(new GeometryProvider()); }
     public getArrayBuffer(abort?: Promise<void>): Promise<ArrayBuffer> {
-        return BufferFetcher.getArrayBuffer("", abort);
+        return fetchArrayBuffer("", abort);
     }
 }
 
