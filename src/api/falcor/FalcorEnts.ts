@@ -1,5 +1,5 @@
 import { CameraShotEnt } from "../ents/CameraShotEnt";
-import { LatLonEnt } from "../ents/LatLonEnt";
+import { LatLon } from "../interfaces/LatLon";
 import { PointEnt } from "../ents/PointEnt";
 import { SpatialImageEnt } from "../ents/SpatialImageEnt";
 import { UserEnt } from "../ents/UserEnt";
@@ -35,8 +35,8 @@ export interface FalcorClusterReconstructionEnt {
 }
 
 export interface FalcorCoreImageEnt extends FalcorKeyEnt {
-    cl: LatLonEnt,
-    l: LatLonEnt,
+    cl: LatLon,
+    l: LatLon,
     sequence_key: string;
 }
 

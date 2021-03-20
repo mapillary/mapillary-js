@@ -29,7 +29,7 @@ import { GraphMode } from "./GraphMode";
 import { Node } from "./Node";
 import { Sequence } from "./Sequence";
 
-import { LatLonEnt } from "../api/ents/LatLonEnt";
+import { LatLon } from "../api/interfaces/LatLon";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 import { DataAddedProviderEvent } from "../api/interfaces/DataAddedProviderEvent";
 
@@ -135,13 +135,13 @@ export class GraphService {
      * retrieved, {@link cacheNode$} needs to be called for caching
      * assets.
      *
-     * @param {LatLonEnt} sw - South west corner of bounding box.
-     * @param {LatLonEnt} ne - North east corner of bounding box.
+     * @param {LatLon} sw - South west corner of bounding box.
+     * @param {LatLon} ne - North east corner of bounding box.
      * @return {Observable<Array<Node>>} Observable emitting a single item,
      * the nodes of the bounding box, when they have all been retrieved.
      * @throws {Error} Propagates any IO node caching errors to the caller.
      */
-    public cacheBoundingBox$(sw: LatLonEnt, ne: LatLonEnt): Observable<Node[]> {
+    public cacheBoundingBox$(sw: LatLon, ne: LatLon): Observable<Node[]> {
         return this._graph$.pipe(
             first(),
             mergeMap(

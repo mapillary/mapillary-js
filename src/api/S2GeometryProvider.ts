@@ -2,7 +2,7 @@ import { S2 } from "s2-geometry";
 
 import { GeometryProviderBase } from "./GeometryProviderBase";
 import { CellCorners, CellNeighbors } from "./interfaces/CellCorners";
-import { LatLonEnt } from "./ents/LatLonEnt";
+import { LatLon } from "./interfaces/LatLon";
 
 import { GeoCoords } from "../geo/GeoCoords";
 
@@ -36,7 +36,7 @@ export class S2GeometryProvider extends GeometryProviderBase {
     }
 
     /** @inheritdoc */
-    public bboxToCellIds(sw: LatLonEnt, ne: LatLonEnt): string[] {
+    public bboxToCellIds(sw: LatLon, ne: LatLon): string[] {
         return this._bboxSquareToCellIds(sw, ne);
     }
 
@@ -89,15 +89,15 @@ export class S2GeometryProvider extends GeometryProviderBase {
     }
 
     /** @inheritdoc */
-    public latLonToCellId(latLon: LatLonEnt): string {
+    public latLonToCellId(latLon: LatLon): string {
         return this._latLonToId(latLon, this._level);
     }
 
     /** @inheritdoc */
-    public latLonToCellIds(latLon: LatLonEnt, threshold: number): string[] {
+    public latLonToCellIds(latLon: LatLon, threshold: number): string[] {
         const cellId: string = this._latLonToId(latLon, this._level);
         const neighbors: CellNeighbors = this.getNeighbors(cellId);
-        const corners: LatLonEnt[] =
+        const corners: LatLon[] =
             this._getLatLonBoundingBoxCorners(latLon, threshold);
 
         for (let corner of corners) {
@@ -119,7 +119,7 @@ export class S2GeometryProvider extends GeometryProviderBase {
         return [cellId];
     }
 
-    private _enuToGeodetic(point: number[], reference: LatLonEnt): LatLonEnt {
+    private _enuToGeodetic(point: number[], reference: LatLon): LatLon {
         const [lat, lon]: number[] = this._geoCoords.enuToGeodetic(
             point[0],
             point[1],
@@ -132,14 +132,14 @@ export class S2GeometryProvider extends GeometryProviderBase {
     }
 
     private _getLatLonBoundingBoxCorners(
-        latLon: LatLonEnt, threshold: number): LatLonEnt[] {
+        latLon: LatLon, threshold: number): LatLon[] {
         return [
             [-threshold, threshold, 0],
             [threshold, threshold, 0],
             [threshold, -threshold, 0],
             [-threshold, -threshold, 0],
         ].map(
-            (point: number[]): LatLonEnt => {
+            (point: number[]): LatLon => {
                 return this._enuToGeodetic(point, latLon);
             });
     }
@@ -154,7 +154,7 @@ export class S2GeometryProvider extends GeometryProviderBase {
         return neighbors;
     }
 
-    private _latLonToId(latLon: LatLonEnt, level: number): string {
+    private _latLonToId(latLon: LatLon, level: number): string {
         const s2key: string = S2.latLngToKey(
             latLon.lat,
             latLon.lon,

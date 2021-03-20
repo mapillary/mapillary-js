@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { LatLonEnt } from "../../api/ents/LatLonEnt";
+import { LatLon } from "../../api/interfaces/LatLon";
 import { Marker } from "./marker/Marker";
 
 export class MarkerScene {
@@ -111,7 +111,7 @@ export class MarkerScene {
         this._needsRender = false;
     }
 
-    public update(id: string, position: number[], latLon?: LatLonEnt): void {
+    public update(id: string, position: number[], latLon?: LatLon): void {
         if (!(id in this._markers)) {
             return;
         }

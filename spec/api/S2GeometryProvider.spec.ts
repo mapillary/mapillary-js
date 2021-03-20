@@ -1,6 +1,6 @@
 import { S2 } from "s2-geometry";
 import { CellCorners } from "../../src/api/interfaces/CellCorners";
-import { LatLonEnt } from "../../src/api/ents/LatLonEnt";
+import { LatLon } from "../../src/api/interfaces/LatLon";
 import { S2GeometryProvider } from "../../src/api/S2GeometryProvider";
 import { MapillaryError } from "../../src/error/MapillaryError";
 import { GeoCoords } from "../../src/geo/GeoCoords";
@@ -217,7 +217,7 @@ describe("S2GeometryProvider.getCorners", () => {
     it("should be correctly placed relative to each other", () => {
         const geometry: S2GeometryProvider = new S2GeometryProvider();
 
-        const latLons: LatLonEnt[] = [
+        const latLons: LatLon[] = [
             { lat: 0, lon: 0 },
             { lat: 45, lon: 0 },
             { lat: 0, lon: 45 },

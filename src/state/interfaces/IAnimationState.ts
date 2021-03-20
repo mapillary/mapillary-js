@@ -1,11 +1,11 @@
 import { State } from "../State";
 import { Camera } from "../../geo/Camera";
 import { Transform } from "../../geo/Transform";
-import { LatLonAltEnt } from "../../api/ents/LatLonAltEnt";
+import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
 import { Node } from "../../graph/Node";
 
 export interface IAnimationState {
-    reference: LatLonAltEnt;
+    reference: LatLonAlt;
     alpha: number;
     camera: Camera;
     zoom: number;

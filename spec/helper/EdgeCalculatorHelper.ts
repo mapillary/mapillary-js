@@ -1,7 +1,7 @@
 import { Node } from "../../src/graph/Node";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
-import { LatLonAltEnt } from "../../src/api/ents/LatLonAltEnt";
+import { LatLonAlt } from "../../src/api/interfaces/LatLonAlt";
 import { PotentialEdge } from "../../src/graph/edge/interfaces/PotentialEdge";
 import { CameraType } from "../../src/geo/interfaces/CameraType";
 
@@ -27,7 +27,7 @@ export class EdgeCalculatorHelper {
 
     public createCoreNode(
         key: string,
-        latLonAlt: LatLonAltEnt,
+        latLonAlt: LatLonAlt,
         sequenceKey: string): Node {
 
         let coreNode: CoreImageEnt = {
@@ -42,7 +42,7 @@ export class EdgeCalculatorHelper {
 
     public createFullNode(
         key: string = "key",
-        latLonAlt: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 },
+        latLonAlt: LatLonAlt = { alt: 0, lat: 0, lon: 0 },
         sequenceKey: string = "skey",
         r: number[] = [0, 0, 0],
         mergeCC: number = 2,
@@ -83,7 +83,7 @@ export class EdgeCalculatorHelper {
     public createDefaultNode(spherical: boolean = false): Node {
         let key: string = "key";
         let sequenceKey: string = "skey";
-        let latLonAlt: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let latLonAlt: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
 
         let cameraType: CameraType = spherical ?
             "equirectangular" :

@@ -1,5 +1,5 @@
 import { ImageEnt } from "../ents/ImageEnt";
 
-export interface ImagesResult {
+export interface ImagesContract {
     [imageId: string]: ImageEnt;
 }

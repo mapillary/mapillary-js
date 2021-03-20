@@ -7,10 +7,10 @@ import {
     first,
 } from "rxjs/operators";
 
-import { LatLonEnt } from "../api/ents/LatLonEnt";
+import { LatLon } from "../api/interfaces/LatLon";
 import { Component } from "../component/Component";
 import { ComponentConfiguration } from "../component/interfaces/ComponentConfiguration";
-import { LatLonAltEnt } from "../api/ents/LatLonAltEnt";
+import { LatLonAlt } from "../api/interfaces/LatLonAlt";
 import { FilterExpression } from "../graph/FilterExpression";
 import { Node } from "../graph/Node";
 import { NavigationDirection } from "../graph/edge/NavigationDirection";
@@ -606,7 +606,7 @@ export class Viewer extends EventEmitter {
     /**
      * Get the viewer's current position
      *
-     * @returns {Promise<LatLonEnt>} Promise to the viewers's current
+     * @returns {Promise<LatLon>} Promise to the viewers's current
      * position.
      *
      * @example
@@ -614,15 +614,15 @@ export class Viewer extends EventEmitter {
      * viewer.getPosition().then((pos) => { console.log(pos); });
      * ```
      */
-    public getPosition(): Promise<LatLonEnt> {
-        return new Promise<LatLonEnt>(
-            (resolve: (value: LatLonEnt) => void, reject: (reason: Error) => void): void => {
+    public getPosition(): Promise<LatLon> {
+        return new Promise<LatLon>(
+            (resolve: (value: LatLon) => void, reject: (reason: Error) => void): void => {
                 observableCombineLatest(
                     this._container.renderService.renderCamera$,
                     this._navigator.stateService.reference$).pipe(
                         first())
                     .subscribe(
-                        ([render, reference]: [RenderCamera, LatLonAltEnt]): void => {
+                        ([render, reference]: [RenderCamera, LatLonAlt]): void => {
                             resolve(this._observer.projection.cameraToLatLon(render, reference));
                         },
                         (error: Error): void => {
@@ -760,7 +760,7 @@ export class Viewer extends EventEmitter {
      * Note that whenever the camera moves, the result of the method will be
      * different.
      *
-     * @param {LatLonEnt} latLon - Geographical coordinates to project.
+     * @param {LatLon} latLon - Geographical coordinates to project.
      * @returns {Promise<Array<number>>} Promise to the pixel coordinates corresponding
      * to the latLon.
      *
@@ -776,7 +776,7 @@ export class Viewer extends EventEmitter {
      *     });
      * ```
      */
-    public project(latLon: LatLonEnt): Promise<number[]> {
+    public project(latLon: LatLon): Promise<number[]> {
         return new Promise<number[]>(
             (resolve: (value: number[]) => void, reject: (reason: Error) => void): void => {
                 this._observer.project$(latLon)
@@ -1115,7 +1115,7 @@ export class Viewer extends EventEmitter {
      * the altitude with respect to the ground plane for the returned latLon is zero.
      *
      * @param {Array<number>} pixelPoint - Pixel coordinates to unproject.
-     * @returns {Promise<LatLonEnt>} Promise to the latLon corresponding to the pixel point.
+     * @returns {Promise<LatLon>} Promise to the latLon corresponding to the pixel point.
      *
      * @example
      * ```
@@ -1123,12 +1123,12 @@ export class Viewer extends EventEmitter {
      *     .then((latLon) => { console.log(latLon); });
      * ```
      */
-    public unproject(pixelPoint: number[]): Promise<LatLonEnt> {
-        return new Promise<LatLonEnt>(
-            (resolve: (value: LatLonEnt) => void, reject: (reason: Error) => void): void => {
+    public unproject(pixelPoint: number[]): Promise<LatLon> {
+        return new Promise<LatLon>(
+            (resolve: (value: LatLon) => void, reject: (reason: Error) => void): void => {
                 this._observer.unproject$(pixelPoint)
                     .subscribe(
-                        (latLon: LatLonEnt): void => {
+                        (latLon: LatLon): void => {
                             resolve(latLon);
                         },
                         (error: Error): void => {
@@ -1146,7 +1146,7 @@ export class Viewer extends EventEmitter {
      * be `null`.
      *
      * @param {Array<number>} pixelPoint - Pixel coordinates to unproject.
-     * @returns {Promise<LatLonEnt>} Promise to the basic coordinates corresponding
+     * @returns {Promise<LatLon>} Promise to the basic coordinates corresponding
      * to the pixel point.
      *
      * @example

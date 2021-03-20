@@ -1,5 +1,5 @@
 import { Viewer } from "../Viewer";
-import { LatLonEnt } from "../../api/ents/LatLonEnt";
+import { LatLon } from "../../api/interfaces/LatLon";
 
 /**
  * @interface ViewerMouseEvent
@@ -29,7 +29,7 @@ export interface ViewerMouseEvent {
      * geographic location for the mouse event target. In that case the
      * geographic coordinates will be `null`.
      */
-    latLon: LatLonEnt;
+    latLon: LatLon;
 
     /**
      * The pixel coordinates of the mouse event target, relative to

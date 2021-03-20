@@ -22,12 +22,12 @@ import {
 
 import * as Geo from "../geo/Geo";
 
-import { LatLonEnt } from "../api/ents/LatLonEnt";
+import { LatLon } from "../api/interfaces/LatLon";
 import { GeoCoords } from "../geo/GeoCoords";
 import { Spatial } from "../geo/Spatial";
 import { Transform } from "../geo/Transform";
 import { ViewportCoords } from "../geo/ViewportCoords";
-import { LatLonAltEnt } from "../api/ents/LatLonAltEnt";
+import { LatLonAlt } from "../api/interfaces/LatLonAlt";
 import { GraphCalculator } from "../graph/GraphCalculator";
 import { GraphService } from "../graph/GraphService";
 import { Node } from "../graph/Node";
@@ -132,7 +132,7 @@ export class PanService {
 
                     const current$: Observable<Node> = observableOf(current);
 
-                    const bounds: LatLonEnt[] = this._graphCalculator.boundingBoxCorners(current.latLon, 20);
+                    const bounds: LatLon[] = this._graphCalculator.boundingBoxCorners(current.latLon, 20);
 
                     const adjacent$: Observable<Node[]> = this._graphService
                         .cacheBoundingBox$(bounds[0], bounds[1]).pipe(
@@ -176,7 +176,7 @@ export class PanService {
                     return observableCombineLatest(current$, adjacent$).pipe(
                         withLatestFrom(this._stateService.reference$),
                         map(
-                            ([[cn, adjacent], reference]: [[Node, Node[]], LatLonAltEnt]): [Node, Transform, number][] => {
+                            ([[cn, adjacent], reference]: [[Node, Node[]], LatLonAlt]): [Node, Transform, number][] => {
                                 const currentDirection: THREE.Vector3 = this._spatial.viewingDirection(cn.rotation);
                                 const currentTranslation: number[] = Geo.computeTranslation(
                                     { lat: cn.latLon.lat, lon: cn.latLon.lon, alt: cn.computedAltitude },

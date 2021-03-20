@@ -1,5 +1,5 @@
 import { SequenceEnt } from "../ents/SequenceEnt";
 
-export interface SequencesResult {
+export interface SequencesContract {
     [sequenceId: string]: SequenceEnt;
 }

@@ -353,7 +353,7 @@ export class NodeCache {
                     });
 
                 const url: string = this._getThumbUrl(nodeUrls, imageSize);
-                this._provider.getImage(url, abort)
+                this._provider.getImageBuffer(url, abort)
                     .then(
                         (buffer: ArrayBuffer): void => {
                             this._imageAborter = null;

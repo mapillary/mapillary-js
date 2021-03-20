@@ -29,7 +29,7 @@ import {
     withLatestFrom,
 } from "rxjs/operators";
 
-import { LatLonEnt } from "../api/ents/LatLonEnt";
+import { LatLon } from "../api/interfaces/LatLon";
 import { GraphCalculator } from "../graph/GraphCalculator";
 import { GraphMode } from "../graph/GraphMode";
 import { GraphService } from "../graph/GraphService";

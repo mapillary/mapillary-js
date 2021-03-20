@@ -3,12 +3,12 @@ bootstrap();
 
 import { first } from "rxjs/operators";
 import { Subscription } from "rxjs";
-import { LatLonEnt } from "../../../src/api/ents/LatLonEnt";
+import { LatLon } from "../../../src/api/interfaces/LatLon";
 import { Marker } from "../../../src/component/marker/marker/Marker";
 import { MarkerSet } from "../../../src/component/marker/MarkerSet";
 
 class TestMarker extends Marker {
-    constructor(id: string, latLon: LatLonEnt) { super(id, latLon); }
+    constructor(id: string, latLon: LatLon) { super(id, latLon); }
     protected _createGeometry(position: number[]): void { /* noop */ }
     protected _disposeGeometry(): void { /* noop */ }
     protected _getInteractiveObjects(): THREE.Object3D[] { return []; }

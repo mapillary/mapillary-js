@@ -1,6 +1,6 @@
 import { CoreImageEnt } from "../ents/CoreImageEnt";
 
-export interface CoreImagesResult {
+export interface CoreImagesContract {
     [cellId: string]: {
         [index: string]: CoreImageEnt;
     };

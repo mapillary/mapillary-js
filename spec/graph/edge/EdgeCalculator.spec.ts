@@ -1,5 +1,5 @@
 import { GeoCoords } from "../../../src/geo/GeoCoords";
-import { LatLonAltEnt } from "../../../src/api/ents/LatLonAltEnt";
+import { LatLonAlt } from "../../../src/api/interfaces/LatLonAlt";
 import { Spatial } from "../../../src/geo/Spatial";
 import { EdgeCalculator } from "../../../src/graph/edge/EdgeCalculator";
 import { PotentialEdge } from "../../../src/graph/edge/interfaces/PotentialEdge";
@@ -44,12 +44,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, [0, -Math.PI / 2, 0], 2, "perspective", 0, 0);
 
         let enu: number[] = [10, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -63,12 +63,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let enu: number[] = [10, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -95,12 +95,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let sequenceKey: string = "skey";
         let edgeKey: string = "edgeKey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let enu: number[] = [10, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, null, [0, -Math.PI / 2, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -114,12 +114,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let enu: number[] = [3, -4, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -138,12 +138,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let enu: number[] = [5, 5, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -162,12 +162,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let enu: number[] = [5, 5, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -186,12 +186,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let enu: number[] = [0, -10, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -210,12 +210,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let enu: number[] = [3, 4, 5];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -234,12 +234,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let enu: number[] = [-3, 4, -5];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -258,12 +258,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, createRotationVector(0));
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(Math.PI / 2));
 
         let potentialEdges: PotentialEdge[] =
@@ -282,12 +282,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, createRotationVector(0));
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(-Math.PI / 2));
 
         let potentialEdges: PotentialEdge[] =
@@ -306,12 +306,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, createRotationVector(Math.PI / 4));
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(-3 * Math.PI / 4));
 
         let potentialEdges: PotentialEdge[] =
@@ -330,12 +330,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, createRotationVector(Math.PI / 4));
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(Math.PI / 4, Math.PI / 4));
 
         let potentialEdges: PotentialEdge[] =
@@ -354,12 +354,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, createRotationVector(Math.PI / 4, 5 * Math.PI / 12));
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(Math.PI / 4, 7 * Math.PI / 12));
 
         let potentialEdges: PotentialEdge[] =
@@ -378,12 +378,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, createRotationVector(Math.PI / 2, Math.PI / 6));
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(Math.PI / 2, 2 * Math.PI / 3));
 
         let potentialEdges: PotentialEdge[] =
@@ -407,12 +407,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let theta: number = spatial.relativeRotationAngle(r1, r2);
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, r1);
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, r2);
 
         let potentialEdges: PotentialEdge[] =
@@ -434,12 +434,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let r1: number[] = [0, 0, 0];
         let r2: number[] = [0, 0, 0];
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, r1);
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, r2);
 
         let potentialEdges: PotentialEdge[] =
@@ -461,12 +461,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let r1: number[] = [0, 0, 0];
         let r2: number[] = [0, 0, 0];
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, r1);
 
         let enu: number[] = [0, 1, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, r2);
 
         let potentialEdges: PotentialEdge[] =
@@ -488,12 +488,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let r1: number[] = [0, 0, 0];
         let r2: number[] = [0, 0, 0];
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, r1);
 
         let enu: number[] = [-1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, r2);
 
         let potentialEdges: PotentialEdge[] =
@@ -515,12 +515,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let r1: number[] = [0, 0, 0];
         let r2: number[] = [0, 0, 0];
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, r1);
 
         let enu: number[] = [0, -1, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, r2);
 
         let potentialEdges: PotentialEdge[] =
@@ -542,12 +542,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let r1: number[] = [0, 0, 0];
         let r2: number[] = [0, 0, 0];
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, r1);
 
         let enu: number[] = [1, 1, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, r2);
 
         let potentialEdges: PotentialEdge[] =
@@ -566,12 +566,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, createRotationVector(0));
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(0));
 
         let potentialEdges: PotentialEdge[] =
@@ -591,12 +591,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let sequenceKey: string = "skey";
         let edgeSequenceKey: string = "edgeSkey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, createRotationVector(0));
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, edgeSequenceKey, createRotationVector(0));
 
         let potentialEdges: PotentialEdge[] =
@@ -617,12 +617,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let mergeCC: number = 45;
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, createRotationVector(0), mergeCC);
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(0), mergeCC);
 
         let potentialEdges: PotentialEdge[] =
@@ -644,12 +644,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let mergeCC1: number = 45;
         let mergeCC2: number = 22;
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, createRotationVector(0), mergeCC1);
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(0), mergeCC2);
 
         let potentialEdges: PotentialEdge[] =
@@ -668,12 +668,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, createRotationVector(0), null);
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(0), null);
 
         let potentialEdges: PotentialEdge[] =
@@ -692,12 +692,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, createRotationVector(0), 467);
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(0), null);
 
         let potentialEdges: PotentialEdge[] =
@@ -716,12 +716,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAltEnt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
         let node: Node = helper.createFullNode(key, lla, sequenceKey, createRotationVector(0), 467);
 
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAltEnt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
         let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(0), 435, "equirectangular");
 
         let potentialEdges: PotentialEdge[] =

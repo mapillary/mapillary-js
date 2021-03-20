@@ -1,4 +1,4 @@
-import { LatLonEnt } from "../../src/api/ents/LatLonEnt";
+import { LatLon } from "../../src/api/interfaces/LatLon";
 import { GeoCoords } from "../../src/geo/GeoCoords";
 import { GraphCalculator } from "../../src/graph/GraphCalculator";
 
@@ -22,7 +22,7 @@ describe("GraphCalculator.boundingBoxCorners", () => {
         let calculator: GraphCalculator = new GraphCalculator(geoCoords);
 
         let threshold: number = 1;
-        let bbox: [LatLonEnt, LatLonEnt] = calculator.boundingBoxCorners({ lat: 0, lon: 0 }, threshold);
+        let bbox: [LatLon, LatLon] = calculator.boundingBoxCorners({ lat: 0, lon: 0 }, threshold);
 
         expect(bbox.length).toBe(2);
         expect(bbox[0].lat).toBe(-1);

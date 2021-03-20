@@ -39,7 +39,7 @@ describe("FalcorDataProvider.getFillImages", () => {
 
         const key: string = "key";
 
-        provider.getFillImages([key])
+        provider.getSpatialImages([key])
             .then(
                 (result: { [key: string]: SpatialImageEnt }): void => {
                     expect(result).toBeDefined();
@@ -76,7 +76,7 @@ describe("FalcorDataProvider.getFillImages", () => {
 
         const key: string = "key";
 
-        provider.getFillImages([key])
+        provider.getSpatialImages([key])
             .catch(
                 (err: Error): void => {
                     expect(err).toBeDefined();
@@ -111,7 +111,7 @@ describe("FalcorDataProvider.getFillImages", () => {
 
         const key: string = "key";
 
-        provider.getFillImages([key])
+        provider.getSpatialImages([key])
             .then(
                 (): void => { return; },
                 (): void => {
@@ -153,9 +153,9 @@ describe("FalcorDataProvider.getFillImages", () => {
 
         Promise
             .all([
-                provider.getFillImages([key]),
-                provider.getFillImages([key]),
-                provider.getFillImages([key])])
+                provider.getSpatialImages([key]),
+                provider.getSpatialImages([key]),
+                provider.getSpatialImages([key])])
             .then(
                 (): void => { return; },
                 (): void => {
@@ -194,7 +194,7 @@ describe("FalcorDataProvider.getFullImages", () => {
 
         const key: string = "key";
 
-        provider.getFullImages([key])
+        provider.getImages([key])
             .then(
                 (result: { [key: string]: SpatialImageEnt }): void => {
                     expect(result).toBeDefined();
@@ -231,7 +231,7 @@ describe("FalcorDataProvider.getFullImages", () => {
 
         const key: string = "key";
 
-        provider.getFullImages([key])
+        provider.getImages([key])
             .catch(
                 (err: Error): void => {
                     expect(err).toBeDefined();
@@ -266,7 +266,7 @@ describe("FalcorDataProvider.getFullImages", () => {
 
         const key: string = "key";
 
-        provider.getFullImages([key])
+        provider.getImages([key])
             .then(
                 (result: { [key: string]: SpatialImageEnt }): void => { return; },
                 (error: Error): void => {
@@ -645,7 +645,7 @@ describe("FalcorDataProvider.getImage", () => {
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
-        provider.getImage("url", abort)
+        provider.getImageBuffer("url", abort)
             .then(
                 (buffer: ArrayBuffer): void => {
                     expect(buffer instanceof ArrayBuffer).toBe(true);
@@ -670,7 +670,7 @@ describe("FalcorDataProvider.getImage", () => {
 
         const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
 
-        provider.getImage("url", abort)
+        provider.getImageBuffer("url", abort)
             .then(
                 undefined,
                 (reason: Error): void => {
@@ -692,7 +692,7 @@ describe("FalcorDataProvider.getImage", () => {
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
-        provider.getImage("url", abort)
+        provider.getImageBuffer("url", abort)
             .then(
                 undefined,
                 (reason: Error): void => {
@@ -716,7 +716,7 @@ describe("FalcorDataProvider.getImage", () => {
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
-        provider.getImage("url", abort)
+        provider.getImageBuffer("url", abort)
             .then(
                 undefined,
                 (reason: Error): void => {
@@ -740,7 +740,7 @@ describe("FalcorDataProvider.getImage", () => {
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
-        provider.getImage("url", abort)
+        provider.getImageBuffer("url", abort)
             .then(
                 undefined,
                 (reason: Error): void => {
