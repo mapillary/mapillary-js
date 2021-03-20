@@ -6,11 +6,15 @@ import { Transform } from "./Transform";
 import { ViewportCoords } from "./ViewportCoords";
 import { LatLonAltEnt } from "../api/ents/LatLonAltEnt";
 
-const geoCoords: GeoCoords = new GeoCoords();
-const spatial: Spatial = new Spatial();
+const geoCoords = new GeoCoords();
+const spatial = new Spatial();
 
 export function isSpherical(cameraType: string): boolean {
     return cameraType === "equirectangular";
+}
+
+export function isFisheye(cameraType: string): boolean {
+    return cameraType === "fisheye";
 }
 
 export function computeTranslation(position: LatLonAltEnt, rotation: number[], reference: LatLonAltEnt): number[] {

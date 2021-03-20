@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { isSpherical } from "./Geo";
+import { isFisheye, isSpherical } from "./Geo";
 
 import { CameraType } from "./interfaces/CameraType";
 
@@ -327,11 +327,8 @@ export class Transform {
         sfm: number[],
         distance: number,
         depth?: boolean): number[] {
-
         const bearing = this._sfmToBearing(sfm);
-        const equirectangular =
-            this._cameraType === 'equirectangular';
-        const v = depth && equirectangular ?
+        const v = depth && !isSpherical(this._cameraType) ?
             new THREE.Vector4(
                 distance * bearing[0] / bearing[2],
                 distance * bearing[1] / bearing[2],
@@ -356,14 +353,14 @@ export class Transform {
      * on the unit sphere).
      */
     private _sfmToBearing(sfm: number[]): number[] {
-        if (this._cameraType === 'equirectangular') {
+        if (isSpherical(this._cameraType)) {
             let lon: number = sfm[0] * 2 * Math.PI;
             let lat: number = -sfm[1] * 2 * Math.PI;
             let x: number = Math.cos(lat) * Math.sin(lon);
             let y: number = -Math.sin(lat);
             let z: number = Math.cos(lat) * Math.cos(lon);
             return [x, y, z];
-        } else if (this._cameraType === "fisheye") {
+        } else if (isFisheye(this._cameraType)) {
             let [dxn, dyn]: number[] = [sfm[0] / this._focal, sfm[1] / this._focal];
             const dTheta: number = Math.sqrt(dxn * dxn + dyn * dyn);
             let d: number = this._distortionFromDistortedRadius(dTheta, this._ck1, this._ck2, this._radialPeak);
@@ -415,14 +412,14 @@ export class Transform {
      * @returns {Array<number>} 2D SfM coordinates.
      */
     private _bearingToSfm(bearing: number[]): number[] {
-        if (this._cameraType === 'equirectangular') {
+        if (isSpherical(this._cameraType)) {
             let x: number = bearing[0];
             let y: number = bearing[1];
             let z: number = bearing[2];
             let lon: number = Math.atan2(x, z);
             let lat: number = Math.atan2(-y, Math.sqrt(x * x + z * z));
             return [lon / (2 * Math.PI), -lat / (2 * Math.PI)];
-        } else if (this._cameraType === "fisheye") {
+        } else if (isFisheye(this._cameraType)) {
             if (bearing[2] > 0) {
                 const [x, y, z]: number[] = bearing;
                 const r: number = Math.sqrt(x * x + y * y);
