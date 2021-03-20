@@ -146,7 +146,7 @@ export class MeshFactory {
     private _createSphereMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
-            fragmentShader: Shaders.equirectangular.fragment,
+            fragmentShader: Shaders.spherical.fragment,
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
@@ -154,7 +154,7 @@ export class MeshFactory {
                 projectorMat: { value: transform.rt },
                 projectorTex: { value: texture },
             },
-            vertexShader: Shaders.equirectangular.vertex,
+            vertexShader: Shaders.spherical.vertex,
         };
 
         return materialParameters;
@@ -163,7 +163,7 @@ export class MeshFactory {
     private _createCurtainSphereMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
-            fragmentShader: Shaders.equirectangularCurtain.fragment,
+            fragmentShader: Shaders.sphericalCurtain.fragment,
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
@@ -172,7 +172,7 @@ export class MeshFactory {
                 projectorMat: { value: transform.rt },
                 projectorTex: { value: texture },
             },
-            vertexShader: Shaders.equirectangularCurtain.vertex,
+            vertexShader: Shaders.sphericalCurtain.vertex,
         };
 
         return materialParameters;

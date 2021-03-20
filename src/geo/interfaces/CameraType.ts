@@ -1,4 +1,4 @@
 export type CameraType =
-    "equirectangular" |
+    "spherical" |
     "fisheye" |
     "perspective";

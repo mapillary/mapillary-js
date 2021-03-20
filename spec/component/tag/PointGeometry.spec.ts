@@ -34,7 +34,7 @@ describe("PointGeometry.setVertex2d", () => {
         let pointGeometry = new PointGeometry(original);
 
         let point = [0.5, 0.5];
-        let transform = transformHelper.createTransform("equirectangular");
+        let transform = transformHelper.createTransform("spherical");
 
         pointGeometry.setCentroid2d(point, transform);
 
@@ -47,7 +47,7 @@ describe("PointGeometry.setVertex2d", () => {
         let pointGeometry = new PointGeometry(original);
 
         let point = [-1, -1];
-        let transform = transformHelper.createTransform("equirectangular");
+        let transform = transformHelper.createTransform("spherical");
 
         pointGeometry.setCentroid2d(point, transform);
 
@@ -60,7 +60,7 @@ describe("PointGeometry.setVertex2d", () => {
         let pointGeometry = new PointGeometry(original);
 
         let point = [2, 2];
-        let transform = transformHelper.createTransform("equirectangular");
+        let transform = transformHelper.createTransform("spherical");
 
         pointGeometry.setCentroid2d(point, transform);
 

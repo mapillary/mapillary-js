@@ -1,9 +1,9 @@
 import { Shader } from "../interfaces/Shader";
 
-import { equirectangularFrag } from "./equirectangular.fragment.glsl";
-import { equirectangularVert } from "./equirectangular.vertex.glsl";
-import { equirectangularCurtainFrag } from "./equirectangular_curtain.fragment.glsl";
-import { equirectangularCurtainVert } from "./equirectangular_curtain.vertex.glsl";
+import { sphericalFrag } from "./spherical.fragment.glsl";
+import { sphericalVert } from "./spherical.vertex.glsl";
+import { sphericalCurtainFrag } from "./spherical_curtain.fragment.glsl";
+import { sphericalCurtainVert } from "./spherical_curtain.vertex.glsl";
 import { fisheyeFrag } from "./fisheye.fragment.glsl";
 import { fisheyeVert } from "./fisheye.vertex.glsl";
 import { fisheyeCurtainFrag } from "./fisheye_curtain.fragment.glsl";
@@ -19,16 +19,6 @@ import { perspectiveDistortedCurtainVert } from "./perspective_distorted_curtain
 
 
 export class Shaders {
-    public static equirectangular: Shader = {
-        fragment: equirectangularFrag,
-        vertex: equirectangularVert,
-    };
-
-    public static equirectangularCurtain: Shader = {
-        fragment: equirectangularCurtainFrag,
-        vertex: equirectangularCurtainVert,
-    };
-
     public static fisheye: Shader = {
         fragment: fisheyeFrag,
         vertex: fisheyeVert,
@@ -57,5 +47,15 @@ export class Shaders {
     public static perspectiveDistortedCurtain: Shader = {
         fragment: perspectiveDistortedCurtainFrag,
         vertex: perspectiveDistortedCurtainVert,
+    };
+
+    public static spherical: Shader = {
+        fragment: sphericalFrag,
+        vertex: sphericalVert,
+    };
+
+    public static sphericalCurtain: Shader = {
+        fragment: sphericalCurtainFrag,
+        vertex: sphericalCurtainVert,
     };
 }

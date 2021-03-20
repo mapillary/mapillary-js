@@ -136,7 +136,7 @@ describe("PointsGeometry.getRect2d", () => {
         const pointsGeometry = new PointsGeometry(points);
 
         const helper = new TransformHelper();
-        const transform = helper.createTransform("equirectangular");
+        const transform = helper.createTransform("spherical");
         const result = pointsGeometry.getRect2d(transform);
 
         expect(result.length).toBe(4);
@@ -153,7 +153,7 @@ describe("PointsGeometry.getRect2d", () => {
         const pointsGeometry = new PointsGeometry(points);
 
         const helper = new TransformHelper();
-        const transform = helper.createTransform("equirectangular");
+        const transform = helper.createTransform("spherical");
         const result = pointsGeometry.getRect2d(transform);
 
         expect(result.length).toBe(4);

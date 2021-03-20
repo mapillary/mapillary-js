@@ -45,7 +45,7 @@ describe("ExtremePointRenderTag.getRetrievableObjects", () => {
         const extremePointRenderTag =
             new ExtremePointRenderTag(
                 extremePointTag,
-                transformHelper.createTransform("equirectangular"));
+                transformHelper.createTransform("spherical"));
 
         const retrievableObjects: THREE.Object3D[] = extremePointRenderTag.getRetrievableObjects();
 

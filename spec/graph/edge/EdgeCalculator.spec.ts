@@ -711,7 +711,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.sameMergeCC).toBe(false);
     });
 
-    it("should be spherical when camera type equirectangular", () => {
+    it("should be spherical when camera type spherical", () => {
         let key: string = "key";
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
@@ -722,7 +722,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let enu: number[] = [1, 0, 0];
         let geodetic: number[] = geoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
         let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
-        let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(0), 435, "equirectangular");
+        let edgeNode: Node = helper.createFullNode(edgeKey, edgeLla, sequenceKey, createRotationVector(0), 435, "spherical");
 
         let potentialEdges: PotentialEdge[] =
             edgeCalculator.getPotentialEdges(node, [edgeNode], []);

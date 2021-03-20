@@ -57,7 +57,7 @@ export class EdgeCalculatorHelper {
             computed_rotation: r,
             compass_angle: 0,
             computed_altitude: latLonAlt.alt,
-            camera_parameters: cameraType === "equirectangular" ?
+            camera_parameters: cameraType === "spherical" ?
                 [] : [1, 0, 0],
             camera_type: cameraType,
             captured_at: capturedAt,
@@ -86,7 +86,7 @@ export class EdgeCalculatorHelper {
         let latLonAlt: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
 
         let cameraType: CameraType = spherical ?
-            "equirectangular" :
+            "spherical" :
             null;
 
         return this.createFullNode(key, latLonAlt, sequenceKey, [0, 0, 0], 2, cameraType, 0);

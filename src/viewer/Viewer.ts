@@ -1000,7 +1000,7 @@ export class Viewer extends EventEmitter {
      * // Other examples
      * // viewer.setFilter(["==", "organizationId", "<my organization id>"]);
      * // viewer.setFilter(["in", "userId", "<my user id #1>", "<my user id #2>"]);
-     * // viewer.setFilter(["==", "cameraType", "equirectangular"]);
+     * // viewer.setFilter(["==", "cameraType", "spherical"]);
      * // viewer.setFilter([">=", "capturedAt", <my time stamp>]);
      * ```
      */

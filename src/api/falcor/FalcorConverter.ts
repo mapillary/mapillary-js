@@ -14,6 +14,11 @@ import { ClusterReconstructionEnt } from "../ents/ClusterReconstructionEnt";
 import { LatLonAlt } from "../interfaces/LatLonAlt";
 import { CameraEnt } from "../ents/CameraEnt";
 
+function convertCameraType(falcorProjectionType: string): string {
+    return falcorProjectionType === "equirectangular" ?
+        "spherical" : falcorProjectionType;
+}
+
 export class FalcorConverter {
     public readonly propertiesCore: string[];
     public readonly propertiesKey: string[];
@@ -77,7 +82,7 @@ export class FalcorConverter {
                 falcorCamera.k1,
                 falcorCamera.k2,
             ];
-            const cameraType = falcorCamera.projection_type;
+            const cameraType = convertCameraType(falcorCamera.projection_type);
             cameras[cameraId] = {
                 camera_parameters: cameraParameters,
                 camera_type: cameraType,
@@ -125,7 +130,7 @@ export class FalcorConverter {
         item: T): SpatialImageEnt {
         const altitude = item.altitude;
         const atomicScale = item.atomic_scale;
-        const cameraType = item.camera_projection_type;
+        const cameraType = convertCameraType(item.camera_projection_type);
         const cameraParameters = [
             item.cfocal,
             item.ck1,

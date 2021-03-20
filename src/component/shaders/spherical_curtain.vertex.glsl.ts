@@ -1,4 +1,4 @@
-export const equirectangularCurtainVert = `
+export const sphericalCurtainVert = `
 #ifdef GL_ES
 precision highp float;
 #endif
