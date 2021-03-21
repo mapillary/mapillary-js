@@ -9,5 +9,5 @@ export interface URLEnt extends IDEnt {
     /**
      * URL for reconstruction cluster resource.
      */
-    url?: string;
+    url: string;
 }

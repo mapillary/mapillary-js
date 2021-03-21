@@ -12,15 +12,21 @@ export interface SpatialImageEnt extends CameraEnt, IDEnt {
     /**
      * Original EXIF altitude above sea level, in meters.
      */
-    altitude?: number;
+    altitude: number;
 
     /**
      * Scale of atomic reconstruction.
+     *
+     * @description Optional - no 3D interaction available
+     * if unset.
      */
     atomic_scale?: number;
 
     /**
      * Rotation vector in angle axis representation.
+     *
+     * @description Optional - no 3D interaction available
+     * if unset.
      */
     computed_rotation?: number[];
 
@@ -31,6 +37,9 @@ export interface SpatialImageEnt extends CameraEnt, IDEnt {
 
     /**
      * Computed altitude, in meters.
+     *
+     * @description Optional - no 3D interaction available
+     * if unset.
      */
     computed_altitude?: number;
 
@@ -41,18 +50,21 @@ export interface SpatialImageEnt extends CameraEnt, IDEnt {
 
     /**
      * SfM computed compass angle, measured in degrees.
+     *
+     * @description Optional - no 3D interaction available
+     * if unset.
      */
     computed_compass_angle?: number;
 
     /**
      * Cluster reconstruction to which the image belongs.
      */
-    cluster?: URLEnt;
+    cluster: URLEnt;
 
     /**
      * Image creator.
      */
-    creator?: CreatorEnt;
+    creator: CreatorEnt;
 
     /**
      * EXIF orientation of original image.
@@ -66,11 +78,17 @@ export interface SpatialImageEnt extends CameraEnt, IDEnt {
 
     /**
      * SfM connected component id to which the image belongs.
+     *
+     * @description Optional - no 3D interaction available
+     * if unset.
      */
     merge_cc?: number;
 
     /**
      * Version for which SfM was run and image was merged.
+     *
+     * @description Optional - no 3D interaction available
+     * if unset.
      */
     merge_version?: number;
 
@@ -82,7 +100,7 @@ export interface SpatialImageEnt extends CameraEnt, IDEnt {
     /**
      * Owner to which the image belongs.
      */
-    owner?: IDEnt;
+    owner: IDEnt;
 
     /**
      * Value specifying if image is accessible to organization members only

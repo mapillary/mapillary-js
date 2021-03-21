@@ -17,20 +17,23 @@ export interface CameraEnt {
      * and k1, k2 are radial distortion parameters.
      *
      * For spherical camera type the camera
-     * parameters are unset or emtpy array.
+     * parameters should be an emtpy array.
      */
-    camera_parameters?: number[];
+    camera_parameters: number[];
 
     /**
      * Projection type of the camera.
      *
-     * Supported camera types are :
+     * @description Supported camera types are:
      *
      * ```
      *   'spherical'
      *   'fisheye'
      *   'perspective'
      * ```
+     *
+     * Other camera types will be treated as
+     * perspective images.
      */
-    camera_type?: string;
+    camera_type: string;
 }
