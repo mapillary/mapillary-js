@@ -67,11 +67,12 @@ ComponentService.register(ZoomComponent);
 export { isFallbackSupported, isSupported } from "./utils/Support";
 
 // Viewer types
-export { Alignment } from "./viewer/Alignment";
+export { Alignment } from "./viewer/enums/Alignment";
 export { ComponentSize } from "./component/utils/ComponentSize";
 export { ICustomRenderer } from "./viewer/interfaces/ICustomRenderer";
 export { PointOfView } from "./viewer/interfaces/PointOfView";
 export { RenderMode } from "./render/RenderMode";
+export { RenderPass } from "./viewer/enums/RenderPass";
 export { TransitionMode } from "./state/TransitionMode";
 export { Viewer } from "./viewer/Viewer";
 

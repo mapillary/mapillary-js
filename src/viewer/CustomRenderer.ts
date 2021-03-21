@@ -44,7 +44,7 @@ export class CustomRenderer {
                     renderer.onAdd(viewer, reference, gl.getContext());
                 }));
 
-        subs.push(this._container.glRenderer.postrender$
+        subs.push(this._container.glRenderer.opaqueRender$
             .pipe(
                 withLatestFrom(
                     this._container.renderService.renderCamera$,

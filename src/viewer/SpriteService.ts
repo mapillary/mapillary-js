@@ -14,7 +14,7 @@ import {
     Subscription,
 } from "rxjs";
 
-import { Alignment } from "./Alignment";
+import { Alignment } from "./enums/Alignment";
 import { ISpriteAtlas } from "./interfaces/ISpriteAtlas";
 
 export class SpriteAtlas implements ISpriteAtlas {

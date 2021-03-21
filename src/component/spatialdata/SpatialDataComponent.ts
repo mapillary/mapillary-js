@@ -41,7 +41,7 @@ import { Transform } from "../../geo/Transform";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { FilterFunction } from "../../graph/FilterCreator";
 import * as Geo from "../../geo/Geo";
-import { GLRenderStage } from "../../render/GLRenderStage";
+import { RenderPass } from "../../render/RenderPass";
 import { GLRenderHash } from "../../render/interfaces/IGLRenderHash";
 import { RenderCamera } from "../../render/RenderCamera";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
@@ -449,7 +449,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                             frameId: frame.id,
                             needsRender: scene.needsRender,
                             render: scene.render.bind(scene),
-                            stage: GLRenderStage.Foreground,
+                            pass: RenderPass.Opaque,
                         },
                     };
                 }))

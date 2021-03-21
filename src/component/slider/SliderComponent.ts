@@ -40,7 +40,7 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Spatial } from "../../geo/Spatial";
 import { ViewportCoords } from "../../geo/ViewportCoords";
-import { GLRenderStage } from "../../render/GLRenderStage";
+import { RenderPass } from "../../render/RenderPass";
 import { GLRenderHash } from "../../render/interfaces/IGLRenderHash";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
@@ -228,7 +228,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
                             frameId: glRenderer.frameId,
                             needsRender: glRenderer.needsRender,
                             render: glRenderer.render.bind(glRenderer),
-                            stage: GLRenderStage.Background,
+                            pass: RenderPass.Background,
                         },
                     };
 

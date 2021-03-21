@@ -22,7 +22,7 @@ import {
     startWith,
 } from "rxjs/operators";
 
-import { GLRenderStage } from "./GLRenderStage";
+import { RenderPass } from "./RenderPass";
 import { RenderCamera } from "./RenderCamera";
 import { RenderService } from "./RenderService";
 import { GLFrameRenderer } from "./interfaces/GLFrameRenderer";
@@ -105,7 +105,7 @@ export class GLRenderer {
     private _renderFrameSubscription: Subscription;
     private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
-    private _postrender$: Subject<void> = new Subject<void>();
+    private _opaqueRender$: Subject<void> = new Subject<void>();
 
     constructor(
         canvas: HTMLCanvasElement,
@@ -217,13 +217,13 @@ export class GLRenderer {
                     const perspectiveCamera = co.camera.perspective;
 
                     const backgroundRenders: GLRenderFunction[] = [];
-                    const foregroundRenders: GLRenderFunction[] = [];
+                    const opaqueRenders: GLRenderFunction[] = [];
 
                     for (const render of co.renders) {
-                        if (render.stage === GLRenderStage.Background) {
+                        if (render.pass === RenderPass.Background) {
                             backgroundRenders.push(render.render);
-                        } else if (render.stage === GLRenderStage.Foreground) {
-                            foregroundRenders.push(render.render);
+                        } else if (render.pass === RenderPass.Opaque) {
+                            opaqueRenders.push(render.render);
                         }
                     }
 
@@ -232,17 +232,17 @@ export class GLRenderer {
                     renderer.setClearColor(clearColor, 1.0);
                     renderer.clear();
 
-                    for (const render of backgroundRenders) {
-                        render(perspectiveCamera, renderer);
+                    for (const renderBackground of backgroundRenders) {
+                        renderBackground(perspectiveCamera, renderer);
                     }
 
                     renderer.clearDepth();
 
-                    for (const render of foregroundRenders) {
-                        render(perspectiveCamera, renderer);
+                    for (const renderOpaque of opaqueRenders) {
+                        renderOpaque(perspectiveCamera, renderer);
                     }
 
-                    this._postrender$.next();
+                    this._opaqueRender$.next();
                 });
 
         subs.push(renderSubscription);
@@ -389,8 +389,8 @@ export class GLRenderer {
         return this._render$;
     }
 
-    public get postrender$(): Observable<void> {
-        return this._postrender$;
+    public get opaqueRender$(): Observable<void> {
+        return this._opaqueRender$;
     }
 
     public get webGLRenderer$(): Observable<THREE.WebGLRenderer> {

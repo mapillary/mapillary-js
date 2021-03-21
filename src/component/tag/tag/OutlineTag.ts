@@ -1,5 +1,5 @@
 import { Subject } from "rxjs";
-import { Alignment } from "../../../viewer/Alignment";
+import { Alignment } from "../../../viewer/enums/Alignment";
 
 import { PolygonGeometry } from "../geometry/PolygonGeometry";
 import { VertexGeometry } from "../geometry/VertexGeometry";

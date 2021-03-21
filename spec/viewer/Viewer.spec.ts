@@ -1,6 +1,7 @@
 import * as ComponentController from "../../src/viewer/ComponentController";
 import * as Container from "../../src/viewer/Container";
 import * as CustomRenderer from "../../src/viewer/CustomRenderer";
+import { RenderPass } from "../../src/viewer/enums/RenderPass";
 import * as Navigator from "../../src/viewer/Navigator";
 import * as Observer from "../../src/viewer/Observer";
 
@@ -104,6 +105,7 @@ describe("Viewer.addCustomRenderer", () => {
 
         viewer.addCustomRenderer({
             id: "1",
+            renderPass: RenderPass.Opaque,
             onAdd: () => { /* noop */ },
             onReferenceChanged: () => { /* noop */ },
             onRemove: () => { /* noop */ },

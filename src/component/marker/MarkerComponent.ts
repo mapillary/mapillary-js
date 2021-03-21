@@ -31,7 +31,7 @@ import { GeoCoords } from "../../geo/GeoCoords";
 import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { GraphCalculator } from "../../graph/GraphCalculator";
-import { GLRenderStage } from "../../render/GLRenderStage";
+import { RenderPass } from "../../render/RenderPass";
 import { GLRenderHash } from "../../render/interfaces/IGLRenderHash";
 import { RenderCamera } from "../../render/RenderCamera";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
@@ -471,7 +471,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                             frameId: frame.id,
                             needsRender: scene.needsRender,
                             render: scene.render.bind(scene),
-                            stage: GLRenderStage.Foreground,
+                            pass: RenderPass.Opaque,
                         },
                     };
                 }))

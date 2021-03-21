@@ -35,7 +35,7 @@ import { Navigator } from "../../viewer/Navigator";
 import { ImagePlaneGLRenderer } from "./ImagePlaneGLRenderer";
 import { Spatial } from "../../geo/Spatial";
 import { ViewportCoords } from "../../geo/ViewportCoords";
-import { GLRenderStage } from "../../render/GLRenderStage";
+import { RenderPass } from "../../render/RenderPass";
 import { GLRenderHash } from "../../render/interfaces/IGLRenderHash";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { RenderCamera } from "../../render/RenderCamera";
@@ -131,7 +131,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                             frameId: renderer.frameId,
                             needsRender: renderer.needsRender,
                             render: renderer.render.bind(renderer),
-                            stage: GLRenderStage.Background,
+                            pass: RenderPass.Background,
                         },
                     };
 
