@@ -34,6 +34,7 @@ import { SequenceEnt } from "../../src/api/ents/SequenceEnt";
 import { SpatialImagesContract } from "../../src/api/contracts/SpatialImagesContract";
 import { SequencesContract } from "../../src/api/contracts/SequencesContract";
 import { ImagesContract } from "../../src/api/contracts/ImagesContract";
+import { CoreImagesContract } from "../../src/api/contracts/CoreImagesContract";
 
 describe("Graph.ctor", () => {
     it("should create a graph", () => {
@@ -72,9 +73,9 @@ describe("Graph.cacheBoundingBox$", () => {
         const h = "h";
         spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const id = "id";
         const getSpatialImages = new Subject<SpatialImagesContract>();
@@ -99,11 +100,12 @@ describe("Graph.cacheBoundingBox$", () => {
                     done();
                 });
 
-        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        tileResult[h] = {};
-        tileResult[h]["0"] = fullNode;
-        imagesByH.next(tileResult);
-        imagesByH.complete();
+        const tileResult: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode],
+        };
+        coreImages.next(tileResult);
+        coreImages.complete();
 
         const spatialImages: SpatialImagesContract = [{
             node: fullNode,
@@ -126,10 +128,10 @@ describe("Graph.cacheBoundingBox$", () => {
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        const imagesByHSpy = spyOn(api, "getCoreImages$");
-        imagesByHSpy.and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        const coreImagesSpy = spyOn(api, "getCoreImages$");
+        coreImagesSpy.and.returnValue(coreImages);
 
         const id = "id";
         const getSpatialImages = new Subject<SpatialImagesContract>();
@@ -161,16 +163,17 @@ describe("Graph.cacheBoundingBox$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        tileResult[h] = {};
-        tileResult[h]["0"] = fullNode;
-        imagesByH.next(tileResult);
-        imagesByH.complete();
+        const tileResult: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode],
+        };
+        coreImages.next(tileResult);
+        coreImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
-        expect(imagesByHSpy.calls.count()).toBe(1);
+        expect(coreImagesSpy.calls.count()).toBe(1);
         expect(getSpatialImagesSpy.calls.count()).toBe(0);
         expect(getImagesSpy.calls.count()).toBe(1);
 
@@ -183,7 +186,7 @@ describe("Graph.cacheBoundingBox$", () => {
 
                     expect(graph.hasNode(id)).toBe(true);
 
-                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    expect(coreImagesSpy.calls.count()).toBe(1);
                     expect(getSpatialImagesSpy.calls.count()).toBe(0);
                     expect(getImagesSpy.calls.count()).toBe(1);
 
@@ -201,10 +204,10 @@ describe("Graph.cacheBoundingBox$", () => {
         spyOn(dataProvider.geometry, "latLonToCellIds").and.returnValue([h]);
         spyOn(dataProvider.geometry, "latLonToCellId").and.returnValue(h);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        const imagesByHSpy = spyOn(api, "getCoreImages$");
-        imagesByHSpy.and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        const coreImagesSpy = spyOn(api, "getCoreImages$");
+        coreImagesSpy.and.returnValue(coreImages);
 
         const id = "id";
         const getSpatialImages = new Subject<SpatialImagesContract>();
@@ -234,16 +237,17 @@ describe("Graph.cacheBoundingBox$", () => {
                 undefined,
                 (): void => {
                     expect(count).toBe(2);
-                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    expect(coreImagesSpy.calls.count()).toBe(1);
 
                     done();
                 });
 
-        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        tileResult[h] = {};
-        tileResult[h]["0"] = fullNode;
-        imagesByH.next(tileResult);
-        imagesByH.complete();
+        const tileResult: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode],
+        };
+        coreImages.next(tileResult);
+        coreImages.complete();
 
         const spatialImages: SpatialImagesContract = [{
             node: fullNode,
@@ -408,9 +412,9 @@ describe("Graph.cacheFull$", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -437,12 +441,12 @@ describe("Graph.cacheFull$", () => {
         expect(graph.hasNode(fullNode.id)).toBe(false);
         expect(graph.isCachingFull(fullNode.id)).toBe(true);
 
-        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        tileResult[h] = {};
-        tileResult[h]["0"] = otherNode;
-        tileResult[h]["1"] = fullNode;
-        imagesByH.next(tileResult);
-        imagesByH.complete();
+        const tileResult: CoreImagesContract = {
+            cell_id: h,
+            images: [otherNode, fullNode],
+        };
+        coreImages.next(tileResult);
+        coreImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
         expect(graph.getNode(fullNode.id).full).toBe(false);
@@ -480,9 +484,9 @@ describe("Graph.cacheFill$", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const getSpatialImages = new Subject<SpatialImagesContract>();
         spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
@@ -505,10 +509,11 @@ describe("Graph.cacheFill$", () => {
 
         const tileNode: CoreImageEnt = helper.createCoreNode();
         tileNode.id = "tileNodeKey";
-        const result: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        result[h] = {};
-        result[h]["0"] = tileNode;
-        imagesByH.next(result);
+        const result: CoreImagesContract = {
+            cell_id: h,
+            images: [tileNode],
+        };
+        coreImages.next(result);
 
         expect(graph.getNode(tileNode.id).full).toBe(false);
         expect(graph.isCachingFill(tileNode.id)).toBe(false);
@@ -534,9 +539,9 @@ describe("Graph.cacheFill$", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const getSpatialImages = new Subject<SpatialImagesContract>();
         spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
@@ -559,10 +564,11 @@ describe("Graph.cacheFill$", () => {
 
         const tileNode: CoreImageEnt = helper.createCoreNode();
         tileNode.id = "tileNodeKey";
-        const result: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        result[h] = {};
-        result[h]["0"] = tileNode;
-        imagesByH.next(result);
+        const result: CoreImagesContract = {
+            cell_id: h,
+            images: [tileNode],
+        };
+        coreImages.next(result);
 
         expect(graph.getNode(tileNode.id).full).toBe(false);
         expect(graph.isCachingFill(tileNode.id)).toBe(false);
@@ -596,9 +602,9 @@ describe("Graph.cacheFill$", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const getSpatialImages = new Subject<SpatialImagesContract>();
         const getSpatialImagesSpy = spyOn(api, "getSpatialImages$");
@@ -622,10 +628,11 @@ describe("Graph.cacheFill$", () => {
 
         const tileNode: CoreImageEnt = helper.createCoreNode();
         tileNode.id = "tileNodeKey";
-        const result: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        result[h] = {};
-        result[h]["0"] = tileNode;
-        imagesByH.next(result);
+        const result: CoreImagesContract = {
+            cell_id: h,
+            images: [tileNode],
+        };
+        coreImages.next(result);
 
         expect(graph.getNode(tileNode.id).full).toBe(false);
         expect(graph.isCachingFill(tileNode.id)).toBe(false);
@@ -651,9 +658,9 @@ describe("Graph.cacheFill$", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -721,9 +728,9 @@ describe("Graph.cacheTiles$", () => {
 
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue(["h"]);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -760,9 +767,9 @@ describe("Graph.cacheTiles$", () => {
         const getImages: Observable<ImagesContract> = observableOf<ImagesContract>(imageByKeyResult);
         spyOn(api, "getImages$").and.returnValue(getImages);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const graph = new Graph(api, undefined, calculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -774,10 +781,11 @@ describe("Graph.cacheTiles$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        result[h] = {};
-        result[h]["0"] = fullNode;
-        imagesByH.next(result);
+        const result: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode],
+        };
+        coreImages.next(result);
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
         expect(graph.isCachingTiles(fullNode.id)).toBe(false);
@@ -797,9 +805,9 @@ describe("Graph.cacheTiles$", () => {
         const encodeHsSpy = spyOn(geometryProvider, "latLonToCellIds");
         encodeHsSpy.and.returnValue([h]);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -834,9 +842,9 @@ describe("Graph.cacheTiles$", () => {
         const getImages: Observable<ImagesContract> = observableOf<ImagesContract>(imageByKeyResult);
         spyOn(api, "getImages$").and.returnValue(getImages);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const graph = new Graph(api, undefined, calculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -847,10 +855,11 @@ describe("Graph.cacheTiles$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        result[h] = {};
-        result[h]["0"] = fullNode;
-        imagesByH.next(result);
+        const result: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode],
+        };
+        coreImages.next(result);
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
@@ -1254,19 +1263,20 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.initializeCache(fullNode.id);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         graph.hasTiles(fullNode.id);
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        imagesByHResult[h] = {};
-        imagesByHResult[h]["0"] = fullNode;
-        imagesByH.next(imagesByHResult);
+        const coreImagesResult: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode],
+        };
+        coreImages.next(coreImagesResult);
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
@@ -1337,19 +1347,20 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.initializeCache(fullNode.id);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         graph.hasTiles(fullNode.id);
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        imagesByHResult[h] = {};
-        imagesByHResult[h]["0"] = fullNode;
-        imagesByH.next(imagesByHResult);
+        const coreImagesResult: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode],
+        };
+        coreImages.next(coreImagesResult);
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
@@ -1870,9 +1881,9 @@ describe("Graph.cacheSpatialArea$", () => {
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -1897,11 +1908,11 @@ describe("Graph.cacheSpatialArea$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        result[h] = {};
-        result[h]["0"] = fullNode;
-        result[h]["1"] = coreNode;
-        imagesByH.next(result);
+        const result: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode, coreNode],
+        };
+        coreImages.next(result);
 
         const otherNode = graph.getNode(coreNode.id);
         expect(otherNode).toBeDefined();
@@ -1999,9 +2010,9 @@ describe("Graph.cacheSpatialEdges", () => {
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
@@ -2044,11 +2055,11 @@ describe("Graph.cacheSpatialEdges", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const coreResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        coreResult[cellId] = {};
-        coreResult[cellId]["0"] = fullNode;
-        coreResult[cellId]["1"] = otherFullNode;
-        imagesByH.next(coreResult);
+        const coreResult: CoreImagesContract = {
+            cell_id: cellId,
+            images: [fullNode, otherFullNode],
+        };
+        coreImages.next(coreResult);
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
@@ -2596,18 +2607,19 @@ describe("Graph.resetSpatialEdges", () => {
         expect(graph.hasTiles(fullNode.id)).toBe(false);
         expect(graph.isCachingTiles(fullNode.id)).toBe(false);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHresult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        imagesByHresult[h] = {};
-        imagesByHresult[h]["0"] = fullNode;
-        imagesByH.next(imagesByHresult);
+        const coreImagesresult: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode],
+        };
+        coreImages.next(coreImagesresult);
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
         expect(graph.isCachingTiles(fullNode.id)).toBe(false);
@@ -3150,19 +3162,20 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasInitializedCache(fullNode.id)).toBe(true);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         graph.hasTiles(fullNode.id);
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        imagesByHResult[h] = {};
-        imagesByHResult[h]["0"] = fullNode;
-        imagesByH.next(imagesByHResult);
+        const coreImagesResult: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode],
+        };
+        coreImages.next(coreImagesResult);
 
         const node = graph.getNode(fullNode.id);
         const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
@@ -3215,19 +3228,20 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasInitializedCache(fullNode.id)).toBe(true);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         graph.hasTiles(fullNode.id);
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        imagesByHResult[h] = {};
-        imagesByHResult[h]["0"] = fullNode;
-        imagesByH.next(imagesByHResult);
+        const coreImagesResult: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode],
+        };
+        coreImages.next(coreImagesResult);
 
         const node = graph.getNode(fullNode.id);
         const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
@@ -3283,19 +3297,20 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasInitializedCache(node.id)).toBe(true);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         graph.hasTiles(fullNode.id);
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        imagesByHResult[h] = {};
-        imagesByHResult[h]["0"] = fullNode;
-        imagesByH.next(imagesByHResult);
+        const coreImagesResult: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode],
+        };
+        coreImages.next(coreImagesResult);
 
         const nodeUncacheSpy = spyOn(node, "uncache");
         nodeUncacheSpy.and.stub();
@@ -3349,9 +3364,9 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasInitializedCache(node.id)).toBe(true);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         graph.hasTiles(node.id);
         observableFrom(graph.cacheTiles$(node.id)).pipe(
@@ -3437,20 +3452,20 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasInitializedCache(node2.id)).toBe(true);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         graph.hasTiles(fullNode1.id);
         observableFrom(graph.cacheTiles$(fullNode1.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        imagesByHResult[h] = {};
-        imagesByHResult[h]["0"] = fullNode1;
-        imagesByHResult[h]["1"] = fullNode2;
-        imagesByH.next(imagesByHResult);
+        const coreImagesResult: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode1, fullNode2],
+        };
+        coreImages.next(coreImagesResult);
 
         const nodeUncacheSpy1 = spyOn(node1, "uncache").and.stub();
         const nodeUncacheSpy2 = spyOn(node2, "uncache").and.stub();
@@ -3702,19 +3717,20 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         graph.hasTiles(fullNode.id);
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        imagesByHResult[h] = {};
-        imagesByHResult[h]["0"] = fullNode;
-        imagesByH.next(imagesByHResult);
+        const coreImagesResult: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode],
+        };
+        coreImages.next(coreImagesResult);
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
@@ -3767,19 +3783,20 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         graph.hasTiles(fullNode.id);
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        imagesByHResult[h] = {};
-        imagesByHResult[h]["0"] = fullNode;
-        imagesByH.next(imagesByHResult);
+        const coreImagesResult: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode],
+        };
+        coreImages.next(coreImagesResult);
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
@@ -3832,19 +3849,20 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         graph.hasTiles(fullNode.id);
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        imagesByHResult[h] = {};
-        imagesByHResult[h]["0"] = fullNode;
-        imagesByH.next(imagesByHResult);
+        const coreImagesResult: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode],
+        };
+        coreImages.next(coreImagesResult);
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
@@ -3897,19 +3915,20 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         graph.hasTiles(fullNode.id);
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const imagesByHResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        imagesByHResult[h] = {};
-        imagesByHResult[h]["0"] = fullNode;
-        imagesByH.next(imagesByHResult);
+        const coreImagesResult: CoreImagesContract = {
+            cell_id: h,
+            images: [fullNode],
+        };
+        coreImages.next(coreImagesResult);
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
@@ -3937,10 +3956,10 @@ describe("Graph.cacheCell$", () => {
         const calculator = new GraphCalculator(null);
 
         const cellId = "cellId";
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        const imagesByHSpy =
-            spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        const coreImagesSpy =
+            spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const getSpatialImages = new Subject<SpatialImagesContract>();
         const getSpatialImagesSpy =
@@ -3961,18 +3980,18 @@ describe("Graph.cacheCell$", () => {
 
                     expect(graph.hasNode(id)).toBe(true);
 
-                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    expect(coreImagesSpy.calls.count()).toBe(1);
                     expect(getSpatialImagesSpy.calls.count()).toBe(1);
 
                     done();
                 });
 
-        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } =
-            {};
-        tileResult[cellId] = {};
-        tileResult[cellId]["0"] = fullNode;
-        imagesByH.next(tileResult);
-        imagesByH.complete();
+        const tileResult: CoreImagesContract = {
+            cell_id: cellId,
+            images: [fullNode],
+        };
+        coreImages.next(tileResult);
+        coreImages.complete();
 
         const spatialImages: SpatialImagesContract = [{
             node: fullNode,
@@ -3994,10 +4013,10 @@ describe("Graph.cacheCell$", () => {
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([cellId]);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(cellId);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        const imagesByHSpy =
-            spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        const coreImagesSpy =
+            spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const getImages = new Subject<ImagesContract>();
         const getImagesSpy =
@@ -4026,15 +4045,16 @@ describe("Graph.cacheCell$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        tileResult[cellId] = {};
-        tileResult[cellId]["0"] = fullNode;
-        imagesByH.next(tileResult);
+        const tileResult: CoreImagesContract = {
+            cell_id: cellId,
+            images: [fullNode],
+        };
+        coreImages.next(tileResult);
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
-        expect(imagesByHSpy.calls.count()).toBe(1);
+        expect(coreImagesSpy.calls.count()).toBe(1);
         expect(getImagesSpy.calls.count()).toBe(1);
 
         graph.cacheCell$(cellId)
@@ -4046,7 +4066,7 @@ describe("Graph.cacheCell$", () => {
 
                     expect(graph.hasNode(id)).toBe(true);
 
-                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    expect(coreImagesSpy.calls.count()).toBe(1);
                     expect(getImagesSpy.calls.count()).toBe(1);
                     expect(getSpatialImagesSpy.calls.count()).toBe(0);
 
@@ -4066,10 +4086,10 @@ describe("Graph.cacheCell$", () => {
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([cellId]);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(cellId);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        const imagesByHSpy =
-            spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        const coreImagesSpy =
+            spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const getImages = new Subject<ImagesContract>();
         const getImagesSpy =
@@ -4102,11 +4122,11 @@ describe("Graph.cacheCell$", () => {
 
         const fullNode2 = new NodeHelper().createFullNode();
         fullNode2.id = key2;
-        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        tileResult[cellId] = {};
-        tileResult[cellId]["0"] = fullNode1;
-        tileResult[cellId]["1"] = fullNode2;
-        imagesByH.next(tileResult);
+        const tileResult: CoreImagesContract = {
+            cell_id: cellId,
+            images: [fullNode1, fullNode2],
+        };
+        coreImages.next(tileResult);
 
         expect(graph.hasNode(fullNode1.id)).toBe(true);
         expect(graph.hasNode(fullNode2.id)).toBe(true);
@@ -4117,7 +4137,7 @@ describe("Graph.cacheCell$", () => {
         expect(graph.getNode(fullNode1.id).full).toBe(true);
         expect(graph.getNode(fullNode2.id).full).toBe(false);
 
-        expect(imagesByHSpy.calls.count()).toBe(1);
+        expect(coreImagesSpy.calls.count()).toBe(1);
         expect(getImagesSpy.calls.count()).toBe(1);
 
         graph.cacheCell$(cellId)
@@ -4132,7 +4152,7 @@ describe("Graph.cacheCell$", () => {
                     expect(graph.hasNode(key1)).toBe(true);
                     expect(graph.hasNode(key2)).toBe(true);
 
-                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    expect(coreImagesSpy.calls.count()).toBe(1);
                     expect(getImagesSpy.calls.count()).toBe(1);
                     expect(getSpatialImagesSpy.calls.count()).toBe(1);
 
@@ -4159,10 +4179,10 @@ describe("Graph.cacheCell$", () => {
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([cellId]);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(cellId);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        const imagesByHSpy =
-            spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        const coreImagesSpy =
+            spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const getSpatialImages = new Subject<SpatialImagesContract>();
         const getSpatialImagesSpy =
@@ -4193,17 +4213,18 @@ describe("Graph.cacheCell$", () => {
                 undefined,
                 (): void => {
                     expect(count).toBe(2);
-                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    expect(coreImagesSpy.calls.count()).toBe(1);
                     expect(getSpatialImagesSpy.calls.count()).toBe(2);
 
                     done();
                 });
 
-        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } = {};
-        tileResult[cellId] = {};
-        tileResult[cellId]["0"] = fullNode;
-        imagesByH.next(tileResult);
-        imagesByH.complete();
+        const tileResult: CoreImagesContract = {
+            cell_id: cellId,
+            images: [fullNode],
+        };
+        coreImages.next(tileResult);
+        coreImages.complete();
 
         const spatialImages: SpatialImagesContract = [{
             node: fullNode,
@@ -4223,7 +4244,7 @@ describe("Graph.updateCells$", () => {
         const api = new APIWrapper(dataProvider);
         const calculator = new GraphCalculator(null);
 
-        const imagesByHSpy = spyOn(api, "getCoreImages$").and.stub();
+        const coreImagesSpy = spyOn(api, "getCoreImages$").and.stub();
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -4235,7 +4256,7 @@ describe("Graph.updateCells$", () => {
                 undefined,
                 (): void => {
                     expect(count).toBe(0);
-                    expect(imagesByHSpy.calls.count()).toBe(0);
+                    expect(coreImagesSpy.calls.count()).toBe(0);
                     done();
                 });
     });
@@ -4248,10 +4269,10 @@ describe("Graph.updateCells$", () => {
         const api = new APIWrapper(dataProvider);
         const calculator = new GraphCalculator(null);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        const imagesByHSpy =
-            spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        const coreImagesSpy =
+            spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const getSpatialImages = new Subject<SpatialImagesContract>();
         spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
@@ -4265,12 +4286,12 @@ describe("Graph.updateCells$", () => {
         const cellId = "cellId";
         graph.cacheCell$(cellId).subscribe();
 
-        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } =
-            {};
-        tileResult[cellId] = {};
-        tileResult[cellId]["0"] = fullNode;
-        imagesByH.next(tileResult);
-        imagesByH.complete();
+        const tileResult: CoreImagesContract = {
+            cell_id: cellId,
+            images: [fullNode],
+        };
+        coreImages.next(tileResult);
+        coreImages.complete();
 
         const spatialImages: SpatialImagesContract = [{
             node: fullNode,
@@ -4281,21 +4302,21 @@ describe("Graph.updateCells$", () => {
 
         expect(graph.hasNode(id)).toBe(true);
 
-        const imagesByHUpdate =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        imagesByHSpy.calls.reset();
-        imagesByHSpy.and.returnValue(imagesByHUpdate);
+        const coreImagesUpdate =
+            new Subject<CoreImagesContract>();
+        coreImagesSpy.calls.reset();
+        coreImagesSpy.and.returnValue(coreImagesUpdate);
 
         graph.updateCells$([cellId])
             .subscribe(
                 (cid: string): void => {
                     expect(cid).toBe(cellId);
-                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    expect(coreImagesSpy.calls.count()).toBe(1);
                     done();
                 });
 
-        imagesByHUpdate.next(tileResult);
-        imagesByHUpdate.complete();
+        coreImagesUpdate.next(tileResult);
+        coreImagesUpdate.complete();
     });
 
     it("should update currently caching cell", (done: Function) => {
@@ -4306,10 +4327,10 @@ describe("Graph.updateCells$", () => {
         const api = new APIWrapper(dataProvider);
         const calculator = new GraphCalculator(null);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        const imagesByHSpy =
-            spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        const coreImagesSpy =
+            spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const getSpatialImages = new Subject<SpatialImagesContract>();
         spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
@@ -4325,25 +4346,25 @@ describe("Graph.updateCells$", () => {
 
         expect(graph.hasNode(id)).toBe(false);
 
-        const imagesByHUpdate =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        imagesByHSpy.calls.reset();
-        imagesByHSpy.and.returnValue(imagesByHUpdate);
+        const coreImagesUpdate =
+            new Subject<CoreImagesContract>();
+        coreImagesSpy.calls.reset();
+        coreImagesSpy.and.returnValue(coreImagesUpdate);
 
         graph.updateCells$([cellId])
             .subscribe(
                 (cid: string): void => {
                     expect(cid).toBe(cellId);
-                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    expect(coreImagesSpy.calls.count()).toBe(1);
                     done();
                 });
 
-        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } =
-            {};
-        tileResult[cellId] = {};
-        tileResult[cellId]["0"] = fullNode;
-        imagesByH.next(tileResult);
-        imagesByH.complete();
+        const tileResult: CoreImagesContract = {
+            cell_id: cellId,
+            images: [fullNode],
+        };
+        coreImages.next(tileResult);
+        coreImages.complete();
 
         const spatialImages: SpatialImagesContract = [{
             node: fullNode,
@@ -4354,8 +4375,8 @@ describe("Graph.updateCells$", () => {
 
         expect(graph.hasNode(id)).toBe(true);
 
-        imagesByHUpdate.next(tileResult);
-        imagesByHUpdate.complete();
+        coreImagesUpdate.next(tileResult);
+        coreImagesUpdate.complete();
     });
 
     it("should add new nodes to existing cell", (done: Function) => {
@@ -4366,10 +4387,10 @@ describe("Graph.updateCells$", () => {
         const api = new APIWrapper(dataProvider);
         const calculator = new GraphCalculator(null);
 
-        const imagesByH =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        const imagesByHSpy =
-            spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        const coreImagesSpy =
+            spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
         const getSpatialImages = new Subject<SpatialImagesContract>();
         spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
@@ -4383,12 +4404,12 @@ describe("Graph.updateCells$", () => {
         const cellId = "cellId";
         graph.cacheCell$(cellId).subscribe();
 
-        const tileResult: { [key: string]: { [index: string]: CoreImageEnt } } =
-            {};
-        tileResult[cellId] = {};
-        tileResult[cellId]["0"] = fullNode1;
-        imagesByH.next(tileResult);
-        imagesByH.complete();
+        const tileResult: CoreImagesContract = {
+            cell_id: cellId,
+            images: [fullNode1],
+        };
+        coreImages.next(tileResult);
+        coreImages.complete();
 
         const spatialImages: SpatialImagesContract = [{
             node: fullNode1,
@@ -4399,10 +4420,10 @@ describe("Graph.updateCells$", () => {
 
         expect(graph.hasNode(key1)).toBe(true);
 
-        const imagesByHUpdate =
-            new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        imagesByHSpy.calls.reset();
-        imagesByHSpy.and.returnValue(imagesByHUpdate);
+        const coreImagesUpdate =
+            new Subject<CoreImagesContract>();
+        coreImagesSpy.calls.reset();
+        coreImagesSpy.and.returnValue(coreImagesUpdate);
 
         graph.updateCells$([cellId])
             .subscribe(
@@ -4414,15 +4435,15 @@ describe("Graph.updateCells$", () => {
 
                     expect(graph.getNode(key2).full).toBe(false);
 
-                    expect(imagesByHSpy.calls.count()).toBe(1);
+                    expect(coreImagesSpy.calls.count()).toBe(1);
                     done();
                 });
 
         const key2 = "full-key-2";
         const fullNode2 = new NodeHelper().createFullNode();
         fullNode2.id = key2;
-        tileResult[cellId]["1"] = fullNode2;
-        imagesByHUpdate.next(tileResult);
-        imagesByHUpdate.complete();
+        tileResult.images.push(fullNode2);
+        coreImagesUpdate.next(tileResult);
+        coreImagesUpdate.complete();
     });
 });

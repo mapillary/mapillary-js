@@ -23,7 +23,6 @@ import {
 import { Component } from "./Component";
 import { CoverState, CoverConfiguration } from "./interfaces/CoverConfiguration";
 
-import { ImageEnt } from "../api/ents/ImageEnt";
 import { MapillaryError } from "../error/MapillaryError";
 import { Node } from "../graph/Node";
 import { ViewportSize } from "../render/interfaces/ViewportSize";
@@ -31,7 +30,7 @@ import { VirtualNodeHash } from "../render/interfaces/VirtualNodeHash";
 import { Urls } from "../utils/Urls";
 import { Container } from "../viewer/Container";
 import { Navigator } from "../viewer/Navigator";
-import { ImagesContract } from "../export/APINamespace";
+import { ImagesContract } from "../api/contracts/ImagesContract";
 
 export class CoverComponent extends Component<CoverConfiguration> {
     public static componentName: string = "cover";

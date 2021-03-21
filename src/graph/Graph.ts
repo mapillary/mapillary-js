@@ -35,13 +35,13 @@ import { NavigationEdge } from "./edge/interfaces/NavigationEdge";
 import { PotentialEdge } from "./edge/interfaces/PotentialEdge";
 
 import { APIWrapper } from "../api/APIWrapper";
-import { CoreImageEnt } from "../api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
-import { ImageEnt } from "../api/ents/ImageEnt";
 import { LatLon } from "../api/interfaces/LatLon";
 import { GraphMapillaryError } from "../error/GraphMapillaryError";
-import { SequenceEnt } from "../api/ents/SequenceEnt";
-import { ImagesContract, SequencesContract, SpatialImagesContract } from "../export/APINamespace";
+import { SpatialImagesContract } from "../api/contracts/SpatialImagesContract";
+import { ImagesContract } from "../api/contracts/ImagesContract";
+import { SequencesContract } from "../api/contracts/SequencesContract";
+import { CoreImagesContract } from "../api/contracts/CoreImagesContract";
 
 type NodeTiles = {
     cache: string[];
@@ -1657,90 +1657,76 @@ export class Graph {
         return this._cachingSequences$[sequenceId];
     }
 
-    private _cacheTile$(h: string): Observable<Graph> {
-        this._cachingTiles$[h] = this._api.getCoreImages$(h).pipe(
-            tap(
-                (imagesByH: { [key: string]: { [index: string]: CoreImageEnt } }): void => {
-                    let coreNodes: { [index: string]: CoreImageEnt } = imagesByH[h];
-
-                    if (h in this._cachedTiles) {
+    private _cacheTile$(cellId: string): Observable<Graph> {
+        this._cachingTiles$[cellId] = this._api
+            .getCoreImages$(cellId)
+            .pipe(
+                tap((contract: CoreImagesContract): void => {
+                    if (cellId in this._cachedTiles) {
                         return;
                     }
+                    const cores = contract.images;
+                    this._nodeIndexTiles[cellId] = [];
+                    this._cachedTiles[cellId] = {
+                        accessed: new Date().getTime(),
+                        nodes: [],
+                    };
+                    const hCache = this._cachedTiles[cellId].nodes;
+                    const preStored = this._removeFromPreStore(cellId);
 
-                    this._nodeIndexTiles[h] = [];
-                    this._cachedTiles[h] = { accessed: new Date().getTime(), nodes: [] };
-                    let hCache: Node[] = this._cachedTiles[h].nodes;
-                    let preStored: { [key: string]: Node } = this._removeFromPreStore(h);
+                    for (const core of cores) {
+                        if (!core) { break; }
 
-                    for (let index in coreNodes) {
-                        if (!coreNodes.hasOwnProperty(index)) {
+                        if (core.sequence.id == null) {
+                            console.warn(`Sequence missing, discarding ` +
+                                `node (${core.id})`);
                             continue;
                         }
 
-                        let coreNode: CoreImageEnt = coreNodes[index];
-
-                        if (coreNode == null) {
-                            break;
-                        }
-
-                        if (coreNode.sequence.id == null) {
-                            console.warn(`Sequence missing, discarding node (${coreNode.id})`);
-
-                            continue;
-                        }
-
-                        if (preStored != null && coreNode.id in preStored) {
-                            let preStoredNode: Node = preStored[coreNode.id];
-                            delete preStored[coreNode.id];
-
+                        if (preStored != null && core.id in preStored) {
+                            const preStoredNode = preStored[core.id];
+                            delete preStored[core.id];
                             hCache.push(preStoredNode);
-
-                            let preStoredNodeIndexItem: NodeIndexItem = {
+                            const preStoredNodeIndexItem: NodeIndexItem = {
                                 lat: preStoredNode.latLon.lat,
                                 lon: preStoredNode.latLon.lon,
                                 node: preStoredNode,
                             };
-
                             this._nodeIndex.insert(preStoredNodeIndexItem);
-                            this._nodeIndexTiles[h].push(preStoredNodeIndexItem);
-                            this._nodeToTile[preStoredNode.id] = h;
-
+                            this._nodeIndexTiles[cellId]
+                                .push(preStoredNodeIndexItem);
+                            this._nodeToTile[preStoredNode.id] = cellId;
                             continue;
                         }
 
-                        let node: Node = new Node(coreNode);
-
+                        const node = new Node(core);
                         hCache.push(node);
-
-                        let nodeIndexItem: NodeIndexItem = {
+                        const nodeIndexItem: NodeIndexItem = {
                             lat: node.latLon.lat,
                             lon: node.latLon.lon,
                             node: node,
                         };
 
                         this._nodeIndex.insert(nodeIndexItem);
-                        this._nodeIndexTiles[h].push(nodeIndexItem);
-                        this._nodeToTile[node.id] = h;
+                        this._nodeIndexTiles[cellId].push(nodeIndexItem);
+                        this._nodeToTile[node.id] = cellId;
 
                         this._setNode(node);
                     }
 
-                    delete this._cachingTiles$[h];
+                    delete this._cachingTiles$[cellId];
                 }),
-            map(
-                (imagesByH: { [key: string]: { [index: string]: CoreImageEnt } }): Graph => {
-                    return this;
-                }),
-            catchError(
-                (error: Error): Observable<Graph> => {
-                    delete this._cachingTiles$[h];
+                map((): Graph => this),
+                catchError(
+                    (error: Error): Observable<Graph> => {
+                        delete this._cachingTiles$[cellId];
 
-                    throw error;
-                }),
-            publish(),
-            refCount());
+                        throw error;
+                    }),
+                publish(),
+                refCount());
 
-        return this._cachingTiles$[h];
+        return this._cachingTiles$[cellId];
     }
 
     private _makeFull(node: Node, fillNode: SpatialImageEnt): void {
@@ -1874,7 +1860,7 @@ export class Graph {
     private _updateCell$(cellId: string): Observable<string> {
         return this._api.getCoreImages$(cellId).pipe(
             mergeMap(
-                (imagesByH: { [key: string]: { [index: string]: CoreImageEnt } }): Observable<string> => {
+                (contract: CoreImagesContract): Observable<string> => {
                     if (!(cellId in this._cachedTiles)) {
                         return observableEmpty();
                     }
@@ -1886,28 +1872,18 @@ export class Graph {
                     cell.accessed = new Date().getTime();
                     const cellNodes = cell.nodes;
 
-                    const coreNodes = imagesByH[cellId];
-                    for (const index in coreNodes) {
-                        if (!coreNodes.hasOwnProperty(index)) {
+                    const cores = contract.images;
+                    for (const core of cores) {
+                        if (core == null) { break; }
+                        if (this.hasNode(core.id)) { continue; }
+
+                        if (core.sequence.id == null) {
+                            console.warn(`Sequence missing, discarding ` +
+                                `node (${core.id})`);
                             continue;
                         }
 
-                        const coreNode = coreNodes[index];
-                        if (coreNode == null) {
-                            break;
-                        }
-
-                        if (this.hasNode(coreNode.id)) {
-                            continue;
-                        }
-
-                        if (coreNode.sequence.id == null) {
-                            console.warn(`Sequence missing, discarding node ` +
-                                `(${coreNode.id})`);
-                            continue;
-                        }
-
-                        const node = new Node(coreNode);
+                        const node = new Node(core);
                         cellNodes.push(node);
                         const nodeIndexItem: NodeIndexItem = {
                             lat: node.latLon.lat,

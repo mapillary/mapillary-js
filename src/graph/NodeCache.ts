@@ -22,7 +22,7 @@ import { NavigationEdgeStatus } from "./interfaces/NavigationEdgeStatus";
 
 import { MeshContract } from "../api/contracts/MeshContract";
 import { DataProviderBase } from "../api/DataProviderBase";
-import { SpatialImageEnt } from "../export/APINamespace";
+import { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
 
 /**
  * @class NodeCache

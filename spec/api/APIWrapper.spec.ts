@@ -2,10 +2,10 @@ import { empty as observableEmpty, Observable } from "rxjs";
 
 import { catchError } from "rxjs/operators";
 import { APIWrapper } from "../../src/api/APIWrapper";
-import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { DataProvider } from "../helper/ProviderHelper";
 import { ImagesContract } from "../../src/api/contracts/ImagesContract";
 import { SpatialImagesContract } from "../../src/api/contracts/SpatialImagesContract";
+import { CoreImagesContract } from "../../src/api/contracts/CoreImagesContract";
 
 describe("APIWrapperctor", () => {
     test("should create an APIWrapper instance", () => {
@@ -150,7 +150,7 @@ describe("APIWrapperimagesByH$", () => {
 
         api.getCoreImages$(h)
             .subscribe(
-                (result: { [key: string]: { [index: string]: CoreImageEnt } }): void => {
+                (result: CoreImagesContract): void => {
                     expect(result).toBeDefined();
 
                     expect(providerSpy.calls.count()).toBe(1);
@@ -163,7 +163,7 @@ describe("APIWrapperimagesByH$", () => {
 
     test("should pass on error", (done: Function) => {
         const promise: any = {
-            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+            then: (_: (result: any) => void, reject: (error: Error) => void): void => {
                 reject(new Error());
             },
         };
