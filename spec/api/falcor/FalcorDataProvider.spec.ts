@@ -3,10 +3,10 @@ import * as falcor from "falcor";
 import { FalcorDataProvider } from "../../../src/api/falcor/FalcorDataProvider";
 import { ClusterReconstructionContract } from "../../../src/api/contracts/ClusterReconstructionContract";
 import { CoreImageEnt } from "../../../src/api/ents/CoreImageEnt";
-import { SpatialImageEnt } from "../../../src/api/ents/SpatialImageEnt";
 import { FalcorModelCreator } from "../../../src/api/falcor/FalcorModelCreator";
 import { MapillaryError } from "../../../src/error/MapillaryError";
-import { SequenceEnt } from "../../../src/api/ents/SequenceEnt";
+import { SpatialImagesContract } from "../../../src/api/contracts/SpatialImagesContract";
+import { ImagesContract } from "../../../src/export/APINamespace";
 
 describe("FalcorDataProvider.ctor", () => {
     it("should create a data provider", () => {
@@ -41,7 +41,7 @@ describe("FalcorDataProvider.getFillImages", () => {
 
         provider.getSpatialImages([key])
             .then(
-                (result: { [key: string]: SpatialImageEnt }): void => {
+                (result: SpatialImagesContract): void => {
                     expect(result).toBeDefined();
 
                     expect(modelSpy.calls.count()).toBe(1);
@@ -196,7 +196,7 @@ describe("FalcorDataProvider.getFullImages", () => {
 
         provider.getImages([key])
             .then(
-                (result: { [key: string]: SpatialImageEnt }): void => {
+                (result: ImagesContract): void => {
                     expect(result).toBeDefined();
 
                     expect(spy.calls.count()).toBe(1);
@@ -211,7 +211,7 @@ describe("FalcorDataProvider.getFullImages", () => {
 
     it("should throw when result is undefined", (done: Function) => {
         const promise: any = {
-            then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
+            then: (resolve: (result: any) => void): void => {
                 resolve(undefined);
             },
         };
@@ -268,8 +268,8 @@ describe("FalcorDataProvider.getFullImages", () => {
 
         provider.getImages([key])
             .then(
-                (result: { [key: string]: SpatialImageEnt }): void => { return; },
-                (error: Error): void => {
+                (): void => { return; },
+                (): void => {
                     expect(invalidateSpy.calls.count()).toBe(1);
                     expect(invalidateSpy.calls.first().args.length).toBe(1);
                     expect(invalidateSpy.calls.first().args[0][0]).toBe("imageByKey");

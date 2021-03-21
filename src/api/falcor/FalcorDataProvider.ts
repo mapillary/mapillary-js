@@ -178,13 +178,13 @@ export class FalcorDataProvider extends DataProviderBase {
                             `Images (${keys.join(", ")}) ` +
                             `could not be found.`);
                     }
-                    const result: SpatialImagesContract = {};
+                    const result: SpatialImagesContract = [];
                     const imageByKey = value.json.imageByKey;
                     for (const key in imageByKey) {
                         if (!imageByKey.hasOwnProperty(key)) { continue; }
                         const item = imageByKey[key];
                         const spatial = this._convert.spatial(item);
-                        result[key] = spatial;
+                        result.push({ node: spatial, node_id: spatial.id });
                     }
                     return result;
                 },
