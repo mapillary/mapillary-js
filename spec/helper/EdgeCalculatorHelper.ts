@@ -53,6 +53,7 @@ export class EdgeCalculatorHelper {
         let node: Node = this.createCoreNode(key, latLonAlt, sequenceKey);
 
         let fillNode: SpatialImageEnt = {
+            altitude: 0,
             atomic_scale: 0,
             computed_rotation: r,
             compass_angle: 0,
@@ -64,7 +65,7 @@ export class EdgeCalculatorHelper {
             computed_compass_angle: 0,
             cluster: {
                 id: "ckey",
-                url: "ckey_url",
+                url: "ckey-url",
             },
             creator: { id: "ukey", username: "uname" },
             exif_orientation: 0,
@@ -74,6 +75,7 @@ export class EdgeCalculatorHelper {
             merge_version: mergeVersion,
             mesh: { id: "mesh-id", url: "mesh-url" },
             private: false,
+            owner: { id: null },
             thumb: { id: "thumb-id", url: "thumb-url" },
             width: 0,
         };
