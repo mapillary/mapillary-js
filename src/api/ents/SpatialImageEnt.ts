@@ -1,7 +1,6 @@
 import { CameraEnt } from "./CameraEnt";
-import { ClusterEnt } from "./ClusterEnt";
+import { URLEnt } from "./URLEnt";
 import { IDEnt } from "./IDEnt";
-import { URLImageEnt } from "./URLImageEnt";
 import { CreatorEnt } from "./CreatorEnt";
 
 /**
@@ -9,7 +8,7 @@ import { CreatorEnt } from "./CreatorEnt";
  *
  * @interface SpatialImageEnt
  */
-export interface SpatialImageEnt extends CameraEnt, URLImageEnt {
+export interface SpatialImageEnt extends CameraEnt, IDEnt {
     /**
      * Original EXIF altitude above sea level, in meters.
      */
@@ -46,9 +45,9 @@ export interface SpatialImageEnt extends CameraEnt, URLImageEnt {
     computed_compass_angle?: number;
 
     /**
-     * cluster to which the image belongs.
+     * Cluster reconstruction to which the image belongs.
      */
-    cluster?: ClusterEnt;
+    cluster?: URLEnt;
 
     /**
      * Image creator.
@@ -76,6 +75,11 @@ export interface SpatialImageEnt extends CameraEnt, URLImageEnt {
     merge_version?: number;
 
     /**
+     * 3D mesh resource.
+     */
+    mesh: URLEnt;
+
+    /**
      * Owner to which the image belongs.
      */
     owner?: IDEnt;
@@ -90,6 +94,11 @@ export interface SpatialImageEnt extends CameraEnt, URLImageEnt {
      * Image quality score on the interval [0, 1].
      */
     quality_score?: number;
+
+    /**
+     * Image thumbnail resource.
+     */
+    thumb: URLEnt;
 
     /**
      * Width of original image, not adjusted for orientation.

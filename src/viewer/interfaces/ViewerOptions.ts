@@ -1,7 +1,6 @@
 import { ComponentOptions } from "./ComponentOptions";
 import { UrlOptions } from "./UrlOptions";
 
-import { ImageSize } from "../ImageSize";
 import { DataProviderBase } from "../../api/DataProviderBase";
 import { RenderMode } from "../../render/RenderMode";
 import { TransitionMode } from "../../state/TransitionMode";
@@ -22,18 +21,6 @@ export interface ViewerOptions {
      * the data provider base class.
      */
     apiClient: string | DataProviderBase;
-
-    /**
-     * Default size of the thumbnail used in the viewer
-     * @default {ImageSize.Size640}
-     */
-    baseImageSize?: ImageSize;
-
-    /**
-     * Default size of the thumbnail used for spherical in the viewer
-     * @default {ImageSize.Size2048}
-     */
-    baseSphericalSize?: ImageSize;
 
     /**
      * Value specifying if combined panning should be enabled.
@@ -62,13 +49,6 @@ export interface ViewerOptions {
      * with e.g. `viewer.moveToId("<my-image-id>")`.
      */
     imageId?: string;
-
-    /**
-     * The max size of an image shown in the viewer
-     * will be used when user pauses.
-     * @default {ImageSize.Size2048}
-     */
-    maxImageSize?: ImageSize;
 
     /**
      * The render mode in the viewer.

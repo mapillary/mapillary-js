@@ -9,8 +9,6 @@ import { CoreImageEnt } from "../api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
 import { LatLon } from "../api/interfaces/LatLon";
 import { MeshContract } from "../api/contracts/MeshContract";
-import { ImageSize } from "../viewer/ImageSize";
-import { isSpherical } from "../geo/Geo";
 
 /**
  * @class Node
@@ -208,6 +206,26 @@ export class Node {
     }
 
     /**
+     * Get userId.
+     *
+     * @returns {string} Globally unique id of the user who uploaded
+     * the image.
+     */
+    public get creatorId(): string {
+        return this._spatial.creator.id;
+    }
+
+    /**
+     * Get creatorUsername.
+     *
+     * @returns {string} Username of the creator who uploaded
+     * the image.
+     */
+    public get creatorUsername(): string {
+        return this._spatial.creator.username;
+    }
+
+    /**
      * Get full.
      *
      * @description The library ensures that the current node will
@@ -341,7 +359,7 @@ export class Node {
     }
 
     /**
-     * Get orientation.
+     * Get exifOrientation.
      *
      * @returns {number} EXIF orientation of original image.
      */
@@ -398,6 +416,8 @@ export class Node {
      * reflections, bad illumination (exposure, glare),
      * and bad weather condition (fog, rain, snow)
      * affect the quality score.
+     *
+     * @description Value should be on the interval [0, 1].
      */
     public get qualityScore(): number {
         return this._spatial.quality_score;
@@ -419,7 +439,8 @@ export class Node {
      *
      * @description Will not be set if SfM has not been run.
      *
-     * @returns {number} Scale of atomic reconstruction.
+     * @returns {number} Scale of reconstruction the node
+     * belongs to.
      */
     public get scale(): number {
         return this._spatial.atomic_scale;
@@ -490,26 +511,6 @@ export class Node {
     }
 
     /**
-     * Get userId.
-     *
-     * @returns {string} Globally unique id of the user who uploaded
-     * the image.
-     */
-    public get creatorId(): string {
-        return this._spatial.creator.id;
-    }
-
-    /**
-     * Get creatorUsername.
-     *
-     * @returns {string} Username of the creator who uploaded
-     * the image.
-     */
-    public get creatorUsername(): string {
-        return this._spatial.creator.username;
-    }
-
-    /**
      * Get width.
      *
      * @returns {number} Width of original image, not
@@ -532,15 +533,9 @@ export class Node {
      */
     public cacheAssets$(): Observable<Node> {
         return this._cache
-            .cacheAssets$(
-                this._spatial,
-                isSpherical(this._spatial.camera_type),
-                this.merged)
+            .cacheAssets$(this._spatial, this.merged)
             .pipe(
-                map(
-                    (): Node => {
-                        return this;
-                    }));
+                map((): Node => { return this; }));
     }
 
     /**
@@ -554,12 +549,11 @@ export class Node {
      *
      * @ignore
      */
-    public cacheImage$(imageSize: ImageSize): Observable<Node> {
-        return this._cache.cacheImage$(this._spatial, imageSize).pipe(
-            map(
-                (): Node => {
-                    return this;
-                }));
+    public cacheImage$(): Observable<Node> {
+        return this._cache
+            .cacheImage$(this._spatial)
+            .pipe(
+                map((): Node => { return this; }));
     }
 
     /**
