@@ -31,6 +31,7 @@ import { GraphConfiguration } from "../../src/graph/interfaces/GraphConfiguratio
 import { Sequence } from "../../src/graph/Sequence";
 import { DataProvider, GeometryProvider } from "../helper/ProviderHelper";
 import { SequenceEnt } from "../../src/api/ents/SequenceEnt";
+import { SequencesContract } from "../../src/export/APINamespace";
 
 describe("Graph.ctor", () => {
     it("should create a graph", () => {
@@ -838,7 +839,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
-        expect(() => { graph.cacheSequenceNodes$("sequenceKey"); }).toThrowError(Error);
+        expect(() => { graph.cacheSequenceNodes$("sequenceId"); }).toThrowError(Error);
     });
 
     it("should not be cached", () => {
@@ -846,25 +847,27 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
         const key: string = "key";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [key] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [key] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        expect(graph.hasSequenceNodes(sequenceKey)).toBe(false);
+        expect(graph.hasSequenceNodes(sequenceId)).toBe(false);
     });
 
     it("should start caching", () => {
@@ -872,27 +875,29 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
         const key: string = "key";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [key] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [key] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId).subscribe();
 
-        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.isCachingSequenceNodes(sequenceId)).toBe(true);
     });
 
     it("should be cached and not caching", () => {
@@ -900,25 +905,27 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
         const nodeKey: string = "nodeKey";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [nodeKey] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId).subscribe();
 
         const imageResult: { [key: string]: ImageEnt } = {};
         imageResult[nodeKey] = helper.createFullNode();
@@ -926,8 +933,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         imageByKey.next(imageResult);
         imageByKey.complete();
 
-        expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
-        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(false);
+        expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
+        expect(graph.isCachingSequenceNodes(sequenceId)).toBe(false);
         expect(graph.hasNode(nodeKey)).toBe(true);
         expect(graph.getNode(nodeKey).id).toBe(nodeKey);
     });
@@ -949,39 +956,41 @@ describe("Graph.cacheSequenceNodes$", () => {
             maxUnusedTiles: 0,
         };
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
         const nodeKey: string = "nodeKey";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [nodeKey] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId).subscribe();
 
         const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode: ImageEnt = helper.createFullNode();
         fullNode.id = nodeKey;
-        fullNode.sequence.id = sequenceKey;
+        fullNode.sequence.id = sequenceId;
         imageResult[fullNode.id] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
 
-        expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
 
         graph.uncache([]);
 
-        expect(graph.hasSequenceNodes(sequenceKey)).toBe(false);
+        expect(graph.hasSequenceNodes(sequenceId)).toBe(false);
     });
 
     it("should not be cached after uncaching sequence", () => {
@@ -1001,41 +1010,43 @@ describe("Graph.cacheSequenceNodes$", () => {
             maxUnusedTiles: 1,
         };
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
         const nodeKey: string = "nodeKey";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [nodeKey] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId).subscribe();
 
         const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode: ImageEnt = helper.createFullNode();
         fullNode.id = nodeKey;
-        fullNode.sequence.id = sequenceKey;
+        fullNode.sequence.id = sequenceId;
         imageResult[fullNode.id] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
 
         graph.initializeCache(fullNode.id);
 
-        expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
 
         graph.uncache([]);
 
-        expect(graph.hasSequenceNodes(sequenceKey)).toBe(false);
+        expect(graph.hasSequenceNodes(sequenceId)).toBe(false);
     });
 
     it("should be cached after uncaching if sequence is kept", () => {
@@ -1055,39 +1066,41 @@ describe("Graph.cacheSequenceNodes$", () => {
             maxUnusedTiles: 0,
         };
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
         const nodeKey: string = "nodeKey";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [nodeKey] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId).subscribe();
 
         const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode: ImageEnt = helper.createFullNode();
         fullNode.id = nodeKey;
-        fullNode.sequence.id = sequenceKey;
+        fullNode.sequence.id = sequenceId;
         imageResult[fullNode.id] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
 
-        expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
 
-        graph.uncache([], sequenceKey);
+        graph.uncache([], sequenceId);
 
-        expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
     });
 
     it("should be cached after uncaching if all nodes are kept", () => {
@@ -1107,39 +1120,41 @@ describe("Graph.cacheSequenceNodes$", () => {
             maxUnusedTiles: 0,
         };
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
         const nodeKey: string = "nodeKey";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [nodeKey] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId).subscribe();
 
         const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode: ImageEnt = helper.createFullNode();
         fullNode.id = nodeKey;
-        fullNode.sequence.id = sequenceKey;
+        fullNode.sequence.id = sequenceId;
         imageResult[fullNode.id] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
 
-        expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
 
         graph.uncache([fullNode.id]);
 
-        expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
     });
 
     it("should not be cached after uncaching tile", () => {
@@ -1161,30 +1176,32 @@ describe("Graph.cacheSequenceNodes$", () => {
             maxUnusedTiles: 0,
         };
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
         const nodeKey: string = "nodeKey";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [nodeKey] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId).subscribe();
 
         const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode: ImageEnt = helper.createFullNode();
         fullNode.id = nodeKey;
-        fullNode.sequence.id = sequenceKey;
+        fullNode.sequence.id = sequenceId;
         imageResult[fullNode.id] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
@@ -1207,7 +1224,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
-        expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
 
         const node: Node = graph.getNode(fullNode.id);
         const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
@@ -1218,7 +1235,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(1);
 
-        expect(graph.hasSequenceNodes(sequenceKey)).toBe(false);
+        expect(graph.hasSequenceNodes(sequenceId)).toBe(false);
     });
 
     it("should be cached after uncaching tile if sequence is kept", () => {
@@ -1240,30 +1257,32 @@ describe("Graph.cacheSequenceNodes$", () => {
             maxUnusedTiles: 0,
         };
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
         const nodeKey: string = "nodeKey";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [nodeKey] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId).subscribe();
 
         const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode: ImageEnt = helper.createFullNode();
         fullNode.id = nodeKey;
-        fullNode.sequence.id = sequenceKey;
+        fullNode.sequence.id = sequenceId;
         imageResult[fullNode.id] = fullNode;
         imageByKey.next(imageResult);
         imageByKey.complete();
@@ -1286,18 +1305,18 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
-        expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
 
         const node: Node = graph.getNode(fullNode.id);
         const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([], sequenceKey);
+        graph.uncache([], sequenceId);
 
         expect(nodeUncacheSpy.calls.count()).toBe(1);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
 
-        expect(graph.hasSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
     });
 
     it("should throw if caching already cached sequence nodes", () => {
@@ -1305,25 +1324,27 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
         const nodeKey: string = "nodeKey";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [nodeKey] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId).subscribe();
 
         const imageResult: { [key: string]: ImageEnt } = {};
         imageResult[nodeKey] = helper.createFullNode();
@@ -1331,7 +1352,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         imageByKey.next(imageResult);
         imageByKey.complete();
 
-        expect(() => { graph.cacheSequenceNodes$(sequenceKey); }).toThrowError(Error);
+        expect(() => { graph.cacheSequenceNodes$(sequenceId); }).toThrowError(Error);
     });
 
     it("should only call API once if caching multiple times before response", () => {
@@ -1339,8 +1360,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
@@ -1348,18 +1369,20 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
         const nodeKey: string = "nodeKey";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [nodeKey] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey).subscribe();
-        graph.cacheSequenceNodes$(sequenceKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId).subscribe();
+        graph.cacheSequenceNodes$(sequenceId).subscribe();
 
         const imageResult: { [key: string]: ImageEnt } = {};
         imageResult[nodeKey] = helper.createFullNode();
@@ -1375,33 +1398,35 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
         const nodeKey: string = "nodeKey";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [nodeKey] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [nodeKey] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey)
+        graph.cacheSequenceNodes$(sequenceId)
             .subscribe(
                 (): void => { /*noop*/ },
                 (): void => { /*noop*/ });
 
         imageByKey.error(new Error("404"));
 
-        expect(graph.hasSequenceNodes(sequenceKey)).toBe(false);
-        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(false);
+        expect(graph.hasSequenceNodes(sequenceId)).toBe(false);
+        expect(graph.isCachingSequenceNodes(sequenceId)).toBe(false);
         expect(graph.hasNode(nodeKey)).toBe(false);
     });
 
@@ -1410,8 +1435,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
@@ -1419,18 +1444,25 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: Array(200).fill(undefined).map((value, i) => { return i.toString(); }) };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: {
+                id: sequenceId,
+                image_ids: Array(200)
+                    .fill(undefined)
+                    .map((_, i) => i.toString())
+            },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId).subscribe();
 
-        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.isCachingSequenceNodes(sequenceId)).toBe(true);
 
         expect(imageByKeySpy.calls.count()).toBe(1);
         expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(200);
@@ -1446,8 +1478,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
@@ -1455,18 +1487,25 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: Array(201).fill(undefined).map((value, i) => { return i.toString(); }) };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: {
+                id: sequenceId,
+                image_ids: Array(201)
+                    .fill(undefined)
+                    .map((_, i) => i.toString()),
+            },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId).subscribe();
 
-        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.isCachingSequenceNodes(sequenceId)).toBe(true);
 
         expect(imageByKeySpy.calls.count()).toBe(2);
         expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(200);
@@ -1483,8 +1522,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
@@ -1492,21 +1531,29 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
         const referenceNodeKey: string = "referenceNodeKey";
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: Array.from(new Array(400), (x, i): string => i.toString()) };
-        result[sequenceKey].image_ids.splice(0, 1, referenceNodeKey);
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: {
+                id: sequenceId,
+                image_ids: Array
+                    .from(
+                        new Array(400),
+                        (_, i): string => i.toString())
+            },
+            node_id: sequenceId,
+        }];
+        result[0].node.image_ids.splice(0, 1, referenceNodeKey);
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey, referenceNodeKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId, referenceNodeKey).subscribe();
 
-        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.isCachingSequenceNodes(sequenceId)).toBe(true);
 
         expect(imageByKeySpy.calls.count()).toBe(3);
         expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(50);
@@ -1525,8 +1572,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
@@ -1534,21 +1581,29 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
         const referenceNodeKey: string = "referenceNodeKey";
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: Array.from(new Array(400), (x, i): string => i.toString()) };
-        result[sequenceKey].image_ids.splice(399, 1, referenceNodeKey);
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: {
+                id: sequenceId,
+                image_ids: Array
+                    .from(
+                        new Array(400),
+                        (_, i) => i.toString()),
+            },
+            node_id: sequenceId,
+        }];
+        result[0].node.image_ids.splice(399, 1, referenceNodeKey);
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey, referenceNodeKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId, referenceNodeKey).subscribe();
 
-        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.isCachingSequenceNodes(sequenceId)).toBe(true);
 
         expect(imageByKeySpy.calls.count()).toBe(3);
         expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(50);
@@ -1568,8 +1623,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
@@ -1577,21 +1632,29 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
         const referenceNodeKey: string = "referenceNodeKey";
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: Array.from(new Array(400), (x, i): string => i.toString()) };
-        result[sequenceKey].image_ids.splice(200, 1, referenceNodeKey);
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: {
+                id: sequenceId,
+                image_ids: Array
+                    .from(
+                        new Array(400),
+                        (_, i) => i.toString()),
+            },
+            node_id: sequenceId,
+        }];
+        result[0].node.image_ids.splice(200, 1, referenceNodeKey);
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey, referenceNodeKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId, referenceNodeKey).subscribe();
 
-        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.isCachingSequenceNodes(sequenceId)).toBe(true);
 
         expect(imageByKeySpy.calls.count()).toBe(3);
         expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(50);
@@ -1612,8 +1675,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
@@ -1621,23 +1684,32 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
         const referenceNodeKey: string = "referenceNodeKey";
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: Array.from(new Array(400), (x, i): string => i.toString()) };
-        result[sequenceKey].image_ids.splice(200, 1, referenceNodeKey);
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: {
+                id: sequenceId,
+                image_ids: Array
+                    .from(
+                        new Array(400),
+                        (_, i) => i.toString()),
+            },
+            node_id: sequenceId,
+        }];
+        result[0].node.image_ids.splice(200, 1, referenceNodeKey);
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey, referenceNodeKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId, referenceNodeKey).subscribe();
 
-        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
-        expect(graph.getSequence(sequenceKey).imageIds.length).toBe(400);
-        expect(graph.getSequence(sequenceKey).imageIds).toEqual(result[sequenceKey].image_ids);
+        expect(graph.isCachingSequenceNodes(sequenceId)).toBe(true);
+        expect(graph.getSequence(sequenceId).imageIds.length).toBe(400);
+        expect(graph.getSequence(sequenceId).imageIds)
+            .toEqual(result[0].node.image_ids);
     });
 
     it("should create single batch when fewer than or equal to 50 nodes", () => {
@@ -1645,8 +1717,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator: GraphCalculator = new GraphCalculator(null);
         const edgeCalculator: EdgeCalculator = new EdgeCalculator();
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
@@ -1654,21 +1726,29 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
 
-        graph.cacheSequence$(sequenceKey).subscribe();
+        graph.cacheSequence$(sequenceId).subscribe();
 
         const referenceNodeKey: string = "referenceNodeKey";
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: Array.from(new Array(50), (x, i): string => i.toString()) };
-        result[sequenceKey].image_ids.splice(20, 1, referenceNodeKey);
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: {
+                id: sequenceId,
+                image_ids: Array
+                    .from(
+                        new Array(50),
+                        (_, i) => i.toString()),
+            },
+            node_id: sequenceId,
+        }];
+        result[0].node.image_ids.splice(20, 1, referenceNodeKey);
+        getSequences.next(result);
+        getSequences.complete();
 
-        graph.cacheSequenceNodes$(sequenceKey, referenceNodeKey).subscribe();
+        graph.cacheSequenceNodes$(sequenceId, referenceNodeKey).subscribe();
 
-        expect(graph.isCachingSequenceNodes(sequenceKey)).toBe(true);
+        expect(graph.isCachingSequenceNodes(sequenceId)).toBe(true);
 
         expect(imageByKeySpy.calls.count()).toBe(1);
         expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(50);
@@ -1789,8 +1869,8 @@ describe("Graph.cacheSpatialEdges", () => {
         const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -1802,10 +1882,15 @@ describe("Graph.cacheSpatialEdges", () => {
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: ["prev", fullNode.id, "next"] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: {
+                id: fullNode.sequence.id,
+                image_ids: ["prev", fullNode.id, "next"],
+            },
+            node_id: fullNode.sequence.id,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
         const node: Node = graph.getNode(fullNode.id);
 
@@ -1858,8 +1943,8 @@ describe("Graph.cacheSpatialEdges", () => {
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -1871,10 +1956,15 @@ describe("Graph.cacheSpatialEdges", () => {
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: ["prev", fullNode.id, "next"] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: {
+                id: fullNode.sequence.id,
+                image_ids: ["prev", fullNode.id, "next"],
+            },
+            node_id: fullNode.sequence.id,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
         const node = graph.getNode(fullNode.id);
         expect(node).toBeDefined();
@@ -1935,8 +2025,8 @@ describe("Graph.cacheSpatialEdges", () => {
         const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -1948,10 +2038,15 @@ describe("Graph.cacheSpatialEdges", () => {
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: ["prev", fullNode.id, "next"] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: {
+                id: fullNode.sequence.id,
+                image_ids: ["prev", fullNode.id, "next"],
+            },
+            node_id: fullNode.sequence.id,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
         const node: Node = graph.getNode(fullNode.id);
 
@@ -1973,7 +2068,7 @@ describe("Graph.cacheSpatialEdges", () => {
         spyOn(edgeCalculator, "computePerspectiveToSphericalEdges").and.returnValue([]);
         spyOn(edgeCalculator, "computeSimilarEdges").and.returnValue([]);
 
-        graph.setFilter(["==", "sequenceKey", "none"]);
+        graph.setFilter(["==", "sequenceId", "none"]);
 
         graph.initializeCache(fullNode.id);
         graph.cacheSpatialEdges(fullNode.id);
@@ -2017,8 +2112,8 @@ describe("Graph.cacheNodeSequence$", () => {
         const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
@@ -2044,13 +2139,13 @@ describe("Graph.cacheNodeSequence$", () => {
         const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.sequence.id = "sequenceKey";
+        fullNode.sequence.id = "sequenceId";
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -2065,10 +2160,15 @@ describe("Graph.cacheNodeSequence$", () => {
                     expect(g.isCachingNodeSequence(fullNode.id)).toBe(false);
                 });
 
-        const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: [fullNode.id] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: {
+                id: fullNode.sequence.id,
+                image_ids: [fullNode.id],
+            },
+            node_id: fullNode.sequence.id,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
         expect(graph.hasNodeSequence(fullNode.id)).toBe(true);
         expect(graph.isCachingNodeSequence(fullNode.id)).toBe(false);
@@ -2081,13 +2181,13 @@ describe("Graph.cacheNodeSequence$", () => {
         const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.sequence.id = "sequenceKey";
+        fullNode.sequence.id = "sequenceId";
 
         expect(() => { graph.cacheNodeSequence$(fullNode.id); }).toThrowError(Error);
     });
@@ -2099,13 +2199,13 @@ describe("Graph.cacheNodeSequence$", () => {
         const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.sequence.id = "sequenceKey";
+        fullNode.sequence.id = "sequenceId";
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -2115,10 +2215,15 @@ describe("Graph.cacheNodeSequence$", () => {
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: [fullNode.id] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: {
+                id: fullNode.sequence.id,
+                image_ids: [fullNode.id],
+            },
+            node_id: fullNode.sequence.id,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
         expect(graph.hasNodeSequence(fullNode.id)).toBe(true);
 
@@ -2132,14 +2237,14 @@ describe("Graph.cacheNodeSequence$", () => {
         const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
+        const getSequences = new Subject<SequencesContract>();
         const sequenceByKeySpy: jasmine.Spy = spyOn(api, "getSequences$");
-        sequenceByKeySpy.and.returnValue(sequenceByKey);
+        sequenceByKeySpy.and.returnValue(getSequences);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.sequence.id = "sequenceKey";
+        fullNode.sequence.id = "sequenceId";
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -2160,13 +2265,13 @@ describe("Graph.cacheNodeSequence$", () => {
         const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.sequence.id = "sequenceKey";
+        fullNode.sequence.id = "sequenceId";
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -2186,10 +2291,15 @@ describe("Graph.cacheNodeSequence$", () => {
                     done();
                 });
 
-        const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: [fullNode.id] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: {
+                id: fullNode.sequence.id,
+                image_ids: [fullNode.id],
+            },
+            node_id: fullNode.sequence.id,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
     });
 });
 
@@ -2200,9 +2310,9 @@ describe("Graph.cacheSequence$", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
 
-        expect(graph.hasSequence(sequenceKey)).toBe(false);
+        expect(graph.hasSequence(sequenceId)).toBe(false);
     });
 
     it("should not be caching", () => {
@@ -2211,73 +2321,75 @@ describe("Graph.cacheSequence$", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
 
-        expect(graph.isCachingSequence(sequenceKey)).toBe(false);
+        expect(graph.isCachingSequence(sequenceId)).toBe(false);
     });
 
     it("should be caching", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
 
-        graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
+        graph.cacheSequence$(sequenceId).subscribe(() => { /*noop*/ });
 
-        expect(graph.hasSequence(sequenceKey)).toBe(false);
-        expect(graph.isCachingSequence(sequenceKey)).toBe(true);
+        expect(graph.hasSequence(sequenceId)).toBe(false);
+        expect(graph.isCachingSequence(sequenceId)).toBe(true);
     });
 
     it("should cache", (done: Function) => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
         const key: string = "key";
 
-        graph.cacheSequence$(sequenceKey)
+        graph.cacheSequence$(sequenceId)
             .subscribe(
                 (g: Graph): void => {
-                    expect(g.hasSequence(sequenceKey)).toBe(true);
-                    expect(g.isCachingSequence(sequenceKey)).toBe(false);
-                    expect(g.getSequence(sequenceKey)).toBeDefined();
-                    expect(g.getSequence(sequenceKey).id).toBe(sequenceKey);
-                    expect(g.getSequence(sequenceKey).imageIds.length).toBe(1);
-                    expect(g.getSequence(sequenceKey).imageIds[0]).toBe(key);
+                    expect(g.hasSequence(sequenceId)).toBe(true);
+                    expect(g.isCachingSequence(sequenceId)).toBe(false);
+                    expect(g.getSequence(sequenceId)).toBeDefined();
+                    expect(g.getSequence(sequenceId).id).toBe(sequenceId);
+                    expect(g.getSequence(sequenceId).imageIds.length).toBe(1);
+                    expect(g.getSequence(sequenceId).imageIds[0]).toBe(key);
 
                     done();
                 });
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [key] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [key] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
     });
 
     it("should call api only once when caching the same sequence twice in succession", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
+        const getSequences = new Subject<SequencesContract>();
         const sequenceByKeySpy: jasmine.Spy = spyOn(api, "getSequences$");
-        sequenceByKeySpy.and.returnValue(sequenceByKey);
+        sequenceByKeySpy.and.returnValue(getSequences);
 
         const graph: Graph = new Graph(api, undefined, calculator);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
 
-        graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
-        graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
+        graph.cacheSequence$(sequenceId).subscribe(() => { /*noop*/ });
+        graph.cacheSequence$(sequenceId).subscribe(() => { /*noop*/ });
 
         expect(sequenceByKeySpy.calls.count()).toBe(1);
     });
@@ -2300,8 +2412,8 @@ describe("Graph.resetSpatialEdges", () => {
         const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2313,10 +2425,15 @@ describe("Graph.resetSpatialEdges", () => {
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: ["prev", fullNode.id, "next"] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: {
+                id: fullNode.sequence.id,
+                image_ids: ["prev", fullNode.id, "next"]
+            },
+            node_id: fullNode.sequence.id,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
         const node: Node = graph.getNode(fullNode.id);
 
@@ -2366,8 +2483,8 @@ describe("Graph.resetSpatialEdges", () => {
         const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2379,10 +2496,15 @@ describe("Graph.resetSpatialEdges", () => {
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: SequenceEnt } = {};
-        result[fullNode.sequence.id] = { id: fullNode.sequence.id, image_ids: ["prev", fullNode.id, "next"] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: {
+                id: fullNode.sequence.id,
+                image_ids: ["prev", fullNode.id, "next"]
+            },
+            node_id: fullNode.sequence.id,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
         expect(graph.hasTiles(fullNode.id)).toBe(false);
         expect(graph.isCachingTiles(fullNode.id)).toBe(false);
@@ -3237,8 +3359,8 @@ describe("Graph.uncache", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -3249,18 +3371,20 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
 
-        graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
+        graph.cacheSequence$(sequenceId).subscribe(() => { /*noop*/ });
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        expect(graph.hasSequence(sequenceKey)).toBe(true);
+        expect(graph.hasSequence(sequenceId)).toBe(true);
 
-        const sequence: Sequence = graph.getSequence(sequenceKey);
+        const sequence: Sequence = graph.getSequence(sequenceId);
 
         const sequenceDisposeSpy: jasmine.Spy = spyOn(sequence, "dispose");
         sequenceDisposeSpy.and.stub();
@@ -3276,8 +3400,8 @@ describe("Graph.uncache", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator: GraphCalculator = new GraphCalculator(null);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -3288,23 +3412,25 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
 
-        graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
+        graph.cacheSequence$(sequenceId).subscribe(() => { /*noop*/ });
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        expect(graph.hasSequence(sequenceKey)).toBe(true);
+        expect(graph.hasSequence(sequenceId)).toBe(true);
 
-        const sequence: Sequence = graph.getSequence(sequenceKey);
+        const sequence: Sequence = graph.getSequence(sequenceId);
 
         const sequenceDisposeSpy: jasmine.Spy = spyOn(sequence, "dispose");
         sequenceDisposeSpy.and.stub();
 
-        graph.uncache([], sequenceKey);
+        graph.uncache([], sequenceId);
 
         expect(sequenceDisposeSpy.calls.count()).toBe(0);
 
@@ -3312,11 +3438,12 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache sequence if number below threshold", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(
+            new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const sequenceByKey: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        spyOn(api, "getSequences$").and.returnValue(sequenceByKey);
+        const getSequences = new Subject<SequencesContract>();
+        spyOn(api, "getSequences$").and.returnValue(getSequences);
 
         const configuration: GraphConfiguration = {
             maxSequences: 1,
@@ -3327,18 +3454,20 @@ describe("Graph.uncache", () => {
 
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceId = "sequenceId";
 
-        graph.cacheSequence$(sequenceKey).subscribe(() => { /*noop*/ });
+        graph.cacheSequence$(sequenceId).subscribe(() => { /*noop*/ });
 
-        const result: { [sequenceKey: string]: SequenceEnt } = {};
-        result[sequenceKey] = { id: sequenceKey, image_ids: [] };
-        sequenceByKey.next(result);
-        sequenceByKey.complete();
+        const result: SequencesContract = [{
+            node: { id: sequenceId, image_ids: [] },
+            node_id: sequenceId,
+        }];
+        getSequences.next(result);
+        getSequences.complete();
 
-        expect(graph.hasSequence(sequenceKey)).toBe(true);
+        expect(graph.hasSequence(sequenceId)).toBe(true);
 
-        const sequence: Sequence = graph.getSequence(sequenceKey);
+        const sequence: Sequence = graph.getSequence(sequenceId);
 
         const sequenceDisposeSpy: jasmine.Spy = spyOn(sequence, "dispose");
         sequenceDisposeSpy.and.stub();
@@ -3351,63 +3480,65 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache sequence accessed last", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
-
-        const sequenceByKeySpy: jasmine.Spy = spyOn(api, "getSequences$");
-
+        const api = new APIWrapper(
+            new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
+        const getSequencesSpy = spyOn(api, "getSequences$");
         const configuration: GraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
             maxUnusedPreStoredNodes: 0,
             maxUnusedTiles: 0,
         };
+        const graph = new Graph(
+            api,
+            undefined,
+            calculator,
+            undefined,
+            undefined,
+            configuration);
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const sequenceId1: string = "sequenceId1";
+        const sequences1 = new Subject<SequencesContract>();
+        getSequencesSpy.and.returnValue(sequences1);
 
-        const sequenceKey1: string = "sequenceKey1";
+        graph.cacheSequence$(sequenceId1).subscribe(() => { /*noop*/ });
 
-        const sequenceByKey1: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        sequenceByKeySpy.and.returnValue(sequenceByKey1);
+        const result1: SequencesContract = [{
+            node_id: sequenceId1,
+            node: { id: sequenceId1, image_ids: [] },
+        }];
+        sequences1.next(result1);
+        sequences1.complete();
 
-        graph.cacheSequence$(sequenceKey1).subscribe(() => { /*noop*/ });
+        expect(graph.hasSequence(sequenceId1)).toBe(true);
 
-        const result1: { [sequenceKey: string]: SequenceEnt } = {};
-        result1[sequenceKey1] = { id: sequenceKey1, image_ids: [] };
-        sequenceByKey1.next(result1);
-        sequenceByKey1.complete();
+        const sequence1 = graph.getSequence(sequenceId1);
+        const sequenceDisposeSpy1 = spyOn(sequence1, "dispose").and.stub();
 
-        expect(graph.hasSequence(sequenceKey1)).toBe(true);
+        const sequenceId2 = "sequenceId2";
+        const getSequences2 = new Subject<SequencesContract>();
+        getSequencesSpy.and.returnValue(getSequences2);
 
-        const sequence1: Sequence = graph.getSequence(sequenceKey1);
+        graph.cacheSequence$(sequenceId2).subscribe(() => { /*noop*/ });
 
-        const sequenceDisposeSpy1: jasmine.Spy = spyOn(sequence1, "dispose").and.stub();
+        const result2: SequencesContract = [{
+            node_id: sequenceId2,
+            node: { id: sequenceId2, image_ids: [] },
+        }];
+        getSequences2.next(result2);
+        getSequences2.complete();
 
-        const sequenceKey2: string = "sequenceKey2";
+        expect(graph.hasSequence(sequenceId2)).toBe(true);
+        const sequence2 = graph.getSequence(sequenceId2);
+        const sequenceDisposeSpy2 = spyOn(sequence2, "dispose").and.stub();
 
-        const sequenceByKey2: Subject<{ [key: string]: SequenceEnt }> = new Subject<{ [key: string]: SequenceEnt }>();
-        sequenceByKeySpy.and.returnValue(sequenceByKey2);
-
-        graph.cacheSequence$(sequenceKey2).subscribe(() => { /*noop*/ });
-
-        const result2: { [sequenceKey: string]: SequenceEnt } = {};
-        result2[sequenceKey2] = { id: sequenceKey2, image_ids: [] };
-        sequenceByKey2.next(result2);
-        sequenceByKey2.complete();
-
-        expect(graph.hasSequence(sequenceKey2)).toBe(true);
-
-        const sequence2: Sequence = graph.getSequence(sequenceKey2);
-
-        const sequenceDisposeSpy2: jasmine.Spy = spyOn(sequence2, "dispose").and.stub();
-
-        const time: number = new Date().getTime();
+        const time = new Date().getTime();
         while (new Date().getTime() === time) {
-            graph.hasSequence(sequenceKey2);
+            graph.hasSequence(sequenceId2);
         }
 
-        graph.getSequence(sequenceKey2);
-
+        graph.getSequence(sequenceId2);
         graph.uncache([]);
 
         expect(sequenceDisposeSpy1.calls.count()).toBe(1);
@@ -3504,7 +3635,7 @@ describe("Graph.uncache", () => {
         const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.sequence.id = "sequenceKey";
+        fullNode.sequence.id = "sequenceId";
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });

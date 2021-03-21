@@ -41,6 +41,7 @@ import { ImageEnt } from "../api/ents/ImageEnt";
 import { LatLon } from "../api/interfaces/LatLon";
 import { GraphMapillaryError } from "../error/GraphMapillaryError";
 import { SequenceEnt } from "../api/ents/SequenceEnt";
+import { SequencesContract } from "../export/APINamespace";
 
 type NodeTiles = {
     cache: string[];
@@ -1621,39 +1622,48 @@ export class Graph {
         }
     }
 
-    private _cacheSequence$(sequenceKey: string): Observable<Graph> {
-        if (sequenceKey in this._cachingSequences$) {
-            return this._cachingSequences$[sequenceKey];
+    private _cacheSequence$(sequenceId: string): Observable<Graph> {
+        if (sequenceId in this._cachingSequences$) {
+            return this._cachingSequences$[sequenceId];
         }
 
-        this._cachingSequences$[sequenceKey] = this._api.getSequences$([sequenceKey]).pipe(
-            tap(
-                (sequenceByKey: { [sequenceKey: string]: SequenceEnt }): void => {
-                    if (!(sequenceKey in this._sequences)) {
-                        this._sequences[sequenceKey] = {
-                            accessed: new Date().getTime(),
-                            sequence: new Sequence(sequenceByKey[sequenceKey]),
-                        };
-                    }
+        this._cachingSequences$[sequenceId] = this._api
+            .getSequences$([sequenceId])
+            .pipe(
+                tap(
+                    (sequences: SequencesContract): void => {
+                        for (const sequence of sequences) {
+                            if (!sequence.node) {
+                                console.warn(
+                                    `Sequence does not exist ` +
+                                    `(${sequence.node_id})`);
+                            } else {
+                                if (!(sequence.node_id in this._sequences)) {
+                                    this._sequences[sequence.node_id] = {
+                                        accessed: new Date().getTime(),
+                                        sequence: new Sequence(sequence.node),
+                                    };
+                                }
+                            }
 
-                    delete this._cachingSequences$[sequenceKey];
-                }),
-            map(
-                (sequenceByKey: { [sequenceKey: string]: SequenceEnt }): Graph => {
-                    return this;
-                }),
-            finalize(
-                (): void => {
-                    if (sequenceKey in this._cachingSequences$) {
-                        delete this._cachingSequences$[sequenceKey];
-                    }
+                            delete this._cachingSequences$[sequenceId];
+                        }
 
-                    this._changed$.next(this);
-                }),
-            publish(),
-            refCount());
 
-        return this._cachingSequences$[sequenceKey];
+                    }),
+                map((): Graph => { return this; }),
+                finalize(
+                    (): void => {
+                        if (sequenceId in this._cachingSequences$) {
+                            delete this._cachingSequences$[sequenceId];
+                        }
+
+                        this._changed$.next(this);
+                    }),
+                publish(),
+                refCount());
+
+        return this._cachingSequences$[sequenceId];
     }
 
     private _cacheTile$(h: string): Observable<Graph> {

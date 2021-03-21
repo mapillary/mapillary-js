@@ -209,7 +209,7 @@ describe("APIWrappersequenceByKey$", () => {
 
         api.getSequences$([skey])
             .subscribe(
-                (result: { [key: string]: SequenceEnt }): void => {
+                (result): void => {
                     expect(result).toBeDefined();
 
                     expect(providerSpy.calls.count()).toBe(1);

@@ -1,4 +1,4 @@
-import { ModelCreator } from "./ModelCreator";
+import { FalcorModelCreator } from "./FalcorModelCreator";
 
 /**
  * Interface for the options that can be provided to
@@ -34,7 +34,7 @@ export interface FalcorDataProviderOptions {
     /**
      * Optional model creator instance.
      */
-    creator?: ModelCreator;
+    creator?: FalcorModelCreator;
 
     /**
      * Image host.
