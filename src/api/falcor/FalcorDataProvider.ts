@@ -3,23 +3,13 @@ import {
 } from "falcor";
 
 import { DataProviderBase } from "../DataProviderBase";
-import { GeohashGeometryProvider } from "../GeohashGeometryProvider";
-import { ModelCreator } from "./ModelCreator";
-import { ClusterReconstructionContract } from "../contracts/ClusterReconstructionContract";
-import { FalcorDataProviderOptions } from "./FalcorDataProviderOptions";
-import { MeshContract } from "../contracts/MeshContract";
-
-import { MapillaryError } from "../../error/MapillaryError";
 import { GeometryProviderBase } from "../GeometryProviderBase";
-import { FalcorDataProviderUrls } from "./FalcorDataProviderUrls";
-import { FalcorConverter } from "./FalcorConverter";
-import {
-    FalcorClusterReconstructionContract,
-    ImageByKey,
-    ImagesByH,
-    SequenceByKey,
-    SpatialImageByKey,
-} from "./FalcorContracts";
+import { GeohashGeometryProvider } from "../GeohashGeometryProvider";
+import { FalcorModelCreator } from "./FalcorModelCreator";
+import { MapillaryError } from "../../error/MapillaryError";
+
+import { ClusterReconstructionContract } from "../contracts/ClusterReconstructionContract";
+import { MeshContract } from "../contracts/MeshContract";
 import { CoreImagesContract } from "../contracts/CoreImagesContract";
 import { SpatialImagesContract } from "../contracts/SpatialImagesContract";
 import { SequencesContract } from "../contracts/SequencesContract";
@@ -30,6 +20,17 @@ import {
     fetchArrayBuffer,
     readMeshPbf,
 } from "../Common";
+
+import { FalcorDataProviderOptions } from "./FalcorDataProviderOptions";
+import { FalcorDataProviderUrls } from "./FalcorDataProviderUrls";
+import { FalcorConverter } from "./FalcorConverter";
+import {
+    FalcorClusterReconstructionContract,
+    FalcorImageByKeyContract,
+    FalcorImagesByHContract,
+    FalcorSequenceByKeyContract,
+    FalcorSpatialImageByKeyContract,
+} from "./FalcorContracts";
 
 type APIPath =
     "imageByKey" |
@@ -46,7 +47,7 @@ export class FalcorDataProvider extends DataProviderBase {
     private _convert: FalcorConverter;
 
     private _model: Model;
-    private _modelCreator: ModelCreator;
+    private _modelCreator: FalcorModelCreator;
 
     private _pageCount: number;
 
@@ -76,7 +77,7 @@ export class FalcorDataProvider extends DataProviderBase {
         this._convert = new FalcorConverter(this._urls);
 
         this._modelCreator = options.creator != null ?
-            options.creator : new ModelCreator();
+            options.creator : new FalcorModelCreator();
         this._model = this._modelCreator.createModel(
             this._urls.falcorModel, options.userToken);
 
@@ -92,7 +93,7 @@ export class FalcorDataProvider extends DataProviderBase {
      */
     public getCoreImages(cellId: string): Promise<CoreImagesContract> {
         return Promise
-            .resolve(<PromiseLike<ImagesByH>>this._model
+            .resolve(<PromiseLike<FalcorImagesByHContract>>this._model
                 .get([
                     this._pathImagesByH,
                     [cellId],
@@ -100,7 +101,7 @@ export class FalcorDataProvider extends DataProviderBase {
                     this._convert.propertiesKey
                         .concat(this._convert.propertiesCore)]))
             .then(
-                (value: ImagesByH): CoreImagesContract => {
+                (value: FalcorImagesByHContract): CoreImagesContract => {
                     if (!value) {
                         value = { json: { imagesByH: {} } };
                         for (const h of [cellId]) {
@@ -161,7 +162,7 @@ export class FalcorDataProvider extends DataProviderBase {
      */
     public getSpatialImages(keys: string[]): Promise<SpatialImagesContract> {
         return Promise
-            .resolve(<PromiseLike<SpatialImageByKey>>this._model
+            .resolve(<PromiseLike<FalcorSpatialImageByKeyContract>>this._model
                 .get([
                     this._pathImageByKey,
                     keys,
@@ -170,7 +171,7 @@ export class FalcorDataProvider extends DataProviderBase {
                     this._convert.propertiesKey
                         .concat(this._convert.propertiesUser)]))
             .then(
-                (value: SpatialImageByKey): SpatialImagesContract => {
+                (value: FalcorSpatialImageByKeyContract): SpatialImagesContract => {
                     if (!value) {
                         this._invalidateGet(this._pathImageByKey, keys);
                         throw new Error(
@@ -198,7 +199,7 @@ export class FalcorDataProvider extends DataProviderBase {
      */
     public getImages(keys: string[]): Promise<ImagesContract> {
         return Promise
-            .resolve(<PromiseLike<ImageByKey>>this._model
+            .resolve(<PromiseLike<FalcorImageByKeyContract>>this._model
                 .get([
                     this._pathImageByKey,
                     keys,
@@ -208,7 +209,7 @@ export class FalcorDataProvider extends DataProviderBase {
                     this._convert.propertiesKey
                         .concat(this._convert.propertiesUser)]))
             .then(
-                (value: ImageByKey): ImagesContract => {
+                (value: FalcorImageByKeyContract): ImagesContract => {
                     if (!value) {
                         this._invalidateGet(this._pathImageByKey, keys);
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
@@ -272,35 +273,35 @@ export class FalcorDataProvider extends DataProviderBase {
     /**
      * @inheritdoc
      */
-    public getSequences(sequenceKeys: string[]): Promise<SequencesContract> {
+    public getSequences(sequenceIds: string[]): Promise<SequencesContract> {
         return Promise
-            .resolve(<PromiseLike<SequenceByKey>>this._model
+            .resolve(<PromiseLike<FalcorSequenceByKeyContract>>this._model
                 .get([
                     this._pathSequenceByKey,
-                    sequenceKeys,
+                    sequenceIds,
                     this._convert.propertiesKey
                         .concat(this._convert.propertiesSequence)]))
             .then(
-                (value: SequenceByKey): SequencesContract => {
+                (value: FalcorSequenceByKeyContract): SequencesContract => {
                     if (!value) { value = { json: { sequenceByKey: {} } }; }
-                    const result: SequencesContract = {};
-                    for (const sequenceKey of sequenceKeys) {
-                        const exists = sequenceKey in value.json.sequenceByKey;
+                    const result: SequencesContract = [];
+                    for (const sequenceId of sequenceIds) {
+                        const exists = sequenceId in value.json.sequenceByKey;
                         if (!exists) {
                             console
-                                .warn(`Sequence data missing (${sequenceKey})`);
+                                .warn(`Sequence data missing (${sequenceId})`);
                         }
                         const sequence = exists ?
                             this._convert.sequence(
-                                value.json.sequenceByKey[sequenceKey]) :
+                                value.json.sequenceByKey[sequenceId]) :
                             this._convert.sequence(
-                                { key: sequenceKey, keys: [] });
-                        result[sequenceKey] = sequence;
+                                { key: sequenceId, keys: [] });
+                        result.push({ node: sequence, node_id: sequenceId });
                     }
                     return result;
                 },
                 (error: Error) => {
-                    this._invalidateGet(this._pathSequenceByKey, sequenceKeys);
+                    this._invalidateGet(this._pathSequenceByKey, sequenceIds);
                     throw error;
                 });
     }

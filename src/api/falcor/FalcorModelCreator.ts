@@ -12,7 +12,7 @@ type HttpDataSourceConfiguration = {
  *
  * @classdesc Creates API models.
  */
-export class ModelCreator {
+export class FalcorModelCreator {
     /**
      * Creates a Falcor model.
      *

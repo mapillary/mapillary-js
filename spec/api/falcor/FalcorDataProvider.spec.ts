@@ -4,7 +4,7 @@ import { FalcorDataProvider } from "../../../src/api/falcor/FalcorDataProvider";
 import { ClusterReconstructionContract } from "../../../src/api/contracts/ClusterReconstructionContract";
 import { CoreImageEnt } from "../../../src/api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../../../src/api/ents/SpatialImageEnt";
-import { ModelCreator } from "../../../src/api/falcor/ModelCreator";
+import { FalcorModelCreator } from "../../../src/api/falcor/FalcorModelCreator";
 import { MapillaryError } from "../../../src/error/MapillaryError";
 import { SequenceEnt } from "../../../src/api/ents/SequenceEnt";
 
@@ -28,7 +28,7 @@ describe("FalcorDataProvider.getFillImages", () => {
         const modelSpy: jasmine.Spy = spyOn(model, "get");
         modelSpy.and.returnValue(promise);
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
@@ -65,7 +65,7 @@ describe("FalcorDataProvider.getFillImages", () => {
         const modelSpy: jasmine.Spy = spyOn(model, "get");
         modelSpy.and.returnValue(promise);
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
@@ -100,7 +100,7 @@ describe("FalcorDataProvider.getFillImages", () => {
 
         spyOn(model, "get").and.returnValue(promise);
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
@@ -140,7 +140,7 @@ describe("FalcorDataProvider.getFillImages", () => {
 
         spyOn(model, "get").and.returnValue(promise);
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
@@ -183,7 +183,7 @@ describe("FalcorDataProvider.getFullImages", () => {
         const spy: jasmine.Spy = spyOn(model, "get");
         spy.and.returnValue(promise);
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
@@ -220,7 +220,7 @@ describe("FalcorDataProvider.getFullImages", () => {
         const modelSpy: jasmine.Spy = spyOn(model, "get");
         modelSpy.and.returnValue(promise);
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
@@ -255,7 +255,7 @@ describe("FalcorDataProvider.getFullImages", () => {
 
         spyOn(model, "get").and.returnValue(promise);
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
@@ -295,7 +295,7 @@ describe("FalcorDataProvider.getCoreImages", () => {
         const spy: jasmine.Spy = spyOn(model, "get");
         spy.and.returnValue(promise);
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
@@ -335,7 +335,7 @@ describe("FalcorDataProvider.getCoreImages", () => {
 
         spyOn(model, "get").and.returnValue(promise);
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
@@ -373,7 +373,7 @@ describe("FalcorDataProvider.getCoreImages", () => {
         const spy: jasmine.Spy = spyOn(model, "get");
         spy.and.returnValue(promise);
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
@@ -410,7 +410,7 @@ describe("FalcorDataProvider.getSequences", () => {
         const spy: jasmine.Spy = spyOn(model, "get");
         spy.and.returnValue(promise);
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
@@ -423,7 +423,7 @@ describe("FalcorDataProvider.getSequences", () => {
 
         provider.getSequences([skey])
             .then(
-                (result: { [key: string]: SequenceEnt }): void => {
+                (result): void => {
                     expect(result).toBeDefined();
 
                     expect(spy.calls.count()).toBe(1);
@@ -450,7 +450,7 @@ describe("FalcorDataProvider.getSequences", () => {
 
         spyOn(model, "get").and.returnValue(promise);
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
@@ -463,8 +463,8 @@ describe("FalcorDataProvider.getSequences", () => {
 
         provider.getSequences([skey])
             .then(
-                (result: { [key: string]: SequenceEnt }): void => { return; },
-                (error: Error): void => {
+                (): void => { return; },
+                (): void => {
                     expect(invalidateSpy.calls.count()).toBe(1);
                     expect(invalidateSpy.calls.first().args.length).toBe(1);
                     expect(invalidateSpy.calls.first().args[0][0]).toBe("sequenceByKey");
@@ -493,7 +493,7 @@ describe("FalcorDataProvider.getSequences", () => {
         const spy: jasmine.Spy = spyOn(model, "get");
         spy.and.returnValue(promise);
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
@@ -504,12 +504,12 @@ describe("FalcorDataProvider.getSequences", () => {
 
         provider.getSequences([skey])
             .then(
-                (result: { [key: string]: SequenceEnt }): void => {
+                (result): void => {
                     expect(result).toBeDefined();
-                    expect(result[skey]).toBeDefined();
-                    expect(result[skey].id).toBe(skey);
-                    expect(result[skey].image_ids.length).toBe(1);
-                    expect(result[skey].image_ids[0]).toBe(nkey);
+                    expect(result[0]).toBeDefined();
+                    expect(result[0].node_id).toBe(skey);
+                    expect(result[0].node.image_ids.length).toBe(1);
+                    expect(result[0].node.image_ids[0]).toBe(nkey);
 
                     done();
                 });
@@ -529,7 +529,7 @@ describe("FalcorDataProvider.getSequences", () => {
         const spy: jasmine.Spy = spyOn(model, "get");
         spy.and.returnValue(promise);
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
@@ -542,11 +542,12 @@ describe("FalcorDataProvider.getSequences", () => {
 
         provider.getSequences([skey])
             .then(
-                (result: { [key: string]: SequenceEnt }): void => {
+                (result): void => {
                     expect(result).toBeDefined();
-                    expect(result[skey]).toBeDefined();
-                    expect(result[skey].id).toBe(skey);
-                    expect(result[skey].image_ids.length).toBe(0);
+                    expect(result[0]).toBeDefined();
+                    expect(result[0].node_id).toBe(skey);
+                    expect(result[0].node.id).toBe(skey);
+                    expect(result[0].node.image_ids.length).toBe(0);
 
                     done();
                 });
@@ -566,7 +567,7 @@ describe("FalcorDataProvider.getSequences", () => {
         const spy: jasmine.Spy = spyOn(model, "get");
         spy.and.returnValue(promise);
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 
@@ -579,11 +580,12 @@ describe("FalcorDataProvider.getSequences", () => {
 
         provider.getSequences([skey])
             .then(
-                (result: { [key: string]: SequenceEnt }): void => {
+                (result): void => {
                     expect(result).toBeDefined();
-                    expect(result[skey]).toBeDefined();
-                    expect(result[skey].id).toBe(skey);
-                    expect(result[skey].image_ids.length).toBe(0);
+                    expect(result[0]).toBeDefined();
+                    expect(result[0].node_id).toBe(skey);
+                    expect(result[0].node.id).toBe(skey);
+                    expect(result[0].node.image_ids.length).toBe(0);
 
                     done();
                 });
@@ -596,7 +598,7 @@ describe("FalcorDataProvider.setToken", () => {
 
         const modelSpy: jasmine.Spy = spyOn(model, "invalidate");
 
-        const creator: ModelCreator = new ModelCreator();
+        const creator: FalcorModelCreator = new FalcorModelCreator();
         const creatorSpy: jasmine.Spy = spyOn(creator, "createModel");
         creatorSpy.and.returnValue(model);
 

@@ -38,24 +38,25 @@ export interface FalcorClusterReconstructionContract {
     shots: { [imageKey: string]: FalcorCameraShotContract };
 }
 
-interface KeyFalcorResult<T> {
+interface FalcorKey<T> {
     [key: string]: T
 }
 
-interface ImageByKeyResult<T> {
-    imageByKey: KeyFalcorResult<T>;
+interface FalcorImageByKey<T> {
+    imageByKey: FalcorKey<T>;
 }
 
-interface ImagesByHResult {
-    imagesByH: KeyFalcorResult<KeyFalcorResult<FalcorCoreImageEnt>>;
+interface FalcorImagesByH {
+    imagesByH: FalcorKey<FalcorKey<FalcorCoreImageEnt>>;
 }
 
-interface SequenceByKeyResult {
-    sequenceByKey: KeyFalcorResult<FalcorSequenceEnt>;
+interface FalcorSequenceByKey {
+    sequenceByKey: FalcorKey<FalcorSequenceEnt>;
 }
 
-export type ImagesByH = JSONEnvelope<ImagesByHResult>;
-export type SequenceByKey = JSONEnvelope<SequenceByKeyResult>;
-export type ImageByKey = JSONEnvelope<ImageByKeyResult<FalcorImageEnt>>;
-export type SpatialImageByKey =
-    JSONEnvelope<ImageByKeyResult<FalcorSpatialImageEnt>>;
+export type FalcorImagesByHContract = JSONEnvelope<FalcorImagesByH>;
+export type FalcorSequenceByKeyContract = JSONEnvelope<FalcorSequenceByKey>;
+export type FalcorImageByKeyContract =
+    JSONEnvelope<FalcorImageByKey<FalcorImageEnt>>;
+export type FalcorSpatialImageByKeyContract =
+    JSONEnvelope<FalcorImageByKey<FalcorSpatialImageEnt>>;
