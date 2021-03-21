@@ -4,8 +4,8 @@ import { NavigationDirection } from "../../src/graph/edge/NavigationDirection";
 import { NavigationEdge } from "../../src/graph/edge/interfaces/NavigationEdge";
 import { NavigationEdgeStatus } from "../../src/graph/interfaces/NavigationEdgeStatus";
 import { NodeCache } from "../../src/graph/NodeCache";
-import { ImageSize } from "../../src/viewer/ImageSize";
 import { MockCreator } from "../helper/MockCreator";
+import { NodeHelper } from "../helper/NodeHelper";
 
 global.URL.createObjectURL = jest.fn();
 
@@ -234,7 +234,7 @@ describe("NodeCache.cacheImage$", () => {
 
         expect(nodeCache.image).toBeNull();
 
-        nodeCache.cacheImage$({}, ImageSize.Size640)
+        nodeCache.cacheImage$(new NodeHelper().createFillNode())
             .subscribe(
                 (nc: NodeCache): void => {
                     expect(nc.image).not.toBeNull();
@@ -268,7 +268,7 @@ describe("NodeCache.cacheImage$", () => {
 
         expect(nodeCache.image).toBeNull();
 
-        nodeCache.cacheImage$({}, ImageSize.Size640).subscribe();
+        nodeCache.cacheImage$(new NodeHelper().createFillNode()).subscribe();
 
         imageMock.dispatchEvent(new CustomEvent("load"));
 
@@ -308,7 +308,7 @@ describe("NodeCache.cacheImage$", () => {
                     done();
                 });
 
-        nodeCache.cacheImage$({}, ImageSize.Size640).subscribe();
+        nodeCache.cacheImage$(new NodeHelper().createFillNode()).subscribe();
         imageMock.dispatchEvent(new CustomEvent("load"));
     });
 });

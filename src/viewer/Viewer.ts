@@ -18,7 +18,6 @@ import { RenderCamera } from "../render/RenderCamera";
 import { RenderMode } from "../render/RenderMode";
 import { TransitionMode } from "../state/TransitionMode";
 import { EventEmitter } from "../utils/EventEmitter";
-import { Settings } from "../utils/Settings";
 import { Urls } from "../utils/Urls";
 
 import { ICustomRenderer } from "./interfaces/ICustomRenderer";
@@ -326,7 +325,6 @@ export class Viewer extends EventEmitter {
     constructor(options: ViewerOptions) {
         super();
 
-        Settings.setOptions(options);
         Urls.setOptions(options.url);
 
         this._navigator = new Navigator(options);

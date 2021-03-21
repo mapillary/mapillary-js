@@ -19,14 +19,12 @@ import {
     first,
     map,
     pairwise,
-    publish,
     publishReplay,
     refCount,
     scan,
     skipWhile,
     startWith,
     switchMap,
-    takeUntil,
     withLatestFrom,
 } from "rxjs/operators";
 
@@ -56,14 +54,13 @@ import { TileBoundingBox } from "../../tiles/interfaces/TileBoundingBox";
 import { TileRegionOfInterest } from "../../tiles/interfaces/TileRegionOfInterest";
 import { RegionOfInterestCalculator } from "../../tiles/RegionOfInterestCalculator";
 import { TextureProvider } from "../../tiles/TextureProvider";
-import { Settings } from "../../utils/Settings";
 import { Component } from "../Component";
 import { SliderConfiguration, SliderConfigurationIds, SliderConfigurationMode } from "../interfaces/SliderConfiguration";
 import { SliderGLRenderer } from "./SliderGLRenderer";
 import { Transform } from "../../geo/Transform";
-import { ImageSize } from "../../viewer/ImageSize";
 import { SliderDOMRenderer } from "./SliderDOMRenderer";
 import { isSpherical } from "../../geo/Geo";
+import { SubscriptionHolder } from "../../utils/SubscriptionHolder";
 
 /**
  * @class SliderComponent
@@ -104,36 +101,15 @@ export class SliderComponent extends Component<SliderConfiguration> {
     private _glRendererCreator$: Subject<void>;
     private _glRendererDisposer$: Subject<void>;
 
-    private _setKeysSubscription: Subscription;
-
-    private _modeSubcription: Subscription;
-    private _stateSubscription: Subscription;
-    private _glRenderSubscription: Subscription;
-    private _domRenderSubscription: Subscription;
-    private _moveSubscription: Subscription;
-    private _updateCurtainSubscription: Subscription;
     private _waitSubscription: Subscription;
-
-    private _textureProviderSubscription: Subscription;
-    private _setTextureProviderSubscription: Subscription;
-    private _setTileSizeSubscription: Subscription;
-    private _abortTextureProviderSubscription: Subscription;
-    private _setRegionOfInterestSubscription: Subscription;
-    private _hasTextureSubscription: Subscription;
-    private _updateBackgroundSubscription: Subscription;
-    private _updateTextureImageSubscription: Subscription;
-
-    private _textureProviderSubscriptionPrev: Subscription;
-    private _setTextureProviderSubscriptionPrev: Subscription;
-    private _setTileSizeSubscriptionPrev: Subscription;
-    private _abortTextureProviderSubscriptionPrev: Subscription;
-    private _setRegionOfInterestSubscriptionPrev: Subscription;
-    private _hasTextureSubscriptionPrev: Subscription;
-    private _updateBackgroundSubscriptionPrev: Subscription;
-    private _updateTextureImageSubscriptionPrev: Subscription;
+    private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
     /** @ignore */
-    constructor(name: string, container: Container, navigator: Navigator, viewportCoords?: ViewportCoords) {
+    constructor(
+        name: string,
+        container: Container,
+        navigator: Navigator,
+        viewportCoords?: ViewportCoords) {
         super(name, container, navigator);
 
         this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
@@ -236,13 +212,14 @@ export class SliderComponent extends Component<SliderConfiguration> {
     }
 
     protected _activate(): void {
-        this._modeSubcription = this._domRenderer.mode$
+        const subs = this._subscriptions;
+        subs.push(this._domRenderer.mode$
             .subscribe(
                 (mode: SliderConfigurationMode): void => {
                     this.setSliderMode(mode);
-                });
+                }));
 
-        this._glRenderSubscription = this._glRenderer$.pipe(
+        subs.push(this._glRenderer$.pipe(
             map(
                 (glRenderer: SliderGLRenderer): GLRenderHash => {
                     let renderHash: GLRenderHash = {
@@ -257,7 +234,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
 
                     return renderHash;
                 }))
-            .subscribe(this._container.glRenderer.render$);
+            .subscribe(this._container.glRenderer.render$));
 
         const position$: Observable<number> = observableConcat(
             this.configuration$.pipe(
@@ -334,7 +311,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     }
                 });
 
-        this._moveSubscription = observableCombineLatest(
+        subs.push(observableCombineLatest(
             position$,
             mode$,
             motionless$,
@@ -347,9 +324,9 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     } else {
                         this._navigator.stateService.moveTo(position);
                     }
-                });
+                }));
 
-        this._domRenderSubscription = observableCombineLatest(
+        subs.push(observableCombineLatest(
             position$,
             mode$,
             motionless$,
@@ -364,11 +341,11 @@ export class SliderComponent extends Component<SliderConfiguration> {
                             vnode: this._domRenderer.render(position, mode, motionless, spherical, sliderVisible),
                         };
                     }))
-            .subscribe(this._container.domRenderer.render$);
+            .subscribe(this._container.domRenderer.render$));
 
         this._glRendererCreator$.next(null);
 
-        this._updateCurtainSubscription = observableCombineLatest(
+        subs.push(observableCombineLatest(
             position$,
             spherical$,
             sliderVisible$,
@@ -396,9 +373,9 @@ export class SliderComponent extends Component<SliderConfiguration> {
                             return glRenderer;
                         };
                     }))
-            .subscribe(this._glRendererOperation$);
+            .subscribe(this._glRendererOperation$));
 
-        this._stateSubscription = observableCombineLatest(
+        subs.push(observableCombineLatest(
             this._navigator.stateService.currentState$,
             mode$).pipe(
                 map(
@@ -409,9 +386,9 @@ export class SliderComponent extends Component<SliderConfiguration> {
                             return glRenderer;
                         };
                     }))
-            .subscribe(this._glRendererOperation$);
+            .subscribe(this._glRendererOperation$));
 
-        this._setKeysSubscription = this._configuration$.pipe(
+        subs.push(this._configuration$.pipe(
             filter(
                 (configuration: SliderConfiguration): boolean => {
                     return configuration.ids != null;
@@ -457,10 +434,10 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 },
                 (e: Error): void => {
                     console.error(e);
-                });
+                }));
 
 
-        const textureProvider$: Observable<TextureProvider> = this._navigator.stateService.currentState$.pipe(
+        const textureProvider$ = this._navigator.stateService.currentState$.pipe(
             distinctUntilChanged(
                 undefined,
                 (frame: AnimationFrame): string => {
@@ -491,9 +468,9 @@ export class SliderComponent extends Component<SliderConfiguration> {
             publishReplay(1),
             refCount());
 
-        this._textureProviderSubscription = textureProvider$.subscribe(() => { /*noop*/ });
+        subs.push(textureProvider$.subscribe(() => { /*noop*/ }));
 
-        this._setTextureProviderSubscription = textureProvider$.pipe(
+        subs.push(textureProvider$.pipe(
             map(
                 (provider: TextureProvider): GLRendererOperation => {
                     return (renderer: SliderGLRenderer): SliderGLRenderer => {
@@ -502,9 +479,9 @@ export class SliderComponent extends Component<SliderConfiguration> {
                         return renderer;
                     };
                 }))
-            .subscribe(this._glRendererOperation$);
+            .subscribe(this._glRendererOperation$));
 
-        this._setTileSizeSubscription = this._container.renderService.size$.pipe(
+        subs.push(this._container.renderService.size$.pipe(
             switchMap(
                 (size: ViewportSize): Observable<[TextureProvider, ViewportSize]> => {
                     return observableCombineLatest(
@@ -518,17 +495,17 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     let tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
 
                     provider.setTileSize(tileSize);
-                });
+                }));
 
-        this._abortTextureProviderSubscription = textureProvider$.pipe(
+        subs.push(textureProvider$.pipe(
             pairwise())
             .subscribe(
                 (pair: [TextureProvider, TextureProvider]): void => {
                     let previous: TextureProvider = pair[0];
                     previous.abort();
-                });
+                }));
 
-        let roiTrigger$: Observable<[RenderCamera, ViewportSize, Transform]> = observableCombineLatest(
+        const roiTrigger$ = observableCombineLatest(
             this._container.renderService.renderCameraFrame$,
             this._container.renderService.size$.pipe(debounceTime(250))).pipe(
                 map(
@@ -569,7 +546,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     this._container.renderService.size$,
                     this._navigator.stateService.currentTransform$));
 
-        this._setRegionOfInterestSubscription = textureProvider$.pipe(
+        subs.push(textureProvider$.pipe(
             switchMap(
                 (provider: TextureProvider): Observable<[TileRegionOfInterest, TextureProvider]> => {
                     return roiTrigger$.pipe(
@@ -592,9 +569,9 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     let provider: TextureProvider = args[1];
 
                     provider.setRegionOfInterest(roi);
-                });
+                }));
 
-        let hasTexture$: Observable<boolean> = textureProvider$.pipe(
+        const hasTexture$ = textureProvider$.pipe(
             switchMap(
                 (provider: TextureProvider): Observable<boolean> => {
                     return provider.hasTexture$;
@@ -603,98 +580,9 @@ export class SliderComponent extends Component<SliderConfiguration> {
             publishReplay(1),
             refCount());
 
-        this._hasTextureSubscription = hasTexture$.subscribe(() => { /*noop*/ });
+        subs.push(hasTexture$.subscribe(() => { /*noop*/ }));
 
-        let nodeImage$: Observable<[HTMLImageElement, Node]> = this._navigator.stateService.currentState$.pipe(
-            filter(
-                (frame: AnimationFrame): boolean => {
-                    return frame.state.nodesAhead === 0;
-                }),
-            map(
-                (frame: AnimationFrame): Node => {
-                    return frame.state.currentNode;
-                }),
-            distinctUntilChanged(
-                undefined,
-                (node: Node): string => {
-                    return node.id;
-                }),
-            debounceTime(1000),
-            withLatestFrom(hasTexture$),
-            filter(
-                (args: [Node, boolean]): boolean => {
-                    return !args[1];
-                }),
-            map(
-                (args: [Node, boolean]): Node => {
-                    return args[0];
-                }),
-            filter(
-                (node: Node): boolean => {
-                    return isSpherical(node.cameraType) ?
-                        Settings.maxImageSize > Settings.baseSphericalSize :
-                        Settings.maxImageSize > Settings.baseImageSize;
-                }),
-            switchMap(
-                (node: Node): Observable<[HTMLImageElement, Node]> => {
-                    let baseImageSize: ImageSize = isSpherical(node.cameraType) ?
-                        Settings.baseSphericalSize :
-                        Settings.baseImageSize;
-
-                    if (Math.max(node.image.width, node.image.height) > baseImageSize) {
-                        return observableEmpty();
-                    }
-
-                    let image$: Observable<[HTMLImageElement, Node]> = node
-                        .cacheImage$(Settings.maxImageSize).pipe(
-                            map(
-                                (n: Node): [HTMLImageElement, Node] => {
-                                    return [n.image, n];
-                                }));
-
-                    return image$.pipe(
-                        takeUntil(
-                            hasTexture$.pipe(
-                                filter(
-                                    (hasTexture: boolean): boolean => {
-
-                                        return hasTexture;
-                                    }))),
-                        catchError(
-                            (error: Error):
-                                Observable<[HTMLImageElement, Node]> => {
-                                console.error(`Failed to fetch high res image (${node.id})`, error);
-
-                                return observableEmpty();
-                            }));
-                })).pipe(
-                    publish(),
-                    refCount());
-
-        this._updateBackgroundSubscription = nodeImage$.pipe(
-            withLatestFrom(textureProvider$))
-            .subscribe(
-                (args: [[HTMLImageElement, Node], TextureProvider]): void => {
-                    if (args[0][1].id !== args[1].id ||
-                        args[1].disposed) {
-                        return;
-                    }
-
-                    args[1].updateBackground(args[0][0]);
-                });
-
-        this._updateTextureImageSubscription = nodeImage$.pipe(
-            map(
-                (imn: [HTMLImageElement, Node]): GLRendererOperation => {
-                    return (renderer: SliderGLRenderer): SliderGLRenderer => {
-                        renderer.updateTextureImage(imn[0], imn[1]);
-
-                        return renderer;
-                    };
-                }))
-            .subscribe(this._glRendererOperation$);
-
-        const textureProviderPrev$: Observable<TextureProvider> = this._navigator.stateService.currentState$.pipe(
+        const textureProviderPrev$ = this._navigator.stateService.currentState$.pipe(
             filter(
                 (frame: AnimationFrame): boolean => {
                     return !!frame.state.previousNode;
@@ -729,9 +617,9 @@ export class SliderComponent extends Component<SliderConfiguration> {
             publishReplay(1),
             refCount());
 
-        this._textureProviderSubscriptionPrev = textureProviderPrev$.subscribe(() => { /*noop*/ });
+        subs.push(textureProviderPrev$.subscribe(() => { /*noop*/ }));
 
-        this._setTextureProviderSubscriptionPrev = textureProviderPrev$.pipe(
+        subs.push(textureProviderPrev$.pipe(
             map(
                 (provider: TextureProvider): GLRendererOperation => {
                     return (renderer: SliderGLRenderer): SliderGLRenderer => {
@@ -740,9 +628,9 @@ export class SliderComponent extends Component<SliderConfiguration> {
                         return renderer;
                     };
                 }))
-            .subscribe(this._glRendererOperation$);
+            .subscribe(this._glRendererOperation$));
 
-        this._setTileSizeSubscriptionPrev = this._container.renderService.size$.pipe(
+        subs.push(this._container.renderService.size$.pipe(
             switchMap(
                 (size: ViewportSize): Observable<[TextureProvider, ViewportSize]> => {
                     return observableCombineLatest(
@@ -756,17 +644,17 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     let tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
 
                     provider.setTileSize(tileSize);
-                });
+                }));
 
-        this._abortTextureProviderSubscriptionPrev = textureProviderPrev$.pipe(
+        subs.push(textureProviderPrev$.pipe(
             pairwise())
             .subscribe(
                 (pair: [TextureProvider, TextureProvider]): void => {
                     let previous: TextureProvider = pair[0];
                     previous.abort();
-                });
+                }));
 
-        let roiTriggerPrev$: Observable<[RenderCamera, ViewportSize, Transform]> = observableCombineLatest(
+        const roiTriggerPrev$ = observableCombineLatest(
             this._container.renderService.renderCameraFrame$,
             this._container.renderService.size$.pipe(debounceTime(250))).pipe(
                 map(
@@ -807,7 +695,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     this._container.renderService.size$,
                     this._navigator.stateService.currentTransform$));
 
-        this._setRegionOfInterestSubscriptionPrev = textureProviderPrev$.pipe(
+        subs.push(textureProviderPrev$.pipe(
             switchMap(
                 (provider: TextureProvider): Observable<[TileRegionOfInterest, TextureProvider]> => {
                     return roiTriggerPrev$.pipe(
@@ -949,9 +837,9 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     }
 
                     provider.setRegionOfInterest(shiftedRoi);
-                });
+                }));
 
-        let hasTexturePrev$: Observable<boolean> = textureProviderPrev$.pipe(
+        const hasTexturePrev$ = textureProviderPrev$.pipe(
             switchMap(
                 (provider: TextureProvider): Observable<boolean> => {
                     return provider.hasTexture$;
@@ -960,102 +848,11 @@ export class SliderComponent extends Component<SliderConfiguration> {
             publishReplay(1),
             refCount());
 
-        this._hasTextureSubscriptionPrev = hasTexturePrev$.subscribe(() => { /*noop*/ });
-
-        let nodeImagePrev$: Observable<[HTMLImageElement, Node]> = this._navigator.stateService.currentState$.pipe(
-            filter(
-                (frame: AnimationFrame): boolean => {
-                    return frame.state.nodesAhead === 0 && !!frame.state.previousNode;
-                }),
-            map(
-                (frame: AnimationFrame): Node => {
-                    return frame.state.previousNode;
-                }),
-            distinctUntilChanged(
-                undefined,
-                (node: Node): string => {
-                    return node.id;
-                }),
-            debounceTime(1000),
-            withLatestFrom(hasTexturePrev$),
-            filter(
-                (args: [Node, boolean]): boolean => {
-                    return !args[1];
-                }),
-            map(
-                (args: [Node, boolean]): Node => {
-                    return args[0];
-                }),
-            filter(
-                (node: Node): boolean => {
-                    return isSpherical(node.cameraType) ?
-                        Settings.maxImageSize > Settings.baseSphericalSize :
-                        Settings.maxImageSize > Settings.baseImageSize;
-                }),
-            switchMap(
-                (node: Node): Observable<[HTMLImageElement, Node]> => {
-                    let baseImageSize: ImageSize =
-                        isSpherical(node.cameraType) ?
-                            Settings.baseSphericalSize :
-                            Settings.baseImageSize;
-
-                    if (Math.max(node.image.width, node.image.height) > baseImageSize) {
-                        return observableEmpty();
-                    }
-
-                    let image$: Observable<[HTMLImageElement, Node]> = node
-                        .cacheImage$(Settings.maxImageSize).pipe(
-                            map(
-                                (n: Node): [HTMLImageElement, Node] => {
-                                    return [n.image, n];
-                                }));
-
-                    return image$.pipe(
-                        takeUntil(
-                            hasTexturePrev$.pipe(
-                                filter(
-                                    (hasTexture: boolean): boolean => {
-
-                                        return hasTexture;
-                                    }))),
-                        catchError(
-                            (error: Error):
-                                Observable<[HTMLImageElement, Node]> => {
-                                console.error(`Failed to fetch high res image (${node.id})`, error);
-
-                                return observableEmpty();
-                            }));
-                })).pipe(
-                    publish(),
-                    refCount());
-
-        this._updateBackgroundSubscriptionPrev = nodeImagePrev$.pipe(
-            withLatestFrom(textureProviderPrev$))
-            .subscribe(
-                (args: [[HTMLImageElement, Node], TextureProvider]): void => {
-                    if (args[0][1].id !== args[1].id ||
-                        args[1].disposed) {
-                        return;
-                    }
-
-                    args[1].updateBackground(args[0][0]);
-                });
-
-        this._updateTextureImageSubscriptionPrev = nodeImagePrev$.pipe(
-            map(
-                (imn: [HTMLImageElement, Node]): GLRendererOperation => {
-                    return (renderer: SliderGLRenderer): SliderGLRenderer => {
-                        renderer.updateTextureImage(imn[0], imn[1]);
-
-                        return renderer;
-                    };
-                }))
-            .subscribe(this._glRendererOperation$);
+        subs.push(hasTexturePrev$.subscribe(() => { /*noop*/ }));
     }
 
     protected _deactivate(): void {
         this._waitSubscription.unsubscribe();
-
         this._navigator.stateService.state$.pipe(
             first())
             .subscribe(
@@ -1067,32 +864,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
 
         this._glRendererDisposer$.next(null);
         this._domRenderer.deactivate();
-
-        this._modeSubcription.unsubscribe();
-        this._setKeysSubscription.unsubscribe();
-        this._stateSubscription.unsubscribe();
-        this._glRenderSubscription.unsubscribe();
-        this._domRenderSubscription.unsubscribe();
-        this._moveSubscription.unsubscribe();
-        this._updateCurtainSubscription.unsubscribe();
-
-        this._textureProviderSubscription.unsubscribe();
-        this._setTextureProviderSubscription.unsubscribe();
-        this._setTileSizeSubscription.unsubscribe();
-        this._abortTextureProviderSubscription.unsubscribe();
-        this._setRegionOfInterestSubscription.unsubscribe();
-        this._hasTextureSubscription.unsubscribe();
-        this._updateBackgroundSubscription.unsubscribe();
-        this._updateTextureImageSubscription.unsubscribe();
-
-        this._textureProviderSubscriptionPrev.unsubscribe();
-        this._setTextureProviderSubscriptionPrev.unsubscribe();
-        this._setTileSizeSubscriptionPrev.unsubscribe();
-        this._abortTextureProviderSubscriptionPrev.unsubscribe();
-        this._setRegionOfInterestSubscriptionPrev.unsubscribe();
-        this._hasTextureSubscriptionPrev.unsubscribe();
-        this._updateBackgroundSubscriptionPrev.unsubscribe();
-        this._updateTextureImageSubscriptionPrev.unsubscribe();
+        this._subscriptions.unsubscribe();
 
         this.configure({ ids: null });
     }

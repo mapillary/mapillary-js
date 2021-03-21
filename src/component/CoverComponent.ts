@@ -214,7 +214,7 @@ export class CoverComponent extends Component<CoverConfiguration> {
                             }
 
                             this._navigator.api.data
-                                .getImageBuffer(fullNodes[key].thumb640_url)
+                                .getImageBuffer(fullNodes[key].thumb.url)
                                 .then(
                                     (buffer: ArrayBuffer): void => {
                                         const image: HTMLImageElement = new Image();

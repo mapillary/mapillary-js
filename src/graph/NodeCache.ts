@@ -21,10 +21,8 @@ import { NavigationEdge } from "./edge/interfaces/NavigationEdge";
 import { NavigationEdgeStatus } from "./interfaces/NavigationEdgeStatus";
 
 import { MeshContract } from "../api/contracts/MeshContract";
-import { URLImageEnt } from "../api/ents/URLImageEnt";
-import { Settings } from "../utils/Settings";
-import { ImageSize } from "../viewer/ImageSize";
 import { DataProviderBase } from "../api/DataProviderBase";
+import { SpatialImageEnt } from "../export/APINamespace";
 
 /**
  * @class NodeCache
@@ -175,25 +173,23 @@ export class NodeCache {
     /**
      * Cache the image and mesh assets.
      *
-     * @param {URLImageEnt} urls - URLs of the node to cache.
+     * @param {SpatialImageEnt} spatial - Spatial props of the node to cache.
      * @param {boolean} spherical - Value indicating whether node is a spherical.
      * @param {boolean} merged - Value indicating whether node is merged.
      * @returns {Observable<NodeCache>} Observable emitting this node
      * cache whenever the load status has changed and when the mesh or image
      * has been fully loaded.
      */
-    public cacheAssets$(urls: URLImageEnt, spherical: boolean, merged: boolean): Observable<NodeCache> {
+    public cacheAssets$(
+        spatial: SpatialImageEnt,
+        merged: boolean): Observable<NodeCache> {
         if (this._cachingAssets$ != null) {
             return this._cachingAssets$;
         }
 
-        const imageSize: ImageSize = spherical ?
-            Settings.baseSphericalSize :
-            Settings.baseImageSize;
-
         this._cachingAssets$ = observableCombineLatest(
-            this._cacheImage$(urls, imageSize),
-            this._cacheMesh$(urls, merged)).pipe(
+            this._cacheImage$(spatial),
+            this._cacheMesh$(spatial, merged)).pipe(
                 map(
                     ([image, mesh]: [HTMLImageElement, MeshContract]): NodeCache => {
                         this._image = image;
@@ -225,34 +221,32 @@ export class NodeCache {
     /**
      * Cache an image with a higher resolution than the current one.
      *
-     * @param {URLImageEnt} nodeUrls - Node URLs.
-     * @param {ImageSize} imageSize - The size to cache.
+     * @param {SpatialImageEnt} spatial - Spatial props.
      * @returns {Observable<NodeCache>} Observable emitting a single item,
      * the node cache, when the image has been cached. If supplied image
      * size is not larger than the current image size the node cache is
      * returned immediately.
      */
-    public cacheImage$(nodeUrls: URLImageEnt, imageSize: ImageSize): Observable<NodeCache> {
-        if (this._image != null && imageSize <= Math.max(this._image.width, this._image.height)) {
-            return observableOf<NodeCache>(this);
-        }
+    public cacheImage$(spatial: SpatialImageEnt): Observable<NodeCache> {
+        if (this._image != null) { return observableOf<NodeCache>(this); }
 
-        const cacheImage$: Observable<NodeCache> = this._cacheImage$(nodeUrls, imageSize).pipe(
-            first(
-                (image: HTMLImageElement): boolean => {
-                    return !!image;
-                }),
-            tap(
-                (image: HTMLImageElement): void => {
-                    this._disposeImage();
-                    this._image = image;
-                }),
-            map(
-                (): NodeCache => {
-                    return this;
-                }),
-            publishReplay(1),
-            refCount());
+        const cacheImage$ = this._cacheImage$(spatial)
+            .pipe(
+                first(
+                    (image: HTMLImageElement): boolean => {
+                        return !!image;
+                    }),
+                tap(
+                    (image: HTMLImageElement): void => {
+                        this._disposeImage();
+                        this._image = image;
+                    }),
+                map(
+                    (): NodeCache => {
+                        return this;
+                    }),
+                publishReplay(1),
+                refCount());
 
         cacheImage$
             .subscribe(
@@ -338,27 +332,27 @@ export class NodeCache {
     /**
      * Cache the image.
      *
-     * @param {URLImageEnt} nodeUrls - Node URLs.
+     * @param {SpatialImageEnt} spatial - Node URLs.
      * @param {boolean} spherical - Value indicating whether node is a spherical.
      * @returns {Observable<ILoadStatusObject<HTMLImageElement>>} Observable
      * emitting a load status object every time the load status changes
      * and completes when the image is fully loaded.
      */
-    private _cacheImage$(nodeUrls: URLImageEnt, imageSize: ImageSize): Observable<HTMLImageElement> {
+    private _cacheImage$(spatial: SpatialImageEnt): Observable<HTMLImageElement> {
         return Observable.create(
             (subscriber: Subscriber<HTMLImageElement>): void => {
-                const abort: Promise<void> = new Promise(
+                const abort = new Promise<void>(
                     (_, reject): void => {
                         this._imageAborter = reject;
                     });
 
-                const url: string = this._getThumbUrl(nodeUrls, imageSize);
+                const url = spatial.thumb.url
                 this._provider.getImageBuffer(url, abort)
                     .then(
                         (buffer: ArrayBuffer): void => {
                             this._imageAborter = null;
 
-                            const image: HTMLImageElement = new Image();
+                            const image = new Image();
                             image.crossOrigin = "Anonymous";
 
                             image.onload = () => {
@@ -392,13 +386,13 @@ export class NodeCache {
     /**
      * Cache the mesh.
      *
-     * @param {URLImageEnt} nodeUrls - Node URLs.
+     * @param {SpatialImageEnt} spatial - Spatial props.
      * @param {boolean} merged - Value indicating whether node is merged.
      * @returns {Observable<ILoadStatusObject<MeshContract>>} Observable emitting
      * a load status object every time the load status changes and completes
      * when the mesh is fully loaded.
      */
-    private _cacheMesh$(nodeUrls: URLImageEnt, merged: boolean): Observable<MeshContract> {
+    private _cacheMesh$(spatial: SpatialImageEnt, merged: boolean): Observable<MeshContract> {
         return Observable.create(
             (subscriber: Subscriber<MeshContract>): void => {
                 if (!merged) {
@@ -412,7 +406,7 @@ export class NodeCache {
                         this._meshAborter = reject;
                     });
 
-                this._provider.getMesh(nodeUrls.mesh_url, abort)
+                this._provider.getMesh(spatial.mesh.url, abort)
                     .then(
                         (mesh: MeshContract): void => {
                             this._meshAborter = null;
@@ -449,18 +443,5 @@ export class NodeCache {
         }
 
         this._image = null;
-    }
-
-    private _getThumbUrl(nodeUrls: URLImageEnt, size: ImageSize): string {
-        switch (size) {
-            case ImageSize.Size320:
-                return nodeUrls.thumb320_url;
-            case ImageSize.Size640:
-                return nodeUrls.thumb640_url;
-            case ImageSize.Size1024:
-                return nodeUrls.thumb1024_url;
-            default:
-                return nodeUrls.thumb2048_url;
-        }
     }
 }

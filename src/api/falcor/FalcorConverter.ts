@@ -1,4 +1,4 @@
-import { ImageSize } from "../../viewer/ImageSize";
+import { FalcorImageSize } from "./FalcorImageSize";
 import { FalcorDataProviderUrls } from "./FalcorDataProviderUrls";
 import {
     FalcorCoreImageEnt,
@@ -13,6 +13,7 @@ import { ClusterReconstructionContract } from "../contracts/ClusterReconstructio
 import { LatLonAlt } from "../interfaces/LatLonAlt";
 import { CameraEnt } from "../ents/CameraEnt";
 import { FalcorClusterReconstructionContract } from "./FalcorContracts";
+import { isSpherical } from "../../geo/Geo";
 
 function convertCameraType(falcorProjectionType: string): string {
     return falcorProjectionType === "equirectangular" ?
@@ -157,15 +158,13 @@ export class FalcorConverter {
         };
         const width = item.width;
         const id = item.key;
-        const meshUrl = this._urls.protoMesh(id);
-        const thumb320Url = this._urls
-            .thumbnail(id, ImageSize.Size320, this._urls.origin);
-        const thumb640Url = this._urls
-            .thumbnail(id, ImageSize.Size640, this._urls.origin);
-        const thumb1024Url = this._urls
-            .thumbnail(id, ImageSize.Size1024, this._urls.origin);
-        const thumb2048Url = this._urls
-            .thumbnail(id, ImageSize.Size2048, this._urls.origin);
+        const mesh = { id, url: this._urls.protoMesh(id) };
+        const thumbSize = isSpherical(cameraType) ?
+            FalcorImageSize.Size2048 :
+            FalcorImageSize.Size1024;
+        const thumbUrl = this._urls
+            .thumbnail(id, thumbSize, this._urls.origin);
+        const thumb = { id, url: thumbUrl }
 
         return {
             altitude,
@@ -183,14 +182,12 @@ export class FalcorConverter {
             height,
             merge_cc: mergeCc,
             merge_version: mergeVersion,
-            mesh_url: meshUrl,
+            mesh,
+            id,
             owner,
             private: priv,
             quality_score: qualityScore,
-            thumb1024_url: thumb1024Url,
-            thumb2048_url: thumb2048Url,
-            thumb320_url: thumb320Url,
-            thumb640_url: thumb640Url,
+            thumb,
             width,
         }
     }

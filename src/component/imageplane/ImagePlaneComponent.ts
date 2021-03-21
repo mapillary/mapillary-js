@@ -6,7 +6,6 @@ import {
     from as observableFrom,
     of as observableOf,
     Observable,
-    Subscription,
     Subject,
 } from "rxjs";
 
@@ -19,7 +18,6 @@ import {
     map,
     mergeMap,
     pairwise,
-    publish,
     publishReplay,
     refCount,
     scan,
@@ -27,7 +25,6 @@ import {
     skipWhile,
     startWith,
     switchMap,
-    takeUntil,
     withLatestFrom,
 } from "rxjs/operators";
 
@@ -49,12 +46,9 @@ import { ImageTileStore } from "../../tiles/ImageTileStore";
 import { TileRegionOfInterest } from "../../tiles/interfaces/TileRegionOfInterest";
 import { RegionOfInterestCalculator } from "../../tiles/RegionOfInterestCalculator";
 import { TextureProvider } from "../../tiles/TextureProvider";
-import { Settings } from "../../utils/Settings";
 import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { Transform } from "../../geo/Transform";
-import { ImageSize } from "../../viewer/ImageSize";
-import { isSpherical } from "../../geo/Geo";
-
+import { SubscriptionHolder } from "../../utils/SubscriptionHolder";
 
 interface ImagePlaneGLRendererOperation {
     (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer;
@@ -70,21 +64,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
     private _rendererCreator$: Subject<void>;
     private _rendererDisposer$: Subject<void>;
 
-    private _abortTextureProviderSubscription: Subscription;
-    private _hasTextureSubscription: Subscription;
-    private _rendererSubscription: Subscription;
-    private _setRegionOfInterestSubscription: Subscription;
-    private _setTextureProviderSubscription: Subscription;
-    private _setTileSizeSubscription: Subscription;
-    private _stateSubscription: Subscription;
-    private _textureProviderSubscription: Subscription;
-    private _updateBackgroundSubscription: Subscription;
-    private _updateTextureImageSubscription: Subscription;
-
-    private _clearPeripheryPlaneSubscription: Subscription;
-    private _addPeripheryPlaneSubscription: Subscription;
-    private _updatePeripheryPlaneTextureSubscription: Subscription;
-    private _moveToPeripheryNodeSubscription: Subscription;
+    private _subsciptions: SubscriptionHolder = new SubscriptionHolder();
 
     private _imageTileLoader: ImageTileLoader;
     private _roiCalculator: RegionOfInterestCalculator;
@@ -141,7 +121,8 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
     }
 
     protected _activate(): void {
-        this._rendererSubscription = this._renderer$.pipe(
+        const subs = this._subsciptions;
+        subs.push(this._renderer$.pipe(
             map(
                 (renderer: ImagePlaneGLRenderer): GLRenderHash => {
                     let renderHash: GLRenderHash = {
@@ -158,11 +139,11 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
 
                     return renderHash;
                 }))
-            .subscribe(this._container.glRenderer.render$);
+            .subscribe(this._container.glRenderer.render$));
 
         this._rendererCreator$.next(null);
 
-        this._stateSubscription = this._navigator.stateService.currentState$.pipe(
+        subs.push(this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: AnimationFrame): ImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
@@ -171,9 +152,9 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                         return renderer;
                     };
                 }))
-            .subscribe(this._rendererOperation$);
+            .subscribe(this._rendererOperation$));
 
-        let textureProvider$: Observable<TextureProvider> = this._navigator.stateService.currentState$.pipe(
+        const textureProvider$ = this._navigator.stateService.currentState$.pipe(
             distinctUntilChanged(
                 undefined,
                 (frame: AnimationFrame): string => {
@@ -204,9 +185,9 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
             publishReplay(1),
             refCount());
 
-        this._textureProviderSubscription = textureProvider$.subscribe(() => { /*noop*/ });
+        subs.push(textureProvider$.subscribe(() => { /*noop*/ }));
 
-        this._setTextureProviderSubscription = textureProvider$.pipe(
+        subs.push(textureProvider$.pipe(
             map(
                 (provider: TextureProvider): ImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
@@ -215,9 +196,9 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                         return renderer;
                     };
                 }))
-            .subscribe(this._rendererOperation$);
+            .subscribe(this._rendererOperation$));
 
-        this._setTileSizeSubscription = this._container.renderService.size$.pipe(
+        subs.push(this._container.renderService.size$.pipe(
             switchMap(
                 (size: ViewportSize): Observable<[TextureProvider, ViewportSize]> => {
                     return observableCombineLatest(
@@ -231,17 +212,17 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                     let tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
 
                     provider.setTileSize(tileSize);
-                });
+                }));
 
-        this._abortTextureProviderSubscription = textureProvider$.pipe(
+        subs.push(textureProvider$.pipe(
             pairwise())
             .subscribe(
                 (pair: [TextureProvider, TextureProvider]): void => {
                     let previous: TextureProvider = pair[0];
                     previous.abort();
-                });
+                }));
 
-        let roiTrigger$: Observable<[RenderCamera, ViewportSize, Transform]> = observableCombineLatest(
+        const roiTrigger$ = observableCombineLatest(
             this._container.renderService.renderCameraFrame$,
             this._container.renderService.size$.pipe(debounceTime(250))).pipe(
                 map(
@@ -282,7 +263,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                     this._container.renderService.size$,
                     this._navigator.stateService.currentTransform$));
 
-        this._setRegionOfInterestSubscription = textureProvider$.pipe(
+        subs.push(textureProvider$.pipe(
             switchMap(
                 (provider: TextureProvider): Observable<[TileRegionOfInterest, TextureProvider]> => {
                     return roiTrigger$.pipe(
@@ -315,109 +296,21 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                     let provider: TextureProvider = args[1];
 
                     provider.setRegionOfInterest(roi);
-                });
+                }));
 
-        let hasTexture$: Observable<boolean> = textureProvider$.pipe(
-            switchMap(
-                (provider: TextureProvider): Observable<boolean> => {
-                    return provider.hasTexture$;
-                }),
-            startWith(false),
-            publishReplay(1),
-            refCount());
+        const hasTexture$ = textureProvider$
+            .pipe(
+                switchMap(
+                    (provider: TextureProvider): Observable<boolean> => {
+                        return provider.hasTexture$;
+                    }),
+                startWith(false),
+                publishReplay(1),
+                refCount());
 
-        this._hasTextureSubscription = hasTexture$.subscribe(() => { /*noop*/ });
+        subs.push(hasTexture$.subscribe(() => { /*noop*/ }));
 
-        let nodeImage$: Observable<[HTMLImageElement, GraphNode]> = this._navigator.stateService.currentState$.pipe(
-            filter(
-                (frame: AnimationFrame): boolean => {
-                    return frame.state.nodesAhead === 0;
-                }),
-            map(
-                (frame: AnimationFrame): GraphNode => {
-                    return frame.state.currentNode;
-                }),
-            distinctUntilChanged(
-                undefined,
-                (node: GraphNode): string => {
-                    return node.id;
-                }),
-            debounceTime(1000),
-            withLatestFrom(hasTexture$),
-            filter(
-                (args: [GraphNode, boolean]): boolean => {
-                    return !args[1];
-                }),
-            map(
-                (args: [GraphNode, boolean]): GraphNode => {
-                    return args[0];
-                }),
-            filter(
-                (node: GraphNode): boolean => {
-                    return isSpherical(node.cameraType) ?
-                        Settings.maxImageSize > Settings.baseSphericalSize :
-                        Settings.maxImageSize > Settings.baseImageSize;
-                }),
-            switchMap(
-                (node: GraphNode): Observable<[HTMLImageElement, GraphNode]> => {
-                    let baseImageSize = isSpherical(node.cameraType) ?
-                        Settings.baseSphericalSize :
-                        Settings.baseImageSize;
-
-                    if (Math.max(node.image.width, node.image.height) > baseImageSize) {
-                        return observableEmpty();
-                    }
-
-                    let image$: Observable<[HTMLImageElement, GraphNode]> = node
-                        .cacheImage$(Settings.maxImageSize).pipe(
-                            map(
-                                (n: GraphNode): [HTMLImageElement, GraphNode] => {
-                                    return [n.image, n];
-                                }));
-
-                    return image$.pipe(
-                        takeUntil(
-                            hasTexture$.pipe(
-                                filter(
-                                    (hasTexture: boolean): boolean => {
-
-                                        return hasTexture;
-                                    }))),
-                        catchError(
-                            (error: Error):
-                                Observable<[HTMLImageElement, GraphNode]> => {
-                                console.error(`Failed to fetch high res image (${node.id})`, error);
-
-                                return observableEmpty();
-                            }));
-                })).pipe(
-                    publish(),
-                    refCount());
-
-        this._updateBackgroundSubscription = nodeImage$.pipe(
-            withLatestFrom(textureProvider$))
-            .subscribe(
-                (args: [[HTMLImageElement, GraphNode], TextureProvider]): void => {
-                    if (args[0][1].id !== args[1].id ||
-                        args[1].disposed) {
-                        return;
-                    }
-
-                    args[1].updateBackground(args[0][0]);
-                });
-
-        this._updateTextureImageSubscription = nodeImage$.pipe(
-            map(
-                (imn: [HTMLImageElement, GraphNode]): ImagePlaneGLRendererOperation => {
-                    return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
-                        renderer.updateTextureImage(imn[0], imn[1]);
-
-                        return renderer;
-                    };
-                }))
-            .subscribe(this._rendererOperation$);
-
-        this._clearPeripheryPlaneSubscription = this._navigator.panService.panNodes$.pipe(
+        subs.push(this._navigator.panService.panNodes$.pipe(
             filter(
                 (panNodes: []): boolean => {
                     return panNodes.length === 0;
@@ -430,9 +323,9 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                         return renderer;
                     };
                 }))
-            .subscribe(this._rendererOperation$);
+            .subscribe(this._rendererOperation$));
 
-        const cachedPanNodes$: Observable<[GraphNode, Transform]> = this._navigator.panService.panNodes$.pipe(
+        const cachedPanNodes$ = this._navigator.panService.panNodes$.pipe(
             switchMap(
                 (nts: [GraphNode, Transform, number][]): Observable<[GraphNode, Transform]> => {
                     return observableFrom(nts).pipe(
@@ -451,7 +344,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                 }),
             share());
 
-        this._addPeripheryPlaneSubscription = cachedPanNodes$.pipe(
+        subs.push(cachedPanNodes$.pipe(
             map(
                 ([n, t]: [GraphNode, Transform]): ImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
@@ -460,18 +353,16 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                         return renderer;
                     };
                 }))
-            .subscribe(this._rendererOperation$);
+            .subscribe(this._rendererOperation$));
 
-        this._updatePeripheryPlaneTextureSubscription = cachedPanNodes$.pipe(
+        subs.push(cachedPanNodes$.pipe(
             mergeMap(
                 ([n]: [GraphNode, Transform]): Observable<GraphNode> => {
-                    return ImageSize.Size2048 > Math.max(n.image.width, n.image.height) ?
-                        n.cacheImage$(ImageSize.Size2048).pipe(
-                            catchError(
-                                (): Observable<GraphNode> => {
-                                    return observableEmpty();
-                                })) :
-                        observableEmpty();
+                    return n.cacheImage$().pipe(
+                        catchError(
+                            (): Observable<GraphNode> => {
+                                return observableEmpty();
+                            }));
                 }),
             map(
                 (n: GraphNode): ImagePlaneGLRendererOperation => {
@@ -481,16 +372,16 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                         return renderer;
                     };
                 }))
-            .subscribe(this._rendererOperation$);
+            .subscribe(this._rendererOperation$));
 
-        const inTransition$: Observable<boolean> = this._navigator.stateService.currentState$.pipe(
+        const inTransition$ = this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: AnimationFrame): boolean => {
                     return frame.state.alpha < 1;
                 }),
             distinctUntilChanged());
 
-        const panTrigger$: Observable<boolean> = observableCombineLatest(
+        const panTrigger$ = observableCombineLatest(
             this._container.mouseService.active$,
             this._container.touchService.active$,
             this._navigator.stateService.inMotion$,
@@ -504,7 +395,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                         return trigger;
                     }));
 
-        this._moveToPeripheryNodeSubscription = this._navigator.panService.panNodes$.pipe(
+        subs.push(this._navigator.panService.panNodes$.pipe(
             switchMap(
                 (nts: [GraphNode, Transform, number][]):
                     Observable<[RenderCamera, GraphNode, Transform, [GraphNode, Transform, number][]]> => {
@@ -559,27 +450,12 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                                 return observableEmpty();
                             }));
                 }))
-            .subscribe();
+            .subscribe());
     }
 
     protected _deactivate(): void {
         this._rendererDisposer$.next(null);
-
-        this._abortTextureProviderSubscription.unsubscribe();
-        this._hasTextureSubscription.unsubscribe();
-        this._rendererSubscription.unsubscribe();
-        this._setRegionOfInterestSubscription.unsubscribe();
-        this._setTextureProviderSubscription.unsubscribe();
-        this._setTileSizeSubscription.unsubscribe();
-        this._stateSubscription.unsubscribe();
-        this._textureProviderSubscription.unsubscribe();
-        this._updateBackgroundSubscription.unsubscribe();
-        this._updateTextureImageSubscription.unsubscribe();
-
-        this._clearPeripheryPlaneSubscription.unsubscribe();
-        this._addPeripheryPlaneSubscription.unsubscribe();
-        this._updatePeripheryPlaneTextureSubscription.unsubscribe();
-        this._moveToPeripheryNodeSubscription.unsubscribe();
+        this._subsciptions.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): ComponentConfiguration {

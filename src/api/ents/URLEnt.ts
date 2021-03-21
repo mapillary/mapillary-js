@@ -3,9 +3,9 @@ import { IDEnt } from "./IDEnt";
 /**
  * Interface that describes the raw image cluster properties.
  *
- * @interface ClusterEnt
+ * @interface URLEnt
  */
-export interface ClusterEnt extends IDEnt {
+export interface URLEnt extends IDEnt {
     /**
      * URL for reconstruction cluster resource.
      */

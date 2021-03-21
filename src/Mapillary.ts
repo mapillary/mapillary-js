@@ -70,7 +70,6 @@ export { isFallbackSupported, isSupported } from "./utils/Support";
 export { Alignment } from "./viewer/Alignment";
 export { ComponentSize } from "./component/utils/ComponentSize";
 export { ICustomRenderer } from "./viewer/interfaces/ICustomRenderer";
-export { ImageSize } from "./viewer/ImageSize";
 export { PointOfView } from "./viewer/interfaces/PointOfView";
 export { RenderMode } from "./render/RenderMode";
 export { TransitionMode } from "./state/TransitionMode";
@@ -85,7 +84,7 @@ export { ComponentOptions } from "./viewer/interfaces/ComponentOptions";
 export { UrlOptions } from "./viewer/interfaces/UrlOptions";
 export { ViewerOptions } from "./viewer/interfaces/ViewerOptions";
 
-// Graph types
+// Graph
 export { Node } from "./graph/Node";
 export { NavigationDirection } from "./graph/edge/NavigationDirection";
 export { NavigationEdge } from "./graph/edge/interfaces/NavigationEdge";
@@ -98,7 +97,7 @@ export {
     FilterValue,
 } from "./graph/FilterExpression";
 
-// Error types
+// Error
 export { AbortMapillaryError } from "./error/AbortMapillaryError";
 export { MapillaryError } from "./error/MapillaryError";
 

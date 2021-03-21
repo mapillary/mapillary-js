@@ -66,12 +66,15 @@ export class EdgeCalculatorHelper {
                 id: "ckey",
                 url: "ckey_url",
             },
+            creator: { id: "ukey", username: "uname" },
+            exif_orientation: 0,
             height: 0,
+            id: "key",
             merge_cc: mergeCC,
             merge_version: mergeVersion,
-            exif_orientation: 0,
+            mesh: { id: "mesh-id", url: "mesh-url" },
             private: false,
-            creator: { id: "ukey", username: "uname" },
+            thumb: { id: "thumb-id", url: "thumb-url" },
             width: 0,
         };
 
