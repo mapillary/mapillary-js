@@ -3,9 +3,9 @@ import { empty as observableEmpty, Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { APIWrapper } from "../../src/api/APIWrapper";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
-import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
-import { SequenceEnt } from "../../src/api/ents/SequenceEnt";
 import { DataProvider } from "../helper/ProviderHelper";
+import { ImagesContract } from "../../src/api/contracts/ImagesContract";
+import { SpatialImagesContract } from "../../src/api/contracts/SpatialImagesContract";
 
 describe("APIWrapperctor", () => {
     test("should create an APIWrapper instance", () => {
@@ -32,7 +32,7 @@ describe("APIWrapperimageByKeyFill$", () => {
 
         api.getSpatialImages$([key])
             .subscribe(
-                (result: { [key: string]: SpatialImageEnt }): void => {
+                (result: SpatialImagesContract): void => {
                     expect(result).toBeDefined();
 
                     expect(providerSpy.calls.count()).toBe(1);
@@ -91,7 +91,7 @@ describe("APIWrapperimageByKeyFull$", () => {
 
         api.getImages$([key])
             .subscribe(
-                (result: { [key: string]: SpatialImageEnt }): void => {
+                (result: ImagesContract): void => {
                     expect(result).toBeDefined();
 
                     expect(providerSpy.calls.count()).toBe(1);

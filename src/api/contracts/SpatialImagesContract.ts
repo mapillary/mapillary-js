@@ -1,5 +1,4 @@
 import { SpatialImageEnt } from "../ents/SpatialImageEnt";
+import { EntContract } from "./EntContract";
 
-export interface SpatialImagesContract {
-    [imageId: string]: SpatialImageEnt;
-}
+export type SpatialImagesContract = EntContract<SpatialImageEnt>[];

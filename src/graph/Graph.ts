@@ -41,7 +41,7 @@ import { ImageEnt } from "../api/ents/ImageEnt";
 import { LatLon } from "../api/interfaces/LatLon";
 import { GraphMapillaryError } from "../error/GraphMapillaryError";
 import { SequenceEnt } from "../api/ents/SequenceEnt";
-import { SequencesContract } from "../export/APINamespace";
+import { SequencesContract, SpatialImagesContract } from "../export/APINamespace";
 
 type NodeTiles = {
     cache: string[];
@@ -334,8 +334,8 @@ export class Graph {
             mergeAll(),
             last(),
             mergeMap(
-                (graph: Graph): Observable<Node[]> => {
-                    const nodes: Node[] = this._nodeIndex
+                (): Observable<Node[]> => {
+                    const nodes = this._nodeIndex
                         .search({
                             maxX: ne.lat,
                             maxY: ne.lon,
@@ -359,39 +359,35 @@ export class Graph {
                     }
 
                     const coreNodeBatches: string[][] = [];
-                    const batchSize: number = 200;
+                    const batchSize = 200;
                     while (coreNodes.length > 0) {
                         coreNodeBatches.push(coreNodes.splice(0, batchSize));
                     }
 
-                    const fullNodes$: Observable<Node[]> = observableOf(fullNodes);
-                    const fillNodes$: Observable<Node[]>[] = coreNodeBatches
-                        .map(
-                            (batch: string[]): Observable<Node[]> => {
-                                return this._api.getSpatialImages$(batch).pipe(
-                                    map(
-                                        (imageByKeyFill: { [key: string]: SpatialImageEnt }): Node[] => {
-                                            const filledNodes: Node[] = [];
+                    const fullNodes$ = observableOf(fullNodes);
+                    const fillNodes$ = coreNodeBatches
+                        .map((batch: string[]): Observable<Node[]> => {
+                            return this._api
+                                .getSpatialImages$(batch)
+                                .pipe(
+                                    map((items: SpatialImagesContract)
+                                        : Node[] => {
+                                        const result: Node[] = [];
+                                        for (const item of items) {
+                                            const exists = this
+                                                .hasNode(item.node_id);
+                                            if (!exists) { continue; }
 
-                                            for (const fillKey in imageByKeyFill) {
-                                                if (!imageByKeyFill.hasOwnProperty(fillKey)) {
-                                                    continue;
-                                                }
-
-                                                if (this.hasNode(fillKey)) {
-                                                    const node: Node = this.getNode(fillKey);
-
-                                                    if (!node.full) {
-                                                        this._makeFull(node, imageByKeyFill[fillKey]);
-                                                    }
-
-                                                    filledNodes.push(node);
-                                                }
+                                            const node = this
+                                                .getNode(item.node_id);
+                                            if (!node.full) {
+                                                this._makeFull(node, item.node);
                                             }
-
-                                            return filledNodes;
-                                        }));
-                            });
+                                            result.push(node);
+                                        }
+                                        return result;
+                                    }));
+                        });
 
                     return observableMerge(
                         fullNodes$,
@@ -446,23 +442,24 @@ export class Graph {
                 const fillNodes$ = coreNodeBatches
                     .map((batch: string[]): Observable<Node[]> => {
                         return this._api.getSpatialImages$(batch).pipe(
-                            map((nodes: { [key: string]: SpatialImageEnt }):
+                            map((items: SpatialImagesContract):
                                 Node[] => {
                                 const filled: Node[] = [];
-                                for (const key in nodes) {
-                                    if (!nodes.hasOwnProperty(key)) {
+                                for (const item of items) {
+                                    if (!item.node) {
+                                        console.warn(
+                                            `Node is empty (${item.node})`);
                                         continue;
                                     }
 
-                                    if (!this.hasNode(key)) { continue; }
-
-                                    const node = this.getNode(key);
+                                    const id = item.node_id;
+                                    if (!this.hasNode(id)) { continue; }
+                                    const node = this.getNode(id);
                                     if (!node.full) {
-                                        this._makeFull(node, nodes[key]);
+                                        this._makeFull(node, item.node);
                                     }
                                     filled.push(node);
                                 }
-
                                 return filled;
                             }));
                     });
@@ -500,24 +497,25 @@ export class Graph {
             return this._cachingFill$[key];
         }
 
-        let node: Node = this.getNode(key);
+        const node = this.getNode(key);
         if (node.full) {
             throw new GraphMapillaryError(`Cannot fill node that is already full (${key}).`);
         }
 
         this._cachingFill$[key] = this._api.getSpatialImages$([key]).pipe(
             tap(
-                (imageByKeyFill: { [key: string]: SpatialImageEnt }): void => {
-                    if (!node.full) {
-                        this._makeFull(node, imageByKeyFill[key]);
+                (items: SpatialImagesContract): void => {
+                    for (const item of items) {
+                        if (!item.node) {
+                            console.warn(`Node is empty ${item.node_id}`);
+                        }
+                        if (!node.full) {
+                            this._makeFull(node, item.node);
+                        }
+                        delete this._cachingFill$[item.node_id];
                     }
-
-                    delete this._cachingFill$[key];
                 }),
-            map(
-                (imageByKeyFill: { [key: string]: SpatialImageEnt }): Graph => {
-                    return this;
-                }),
+            map((): Graph => { return this; }),
             finalize(
                 (): void => {
                     if (key in this._cachingFill$) {
@@ -798,32 +796,29 @@ export class Graph {
         for (let batch of batches) {
             let spatialNodeBatch$: Observable<Graph> = this._api.getSpatialImages$(batch).pipe(
                 tap(
-                    (imageByKeyFill: { [key: string]: SpatialImageEnt }): void => {
-                        for (let fillKey in imageByKeyFill) {
-                            if (!imageByKeyFill.hasOwnProperty(fillKey)) {
+                    (items: SpatialImagesContract): void => {
+                        for (const item of items) {
+                            if (!item.node) {
+                                console.warn(`Node is empty (${item.node_id})`)
                                 continue;
                             }
 
-                            let spatialNode: Node = spatialArea.cacheNodes[fillKey];
+                            const id = item.node_id;
+                            const spatialNode = spatialArea.cacheNodes[id];
                             if (spatialNode.full) {
-                                delete spatialArea.cacheNodes[fillKey];
+                                delete spatialArea.cacheNodes[id];
                                 continue;
                             }
 
-                            let fillNode: SpatialImageEnt = imageByKeyFill[fillKey];
-                            this._makeFull(spatialNode, fillNode);
-
-                            delete spatialArea.cacheNodes[fillKey];
+                            this._makeFull(spatialNode, item.node);
+                            delete spatialArea.cacheNodes[id];
                         }
 
                         if (--batchesToCache === 0) {
                             delete this._cachingSpatialArea$[key];
                         }
                     }),
-                map(
-                    (imageByKeyFill: { [key: string]: SpatialImageEnt }): Graph => {
-                        return this;
-                    }),
+                map((): Graph => { return this; }),
                 catchError(
                     (error: Error): Observable<Graph> => {
                         for (let batchKey of batch) {

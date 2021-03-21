@@ -31,22 +31,24 @@ import { GraphConfiguration } from "../../src/graph/interfaces/GraphConfiguratio
 import { Sequence } from "../../src/graph/Sequence";
 import { DataProvider, GeometryProvider } from "../helper/ProviderHelper";
 import { SequenceEnt } from "../../src/api/ents/SequenceEnt";
-import { SequencesContract } from "../../src/export/APINamespace";
+import { SpatialImagesContract } from "../../src/api/contracts/SpatialImagesContract";
+import { SequencesContract } from "../../src/api/contracts/SequencesContract";
+import { ImagesContract } from "../../src/api/contracts/ImagesContract";
 
 describe("Graph.ctor", () => {
     it("should create a graph", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
 
-        const graph: Graph = new Graph(api);
+        const graph = new Graph(api);
 
         expect(graph).toBeDefined();
     });
 
     it("should create a graph with all ctor params", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         expect(graph).toBeDefined();
     });
@@ -64,26 +66,26 @@ describe("Graph.cacheBoundingBox$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const key: string = "key";
-        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
-        spyOn(api, "getSpatialImages$").and.returnValue(imageByKeyFill);
+        const id = "id";
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
 
-        const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.id = key;
+        const fullNode = helper.createFullNode();
+        fullNode.id = id;
         fullNode.computed_geometry.lat = 0.5;
         fullNode.computed_geometry.lon = 0.5;
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         graph.cacheBoundingBox$({ lat: 0, lon: 0 }, { lat: 1, lon: 1 })
             .subscribe(
@@ -92,7 +94,7 @@ describe("Graph.cacheBoundingBox$", () => {
                     expect(nodes[0].id).toBe(fullNode.id);
                     expect(nodes[0].full).toBe(true);
 
-                    expect(graph.hasNode(key)).toBe(true);
+                    expect(graph.hasNode(id)).toBe(true);
 
                     done();
                 });
@@ -103,10 +105,12 @@ describe("Graph.cacheBoundingBox$", () => {
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        const fillResult: { [key: string]: SpatialImageEnt } = {};
-        fillResult[key] = fullNode;
-        imageByKeyFill.next(fillResult);
-        imageByKeyFill.complete();
+        const spatialImages: SpatialImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getSpatialImages.next(spatialImages);
+        getSpatialImages.complete();
     });
 
     it("should not cache tile of fill node if already cached", (done: Function) => {
@@ -114,34 +118,34 @@ describe("Graph.cacheBoundingBox$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        const imagesByHSpy: jasmine.Spy = spyOn(api, "getCoreImages$");
+        const imagesByHSpy = spyOn(api, "getCoreImages$");
         imagesByHSpy.and.returnValue(imagesByH);
 
-        const key: string = "key";
-        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
-        const imageByKeyFillSpy: jasmine.Spy = spyOn(api, "getSpatialImages$");
-        imageByKeyFillSpy.and.returnValue(imageByKeyFill);
+        const id = "id";
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        const getSpatialImagesSpy = spyOn(api, "getSpatialImages$");
+        getSpatialImagesSpy.and.returnValue(getSpatialImages);
 
-        const imageByKeyFull: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
-        const imageByKeyFullSpy: jasmine.Spy = spyOn(api, "getImages$");
+        const imageByKeyFull = new Subject<ImagesContract>();
+        const imageByKeyFullSpy = spyOn(api, "getImages$");
         imageByKeyFullSpy.and.returnValue(imageByKeyFull);
 
-        const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.id = key;
+        const fullNode = helper.createFullNode();
+        fullNode.id = id;
         fullNode.computed_geometry.lat = 0.5;
         fullNode.computed_geometry.lon = 0.5;
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -165,7 +169,7 @@ describe("Graph.cacheBoundingBox$", () => {
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
         expect(imagesByHSpy.calls.count()).toBe(1);
-        expect(imageByKeyFillSpy.calls.count()).toBe(0);
+        expect(getSpatialImagesSpy.calls.count()).toBe(0);
         expect(imageByKeyFullSpy.calls.count()).toBe(1);
 
         graph.cacheBoundingBox$({ lat: 0, lon: 0 }, { lat: 1, lon: 1 })
@@ -175,10 +179,10 @@ describe("Graph.cacheBoundingBox$", () => {
                     expect(nodes[0].id).toBe(fullNode.id);
                     expect(nodes[0].full).toBe(true);
 
-                    expect(graph.hasNode(key)).toBe(true);
+                    expect(graph.hasNode(id)).toBe(true);
 
                     expect(imagesByHSpy.calls.count()).toBe(1);
-                    expect(imageByKeyFillSpy.calls.count()).toBe(0);
+                    expect(getSpatialImagesSpy.calls.count()).toBe(0);
                     expect(imageByKeyFullSpy.calls.count()).toBe(1);
 
                     done();
@@ -187,29 +191,29 @@ describe("Graph.cacheBoundingBox$", () => {
 
     test("should only cache tile once for two similar calls", (done: Function) => {
         const dataProvider = new DataProvider();
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(dataProvider.geometry, "bboxToCellIds").and.returnValue([h]);
         spyOn(dataProvider.geometry, "latLonToCellIds").and.returnValue([h]);
         spyOn(dataProvider.geometry, "latLonToCellId").and.returnValue(h);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
-        const imagesByHSpy: jasmine.Spy = spyOn(api, "getCoreImages$");
+        const imagesByHSpy = spyOn(api, "getCoreImages$");
         imagesByHSpy.and.returnValue(imagesByH);
 
-        const key: string = "key";
-        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
-        spyOn(api, "getSpatialImages$").and.returnValue(imageByKeyFill);
+        const id = "id";
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
 
-        const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.id = key;
+        const fullNode = helper.createFullNode();
+        fullNode.id = id;
         fullNode.computed_geometry.lat = 0.5;
         fullNode.computed_geometry.lon = 0.5;
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         let count: number = 0;
         observableMerge(
@@ -221,7 +225,7 @@ describe("Graph.cacheBoundingBox$", () => {
                     expect(nodes[0].id).toBe(fullNode.id);
                     expect(nodes[0].full).toBe(true);
 
-                    expect(graph.hasNode(key)).toBe(true);
+                    expect(graph.hasNode(id)).toBe(true);
 
                     count++;
                 },
@@ -239,10 +243,12 @@ describe("Graph.cacheBoundingBox$", () => {
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        const fillResult: { [key: string]: SpatialImageEnt } = {};
-        fillResult[key] = fullNode;
-        imageByKeyFill.next(fillResult);
-        imageByKeyFill.complete();
+        const spatialImages: SpatialImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getSpatialImages.next(spatialImages);
+        getSpatialImages.complete();
     });
 });
 
@@ -254,15 +260,15 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should be fetching", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const fullNode: ImageEnt = helper.createFullNode();
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const fullNode = helper.createFullNode();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
 
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
         graph.cacheFull$(fullNode.id);
 
         expect(graph.isCachingFull(fullNode.id)).toBe(true);
@@ -271,15 +277,15 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should fetch", (done: Function) => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id)
@@ -303,16 +309,16 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should not make additional calls when fetching same node twice", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const fullNode: ImageEnt = helper.createFullNode();
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const fullNode = helper.createFullNode();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
 
-        const imageByKeyFullSpy: jasmine.Spy = spyOn(api, "getImages$");
+        const imageByKeyFullSpy = spyOn(api, "getImages$");
         imageByKeyFullSpy.and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -321,15 +327,15 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should throw when fetching node already in graph", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -343,15 +349,15 @@ describe("Graph.cacheFull$", () => {
     });
 
     it("should throw if sequence key is missing", (done: Function) => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         fullNode.sequence.id = undefined;
 
         graph.cacheFull$(fullNode.id)
@@ -372,35 +378,35 @@ describe("Graph.cacheFull$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const key: string = "key";
-        const otherKey: string = "otherKey";
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
-        const imageByKeyFullOther: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const id = "id";
+        const otherKey = "otherKey";
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFullOther = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.callFake(
-            (keys: string[]): Observable<{ [key: string]: ImageEnt }> => {
-                if (keys[0] === key) {
+            (imageIds: string[]): Observable<{ [key: string]: ImageEnt }> => {
+                if (imageIds[0] === id) {
                     return imageByKeyFull;
-                } else if (keys[0] === otherKey) {
+                } else if (imageIds[0] === otherKey) {
                     return imageByKeyFullOther;
                 }
 
                 throw new GraphMapillaryError("Wrong key.");
             });
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const otherNode: ImageEnt = helper.createFullNode();
+        const otherNode = helper.createFullNode();
         otherNode.id = otherKey;
         graph.cacheFull$(otherNode.id).subscribe(() => { /*noop*/ });
 
@@ -414,8 +420,8 @@ describe("Graph.cacheFull$", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const fullNode: ImageEnt = helper.createFullNode();
-        fullNode.id = key;
+        const fullNode = helper.createFullNode();
+        fullNode.id = id;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         expect(graph.hasNode(fullNode.id)).toBe(false);
@@ -452,26 +458,26 @@ describe("Graph.cacheFill$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
-        spyOn(api, "getSpatialImages$").and.returnValue(imageByKeyFill);
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
@@ -504,26 +510,26 @@ describe("Graph.cacheFill$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
-        spyOn(api, "getSpatialImages$").and.returnValue(imageByKeyFill);
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
@@ -547,10 +553,13 @@ describe("Graph.cacheFill$", () => {
 
         graph.cacheFill$(tileNode.id).subscribe(() => { /*noop*/ });
 
-        const fillTileNode: SpatialImageEnt = helper.createFullNode();
-        const fillResult: { [key: string]: SpatialImageEnt } = {};
-        fillResult[tileNode.id] = fillTileNode;
-        imageByKeyFill.next(fillResult);
+        const fillTileNode = helper.createFullNode();
+        fillTileNode.id = tileNode.id;
+        const spatialImages: SpatialImagesContract = [{
+            node: fillTileNode,
+            node_id: fillTileNode.id,
+        }];
+        getSpatialImages.next(spatialImages);
 
         expect(graph.getNode(tileNode.id).full).toBe(true);
         expect(graph.isCachingFill(tileNode.id)).toBe(false);
@@ -561,27 +570,27 @@ describe("Graph.cacheFill$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
-        const imageByKeyFillSpy: jasmine.Spy = spyOn(api, "getSpatialImages$");
-        imageByKeyFillSpy.and.returnValue(imageByKeyFill);
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        const getSpatialImagesSpy = spyOn(api, "getSpatialImages$");
+        getSpatialImagesSpy.and.returnValue(getSpatialImages);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
@@ -606,7 +615,7 @@ describe("Graph.cacheFill$", () => {
         graph.cacheFill$(tileNode.id).subscribe(() => { /*noop*/ });
         graph.cacheFill$(tileNode.id).subscribe(() => { /*noop*/ });
 
-        expect(imageByKeyFillSpy.calls.count()).toBe(1);
+        expect(getSpatialImagesSpy.calls.count()).toBe(1);
     });
 
     it("should throw if already fetching", () => {
@@ -614,23 +623,23 @@ describe("Graph.cacheFill$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.id);
 
         expect(graph.isCachingFull(fullNode.id)).toBe(true);
@@ -639,30 +648,30 @@ describe("Graph.cacheFill$", () => {
     });
 
     it("should throw if node does not exist", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
-        spyOn(api, "getSpatialImages$").and.returnValue(imageByKeyFill);
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         expect(() => { graph.cacheFill$("key"); }).toThrowError(Error);
     });
 
     it("should throw if already full", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const imageByKeyFill: Subject<{ [key: string]: SpatialImageEnt }> = new Subject<{ [key: string]: SpatialImageEnt }>();
-        spyOn(api, "getSpatialImages$").and.returnValue(imageByKeyFill);
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.id);
 
         const fetchResult: { [key: string]: ImageEnt } = {};
@@ -685,18 +694,18 @@ describe("Graph.cacheTiles$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const node: Node = helper.createNode();
+        const node = helper.createNode();
 
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue(["h"]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         spyOn(graph, "hasNode").and.returnValue(true);
         spyOn(graph, "getNode").and.returnValue(node);
@@ -715,12 +724,12 @@ describe("Graph.cacheTiles$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
@@ -729,11 +738,11 @@ describe("Graph.cacheTiles$", () => {
         const imageByKeyFull: Observable<{ [key: string]: ImageEnt }> = observableOf<{ [key: string]: ImageEnt }>(imageByKeyResult);
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         expect(graph.hasTiles(fullNode.id)).toBe(false);
@@ -757,20 +766,20 @@ describe("Graph.cacheTiles$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const node: Node = helper.createNode();
+        const node = helper.createNode();
 
-        const h: string = "h";
-        const encodeHsSpy: jasmine.Spy = spyOn(geometryProvider, "latLonToCellIds");
+        const h = "h";
+        const encodeHsSpy = spyOn(geometryProvider, "latLonToCellIds");
         encodeHsSpy.and.returnValue([h]);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         spyOn(graph, "hasNode").and.returnValue(true);
         spyOn(graph, "getNode").and.returnValue(node);
@@ -786,14 +795,14 @@ describe("Graph.cacheTiles$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        const encodeHsSpy: jasmine.Spy = spyOn(geometryProvider, "latLonToCellIds");
+        const encodeHsSpy = spyOn(geometryProvider, "latLonToCellIds");
         encodeHsSpy.and.returnValue([h]);
 
         const imageByKeyResult: { [key: string]: ImageEnt } = {};
@@ -801,11 +810,11 @@ describe("Graph.cacheTiles$", () => {
         const imageByKeyFull: Observable<{ [key: string]: ImageEnt }> = observableOf<{ [key: string]: ImageEnt }>(imageByKeyResult);
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         expect(graph.hasTiles(fullNode.id)).toBe(false);
@@ -833,35 +842,35 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should throw when sequence does not exist", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         expect(() => { graph.cacheSequenceNodes$("sequenceId"); }).toThrowError(Error);
     });
 
     it("should not be cached", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceId = "sequenceId";
-        const key: string = "key";
+        const id = "id";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
         const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [key] },
+            node: { id: sequenceId, image_ids: [id] },
             node_id: sequenceId,
         }];
         getSequences.next(result);
@@ -871,25 +880,25 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceId = "sequenceId";
-        const key: string = "key";
+        const id = "id";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
         const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [key] },
+            node: { id: sequenceId, image_ids: [id] },
             node_id: sequenceId,
         }];
         getSequences.next(result);
@@ -901,20 +910,20 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should be cached and not caching", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceId = "sequenceId";
-        const nodeKey: string = "nodeKey";
+        const nodeKey = "nodeKey";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
@@ -944,11 +953,11 @@ describe("Graph.cacheSequenceNodes$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const graphCalculator = new GraphCalculator(null);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const edgeCalculator = new EdgeCalculator();
         const configuration: GraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
@@ -959,13 +968,13 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceId = "sequenceId";
-        const nodeKey: string = "nodeKey";
+        const nodeKey = "nodeKey";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
@@ -979,7 +988,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
         const imageResult: { [key: string]: ImageEnt } = {};
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         fullNode.id = nodeKey;
         fullNode.sequence.id = sequenceId;
         imageResult[fullNode.id] = fullNode;
@@ -998,11 +1007,11 @@ describe("Graph.cacheSequenceNodes$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const graphCalculator = new GraphCalculator(null);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const edgeCalculator = new EdgeCalculator();
         const configuration: GraphConfiguration = {
             maxSequences: 0,
             maxUnusedNodes: 1,
@@ -1013,13 +1022,13 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceId = "sequenceId";
-        const nodeKey: string = "nodeKey";
+        const nodeKey = "nodeKey";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
@@ -1033,7 +1042,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
         const imageResult: { [key: string]: ImageEnt } = {};
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         fullNode.id = nodeKey;
         fullNode.sequence.id = sequenceId;
         imageResult[fullNode.id] = fullNode;
@@ -1054,11 +1063,11 @@ describe("Graph.cacheSequenceNodes$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const graphCalculator = new GraphCalculator(null);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const edgeCalculator = new EdgeCalculator();
         const configuration: GraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
@@ -1069,13 +1078,13 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceId = "sequenceId";
-        const nodeKey: string = "nodeKey";
+        const nodeKey = "nodeKey";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
@@ -1089,7 +1098,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
         const imageResult: { [key: string]: ImageEnt } = {};
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         fullNode.id = nodeKey;
         fullNode.sequence.id = sequenceId;
         imageResult[fullNode.id] = fullNode;
@@ -1108,11 +1117,11 @@ describe("Graph.cacheSequenceNodes$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const graphCalculator = new GraphCalculator(null);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue("h");
 
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const edgeCalculator = new EdgeCalculator();
         const configuration: GraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
@@ -1123,13 +1132,13 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceId = "sequenceId";
-        const nodeKey: string = "nodeKey";
+        const nodeKey = "nodeKey";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
@@ -1143,7 +1152,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
         const imageResult: { [key: string]: ImageEnt } = {};
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         fullNode.id = nodeKey;
         fullNode.sequence.id = sequenceId;
         imageResult[fullNode.id] = fullNode;
@@ -1162,13 +1171,13 @@ describe("Graph.cacheSequenceNodes$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const h: string = "h";
+        const api = new APIWrapper(dataProvider);
+        const graphCalculator = new GraphCalculator(null);
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const edgeCalculator = new EdgeCalculator();
         const configuration: GraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 1,
@@ -1179,13 +1188,13 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceId = "sequenceId";
-        const nodeKey: string = "nodeKey";
+        const nodeKey = "nodeKey";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
@@ -1199,7 +1208,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
         const imageResult: { [key: string]: ImageEnt } = {};
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         fullNode.id = nodeKey;
         fullNode.sequence.id = sequenceId;
         imageResult[fullNode.id] = fullNode;
@@ -1208,7 +1217,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.initializeCache(fullNode.id);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
@@ -1226,9 +1235,9 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.id);
-        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node = graph.getNode(fullNode.id);
+        const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
@@ -1243,13 +1252,13 @@ describe("Graph.cacheSequenceNodes$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const h: string = "h";
+        const api = new APIWrapper(dataProvider);
+        const graphCalculator = new GraphCalculator(null);
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const edgeCalculator = new EdgeCalculator();
         const configuration: GraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 1,
@@ -1260,13 +1269,13 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
 
         const sequenceId = "sequenceId";
-        const nodeKey: string = "nodeKey";
+        const nodeKey = "nodeKey";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
@@ -1280,7 +1289,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
         const imageResult: { [key: string]: ImageEnt } = {};
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         fullNode.id = nodeKey;
         fullNode.sequence.id = sequenceId;
         imageResult[fullNode.id] = fullNode;
@@ -1289,7 +1298,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.initializeCache(fullNode.id);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
@@ -1307,9 +1316,9 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.id);
-        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node = graph.getNode(fullNode.id);
+        const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([], sequenceId);
 
@@ -1320,20 +1329,20 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should throw if caching already cached sequence nodes", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceId = "sequenceId";
-        const nodeKey: string = "nodeKey";
+        const nodeKey = "nodeKey";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
@@ -1356,21 +1365,21 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should only call API once if caching multiple times before response", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceId = "sequenceId";
-        const nodeKey: string = "nodeKey";
+        const nodeKey = "nodeKey";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
@@ -1394,20 +1403,20 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not be cached and not caching on error", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceId = "sequenceId";
-        const nodeKey: string = "nodeKey";
+        const nodeKey = "nodeKey";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
@@ -1431,18 +1440,18 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching in with single batch when lass than or equal to 200 nodes", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceId = "sequenceId";
 
@@ -1474,18 +1483,18 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching in batches when more than 200 nodes", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceId = "sequenceId";
 
@@ -1518,24 +1527,24 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching prioritized batch when reference node key is specified at start", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceId = "sequenceId";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const referenceNodeKey: string = "referenceNodeKey";
+        const referenceNodeKey = "referenceNodeKey";
 
         const result: SequencesContract = [{
             node: {
@@ -1568,24 +1577,24 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching prioritized batch when reference node key is specified at end", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceId = "sequenceId";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const referenceNodeKey: string = "referenceNodeKey";
+        const referenceNodeKey = "referenceNodeKey";
 
         const result: SequencesContract = [{
             node: {
@@ -1619,24 +1628,24 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should start caching in prioritized batches when reference node key is specified in middle", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceId = "sequenceId";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const referenceNodeKey: string = "referenceNodeKey";
+        const referenceNodeKey = "referenceNodeKey";
 
         const result: SequencesContract = [{
             node: {
@@ -1671,24 +1680,24 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should not corrupt sequence when caching in batches", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceId = "sequenceId";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const referenceNodeKey: string = "referenceNodeKey";
+        const referenceNodeKey = "referenceNodeKey";
 
         const result: SequencesContract = [{
             node: {
@@ -1713,24 +1722,24 @@ describe("Graph.cacheSequenceNodes$", () => {
     });
 
     it("should create single batch when fewer than or equal to 50 nodes", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
-        const imageByKeySpy: jasmine.Spy = spyOn(api, "getImages$");
+        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
 
         const sequenceId = "sequenceId";
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const referenceNodeKey: string = "referenceNodeKey";
+        const referenceNodeKey = "referenceNodeKey";
 
         const result: SequencesContract = [{
             node: {
@@ -1776,23 +1785,23 @@ describe("Graph.cacheSpatialArea$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(dataProvider);
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        const node: Node = graph.getNode(fullNode.id);
+        const node = graph.getNode(fullNode.id);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
@@ -1801,31 +1810,31 @@ describe("Graph.cacheSpatialArea$", () => {
 
     test("should not be cached", () => {
         const dataProvider = new DataProvider()
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(dataProvider);
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
 
-        const h: string = "h";
+        const h = "h";
         spyOn(dataProvider.geometry, "latLonToCellId").and.returnValue(h);
         spyOn(dataProvider.geometry, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
         fetchResult[fullNode.id] = fullNode;
         imageByKeyFull.next(fetchResult);
 
-        const node: Node = graph.getNode(fullNode.id);
+        const node = graph.getNode(fullNode.id);
         expect(node).toBeDefined();
 
         spyOn(graphCalculator, "boundingBoxCorners")
@@ -1845,7 +1854,7 @@ describe("Graph.cacheSpatialArea$", () => {
         result[h]["1"] = coreNode;
         imagesByH.next(result);
 
-        const otherNode: Node = graph.getNode(coreNode.id);
+        const otherNode = graph.getNode(coreNode.id);
         expect(otherNode).toBeDefined();
 
         expect(graph.hasSpatialArea(fullNode.id)).toBe(false);
@@ -1860,19 +1869,19 @@ describe("Graph.cacheSpatialEdges", () => {
     });
 
     it("should use fallback keys", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
@@ -1892,13 +1901,13 @@ describe("Graph.cacheSpatialEdges", () => {
         getSequences.next(result);
         getSequences.complete();
 
-        const node: Node = graph.getNode(fullNode.id);
+        const node = graph.getNode(fullNode.id);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
         expect(graph.hasSpatialArea(fullNode.id)).toBe(true);
 
-        const getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
+        const getPotentialSpy = spyOn(edgeCalculator, "getPotentialEdges");
         getPotentialSpy.and.returnValue([]);
 
         spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
@@ -1925,18 +1934,18 @@ describe("Graph.cacheSpatialEdges", () => {
         spyOn(dataProvider.geometry, "latLonToCellIds")
             .and.returnValue([cellId]);
         const api = new APIWrapper(dataProvider);
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
-        const fullNode: ImageEnt = helper.createFullNode();
-        const otherFullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
+        const otherFullNode = helper.createFullNode();
         otherFullNode.id = "other-key";
         otherFullNode.sequence.id = "otherSequenceKey";
 
-        const imageByKeyFill = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getSpatialImages$").and.returnValue(imageByKeyFill);
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const imagesByH =
@@ -1946,7 +1955,12 @@ describe("Graph.cacheSpatialEdges", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(
+            api,
+            undefined,
+            graphCalculator,
+            edgeCalculator);
+
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
@@ -1989,14 +2003,16 @@ describe("Graph.cacheSpatialEdges", () => {
 
         graph.cacheFill$(otherFullNode.id).subscribe(() => { /*noop*/ });
 
-        const otherFetchResult: { [key: string]: ImageEnt } = {};
-        otherFetchResult[otherFullNode.id] = otherFullNode;
-        imageByKeyFill.next(otherFetchResult);
-        imageByKeyFill.complete();
+        const otherSpatialImages: SpatialImagesContract = [{
+            node: otherFullNode,
+            node_id: otherFullNode.id,
+        }];
+        getSpatialImages.next(otherSpatialImages);
+        getSpatialImages.complete();
 
         expect(graph.hasSpatialArea(fullNode.id)).toBe(true);
 
-        const getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
+        const getPotentialSpy = spyOn(edgeCalculator, "getPotentialEdges");
         getPotentialSpy.and.returnValue([]);
 
         spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
@@ -2016,19 +2032,19 @@ describe("Graph.cacheSpatialEdges", () => {
     });
 
     it("should apply remove by filtering", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
@@ -2048,18 +2064,18 @@ describe("Graph.cacheSpatialEdges", () => {
         getSequences.next(result);
         getSequences.complete();
 
-        const node: Node = graph.getNode(fullNode.id);
+        const node = graph.getNode(fullNode.id);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
-        const otherFullNode: ImageEnt = helper.createFullNode();
+        const otherFullNode = helper.createFullNode();
         otherFullNode.sequence.id = "otherSequenceKey";
-        const otherNode: Node = new Node(otherFullNode);
+        const otherNode = new Node(otherFullNode);
         otherNode.makeFull(otherFullNode);
 
         expect(graph.hasSpatialArea(fullNode.id)).toBe(true);
 
-        const getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
+        const getPotentialSpy = spyOn(edgeCalculator, "getPotentialEdges");
         getPotentialSpy.and.returnValue([]);
 
         spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
@@ -2086,15 +2102,15 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should not be cached", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -2106,18 +2122,18 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should be caching", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -2133,18 +2149,18 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should be cached", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         fullNode.sequence.id = "sequenceId";
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2175,36 +2191,36 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should throw if node not in graph", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         fullNode.sequence.id = "sequenceId";
 
         expect(() => { graph.cacheNodeSequence$(fullNode.id); }).toThrowError(Error);
     });
 
     it("should throw if already cached", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         fullNode.sequence.id = "sequenceId";
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2231,19 +2247,19 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should call api only once when caching the same sequence twice in succession", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const getSequences = new Subject<SequencesContract>();
-        const sequenceByKeySpy: jasmine.Spy = spyOn(api, "getSequences$");
+        const sequenceByKeySpy = spyOn(api, "getSequences$");
         sequenceByKeySpy.and.returnValue(getSequences);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         fullNode.sequence.id = "sequenceId";
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2259,18 +2275,18 @@ describe("Graph.cacheNodeSequence$", () => {
     });
 
     it("should emit to changed stream", (done: Function) => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         fullNode.sequence.id = "sequenceId";
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2305,10 +2321,10 @@ describe("Graph.cacheNodeSequence$", () => {
 
 describe("Graph.cacheSequence$", () => {
     it("should not be cached", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         const sequenceId = "sequenceId";
 
@@ -2316,10 +2332,10 @@ describe("Graph.cacheSequence$", () => {
     });
 
     it("should not be caching", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         const sequenceId = "sequenceId";
 
@@ -2327,13 +2343,13 @@ describe("Graph.cacheSequence$", () => {
     });
 
     it("should be caching", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         const sequenceId = "sequenceId";
 
@@ -2344,16 +2360,16 @@ describe("Graph.cacheSequence$", () => {
     });
 
     it("should cache", (done: Function) => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         const sequenceId = "sequenceId";
-        const key: string = "key";
+        const id = "id";
 
         graph.cacheSequence$(sequenceId)
             .subscribe(
@@ -2363,13 +2379,13 @@ describe("Graph.cacheSequence$", () => {
                     expect(g.getSequence(sequenceId)).toBeDefined();
                     expect(g.getSequence(sequenceId).id).toBe(sequenceId);
                     expect(g.getSequence(sequenceId).imageIds.length).toBe(1);
-                    expect(g.getSequence(sequenceId).imageIds[0]).toBe(key);
+                    expect(g.getSequence(sequenceId).imageIds[0]).toBe(id);
 
                     done();
                 });
 
         const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [key] },
+            node: { id: sequenceId, image_ids: [id] },
             node_id: sequenceId,
         }];
         getSequences.next(result);
@@ -2377,14 +2393,14 @@ describe("Graph.cacheSequence$", () => {
     });
 
     it("should call api only once when caching the same sequence twice in succession", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
         const getSequences = new Subject<SequencesContract>();
-        const sequenceByKeySpy: jasmine.Spy = spyOn(api, "getSequences$");
+        const sequenceByKeySpy = spyOn(api, "getSequences$");
         sequenceByKeySpy.and.returnValue(getSequences);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         const sequenceId = "sequenceId";
 
@@ -2403,19 +2419,19 @@ describe("Graph.resetSpatialEdges", () => {
     });
 
     it("should use fallback keys", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
@@ -2435,13 +2451,13 @@ describe("Graph.resetSpatialEdges", () => {
         getSequences.next(result);
         getSequences.complete();
 
-        const node: Node = graph.getNode(fullNode.id);
+        const node = graph.getNode(fullNode.id);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
         expect(graph.hasSpatialArea(fullNode.id)).toBe(true);
 
-        const getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
+        const getPotentialSpy = spyOn(edgeCalculator, "getPotentialEdges");
         getPotentialSpy.and.returnValue([]);
 
         spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
@@ -2453,8 +2469,8 @@ describe("Graph.resetSpatialEdges", () => {
         graph.initializeCache(fullNode.id);
         graph.cacheSpatialEdges(fullNode.id);
 
-        const nodeSequenceResetSpy: jasmine.Spy = spyOn(node, "resetSequenceEdges").and.stub();
-        const nodeSpatialResetSpy: jasmine.Spy = spyOn(node, "resetSpatialEdges").and.stub();
+        const nodeSequenceResetSpy = spyOn(node, "resetSequenceEdges").and.stub();
+        const nodeSpatialResetSpy = spyOn(node, "resetSpatialEdges").and.stub();
 
         graph.resetSpatialEdges();
 
@@ -2469,24 +2485,24 @@ describe("Graph.resetSpatialEdges", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const graphCalculator: GraphCalculator = new GraphCalculator(null);
-        const edgeCalculator: EdgeCalculator = new EdgeCalculator();
+        const api = new APIWrapper(dataProvider);
+        const graphCalculator = new GraphCalculator(null);
+        const edgeCalculator = new EdgeCalculator();
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        const encodeHsSpy: jasmine.Spy = spyOn(geometryProvider, "latLonToCellIds");
+        const encodeHsSpy = spyOn(geometryProvider, "latLonToCellIds");
         encodeHsSpy.and.returnValue([h]);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const graph: Graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
+        const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
         const fetchResult: { [key: string]: ImageEnt } = {};
@@ -2509,7 +2525,7 @@ describe("Graph.resetSpatialEdges", () => {
         expect(graph.hasTiles(fullNode.id)).toBe(false);
         expect(graph.isCachingTiles(fullNode.id)).toBe(false);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
@@ -2525,13 +2541,13 @@ describe("Graph.resetSpatialEdges", () => {
         expect(graph.hasTiles(fullNode.id)).toBe(true);
         expect(graph.isCachingTiles(fullNode.id)).toBe(false);
 
-        const node: Node = graph.getNode(fullNode.id);
+        const node = graph.getNode(fullNode.id);
 
         spyOn(graphCalculator, "boundingBoxCorners").and.returnValue([{ lat: 0, lon: 0 }, { lat: 0, lon: 0 }]);
 
         expect(graph.hasSpatialArea(fullNode.id)).toBe(true);
 
-        const getPotentialSpy: jasmine.Spy = spyOn(edgeCalculator, "getPotentialEdges");
+        const getPotentialSpy = spyOn(edgeCalculator, "getPotentialEdges");
         getPotentialSpy.and.returnValue([]);
 
         spyOn(edgeCalculator, "computeStepEdges").and.returnValue([]);
@@ -2543,8 +2559,8 @@ describe("Graph.resetSpatialEdges", () => {
         graph.initializeCache(fullNode.id);
         graph.cacheSpatialEdges(fullNode.id);
 
-        const nodeSequenceResetSpy: jasmine.Spy = spyOn(node, "resetSequenceEdges").and.stub();
-        const nodeSpatialResetSpy: jasmine.Spy = spyOn(node, "resetSpatialEdges").and.stub();
+        const nodeSequenceResetSpy = spyOn(node, "resetSequenceEdges").and.stub();
+        const nodeSpatialResetSpy = spyOn(node, "resetSpatialEdges").and.stub();
 
         graph.resetSpatialEdges();
 
@@ -2572,18 +2588,18 @@ describe("Graph.reset", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2593,9 +2609,9 @@ describe("Graph.reset", () => {
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.id);
+        const node = graph.getNode(fullNode.id);
 
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
+        const nodeDisposeSpy = spyOn(node, "dispose");
         nodeDisposeSpy.and.stub();
 
         graph.reset([]);
@@ -2609,18 +2625,18 @@ describe("Graph.reset", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2630,10 +2646,10 @@ describe("Graph.reset", () => {
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.id);
+        const node = graph.getNode(fullNode.id);
         graph.initializeCache(node.id);
 
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
+        const nodeDisposeSpy = spyOn(node, "dispose");
         nodeDisposeSpy.and.stub();
 
         graph.reset([]);
@@ -2647,18 +2663,18 @@ describe("Graph.reset", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2668,14 +2684,14 @@ describe("Graph.reset", () => {
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.id);
+        const node = graph.getNode(fullNode.id);
         graph.initializeCache(node.id);
 
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
+        const nodeDisposeSpy = spyOn(node, "dispose");
         nodeDisposeSpy.and.stub();
-        const nodeResetSequenceSpy: jasmine.Spy = spyOn(node, "resetSequenceEdges");
+        const nodeResetSequenceSpy = spyOn(node, "resetSequenceEdges");
         nodeResetSequenceSpy.and.stub();
-        const nodeResetSpatialSpy: jasmine.Spy = spyOn(node, "resetSpatialEdges");
+        const nodeResetSpatialSpy = spyOn(node, "resetSpatialEdges");
         nodeResetSpatialSpy.and.stub();
 
         graph.reset([node.id]);
@@ -2699,13 +2715,13 @@ describe("Graph.uncache", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const configuration: GraphConfiguration = {
@@ -2715,9 +2731,9 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2727,9 +2743,9 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.id);
-        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node = graph.getNode(fullNode.id);
+        const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
@@ -2744,13 +2760,13 @@ describe("Graph.uncache", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const configuration: GraphConfiguration = {
@@ -2760,9 +2776,9 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         fullNode.sequence.id = "sequencKey";
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
@@ -2773,9 +2789,9 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.id);
-        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node = graph.getNode(fullNode.id);
+        const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([], fullNode.sequence.id);
 
@@ -2790,13 +2806,13 @@ describe("Graph.uncache", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const configuration: GraphConfiguration = {
@@ -2806,9 +2822,9 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2820,8 +2836,8 @@ describe("Graph.uncache", () => {
 
         graph.initializeCache(fullNode.id);
 
-        const node: Node = graph.getNode(fullNode.id);
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node = graph.getNode(fullNode.id);
+        const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
@@ -2835,13 +2851,13 @@ describe("Graph.uncache", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const configuration: GraphConfiguration = {
@@ -2851,9 +2867,9 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2865,9 +2881,9 @@ describe("Graph.uncache", () => {
 
         graph.initializeCache(fullNode.id);
 
-        const node: Node = graph.getNode(fullNode.id);
-        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node = graph.getNode(fullNode.id);
+        const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([fullNode.id]);
 
@@ -2882,13 +2898,13 @@ describe("Graph.uncache", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const configuration: GraphConfiguration = {
@@ -2898,9 +2914,9 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2912,9 +2928,9 @@ describe("Graph.uncache", () => {
 
         graph.initializeCache(fullNode.id);
 
-        const node: Node = graph.getNode(fullNode.id);
-        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node = graph.getNode(fullNode.id);
+        const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
@@ -2929,13 +2945,13 @@ describe("Graph.uncache", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFullSpy: jasmine.Spy = spyOn(api, "getImages$");
+        const imageByKeyFullSpy = spyOn(api, "getImages$");
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -2944,14 +2960,14 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode1: ImageEnt = helper.createFullNode();
+        const fullNode1 = helper.createFullNode();
         fullNode1.id = "key1";
         const result1: { [key: string]: ImageEnt } = {};
         result1[fullNode1.id] = fullNode1;
 
-        const imageByKeyFull1: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull1 = new Subject<{ [key: string]: ImageEnt }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull1);
 
         graph.cacheFull$(fullNode1.id).subscribe(() => { /*noop*/ });
@@ -2961,12 +2977,12 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode1.id)).toBe(true);
 
-        const fullNode2: ImageEnt = helper.createFullNode();
+        const fullNode2 = helper.createFullNode();
         fullNode2.id = "key2";
         const result2: { [key: string]: ImageEnt } = {};
         result2[fullNode2.id] = fullNode2;
 
-        const imageByKeyFull2: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull2 = new Subject<{ [key: string]: ImageEnt }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull2);
 
         graph.cacheFull$(fullNode2.id).subscribe(() => { /*noop*/ });
@@ -2974,20 +2990,20 @@ describe("Graph.uncache", () => {
         imageByKeyFull2.next(result2);
         imageByKeyFull2.complete();
 
-        const node1: Node = graph.getNode(fullNode1.id);
+        const node1 = graph.getNode(fullNode1.id);
         graph.initializeCache(node1.id);
 
         expect(graph.hasInitializedCache(node1.id)).toBe(true);
 
-        const node2: Node = graph.getNode(fullNode2.id);
+        const node2 = graph.getNode(fullNode2.id);
         graph.initializeCache(node2.id);
 
         expect(graph.hasInitializedCache(node2.id)).toBe(true);
 
-        const nodeDisposeSpy1: jasmine.Spy = spyOn(node1, "dispose").and.stub();
-        const nodeDisposeSpy2: jasmine.Spy = spyOn(node2, "dispose").and.stub();
+        const nodeDisposeSpy1 = spyOn(node1, "dispose").and.stub();
+        const nodeDisposeSpy2 = spyOn(node2, "dispose").and.stub();
 
-        const time: number = new Date().getTime();
+        const time = new Date().getTime();
         while (new Date().getTime() === time) {
             graph.hasNode(node2.id);
         }
@@ -3009,14 +3025,14 @@ describe("Graph.uncache", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const configuration: GraphConfiguration = {
@@ -3026,9 +3042,9 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 1,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -3042,7 +3058,7 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasInitializedCache(fullNode.id)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
@@ -3056,8 +3072,8 @@ describe("Graph.uncache", () => {
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
-        const node: Node = graph.getNode(fullNode.id);
-        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        const node = graph.getNode(fullNode.id);
+        const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
 
         graph.uncache([]);
 
@@ -3072,14 +3088,14 @@ describe("Graph.uncache", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const configuration: GraphConfiguration = {
@@ -3089,9 +3105,9 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 1,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -3105,7 +3121,7 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasInitializedCache(fullNode.id)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
@@ -3119,9 +3135,9 @@ describe("Graph.uncache", () => {
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
-        const node: Node = graph.getNode(fullNode.id);
-        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node = graph.getNode(fullNode.id);
+        const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
@@ -3137,14 +3153,14 @@ describe("Graph.uncache", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const configuration: GraphConfiguration = {
@@ -3154,9 +3170,9 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 1,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -3166,12 +3182,12 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.id);
+        const node = graph.getNode(fullNode.id);
         graph.initializeCache(node.id);
 
         expect(graph.hasInitializedCache(node.id)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
@@ -3185,7 +3201,7 @@ describe("Graph.uncache", () => {
         imagesByHResult[h]["0"] = fullNode;
         imagesByH.next(imagesByHResult);
 
-        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache");
+        const nodeUncacheSpy = spyOn(node, "uncache");
         nodeUncacheSpy.and.stub();
 
         graph.uncache([node.id]);
@@ -3201,14 +3217,14 @@ describe("Graph.uncache", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const configuration: GraphConfiguration = {
@@ -3218,9 +3234,9 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 1,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -3230,12 +3246,12 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.id);
+        const node = graph.getNode(fullNode.id);
         graph.initializeCache(node.id);
 
         expect(graph.hasInitializedCache(node.id)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
@@ -3244,8 +3260,8 @@ describe("Graph.uncache", () => {
             mergeAll())
             .subscribe(() => { /*noop*/ });
 
-        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
@@ -3261,14 +3277,14 @@ describe("Graph.uncache", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFullSpy: jasmine.Spy = spyOn(api, "getImages$");
+        const imageByKeyFullSpy = spyOn(api, "getImages$");
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -3277,14 +3293,14 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 1,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode1: ImageEnt = helper.createFullNode();
+        const fullNode1 = helper.createFullNode();
         fullNode1.id = "key1";
         const result1: { [key: string]: ImageEnt } = {};
         result1[fullNode1.id] = fullNode1;
 
-        const imageByKeyFull1: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull1 = new Subject<{ [key: string]: ImageEnt }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull1);
 
         graph.cacheFull$(fullNode1.id).subscribe(() => { /*noop*/ });
@@ -3294,12 +3310,12 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode1.id)).toBe(true);
 
-        const fullNode2: ImageEnt = helper.createFullNode();
+        const fullNode2 = helper.createFullNode();
         fullNode2.id = "key2";
         const result2: { [key: string]: ImageEnt } = {};
         result2[fullNode2.id] = fullNode2;
 
-        const imageByKeyFull2: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull2 = new Subject<{ [key: string]: ImageEnt }>();
         imageByKeyFullSpy.and.returnValue(imageByKeyFull2);
 
         graph.cacheFull$(fullNode2.id).subscribe(() => { /*noop*/ });
@@ -3309,17 +3325,17 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode2.id)).toBe(true);
 
-        const node1: Node = graph.getNode(fullNode1.id);
+        const node1 = graph.getNode(fullNode1.id);
         graph.initializeCache(node1.id);
 
         expect(graph.hasInitializedCache(node1.id)).toBe(true);
 
-        const node2: Node = graph.getNode(fullNode2.id);
+        const node2 = graph.getNode(fullNode2.id);
         graph.initializeCache(node2.id);
 
         expect(graph.hasInitializedCache(node2.id)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
@@ -3334,10 +3350,10 @@ describe("Graph.uncache", () => {
         imagesByHResult[h]["1"] = fullNode2;
         imagesByH.next(imagesByHResult);
 
-        const nodeUncacheSpy1: jasmine.Spy = spyOn(node1, "uncache").and.stub();
-        const nodeUncacheSpy2: jasmine.Spy = spyOn(node2, "uncache").and.stub();
+        const nodeUncacheSpy1 = spyOn(node1, "uncache").and.stub();
+        const nodeUncacheSpy2 = spyOn(node2, "uncache").and.stub();
 
-        const time: number = new Date().getTime();
+        const time = new Date().getTime();
         while (new Date().getTime() === time) {
             graph.hasNode(node2.id);
         }
@@ -3356,8 +3372,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should uncache sequence", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
@@ -3369,7 +3385,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const sequenceId = "sequenceId";
 
@@ -3384,9 +3400,9 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasSequence(sequenceId)).toBe(true);
 
-        const sequence: Sequence = graph.getSequence(sequenceId);
+        const sequence = graph.getSequence(sequenceId);
 
-        const sequenceDisposeSpy: jasmine.Spy = spyOn(sequence, "dispose");
+        const sequenceDisposeSpy = spyOn(sequence, "dispose");
         sequenceDisposeSpy.and.stub();
 
         graph.uncache([]);
@@ -3397,8 +3413,8 @@ describe("Graph.uncache", () => {
     });
 
     it("should not uncache sequence if specified to keep", () => {
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
+        const calculator = new GraphCalculator(null);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
@@ -3410,7 +3426,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const sequenceId = "sequenceId";
 
@@ -3425,9 +3441,9 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasSequence(sequenceId)).toBe(true);
 
-        const sequence: Sequence = graph.getSequence(sequenceId);
+        const sequence = graph.getSequence(sequenceId);
 
-        const sequenceDisposeSpy: jasmine.Spy = spyOn(sequence, "dispose");
+        const sequenceDisposeSpy = spyOn(sequence, "dispose");
         sequenceDisposeSpy.and.stub();
 
         graph.uncache([], sequenceId);
@@ -3452,7 +3468,7 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const sequenceId = "sequenceId";
 
@@ -3467,9 +3483,9 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasSequence(sequenceId)).toBe(true);
 
-        const sequence: Sequence = graph.getSequence(sequenceId);
+        const sequence = graph.getSequence(sequenceId);
 
-        const sequenceDisposeSpy: jasmine.Spy = spyOn(sequence, "dispose");
+        const sequenceDisposeSpy = spyOn(sequence, "dispose");
         sequenceDisposeSpy.and.stub();
 
         graph.uncache([]);
@@ -3498,7 +3514,7 @@ describe("Graph.uncache", () => {
             undefined,
             configuration);
 
-        const sequenceId1: string = "sequenceId1";
+        const sequenceId1 = "sequenceId1";
         const sequences1 = new Subject<SequencesContract>();
         getSequencesSpy.and.returnValue(sequences1);
 
@@ -3553,14 +3569,14 @@ describe("Graph.uncache", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const configuration: GraphConfiguration = {
@@ -3570,9 +3586,9 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -3582,7 +3598,7 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
@@ -3598,9 +3614,9 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.id);
+        const node = graph.getNode(fullNode.id);
 
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose");
+        const nodeDisposeSpy = spyOn(node, "dispose");
         nodeDisposeSpy.and.stub();
 
         graph.uncache([]);
@@ -3615,14 +3631,14 @@ describe("Graph.uncache", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const configuration: GraphConfiguration = {
@@ -3632,9 +3648,9 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         fullNode.sequence.id = "sequenceId";
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
@@ -3645,7 +3661,7 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
@@ -3661,10 +3677,10 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.id);
+        const node = graph.getNode(fullNode.id);
 
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
-        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
+        const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
 
         graph.uncache([], fullNode.sequence.id);
 
@@ -3679,14 +3695,14 @@ describe("Graph.uncache", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const configuration: GraphConfiguration = {
@@ -3696,9 +3712,9 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 1,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -3708,7 +3724,7 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
@@ -3724,9 +3740,9 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.id);
-        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node = graph.getNode(fullNode.id);
+        const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([]);
 
@@ -3742,14 +3758,14 @@ describe("Graph.uncache", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const api: APIWrapper = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator(null);
 
-        const h: string = "h";
+        const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull: Subject<{ [key: string]: ImageEnt }> = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
         spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
         const configuration: GraphConfiguration = {
@@ -3759,9 +3775,9 @@ describe("Graph.uncache", () => {
             maxUnusedTiles: 0,
         };
 
-        const graph: Graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
+        const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
-        const fullNode: ImageEnt = helper.createFullNode();
+        const fullNode = helper.createFullNode();
         const result: { [key: string]: ImageEnt } = {};
         result[fullNode.id] = fullNode;
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -3771,7 +3787,7 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
-        const imagesByH: Subject<{ [key: string]: { [index: string]: CoreImageEnt } }> =
+        const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
         spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
@@ -3787,9 +3803,9 @@ describe("Graph.uncache", () => {
 
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
-        const node: Node = graph.getNode(fullNode.id);
-        const nodeUncacheSpy: jasmine.Spy = spyOn(node, "uncache").and.stub();
-        const nodeDisposeSpy: jasmine.Spy = spyOn(node, "dispose").and.stub();
+        const node = graph.getNode(fullNode.id);
+        const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
+        const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
         graph.uncache([node.id]);
 
@@ -3816,13 +3832,13 @@ describe("Graph.cacheCell$", () => {
         const imagesByHSpy =
             spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const imageByKeyFill = new Subject<{ [key: string]: SpatialImageEnt }>();
-        const imageByKeyFillSpy =
-            spyOn(api, "getSpatialImages$").and.returnValue(imageByKeyFill);
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        const getSpatialImagesSpy =
+            spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
 
-        const key = "full-key";
+        const id = "full-id";
         const fullNode = new NodeHelper().createFullNode();
-        fullNode.id = key;
+        fullNode.id = id;
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -3830,13 +3846,13 @@ describe("Graph.cacheCell$", () => {
             .subscribe(
                 (nodes: Node[]): void => {
                     expect(nodes.length).toBe(1);
-                    expect(nodes[0].id).toBe(key);
+                    expect(nodes[0].id).toBe(id);
                     expect(nodes[0].full).toBe(true);
 
-                    expect(graph.hasNode(key)).toBe(true);
+                    expect(graph.hasNode(id)).toBe(true);
 
                     expect(imagesByHSpy.calls.count()).toBe(1);
-                    expect(imageByKeyFillSpy.calls.count()).toBe(1);
+                    expect(getSpatialImagesSpy.calls.count()).toBe(1);
 
                     done();
                 });
@@ -3848,10 +3864,12 @@ describe("Graph.cacheCell$", () => {
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        const fillResult: { [key: string]: SpatialImageEnt } = {};
-        fillResult[key] = fullNode;
-        imageByKeyFill.next(fillResult);
-        imageByKeyFill.complete();
+        const spatialImages: SpatialImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getSpatialImages.next(spatialImages);
+        getSpatialImages.complete();
     });
 
     it("should not cache again if all cell nodes cached", (done: Function) => {
@@ -3860,7 +3878,7 @@ describe("Graph.cacheCell$", () => {
             { clientToken: "token" },
             geometryProvider);
         const api = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const calculator = new GraphCalculator(null);
 
         const cellId = "cell-id";
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([cellId]);
@@ -3875,14 +3893,14 @@ describe("Graph.cacheCell$", () => {
         const imageByKeyFullSpy =
             spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const imageByKeyFillSpy =
+        const getSpatialImagesSpy =
             spyOn(api, "getSpatialImages$").and.stub();
 
-        const key = "full-key";
+        const id = "full-id";
         const fullNode: ImageEnt = new NodeHelper().createFullNode();
-        fullNode.id = key;
+        fullNode.id = id;
 
-        const graph: Graph = new Graph(api, undefined, calculator);
+        const graph = new Graph(api, undefined, calculator);
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -3911,14 +3929,14 @@ describe("Graph.cacheCell$", () => {
             .subscribe(
                 (nodes: Node[]): void => {
                     expect(nodes.length).toBe(1);
-                    expect(nodes[0].id).toBe(key);
+                    expect(nodes[0].id).toBe(id);
                     expect(nodes[0].full).toBe(true);
 
-                    expect(graph.hasNode(key)).toBe(true);
+                    expect(graph.hasNode(id)).toBe(true);
 
                     expect(imagesByHSpy.calls.count()).toBe(1);
                     expect(imageByKeyFullSpy.calls.count()).toBe(1);
-                    expect(imageByKeyFillSpy.calls.count()).toBe(0);
+                    expect(getSpatialImagesSpy.calls.count()).toBe(0);
 
                     done();
                 });
@@ -3930,7 +3948,7 @@ describe("Graph.cacheCell$", () => {
             { clientToken: "token" },
             geometryProvider);
         const api = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const calculator = new GraphCalculator(null);
 
         const cellId = "cell-id";
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([cellId]);
@@ -3945,9 +3963,9 @@ describe("Graph.cacheCell$", () => {
         const imageByKeyFullSpy =
             spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
 
-        const imageByKeyFill = new Subject<{ [key: string]: SpatialImageEnt }>();
-        const imageByKeyFillSpy =
-            spyOn(api, "getSpatialImages$").and.returnValue(imageByKeyFill);
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        const getSpatialImagesSpy =
+            spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
 
         const key1 = "full-key-1";
         const key2 = "full-key-2";
@@ -4002,15 +4020,17 @@ describe("Graph.cacheCell$", () => {
 
                     expect(imagesByHSpy.calls.count()).toBe(1);
                     expect(imageByKeyFullSpy.calls.count()).toBe(1);
-                    expect(imageByKeyFillSpy.calls.count()).toBe(1);
+                    expect(getSpatialImagesSpy.calls.count()).toBe(1);
 
                     done();
                 });
 
-        const fillResult: { [key: string]: SpatialImageEnt } = {};
-        fillResult[fullNode2.id] = fullNode2;
-        imageByKeyFill.next(fillResult);
-        imageByKeyFill.complete();
+        const spatialImages: SpatialImagesContract = [{
+            node: fullNode2,
+            node_id: fullNode2.id,
+        }];
+        getSpatialImages.next(spatialImages);
+        getSpatialImages.complete();
     });
 
     it("should cache cache tile once for the same cell", (done: Function) => {
@@ -4019,7 +4039,7 @@ describe("Graph.cacheCell$", () => {
             { clientToken: "token" },
             geometryProvider);
         const api = new APIWrapper(dataProvider);
-        const calculator: GraphCalculator = new GraphCalculator(null);
+        const calculator = new GraphCalculator(null);
 
         const cellId = "cell-id";
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([cellId]);
@@ -4030,13 +4050,13 @@ describe("Graph.cacheCell$", () => {
         const imagesByHSpy =
             spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const imageByKeyFill = new Subject<{ [key: string]: SpatialImageEnt }>();
-        const imageByKeyFillSpy =
-            spyOn(api, "getSpatialImages$").and.returnValue(imageByKeyFill);
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        const getSpatialImagesSpy =
+            spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
 
-        const key = "full-key";
+        const id = "full-id";
         const fullNode = new NodeHelper().createFullNode();
-        fullNode.id = key;
+        fullNode.id = id;
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -4052,7 +4072,7 @@ describe("Graph.cacheCell$", () => {
                     expect(nodes[0].id).toBe(fullNode.id);
                     expect(nodes[0].full).toBe(true);
 
-                    expect(graph.hasNode(key)).toBe(true);
+                    expect(graph.hasNode(id)).toBe(true);
                     expect(graph.hasTiles(fullNode.id)).toBe(true);
                     expect(graph.getNode(fullNode.id).full).toBe(true);
                 },
@@ -4060,7 +4080,7 @@ describe("Graph.cacheCell$", () => {
                 (): void => {
                     expect(count).toBe(2);
                     expect(imagesByHSpy.calls.count()).toBe(1);
-                    expect(imageByKeyFillSpy.calls.count()).toBe(2);
+                    expect(getSpatialImagesSpy.calls.count()).toBe(2);
 
                     done();
                 });
@@ -4071,10 +4091,12 @@ describe("Graph.cacheCell$", () => {
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        const fillResult: { [key: string]: SpatialImageEnt } = {};
-        fillResult[fullNode.id] = fullNode;
-        imageByKeyFill.next(fillResult);
-        imageByKeyFill.complete();
+        const spatialImages: SpatialImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getSpatialImages.next(spatialImages);
+        getSpatialImages.complete();
     });
 });
 
@@ -4117,12 +4139,12 @@ describe("Graph.updateCells$", () => {
         const imagesByHSpy =
             spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const imageByKeyFill = new Subject<{ [key: string]: SpatialImageEnt }>();
-        spyOn(api, "getSpatialImages$").and.returnValue(imageByKeyFill);
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
 
-        const key = "full-key";
+        const id = "full-id";
         const fullNode = new NodeHelper().createFullNode();
-        fullNode.id = key;
+        fullNode.id = id;
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -4136,12 +4158,14 @@ describe("Graph.updateCells$", () => {
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        const fillResult: { [key: string]: SpatialImageEnt } = {};
-        fillResult[key] = fullNode;
-        imageByKeyFill.next(fillResult);
-        imageByKeyFill.complete();
+        const spatialImages: SpatialImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getSpatialImages.next(spatialImages);
+        getSpatialImages.complete();
 
-        expect(graph.hasNode(key)).toBe(true);
+        expect(graph.hasNode(id)).toBe(true);
 
         const imagesByHUpdate =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
@@ -4150,8 +4174,8 @@ describe("Graph.updateCells$", () => {
 
         graph.updateCells$([cellId])
             .subscribe(
-                (id: string): void => {
-                    expect(id).toBe(cellId);
+                (cid: string): void => {
+                    expect(cid).toBe(cellId);
                     expect(imagesByHSpy.calls.count()).toBe(1);
                     done();
                 });
@@ -4173,19 +4197,19 @@ describe("Graph.updateCells$", () => {
         const imagesByHSpy =
             spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const imageByKeyFill = new Subject<{ [key: string]: SpatialImageEnt }>();
-        spyOn(api, "getSpatialImages$").and.returnValue(imageByKeyFill);
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
 
-        const key = "full-key";
+        const id = "full-id";
         const fullNode = new NodeHelper().createFullNode();
-        fullNode.id = key;
+        fullNode.id = id;
 
         const graph = new Graph(api, undefined, calculator);
 
         const cellId = "cellId";
         graph.cacheCell$(cellId).subscribe();
 
-        expect(graph.hasNode(key)).toBe(false);
+        expect(graph.hasNode(id)).toBe(false);
 
         const imagesByHUpdate =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
@@ -4194,8 +4218,8 @@ describe("Graph.updateCells$", () => {
 
         graph.updateCells$([cellId])
             .subscribe(
-                (id: string): void => {
-                    expect(id).toBe(cellId);
+                (cid: string): void => {
+                    expect(cid).toBe(cellId);
                     expect(imagesByHSpy.calls.count()).toBe(1);
                     done();
                 });
@@ -4207,12 +4231,14 @@ describe("Graph.updateCells$", () => {
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        const fillResult: { [key: string]: SpatialImageEnt } = {};
-        fillResult[key] = fullNode;
-        imageByKeyFill.next(fillResult);
-        imageByKeyFill.complete();
+        const spatialImages: SpatialImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getSpatialImages.next(spatialImages);
+        getSpatialImages.complete();
 
-        expect(graph.hasNode(key)).toBe(true);
+        expect(graph.hasNode(id)).toBe(true);
 
         imagesByHUpdate.next(tileResult);
         imagesByHUpdate.complete();
@@ -4231,8 +4257,8 @@ describe("Graph.updateCells$", () => {
         const imagesByHSpy =
             spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const imageByKeyFill = new Subject<{ [key: string]: SpatialImageEnt }>();
-        spyOn(api, "getSpatialImages$").and.returnValue(imageByKeyFill);
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
 
         const key1 = "full-key-1";
         const fullNode1 = new NodeHelper().createFullNode();
@@ -4250,10 +4276,12 @@ describe("Graph.updateCells$", () => {
         imagesByH.next(tileResult);
         imagesByH.complete();
 
-        const fillResult: { [key: string]: SpatialImageEnt } = {};
-        fillResult[key1] = fullNode1;
-        imageByKeyFill.next(fillResult);
-        imageByKeyFill.complete();
+        const spatialImages: SpatialImagesContract = [{
+            node: fullNode1,
+            node_id: fullNode1.id,
+        }];
+        getSpatialImages.next(spatialImages);
+        getSpatialImages.complete();
 
         expect(graph.hasNode(key1)).toBe(true);
 
