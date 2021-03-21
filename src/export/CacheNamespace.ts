@@ -1,4 +1,4 @@
-export { CacheComponent } from "../component/CacheComponent";
+export { CacheComponent } from "../component/cache/CacheComponent";
 export {
     CacheConfiguration,
     CacheDepthConfiguration,

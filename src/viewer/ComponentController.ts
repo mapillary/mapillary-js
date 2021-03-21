@@ -16,13 +16,11 @@ import { ComponentOptions } from "./interfaces/ComponentOptions";
 
 import { Component } from "../component/Component";
 import { ComponentService } from "../component/ComponentService";
-import { CoverComponent } from "../component/CoverComponent";
+import { CoverComponent } from "../component/cover/CoverComponent";
 import { ComponentConfiguration } from "../component/interfaces/ComponentConfiguration";
-import {
-    CoverState,
-    CoverConfiguration,
-} from "../component/interfaces/CoverConfiguration";
+import { CoverConfiguration } from "../component/interfaces/CoverConfiguration";
 import { Node } from "../graph/Node";
+import { CoverState } from "../component/cover/CoverState";
 
 export class ComponentController {
     private _container: Container;
@@ -69,7 +67,10 @@ export class ComponentController {
                     (k: string): void => {
                         this._key = k;
                         this._componentService.deactivateCover();
-                        this._coverComponent.configure({ id: this._key, state: CoverState.Hidden });
+                        this._coverComponent.configure({
+                            id: this._key,
+                            state: CoverState.Hidden,
+                        });
                         this._subscribeCoverComponent();
                         this._navigator.stateService.start();
                         this._navigator.cacheService.start();

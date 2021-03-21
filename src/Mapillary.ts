@@ -26,17 +26,17 @@ TraversingState.register(UnitBezier);
 // Bootstrap components
 import { ComponentService } from "./component/ComponentService";
 
-import { AttributionComponent } from "./component/AttributionComponent";
-import { BearingComponent } from "./component/BearingComponent";
-import { CacheComponent } from "./component/CacheComponent";
-import { CoverComponent } from "./component/CoverComponent";
+import { AttributionComponent } from "./component/attribution/AttributionComponent";
+import { BearingComponent } from "./component/bearing/BearingComponent";
+import { CacheComponent } from "./component/cache/CacheComponent";
+import { CoverComponent } from "./component/cover/CoverComponent";
 import { DirectionComponent } from "./component/direction/DirectionComponent";
-import { ImageComponent } from "./component/ImageComponent";
+import { ImageComponent } from "./component/image/ImageComponent";
 import { ImagePlaneComponent } from "./component/imageplane/ImagePlaneComponent";
 import { KeyboardComponent } from "./component/keyboard/KeyboardComponent";
 import { MarkerComponent } from "./component/marker/MarkerComponent";
 import { MouseComponent } from "./component/mouse/MouseComponent";
-import { NavigationComponent } from "./component/NavigationComponent";
+import { NavigationComponent } from "./component/navigation/NavigationComponent";
 import { PopupComponent } from "./component/popup/PopupComponent";
 import { SequenceComponent } from "./component/sequence/SequenceComponent";
 import { SliderComponent } from "./component/slider/SliderComponent";

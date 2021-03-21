@@ -7,15 +7,15 @@ import {
 
 import { map } from "rxjs/operators";
 
-import { Component } from "./Component";
-import { ComponentConfiguration } from "./interfaces/ComponentConfiguration";
+import { Component } from "../Component";
+import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 
-import { Node } from "../graph/Node";
-import { ViewportSize } from "../render/interfaces/ViewportSize";
-import { VirtualNodeHash } from "../render/interfaces/VirtualNodeHash";
-import { Urls } from "../utils/Urls";
-import { Container } from "../viewer/Container";
-import { Navigator } from "../viewer/Navigator";
+import { Node } from "../../graph/Node";
+import { ViewportSize } from "../../render/interfaces/ViewportSize";
+import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
+import { Urls } from "../../utils/Urls";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
 
 export class AttributionComponent extends Component<ComponentConfiguration> {
     public static componentName: string = "attribution";

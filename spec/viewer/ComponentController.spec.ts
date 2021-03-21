@@ -9,8 +9,8 @@ import { NavigatorMockCreator } from "../helper/NavigatorMockCreator";
 import { NodeMockCreator } from "../helper/NodeMockCreator";
 import { MockCreator } from "../helper/MockCreator";
 import { ComponentService } from "../../src/component/ComponentService";
-import { CoverComponent } from "../../src/component/CoverComponent";
-import { CoverConfiguration, CoverState } from "../../src/component/interfaces/CoverConfiguration";
+import { CoverComponent } from "../../src/component/cover/CoverComponent";
+import { CoverConfiguration } from "../../src/component/interfaces/CoverConfiguration";
 import { Container } from "../../src/viewer/Container";
 import { Observer } from "../../src/viewer/Observer";
 import { EventEmitter } from "../../src/utils/EventEmitter";
@@ -18,6 +18,7 @@ import { ComponentController } from "../../src/viewer/ComponentController";
 import { Viewer } from "../../src/viewer/Viewer";
 import { Component } from "../../src/component/Component";
 import { ComponentConfiguration } from "../../src/component/interfaces/ComponentConfiguration";
+import { CoverState } from "../../src/component/cover/CoverState";
 
 class ComponentMock extends Component<ComponentConfiguration> {
     protected static _cn: string = "mock";
