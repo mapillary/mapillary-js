@@ -1,5 +1,4 @@
 import { ImageEnt } from "../ents/ImageEnt";
+import { EntContract } from "./EntContract";
 
-export interface ImagesContract {
-    [imageId: string]: ImageEnt;
-}
+export type ImagesContract = EntContract<ImageEnt>[];

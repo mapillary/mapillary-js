@@ -136,9 +136,9 @@ describe("Graph.cacheBoundingBox$", () => {
         const getSpatialImagesSpy = spyOn(api, "getSpatialImages$");
         getSpatialImagesSpy.and.returnValue(getSpatialImages);
 
-        const imageByKeyFull = new Subject<ImagesContract>();
-        const imageByKeyFullSpy = spyOn(api, "getImages$");
-        imageByKeyFullSpy.and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        const getImagesSpy = spyOn(api, "getImages$");
+        getImagesSpy.and.returnValue(getImages);
 
         const fullNode = helper.createFullNode();
         fullNode.id = id;
@@ -149,10 +149,12 @@ describe("Graph.cacheBoundingBox$", () => {
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fullResult: { [key: string]: ImageEnt } = {};
-        fullResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fullResult);
-        imageByKeyFull.complete();
+        const fullResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fullResult);
+        getImages.complete();
 
         graph.hasTiles(fullNode.id);
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
@@ -170,7 +172,7 @@ describe("Graph.cacheBoundingBox$", () => {
 
         expect(imagesByHSpy.calls.count()).toBe(1);
         expect(getSpatialImagesSpy.calls.count()).toBe(0);
-        expect(imageByKeyFullSpy.calls.count()).toBe(1);
+        expect(getImagesSpy.calls.count()).toBe(1);
 
         graph.cacheBoundingBox$({ lat: 0, lon: 0 }, { lat: 1, lon: 1 })
             .subscribe(
@@ -183,7 +185,7 @@ describe("Graph.cacheBoundingBox$", () => {
 
                     expect(imagesByHSpy.calls.count()).toBe(1);
                     expect(getSpatialImagesSpy.calls.count()).toBe(0);
-                    expect(imageByKeyFullSpy.calls.count()).toBe(1);
+                    expect(getImagesSpy.calls.count()).toBe(1);
 
                     done();
                 });
@@ -264,9 +266,9 @@ describe("Graph.cacheFull$", () => {
         const calculator = new GraphCalculator(null);
 
         const fullNode = helper.createFullNode();
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
+        const getImages = new Subject<ImagesContract>();
 
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const graph = new Graph(api, undefined, calculator);
         graph.cacheFull$(fullNode.id);
@@ -280,14 +282,16 @@ describe("Graph.cacheFull$", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const graph = new Graph(api, undefined, calculator);
 
         const fullNode = helper.createFullNode();
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id)
             .subscribe(
                 (g: Graph): void => {
@@ -299,8 +303,8 @@ describe("Graph.cacheFull$", () => {
                     done();
                 });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.isCachingFull(fullNode.id)).toBe(false);
         expect(graph.hasNode(fullNode.id)).toBe(true);
@@ -313,25 +317,25 @@ describe("Graph.cacheFull$", () => {
         const calculator = new GraphCalculator(null);
 
         const fullNode = helper.createFullNode();
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
+        const getImages = new Subject<ImagesContract>();
 
-        const imageByKeyFullSpy = spyOn(api, "getImages$");
-        imageByKeyFullSpy.and.returnValue(imageByKeyFull);
+        const getImagesSpy = spyOn(api, "getImages$");
+        getImagesSpy.and.returnValue(getImages);
 
         const graph = new Graph(api, undefined, calculator);
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        expect(imageByKeyFullSpy.calls.count()).toBe(1);
+        expect(getImagesSpy.calls.count()).toBe(1);
     });
 
     it("should throw when fetching node already in graph", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -339,10 +343,12 @@ describe("Graph.cacheFull$", () => {
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.isCachingFull(fullNode.id)).toBe(false);
         expect(() => { graph.cacheFull$(fullNode.id); }).toThrowError(Error);
@@ -352,8 +358,8 @@ describe("Graph.cacheFull$", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -367,10 +373,12 @@ describe("Graph.cacheFull$", () => {
                     done();
                 });
 
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(result);
+        getImages.complete();
     });
 
     it("should make full when fetched node has been retrieved in tile in parallell", () => {
@@ -383,14 +391,14 @@ describe("Graph.cacheFull$", () => {
 
         const id = "id";
         const otherKey = "otherKey";
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        const imageByKeyFullOther = new Subject<{ [key: string]: ImageEnt }>();
+        const getImages = new Subject<ImagesContract>();
+        const getImagesOther = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.callFake(
-            (imageIds: string[]): Observable<{ [key: string]: ImageEnt }> => {
+            (imageIds: string[]): Observable<ImagesContract> => {
                 if (imageIds[0] === id) {
-                    return imageByKeyFull;
+                    return getImages;
                 } else if (imageIds[0] === otherKey) {
-                    return imageByKeyFullOther;
+                    return getImagesOther;
                 }
 
                 throw new GraphMapillaryError("Wrong key.");
@@ -410,10 +418,12 @@ describe("Graph.cacheFull$", () => {
         otherNode.id = otherKey;
         graph.cacheFull$(otherNode.id).subscribe(() => { /*noop*/ });
 
-        const otherFullResult: { [key: string]: ImageEnt } = {};
-        otherFullResult[otherNode.id] = otherNode;
-        imageByKeyFullOther.next(otherFullResult);
-        imageByKeyFullOther.complete();
+        const otherFullResult: ImagesContract = [{
+            node: otherNode,
+            node_id: otherNode.id,
+        }];
+        getImagesOther.next(otherFullResult);
+        getImagesOther.complete();
 
         graph.hasTiles(otherNode.id);
         observableFrom(graph.cacheTiles$(otherNode.id)).pipe(
@@ -437,10 +447,12 @@ describe("Graph.cacheFull$", () => {
         expect(graph.hasNode(fullNode.id)).toBe(true);
         expect(graph.getNode(fullNode.id).full).toBe(false);
 
-        const fullResult: { [key: string]: ImageEnt } = {};
-        fullResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fullResult);
-        imageByKeyFull.complete();
+        const fullResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fullResult);
+        getImages.complete();
 
         expect(graph.getNode(fullNode.id).full).toBe(true);
     });
@@ -461,8 +473,8 @@ describe("Graph.cacheFill$", () => {
         const api = new APIWrapper(dataProvider);
         const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
@@ -480,9 +492,11 @@ describe("Graph.cacheFill$", () => {
         const fullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
 
         graph.hasTiles(fullNode.id);
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
@@ -513,8 +527,8 @@ describe("Graph.cacheFill$", () => {
         const api = new APIWrapper(dataProvider);
         const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
@@ -532,9 +546,11 @@ describe("Graph.cacheFill$", () => {
         const fullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
 
         graph.hasTiles(fullNode.id);
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
@@ -573,8 +589,8 @@ describe("Graph.cacheFill$", () => {
         const api = new APIWrapper(dataProvider);
         const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
@@ -593,9 +609,11 @@ describe("Graph.cacheFill$", () => {
         const fullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
 
         graph.hasTiles(fullNode.id);
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
@@ -626,8 +644,8 @@ describe("Graph.cacheFill$", () => {
         const api = new APIWrapper(dataProvider);
         const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
@@ -663,8 +681,8 @@ describe("Graph.cacheFill$", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const getSpatialImages = new Subject<SpatialImagesContract>();
         spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
@@ -674,9 +692,11 @@ describe("Graph.cacheFill$", () => {
         const fullNode = helper.createFullNode();
         graph.cacheFull$(fullNode.id);
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
 
         expect(() => { graph.cacheFill$(fullNode.id); }).toThrowError(Error);
     });
@@ -733,10 +753,12 @@ describe("Graph.cacheTiles$", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyResult: { [key: string]: ImageEnt } = {};
-        imageByKeyResult[fullNode.id] = fullNode;
-        const imageByKeyFull: Observable<{ [key: string]: ImageEnt }> = observableOf<{ [key: string]: ImageEnt }>(imageByKeyResult);
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const imageByKeyResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        const getImages: Observable<ImagesContract> = observableOf<ImagesContract>(imageByKeyResult);
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
@@ -805,10 +827,12 @@ describe("Graph.cacheTiles$", () => {
         const encodeHsSpy = spyOn(geometryProvider, "latLonToCellIds");
         encodeHsSpy.and.returnValue([h]);
 
-        const imageByKeyResult: { [key: string]: ImageEnt } = {};
-        imageByKeyResult[fullNode.id] = fullNode;
-        const imageByKeyFull: Observable<{ [key: string]: ImageEnt }> = observableOf<{ [key: string]: ImageEnt }>(imageByKeyResult);
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const imageByKeyResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        const getImages: Observable<ImagesContract> = observableOf<ImagesContract>(imageByKeyResult);
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
@@ -859,7 +883,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
@@ -887,7 +911,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
@@ -917,7 +941,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
@@ -936,9 +960,12 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
-        const imageResult: { [key: string]: ImageEnt } = {};
-        imageResult[nodeKey] = helper.createFullNode();
-        imageResult[nodeKey].id = nodeKey;
+        const fullNode = helper.createFullNode();
+        fullNode.id = nodeKey;
+        const imageResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         imageByKey.next(imageResult);
         imageByKey.complete();
 
@@ -968,7 +995,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
@@ -987,11 +1014,13 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
-        const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode = helper.createFullNode();
         fullNode.id = nodeKey;
         fullNode.sequence.id = sequenceId;
-        imageResult[fullNode.id] = fullNode;
+        const imageResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         imageByKey.next(imageResult);
         imageByKey.complete();
 
@@ -1022,7 +1051,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
@@ -1041,11 +1070,13 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
-        const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode = helper.createFullNode();
         fullNode.id = nodeKey;
         fullNode.sequence.id = sequenceId;
-        imageResult[fullNode.id] = fullNode;
+        const imageResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         imageByKey.next(imageResult);
         imageByKey.complete();
 
@@ -1078,7 +1109,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
@@ -1097,11 +1128,13 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
-        const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode = helper.createFullNode();
         fullNode.id = nodeKey;
         fullNode.sequence.id = sequenceId;
-        imageResult[fullNode.id] = fullNode;
+        const imageResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         imageByKey.next(imageResult);
         imageByKey.complete();
 
@@ -1132,7 +1165,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
@@ -1151,11 +1184,13 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
-        const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode = helper.createFullNode();
         fullNode.id = nodeKey;
         fullNode.sequence.id = sequenceId;
-        imageResult[fullNode.id] = fullNode;
+        const imageResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         imageByKey.next(imageResult);
         imageByKey.complete();
 
@@ -1188,7 +1223,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
@@ -1207,11 +1242,13 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
-        const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode = helper.createFullNode();
         fullNode.id = nodeKey;
         fullNode.sequence.id = sequenceId;
-        imageResult[fullNode.id] = fullNode;
+        const imageResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         imageByKey.next(imageResult);
         imageByKey.complete();
 
@@ -1269,7 +1306,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator, undefined, configuration);
@@ -1288,11 +1325,13 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
-        const imageResult: { [key: string]: ImageEnt } = {};
         const fullNode = helper.createFullNode();
         fullNode.id = nodeKey;
         fullNode.sequence.id = sequenceId;
-        imageResult[fullNode.id] = fullNode;
+        const imageResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         imageByKey.next(imageResult);
         imageByKey.complete();
 
@@ -1336,7 +1375,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
@@ -1355,9 +1394,12 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
-        const imageResult: { [key: string]: ImageEnt } = {};
-        imageResult[nodeKey] = helper.createFullNode();
-        imageResult[nodeKey].id = nodeKey;
+        const fullNode = helper.createFullNode();
+        fullNode.id = nodeKey;
+        const imageResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         imageByKey.next(imageResult);
         imageByKey.complete();
 
@@ -1372,7 +1414,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1393,9 +1435,12 @@ describe("Graph.cacheSequenceNodes$", () => {
         graph.cacheSequenceNodes$(sequenceId).subscribe();
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
-        const imageResult: { [key: string]: ImageEnt } = {};
-        imageResult[nodeKey] = helper.createFullNode();
-        imageResult[nodeKey].id = nodeKey;
+        const fullNode = helper.createFullNode();
+        fullNode.id = nodeKey;
+        const imageResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         imageByKey.next(imageResult);
         imageByKey.complete();
 
@@ -1410,7 +1455,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
@@ -1447,7 +1492,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1490,7 +1535,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1534,7 +1579,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1584,7 +1629,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1635,7 +1680,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1687,7 +1732,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1729,7 +1774,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
 
-        const imageByKey = new Subject<{ [key: string]: ImageEnt }>();
+        const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
         imageByKeySpy.and.returnValue(imageByKey);
 
@@ -1791,15 +1836,17 @@ describe("Graph.cacheSpatialArea$", () => {
 
         const fullNode = helper.createFullNode();
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
 
         const node = graph.getNode(fullNode.id);
 
@@ -1820,8 +1867,8 @@ describe("Graph.cacheSpatialArea$", () => {
         spyOn(dataProvider.geometry, "latLonToCellId").and.returnValue(h);
         spyOn(dataProvider.geometry, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
@@ -1830,9 +1877,11 @@ describe("Graph.cacheSpatialArea$", () => {
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
 
         const node = graph.getNode(fullNode.id);
         expect(node).toBeDefined();
@@ -1875,8 +1924,8 @@ describe("Graph.cacheSpatialEdges", () => {
 
         const fullNode = helper.createFullNode();
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
@@ -1884,10 +1933,12 @@ describe("Graph.cacheSpatialEdges", () => {
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
-        imageByKeyFull.complete();
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
+        getImages.complete();
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -1945,8 +1996,8 @@ describe("Graph.cacheSpatialEdges", () => {
         const getSpatialImages = new Subject<SpatialImagesContract>();
         spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const imagesByH =
             new Subject<{ [key: string]: { [index: string]: CoreImageEnt } }>();
@@ -1963,10 +2014,12 @@ describe("Graph.cacheSpatialEdges", () => {
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
-        imageByKeyFull.complete();
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
+        getImages.complete();
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -2038,8 +2091,8 @@ describe("Graph.cacheSpatialEdges", () => {
 
         const fullNode = helper.createFullNode();
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
@@ -2047,10 +2100,12 @@ describe("Graph.cacheSpatialEdges", () => {
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
-        imageByKeyFull.complete();
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
+        getImages.complete();
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -2105,8 +2160,8 @@ describe("Graph.cacheNodeSequence$", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -2114,9 +2169,11 @@ describe("Graph.cacheNodeSequence$", () => {
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
 
         expect(graph.hasNodeSequence(fullNode.id)).toBe(false);
     });
@@ -2125,8 +2182,8 @@ describe("Graph.cacheNodeSequence$", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
@@ -2137,10 +2194,12 @@ describe("Graph.cacheNodeSequence$", () => {
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
-        imageByKeyFull.complete();
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
+        getImages.complete();
 
         graph.cacheNodeSequence$(fullNode.id);
 
@@ -2152,8 +2211,8 @@ describe("Graph.cacheNodeSequence$", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
@@ -2165,9 +2224,11 @@ describe("Graph.cacheNodeSequence$", () => {
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
 
         graph.cacheNodeSequence$(fullNode.id)
             .subscribe(
@@ -2194,8 +2255,8 @@ describe("Graph.cacheNodeSequence$", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
@@ -2212,8 +2273,8 @@ describe("Graph.cacheNodeSequence$", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
@@ -2225,9 +2286,11 @@ describe("Graph.cacheNodeSequence$", () => {
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -2250,8 +2313,8 @@ describe("Graph.cacheNodeSequence$", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const getSequences = new Subject<SequencesContract>();
         const sequenceByKeySpy = spyOn(api, "getSequences$");
@@ -2264,9 +2327,11 @@ describe("Graph.cacheNodeSequence$", () => {
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2278,8 +2343,8 @@ describe("Graph.cacheNodeSequence$", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
@@ -2291,9 +2356,11 @@ describe("Graph.cacheNodeSequence$", () => {
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -2425,8 +2492,8 @@ describe("Graph.resetSpatialEdges", () => {
 
         const fullNode = helper.createFullNode();
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
@@ -2434,10 +2501,12 @@ describe("Graph.resetSpatialEdges", () => {
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
-        imageByKeyFull.complete();
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
+        getImages.complete();
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -2496,8 +2565,8 @@ describe("Graph.resetSpatialEdges", () => {
 
         const fullNode = helper.createFullNode();
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const getSequences = new Subject<SequencesContract>();
         spyOn(api, "getSequences$").and.returnValue(getSequences);
@@ -2505,10 +2574,12 @@ describe("Graph.resetSpatialEdges", () => {
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fetchResult: { [key: string]: ImageEnt } = {};
-        fetchResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fetchResult);
-        imageByKeyFull.complete();
+        const fetchResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fetchResult);
+        getImages.complete();
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
@@ -2594,18 +2665,20 @@ describe("Graph.reset", () => {
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const graph = new Graph(api, undefined, calculator);
 
         const fullNode = helper.createFullNode();
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -2631,18 +2704,20 @@ describe("Graph.reset", () => {
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const graph = new Graph(api, undefined, calculator);
 
         const fullNode = helper.createFullNode();
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -2669,18 +2744,20 @@ describe("Graph.reset", () => {
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const graph = new Graph(api, undefined, calculator);
 
         const fullNode = helper.createFullNode();
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -2721,8 +2798,8 @@ describe("Graph.uncache", () => {
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -2734,12 +2811,14 @@ describe("Graph.uncache", () => {
         const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode = helper.createFullNode();
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -2766,8 +2845,8 @@ describe("Graph.uncache", () => {
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -2780,12 +2859,14 @@ describe("Graph.uncache", () => {
 
         const fullNode = helper.createFullNode();
         fullNode.sequence.id = "sequencKey";
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -2812,8 +2893,8 @@ describe("Graph.uncache", () => {
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -2825,12 +2906,14 @@ describe("Graph.uncache", () => {
         const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode = helper.createFullNode();
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -2857,8 +2940,8 @@ describe("Graph.uncache", () => {
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -2870,12 +2953,14 @@ describe("Graph.uncache", () => {
         const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode = helper.createFullNode();
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -2904,8 +2989,8 @@ describe("Graph.uncache", () => {
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -2917,12 +3002,14 @@ describe("Graph.uncache", () => {
         const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode = helper.createFullNode();
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -2951,7 +3038,7 @@ describe("Graph.uncache", () => {
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
-        const imageByKeyFullSpy = spyOn(api, "getImages$");
+        const getImagesSpy = spyOn(api, "getImages$");
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -2964,31 +3051,34 @@ describe("Graph.uncache", () => {
 
         const fullNode1 = helper.createFullNode();
         fullNode1.id = "key1";
-        const result1: { [key: string]: ImageEnt } = {};
-        result1[fullNode1.id] = fullNode1;
+        const result1: ImagesContract = [{
+            node: fullNode1,
+            node_id: fullNode1.id,
+        }];
 
-        const imageByKeyFull1 = new Subject<{ [key: string]: ImageEnt }>();
-        imageByKeyFullSpy.and.returnValue(imageByKeyFull1);
+        const getImages1 = new Subject<ImagesContract>();
+        getImagesSpy.and.returnValue(getImages1);
 
         graph.cacheFull$(fullNode1.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull1.next(result1);
-        imageByKeyFull1.complete();
+        getImages1.next(result1);
+        getImages1.complete();
 
         expect(graph.hasNode(fullNode1.id)).toBe(true);
 
         const fullNode2 = helper.createFullNode();
         fullNode2.id = "key2";
-        const result2: { [key: string]: ImageEnt } = {};
-        result2[fullNode2.id] = fullNode2;
-
-        const imageByKeyFull2 = new Subject<{ [key: string]: ImageEnt }>();
-        imageByKeyFullSpy.and.returnValue(imageByKeyFull2);
+        const result2: ImagesContract = [{
+            node: fullNode2,
+            node_id: fullNode2.id,
+        }];
+        const getImages2 = new Subject<ImagesContract>();
+        getImagesSpy.and.returnValue(getImages2);
 
         graph.cacheFull$(fullNode2.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull2.next(result2);
-        imageByKeyFull2.complete();
+        getImages2.next(result2);
+        getImages2.complete();
 
         const node1 = graph.getNode(fullNode1.id);
         graph.initializeCache(node1.id);
@@ -3032,8 +3122,8 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -3045,12 +3135,14 @@ describe("Graph.uncache", () => {
         const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode = helper.createFullNode();
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -3095,8 +3187,8 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -3108,12 +3200,14 @@ describe("Graph.uncache", () => {
         const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode = helper.createFullNode();
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -3160,8 +3254,8 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -3173,12 +3267,14 @@ describe("Graph.uncache", () => {
         const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode = helper.createFullNode();
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -3224,8 +3320,8 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -3237,12 +3333,14 @@ describe("Graph.uncache", () => {
         const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode = helper.createFullNode();
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -3284,7 +3382,7 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFullSpy = spyOn(api, "getImages$");
+        const getImagesSpy = spyOn(api, "getImages$");
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -3297,31 +3395,35 @@ describe("Graph.uncache", () => {
 
         const fullNode1 = helper.createFullNode();
         fullNode1.id = "key1";
-        const result1: { [key: string]: ImageEnt } = {};
-        result1[fullNode1.id] = fullNode1;
+        const result1: ImagesContract = [{
+            node: fullNode1,
+            node_id: fullNode1.id,
+        }];
 
-        const imageByKeyFull1 = new Subject<{ [key: string]: ImageEnt }>();
-        imageByKeyFullSpy.and.returnValue(imageByKeyFull1);
+        const getImages1 = new Subject<ImagesContract>();
+        getImagesSpy.and.returnValue(getImages1);
 
         graph.cacheFull$(fullNode1.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull1.next(result1);
-        imageByKeyFull1.complete();
+        getImages1.next(result1);
+        getImages1.complete();
 
         expect(graph.hasNode(fullNode1.id)).toBe(true);
 
         const fullNode2 = helper.createFullNode();
         fullNode2.id = "key2";
-        const result2: { [key: string]: ImageEnt } = {};
-        result2[fullNode2.id] = fullNode2;
+        const result2: ImagesContract = [{
+            node: fullNode2,
+            node_id: fullNode2.id,
+        }];
 
-        const imageByKeyFull2 = new Subject<{ [key: string]: ImageEnt }>();
-        imageByKeyFullSpy.and.returnValue(imageByKeyFull2);
+        const getImages2 = new Subject<ImagesContract>();
+        getImagesSpy.and.returnValue(getImages2);
 
         graph.cacheFull$(fullNode2.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull2.next(result2);
-        imageByKeyFull2.complete();
+        getImages2.next(result2);
+        getImages2.complete();
 
         expect(graph.hasNode(fullNode2.id)).toBe(true);
 
@@ -3576,8 +3678,8 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -3589,12 +3691,14 @@ describe("Graph.uncache", () => {
         const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode = helper.createFullNode();
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -3638,8 +3742,8 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -3652,12 +3756,14 @@ describe("Graph.uncache", () => {
 
         const fullNode = helper.createFullNode();
         fullNode.sequence.id = "sequenceId";
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -3702,8 +3808,8 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -3715,12 +3821,14 @@ describe("Graph.uncache", () => {
         const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode = helper.createFullNode();
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -3765,8 +3873,8 @@ describe("Graph.uncache", () => {
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
         spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -3778,12 +3886,14 @@ describe("Graph.uncache", () => {
         const graph = new Graph(api, undefined, calculator, undefined, undefined, configuration);
 
         const fullNode = helper.createFullNode();
-        const result: { [key: string]: ImageEnt } = {};
-        result[fullNode.id] = fullNode;
+        const result: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        imageByKeyFull.next(result);
-        imageByKeyFull.complete();
+        getImages.next(result);
+        getImages.complete();
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
 
@@ -3889,9 +3999,9 @@ describe("Graph.cacheCell$", () => {
         const imagesByHSpy =
             spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        const imageByKeyFullSpy =
-            spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        const getImagesSpy =
+            spyOn(api, "getImages$").and.returnValue(getImages);
 
         const getSpatialImagesSpy =
             spyOn(api, "getSpatialImages$").and.stub();
@@ -3904,10 +4014,12 @@ describe("Graph.cacheCell$", () => {
 
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const fullResult: { [key: string]: ImageEnt } = {};
-        fullResult[fullNode.id] = fullNode;
-        imageByKeyFull.next(fullResult);
-        imageByKeyFull.complete();
+        const fullResult: ImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getImages.next(fullResult);
+        getImages.complete();
 
         graph.hasTiles(fullNode.id);
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
@@ -3923,7 +4035,7 @@ describe("Graph.cacheCell$", () => {
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
         expect(imagesByHSpy.calls.count()).toBe(1);
-        expect(imageByKeyFullSpy.calls.count()).toBe(1);
+        expect(getImagesSpy.calls.count()).toBe(1);
 
         graph.cacheCell$(cellId)
             .subscribe(
@@ -3935,7 +4047,7 @@ describe("Graph.cacheCell$", () => {
                     expect(graph.hasNode(id)).toBe(true);
 
                     expect(imagesByHSpy.calls.count()).toBe(1);
-                    expect(imageByKeyFullSpy.calls.count()).toBe(1);
+                    expect(getImagesSpy.calls.count()).toBe(1);
                     expect(getSpatialImagesSpy.calls.count()).toBe(0);
 
                     done();
@@ -3959,9 +4071,9 @@ describe("Graph.cacheCell$", () => {
         const imagesByHSpy =
             spyOn(api, "getCoreImages$").and.returnValue(imagesByH);
 
-        const imageByKeyFull = new Subject<{ [key: string]: ImageEnt }>();
-        const imageByKeyFullSpy =
-            spyOn(api, "getImages$").and.returnValue(imageByKeyFull);
+        const getImages = new Subject<ImagesContract>();
+        const getImagesSpy =
+            spyOn(api, "getImages$").and.returnValue(getImages);
 
         const getSpatialImages = new Subject<SpatialImagesContract>();
         const getSpatialImagesSpy =
@@ -3976,10 +4088,12 @@ describe("Graph.cacheCell$", () => {
 
         graph.cacheFull$(fullNode1.id).subscribe(() => { /*noop*/ });
 
-        const fullResult: { [key: string]: ImageEnt } = {};
-        fullResult[fullNode1.id] = fullNode1;
-        imageByKeyFull.next(fullResult);
-        imageByKeyFull.complete();
+        const fullResult: ImagesContract = [{
+            node: fullNode1,
+            node_id: fullNode1.id,
+        }];
+        getImages.next(fullResult);
+        getImages.complete();
 
         graph.hasTiles(fullNode1.id);
         observableFrom(graph.cacheTiles$(fullNode1.id)).pipe(
@@ -4004,7 +4118,7 @@ describe("Graph.cacheCell$", () => {
         expect(graph.getNode(fullNode2.id).full).toBe(false);
 
         expect(imagesByHSpy.calls.count()).toBe(1);
-        expect(imageByKeyFullSpy.calls.count()).toBe(1);
+        expect(getImagesSpy.calls.count()).toBe(1);
 
         graph.cacheCell$(cellId)
             .subscribe(
@@ -4019,7 +4133,7 @@ describe("Graph.cacheCell$", () => {
                     expect(graph.hasNode(key2)).toBe(true);
 
                     expect(imagesByHSpy.calls.count()).toBe(1);
-                    expect(imageByKeyFullSpy.calls.count()).toBe(1);
+                    expect(getImagesSpy.calls.count()).toBe(1);
                     expect(getSpatialImagesSpy.calls.count()).toBe(1);
 
                     done();
