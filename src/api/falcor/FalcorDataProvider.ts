@@ -215,14 +215,15 @@ export class FalcorDataProvider extends DataProviderBase {
                         throw new Error(`Images (${keys.join(", ")}) could not be found.`);
                     }
 
-                    const result: ImagesContract = {};
+                    const result: ImagesContract = [];
                     const imageByKey = value.json.imageByKey;
                     for (const key in imageByKey) {
                         if (!imageByKey.hasOwnProperty(key)) { continue; }
                         const item = imageByKey[key];
                         const core = this._convert.core(item);
                         const spatial = this._convert.spatial(item);
-                        result[key] = Object.assign({}, core, spatial);
+                        const image = Object.assign({}, core, spatial);
+                        result.push({ node: image, node_id: image.id });
                     }
                     return result;
                 },

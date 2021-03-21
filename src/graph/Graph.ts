@@ -41,7 +41,7 @@ import { ImageEnt } from "../api/ents/ImageEnt";
 import { LatLon } from "../api/interfaces/LatLon";
 import { GraphMapillaryError } from "../error/GraphMapillaryError";
 import { SequenceEnt } from "../api/ents/SequenceEnt";
-import { SequencesContract, SpatialImagesContract } from "../export/APINamespace";
+import { ImagesContract, SequencesContract, SpatialImagesContract } from "../export/APINamespace";
 
 type NodeTiles = {
     cache: string[];
@@ -550,34 +550,33 @@ export class Graph {
 
         this._cachingFull$[key] = this._api.getImages$([key]).pipe(
             tap(
-                (imageByKeyFull: { [key: string]: ImageEnt }): void => {
-                    let fn: ImageEnt = imageByKeyFull[key];
+                (items: ImagesContract): void => {
+                    for (const item of items) {
+                        const id = item.node_id;
+                        if (this.hasNode(id)) {
+                            const node = this.getNode(key);
+                            if (!node.full) {
+                                this._makeFull(node, item.node);
+                            }
+                        } else {
+                            if (item.node.sequence.id == null) {
+                                throw new GraphMapillaryError(
+                                    `Node has no sequence key (${key}).`);
+                            }
 
-                    if (this.hasNode(key)) {
-                        let node: Node = this.getNode(key);
+                            const node = new Node(item.node);
+                            this._makeFull(node, item.node);
 
-                        if (!node.full) {
-                            this._makeFull(node, fn);
+                            const cellId = this._api.data.geometry
+                                .latLonToCellId(node.originalLatLon);
+                            this._preStore(cellId, node);
+                            this._setNode(node);
+
+                            delete this._cachingFull$[id];
                         }
-                    } else {
-                        if (fn.sequence.id == null) {
-                            throw new GraphMapillaryError(`Node has no sequence key (${key}).`);
-                        }
-
-                        let node: Node = new Node(fn);
-                        this._makeFull(node, fn);
-
-                        let h: string = this._api.data.geometry.latLonToCellId(node.originalLatLon);
-                        this._preStore(h, node);
-                        this._setNode(node);
-
-                        delete this._cachingFull$[key];
                     }
                 }),
-            map(
-                (imageByKeyFull: { [key: string]: ImageEnt }): Graph => {
-                    return this;
-                }),
+            map((): Graph => this),
             finalize(
                 (): void => {
                     if (key in this._cachingFull$) {
@@ -701,40 +700,37 @@ export class Graph {
                 (batch: string[]): Observable<Graph> => {
                     return this._api.getImages$(batch).pipe(
                         tap(
-                            (imageByKeyFull: { [key: string]: ImageEnt }): void => {
-                                for (const fullKey in imageByKeyFull) {
-                                    if (!imageByKeyFull.hasOwnProperty(fullKey)) {
+                            (items: ImagesContract): void => {
+                                for (const item of items) {
+                                    if (!item.node) {
+                                        console.warn(
+                                            `Node empty (${item.node_id})`);
                                         continue;
                                     }
-
-                                    const fn: ImageEnt = imageByKeyFull[fullKey];
-
-                                    if (this.hasNode(fullKey)) {
-                                        const node: Node = this.getNode(fn.id);
-
+                                    const id = item.node_id;
+                                    if (this.hasNode(id)) {
+                                        const node = this.getNode(id);
                                         if (!node.full) {
-                                            this._makeFull(node, fn);
+                                            this._makeFull(node, item.node);
                                         }
                                     } else {
-                                        if (fn.sequence.id == null) {
-                                            console.warn(`Sequence missing, discarding node (${fn.id})`);
+                                        if (item.node.sequence.id == null) {
+                                            console.warn(`Sequence missing, discarding node (${item.node_id})`);
                                         }
 
-                                        const node: Node = new Node(fn);
-                                        this._makeFull(node, fn);
+                                        const node = new Node(item.node);
+                                        this._makeFull(node, item.node);
 
-                                        const h: string = this._api.data.geometry.latLonToCellId(node.originalLatLon);
-                                        this._preStore(h, node);
+                                        const cellId = this._api.data.geometry
+                                            .latLonToCellId(node.originalLatLon);
+                                        this._preStore(cellId, node);
                                         this._setNode(node);
                                     }
                                 }
 
                                 batchesToCache--;
                             }),
-                        map(
-                            (imageByKeyFull: { [key: string]: ImageEnt }): Graph => {
-                                return this;
-                            }));
+                        map((): Graph => this));
                 },
                 6),
             last(),

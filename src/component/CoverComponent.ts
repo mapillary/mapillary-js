@@ -31,6 +31,7 @@ import { VirtualNodeHash } from "../render/interfaces/VirtualNodeHash";
 import { Urls } from "../utils/Urls";
 import { Container } from "../viewer/Container";
 import { Navigator } from "../viewer/Navigator";
+import { ImagesContract } from "../export/APINamespace";
 
 export class CoverComponent extends Component<CoverConfiguration> {
     public static componentName: string = "cover";
@@ -202,39 +203,48 @@ export class CoverComponent extends Component<CoverConfiguration> {
         return vd.h("div.mapillary-cover-background", properties, children);
     }
 
-    private _getImageSrc$(key: string): Observable<string> {
+    private _getImageSrc$(id: string): Observable<string> {
         return Observable.create(
             (subscriber: Subscriber<string>): void => {
-                this._navigator.api.getImages$([key])
+                this._navigator.api.getImages$([id])
                     .subscribe(
-                        (fullNodes: { [key: string]: ImageEnt; }): void => {
-                            if (!fullNodes[key]) {
-                                subscriber.error(new MapillaryError(`Non existent cover key: ${key}`));
+                        (items: ImagesContract): void => {
+                            for (const item of items) {
+                                if (item.node_id !== id) {
+                                    continue;
+                                }
+
+                                this._navigator.api.data
+                                    .getImageBuffer(item.node.thumb.url)
+                                    .then(
+                                        (buffer: ArrayBuffer): void => {
+                                            const image = new Image();
+                                            image.crossOrigin = "Anonymous";
+
+                                            image.onload = () => {
+                                                subscriber.next(image.src);
+                                                subscriber.complete();
+                                            };
+
+                                            image.onerror = () => {
+                                                subscriber.error(new Error(
+                                                    `Failed to load cover ` +
+                                                    `image (${id})`));
+                                            };
+
+                                            const blob = new Blob([buffer]);
+                                            image.src = window.URL
+                                                .createObjectURL(blob);
+                                        },
+                                        (error: Error): void => {
+                                            subscriber.error(error);
+                                        });
                                 return;
                             }
 
-                            this._navigator.api.data
-                                .getImageBuffer(fullNodes[key].thumb.url)
-                                .then(
-                                    (buffer: ArrayBuffer): void => {
-                                        const image: HTMLImageElement = new Image();
-                                        image.crossOrigin = "Anonymous";
-
-                                        image.onload = () => {
-                                            subscriber.next(image.src);
-                                            subscriber.complete();
-                                        };
-
-                                        image.onerror = () => {
-                                            subscriber.error(new Error(`Failed to load cover image (${key})`));
-                                        };
-
-                                        const blob: Blob = new Blob([buffer]);
-                                        image.src = window.URL.createObjectURL(blob);
-                                    },
-                                    (error: Error): void => {
-                                        subscriber.error(error);
-                                    });
+                            subscriber.error(
+                                new MapillaryError(
+                                    `Non existent cover key: ${id}`));
                         },
                         (error: Error): void => {
                             subscriber.error(error);
