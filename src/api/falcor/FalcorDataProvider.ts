@@ -111,11 +111,11 @@ export class FalcorDataProvider extends DataProviderBase {
                             }
                         }
                     }
-                    const result: CoreImagesContract = {};
+                    const ents: CoreImageEnt[] = [];
                     const imagesByH = value.json.imagesByH;
                     for (const cid in imagesByH) {
                         if (!imagesByH.hasOwnProperty(cid)) { continue; }
-                        const cell: { [index: string]: CoreImageEnt } = {};
+                        if (cid !== cellId) { continue; }
                         for (const index in imagesByH[cid]) {
                             if (!imagesByH[cid].hasOwnProperty(index)) {
                                 continue;
@@ -124,11 +124,10 @@ export class FalcorDataProvider extends DataProviderBase {
                             const core = !!item ?
                                 this._convert.core(item) :
                                 null;
-                            cell[index] = core;
+                            ents.push(core)
                         }
-                        result[cid] = cell;
                     }
-                    return result;
+                    return { cell_id: cellId, images: ents };
                 },
                 (error: Error) => {
                     this._invalidateGet(this._pathImagesByH, [cellId]);

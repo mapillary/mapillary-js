@@ -42,18 +42,16 @@ export class APIWrapper {
     }
 
     private _wrap$<T>(promise: Promise<T>): Observable<T> {
-        return Observable
-            .create(
-                (subscriber: Subscriber<T>): void => {
-                    promise
-                        .then(
-                            (value: T): void => {
-                                subscriber.next(value);
-                                subscriber.complete();
-                            },
-                            (error: Error): void => {
-                                subscriber.error(error);
-                            });
-                });
+        return Observable.create(
+            (subscriber: Subscriber<T>): void => {
+                promise.then(
+                    (value: T): void => {
+                        subscriber.next(value);
+                        subscriber.complete();
+                    },
+                    (error: Error): void => {
+                        subscriber.error(error);
+                    });
+            });
     }
 }

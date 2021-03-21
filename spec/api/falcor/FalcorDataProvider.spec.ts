@@ -2,11 +2,12 @@ import * as pako from "pako";
 import * as falcor from "falcor";
 import { FalcorDataProvider } from "../../../src/api/falcor/FalcorDataProvider";
 import { ClusterReconstructionContract } from "../../../src/api/contracts/ClusterReconstructionContract";
-import { CoreImageEnt } from "../../../src/api/ents/CoreImageEnt";
 import { FalcorModelCreator } from "../../../src/api/falcor/FalcorModelCreator";
 import { MapillaryError } from "../../../src/error/MapillaryError";
 import { SpatialImagesContract } from "../../../src/api/contracts/SpatialImagesContract";
-import { ImagesContract } from "../../../src/export/APINamespace";
+import { ImagesContract } from "../../../src/api/contracts/ImagesContract";
+import { CoreImagesContract } from "../../../src/api/contracts/CoreImagesContract";
+
 
 describe("FalcorDataProvider.ctor", () => {
     it("should create a data provider", () => {
@@ -24,7 +25,7 @@ describe("FalcorDataProvider.getFillImages", () => {
             },
         };
 
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
         const modelSpy: jasmine.Spy = spyOn(model, "get");
         modelSpy.and.returnValue(promise);
 
@@ -37,7 +38,7 @@ describe("FalcorDataProvider.getFillImages", () => {
             creator: creator,
         });
 
-        const key: string = "key";
+        const key = "key";
 
         provider.getSpatialImages([key])
             .then(
@@ -61,7 +62,7 @@ describe("FalcorDataProvider.getFillImages", () => {
             },
         };
 
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
         const modelSpy: jasmine.Spy = spyOn(model, "get");
         modelSpy.and.returnValue(promise);
 
@@ -74,7 +75,7 @@ describe("FalcorDataProvider.getFillImages", () => {
             creator: creator,
         });
 
-        const key: string = "key";
+        const key = "key";
 
         provider.getSpatialImages([key])
             .catch(
@@ -87,7 +88,7 @@ describe("FalcorDataProvider.getFillImages", () => {
     });
 
     it("should invalidate model correctly when error is thrown", (done: Function) => {
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
 
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -109,7 +110,7 @@ describe("FalcorDataProvider.getFillImages", () => {
             creator: creator,
         });
 
-        const key: string = "key";
+        const key = "key";
 
         provider.getSpatialImages([key])
             .then(
@@ -127,7 +128,7 @@ describe("FalcorDataProvider.getFillImages", () => {
     });
 
     it("should invalidate model for every error on retry", (done: Function) => {
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
 
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -149,7 +150,7 @@ describe("FalcorDataProvider.getFillImages", () => {
             creator: creator,
         });
 
-        const key: string = "key";
+        const key = "key";
 
         Promise
             .all([
@@ -172,7 +173,7 @@ describe("FalcorDataProvider.getFillImages", () => {
 
 describe("FalcorDataProvider.getFullImages", () => {
     it("should call model correctly", (done: Function) => {
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
 
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -192,7 +193,7 @@ describe("FalcorDataProvider.getFullImages", () => {
             creator: creator,
         });
 
-        const key: string = "key";
+        const key = "key";
 
         provider.getImages([key])
             .then(
@@ -216,7 +217,7 @@ describe("FalcorDataProvider.getFullImages", () => {
             },
         };
 
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
         const modelSpy: jasmine.Spy = spyOn(model, "get");
         modelSpy.and.returnValue(promise);
 
@@ -229,7 +230,7 @@ describe("FalcorDataProvider.getFullImages", () => {
             creator: creator,
         });
 
-        const key: string = "key";
+        const key = "key";
 
         provider.getImages([key])
             .catch(
@@ -242,7 +243,7 @@ describe("FalcorDataProvider.getFullImages", () => {
     });
 
     it("should invalidate model correctly when error is thrown", (done: Function) => {
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
 
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -264,7 +265,7 @@ describe("FalcorDataProvider.getFullImages", () => {
             creator: creator,
         });
 
-        const key: string = "key";
+        const key = "key";
 
         provider.getImages([key])
             .then(
@@ -284,7 +285,7 @@ describe("FalcorDataProvider.getFullImages", () => {
 
 describe("FalcorDataProvider.getCoreImages", () => {
     it("should call model correctly", (done: Function) => {
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
 
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -304,25 +305,25 @@ describe("FalcorDataProvider.getCoreImages", () => {
             creator: creator,
         });
 
-        const h: string = "h";
+        const cellId = "h";
 
-        provider.getCoreImages(h)
+        provider.getCoreImages(cellId)
             .then(
-                (result: { [key: string]: { [index: string]: CoreImageEnt } }): void => {
+                (result: CoreImagesContract): void => {
                     expect(result).toBeDefined();
 
                     expect(spy.calls.count()).toBe(1);
                     expect(spy.calls.first().args.length).toBe(1);
                     expect(spy.calls.first().args[0][0]).toBe("imagesByH");
                     expect(spy.calls.first().args[0][1].length).toBe(1);
-                    expect(spy.calls.first().args[0][1][0]).toBe(h);
+                    expect(spy.calls.first().args[0][1][0]).toBe(cellId);
 
                     done();
                 });
     });
 
     it("should invalidate model correctly when error is thrown", (done: Function) => {
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
 
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -344,17 +345,17 @@ describe("FalcorDataProvider.getCoreImages", () => {
             creator: creator,
         });
 
-        const h: string = "h";
+        const cellId = "h";
 
-        provider.getCoreImages(h)
+        provider.getCoreImages(cellId)
             .then(
-                (result: { [key: string]: { [index: string]: CoreImageEnt } }): void => { return; },
-                (error: Error): void => {
+                (): void => { return; },
+                (): void => {
                     expect(invalidateSpy.calls.count()).toBe(1);
                     expect(invalidateSpy.calls.first().args.length).toBe(1);
                     expect(invalidateSpy.calls.first().args[0][0]).toBe("imagesByH");
                     expect(invalidateSpy.calls.first().args[0][1].length).toBe(1);
-                    expect(invalidateSpy.calls.first().args[0][1][0]).toBe(h);
+                    expect(invalidateSpy.calls.first().args[0][1][0]).toBe(cellId);
 
                     done();
                 },
@@ -362,7 +363,7 @@ describe("FalcorDataProvider.getCoreImages", () => {
     });
 
     it("should handle undefined response", (done: Function) => {
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
 
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -382,13 +383,13 @@ describe("FalcorDataProvider.getCoreImages", () => {
             creator: creator,
         });
 
-        const h: string = "h";
+        const cellId = "h";
 
-        provider.getCoreImages(h)
+        provider.getCoreImages(cellId)
             .then(
-                (result: { [key: string]: { [index: string]: CoreImageEnt } }): void => {
+                (result: CoreImagesContract): void => {
                     expect(result).toBeDefined();
-                    expect(result[h]).toBeDefined();
+                    expect(result.images).toBeDefined();
 
                     done();
                 });
@@ -399,7 +400,7 @@ describe("FalcorDataProvider.getSequences", () => {
     it("should call model correctly", (done: Function) => {
         spyOn(console, "warn").and.stub();
 
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
 
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -419,7 +420,7 @@ describe("FalcorDataProvider.getSequences", () => {
             creator: creator,
         });
 
-        const skey: string = "skey";
+        const skey = "skey";
 
         provider.getSequences([skey])
             .then(
@@ -437,7 +438,7 @@ describe("FalcorDataProvider.getSequences", () => {
     });
 
     it("should invalidate model correctly when error is thrown", (done: Function) => {
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
 
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -459,7 +460,7 @@ describe("FalcorDataProvider.getSequences", () => {
             creator: creator,
         });
 
-        const skey: string = "skey";
+        const skey = "skey";
 
         provider.getSequences([skey])
             .then(
@@ -479,10 +480,10 @@ describe("FalcorDataProvider.getSequences", () => {
     it("should call model correctly", (done: Function) => {
         spyOn(console, "warn").and.stub();
 
-        const skey: string = "skey";
-        const nkey: string = "nkey";
+        const skey = "skey";
+        const nkey = "nkey";
 
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
 
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -518,7 +519,7 @@ describe("FalcorDataProvider.getSequences", () => {
     it("should create empty sequence if return value is not defined", (done: Function) => {
         spyOn(console, "warn").and.stub();
 
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
 
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -538,7 +539,7 @@ describe("FalcorDataProvider.getSequences", () => {
             creator: creator,
         });
 
-        const skey: string = "skey";
+        const skey = "skey";
 
         provider.getSequences([skey])
             .then(
@@ -556,7 +557,7 @@ describe("FalcorDataProvider.getSequences", () => {
     it("should populate empty sequence if missing", (done: Function) => {
         spyOn(console, "warn").and.stub();
 
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
 
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
@@ -576,7 +577,7 @@ describe("FalcorDataProvider.getSequences", () => {
             creator: creator,
         });
 
-        const skey: string = "skey";
+        const skey = "skey";
 
         provider.getSequences([skey])
             .then(
@@ -594,7 +595,7 @@ describe("FalcorDataProvider.getSequences", () => {
 
 describe("FalcorDataProvider.setToken", () => {
     it("should invalidate old model and create a new with token", () => {
-        const model: falcor.Model = new falcor.Model();
+        const model = new falcor.Model();
 
         const modelSpy: jasmine.Spy = spyOn(model, "invalidate");
 
