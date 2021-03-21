@@ -21,16 +21,16 @@ import {
     switchMap,
 } from "rxjs/operators";
 
-import { Component } from "./Component";
-import { CacheConfiguration, CacheDepthConfiguration } from "./interfaces/CacheConfiguration";
+import { Component } from "../Component";
+import { CacheConfiguration, CacheDepthConfiguration } from "../interfaces/CacheConfiguration";
 
-import { Node } from "../graph/Node";
-import { NavigationEdge } from "../graph/edge/interfaces/NavigationEdge";
-import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
-import { NavigationDirection } from "../graph/edge/NavigationDirection";
-import { Container } from "../viewer/Container";
-import { Navigator } from "../viewer/Navigator";
-import { isSpherical } from "../geo/Geo";
+import { Node } from "../../graph/Node";
+import { NavigationEdge } from "../../graph/edge/interfaces/NavigationEdge";
+import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
+import { NavigationDirection } from "../../graph/edge/NavigationDirection";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { isSpherical } from "../../geo/Geo";
 
 type EdgesDepth = [NavigationEdge[], number];
 

@@ -17,23 +17,23 @@ import {
     takeWhile,
 } from "rxjs/operators";
 
-import * as Geo from "../geo/Geo";
+import * as Geo from "../../geo/Geo";
 
-import { Component } from "./Component";
-import { BearingConfiguration } from "./interfaces/BearingConfiguration";
+import { Component } from "../Component";
+import { BearingConfiguration } from "../interfaces/BearingConfiguration";
 
-import { Spatial } from "../geo/Spatial";
-import { Transform } from "../geo/Transform";
-import { ViewportCoords } from "../geo/ViewportCoords";
-import { Node } from "../graph/Node";
-import { RenderCamera } from "../render/RenderCamera";
-import { ViewportSize } from "../render/interfaces/ViewportSize";
-import { VirtualNodeHash } from "../render/interfaces/VirtualNodeHash";
-import { AnimationFrame } from "../state/interfaces/AnimationFrame";
-import { ComponentSize } from "./utils/ComponentSize";
-import { Container } from "../viewer/Container";
-import { Navigator } from "../viewer/Navigator";
-import { isSpherical } from "../geo/Geo";
+import { Spatial } from "../../geo/Spatial";
+import { Transform } from "../../geo/Transform";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { Node } from "../../graph/Node";
+import { RenderCamera } from "../../render/RenderCamera";
+import { ViewportSize } from "../../render/interfaces/ViewportSize";
+import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
+import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
+import { ComponentSize } from "../utils/ComponentSize";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { isSpherical } from "../../geo/Geo";
 
 type NodeFov = [number, number];
 

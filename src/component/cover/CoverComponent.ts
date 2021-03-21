@@ -20,17 +20,18 @@ import {
     switchMap,
 } from "rxjs/operators";
 
-import { Component } from "./Component";
-import { CoverState, CoverConfiguration } from "./interfaces/CoverConfiguration";
+import { Component } from "../Component";
+import { CoverConfiguration } from "../interfaces/CoverConfiguration";
 
-import { MapillaryError } from "../error/MapillaryError";
-import { Node } from "../graph/Node";
-import { ViewportSize } from "../render/interfaces/ViewportSize";
-import { VirtualNodeHash } from "../render/interfaces/VirtualNodeHash";
-import { Urls } from "../utils/Urls";
-import { Container } from "../viewer/Container";
-import { Navigator } from "../viewer/Navigator";
-import { ImagesContract } from "../api/contracts/ImagesContract";
+import { MapillaryError } from "../../error/MapillaryError";
+import { Node } from "../../graph/Node";
+import { ViewportSize } from "../../render/interfaces/ViewportSize";
+import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
+import { Urls } from "../../utils/Urls";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { ImagesContract } from "../../api/contracts/ImagesContract";
+import { CoverState } from "./CoverState";
 
 export class CoverComponent extends Component<CoverConfiguration> {
     public static componentName: string = "cover";

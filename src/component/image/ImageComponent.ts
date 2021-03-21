@@ -12,14 +12,14 @@ import {
     map,
 } from "rxjs/operators";
 
-import { Component } from "./Component";
-import { ComponentConfiguration } from "./interfaces/ComponentConfiguration";
+import { Component } from "../Component";
+import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 
-import { Node } from "../graph/Node";
-import { Container } from "../viewer/Container";
-import { Navigator } from "../viewer/Navigator";
-import { ViewportSize } from "../render/interfaces/ViewportSize";
-import { DOM } from "../utils/DOM";
+import { Node } from "../../graph/Node";
+import { Container } from "../../viewer/Container";
+import { Navigator } from "../../viewer/Navigator";
+import { ViewportSize } from "../../render/interfaces/ViewportSize";
+import { DOM } from "../../utils/DOM";
 
 export class ImageComponent extends Component<ComponentConfiguration> {
     public static componentName: string = "image";

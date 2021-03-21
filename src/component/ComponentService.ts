@@ -1,5 +1,5 @@
 import { Component } from "./Component";
-import { CoverComponent } from "./CoverComponent";
+import { CoverComponent } from "./cover/CoverComponent";
 import { ComponentConfiguration } from "./interfaces/ComponentConfiguration";
 
 import { ArgumentMapillaryError } from "../error/ArgumentMapillaryError";
