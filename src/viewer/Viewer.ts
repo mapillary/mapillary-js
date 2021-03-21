@@ -389,6 +389,9 @@ export class Viewer extends EventEmitter {
     /**
      * Add a custom renderer to the viewer's rendering pipeline.
      *
+     * @description During a render pass, custom renderers
+     * are called in the order they were added.
+     *
      * @param renderer - The custom renderer implementation.
      */
     public addCustomRenderer(renderer: ICustomRenderer): void {

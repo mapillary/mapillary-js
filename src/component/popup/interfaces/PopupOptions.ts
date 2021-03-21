@@ -1,4 +1,4 @@
-import { Alignment } from "../../../viewer/Alignment";
+import { Alignment } from "../../../viewer/enums/Alignment";
 import { PopupOffset } from "./PopupOffset";
 
 /**

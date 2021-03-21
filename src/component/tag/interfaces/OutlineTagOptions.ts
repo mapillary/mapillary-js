@@ -1,5 +1,5 @@
 import { TagDomain } from "../tag/TagDomain";
-import { Alignment } from "../../../viewer/Alignment";
+import { Alignment } from "../../../viewer/enums/Alignment";
 
 /**
  * Interface for the options that define the behavior and

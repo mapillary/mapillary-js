@@ -1,9 +1,9 @@
 import { GLRenderFunction } from "./GLRenderFunction";
-import { GLRenderStage } from "../GLRenderStage";
+import { RenderPass } from "../RenderPass";
 
 export interface GLFrameRenderer {
     frameId: number;
     needsRender: boolean;
     render: GLRenderFunction;
-    stage: GLRenderStage;
+    pass: RenderPass;
 }

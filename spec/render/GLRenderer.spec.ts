@@ -3,7 +3,7 @@ import { empty as observableEmpty, BehaviorSubject, Subscription, Subject } from
 import { map } from "rxjs/operators";
 import * as THREE from "three";
 import { GLRenderer } from "../../src/render/GLRenderer";
-import { GLRenderStage } from "../../src/render/GLRenderStage";
+import { RenderPass } from "../../src/render/RenderPass";
 import { GLFrameRenderer } from "../../src/render/interfaces/GLFrameRenderer";
 import { GLRenderFunction } from "../../src/render/interfaces/GLRenderFunction";
 import { GLRenderHash } from "../../src/render/interfaces/IGLRenderHash";
@@ -90,7 +90,7 @@ describe("GLRenderer.renderer", () => {
                 frameId: frameId,
                 needsRender: needsRender,
                 render: renderFunction,
-                stage: GLRenderStage.Background,
+                pass: RenderPass.Background,
             };
 
             let renderHash: GLRenderHash = {
@@ -414,7 +414,7 @@ describe("GLRenderer.renderer", () => {
         let canvas = document.createElement("canvas");
         let glRenderer: GLRenderer = new GLRenderer(canvas, document.createElement("div"), renderServiceMock);
 
-        glRenderer.postrender$.subscribe(
+        glRenderer.opaqueRender$.subscribe(
             () => {
                 expect((<jasmine.Spy>rendererMock.resetState)
                     .calls.count()).toBe(1);

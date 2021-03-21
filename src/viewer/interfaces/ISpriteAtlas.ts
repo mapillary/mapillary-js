@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import * as vd from "virtual-dom";
 
-import { Alignment } from "../Alignment";
+import { Alignment } from "../enums/Alignment";
 
 export interface ISpriteAtlas {
     loaded: boolean;

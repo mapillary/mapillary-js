@@ -46,7 +46,7 @@ import { TagConfiguration } from "../interfaces/TagConfiguration";
 import { Transform } from "../../geo/Transform";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { Navigator } from "../../viewer/Navigator";
-import { GLRenderStage } from "../../render/GLRenderStage";
+import { RenderPass } from "../../render/RenderPass";
 import { RenderCamera } from "../../render/RenderCamera";
 import { GLRenderHash } from "../../render/interfaces/IGLRenderHash";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
@@ -708,7 +708,7 @@ export class TagComponent extends Component<TagConfiguration> {
                             frameId: frame.id,
                             needsRender: tagScene.needsRender,
                             render: tagScene.render.bind(tagScene),
-                            stage: GLRenderStage.Foreground,
+                            pass: RenderPass.Opaque,
                         },
                     };
                 }))

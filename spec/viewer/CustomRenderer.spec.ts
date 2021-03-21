@@ -15,6 +15,7 @@ import { RendererMock } from "../helper/WebGLRenderer";
 import { LatLonAlt } from "../../src/api/interfaces/LatLonAlt";
 import { RenderCamera } from "../../src/render/RenderCamera";
 import { RenderMode } from "../../src/render/RenderMode";
+import { RenderPass } from "../../src/viewer/enums/RenderPass";
 
 global.WebGL2RenderingContext = <any>jest.fn();
 
@@ -51,6 +52,7 @@ describe("CustomRenderer.add", () => {
         customRenderer.add(
             {
                 id,
+                renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
                 onReferenceChanged: () => { /* noop */ },
                 onRemove: () => { /* noop */ },
@@ -80,6 +82,7 @@ describe("CustomRenderer.add", () => {
         customRenderer.add(
             {
                 id: rendererId,
+                renderPass: RenderPass.Opaque,
                 onAdd: (viewer, reference, context) => {
                     expect(viewer).toBe(viewerMock);
                     expect(reference).toBe(referenceMock);
@@ -121,6 +124,7 @@ describe("CustomRenderer.add", () => {
         customRenderer.add(
             {
                 id: rendererId,
+                renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
                 onReferenceChanged: () => { invokeCount++; },
                 onRemove: () => { /* noop */ },
@@ -158,6 +162,7 @@ describe("CustomRenderer.add", () => {
         customRenderer.add(
             {
                 id: rendererId,
+                renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
                 onReferenceChanged: () => { invokeCount++; },
                 onRemove: () => { /* noop */ },
@@ -197,6 +202,7 @@ describe("CustomRenderer.add", () => {
         customRenderer.add(
             {
                 id: rendererId,
+                renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
                 onReferenceChanged: () => { /* noop */ },
                 onRemove: () => { /* noop */ },
@@ -238,7 +244,7 @@ describe("CustomRenderer.add", () => {
         (<Subject<RenderCamera>>container.renderService.renderCamera$)
             .next(renderCameraMock);
 
-        (<Subject<void>>container.glRenderer.postrender$).next();
+        (<Subject<void>>container.glRenderer.opaqueRender$).next();
     });
 });
 
@@ -259,6 +265,7 @@ describe("CustomRenderer.remove", () => {
         customRenderer.add(
             {
                 id,
+                renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
                 onReferenceChanged: () => { /* noop */ },
                 onRemove: () => { /* noop */ },
@@ -287,6 +294,7 @@ describe("CustomRenderer.remove", () => {
         customRenderer.add(
             {
                 id: rendererId,
+                renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
                 onReferenceChanged: () => { /* noop */ },
                 onRemove: (viewer, context) => {
@@ -328,6 +336,7 @@ describe("CustomRenderer.dispose", () => {
         customRenderer.add(
             {
                 id,
+                renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
                 onReferenceChanged: () => { /* noop */ },
                 onRemove: () => { /* noop */ },
@@ -355,6 +364,7 @@ describe("CustomRenderer.dispose", () => {
         customRenderer.add(
             {
                 id: rendererId,
+                renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
                 onReferenceChanged: () => { /* noop */ },
                 onRemove: (viewer, context) => {

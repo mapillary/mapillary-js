@@ -9,7 +9,7 @@ import { Tag } from "./Tag";
 import { InteractionCursor } from "../interfaces/TagInteraction";
 
 import { ViewportSize } from "../../../render/interfaces/ViewportSize";
-import { Alignment } from "../../../viewer/Alignment";
+import { Alignment } from "../../../viewer/enums/Alignment";
 import { ISpriteAtlas } from "../../../viewer/interfaces/ISpriteAtlas";
 
 /**

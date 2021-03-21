@@ -1,4 +1,5 @@
 import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
+import { RenderPass } from "../enums/RenderPass";
 import { Viewer } from "../Viewer";
 
 /**
@@ -22,12 +23,23 @@ import { Viewer } from "../Viewer";
  * of their objects using the reference parameter of the
  * renderer interface methods and the {GeoCoords#geodeticToEnu}
  * method.
+ *
+ * @description During a render pass, custom renderers
+ * are called in the order they were added.
  */
 export interface ICustomRenderer {
     /**
      * A unique renderer id.
      */
     id: string;
+
+    /**
+     * The custom renderers's render pass.
+     *
+     * @description The ICustomRenderer#render method
+     * will be called during this render pass.
+     */
+    renderPass: RenderPass;
 
     /**
      * Method called when the renderer has been added to the

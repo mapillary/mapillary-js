@@ -4,7 +4,7 @@ import { Popup } from "../../../src/component/popup/popup/Popup";
 import { ViewportCoords } from "../../../src/geo/ViewportCoords";
 import { RenderCamera } from "../../../src/render/RenderCamera";
 import { DOM } from "../../../src/utils/DOM";
-import { Alignment } from "../../../src/viewer/Alignment";
+import { Alignment } from "../../../src/viewer/enums/Alignment";
 
 describe("Popup.ctor", () => {
     it("should be defined", () => {
