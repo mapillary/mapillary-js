@@ -1,59 +1,60 @@
 export class EventEmitter {
-    private _events: { [eventType: string]: any[] };
+    private _events: { [type: string]: ((event: any) => void)[] };
 
-    constructor() {
-        this._events = {};
-    }
+    constructor() { this._events = {}; }
 
     /**
      * Subscribe to an event by its name.
-     * @param {string }eventType - The name of the event to subscribe to.
-     * @param {any} fn - The handler called when the event occurs.
+     * @param {string} type - The name of the event
+     * to subscribe to.
+     * @param {(event: T) => void} handler - The
+     * handler called when the event occurs.
      */
-    public on(eventType: string, fn: any): void {
-        this._events[eventType] = this._events[eventType] || [];
-        this._events[eventType].push(fn);
-        return;
+    public on<T>(
+        type: string,
+        handler: (event: T) => void): void {
+        this._events[type] = this._events[type] || [];
+        this._events[type].push(handler);
     }
 
     /**
      * Unsubscribe from an event by its name.
-     * @param {string} eventType - The name of the event to subscribe to.
-     * @param {any} fn - The handler to remove.
+     * @param {string} type - The name of the event
+     * to unsubscribe from.
+     * @param {(event: T) => void} handler - The
+     * handler to remove.
      */
-    public off(eventType: string, fn: any): void {
-        if (!eventType) {
-            this._events = {};
-            return;
-        }
+    public off<T>(
+        type: string,
+        handler: (event: T) => void): void {
+        if (!type) { this._events = {}; return; }
 
-        if (!this._listens(eventType)) {
-            let idx: number = this._events[eventType].indexOf(fn);
-            if (idx >= 0) {
-                this._events[eventType].splice(idx, 1);
+        if (!this._listens(type)) {
+            const index = this._events[type].indexOf(handler);
+            if (index >= 0) {
+                this._events[type].splice(index, 1);
             }
-            if (this._events[eventType].length) {
-                delete this._events[eventType];
+            if (this._events[type].length) {
+                delete this._events[type];
             }
         } else {
-            delete this._events[eventType];
+            delete this._events[type];
         }
-
-        return;
     }
 
-    public fire(eventType: string, data: any): void {
-        if (!this._listens(eventType)) {
-            return;
+    /**
+     * @ignore
+     */
+    public fire<T>(
+        type: string,
+        event: T): void {
+        if (!this._listens(type)) { return; }
+        for (let fn of this._events[type]) {
+            fn.call(this, event);
         }
-
-        for (let fn of this._events[eventType]) {
-            fn.call(this, data);
-        }
-        return;
     }
 
     private _listens(eventType: string): boolean {
-        return !!(this._events && this._events[eventType]);
+        return eventType in this._events;
     }
 }

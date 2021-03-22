@@ -1,12 +1,22 @@
 import { LatLon } from "../../api/interfaces/LatLon";
-import { ViewerEvent } from "./ViewerEvent";
+import { IViewer } from "../interfaces/IViewer";
 
 /**
- * @interface MouseViewerEvent
+ * @interface ViewerMouseEvent
  *
- * Interface that represents a mouse event occuring in the viewer target element.
+ * `ViewerMouseEvent` is the event type for mouse-related
+ * viewer events.
+ *
+ * @example
+ * // The `click` event is an example of a `ViewerMouseEvent`.
+ * // Set up an event listener on the viewer.
+ * viewer.on('click', function(e) {
+ *   // The event object (e) contains information like the
+ *   // coordinates of the point in the viewer that was clicked.
+ *   console.log('A click event has occurred at ' + e.latLon);
+ * });
  */
-export interface MouseViewerEvent extends ViewerEvent {
+export interface ViewerMouseEvent {
     /**
      * The basic coordinates in the current image of the mouse
      * event target.
@@ -43,7 +53,20 @@ export interface MouseViewerEvent extends ViewerEvent {
     originalEvent: MouseEvent;
 
     /**
+     * The viewer object that fired the event.
+     */
+    target: IViewer;
+
+    /**
      * The event type.
      */
-    type: string;
+    type:
+    | "click"
+    | "dblclick"
+    | "contextmenu"
+    | "mousedown"
+    | "mousemove"
+    | "mouseout"
+    | "mouseover"
+    | "mouseup";
 }

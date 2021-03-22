@@ -1,6 +1,6 @@
 import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
 import { RenderPass } from "../enums/RenderPass";
-import { Viewer } from "../Viewer";
+import { IViewer } from "./IViewer";
 
 /**
  * @interface
@@ -51,7 +51,7 @@ export interface ICustomRenderer {
      * for scene objects using the provided reference and
      * the {GeoCoords#geodeticToEnu} method.
      *
-     * @param {Viewer} viewer - The viewer this custom renderer
+     * @param {IViewer} viewer - The viewer this custom renderer
      * was just added to.
      * @param {LatLonAlt} reference - The viewer's current
      * reference position.
@@ -59,7 +59,7 @@ export interface ICustomRenderer {
      * The viewer's gl context.
      */
     onAdd(
-        viewer: Viewer,
+        viewer: IViewer,
         reference: LatLonAlt,
         context: WebGLRenderingContext | WebGL2RenderingContext): void;
 
@@ -71,13 +71,13 @@ export interface ICustomRenderer {
      * for scene objects using the provided reference and
      * the {GeoCoords#geodeticToEnu} method.
      *
-     * @param {Viewer} viewer - The viewer this custom renderer
+     * @param {IViewer} viewer - The viewer this custom renderer
      * is added to.
      * @param {LatLonAlt} reference - The viewer's current
      * reference position.
      */
     onReferenceChanged(
-        viewer: Viewer,
+        viewer: IViewer,
         reference: LatLonAlt): void;
 
     /**
@@ -86,13 +86,13 @@ export interface ICustomRenderer {
      * renderer a chance to clean up gl resources and event
      * listeners.
      *
-     * @param {Viewer} viewer - The viewer this custom renderer
+     * @param {IViewer} viewer - The viewer this custom renderer
      * was just removed from.
      * @param {WebGLRenderingContext | WebGL2RenderingContext} context -
      * The viewer's gl context.
      */
     onRemove(
-        viewer: Viewer,
+        viewer: IViewer,
         context: WebGLRenderingContext | WebGL2RenderingContext): void;
 
     /**

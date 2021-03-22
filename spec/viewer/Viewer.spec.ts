@@ -1,3 +1,4 @@
+import { ViewerEvent } from "../../src/Mapillary";
 import * as ComponentController from "../../src/viewer/ComponentController";
 import * as Container from "../../src/viewer/Container";
 import * as CustomRenderer from "../../src/viewer/CustomRenderer";
@@ -84,12 +85,12 @@ describe("Viewer.remove", () => {
     it("should emit removed event", (done: Function) => {
         createMocks();
         const viewer = new Viewer({ apiClient: "", container: "" });
-
+        const remove: ViewerEvent = "remove";
         viewer.on(
-            Viewer.removed,
+            remove,
             (event: { type: string }): void => {
                 expect(event).toBeDefined();
-                expect(event.type).toBe(Viewer.removed);
+                expect(event.type).toBe(remove);
 
                 done();
             });
