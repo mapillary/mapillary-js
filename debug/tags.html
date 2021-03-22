@@ -135,10 +135,12 @@
             tagComponent.add([tag]);
         });
 
-        viewer.on(Mapillary.Viewer.nodechanged, function (node) {
-            createdTags = {};
-            tagComponent.removeAll();
-        });
+        viewer.on(
+            "nodechanged",
+            function () {
+                createdTags = {};
+                tagComponent.removeAll();
+            });
     </script>
 </body>
 

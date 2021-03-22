@@ -72,7 +72,8 @@
             pos: L.circleMarker([0, 0], { radius: 7, color: "#00f" }),
         };
 
-        mly.on(Mapillary.Viewer.nodechanged, (node) => {
+        mly.on("node", (event) => {
+            const node = event.node;
             const latLon = [node.latLon.lat, node.latLon.lon];
             const originalLatLon = [node.originalLatLon.lat, node.originalLatLon.lon];
 
@@ -201,11 +202,11 @@
             moveIndicatorMarker(event.latLon);
         }
 
-        mly.on(Mapillary.Viewer.mouseup, onViewerMouseEvent);
-        mly.on(Mapillary.Viewer.mouseover, onViewerMouseEvent);
-        mly.on(Mapillary.Viewer.mousedown, onViewerMouseEvent);
+        mly.on("mouseup", onViewerMouseEvent);
+        mly.on("mouseover", onViewerMouseEvent);
+        mly.on("mousedown", onViewerMouseEvent);
 
-        mly.on(Mapillary.Viewer.mousemove, (event) => {
+        mly.on("mousemove", (event) => {
             // Store last mouse position for later unprojection
             indicator.state.lastPos = event.pixelPoint;
 
@@ -215,14 +216,14 @@
         });
 
 
-        mly.on(Mapillary.Viewer.mouseout, (event) => {
+        mly.on("mouseout", () => {
             indicator.state.lastPos = null;
             removeViewerIndicator();
             removeMapIndicator();
         });
 
-        mly.on(Mapillary.Viewer.movestart, (event) => { indicator.state.moving = true; });
-        mly.on(Mapillary.Viewer.moveend, (event) => {
+        mly.on("movestart", () => { indicator.state.moving = true; });
+        mly.on("moveend", () => {
             indicator.state.moving = false;
 
             if (!indicator.state.lastPos) { return; }
@@ -313,7 +314,7 @@
             handleMapMarkerDrag(mapMarker);
         }
 
-        mly.on(Mapillary.Viewer.click, (e) => {
+        mly.on("click", (e) => {
             if (!e.latLon) { return; }
 
             markerComponent.getMarkerIdAt(e.pixelPoint).then((markerId) => {
