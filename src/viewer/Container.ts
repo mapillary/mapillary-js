@@ -2,7 +2,7 @@ import { KeyboardService } from "./KeyboardService";
 import { MouseService } from "./MouseService";
 import { SpriteService } from "./SpriteService";
 import { TouchService } from "./TouchService";
-import { ViewerOptions } from "./interfaces/ViewerOptions";
+import { ViewerOptions } from "./options/ViewerOptions";
 
 import { DOMRenderer } from "../render/DOMRenderer";
 import { GLRenderer } from "../render/GLRenderer";

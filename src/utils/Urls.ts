@@ -1,4 +1,4 @@
-import { UrlOptions } from "../viewer/interfaces/UrlOptions";
+import { UrlOptions } from "../viewer/options/UrlOptions";
 
 export class Urls {
     private static _exploreHost: string = "www.mapillary.com";

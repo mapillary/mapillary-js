@@ -1066,8 +1066,8 @@ export class SpatialDataScene {
                 node.clusterId : "default_cluster_id",
             sequenceId: !!node.sequenceId ?
                 node.sequenceId : "default_sequence_id",
-            ccId: !!node.mergeCC ?
-                node.mergeCC.toString() : "default_mergecc_id",
+            ccId: !!node.mergeConnectedComponent ?
+                node.mergeConnectedComponent.toString() : "default_mergecc_id",
         }
 
         if (!(cellId in this._nodes)) {

@@ -1,5 +1,5 @@
 import { Urls } from "../../src/utils/Urls";
-import { UrlOptions } from "../../src/viewer/interfaces/UrlOptions";
+import { UrlOptions } from "../../src/viewer/options/UrlOptions";
 
 describe("Urls.setOptions", () => {
     it("should set all option properties", () => {

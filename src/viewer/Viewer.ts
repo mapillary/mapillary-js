@@ -22,7 +22,7 @@ import { Urls } from "../utils/Urls";
 
 import { ICustomRenderer } from "./interfaces/ICustomRenderer";
 import { PointOfView } from "./interfaces/PointOfView";
-import { ViewerOptions } from "./interfaces/ViewerOptions";
+import { ViewerOptions } from "./options/ViewerOptions";
 import { ComponentController } from "./ComponentController";
 import { Container } from "./Container";
 import { Navigator } from "./Navigator";
@@ -984,11 +984,11 @@ export class Viewer extends EventEmitter {
      * in a filter) and common use cases:
      *
      * ```
-     * cameraType      // Show only spherical or not
-     * organizationId // Show images from one or several organizations
+     * cameraType     // Show only spherical or not
+     * ownerId        // Show images from one or several owners
      * sequenceId     // Show images from one or several sequences
-     * userId         // Show images from one or several users
-     * capturedAt      // Show images from a certain time interval
+     * creatorId      // Show images from one or several creators
+     * capturedAt     // Show images from a certain time interval
      * ```
      *
      * @param {FilterExpression} filter - The filter expression.
@@ -996,13 +996,13 @@ export class Viewer extends EventEmitter {
      *
      * @example
      * ```
-     * viewer.setFilter(["==", "sequenceId", "<my sequence id>"]);
+     * viewer.setFilter(["==", "sequenceId", "<my-sequence-id>"]);
      *
      * // Other examples
-     * // viewer.setFilter(["==", "organizationId", "<my organization id>"]);
-     * // viewer.setFilter(["in", "userId", "<my user id #1>", "<my user id #2>"]);
+     * // viewer.setFilter(["==", "ownerId", "<my-owner-id>"]);
+     * // viewer.setFilter(["in", "creatorId", "<my-creator-id-#1>", "<my-creator-id-#2>"]);
      * // viewer.setFilter(["==", "cameraType", "spherical"]);
-     * // viewer.setFilter([">=", "capturedAt", <my time stamp>]);
+     * // viewer.setFilter([">=", "capturedAt", <my-time-stamp>]);
      * ```
      */
     public setFilter(filter: FilterExpression): Promise<void> {

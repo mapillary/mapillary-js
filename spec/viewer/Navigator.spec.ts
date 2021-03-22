@@ -120,7 +120,7 @@ describe("Navigator.moveToKey$", () => {
         const stopLoadingSpy: jasmine.Spy = spyOn(loadingService, "stopLoading").and.stub();
 
         const key: string = "key";
-        const sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceId";
         spyOn(graphService, "cacheNode$").and.returnValue(observableOf<Node>(
             new Node({
                 computed_geometry: { lat: 0, lon: 0 },
@@ -228,7 +228,7 @@ describe("Navigator.moveToKey$", () => {
         spyOn(loadingService, "stopLoading").and.stub();
 
         const key: string = "key";
-        const sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceId";
         const node: Node = new Node({
             computed_geometry: { lat: 0, lon: 0 },
             id: key,
@@ -266,7 +266,7 @@ describe("Navigator.moveToKey$", () => {
         spyOn(loadingService, "stopLoading").and.stub();
 
         const key: string = "key";
-        const sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceId";
         const cacheNodeSubject$: Subject<Node> = new Subject<Node>();
         const node: Node = new Node({
             computed_geometry: { lat: 0, lon: 0 },
@@ -309,7 +309,7 @@ describe("Navigator.moveToKey$", () => {
             spyOn(loadingService, "stopLoading").and.stub();
 
             const key: string = "key1";
-            const sequenceKey: string = "sequenceKey";
+            const sequenceKey: string = "sequenceId";
             const cacheNodeSubject$: Subject<Node> = new Subject<Node>();
             const node: Node = new Node({
                 computed_geometry: { lat: 0, lon: 0 },
@@ -369,7 +369,7 @@ describe("Navigator.movedToKey$", () => {
         spyOn(loadingService, "stopLoading").and.stub();
 
         const key: string = "key";
-        const sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceId";
         spyOn(graphService, "cacheNode$").and.returnValue(observableOf<Node>(
             new Node({
                 computed_geometry: { lat: 0, lon: 0 },

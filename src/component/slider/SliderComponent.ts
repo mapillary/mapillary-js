@@ -177,16 +177,16 @@ export class SliderComponent extends Component<SliderConfiguration> {
     }
 
     /**
-     * Set the image idss.
+     * Set the image ids.
      *
      * @description Configures the component to show the image
      * planes for the supplied image idss.
      *
-     * @param {SliderConfigurationIds} keys - Slider keys object specifying
+     * @param {SliderConfigurationIds} ids - Slider ids object specifying
      * the images to be shown in the foreground and the background.
      */
-    public setKeys(keys: SliderConfigurationIds): void {
-        this.configure({ ids: keys });
+    public setIds(ids: SliderConfigurationIds): void {
+        this.configure({ ids: ids });
     }
 
     /**

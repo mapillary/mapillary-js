@@ -415,7 +415,7 @@ export abstract class StateBase implements IStateBase {
         let previous: Node = this._previousNode;
 
         return !!current && !!previous &&
-            current.mergeCC === previous.mergeCC;
+            current.mergeConnectedComponent === previous.mergeConnectedComponent;
     }
 
     private _withinOriginalDistance(): boolean {

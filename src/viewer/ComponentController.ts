@@ -12,7 +12,7 @@ import {
 import { Container } from "./Container";
 import { Navigator } from "./Navigator";
 import { Observer } from "./Observer";
-import { ComponentOptions } from "./interfaces/ComponentOptions";
+import { ComponentOptions } from "./options/ComponentOptions";
 
 import { Component } from "../component/Component";
 import { ComponentService } from "../component/ComponentService";

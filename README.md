@@ -48,9 +48,9 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 - [Dynamic size](https://bl.ocks.org/oscarlorentzon/5af00c5c07448233bcb62f5e2124ab39)
 - [Load immediately](https://bl.ocks.org/oscarlorentzon/530cf3b89b8f5d1ecfdf4b79946caade)
 - [No cover](https://bl.ocks.org/oscarlorentzon/4f6f7ae5e86db7446f78ccea1eb6c2a7)
-- [Initialize with or without a key](https://bl.ocks.org/oscarlorentzon/3eb61ce99b3c1cedba88942cb02f317d)
+- [Initialize with or without an id](https://bl.ocks.org/oscarlorentzon/3eb61ce99b3c1cedba88942cb02f317d)
 - [Determine if viewer is navigable](https://bl.ocks.org/oscarlorentzon/898c55ef06917b07f165b7707d9f3a9e)
-- [Move to key](https://bl.ocks.org/oscarlorentzon/317da436accbcf2ff04c642f86cefaf8)
+- [Move to image](https://bl.ocks.org/oscarlorentzon/317da436accbcf2ff04c642f86cefaf8)
 - [Move in direction](https://bl.ocks.org/oscarlorentzon/63ac2aa3f0998f0c2d2b01a42c8babe4)
 - [Viewer options](https://bl.ocks.org/oscarlorentzon/08613728a283d1306b2848533852d22a)
 - [Subscribe to node changed](https://bl.ocks.org/oscarlorentzon/c5380e11fb3e84b8096f16737eb44820)
@@ -83,10 +83,10 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 - [Add one million interactive markers](https://bl.ocks.org/oscarlorentzon/999db12bc87c92d5c547b1e582989fc1)
 
 #### Mouse
-- [Enable and disable mouse and touch handlers](https://bl.ocks.org/oscarlorentzon/37d28603212de2b8326bb65e49418368)
+- [Activate and deactivate mouse and touch handlers](https://bl.ocks.org/oscarlorentzon/37d28603212de2b8326bb65e49418368)
 
 #### Keyboard
-- [Enable and disable keyboard handlers](https://bl.ocks.org/oscarlorentzon/c92bbefbd4c74d4a490a8b37c85a1a7b)
+- [Activate and deactivate keyboard handlers](https://bl.ocks.org/oscarlorentzon/c92bbefbd4c74d4a490a8b37c85a1a7b)
 
 #### Popup
 - [Display a popup](https://bl.ocks.org/oscarlorentzon/54182e3f3624cdeb7ca960d96ebfa5fb)

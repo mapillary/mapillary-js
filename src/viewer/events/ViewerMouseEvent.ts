@@ -1,12 +1,12 @@
-import { Viewer } from "../Viewer";
 import { LatLon } from "../../api/interfaces/LatLon";
+import { ViewerEvent } from "./ViewerEvent";
 
 /**
- * @interface ViewerMouseEvent
+ * @interface MouseViewerEvent
  *
  * Interface that represents a mouse event occuring in the viewer target element.
  */
-export interface ViewerMouseEvent {
+export interface MouseViewerEvent extends ViewerEvent {
     /**
      * The basic coordinates in the current image of the mouse
      * event target.
@@ -41,11 +41,6 @@ export interface ViewerMouseEvent {
      * The original event that triggered the viewer event.
      */
     originalEvent: MouseEvent;
-
-    /**
-     * The viewer object that fired the event.
-     */
-    target: Viewer;
 
     /**
      * The event type.

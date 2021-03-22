@@ -132,8 +132,6 @@ export class Node {
      *
      * @returns {string} Globally unique id of the SfM cluster to which
      * the node belongs.
-     *
-     * @ignore
      */
     public get clusterId(): string {
         return !!this._spatial.cluster ?
@@ -225,6 +223,16 @@ export class Node {
         return this._spatial.creator.username;
     }
 
+
+    /**
+     * Get exifOrientation.
+     *
+     * @returns {number} EXIF orientation of original image.
+     */
+    public get exifOrientation(): number {
+        return this._spatial.exif_orientation;
+    }
+
     /**
      * Get full.
      *
@@ -312,7 +320,7 @@ export class Node {
     }
 
     /**
-     * Get mergeCC.
+     * Get mergeConnectedComponent.
      *
      * @description Will not be set if SfM has not yet been run on
      * node.
@@ -320,7 +328,7 @@ export class Node {
      * @returns {number} SfM connected component id to which
      * image belongs.
      */
-    public get mergeCC(): number {
+    public get mergeConnectedComponent(): number {
         return this._spatial.merge_cc;
     }
 
@@ -343,28 +351,6 @@ export class Node {
      */
     public get mesh(): MeshContract {
         return this._cache.mesh;
-    }
-
-    /**
-     * Get ownerId.
-     *
-     * @returns {string} Globally unique id of the owner to which
-     * the node belongs. If the node does not belong to an
-     * owner the owner id will be undefined.
-     */
-    public get ownerId(): string {
-        return !!this._spatial.owner ?
-            this._spatial.owner.id :
-            null;
-    }
-
-    /**
-     * Get exifOrientation.
-     *
-     * @returns {number} EXIF orientation of original image.
-     */
-    public get exifOrientation(): number {
-        return this._spatial.exif_orientation;
     }
 
     /**
@@ -394,6 +380,19 @@ export class Node {
      */
     public get originalLatLon(): LatLon {
         return this._core.geometry;
+    }
+
+    /**
+     * Get ownerId.
+     *
+     * @returns {string} Globally unique id of the owner to which
+     * the node belongs. If the node does not belong to an
+     * owner the owner id will be undefined.
+     */
+    public get ownerId(): string {
+        return !!this._spatial.owner ?
+            this._spatial.owner.id :
+            null;
     }
 
     /**
