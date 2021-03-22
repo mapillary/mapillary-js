@@ -582,7 +582,7 @@ describe("PlayService.play", () => {
 
         playService.play();
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceId";
 
         const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
         currentFullNode.sequence.id = sequenceKey;
@@ -626,7 +626,7 @@ describe("PlayService.play", () => {
 
         playService.play();
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceId";
 
         const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
         currentFullNode.sequence.id = sequenceKey;
@@ -674,7 +674,7 @@ describe("PlayService.play", () => {
 
         playService.play();
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceId";
 
         const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
         currentFullNode.sequence.id = sequenceKey;
@@ -726,7 +726,7 @@ describe("PlayService.play", () => {
 
         playService.play();
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceId";
 
         const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
         currentFullNode.sequence.id = sequenceKey;
@@ -784,7 +784,7 @@ describe("PlayService.play", () => {
 
         playService.play();
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceId";
 
         const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
         currentFullNode.sequence.id = sequenceKey;
@@ -838,7 +838,7 @@ describe("PlayService.play", () => {
 
         playService.play();
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceId";
 
         const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
         currentFullNode.sequence.id = sequenceKey;

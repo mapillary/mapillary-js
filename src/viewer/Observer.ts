@@ -21,7 +21,7 @@ import { Navigator } from "./Navigator";
 import { Projection } from "./Projection";
 import { Viewer } from "./Viewer";
 import { Unprojection } from "./interfaces/Unprojection";
-import { ViewerMouseEvent } from "./interfaces/ViewerMouseEvent";
+import { MouseViewerEvent } from "./events/ViewerMouseEvent";
 
 import { LatLon } from "../api/interfaces/LatLon";
 import { Transform } from "../geo/Transform";
@@ -224,7 +224,7 @@ export class Observer {
                     this._navigator.stateService.currentTransform$),
                 map(
                     ([[type, event], render, reference, transform]:
-                        [[string, MouseEvent], RenderCamera, LatLonAlt, Transform]): ViewerMouseEvent => {
+                        [[string, MouseEvent], RenderCamera, LatLonAlt, Transform]): MouseViewerEvent => {
                         const unprojection: Unprojection =
                             this._projection.eventToUnprojection(
                                 event,
@@ -243,7 +243,7 @@ export class Observer {
                         };
                     }))
             .subscribe(
-                (event: ViewerMouseEvent): void => {
+                (event: MouseViewerEvent): void => {
                     this._eventEmitter.fire(event.type, event);
                 });
 

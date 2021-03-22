@@ -21,7 +21,7 @@ import { CacheService } from "./CacheService";
 import { LoadingService } from "./LoadingService";
 import { PanService } from "./PanService";
 import { PlayService } from "./PlayService";
-import { ViewerOptions } from "./interfaces/ViewerOptions";
+import { ViewerOptions } from "./options/ViewerOptions";
 
 import { APIWrapper } from "../api/APIWrapper";
 import { DataProviderBase } from "../api/DataProviderBase";

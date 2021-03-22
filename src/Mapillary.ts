@@ -77,13 +77,13 @@ export { TransitionMode } from "./state/TransitionMode";
 export { Viewer } from "./viewer/Viewer";
 
 // Viewer events
-export { ViewerEvent } from "./viewer/interfaces/ViewerEvent";
-export { ViewerMouseEvent } from "./viewer/interfaces/ViewerMouseEvent";
+export { ViewerEvent } from "./viewer/events/ViewerEvent";
+export { MouseViewerEvent } from "./viewer/events/ViewerMouseEvent";
 
-// Viewer configuration
-export { ComponentOptions } from "./viewer/interfaces/ComponentOptions";
-export { UrlOptions } from "./viewer/interfaces/UrlOptions";
-export { ViewerOptions } from "./viewer/interfaces/ViewerOptions";
+// Viewer options
+export { ComponentOptions } from "./viewer/options/ComponentOptions";
+export { UrlOptions } from "./viewer/options/UrlOptions";
+export { ViewerOptions } from "./viewer/options/ViewerOptions";
 
 // Graph
 export { Node } from "./graph/Node";

@@ -25,13 +25,6 @@ export interface ComponentOptions {
     attribution?: boolean;
 
     /**
-     * Display a background if no key is set.
-     *
-     * @default false
-     */
-    background?: boolean;
-
-    /**
      * Show indicator for bearing and field of view.
      *
      * @default true
@@ -51,12 +44,6 @@ export interface ComponentOptions {
      * @default true
      */
     cover?: boolean;
-
-    /**
-     * Show debug interface.
-     * @default false
-     */
-    debug?: boolean;
 
     /**
      * Show spatial direction arrows for navigation.
@@ -130,13 +117,6 @@ export interface ComponentOptions {
      * @default false
      */
     popup?: boolean;
-
-    /**
-     * Create a route with a story.
-     *
-     * @default false
-     */
-    route?: boolean;
 
     /**
      * Show sequence related navigation.

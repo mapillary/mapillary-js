@@ -4,10 +4,13 @@ export default {
         "<rootDir>/src/**/*",
     ],
     coveragePathIgnorePatterns: [
+        "<rootDir>/src/api/contracts/",
         "<rootDir>/src/api/ents/",
         "<rootDir>/src/export/",
         "<rootDir>/src/component/shaders/",
         "<rootDir>/src/Mapillary.js",
+        "<rootDir>/src/viewer/events/",
+        "<rootDir>/src/viewer/options/",
         "interfaces"
     ],
     coverageProvider: "v8",

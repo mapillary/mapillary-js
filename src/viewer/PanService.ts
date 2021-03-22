@@ -155,7 +155,7 @@ export class PanService {
                                             continue;
                                         }
 
-                                        if (node.mergeCC !== current.mergeCC) {
+                                        if (node.mergeConnectedComponent !== current.mergeConnectedComponent) {
                                             continue;
                                         }
 

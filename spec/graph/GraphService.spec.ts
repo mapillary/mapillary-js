@@ -166,7 +166,7 @@ describe("GraphService.cacheSequence$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        graphService.cacheSequence$("sequenceKey").subscribe(() => { /*noop*/ });
+        graphService.cacheSequence$("sequenceId").subscribe(() => { /*noop*/ });
 
         cacheSequence$.next(graph);
 
@@ -190,7 +190,7 @@ describe("GraphService.cacheSequence$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        graphService.cacheSequence$("sequenceKey").subscribe(() => { /*noop*/ });
+        graphService.cacheSequence$("sequenceId").subscribe(() => { /*noop*/ });
 
         cacheSequence$.next(graph);
 
@@ -214,7 +214,7 @@ describe("GraphService.cacheSequence$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        graphService.cacheSequence$("sequenceKey").subscribe(() => { /*noop*/ });
+        graphService.cacheSequence$("sequenceId").subscribe(() => { /*noop*/ });
 
         cacheSequence$.next(graph);
 
@@ -242,7 +242,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        graphService.cacheSequenceNodes$("sequenceKey").subscribe(() => { /*noop*/ });
+        graphService.cacheSequenceNodes$("sequenceId").subscribe(() => { /*noop*/ });
 
         cacheSequenceNodes$.next(graph);
 
@@ -268,7 +268,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        graphService.cacheSequenceNodes$("sequenceKey").subscribe(() => { /*noop*/ });
+        graphService.cacheSequenceNodes$("sequenceId").subscribe(() => { /*noop*/ });
 
         cacheSequenceNodes$.next(graph);
 
@@ -294,7 +294,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        graphService.cacheSequenceNodes$("sequenceKey").subscribe(() => { /*noop*/ });
+        graphService.cacheSequenceNodes$("sequenceId").subscribe(() => { /*noop*/ });
 
         cacheSequenceNodes$.next(graph);
 
@@ -320,7 +320,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        const sequenceKey: string = "sequenceKey";
+        const sequenceKey: string = "sequenceId";
         const referenceNodeKey: string = "referenceNodeKey";
         graphService.cacheSequenceNodes$(sequenceKey, referenceNodeKey).subscribe(() => { /*noop*/ });
 
@@ -956,7 +956,7 @@ describe("GraphService.setFilter$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        graphService.setFilter$(["==", "sequenceKey", "skey"]).subscribe(() => { /*noop*/ });
+        graphService.setFilter$(["==", "sequenceId", "skey"]).subscribe(() => { /*noop*/ });
 
         expect(resetSpatialEdgesSpy.calls.count()).toBe(1);
 
@@ -964,7 +964,7 @@ describe("GraphService.setFilter$", () => {
         expect(setFilterSpy.calls.first().args.length).toBe(1);
         expect(setFilterSpy.calls.first().args[0].length).toBe(3);
         expect(setFilterSpy.calls.first().args[0][0]).toBe("==");
-        expect(setFilterSpy.calls.first().args[0][1]).toBe("sequenceKey");
+        expect(setFilterSpy.calls.first().args[0][1]).toBe("sequenceId");
         expect(setFilterSpy.calls.first().args[0][2]).toBe("skey");
     });
 
@@ -1020,7 +1020,7 @@ describe("GraphService.setFilter$", () => {
         node.assetsCached = true;
         cacheAssets$.next(node);
 
-        graphService.setFilter$(["==", "sequenceKey", "skey"]).subscribe(() => { /*noop*/ });
+        graphService.setFilter$(["==", "sequenceId", "skey"]).subscribe(() => { /*noop*/ });
 
         cacheTiles$[0].next(graph);
 
