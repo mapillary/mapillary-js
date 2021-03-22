@@ -69,6 +69,7 @@ export { isFallbackSupported, isSupported } from "./utils/Support";
 // Viewer types
 export { Alignment } from "./viewer/enums/Alignment";
 export { ComponentSize } from "./component/utils/ComponentSize";
+export { IViewer } from "./viewer/interfaces/IViewer";
 export { ICustomRenderer } from "./viewer/interfaces/ICustomRenderer";
 export { PointOfView } from "./viewer/interfaces/PointOfView";
 export { RenderMode } from "./render/RenderMode";
@@ -78,7 +79,15 @@ export { Viewer } from "./viewer/Viewer";
 
 // Viewer events
 export { ViewerEvent } from "./viewer/events/ViewerEvent";
-export { MouseViewerEvent } from "./viewer/events/ViewerMouseEvent";
+export { ViewerMouseEvent } from "./viewer/events/ViewerMouseEvent";
+export {
+    ViewerBearingEvent,
+    ViewerLoadingEvent,
+    ViewerNavigableEvent,
+    ViewerNavigationEdgeStatusEvent,
+    ViewerNodeEvent,
+    ViewerStateEvent,
+} from "./viewer/events/ViewerStateEvent";
 
 // Viewer options
 export { ComponentOptions } from "./viewer/options/ComponentOptions";

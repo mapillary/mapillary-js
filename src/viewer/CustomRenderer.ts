@@ -12,7 +12,7 @@ import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 import { LatLonAlt } from "../api/interfaces/LatLonAlt";
 import { WebGLRenderer } from "three";
 import { RenderCamera } from "../render/RenderCamera";
-import { Viewer } from "./Viewer";
+import { IViewer } from "./interfaces/IViewer";
 
 export class CustomRenderer {
     private _renderers: {
@@ -28,7 +28,7 @@ export class CustomRenderer {
         this._renderers = {};
     }
 
-    public add(renderer: ICustomRenderer, viewer: Viewer): void {
+    public add(renderer: ICustomRenderer, viewer: IViewer): void {
         const subs = new SubscriptionHolder();
         this._renderers[renderer.id] = { subs, renderer };
 
@@ -72,7 +72,7 @@ export class CustomRenderer {
                 }));
     }
 
-    public dispose(viewer: Viewer): void {
+    public dispose(viewer: IViewer): void {
         for (const id of Object.keys(this._renderers)) {
             this.remove(id, viewer);
         }
@@ -82,7 +82,7 @@ export class CustomRenderer {
         return id in this._renderers;
     }
 
-    public remove(id: string, viewer: Viewer): void {
+    public remove(id: string, viewer: IViewer): void {
         this._renderers[id].subs.unsubscribe();
 
         const renderer = this._renderers[id].renderer;

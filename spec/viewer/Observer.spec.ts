@@ -7,14 +7,15 @@ import { NavigatorMockCreator } from "../helper/NavigatorMockCreator";
 import { EventEmitter } from "../../src/utils/EventEmitter";
 import { Observer } from "../../src/viewer/Observer";
 import { Viewer } from "../../src/viewer/Viewer";
+import { ViewerLoadingEvent } from "../../src/Mapillary";
 
 describe("Observer.ctor", () => {
     it("should be defined", () => {
-        const eventEmitter: EventEmitter = new EventEmitter();
+        const viewer = <Viewer>new EventEmitter();
 
-        const observer: Observer =
+        const observer =
             new Observer(
-                eventEmitter,
+                viewer,
                 new NavigatorMockCreator().create(),
                 new ContainerMockCreator().create());
 
@@ -24,20 +25,20 @@ describe("Observer.ctor", () => {
 
 describe("Observer.loading", () => {
     it("should emit loading when not started", (done: Function) => {
-        const eventEmitter: EventEmitter = new EventEmitter();
-        const navigatorMock: Navigator = new NavigatorMockCreator().create();
+        const viewer = <Viewer>new EventEmitter();
+        const navigatorMock = new NavigatorMockCreator().create();
 
-        const observer: Observer = new Observer(
-            eventEmitter,
+        const observer = new Observer(
+            viewer,
             navigatorMock,
             new ContainerMockCreator().create());
 
         expect(observer).toBeDefined();
 
-        eventEmitter.on(
-            Viewer.loadingchanged,
-            (loading: boolean) => {
-                expect(loading).toBe(true);
+        viewer.on(
+            "loading",
+            (event: ViewerLoadingEvent) => {
+                expect(event.loading).toBe(true);
                 done();
             });
 
@@ -45,19 +46,19 @@ describe("Observer.loading", () => {
     });
 
     it("should emit loading when started", (done: Function) => {
-        const eventEmitter: EventEmitter = new EventEmitter();
-        const navigatorMock: Navigator = new NavigatorMockCreator().create();
+        const viewer = <Viewer>new EventEmitter();
+        const navigatorMock = new NavigatorMockCreator().create();
 
-        const observer: Observer =
+        const observer =
             new Observer(
-                eventEmitter,
+                viewer,
                 navigatorMock,
                 new ContainerMockCreator().create());
 
-        eventEmitter.on(
-            Viewer.loadingchanged,
-            (loading: boolean) => {
-                expect(loading).toBe(true);
+        viewer.on(
+            "loading",
+            (event: ViewerLoadingEvent) => {
+                expect(event.loading).toBe(true);
                 done();
             });
 
@@ -67,19 +68,19 @@ describe("Observer.loading", () => {
     });
 
     it("should emit loading when started and stopped", (done: Function) => {
-        const eventEmitter: EventEmitter = new EventEmitter();
-        const navigatorMock: Navigator = new NavigatorMockCreator().create();
+        const viewer = <Viewer>new EventEmitter();
+        const navigatorMock = new NavigatorMockCreator().create();
 
-        const observer: Observer =
+        const observer =
             new Observer(
-                eventEmitter,
+                viewer,
                 navigatorMock,
                 new ContainerMockCreator().create());
 
-        eventEmitter.on(
-            Viewer.loadingchanged,
-            (loading: boolean) => {
-                expect(loading).toBe(true);
+        viewer.on(
+            "loading",
+            (event: ViewerLoadingEvent) => {
+                expect(event.loading).toBe(true);
                 done();
             });
 

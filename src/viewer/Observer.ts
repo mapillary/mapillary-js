@@ -4,7 +4,6 @@ import {
     merge as observableMerge,
     Observable,
     Subject,
-    Subscription,
 } from "rxjs";
 
 import {
@@ -19,9 +18,8 @@ import {
 import { Container } from "./Container";
 import { Navigator } from "./Navigator";
 import { Projection } from "./Projection";
-import { Viewer } from "./Viewer";
 import { Unprojection } from "./interfaces/Unprojection";
-import { MouseViewerEvent } from "./events/ViewerMouseEvent";
+import { ViewerMouseEvent } from "./events/ViewerMouseEvent";
 
 import { LatLon } from "../api/interfaces/LatLon";
 import { Transform } from "../geo/Transform";
@@ -29,34 +27,49 @@ import { LatLonAlt } from "../api/interfaces/LatLonAlt";
 import { Node } from "../graph/Node";
 import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
 import { RenderCamera } from "../render/RenderCamera";
-import { EventEmitter } from "../utils/EventEmitter";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { ViewerEvent } from "./events/ViewerEvent";
+import {
+    ViewerBearingEvent,
+    ViewerLoadingEvent,
+    ViewerNavigableEvent,
+    ViewerNavigationEdgeStatusEvent,
+    ViewerNodeEvent,
+    ViewerStateEvent,
+} from "./events/ViewerStateEvent";
+import { IViewer } from "./interfaces/IViewer";
+
+type UnprojectionParams = [
+    [
+        ViewerMouseEvent['type'],
+        MouseEvent,
+    ],
+    RenderCamera,
+    LatLonAlt,
+    Transform,
+]
 
 export class Observer {
     private _started: boolean;
 
     private _navigable$: Subject<boolean>;
 
-    private _bearingSubscription: Subscription;
-    private _currentNodeSubscription: Subscription;
-    private _fovSubscription: Subscription;
-    private _moveSubscription: Subscription;
-    private _positionSubscription: Subscription;
-    private _povSubscription: Subscription;
-    private _sequenceEdgesSubscription: Subscription;
-    private _spatialEdgesSubscription: Subscription;
-    private _viewerMouseEventSubscription: Subscription;
-
-    private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
+    private _subscriptions: SubscriptionHolder =
+        new SubscriptionHolder();
+    private _emitSubscriptions: SubscriptionHolder =
+        new SubscriptionHolder();
 
     private _container: Container;
-    private _eventEmitter: EventEmitter;
+    private _viewer: IViewer;
     private _navigator: Navigator;
     private _projection: Projection;
 
-    constructor(eventEmitter: EventEmitter, navigator: Navigator, container: Container) {
+    constructor(
+        viewer: IViewer,
+        navigator: Navigator,
+        container: Container) {
         this._container = container;
-        this._eventEmitter = eventEmitter;
+        this._viewer = viewer;
         this._navigator = navigator;
         this._projection = new Projection();
 
@@ -66,17 +79,30 @@ export class Observer {
 
         const subs = this._subscriptions;
 
-        // navigable and loading should always emit, also when cover is activated.
+        // navigable and loading should always emit,
+        // also when cover is activated.
         subs.push(this._navigable$
             .subscribe(
                 (navigable: boolean): void => {
-                    this._eventEmitter.fire(Viewer.navigablechanged, navigable);
+                    const type: ViewerEvent = "navigable";
+                    const event: ViewerNavigableEvent = {
+                        navigable,
+                        target: this._viewer,
+                        type,
+                    }
+                    this._viewer.fire(type, event);
                 }));
 
         subs.push(this._navigator.loadingService.loading$
             .subscribe(
                 (loading: boolean): void => {
-                    this._eventEmitter.fire(Viewer.loadingchanged, loading);
+                    const type: ViewerEvent = "loading";
+                    const event: ViewerLoadingEvent = {
+                        loading,
+                        target: this._viewer,
+                        type,
+                    }
+                    this._viewer.fire(type, event);
                 }));
     }
 
@@ -97,7 +123,9 @@ export class Observer {
         this._subscriptions.unsubscribe();
     }
 
-    public project$(latLon: LatLon): Observable<number[]> {
+    public project$(
+        latLon: LatLon)
+        : Observable<number[]> {
         return observableCombineLatest(
             this._container.renderService.renderCamera$,
             this._navigator.stateService.currentNode$,
@@ -121,7 +149,9 @@ export class Observer {
                     }));
     }
 
-    public projectBasic$(basicPoint: number[]): Observable<number[]> {
+    public projectBasic$(
+        basicPoint: number[])
+        : Observable<number[]> {
         return observableCombineLatest(
             this._container.renderService.renderCamera$,
             this._navigator.stateService.currentTransform$).pipe(
@@ -141,38 +171,55 @@ export class Observer {
     }
 
     public startEmit(): void {
-        if (this._started) {
-            return;
-        }
+        if (this._started) { return; }
 
         this._started = true;
+        const subs = this._emitSubscriptions;
 
-        this._currentNodeSubscription = this._navigator.stateService.currentNodeExternal$
+        subs.push(this._navigator.stateService.currentNodeExternal$
             .subscribe((node: Node): void => {
-                this._eventEmitter.fire(Viewer.nodechanged, node);
-            });
+                const type: ViewerEvent = "node";
+                const event: ViewerNodeEvent = {
+                    node,
+                    target: this._viewer,
+                    type,
+                }
+                this._viewer.fire(type, event);
+            }));
 
-        this._sequenceEdgesSubscription = this._navigator.stateService.currentNodeExternal$.pipe(
+        subs.push(this._navigator.stateService.currentNodeExternal$.pipe(
             switchMap(
                 (node: Node): Observable<NavigationEdgeStatus> => {
                     return node.sequenceEdges$;
                 }))
             .subscribe(
                 (status: NavigationEdgeStatus): void => {
-                    this._eventEmitter.fire(Viewer.sequenceedgeschanged, status);
-                });
+                    const type: ViewerEvent = "sequenceedges";
+                    const event: ViewerNavigationEdgeStatusEvent = {
+                        status,
+                        target: this._viewer,
+                        type,
+                    }
+                    this._viewer.fire(type, event);
+                }));
 
-        this._spatialEdgesSubscription = this._navigator.stateService.currentNodeExternal$.pipe(
+        subs.push(this._navigator.stateService.currentNodeExternal$.pipe(
             switchMap(
                 (node: Node): Observable<NavigationEdgeStatus> => {
                     return node.spatialEdges$;
                 }))
             .subscribe(
                 (status: NavigationEdgeStatus): void => {
-                    this._eventEmitter.fire(Viewer.spatialedgeschanged, status);
-                });
+                    const type: ViewerEvent = "spatialedges";
+                    const event: ViewerNavigationEdgeStatusEvent = {
+                        status,
+                        target: this._viewer,
+                        type,
+                    }
+                    this._viewer.fire(type, event);
+                }));
 
-        this._moveSubscription = observableCombineLatest(
+        subs.push(observableCombineLatest(
             this._navigator.stateService.inMotion$,
             this._container.mouseService.active$,
             this._container.touchService.active$).pipe(
@@ -183,14 +230,15 @@ export class Observer {
                 distinctUntilChanged())
             .subscribe(
                 (started: boolean) => {
-                    if (started) {
-                        this._eventEmitter.fire(Viewer.movestart, null);
-                    } else {
-                        this._eventEmitter.fire(Viewer.moveend, null);
-                    }
-                });
+                    const type: ViewerEvent = started ? "movestart" : "moveend";
+                    const event: ViewerStateEvent = {
+                        target: this._viewer,
+                        type,
+                    };
+                    this._viewer.fire(type, event);
+                }));
 
-        this._bearingSubscription = this._container.renderService.bearing$.pipe(
+        subs.push(this._container.renderService.bearing$.pipe(
             auditTime(100),
             distinctUntilChanged(
                 (b1: number, b2: number): boolean => {
@@ -198,10 +246,16 @@ export class Observer {
                 }))
             .subscribe(
                 (bearing): void => {
-                    this._eventEmitter.fire(Viewer.bearingchanged, bearing);
-                });
+                    const type: ViewerEvent = "bearing";
+                    const event: ViewerBearingEvent = {
+                        bearing,
+                        target: this._viewer,
+                        type,
+                    };
+                    this._viewer.fire(type, event);
+                }));
 
-        const mouseMove$: Observable<MouseEvent> = this._container.mouseService.active$.pipe(
+        const mouseMove$ = this._container.mouseService.active$.pipe(
             switchMap(
                 (active: boolean): Observable<MouseEvent> => {
                     return active ?
@@ -209,22 +263,40 @@ export class Observer {
                         this._container.mouseService.mouseMove$;
                 }));
 
-        this._viewerMouseEventSubscription = observableMerge(
-            this._mapMouseEvent$(Viewer.click, this._container.mouseService.staticClick$),
-            this._mapMouseEvent$(Viewer.contextmenu, this._container.mouseService.contextMenu$),
-            this._mapMouseEvent$(Viewer.dblclick, this._container.mouseService.dblClick$),
-            this._mapMouseEvent$(Viewer.mousedown, this._container.mouseService.mouseDown$),
-            this._mapMouseEvent$(Viewer.mousemove, mouseMove$),
-            this._mapMouseEvent$(Viewer.mouseout, this._container.mouseService.mouseOut$),
-            this._mapMouseEvent$(Viewer.mouseover, this._container.mouseService.mouseOver$),
-            this._mapMouseEvent$(Viewer.mouseup, this._container.mouseService.mouseUp$)).pipe(
+        subs.push(observableMerge(
+            this._mapMouseEvent$(
+                "click",
+                this._container.mouseService.staticClick$),
+            this._mapMouseEvent$(
+                "contextmenu",
+                this._container.mouseService.contextMenu$),
+            this._mapMouseEvent$(
+                "dblclick",
+                this._container.mouseService.dblClick$),
+            this._mapMouseEvent$(
+                "mousedown",
+                this._container.mouseService.mouseDown$),
+            this._mapMouseEvent$(
+                "mousemove",
+                mouseMove$),
+            this._mapMouseEvent$(
+                "mouseout",
+                this._container.mouseService.mouseOut$),
+            this._mapMouseEvent$(
+                "mouseover",
+                this._container.mouseService.mouseOver$),
+            this._mapMouseEvent$(
+                "mouseup",
+                this._container.mouseService.mouseUp$))
+            .pipe(
                 withLatestFrom(
                     this._container.renderService.renderCamera$,
                     this._navigator.stateService.reference$,
                     this._navigator.stateService.currentTransform$),
                 map(
-                    ([[type, event], render, reference, transform]:
-                        [[string, MouseEvent], RenderCamera, LatLonAlt, Transform]): MouseViewerEvent => {
+                    ([[type, event], render, reference, transform]
+                        : UnprojectionParams)
+                        : ViewerMouseEvent => {
                         const unprojection: Unprojection =
                             this._projection.eventToUnprojection(
                                 event,
@@ -238,16 +310,16 @@ export class Observer {
                             latLon: unprojection.latLon,
                             originalEvent: event,
                             pixelPoint: unprojection.pixelPoint,
-                            target: <Viewer>this._eventEmitter,
+                            target: this._viewer,
                             type: type,
                         };
                     }))
             .subscribe(
-                (event: MouseViewerEvent): void => {
-                    this._eventEmitter.fire(event.type, event);
-                });
+                (event: ViewerMouseEvent): void => {
+                    this._viewer.fire(event.type, event);
+                }));
 
-        this._positionSubscription = this._container.renderService.renderCamera$.pipe(
+        subs.push(this._container.renderService.renderCamera$.pipe(
             distinctUntilChanged(
                 ([x1, y1], [x2, y2]): boolean => {
                     return this._closeTo(x1, x2, 1e-2) &&
@@ -258,15 +330,15 @@ export class Observer {
                 }))
             .subscribe(
                 (): void => {
-                    this._eventEmitter.fire(
-                        Viewer.positionchanged,
-                        {
-                            target: this._eventEmitter,
-                            type: Viewer.positionchanged,
-                        });
-                });
+                    const type: ViewerEvent = "position";
+                    const event: ViewerStateEvent = {
+                        target: this._viewer,
+                        type,
+                    }
+                    this._viewer.fire(type, event);
+                }));
 
-        this._povSubscription = this._container.renderService.renderCamera$.pipe(
+        subs.push(this._container.renderService.renderCamera$.pipe(
             distinctUntilChanged(
                 ([phi1, theta1], [phi2, theta2]): boolean => {
                     return this._closeTo(phi1, phi2, 1e-3) &&
@@ -277,15 +349,15 @@ export class Observer {
                 }))
             .subscribe(
                 (): void => {
-                    this._eventEmitter.fire(
-                        Viewer.povchanged,
-                        {
-                            target: this._eventEmitter,
-                            type: Viewer.povchanged,
-                        });
-                });
+                    const type: ViewerEvent = "pov";
+                    const event: ViewerStateEvent = {
+                        target: this._viewer,
+                        type,
+                    }
+                    this._viewer.fire(type, event);
+                }));
 
-        this._fovSubscription = this._container.renderService.renderCamera$.pipe(
+        subs.push(this._container.renderService.renderCamera$.pipe(
             distinctUntilChanged(
                 (fov1, fov2): boolean => {
                     return this._closeTo(fov1, fov2, 1e-2);
@@ -295,41 +367,20 @@ export class Observer {
                 }))
             .subscribe(
                 (): void => {
-                    this._eventEmitter.fire(
-                        Viewer.fovchanged,
-                        {
-                            target: this._eventEmitter,
-                            type: Viewer.fovchanged,
-                        });
-                });
+                    const type: ViewerEvent = "fov";
+                    const event: ViewerStateEvent = {
+                        target: this._viewer,
+                        type,
+                    };
+                    this._viewer.fire(type, event);
+                }));
     }
 
     public stopEmit(): void {
-        if (!this.started) {
-            return;
-        }
+        if (!this.started) { return; }
 
+        this._emitSubscriptions.unsubscribe();
         this._started = false;
-
-        this._bearingSubscription.unsubscribe();
-        this._currentNodeSubscription.unsubscribe();
-        this._fovSubscription.unsubscribe();
-        this._moveSubscription.unsubscribe();
-        this._positionSubscription.unsubscribe();
-        this._povSubscription.unsubscribe();
-        this._sequenceEdgesSubscription.unsubscribe();
-        this._spatialEdgesSubscription.unsubscribe();
-        this._viewerMouseEventSubscription.unsubscribe();
-
-        this._bearingSubscription = null;
-        this._currentNodeSubscription = null;
-        this._fovSubscription = null;
-        this._moveSubscription = null;
-        this._positionSubscription = null;
-        this._povSubscription = null;
-        this._sequenceEdgesSubscription = null;
-        this._spatialEdgesSubscription = null;
-        this._viewerMouseEventSubscription = null;
     }
 
     public unproject$(canvasPoint: number[]): Observable<LatLon> {
@@ -367,14 +418,22 @@ export class Observer {
                     }));
     }
 
-    private _closeTo(v1: number, v2: number, absoluteTolerance: number): boolean {
+    private _closeTo(
+        v1: number,
+        v2: number,
+        absoluteTolerance: number)
+        : boolean {
         return Math.abs(v1 - v2) <= absoluteTolerance;
     }
 
-    private _mapMouseEvent$(type: string, mouseEvent$: Observable<MouseEvent>): Observable<[string, MouseEvent]> {
-        return mouseEvent$.pipe(map(
-            (event: MouseEvent): [string, MouseEvent] => {
-                return [type, event];
-            }));
+    private _mapMouseEvent$(
+        type: ViewerEvent,
+        mouseEvent$: Observable<MouseEvent>)
+        : Observable<[ViewerEvent, MouseEvent]> {
+        return mouseEvent$.pipe(
+            map(
+                (event: MouseEvent): [ViewerEvent, MouseEvent] => {
+                    return [type, event];
+                }));
     }
 }

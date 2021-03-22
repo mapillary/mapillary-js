@@ -28,6 +28,9 @@ import { Container } from "./Container";
 import { Navigator } from "./Navigator";
 import { Observer } from "./Observer";
 import { CustomRenderer } from "./CustomRenderer";
+import { ViewerEvent } from "./events/ViewerEvent";
+import { IViewer } from "./interfaces/IViewer";
+import { ViewerStateEvent } from "./events/ViewerStateEvent";
 /**
  * @class Viewer
  *
@@ -80,175 +83,7 @@ import { CustomRenderer } from "./CustomRenderer";
  * zoomed independently of the size of the viewer container resulting in
  * different conversion results for different viewing directions.
  */
-export class Viewer extends EventEmitter {
-    /**
-     * Fired when the viewing direction of the camera changes.
-     *
-     * @description Related to the computed compass angle
-     * ({@link Node.computedCA}) from SfM, not the original EXIF compass
-     * angle.
-     *
-     * @event
-     * @type {number} bearing - Value indicating the current bearing
-     * measured in degrees clockwise with respect to north.
-     */
-    public static bearingchanged: string = "bearingchanged";
-
-    /**
-     * Fired when a pointing device (usually a mouse) is pressed and released at
-     * the same point in the viewer.
-     * @event
-     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
-     */
-    public static click: string = "click";
-
-    /**
-     * Fired when the right button of the mouse is clicked within the viewer.
-     * @event
-     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
-     */
-    public static contextmenu: string = "contextmenu";
-
-    /**
-     * Fired when a pointing device (usually a mouse) is clicked twice at
-     * the same point in the viewer.
-     * @event
-     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
-     */
-    public static dblclick: string = "dblclick";
-
-    /**
-     * Fired when the viewer's vertical field of view changes.
-     *
-     * @event
-     * @type  {@link IViewerEvent} event - The event object.
-     */
-    public static fovchanged: string = "fovchanged";
-
-    /**
-     * Fired when the viewer is loading more data.
-     * @event
-     * @type {boolean} loading - Boolean indicating whether the viewer is loading.
-     */
-    public static loadingchanged: string = "loadingchanged";
-
-    /**
-     * Fired when a pointing device (usually a mouse) is pressed within the viewer.
-     * @event
-     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
-     */
-    public static mousedown: string = "mousedown";
-
-    /**
-     * Fired when a pointing device (usually a mouse) is moved within the viewer.
-     * @description Will not fire when the mouse is actively used, e.g. for drag pan.
-     * @event
-     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
-     */
-    public static mousemove: string = "mousemove";
-
-    /**
-     * Fired when a pointing device (usually a mouse) leaves the viewer's canvas.
-     * @event
-     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
-     */
-    public static mouseout: string = "mouseout";
-
-    /**
-     * Fired when a pointing device (usually a mouse) is moved onto the viewer's canvas.
-     * @event
-     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
-     */
-    public static mouseover: string = "mouseover";
-
-    /**
-     * Fired when a pointing device (usually a mouse) is released within the viewer.
-     * @event
-     * @type  {@link IViewerMouseEvent} event - Viewer mouse event data.
-     */
-    public static mouseup: string = "mouseup";
-
-    /**
-     * Fired when the viewer motion stops and it is in a fixed
-     * position with a fixed point of view.
-     * @event
-     */
-    public static moveend: string = "moveend";
-
-    /**
-     * Fired when the motion from one view to another start,
-     * either by changing the position (e.g. when changing node) or
-     * when changing point of view (e.g. by interaction such as pan and zoom).
-     * @event
-     */
-    public static movestart: string = "movestart";
-
-    /**
-     * Fired when the navigable state of the viewer changes.
-     *
-     * @description The navigable state indicates if the viewer supports
-     * moving, i.e. calling the `moveTo` and `moveDir`
-     * methods. The viewer will not be in a navigable state if the cover
-     * is activated and the viewer has been supplied a id. When the cover
-     * is deactivated or activated without being supplied a id it will
-     * be navigable.
-     *
-     * @event
-     * @type {boolean} navigable - Boolean indicating whether the viewer is navigable.
-     */
-    public static navigablechanged: string = "navigablechanged";
-
-    /**
-     * Fired every time the viewer navigates to a new node.
-     *
-     * @event
-     * @type  {@link Node} node - Current node.
-     */
-    public static nodechanged: string = "nodechanged";
-
-    /**
-     * Fired when the viewer's position changes.
-     *
-     * @description The viewer's position changes when transitioning
-     * between nodes.
-     *
-     * @event
-     * @type  {@link IViewerEvent} event - The event object.
-     */
-    public static positionchanged: string = "positionchanged";
-
-    /**
-     * Fired when the viewer's point of view changes. The point of view changes
-     * when the bearing, or tilt changes.
-     *
-     * @event
-     * @type  {@link IViewerEvent} event - The event object.
-     */
-    public static povchanged: string = "povchanged";
-
-    /**
-     * Fired when the viewer is removed. After this event is emitted
-     * you must not call any methods on the viewer.
-     *
-     * @event
-     * @type  {@link IViewerEvent} event - The event object.
-     */
-    public static removed: string = "removed";
-
-    /**
-     * Fired every time the sequence edges of the current node changes.
-     * @event
-     * @type  {@link IEdgeStatus} status - The edge status object.
-     */
-    public static sequenceedgeschanged: string = "sequenceedgeschanged";
-
-    /**
-     * Fired every time the spatial edges of the current node changes.
-     * @event
-     * @type  {@link IEdgeStatus} status - The edge status object.
-     */
-    public static spatialedgeschanged: string = "spatialedgeschanged";
-
+export class Viewer extends EventEmitter implements IViewer {
     /**
      * Private component controller object which manages component states.
      */
@@ -326,7 +161,6 @@ export class Viewer extends EventEmitter {
         super();
 
         Urls.setOptions(options.url);
-
         this._navigator = new Navigator(options);
         this._container = new Container(options, this._navigator.stateService);
         this._observer = new Observer(this, this._navigator, this._container);
@@ -666,8 +500,8 @@ export class Viewer extends EventEmitter {
      * @returns {boolean} Value indicating whether the customer
      * renderer has been added.
      */
-    public hasCustomRenderer(id: string): boolean {
-        return this._customRenderer.has(id);
+    public hasCustomRenderer(rendererId: string): boolean {
+        return this._customRenderer.has(rendererId);
     }
 
     /**
@@ -675,7 +509,7 @@ export class Viewer extends EventEmitter {
      *
      * @description This method has to be called through EdgeDirection enumeration as in the example.
      *
-     * @param {NavigationDirection} dir - Direction in which which to move.
+     * @param {NavigationDirection} direction - Direction in which which to move.
      * @returns {Promise<Node>} Promise to the node that was navigated to.
      * @throws {Error} If the current node does not have the edge direction
      * or the edges has not yet been cached.
@@ -691,9 +525,9 @@ export class Viewer extends EventEmitter {
      *     (e) => { console.error(e); });
      * ```
      */
-    public moveDir(dir: NavigationDirection): Promise<Node> {
+    public moveDir(direction: NavigationDirection): Promise<Node> {
         const moveDir$: Observable<Node> = this.isNavigable ?
-            this._navigator.moveDir$(dir) :
+            this._navigator.moveDir$(direction) :
             observableThrowError(new Error("Calling moveDir is not supported when viewer is not navigable."));
 
         return new Promise<Node>(
@@ -711,23 +545,23 @@ export class Viewer extends EventEmitter {
     /**
      * Navigate to a given image id.
      *
-     * @param {string} id - A valid Mapillary image id.
+     * @param {string} imageId - Id of the image to move to.
      * @returns {Promise<Node>} Promise to the node that was navigated to.
      * @throws {Error} Propagates any IO errors to the caller.
      * @throws {Error} When viewer is not navigable.
-     * @throws {@link AbortMapillaryError} When a subsequent move request is made
-     * before the move to id call has completed.
+     * @throws {@link AbortMapillaryError} When a subsequent
+     * move request is made before the move to id call has completed.
      *
      * @example
      * ```
-     * viewer.moveTo("<my id>").then(
+     * viewer.moveTo("<my-image-id>").then(
      *     (n) => { console.log(n); },
      *     (e) => { console.error(e); });
      * ```
      */
-    public moveTo(id: string): Promise<Node> {
+    public moveTo(imageId: string): Promise<Node> {
         const moveTo$: Observable<Node> = this.isNavigable ?
-            this._navigator.moveTo$(id) :
+            this._navigator.moveTo$(imageId) :
             observableThrowError(new Error("Calling moveTo is not supported when viewer is not navigable."));
 
         return new Promise<Node>(
@@ -740,6 +574,24 @@ export class Viewer extends EventEmitter {
                         reject(error);
                     });
             });
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public off<T>(
+        type: ViewerEvent,
+        handler: (event: T) => void): void {
+        super.off(type, handler);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public on<T>(
+        type: ViewerEvent,
+        handler: (event: T) => void): void {
+        super.on(type, handler);
     }
 
     /**
@@ -849,7 +701,12 @@ export class Viewer extends EventEmitter {
         this._navigator.dispose();
         this._container.remove();
 
-        this.fire(Viewer.removed, { type: Viewer.removed });
+        const type: ViewerEvent = "remove";
+        const event: ViewerStateEvent = {
+            target: this,
+            type,
+        }
+        this.fire(type, event);
     }
 
     /**
@@ -857,8 +714,8 @@ export class Viewer extends EventEmitter {
      *
      * @param id - Unique id of the custom renderer.
      */
-    public removeCustomRenderer(id: string): void {
-        this._customRenderer.remove(id, this);
+    public removeCustomRenderer(rendererId: string): void {
+        this._customRenderer.remove(rendererId, this);
     }
 
     /**
@@ -874,51 +731,6 @@ export class Viewer extends EventEmitter {
      */
     public resize(): void {
         this._container.renderService.resize$.next(null);
-    }
-
-    /**
-     * Set a user bearer token for authenticated API requests of
-     * protected resources.
-     *
-     * @description When the supplied user token is null or undefined,
-     * any previously set user bearer token will be cleared and the
-     * viewer will make unauthenticated requests.
-     *
-     * Calling setUserToken aborts all outstanding move requests.
-     * The promises of those move requests will be rejected with a
-     * {@link AbortMapillaryError} the rejections need to be caught.
-     *
-     * Calling setUserToken also resets the complete viewer cache
-     * so it should not be called repeatedly.
-     *
-     * @param {string} [userToken] userToken - User bearer token.
-     * @returns {Promise<void>} Promise that resolves after token
-     * is set.
-     *
-     * @throws {Error} When viewer is not navigable.
-     *
-     * @example
-     * ```
-     * viewer.setUserToken("<my user token>")
-     *     .then(() => { console.log("user token set"); });
-     * ```
-     */
-    public setUserToken(userToken?: string): Promise<void> {
-        const setUserToken$: Observable<void> = this.isNavigable ?
-            this._navigator.setUserToken$(userToken) :
-            observableThrowError(new Error("Calling setUserToken is not supported when viewer is not navigable."));
-
-        return new Promise<void>(
-            (resolve: (value: void) => void, reject: (reason: Error) => void): void => {
-                setUserToken$
-                    .subscribe(
-                        (): void => {
-                            resolve(undefined);
-                        },
-                        (error: Error): void => {
-                            reject(error);
-                        });
-            });
     }
 
     /**
@@ -940,6 +752,32 @@ export class Viewer extends EventEmitter {
      */
     public setCenter(center: number[]): void {
         this._navigator.stateService.setCenter(center);
+    }
+
+    /**
+     * Set the viewer's current vertical field of view.
+     *
+     * @description Sets the vertical field of view rendered
+     * on the viewer canvas measured in degrees. The value
+     * will be clamped to be able to set a valid zoom level
+     * based on the projection model of the current image and
+     * the viewer's current render mode.
+     *
+     * @param {number} fov - Vertical field of view in degrees.
+     *
+     * @example
+     * ```
+     * viewer.setFieldOfView(45);
+     * ```
+     */
+    public setFieldOfView(fov: number): void {
+        this._container.renderService.renderCamera$.pipe(
+            first())
+            .subscribe(
+                (rc: RenderCamera): void => {
+                    const zoom: number = rc.fovToZoom(fov);
+                    this._navigator.stateService.setZoom(zoom);
+                });
     }
 
     /**
@@ -1020,32 +858,6 @@ export class Viewer extends EventEmitter {
     }
 
     /**
-     * Set the viewer's current vertical field of view.
-     *
-     * @description Sets the vertical field of view rendered
-     * on the viewer canvas measured in degrees. The value
-     * will be clamped to be able to set a valid zoom level
-     * based on the projection model of the current image and
-     * the viewer's current render mode.
-     *
-     * @param {number} fov - Vertical field of view in degrees.
-     *
-     * @example
-     * ```
-     * viewer.setFieldOfView(45);
-     * ```
-     */
-    public setFieldOfView(fov: number): void {
-        this._container.renderService.renderCamera$.pipe(
-            first())
-            .subscribe(
-                (rc: RenderCamera): void => {
-                    const zoom: number = rc.fovToZoom(fov);
-                    this._navigator.stateService.setZoom(zoom);
-                });
-    }
-
-    /**
      * Set the viewer's render mode.
      *
      * @param {RenderMode} renderMode - Render mode.
@@ -1071,6 +883,51 @@ export class Viewer extends EventEmitter {
      */
     public setTransitionMode(transitionMode: TransitionMode): void {
         this._navigator.stateService.setTransitionMode(transitionMode);
+    }
+
+    /**
+     * Set a user bearer token for authenticated API requests of
+     * protected resources.
+     *
+     * @description When the supplied user token is null or undefined,
+     * any previously set user bearer token will be cleared and the
+     * viewer will make unauthenticated requests.
+     *
+     * Calling setUserToken aborts all outstanding move requests.
+     * The promises of those move requests will be rejected with a
+     * {@link AbortMapillaryError} the rejections need to be caught.
+     *
+     * Calling setUserToken also resets the complete viewer cache
+     * so it should not be called repeatedly.
+     *
+     * @param {string} [userToken] userToken - User bearer token.
+     * @returns {Promise<void>} Promise that resolves after token
+     * is set.
+     *
+     * @throws {Error} When viewer is not navigable.
+     *
+     * @example
+     * ```
+     * viewer.setUserToken("<my user token>")
+     *     .then(() => { console.log("user token set"); });
+     * ```
+     */
+    public setUserToken(userToken?: string): Promise<void> {
+        const setUserToken$: Observable<void> = this.isNavigable ?
+            this._navigator.setUserToken$(userToken) :
+            observableThrowError(new Error("Calling setUserToken is not supported when viewer is not navigable."));
+
+        return new Promise<void>(
+            (resolve: (value: void) => void, reject: (reason: Error) => void): void => {
+                setUserToken$
+                    .subscribe(
+                        (): void => {
+                            resolve(undefined);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        });
+            });
     }
 
     /**
