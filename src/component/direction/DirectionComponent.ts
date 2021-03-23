@@ -32,6 +32,8 @@ import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
 import { RenderCamera } from "../../render/RenderCamera";
 import { DirectionConfiguration } from "../interfaces/DirectionConfiguration";
 import { DirectionDOMRenderer } from "./DirectionDOMRenderer";
+import { ComponentEvent } from "../events/ComponentEvent";
+import { ComponentHoverEvent } from "../events/ComponentStateEvent";
 
 /**
  * @class DirectionComponent
@@ -41,31 +43,18 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "direction";
 
-    /**
-     * Event fired when the hovered id changes.
-     *
-     * @description Emits the id of the node for the direction
-     * arrow that is being hovered. When the mouse leaves a
-     * direction arrow null is emitted.
-     *
-     * @event DirectionComponent#hoveredidchanged
-     * @type {string} The hovered id, null if no id is hovered.
-     */
-    public static hoveredidchanged: string = "hoveredidchanged";
-
     private _renderer: DirectionDOMRenderer;
 
     private _hoveredIdSubject$: Subject<string>;
     private _hoveredId$: Observable<string>;
 
-    private _configurationSubscription: Subscription;
-    private _emitHoveredIdSubscription: Subscription;
-    private _hoveredIdSubscription: Subscription;
-    private _nodeSubscription: Subscription;
-    private _renderCameraSubscription: Subscription;
-    private _resizeSubscription: Subscription;
+    /** @ignore */
+    constructor(
+        name: string,
+        container: Container,
+        navigator: Navigator,
+        directionDOMRenderer?: DirectionDOMRenderer) {
 
-    constructor(name: string, container: Container, navigator: Navigator, directionDOMRenderer?: DirectionDOMRenderer) {
         super(name, container, navigator);
 
         this._renderer = !!directionDOMRenderer ?
@@ -79,78 +68,22 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
         this._hoveredId$ = this._hoveredIdSubject$.pipe(share());
     }
 
-    /**
-     * Get hovered id observable.
-     *
-     * @description An observable emitting the id of the node for the direction
-     * arrow that is being hovered. When the mouse leaves a direction arrow null
-     * is emitted.
-     *
-     * @returns {Observable<string>}
-     */
-    public get hoveredId$(): Observable<string> {
-        return this._hoveredId$;
-    }
-
-    /**
-     * Set highlight id.
-     *
-     * @description The arrow pointing towards the node corresponding to the
-     * highlight id will be highlighted.
-     *
-     * @param {string} highlightId id of node to be highlighted if existing
-     * among arrows.
-     */
-    public setHighlightId(highlightId: string): void {
-        this.configure({ highlightId: highlightId });
-    }
-
-    /**
-     * Set min width of container element.
-     *
-     * @description  Set min width of the non transformed container element holding
-     * the navigation arrows. If the min width is larger than the max width the
-     * min width value will be used.
-     *
-     * The container element is automatically resized when the resize
-     * method on the Viewer class is called.
-     *
-     * @param {number} minWidth
-     */
-    public setMinWidth(minWidth: number): void {
-        this.configure({ minWidth: minWidth });
-    }
-
-    /**
-     * Set max width of container element.
-     *
-     * @description Set max width of the non transformed container element holding
-     * the navigation arrows. If the min width is larger than the max width the
-     * min width value will be used.
-     *
-     * The container element is automatically resized when the resize
-     * method on the Viewer class is called.
-     *
-     * @param {number} minWidth
-     */
-    public setMaxWidth(maxWidth: number): void {
-        this.configure({ maxWidth: maxWidth });
-    }
-
     protected _activate(): void {
-        this._configurationSubscription = this._configuration$
+        const subs = this._subscriptions;
+
+        subs.push(this._configuration$
             .subscribe(
                 (configuration: DirectionConfiguration): void => {
                     this._renderer.setConfiguration(configuration);
-                });
+                }));
 
-        this._resizeSubscription = this._container.renderService.size$
+        subs.push(this._container.renderService.size$
             .subscribe(
                 (size: ViewportSize): void => {
                     this._renderer.resize(size);
-                });
+                }));
 
-        this._nodeSubscription = this._navigator.stateService.currentNode$.pipe(
+        subs.push(this._navigator.stateService.currentNode$.pipe(
             tap(
                 (node: Node): void => {
                     this._container.domRenderer.render$.next({ name: this._name, vnode: vd.h("div", {}, []) });
@@ -175,9 +108,9 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
             .subscribe(
                 ([edgeStatus, sequence]: [NavigationEdgeStatus, Sequence]): void => {
                     this._renderer.setEdges(edgeStatus, sequence);
-                });
+                }));
 
-        this._renderCameraSubscription = this._container.renderService.renderCameraFrame$.pipe(
+        subs.push(this._container.renderService.renderCameraFrame$.pipe(
             tap(
                 (renderCamera: RenderCamera): void => {
                     this._renderer.setRenderCamera(renderCamera);
@@ -194,9 +127,9 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
                 (renderer: DirectionDOMRenderer): VirtualNodeHash => {
                     return { name: this._name, vnode: renderer.render(this._navigator) };
                 }))
-            .subscribe(this._container.domRenderer.render$);
+            .subscribe(this._container.domRenderer.render$));
 
-        this._hoveredIdSubscription = observableCombineLatest(
+        subs.push(observableCombineLatest(
             this._container.domRenderer.element$,
             this._container.renderService.renderCamera$,
             this._container.mouseService.mouseMove$.pipe(startWith(null)),
@@ -217,22 +150,23 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
                         return null;
                     }),
                 distinctUntilChanged())
-            .subscribe(this._hoveredIdSubject$);
+            .subscribe(this._hoveredIdSubject$));
 
-        this._emitHoveredIdSubscription = this._hoveredId$
+        subs.push(this._hoveredId$
             .subscribe(
                 (id: string): void => {
-                    this.fire(DirectionComponent.hoveredidchanged, id);
-                });
+                    const type: ComponentEvent = "hover";
+                    const event: ComponentHoverEvent = {
+                        id,
+                        target: this,
+                        type,
+                    };
+                    this.fire(type, event);
+                }));
     }
 
     protected _deactivate(): void {
-        this._configurationSubscription.unsubscribe();
-        this._emitHoveredIdSubscription.unsubscribe();
-        this._hoveredIdSubscription.unsubscribe();
-        this._nodeSubscription.unsubscribe();
-        this._renderCameraSubscription.unsubscribe();
-        this._resizeSubscription.unsubscribe();
+        this._subscriptions.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): DirectionConfiguration {

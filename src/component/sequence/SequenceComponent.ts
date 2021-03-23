@@ -9,7 +9,6 @@ import {
     Observable,
     Scheduler,
     Subject,
-    Subscription,
 } from "rxjs";
 
 import {
@@ -45,6 +44,8 @@ import { SequenceConfiguration } from "../interfaces/SequenceConfiguration";
 import { SequenceDOMRenderer } from "./SequenceDOMRenderer";
 import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { Component } from "../Component";
+import { ComponentEvent } from "../events/ComponentEvent";
+import { ComponentHoverEvent, ComponentPlayEvent } from "../events/ComponentStateEvent";
 
 /**
  * @class SequenceComponent
@@ -55,46 +56,12 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "sequence";
 
-    /**
-     * Event fired when playing starts or stops.
-     *
-     * @event SequenceComponent#playingchanged
-     * @type {boolean} Indicates whether the player is playing.
-     */
-    public static playingchanged: string = "playingchanged";
-
-    /**
-     * Event fired when the hovered id changes.
-     *
-     * @description Emits the id of the node for the direction
-     * arrow that is being hovered. When the mouse leaves a
-     * direction arrow null is emitted.
-     *
-     * @event SequenceComponent#hoveredidchanged
-     * @type {string} The hovered id, null if no id is hovered.
-     */
-    public static hoveredidchanged: string = "hoveredidchanged";
-
     private _sequenceDOMRenderer: SequenceDOMRenderer;
     private _scheduler: Scheduler;
 
     private _hoveredIdSubject$: Subject<string>;
     private _hoveredId$: Observable<string>;
     private _containerWidth$: Subject<number>;
-
-    private _emitHoveredSubscription: Subscription;
-    private _renderSubscription: Subscription;
-    private _playingSubscription: Subscription;
-    private _containerWidthSubscription: Subscription;
-    private _hoveredSubscription: Subscription;
-    private _setSpeedSubscription: Subscription;
-    private _setDirectionSubscription: Subscription;
-    private _setSequenceGraphModeSubscription: Subscription;
-    private _setSpatialGraphModeSubscription: Subscription;
-    private _sequenceSubscription: Subscription;
-    private _moveSubscription: Subscription;
-    private _cacheSequenceNodesSubscription: Subscription;
-    private _stopSubscription: Subscription;
 
     constructor(
         name: string,
@@ -118,7 +85,13 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
             withLatestFrom(this._configuration$))
             .subscribe(
                 ([playing, configuration]: [boolean, SequenceConfiguration]): void => {
-                    this.fire(SequenceComponent.playingchanged, playing);
+                    const type: ComponentEvent = "playing";
+                    const event: ComponentPlayEvent = {
+                        playing,
+                        target: this,
+                        type,
+                    };
+                    this.fire(type, event);
 
                     if (playing === configuration.playing) {
                         return;
@@ -137,108 +110,29 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
             .subscribe(
                 ([direction, configuration]: [NavigationDirection, SequenceConfiguration]): void => {
                     if (direction !== configuration.direction) {
-                        this.setDirection(direction);
+                        this.configure({ direction });
                     }
                 });
     }
 
     /**
-     * Get hovered id observable.
-     *
-     * @description An observable emitting the id of the node for the direction
-     * arrow that is being hovered. When the mouse leaves a direction arrow null
-     * is emitted.
-     *
-     * @returns {Observable<string>}
-     */
-    public get hoveredId$(): Observable<string> {
-        return this._hoveredId$;
-    }
-
-    /**
      * Start playing.
      *
-     * @fires PlayerComponent#playingchanged
+     * @fires playing
      */
-    public play(): void {
-        this.configure({ playing: true });
-    }
+    public play(): void { this.configure({ playing: true }); }
 
     /**
      * Stop playing.
      *
-     * @fires PlayerComponent#playingchanged
+     * @fires playing
      */
-    public stop(): void {
-        this.configure({ playing: false });
-    }
-
-    /**
-     * Set the direction to follow when playing.
-     *
-     * @param {NavigationDirection} direction - The direction that will be followed when playing.
-     */
-    public setDirection(direction: NavigationDirection): void {
-        this.configure({ direction: direction });
-    }
-
-    /**
-     * Set highlight id.
-     *
-     * @description The arrow pointing towards the node corresponding to the
-     * highlight id will be highlighted.
-     *
-     * @param {string} highlightId id of node to be highlighted if existing.
-     */
-    public setHighlightId(highlightId: string): void {
-        this.configure({ highlightId });
-    }
-
-    /**
-     * Set max width of container element.
-     *
-     * @description Set max width of the container element holding
-     * the sequence navigation elements. If the min width is larger than the
-     * max width the min width value will be used.
-     *
-     * The container element is automatically resized when the resize
-     * method on the Viewer class is called.
-     *
-     * @param {number} minWidth
-     */
-    public setMaxWidth(maxWidth: number): void {
-        this.configure({ maxWidth: maxWidth });
-    }
-
-    /**
-     * Set min width of container element.
-     *
-     * @description Set min width of the container element holding
-     * the sequence navigation elements. If the min width is larger than the
-     * max width the min width value will be used.
-     *
-     * The container element is automatically resized when the resize
-     * method on the Viewer class is called.
-     *
-     * @param {number} minWidth
-     */
-    public setMinWidth(minWidth: number): void {
-        this.configure({ minWidth: minWidth });
-    }
-
-    /**
-     * Set the value indicating whether the sequence UI elements should be visible.
-     *
-     * @param {boolean} visible
-     */
-    public setVisible(visible: boolean): void {
-        this.configure({ visible: visible });
-    }
+    public stop(): void { this.configure({ playing: false }); }
 
     protected _activate(): void {
         this._sequenceDOMRenderer.activate();
 
-        const edgeStatus$: Observable<NavigationEdgeStatus> = this._navigator.stateService.currentNode$.pipe(
+        const edgeStatus$ = this._navigator.stateService.currentNode$.pipe(
             switchMap(
                 (node: Node): Observable<NavigationEdgeStatus> => {
                     return node.sequenceEdges$;
@@ -246,7 +140,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
             publishReplay(1),
             refCount());
 
-        const sequence$: Observable<Sequence> = this._navigator.stateService.currentNode$.pipe(
+        const sequence$ = this._navigator.stateService.currentNode$.pipe(
             distinctUntilChanged(
                 undefined,
                 (node: Node): string => {
@@ -269,9 +163,11 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
             publishReplay(1),
             refCount());
 
-        this._sequenceSubscription = sequence$.subscribe();
+        const subs = this._subscriptions;
 
-        const rendererId$: Observable<string> = this._sequenceDOMRenderer.index$.pipe(
+        subs.push(sequence$.subscribe());
+
+        const rendererId$ = this._sequenceDOMRenderer.index$.pipe(
             withLatestFrom(sequence$),
             map(
                 ([index, sequence]: [number, Sequence]): string => {
@@ -285,7 +181,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
             publish(),
             refCount());
 
-        this._moveSubscription = observableMerge(
+        subs.push(observableMerge(
             rendererId$.pipe(debounceTime(100, this._scheduler)),
             rendererId$.pipe(auditTime(400, this._scheduler))).pipe(
                 distinctUntilChanged(),
@@ -297,9 +193,9 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                                     return observableEmpty();
                                 }));
                     }))
-            .subscribe();
+            .subscribe());
 
-        this._setSequenceGraphModeSubscription = this._sequenceDOMRenderer.changingPositionChanged$.pipe(
+        subs.push(this._sequenceDOMRenderer.changingPositionChanged$.pipe(
             filter(
                 (changing: boolean): boolean => {
                     return changing;
@@ -307,9 +203,9 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
             .subscribe(
                 (): void => {
                     this._navigator.graphService.setGraphMode(GraphMode.Sequence);
-                });
+                }));
 
-        this._setSpatialGraphModeSubscription = this._sequenceDOMRenderer.changingPositionChanged$.pipe(
+        subs.push(this._sequenceDOMRenderer.changingPositionChanged$.pipe(
             filter(
                 (changing: boolean): boolean => {
                     return !changing;
@@ -317,7 +213,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
             .subscribe(
                 (): void => {
                     this._navigator.graphService.setGraphMode(GraphMode.Spatial);
-                });
+                }));
 
         this._navigator.graphService.graphMode$.pipe(
             switchMap(
@@ -341,7 +237,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                 }))
             .subscribe();
 
-        this._stopSubscription = this._sequenceDOMRenderer.changingPositionChanged$.pipe(
+        subs.push(this._sequenceDOMRenderer.changingPositionChanged$.pipe(
             filter(
                 (changing: boolean): boolean => {
                     return changing;
@@ -349,9 +245,9 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
             .subscribe(
                 (): void => {
                     this._navigator.playService.stop();
-                });
+                }));
 
-        this._cacheSequenceNodesSubscription = observableCombineLatest(
+        subs.push(observableCombineLatest(
             this._navigator.graphService.graphMode$,
             this._sequenceDOMRenderer.changingPositionChanged$.pipe(
                 startWith(false),
@@ -370,7 +266,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                                         })) :
                                 observableEmpty();
                         }))
-            .subscribe();
+            .subscribe());
 
         const position$: Observable<{ index: number, max: number }> = sequence$.pipe(
             switchMap(
@@ -421,7 +317,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                 }),
             distinctUntilChanged());
 
-        this._renderSubscription = observableCombineLatest(
+        subs.push(observableCombineLatest(
             edgeStatus$,
             this._configuration$,
             this._containerWidth$,
@@ -456,15 +352,15 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
 
                         return { name: this._name, vnode: vNode };
                     }))
-            .subscribe(this._container.domRenderer.render$);
+            .subscribe(this._container.domRenderer.render$));
 
-        this._setSpeedSubscription = this._sequenceDOMRenderer.speed$
+        subs.push(this._sequenceDOMRenderer.speed$
             .subscribe(
                 (speed: number): void => {
                     this._navigator.playService.setSpeed(speed);
-                });
+                }));
 
-        this._setDirectionSubscription = this._configuration$.pipe(
+        subs.push(this._configuration$.pipe(
             map(
                 (configuration: SequenceConfiguration): NavigationDirection => {
                     return configuration.direction;
@@ -473,9 +369,9 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
             .subscribe(
                 (direction: NavigationDirection): void => {
                     this._navigator.playService.setDirection(direction);
-                });
+                }));
 
-        this._containerWidthSubscription = observableCombineLatest(
+        subs.push(observableCombineLatest(
             this._container.renderService.size$,
             this._configuration$.pipe(
                 distinctUntilChanged(
@@ -491,9 +387,9 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                                     size,
                                     configuration);
                             }))
-            .subscribe(this._containerWidth$);
+            .subscribe(this._containerWidth$));
 
-        this._playingSubscription = this._configuration$.pipe(
+        subs.push(this._configuration$.pipe(
             map(
                 (configuration: SequenceConfiguration): boolean => {
                     return configuration.playing;
@@ -506,9 +402,9 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                     } else {
                         this._navigator.playService.stop();
                     }
-                });
+                }));
 
-        this._hoveredSubscription = this._sequenceDOMRenderer.mouseEnterDirection$.pipe(
+        subs.push(this._sequenceDOMRenderer.mouseEnterDirection$.pipe(
             switchMap(
                 (direction: NavigationDirection): Observable<string> => {
                     const edgeTo$: Observable<string> = edgeStatus$.pipe(
@@ -527,30 +423,23 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                     return observableConcat(edgeTo$, observableOf<string>(null));
                 }),
             distinctUntilChanged())
-            .subscribe(this._hoveredIdSubject$);
+            .subscribe(this._hoveredIdSubject$));
 
-        this._emitHoveredSubscription = this._hoveredId$
+        subs.push(this._hoveredId$
             .subscribe(
                 (id: string): void => {
-                    this.fire(SequenceComponent.hoveredidchanged, id);
-                });
+                    const type: ComponentEvent = "hover";
+                    const event: ComponentHoverEvent = {
+                        id,
+                        target: this,
+                        type,
+                    }
+                    this.fire(type, event);
+                }));
     }
 
     protected _deactivate(): void {
-        this._emitHoveredSubscription.unsubscribe();
-        this._renderSubscription.unsubscribe();
-        this._playingSubscription.unsubscribe();
-        this._containerWidthSubscription.unsubscribe();
-        this._hoveredSubscription.unsubscribe();
-        this._setSpeedSubscription.unsubscribe();
-        this._setDirectionSubscription.unsubscribe();
-        this._setSequenceGraphModeSubscription.unsubscribe();
-        this._setSpatialGraphModeSubscription.unsubscribe();
-        this._sequenceSubscription.unsubscribe();
-        this._moveSubscription.unsubscribe();
-        this._cacheSequenceNodesSubscription.unsubscribe();
-        this._stopSubscription.unsubscribe();
-
+        this._subscriptions.unsubscribe();
         this._sequenceDOMRenderer.deactivate();
     }
 

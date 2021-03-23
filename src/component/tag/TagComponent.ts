@@ -4,7 +4,6 @@ import {
     merge as observableMerge,
     from as observableFrom,
     Observable,
-    Subscription,
 } from "rxjs";
 
 import {
@@ -54,6 +53,8 @@ import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { Container } from "../../viewer/Container";
 import { ISpriteAtlas } from "../../viewer/interfaces/ISpriteAtlas";
+import { ComponentEvent } from "../events/ComponentEvent";
+import { ComponentGeometryEvent, ComponentStateEvent, ComponentTagModeEvent } from "../events/ComponentStateEvent";
 
 /**
  * @class TagComponent
@@ -93,82 +94,6 @@ export class TagComponent extends Component<TagConfiguration> {
     /** @inheritdoc */
     public static componentName: string = "tag";
 
-    /**
-     * Event fired when an interaction to create a geometry ends.
-     *
-     * @description A create interaction can by a geometry being created
-     * or by the creation being aborted.
-     *
-     * @event TagComponent#creategeometryend
-     * @type {TagComponent} Tag component.
-     * @example
-     * ```
-     * tagComponent.on("creategeometryend", function(component) {
-     *     console.log(component);
-     * });
-     * ```
-     */
-    public static creategeometryend: string = "creategeometryend";
-
-    /**
-     * Event fired when an interaction to create a geometry starts.
-     *
-     * @description A create interaction starts when the first vertex
-     * is created in the geometry.
-     *
-     * @event TagComponent#creategeometrystart
-     * @type {TagComponent} Tag component.
-     * @example
-     * ```
-     * tagComponent.on("creategeometrystart", function(component) {
-     *     console.log(component);
-     * });
-     * ```
-     */
-    public static creategeometrystart: string = "creategeometrystart";
-
-    /**
-     * Event fired when the create mode is changed.
-     *
-     * @event TagComponent#modechanged
-     * @type {TagMode} Tag mode
-     * @example
-     * ```
-     * tagComponent.on("modechanged", function(mode) {
-     *     console.log(mode);
-     * });
-     * ```
-     */
-    public static modechanged: string = "modechanged";
-
-    /**
-     * Event fired when a geometry has been created.
-     *
-     * @event TagComponent#geometrycreated
-     * @type {Geometry} Created geometry.
-     * @example
-     * ```
-     * tagComponent.on("geometrycreated", function(geometry) {
-     *     console.log(geometry);
-     * });
-     * ```
-     */
-    public static geometrycreated: string = "geometrycreated";
-
-    /**
-     * Event fired when the tags collection has changed.
-     *
-     * @event TagComponent#tagschanged
-     * @type {TagComponent} Tag component.
-     * @example
-     * ```
-     * tagComponent.on("tagschanged", function(component) {
-     *     console.log(component.getAll());
-     * });
-     * ```
-     */
-    public static tagschanged: string = "tagschanged";
-
     private _tagDomRenderer: TagDOMRenderer;
     private _tagScene: TagScene;
     private _tagSet: TagSet;
@@ -182,23 +107,6 @@ export class TagComponent extends Component<TagConfiguration> {
     private _createGLObjectsChanged$: Observable<CreateTag<Geometry>>;
 
     private _creatingConfiguration$: Observable<TagConfiguration>;
-
-    private _updateGLObjectsSubscription: Subscription;
-    private _updateTagSceneSubscription: Subscription;
-
-    private _stopCreateSubscription: Subscription;
-    private _setGLCreateTagSubscription: Subscription;
-    private _createGLObjectsChangedSubscription: Subscription;
-
-    private _handlerStopCreateSubscription: Subscription;
-    private _handlerEnablerSubscription: Subscription;
-
-    private _domSubscription: Subscription;
-    private _glSubscription: Subscription;
-
-    private _fireCreateGeometryEventSubscription: Subscription;
-    private _fireGeometryCreatedSubscription: Subscription;
-    private _fireTagsChangedSubscription: Subscription;
 
     private _createHandlers: { [K in keyof typeof TagMode]: CreateHandlerBase };
     private _editVertexHandler: EditVertexHandler;
@@ -214,15 +122,51 @@ export class TagComponent extends Component<TagConfiguration> {
         this._viewportCoords = new ViewportCoords();
 
         this._createHandlers = {
-            "CreatePoint": new CreatePointHandler(this, container, navigator, this._viewportCoords, this._tagCreator),
-            "CreatePoints": new CreatePointsHandler(this, container, navigator, this._viewportCoords, this._tagCreator),
-            "CreatePolygon": new CreatePolygonHandler(this, container, navigator, this._viewportCoords, this._tagCreator),
-            "CreateRect": new CreateRectHandler(this, container, navigator, this._viewportCoords, this._tagCreator),
-            "CreateRectDrag": new CreateRectDragHandler(this, container, navigator, this._viewportCoords, this._tagCreator),
+            "CreatePoint":
+                new CreatePointHandler(
+                    this,
+                    container,
+                    navigator,
+                    this._viewportCoords,
+                    this._tagCreator),
+            "CreatePoints":
+                new CreatePointsHandler(
+                    this,
+                    container,
+                    navigator,
+                    this._viewportCoords,
+                    this._tagCreator),
+            "CreatePolygon":
+                new CreatePolygonHandler(
+                    this,
+                    container,
+                    navigator,
+                    this._viewportCoords,
+                    this._tagCreator),
+            "CreateRect":
+                new CreateRectHandler(
+                    this,
+                    container,
+                    navigator,
+                    this._viewportCoords,
+                    this._tagCreator),
+            "CreateRectDrag":
+                new CreateRectDragHandler(
+                    this,
+                    container,
+                    navigator,
+                    this._viewportCoords,
+                    this._tagCreator),
             "Default": undefined,
         };
 
-        this._editVertexHandler = new EditVertexHandler(this, container, navigator, this._viewportCoords, this._tagSet);
+        this._editVertexHandler =
+            new EditVertexHandler(
+                this,
+                container,
+                navigator,
+                this._viewportCoords,
+                this._tagSet);
 
         this._renderTags$ = this._tagSet.changed$.pipe(
             map(
@@ -310,7 +254,13 @@ export class TagComponent extends Component<TagConfiguration> {
         this._creatingConfiguration$
             .subscribe(
                 (configuration: TagConfiguration): void => {
-                    this.fire(TagComponent.modechanged, configuration.mode);
+                    const type: ComponentEvent = "tagmode";
+                    const event: ComponentTagModeEvent = {
+                        mode: configuration.mode,
+                        target: this,
+                        type,
+                    };
+                    this.fire(type, event);
                 });
     }
 
@@ -568,7 +518,7 @@ export class TagComponent extends Component<TagConfiguration> {
     protected _activate(): void {
         this._editVertexHandler.enable();
 
-        const handlerGeometryCreated$: Observable<Geometry> =
+        const handlerGeometryCreated$ =
             observableFrom(<(keyof typeof TagMode)[]>Object.keys(this._createHandlers)).pipe(
                 map(
                     (key: keyof typeof TagMode): CreateHandlerBase => {
@@ -584,13 +534,21 @@ export class TagComponent extends Component<TagConfiguration> {
                     }),
                 share());
 
-        this._fireGeometryCreatedSubscription = handlerGeometryCreated$
+        const subs = this._subscriptions;
+
+        subs.push(handlerGeometryCreated$
             .subscribe(
                 (geometry: Geometry): void => {
-                    this.fire(TagComponent.geometrycreated, geometry);
-                });
+                    const type: ComponentEvent = "geometrycreated";
+                    const event: ComponentGeometryEvent = {
+                        geometry,
+                        target: this,
+                        type,
+                    };
+                    this.fire(type, event);
+                }));
 
-        this._fireCreateGeometryEventSubscription = this._tagCreator.tag$.pipe(
+        subs.push(this._tagCreator.tag$.pipe(
             skipWhile(
                 (tag: CreateTag<Geometry>): boolean => {
                     return tag == null;
@@ -598,20 +556,23 @@ export class TagComponent extends Component<TagConfiguration> {
             distinctUntilChanged())
             .subscribe(
                 (tag: CreateTag<Geometry>): void => {
-                    const eventType: string = tag != null ?
-                        TagComponent.creategeometrystart :
-                        TagComponent.creategeometryend;
+                    const type: ComponentEvent = tag != null ?
+                        "tagcreatestart" :
+                        "tagcreateend";
+                    const event: ComponentStateEvent = {
+                        target: this,
+                        type,
+                    };
+                    this.fire(type, event);
+                }));
 
-                    this.fire(eventType, this);
-                });
-
-        this._handlerStopCreateSubscription = handlerGeometryCreated$
+        subs.push(handlerGeometryCreated$
             .subscribe(
                 (): void => {
                     this.changeMode(TagMode.Default);
-                });
+                }));
 
-        this._handlerEnablerSubscription = this._creatingConfiguration$
+        subs.push(this._creatingConfiguration$
             .subscribe(
                 (configuration: TagConfiguration): void => {
                     this._disableCreateHandlers();
@@ -621,15 +582,20 @@ export class TagComponent extends Component<TagConfiguration> {
                     if (!!handler) {
                         handler.enable();
                     }
-                });
+                }));
 
-        this._fireTagsChangedSubscription = this._renderTags$
+        subs.push(this._renderTags$
             .subscribe(
                 (): void => {
-                    this.fire(TagComponent.tagschanged, this);
-                });
+                    const type: ComponentEvent = "tags";
+                    const event: ComponentStateEvent = {
+                        target: this,
+                        type,
+                    };
+                    this.fire(type, event);
+                }));
 
-        this._stopCreateSubscription = this._tagCreator.tag$.pipe(
+        subs.push(this._tagCreator.tag$.pipe(
             switchMap(
                 (tag: CreateTag<Geometry>): Observable<void> => {
                     return tag != null ?
@@ -637,9 +603,9 @@ export class TagComponent extends Component<TagConfiguration> {
                             map((): void => { return null; })) :
                         observableEmpty();
                 }))
-            .subscribe((): void => { this.changeMode(TagMode.Default); });
+            .subscribe((): void => { this.changeMode(TagMode.Default); }));
 
-        this._setGLCreateTagSubscription = this._tagCreator.tag$
+        subs.push(this._tagCreator.tag$
             .subscribe(
                 (tag: CreateTag<Geometry>): void => {
                     if (this._tagScene.hasCreateTag()) {
@@ -649,27 +615,27 @@ export class TagComponent extends Component<TagConfiguration> {
                     if (tag != null) {
                         this._tagScene.addCreateTag(tag);
                     }
-                });
+                }));
 
-        this._createGLObjectsChangedSubscription = this._createGLObjectsChanged$
+        subs.push(this._createGLObjectsChanged$
             .subscribe(
                 (tag: CreateTag<Geometry>): void => {
                     this._tagScene.updateCreateTagObjects(tag);
-                });
+                }));
 
-        this._updateGLObjectsSubscription = this._renderTagGLChanged$
+        subs.push(this._renderTagGLChanged$
             .subscribe(
                 (tag: RenderTag<Tag>): void => {
                     this._tagScene.updateObjects(tag);
-                });
+                }));
 
-        this._updateTagSceneSubscription = this._tagChanged$
+        subs.push(this._tagChanged$
             .subscribe(
                 (): void => {
                     this._tagScene.update();
-                });
+                }));
 
-        this._domSubscription = observableCombineLatest(
+        subs.push(observableCombineLatest(
             this._renderTags$.pipe(
                 startWith([]),
                 tap(
@@ -695,9 +661,9 @@ export class TagComponent extends Component<TagConfiguration> {
                                 vnode: this._tagDomRenderer.render(renderTags, ct, atlas, rc.perspective, size),
                             };
                         }))
-            .subscribe(this._container.domRenderer.render$);
+            .subscribe(this._container.domRenderer.render$));
 
-        this._glSubscription = this._navigator.stateService.currentState$.pipe(
+        subs.push(this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: AnimationFrame): GLRenderHash => {
                     const tagScene: TagScene = this._tagScene;
@@ -712,7 +678,7 @@ export class TagComponent extends Component<TagConfiguration> {
                         },
                     };
                 }))
-            .subscribe(this._container.glRenderer.render$);
+            .subscribe(this._container.glRenderer.render$));
 
         this._navigator.stateService.currentTransform$.pipe(
             first())
@@ -733,22 +699,7 @@ export class TagComponent extends Component<TagConfiguration> {
 
         this._tagCreator.delete$.next(null);
 
-        this._updateGLObjectsSubscription.unsubscribe();
-        this._updateTagSceneSubscription.unsubscribe();
-
-        this._stopCreateSubscription.unsubscribe();
-        this._setGLCreateTagSubscription.unsubscribe();
-        this._createGLObjectsChangedSubscription.unsubscribe();
-
-        this._domSubscription.unsubscribe();
-        this._glSubscription.unsubscribe();
-
-        this._fireCreateGeometryEventSubscription.unsubscribe();
-        this._fireGeometryCreatedSubscription.unsubscribe();
-        this._fireTagsChangedSubscription.unsubscribe();
-
-        this._handlerStopCreateSubscription.unsubscribe();
-        this._handlerEnablerSubscription.unsubscribe();
+        this._subscriptions.unsubscribe();
 
         this._container.container.classList.remove("component-tag-create");
     }
@@ -762,13 +713,17 @@ export class TagComponent extends Component<TagConfiguration> {
     }
 
     private _disableCreateHandlers(): void {
-        const createHandlers: { [K in keyof typeof TagMode]: CreateHandlerBase } = this._createHandlers;
+        const createHandlers: {
+            [K in keyof typeof TagMode]:
+            CreateHandlerBase
+        } = this._createHandlers;
+
         for (const key in createHandlers) {
             if (!createHandlers.hasOwnProperty(key)) {
                 continue;
             }
-
-            const handler: CreateHandlerBase = createHandlers[<keyof typeof TagMode>key];
+            const handler =
+                createHandlers[<keyof typeof TagMode>key];
             if (!!handler) {
                 handler.disable();
             }

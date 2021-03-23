@@ -38,6 +38,7 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
     private _preventDefaultSubscription: Subscription;
     private _truckSubscription: Subscription;
 
+    /** @ignore */
     constructor(
         component: Component<MouseConfiguration>,
         container: Container,

@@ -308,7 +308,7 @@ export class SequenceDOMRenderer {
         const switchButtonProperties: vd.createProperties = {
             onclick: (): void => {
                 if (!playing) {
-                    component.setDirection(direction);
+                    component.configure({ direction });
                 }
             },
         };

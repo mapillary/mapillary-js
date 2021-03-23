@@ -79,17 +79,28 @@ export interface SliderConfiguration extends ComponentConfiguration {
     /**
      * Initial position of the slider on the interval [0, 1].
      *
+     * @description Configures the intial position of the slider.
+     * The inital position value will be used when the component
+     * is activated.
+     *
      * @default 1
      */
     initialPosition?: number;
 
     /**
-     * Slider ids.
+     * Slider image ids.
+     *
+     * @description Configures the component to show the image
+     * planes for the supplied image ids  in the foreground
+     * and the background.
      */
     ids?: SliderConfigurationIds;
 
     /**
      * Value indicating whether the slider should be visible.
+     *
+     * @description Set the value controlling if the
+     * slider is visible.
      *
      * @default true
      */
@@ -97,6 +108,9 @@ export interface SliderConfiguration extends ComponentConfiguration {
 
     /**
      * Mode used for image pair transitions.
+     *
+     * @description Configures the mode for transitions between
+     * image pairs.
      */
     mode?: SliderConfigurationMode;
 }

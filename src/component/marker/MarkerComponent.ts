@@ -6,7 +6,6 @@ import {
     merge as observableMerge,
     of as observableOf,
     Observable,
-    Subscription,
 } from "rxjs";
 
 import {
@@ -36,10 +35,11 @@ import { GLRenderHash } from "../../render/interfaces/IGLRenderHash";
 import { RenderCamera } from "../../render/RenderCamera";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { MarkerConfiguration } from "../interfaces/MarkerConfiguration";
-import { MarkerEvent } from "./interfaces/MarkerEvent";
 import { Marker } from "./marker/Marker";
 import { MarkerSet } from "./MarkerSet";
 import { MarkerScene } from "./MarkerScene";
+import { ComponentMarkerEvent } from "../events/ComponentStateEvent";
+import { ComponentEvent } from "../events/ComponentEvent";
 
 /**
  * @class MarkerComponent
@@ -76,73 +76,29 @@ import { MarkerScene } from "./MarkerScene";
 export class MarkerComponent extends Component<MarkerConfiguration> {
     public static componentName: string = "marker";
 
-    /**
-     * Fired when the position of a marker is changed.
-     * @event
-     * @type {MarkerEvent} markerEvent - Marker event data.
-     * @example
-     * ```
-     * markerComponent.on("changed", function(e) {
-     *     console.log(e.marker.id, e.marker.latLon);
-     * });
-     * ```
-     */
-    public static changed: string = "changed";
-
-    /**
-     * Fired when a marker drag interaction starts.
-     * @event
-     * @type {MarkerEvent} markerEvent - Marker event data.
-     * @example
-     * ```
-     * markerComponent.on("dragstart", function(e) {
-     *     console.log(e.marker.id, e.marker.latLon);
-     * });
-     * ```
-     */
-    public static dragstart: string = "dragstart";
-
-    /**
-     * Fired when a marker drag interaction ends.
-     * @event
-     * @type {MarkerEvent} markerEvent - Marker event data.
-     * @example
-     * ```
-     * markerComponent.on("dragend", function(e) {
-     *     console.log(e.marker.id, e.marker.latLon);
-     * });
-     * ```
-     */
-    public static dragend: string = "dragend";
-
-    private _relativeGroundAltitude: number;
-
     private _geoCoords: GeoCoords;
     private _graphCalculator: GraphCalculator;
     private _markerScene: MarkerScene;
     private _markerSet: MarkerSet;
     private _viewportCoords: ViewportCoords;
 
-    private _adjustHeightSubscription: Subscription;
-    private _dragEventSubscription: Subscription;
-    private _markersUpdatedSubscription: Subscription;
-    private _mouseClaimSubscription: Subscription;
-    private _referenceSubscription: Subscription;
-    private _renderSubscription: Subscription;
-    private _setChangedSubscription: Subscription;
-    private _updateMarkerSubscription: Subscription;
+    private _relativeGroundAltitude: number;
 
     /** @ignore */
-    constructor(name: string, container: Container, navigator: Navigator) {
-        super(name, container, navigator);
+    constructor(
+        name: string,
+        container: Container,
+        navigator: Navigator) {
 
-        this._relativeGroundAltitude = -2;
+        super(name, container, navigator);
 
         this._geoCoords = new GeoCoords();
         this._graphCalculator = new GraphCalculator();
         this._markerScene = new MarkerScene();
         this._markerSet = new MarkerSet();
         this._viewportCoords = new ViewportCoords();
+
+        this._relativeGroundAltitude = -2;
     }
 
     /**
@@ -266,7 +222,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
     }
 
     protected _activate(): void {
-        const groundAltitude$: Observable<number> = this._navigator.stateService.currentState$.pipe(
+        const groundAltitude$ = this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: AnimationFrame): number => {
                     return frame.state.camera.position.z + this._relativeGroundAltitude;
@@ -278,7 +234,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
             publishReplay(1),
             refCount());
 
-        const geoInitiated$: Observable<void> = observableCombineLatest(
+        const geoInitiated$ = observableCombineLatest(
             groundAltitude$,
             this._navigator.stateService.reference$).pipe(
                 first(),
@@ -286,18 +242,18 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                 publishReplay(1),
                 refCount());
 
-        const clampedConfiguration$: Observable<MarkerConfiguration> = this._configuration$.pipe(
+        const clampedConfiguration$ = this._configuration$.pipe(
             map(
                 (configuration: MarkerConfiguration): MarkerConfiguration => {
                     return { visibleBBoxSize: Math.max(1, Math.min(200, configuration.visibleBBoxSize)) };
                 }));
 
-        const currentlatLon$: Observable<LatLon> = this._navigator.stateService.currentNode$.pipe(
+        const currentlatLon$ = this._navigator.stateService.currentNode$.pipe(
             map((node: Node): LatLon => { return node.latLon; }),
             publishReplay(1),
             refCount());
 
-        const visibleBBox$: Observable<[LatLon, LatLon]> = observableCombineLatest(
+        const visibleBBox$ = observableCombineLatest(
             clampedConfiguration$,
             currentlatLon$).pipe(
                 map(
@@ -308,7 +264,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                 publishReplay(1),
                 refCount());
 
-        const visibleMarkers$: Observable<Marker[]> = observableCombineLatest(
+        const visibleMarkers$ = observableCombineLatest(
             observableConcat(
                 observableOf<MarkerSet>(this._markerSet),
                 this._markerSet.changed$),
@@ -318,7 +274,9 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                         return set.search(bbox);
                     }));
 
-        this._setChangedSubscription = geoInitiated$.pipe(
+        const subs = this._subscriptions;
+
+        subs.push(geoInitiated$.pipe(
             switchMap(
                 (): Observable<[Marker[], LatLonAlt, number]> => {
                     return visibleMarkers$.pipe(
@@ -357,9 +315,9 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
 
                         markerScene.remove(id);
                     }
-                });
+                }));
 
-        this._markersUpdatedSubscription = geoInitiated$.pipe(
+        subs.push(geoInitiated$.pipe(
             switchMap(
                 (): Observable<[Marker[], [LatLon, LatLon], LatLonAlt, number]> => {
                     return this._markerSet.updated$.pipe(
@@ -395,9 +353,9 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                             markerScene.remove(marker.id);
                         }
                     }
-                });
+                }));
 
-        this._referenceSubscription = this._navigator.stateService.reference$.pipe(
+        subs.push(this._navigator.stateService.reference$.pipe(
             skip(1),
             withLatestFrom(groundAltitude$))
             .subscribe(
@@ -417,9 +375,9 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
 
                         markerScene.update(marker.id, point3d);
                     }
-                });
+                }));
 
-        this._adjustHeightSubscription = groundAltitude$.pipe(
+        subs.push(groundAltitude$.pipe(
             skip(1),
             withLatestFrom(
                 this._navigator.stateService.reference$,
@@ -458,9 +416,9 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
 
                         markerScene.lerpAltitude(marker.id, alt, Math.min(1, Math.max(0, 1.2 - 1.2 * groundDistance / 50)));
                     }
-                });
+                }));
 
-        this._renderSubscription = this._navigator.stateService.currentState$.pipe(
+        subs.push(this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: AnimationFrame): GLRenderHash => {
                     const scene: MarkerScene = this._markerScene;
@@ -475,7 +433,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                         },
                     };
                 }))
-            .subscribe(this._container.glRenderer.render$);
+            .subscribe(this._container.glRenderer.render$));
 
         const hoveredMarkerId$: Observable<string> = observableCombineLatest(
             this._container.renderService.renderCamera$,
@@ -517,7 +475,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
             draggingStopped$).pipe(
                 startWith(false));
 
-        this._dragEventSubscription = observableMerge(
+        subs.push(observableMerge(
             draggingStarted$.pipe(
                 withLatestFrom(hoveredMarkerId$)),
             observableCombineLatest(
@@ -527,14 +485,20 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                     pairwise())
             .subscribe(
                 ([previous, current]: [boolean, string][]): void => {
-                    const dragging: boolean = current[0];
-                    const eventType: string = dragging ? MarkerComponent.dragstart : MarkerComponent.dragend;
-                    const id: string = dragging ? current[1] : previous[1];
-                    const marker: Marker = this._markerScene.get(id);
-                    const markerEvent: MarkerEvent = { marker: marker, target: this, type: eventType };
-
-                    this.fire(eventType, markerEvent);
-                });
+                    const dragging = current[0];
+                    const type: ComponentEvent =
+                        dragging ?
+                            "markerdragstart" :
+                            "markerdragend";
+                    const id = dragging ? current[1] : previous[1];
+                    const marker = this._markerScene.get(id);
+                    const event: ComponentMarkerEvent = {
+                        marker,
+                        target: this,
+                        type,
+                    };
+                    this.fire(type, event);
+                }));
 
         const mouseDown$: Observable<boolean> = observableMerge(
             this._container.mouseService.mouseDown$.pipe(
@@ -543,7 +507,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                 map((): boolean => { return false; }))).pipe(
                     startWith(false));
 
-        this._mouseClaimSubscription = observableCombineLatest(
+        subs.push(observableCombineLatest(
             this._container.mouseService.active$,
             hoveredMarkerId$.pipe(distinctUntilChanged()),
             mouseDown$,
@@ -562,7 +526,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                         this._container.mouseService.unclaimMouse(this._name);
                         this._container.mouseService.unclaimWheel(this._name);
                     }
-                });
+                }));
 
         const offset$: Observable<[Marker, number[], RenderCamera]> = this._container.mouseService
             .filtered$(this._name, this._container.mouseService.mouseDragStart$).pipe(
@@ -589,7 +553,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                 publishReplay(1),
                 refCount());
 
-        this._updateMarkerSubscription = this._container.mouseService
+        subs.push(this._container.mouseService
             .filtered$(this._name, this._container.mouseService.mouseDrag$).pipe(
                 withLatestFrom(
                     offset$,
@@ -643,24 +607,26 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                             reference.lon,
                             reference.alt);
 
-                    this._markerScene.update(marker.id, intersection.toArray(), { lat: lat, lon: lon });
+                    this._markerScene
+                        .update(
+                            marker.id,
+                            intersection.toArray(),
+                            { lat: lat, lon: lon });
+
                     this._markerSet.update(marker);
 
-                    const markerEvent: MarkerEvent = { marker: marker, target: this, type: MarkerComponent.changed };
-                    this.fire(MarkerComponent.changed, markerEvent);
-                });
+                    const type: ComponentEvent = "markerposition";
+                    const markerEvent: ComponentMarkerEvent = {
+                        marker,
+                        target: this,
+                        type,
+                    };
+                    this.fire(type, markerEvent);
+                }));
     }
 
     protected _deactivate(): void {
-        this._adjustHeightSubscription.unsubscribe();
-        this._dragEventSubscription.unsubscribe();
-        this._markersUpdatedSubscription.unsubscribe();
-        this._mouseClaimSubscription.unsubscribe();
-        this._referenceSubscription.unsubscribe();
-        this._renderSubscription.unsubscribe();
-        this._setChangedSubscription.unsubscribe();
-        this._updateMarkerSubscription.unsubscribe();
-
+        this._subscriptions.unsubscribe();
         this._markerScene.clear();
     }
 

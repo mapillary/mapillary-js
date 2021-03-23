@@ -5,7 +5,6 @@ import {
     combineLatest as observableCombineLatest,
     Observable,
     Subject,
-    Subscription,
 } from "rxjs";
 
 import {
@@ -34,6 +33,7 @@ import { ComponentSize } from "../utils/ComponentSize";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { isSpherical } from "../../geo/Geo";
+import { SubscriptionHolder } from "../../utils/SubscriptionHolder";
 
 type NodeFov = [number, number];
 
@@ -73,10 +73,7 @@ export class BearingComponent extends Component<BearingConfiguration> {
     private _animationSpeed: number;
     private _unitBezier: UnitBezier;
 
-    private _renderSubscription: Subscription;
-    private _fovSubscription: Subscription;
-    private _fovAnimationSubscription: Subscription;
-
+    /** @ignore */
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
@@ -91,23 +88,26 @@ export class BearingComponent extends Component<BearingConfiguration> {
     }
 
     protected _activate(): void {
-        const cameraBearingFov$: Observable<[number, number]> = this._container.renderService.renderCamera$.pipe(
-            map(
-                (rc: RenderCamera): [number, number] => {
-                    let vFov: number = this._spatial.degToRad(rc.perspective.fov);
-                    let hFov: number = rc.perspective.aspect === Number.POSITIVE_INFINITY ?
-                        Math.PI :
-                        Math.atan(rc.perspective.aspect * Math.tan(0.5 * vFov)) * 2;
+        const subs = this._subscriptions;
 
-                    return [this._spatial.azimuthalToBearing(rc.rotation.phi), hFov];
-                }),
-            distinctUntilChanged(
-                (a1: [number, number], a2: [number, number]): boolean => {
-                    return Math.abs(a2[0] - a1[0]) < this._distinctThreshold &&
-                        Math.abs(a2[1] - a1[1]) < this._distinctThreshold;
-                }));
+        const cameraBearingFov$ =
+            this._container.renderService.renderCamera$.pipe(
+                map(
+                    (rc: RenderCamera): [number, number] => {
+                        let vFov: number = this._spatial.degToRad(rc.perspective.fov);
+                        let hFov: number = rc.perspective.aspect === Number.POSITIVE_INFINITY ?
+                            Math.PI :
+                            Math.atan(rc.perspective.aspect * Math.tan(0.5 * vFov)) * 2;
 
-        const nodeFov$: Observable<NodeFov> = observableCombineLatest(
+                        return [this._spatial.azimuthalToBearing(rc.rotation.phi), hFov];
+                    }),
+                distinctUntilChanged(
+                    (a1: [number, number], a2: [number, number]): boolean => {
+                        return Math.abs(a2[0] - a1[0]) < this._distinctThreshold &&
+                            Math.abs(a2[1] - a1[1]) < this._distinctThreshold;
+                    }));
+
+        const nodeFov$ = observableCombineLatest(
             this._navigator.stateService.currentState$.pipe(
                 distinctUntilChanged(
                     undefined,
@@ -150,7 +150,7 @@ export class BearingComponent extends Component<BearingConfiguration> {
                             Math.abs(hFovRight2 - hFovRight1) < this._distinctThreshold;
                     }));
 
-        const offset$: Observable<number> = observableCombineLatest(
+        const offset$ = observableCombineLatest(
             this._navigator.stateService.currentState$.pipe(
                 distinctUntilChanged(
                     undefined,
@@ -165,9 +165,9 @@ export class BearingComponent extends Component<BearingConfiguration> {
                         return offset;
                     }));
 
-        const nodeFovOperation$: Subject<NodeFovOperation> = new Subject<NodeFovOperation>();
+        const nodeFovOperation$ = new Subject<NodeFovOperation>();
 
-        const smoothNodeFov$: Observable<NodeFov> = nodeFovOperation$.pipe(
+        const smoothNodeFov$ = nodeFovOperation$.pipe(
             scan(
                 (state: NodeFovState, operation: NodeFovOperation): NodeFovState => {
                     return operation(state);
@@ -185,7 +185,7 @@ export class BearingComponent extends Component<BearingConfiguration> {
                     ];
                 }));
 
-        this._fovSubscription = nodeFov$.pipe(
+        subs.push(nodeFov$.pipe(
             map(
                 (nbf: NodeFov): NodeFovOperation => {
                     return (state: NodeFovState): NodeFovState => {
@@ -207,9 +207,9 @@ export class BearingComponent extends Component<BearingConfiguration> {
                         };
                     };
                 }))
-            .subscribe(nodeFovOperation$);
+            .subscribe(nodeFovOperation$));
 
-        this._fovAnimationSubscription = nodeFov$.pipe(
+        subs.push(nodeFov$.pipe(
             switchMap(
                 (): Observable<number> => {
                     return this._container.renderService.renderCameraFrame$.pipe(
@@ -238,9 +238,9 @@ export class BearingComponent extends Component<BearingConfiguration> {
                         };
                     };
                 }))
-            .subscribe(nodeFovOperation$);
+            .subscribe(nodeFovOperation$));
 
-        const nodeBearingFov$: Observable<NodeBearingFov> = observableCombineLatest(
+        const nodeBearingFov$ = observableCombineLatest(
             offset$,
             smoothNodeFov$).pipe(
                 map(
@@ -248,7 +248,7 @@ export class BearingComponent extends Component<BearingConfiguration> {
                         return [offset, fov[0], fov[1]];
                     }));
 
-        this._renderSubscription = observableCombineLatest(
+        subs.push(observableCombineLatest(
             cameraBearingFov$,
             nodeBearingFov$,
             this._configuration$,
@@ -280,13 +280,11 @@ export class BearingComponent extends Component<BearingConfiguration> {
                                 ]),
                         };
                     }))
-            .subscribe(this._container.domRenderer.render$);
+            .subscribe(this._container.domRenderer.render$));
     }
 
     protected _deactivate(): void {
-        this._renderSubscription.unsubscribe();
-        this._fovSubscription.unsubscribe();
-        this._fovAnimationSubscription.unsubscribe();
+        this._subscriptions.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): BearingConfiguration {

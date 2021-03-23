@@ -3,7 +3,6 @@ import * as vd from "virtual-dom";
 import {
     combineLatest as observableCombineLatest,
     Observable,
-    Subscription,
 } from "rxjs";
 
 import {
@@ -26,9 +25,13 @@ export class ImageComponent extends Component<ComponentConfiguration> {
 
     private _canvasId: string;
     private _dom: DOM;
-    private drawSubscription: Subscription;
 
-    constructor(name: string, container: Container, navigator: Navigator, dom?: DOM) {
+    constructor(
+        name: string,
+        container: Container,
+        navigator: Navigator,
+        dom?: DOM) {
+
         super(name, container, navigator);
 
         this._canvasId = `${container.id}-${this._name}`;
@@ -61,7 +64,7 @@ export class ImageComponent extends Component<ComponentConfiguration> {
                     return size;
                 }));
 
-        this.drawSubscription = observableCombineLatest(
+        this._subscriptions.push(observableCombineLatest(
             canvasSize$,
             this._navigator.stateService.currentNode$)
             .subscribe(
@@ -71,13 +74,13 @@ export class ImageComponent extends Component<ComponentConfiguration> {
                     canvas
                         .getContext("2d")
                         .drawImage(node.image, 0, 0, size.width, size.height);
-                });
+                }));
 
         this._container.domRenderer.renderAdaptive$.next({ name: this._name, vnode: vd.h(`canvas#${this._canvasId}`, []) });
     }
 
     protected _deactivate(): void {
-        this.drawSubscription.unsubscribe();
+        this._subscriptions.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): ComponentConfiguration {

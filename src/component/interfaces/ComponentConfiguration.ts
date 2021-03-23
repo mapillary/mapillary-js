@@ -1,3 +1,3 @@
 export interface ComponentConfiguration {
-    [index: string]: any;
+    [key: string]: any;
 }

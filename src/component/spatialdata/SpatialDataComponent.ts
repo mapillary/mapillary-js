@@ -71,8 +71,8 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
     private _viewportCoords: ViewportCoords;
     private _geoCoords: GeoCoords;
     private _spatial: Spatial;
-    private _subscriptions: SubscriptionHolder;
 
+    /** @ignore */
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
@@ -83,7 +83,6 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         this._viewportCoords = new ViewportCoords();
         this._geoCoords = new GeoCoords();
         this._spatial = new Spatial();
-        this._subscriptions = new SubscriptionHolder();
     }
 
     protected _activate(): void {

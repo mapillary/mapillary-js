@@ -55,12 +55,14 @@ import { TileRegionOfInterest } from "../../tiles/interfaces/TileRegionOfInteres
 import { RegionOfInterestCalculator } from "../../tiles/RegionOfInterestCalculator";
 import { TextureProvider } from "../../tiles/TextureProvider";
 import { Component } from "../Component";
-import { SliderConfiguration, SliderConfigurationIds, SliderConfigurationMode } from "../interfaces/SliderConfiguration";
+import {
+    SliderConfiguration,
+    SliderConfigurationMode,
+} from "../interfaces/SliderConfiguration";
 import { SliderGLRenderer } from "./SliderGLRenderer";
 import { Transform } from "../../geo/Transform";
 import { SliderDOMRenderer } from "./SliderDOMRenderer";
 import { isSpherical } from "../../geo/Geo";
-import { SubscriptionHolder } from "../../utils/SubscriptionHolder";
 
 /**
  * @class SliderComponent
@@ -102,7 +104,6 @@ export class SliderComponent extends Component<SliderConfiguration> {
     private _glRendererDisposer$: Subject<void>;
 
     private _waitSubscription: Subscription;
-    private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
     /** @ignore */
     constructor(
@@ -163,60 +164,12 @@ export class SliderComponent extends Component<SliderConfiguration> {
             .subscribe(this._glRendererOperation$);
     }
 
-    /**
-     * Set the initial position.
-     *
-     * @description Configures the intial position of the slider.
-     * The inital position value will be used when the component
-     * is activated.
-     *
-     * @param {number} initialPosition - Initial slider position.
-     */
-    public setInitialPosition(initialPosition: number): void {
-        this.configure({ initialPosition: initialPosition });
-    }
-
-    /**
-     * Set the image ids.
-     *
-     * @description Configures the component to show the image
-     * planes for the supplied image idss.
-     *
-     * @param {SliderConfigurationIds} ids - Slider ids object specifying
-     * the images to be shown in the foreground and the background.
-     */
-    public setIds(ids: SliderConfigurationIds): void {
-        this.configure({ ids: ids });
-    }
-
-    /**
-     * Set the slider mode.
-     *
-     * @description Configures the mode for transitions between
-     * image pairs.
-     *
-     * @param {SliderConfigurationMode} mode - Slider mode to be set.
-     */
-    public setSliderMode(mode: SliderConfigurationMode): void {
-        this.configure({ mode: mode });
-    }
-
-    /**
-     * Set the value controlling if the slider is visible.
-     *
-     * @param {boolean} sliderVisible - Value indicating if
-     * the slider should be visible or not.
-     */
-    public setSliderVisible(sliderVisible: boolean): void {
-        this.configure({ sliderVisible: sliderVisible });
-    }
-
     protected _activate(): void {
         const subs = this._subscriptions;
         subs.push(this._domRenderer.mode$
             .subscribe(
                 (mode: SliderConfigurationMode): void => {
-                    this.setSliderMode(mode);
+                    this.configure({ mode });
                 }));
 
         subs.push(this._glRenderer$.pipe(
@@ -236,7 +189,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 }))
             .subscribe(this._container.glRenderer.render$));
 
-        const position$: Observable<number> = observableConcat(
+        const position$ = observableConcat(
             this.configuration$.pipe(
                 map(
                     (configuration: SliderConfiguration): number => {
@@ -246,28 +199,28 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 first()),
             this._domRenderer.position$);
 
-        const mode$: Observable<SliderConfigurationMode> = this.configuration$.pipe(
+        const mode$ = this.configuration$.pipe(
             map(
                 (configuration: SliderConfiguration): SliderConfigurationMode => {
                     return configuration.mode;
                 }),
             distinctUntilChanged());
 
-        const motionless$: Observable<boolean> = this._navigator.stateService.currentState$.pipe(
+        const motionless$ = this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: AnimationFrame): boolean => {
                     return frame.state.motionless;
                 }),
             distinctUntilChanged());
 
-        const spherical$: Observable<boolean> = this._navigator.stateService.currentState$.pipe(
+        const spherical$ = this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: AnimationFrame): boolean => {
                     return isSpherical(frame.state.currentNode.cameraType);
                 }),
             distinctUntilChanged());
 
-        const sliderVisible$: Observable<boolean> = observableCombineLatest(
+        const sliderVisible$ = observableCombineLatest(
             this._configuration$.pipe(
                 map(
                     (configuration: SliderConfiguration): boolean => {

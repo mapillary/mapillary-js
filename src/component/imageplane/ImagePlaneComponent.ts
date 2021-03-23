@@ -48,7 +48,6 @@ import { RegionOfInterestCalculator } from "../../tiles/RegionOfInterestCalculat
 import { TextureProvider } from "../../tiles/TextureProvider";
 import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { Transform } from "../../geo/Transform";
-import { SubscriptionHolder } from "../../utils/SubscriptionHolder";
 
 interface ImagePlaneGLRendererOperation {
     (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer;
@@ -63,8 +62,6 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
     private _renderer$: Observable<ImagePlaneGLRenderer>;
     private _rendererCreator$: Subject<void>;
     private _rendererDisposer$: Subject<void>;
-
-    private _subsciptions: SubscriptionHolder = new SubscriptionHolder();
 
     private _imageTileLoader: ImageTileLoader;
     private _roiCalculator: RegionOfInterestCalculator;
@@ -121,7 +118,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
     }
 
     protected _activate(): void {
-        const subs = this._subsciptions;
+        const subs = this._subscriptions;
         subs.push(this._renderer$.pipe(
             map(
                 (renderer: ImagePlaneGLRenderer): GLRenderHash => {
@@ -455,7 +452,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
 
     protected _deactivate(): void {
         this._rendererDisposer$.next(null);
-        this._subsciptions.unsubscribe();
+        this._subscriptions.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): ComponentConfiguration {

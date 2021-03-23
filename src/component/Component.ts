@@ -16,18 +16,28 @@ import { ComponentConfiguration } from "./interfaces/ComponentConfiguration";
 import { Container } from "../viewer/Container";
 import { Navigator } from "../viewer/Navigator";
 import { EventEmitter } from "../utils/EventEmitter";
+import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { IComponent } from "./interfaces/IComponent";
+import { ComponentEvent } from "./events/ComponentEvent";
 
-export abstract class Component<TConfiguration extends ComponentConfiguration> extends EventEmitter {
+export abstract class Component
+    <TConfiguration extends ComponentConfiguration>
+    extends EventEmitter
+    implements IComponent {
+
     public static componentName: string = "not_worthy";
 
     protected _activated: boolean;
     protected _container: Container;
     protected _name: string;
     protected _navigator: Navigator;
+    protected readonly _subscriptions: SubscriptionHolder;
 
-    protected _activated$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    protected _activated$: BehaviorSubject<boolean> =
+        new BehaviorSubject<boolean>(false);
     protected _configuration$: Observable<TConfiguration>;
-    protected _configurationSubject$: Subject<TConfiguration> = new Subject<TConfiguration>();
+    protected _configurationSubject$: Subject<TConfiguration> =
+        new Subject<TConfiguration>();
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super();
@@ -36,6 +46,7 @@ export abstract class Component<TConfiguration extends ComponentConfiguration> e
         this._container = container;
         this._name = name;
         this._navigator = navigator;
+        this._subscriptions = new SubscriptionHolder();
 
         this._configuration$ =
             this._configurationSubject$.pipe(
@@ -56,6 +67,12 @@ export abstract class Component<TConfiguration extends ComponentConfiguration> e
         this._configuration$.subscribe(() => { /*noop*/ });
     }
 
+    /**
+     * Get activated.
+     *
+     * @returns {boolean} Value indicating if the component is
+     * currently active.
+     */
     public get activated(): boolean {
         return this._activated;
     }
@@ -89,6 +106,7 @@ export abstract class Component<TConfiguration extends ComponentConfiguration> e
         return this._name;
     }
 
+    /** @ignore */
     public activate(conf?: TConfiguration): void {
         if (this._activated) {
             return;
@@ -103,10 +121,16 @@ export abstract class Component<TConfiguration extends ComponentConfiguration> e
         this._activated$.next(true);
     }
 
-    public configure(conf: TConfiguration): void {
-        this._configurationSubject$.next(conf);
+    /**
+     * Configure the component.
+     *
+     * @param configuration Component configuration.
+     */
+    public configure(configuration: TConfiguration): void {
+        this._configurationSubject$.next(configuration);
     }
 
+    /** @ignore */
     public deactivate(): void {
         if (!this._activated) {
             return;
@@ -117,6 +141,27 @@ export abstract class Component<TConfiguration extends ComponentConfiguration> e
         this._container.domRenderer.clear(this._name);
         this._container.glRenderer.clear(this._name);
         this._activated$.next(false);
+    }
+
+    /** @inheritdoc */
+    public fire<T>(
+        type: ComponentEvent,
+        event: T): void {
+        super.fire(type, event);
+    }
+
+    /** @inheritdoc */
+    public off<T>(
+        type: ComponentEvent,
+        handler: (event: T) => void): void {
+        super.off(type, handler);
+    }
+
+    /** @inheritdoc */
+    public on<T>(
+        type: ComponentEvent,
+        handler: (event: T) => void): void {
+        super.on(type, handler);
     }
 
     /**

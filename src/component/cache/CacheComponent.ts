@@ -6,7 +6,6 @@ import {
     of as observableOf,
     zip as observableZip,
     Observable,
-    Subscription,
 } from "rxjs";
 
 import {
@@ -22,11 +21,15 @@ import {
 } from "rxjs/operators";
 
 import { Component } from "../Component";
-import { CacheConfiguration, CacheDepthConfiguration } from "../interfaces/CacheConfiguration";
+import {
+    CacheConfiguration,
+    CacheDepthConfiguration,
+} from "../interfaces/CacheConfiguration";
 
 import { Node } from "../../graph/Node";
 import { NavigationEdge } from "../../graph/edge/interfaces/NavigationEdge";
-import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
+import { NavigationEdgeStatus }
+    from "../../graph/interfaces/NavigationEdgeStatus";
 import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
@@ -37,27 +40,15 @@ type EdgesDepth = [NavigationEdge[], number];
 export class CacheComponent extends Component<CacheConfiguration> {
     public static componentName: string = "cache";
 
-    private _sequenceSubscription: Subscription;
-    private _spatialSubscription: Subscription;
-
+    /** @ignore */
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
     }
 
-    /**
-     * Set the cache depth.
-     *
-     * Configures the cache depth. The cache depth can be different for
-     * different edge direction types.
-     *
-     * @param {CacheDepthConfiguration} depth - Cache depth structure.
-     */
-    public setDepth(depth: CacheDepthConfiguration): void {
-        this.configure({ depth: depth });
-    }
-
     protected _activate(): void {
-        this._sequenceSubscription = observableCombineLatest(
+        const subs = this._subscriptions;
+
+        subs.push(observableCombineLatest(
             this._navigator.stateService.currentNode$.pipe(
                 switchMap(
                     (node: Node): Observable<NavigationEdgeStatus> => {
@@ -88,9 +79,9 @@ export class CacheComponent extends Component<CacheConfiguration> {
                                         return observableEmpty();
                                     }));
                     }))
-            .subscribe(() => { /*noop*/ });
+            .subscribe(() => { /*noop*/ }));
 
-        this._spatialSubscription = observableCombineLatest(
+        subs.push(observableCombineLatest(
             this._navigator.stateService.currentNode$.pipe(
                 switchMap(
                     (node: Node): Observable<[Node, NavigationEdgeStatus]> => {
@@ -142,19 +133,22 @@ export class CacheComponent extends Component<CacheConfiguration> {
                                         return observableEmpty();
                                     }));
                     }))
-            .subscribe(() => { /*noop*/ });
+            .subscribe(() => { /*noop*/ }));
     }
 
     protected _deactivate(): void {
-        this._sequenceSubscription.unsubscribe();
-        this._spatialSubscription.unsubscribe();
+        this._subscriptions.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): CacheConfiguration {
         return { depth: { spherical: 1, sequence: 2, step: 1, turn: 0 } };
     }
 
-    private _cache$(edges: NavigationEdge[], direction: NavigationDirection, depth: number): Observable<EdgesDepth> {
+    private _cache$(
+        edges: NavigationEdge[],
+        direction: NavigationDirection,
+        depth: number)
+        : Observable<EdgesDepth> {
         return observableZip(
             observableOf<NavigationEdge[]>(edges),
             observableOf<number>(depth)).pipe(
