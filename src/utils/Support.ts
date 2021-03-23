@@ -1,5 +1,8 @@
 export function isBrowser(): boolean {
-    return typeof window !== "undefined" && typeof document !== "undefined";
+    return (
+        typeof window !== "undefined" &&
+        typeof document !== "undefined"
+    );
 }
 
 export function isArraySupported(): boolean {
@@ -7,6 +10,7 @@ export function isArraySupported(): boolean {
         Array.prototype &&
         Array.prototype.concat &&
         Array.prototype.filter &&
+        Array.prototype.includes &&
         Array.prototype.indexOf &&
         Array.prototype.join &&
         Array.prototype.map &&
@@ -21,23 +25,43 @@ export function isArraySupported(): boolean {
     );
 }
 
+export function isBlobSupported(): boolean {
+    return (
+        "Blob" in window &&
+        "URL" in window
+    );
+}
+
 export function isFunctionSupported(): boolean {
-    return !!(Function.prototype && Function.prototype.bind);
+    return !!(
+        Function.prototype &&
+        Function.prototype.apply &&
+        Function.prototype.bind
+    );
 }
 
 export function isJSONSupported(): boolean {
-    return "JSON" in window && "parse" in JSON && "stringify" in JSON;
+    return (
+        "JSON" in window &&
+        "parse" in JSON &&
+        "stringify" in JSON
+    );
+}
+
+export function isMapSupported(): boolean {
+    return "Map" in window;
 }
 
 export function isObjectSupported(): boolean {
     return !!(
+        Object.assign &&
         Object.keys &&
-        Object.assign
+        Object.values
     );
 }
 
-export function isBlobSupported(): boolean {
-    return "Blob" in window && "URL" in window;
+export function isSetSupported(): boolean {
+    return "Set" in window;
 }
 
 let isWebGLSupportedCache: boolean = undefined;
@@ -50,7 +74,7 @@ export function isWebGLSupportedCached(): boolean {
 }
 
 export function isWebGLSupported(): boolean {
-    const webGLContextAttributes: WebGLContextAttributes = {
+    const attributes: WebGLContextAttributes = {
         alpha: false,
         antialias: false,
         depth: true,
@@ -60,26 +84,24 @@ export function isWebGLSupported(): boolean {
         stencil: true,
     };
 
-    const canvas: HTMLCanvasElement = document.createElement("canvas");
-    const context: WebGLRenderingContext =
-        canvas.getContext("webgl", webGLContextAttributes) ||
-        <WebGLRenderingContext>canvas.getContext("experimental-webgl", webGLContextAttributes);
+    const canvas = document.createElement("canvas");
+    const webGL2Context = canvas.getContext("webgl2", attributes);
+    if (!!webGL2Context) { return true; }
 
-    if (!context) {
-        return false;
-    }
+    const context =
+        canvas.getContext("webgl", attributes) ||
+        <WebGLRenderingContext>canvas
+            .getContext("experimental-webgl", attributes);
 
-    const requiredExtensions: string[] = [
-        "OES_standard_derivatives",
-    ];
+    if (!context) { return false; }
 
-    const supportedExtensions: string[] = context.getSupportedExtensions();
+    const requiredExtensions = ["OES_standard_derivatives"];
+    const supportedExtensions = context.getSupportedExtensions();
     for (const requiredExtension of requiredExtensions) {
         if (supportedExtensions.indexOf(requiredExtension) === -1) {
             return false;
         }
     }
-
     return true;
 }
 
@@ -111,9 +133,11 @@ export function isSupported(): boolean {
  */
 export function isFallbackSupported(): boolean {
     return isBrowser() &&
-        isBlobSupported() &&
         isArraySupported() &&
+        isBlobSupported() &&
         isFunctionSupported() &&
         isJSONSupported() &&
-        isObjectSupported();
+        isMapSupported() &&
+        isObjectSupported() &&
+        isSetSupported();
 }
