@@ -36,17 +36,12 @@ import { CoverState } from "./CoverState";
 export class CoverComponent extends Component<CoverConfiguration> {
     public static componentName: string = "cover";
 
-    private _renderSubscription: Subscription;
-    private _keySubscription: Subscription;
-    private _configureSrcSubscription: Subscription;
-    private _revokeUrlSubscription: Subscription;
-
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
     }
 
     protected _activate(): void {
-        const originalSrc$: Observable<string> = this.configuration$.pipe(
+        const originalSrc$ = this.configuration$.pipe(
             first(
                 (c: CoverConfiguration): boolean => {
                     return !!c.id;
@@ -68,7 +63,9 @@ export class CoverComponent extends Component<CoverConfiguration> {
             publishReplay(1),
             refCount());
 
-        this._configureSrcSubscription = originalSrc$.pipe(
+        const subs = this._subscriptions;
+
+        subs.push(originalSrc$.pipe(
             map(
                 (src: string): CoverConfiguration => {
                     return { src: src };
@@ -76,9 +73,9 @@ export class CoverComponent extends Component<CoverConfiguration> {
             .subscribe(
                 (c: CoverConfiguration): void => {
                     this._configurationSubject$.next(c);
-                });
+                }));
 
-        this._revokeUrlSubscription = observableCombineLatest(
+        subs.push(observableCombineLatest(
             this.configuration$,
             originalSrc$).pipe(
                 filter(
@@ -89,9 +86,9 @@ export class CoverComponent extends Component<CoverConfiguration> {
             .subscribe(
                 ([, src]: [CoverConfiguration, string]): void => {
                     window.URL.revokeObjectURL(src);
-                });
+                }));
 
-        this._keySubscription = this._configuration$.pipe(
+        subs.push(this._configuration$.pipe(
             distinctUntilChanged(
                 undefined,
                 (configuration: CoverConfiguration): CoverState => {
@@ -127,9 +124,9 @@ export class CoverComponent extends Component<CoverConfiguration> {
                 ([key, src]: [string, string]): CoverConfiguration => {
                     return { id: key, src: src };
                 }))
-            .subscribe(this._configurationSubject$);
+            .subscribe(this._configurationSubject$));
 
-        this._renderSubscription = observableCombineLatest(
+        subs.push(observableCombineLatest(
             this._configuration$,
             this._container.renderService.size$).pipe(
                 map(
@@ -154,14 +151,11 @@ export class CoverComponent extends Component<CoverConfiguration> {
 
                         return { name: this._name, vnode: container };
                     }))
-            .subscribe(this._container.domRenderer.render$);
+            .subscribe(this._container.domRenderer.render$));
     }
 
     protected _deactivate(): void {
-        this._renderSubscription.unsubscribe();
-        this._keySubscription.unsubscribe();
-        this._configureSrcSubscription.unsubscribe();
-        this._revokeUrlSubscription.unsubscribe();
+        this._subscriptions.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): CoverConfiguration {

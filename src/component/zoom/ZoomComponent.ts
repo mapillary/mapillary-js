@@ -24,6 +24,7 @@ import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { ComponentSize } from "../utils/ComponentSize";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
+
 /**
  * @class ZoomComponent
  *
@@ -44,9 +45,6 @@ export class ZoomComponent extends Component<ZoomConfiguration> {
 
     private _zoomDelta$: Subject<number>;
 
-    private _renderSubscription: Subscription;
-    private _zoomSubscription: Subscription;
-
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
@@ -56,7 +54,9 @@ export class ZoomComponent extends Component<ZoomConfiguration> {
     }
 
     protected _activate(): void {
-        this._renderSubscription = observableCombineLatest(
+        const subs = this._subscriptions;
+
+        subs.push(observableCombineLatest(
             this._navigator.stateService.currentState$,
             this._navigator.stateService.state$,
             this._configuration$,
@@ -87,9 +87,9 @@ export class ZoomComponent extends Component<ZoomConfiguration> {
                                 [zoomInButton, zoomOutButton]),
                         };
                     }))
-            .subscribe(this._container.domRenderer.render$);
+            .subscribe(this._container.domRenderer.render$));
 
-        this._zoomSubscription = this._zoomDelta$.pipe(
+        subs.push(this._zoomDelta$.pipe(
             withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$))
@@ -99,12 +99,11 @@ export class ZoomComponent extends Component<ZoomConfiguration> {
                     const reference: number[] = transform.projectBasic(unprojected.toArray());
 
                     this._navigator.stateService.zoomIn(zoomDelta, reference);
-                });
+                }));
     }
 
     protected _deactivate(): void {
-        this._renderSubscription.unsubscribe();
-        this._zoomSubscription.unsubscribe();
+        this._subscriptions.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): ZoomConfiguration {

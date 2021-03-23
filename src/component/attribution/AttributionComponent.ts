@@ -1,9 +1,6 @@
 import * as vd from "virtual-dom";
 
-import {
-    combineLatest as observableCombineLatest,
-    Subscription,
-} from "rxjs";
+import { combineLatest as observableCombineLatest } from "rxjs";
 
 import { map } from "rxjs/operators";
 
@@ -19,14 +16,13 @@ import { Navigator } from "../../viewer/Navigator";
 
 export class AttributionComponent extends Component<ComponentConfiguration> {
     public static componentName: string = "attribution";
-    private _disposable: Subscription;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
     }
 
     protected _activate(): void {
-        this._disposable = observableCombineLatest(
+        this._subscriptions.push(observableCombineLatest(
             this._navigator.stateService.currentNode$,
             this._container.renderService.size$).pipe(
                 map(
@@ -36,11 +32,11 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
                             vnode: this._getAttributionNode(node.creatorUsername, node.id, node.capturedAt, size.width),
                         };
                     }))
-            .subscribe(this._container.domRenderer.render$);
+            .subscribe(this._container.domRenderer.render$));
     }
 
     protected _deactivate(): void {
-        this._disposable.unsubscribe();
+        this._subscriptions.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): ComponentConfiguration {

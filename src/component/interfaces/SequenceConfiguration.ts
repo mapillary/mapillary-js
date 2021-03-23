@@ -32,6 +32,8 @@ export interface SequenceConfiguration extends ComponentConfiguration {
      * The node id representing the direction arrow to be highlighted.
      *
      * @description When set to null no direction will be highlighted.
+     * The arrow pointing towards the node corresponding to the
+     * highlight id will be highlighted.
      *
      * @default undefined
      */
@@ -40,8 +42,13 @@ export interface SequenceConfiguration extends ComponentConfiguration {
     /**
      * The max width of the sequence container.
      *
-     * @description If the min width is larger than the max width the
-     * min width value will be used.
+     * @description Set max width of the container element holding
+     * the sequence navigation elements. If the min width is larger than the
+     * max width the min width value will be used.
+     *
+     * The container element is automatically resized when the resize
+     * method on the Viewer class is called.
+     *
      * @default 117
      */
     maxWidth?: number;
@@ -49,8 +56,13 @@ export interface SequenceConfiguration extends ComponentConfiguration {
     /**
      * The min width of the sequence container.
      *
-     * @description If the min width is larger than the max width the
-     * min width value will be used.
+     * @description Set min width of the container element holding
+     * the sequence navigation elements. If the min width is larger than the
+     * max width the min width value will be used.
+     *
+     * The container element is automatically resized when the resize
+     * method on the Viewer class is called.
+     *
      * @default 70
      */
     minWidth?: number;
@@ -63,7 +75,8 @@ export interface SequenceConfiguration extends ComponentConfiguration {
     playing?: boolean;
 
     /**
-     * Determine if the component should be visible.
+     * Determine whether the sequence UI elements
+     * should be visible.
      *
      * @default true
      */

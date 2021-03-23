@@ -4,7 +4,6 @@ import {
     merge as observableMerge,
     Observable,
     Subject,
-    Subscription,
 } from "rxjs";
 
 import {
@@ -61,15 +60,16 @@ export class PopupComponent extends Component<ComponentConfiguration> {
     private _added$: Subject<Popup[]>;
     private _popups$: Subject<Popup[]>;
 
-    private _updateAllSubscription: Subscription;
-    private _updateAddedChangedSubscription: Subscription;
-
     /** @ignore */
-    constructor(name: string, container: Container, navigator: Navigator, dom?: DOM) {
+    constructor(
+        name: string,
+        container: Container,
+        navigator: Navigator,
+        dom?: DOM) {
+
         super(name, container, navigator);
 
         this._dom = !!dom ? dom : new DOM();
-
         this._popups = [];
 
         this._added$ = new Subject<Popup[]>();
@@ -148,7 +148,9 @@ export class PopupComponent extends Component<ComponentConfiguration> {
             popup.setParentContainer(this._popupContainer);
         }
 
-        this._updateAllSubscription = observableCombineLatest(
+        const subs = this._subscriptions;
+
+        subs.push(observableCombineLatest(
             this._container.renderService.renderCamera$,
             this._container.renderService.size$,
             this._navigator.stateService.currentTransform$)
@@ -157,9 +159,9 @@ export class PopupComponent extends Component<ComponentConfiguration> {
                     for (const popup of this._popups) {
                         popup.update(renderCamera, size, transform);
                     }
-                });
+                }));
 
-        const changed$: Observable<Popup[]> = this._popups$.pipe(
+        const changed$ = this._popups$.pipe(
             startWith(this._popups),
             switchMap(
                 (popups: Popup[]): Observable<Popup> => {
@@ -174,7 +176,7 @@ export class PopupComponent extends Component<ComponentConfiguration> {
                     return [popup];
                 }));
 
-        this._updateAddedChangedSubscription = observableMerge(this._added$, changed$).pipe(
+        subs.push(observableMerge(this._added$, changed$).pipe(
             withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._container.renderService.size$,
@@ -184,12 +186,11 @@ export class PopupComponent extends Component<ComponentConfiguration> {
                     for (const popup of popups) {
                         popup.update(renderCamera, size, transform);
                     }
-                });
+                }));
     }
 
     protected _deactivate(): void {
-        this._updateAllSubscription.unsubscribe();
-        this._updateAddedChangedSubscription.unsubscribe();
+        this._subscriptions.unsubscribe();
 
         for (const popup of this._popups) {
             popup.remove();

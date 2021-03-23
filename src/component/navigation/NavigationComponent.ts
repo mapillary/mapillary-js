@@ -35,8 +35,6 @@ import { isSpherical } from "../../geo/Geo";
 export class NavigationComponent extends Component<NavigationConfiguration> {
     public static componentName: string = "navigation";
 
-    private _renderSubscription: Subscription;
-
     private _seqNames: { [dir: string]: string };
     private _spaTopNames: { [dir: string]: string };
     private _spaBottomNames: { [dir: string]: string };
@@ -61,7 +59,7 @@ export class NavigationComponent extends Component<NavigationConfiguration> {
     }
 
     protected _activate(): void {
-        this._renderSubscription = observableCombineLatest(
+        this._subscriptions.push(observableCombineLatest(
             this._navigator.stateService.currentNode$,
             this._configuration$).pipe(
                 switchMap(
@@ -112,11 +110,11 @@ export class NavigationComponent extends Component<NavigationConfiguration> {
 
                         return { name: this._name, vnode: vd.h(`div.NavigationContainer`, [seqContainer, spaContainer]) };
                     }))
-            .subscribe(this._container.domRenderer.render$);
+            .subscribe(this._container.domRenderer.render$));
     }
 
     protected _deactivate(): void {
-        this._renderSubscription.unsubscribe();
+        this._subscriptions.unsubscribe();
     }
 
     protected _getDefaultConfiguration(): NavigationConfiguration {

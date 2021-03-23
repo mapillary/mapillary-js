@@ -1,4 +1,3 @@
-import { Subscription } from "rxjs";
 import { Component } from "../Component";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
@@ -35,20 +34,54 @@ export class MouseComponent extends Component<MouseConfiguration> {
     private _scrollZoomHandler: ScrollZoomHandler;
     private _touchZoomHandler: TouchZoomHandler;
 
-    private _configurationSubscription: Subscription;
-
     /** @ignore */
-    constructor(name: string, container: Container, navigator: Navigator) {
+    constructor(
+        name: string,
+        container: Container,
+        navigator: Navigator) {
+
         super(name, container, navigator);
 
-        const spatial: Spatial = new Spatial();
-        const viewportCoords: ViewportCoords = new ViewportCoords();
+        const spatial = new Spatial();
+        const viewportCoords = new ViewportCoords();
 
-        this._bounceHandler = new BounceHandler(this, container, navigator, viewportCoords, spatial);
-        this._dragPanHandler = new DragPanHandler(this, container, navigator, viewportCoords, spatial);
-        this._earthControlHandler = new EarthControlHandler(this, container, navigator, viewportCoords, spatial);
-        this._scrollZoomHandler = new ScrollZoomHandler(this, container, navigator, viewportCoords);
-        this._touchZoomHandler = new TouchZoomHandler(this, container, navigator, viewportCoords);
+        this._bounceHandler =
+            new BounceHandler(
+                this,
+                container,
+                navigator,
+                viewportCoords,
+                spatial);
+
+        this._dragPanHandler =
+            new DragPanHandler(
+                this,
+                container,
+                navigator,
+                viewportCoords,
+                spatial);
+
+        this._earthControlHandler =
+            new EarthControlHandler(
+                this,
+                container,
+                navigator,
+                viewportCoords,
+                spatial);
+
+        this._scrollZoomHandler =
+            new ScrollZoomHandler(
+                this,
+                container,
+                navigator,
+                viewportCoords);
+
+        this._touchZoomHandler =
+            new TouchZoomHandler(
+                this,
+                container,
+                navigator,
+                viewportCoords);
     }
 
     /**
@@ -58,6 +91,15 @@ export class MouseComponent extends Component<MouseConfiguration> {
      */
     public get dragPan(): DragPanHandler {
         return this._dragPanHandler;
+    }
+
+    /**
+     * Get earth control.
+     *
+     * @returns {EarthControlHandler} The earth control handler.
+     */
+    public get earthControl(): EarthControlHandler {
+        return this._earthControlHandler;
     }
 
     /**
@@ -80,15 +122,20 @@ export class MouseComponent extends Component<MouseConfiguration> {
 
     protected _activate(): void {
         this._bounceHandler.enable();
-        this._earthControlHandler.enable();
 
-        this._configurationSubscription = this._configuration$
+        this._subscriptions.push(this._configuration$
             .subscribe(
                 (configuration: MouseConfiguration): void => {
                     if (configuration.dragPan) {
                         this._dragPanHandler.enable();
                     } else {
                         this._dragPanHandler.disable();
+                    }
+
+                    if (configuration.earthControl) {
+                        this._earthControlHandler.enable();
+                    } else {
+                        this._earthControlHandler.disable();
                     }
 
                     if (configuration.scrollZoom) {
@@ -102,7 +149,7 @@ export class MouseComponent extends Component<MouseConfiguration> {
                     } else {
                         this._touchZoomHandler.disable();
                     }
-                });
+                }));
 
         this._container.mouseService.claimMouse(this._name, 0);
     }
@@ -110,7 +157,7 @@ export class MouseComponent extends Component<MouseConfiguration> {
     protected _deactivate(): void {
         this._container.mouseService.unclaimMouse(this._name);
 
-        this._configurationSubscription.unsubscribe();
+        this._subscriptions.unsubscribe();
 
         this._bounceHandler.disable();
         this._dragPanHandler.disable();
@@ -122,6 +169,7 @@ export class MouseComponent extends Component<MouseConfiguration> {
     protected _getDefaultConfiguration(): MouseConfiguration {
         return {
             dragPan: true,
+            earthControl: true,
             scrollZoom: true,
             touchZoom: true,
         };

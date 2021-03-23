@@ -22,28 +22,28 @@ import { ComponentConfiguration } from "./ComponentConfiguration";
  */
 export interface MouseConfiguration extends ComponentConfiguration {
     /**
-     * Enable or disable the `DoubleClickZoomHandler`.
-     *
-     * @default false
-     */
-    doubleClickZoom?: boolean;
-
-    /**
-     * Enable or disable the `DragPanHandler`.
+     * Activate or deactivate the `DragPanHandler`.
      *
      * @default true
      */
     dragPan?: boolean;
 
     /**
-     * Enable or disable the `ScrollZoomHandler`.
+     * Activate or deactivate the `EarthControlHandler`.
+     *
+     * @default true
+     */
+    earthControl?: boolean;
+
+    /**
+     * Activate or deactivate the `ScrollZoomHandler`.
      *
      * @default true
      */
     scrollZoom?: boolean;
 
     /**
-     * Enable or disable the `TouchZoomHandler`.
+     * Activate or deactivate the `TouchZoomHandler`.
      *
      * @default true
      */

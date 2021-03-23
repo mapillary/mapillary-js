@@ -34,16 +34,39 @@ export class KeyboardComponent extends Component<KeyboardConfiguration> {
     private _keySpatialNavigationHandler: KeySpatialNavigationHandler;
     private _keyZoomHandler: KeyZoomHandler;
 
-    private _configurationSubscription: Subscription;
-
     /** @ignore */
-    constructor(name: string, container: Container, navigator: Navigator) {
+    constructor(
+        name: string,
+        container: Container,
+        navigator: Navigator) {
+
         super(name, container, navigator);
 
-        this._keyPlayHandler = new KeyPlayHandler(this, container, navigator);
-        this._keySequenceNavigationHandler = new KeySequenceNavigationHandler(this, container, navigator);
-        this._keySpatialNavigationHandler = new KeySpatialNavigationHandler(this, container, navigator, new Spatial());
-        this._keyZoomHandler = new KeyZoomHandler(this, container, navigator, new ViewportCoords());
+        this._keyPlayHandler =
+            new KeyPlayHandler(
+                this,
+                container,
+                navigator);
+
+        this._keySequenceNavigationHandler =
+            new KeySequenceNavigationHandler(
+                this,
+                container,
+                navigator);
+
+        this._keySpatialNavigationHandler =
+            new KeySpatialNavigationHandler(
+                this,
+                container,
+                navigator,
+                new Spatial());
+
+        this._keyZoomHandler =
+            new KeyZoomHandler(
+                this,
+                container,
+                navigator,
+                new ViewportCoords());
     }
 
     /**
@@ -83,7 +106,7 @@ export class KeyboardComponent extends Component<KeyboardConfiguration> {
     }
 
     protected _activate(): void {
-        this._configurationSubscription = this._configuration$
+        this._subscriptions.push(this._configuration$
             .subscribe(
                 (configuration: KeyboardConfiguration): void => {
                     if (configuration.keyPlay) {
@@ -109,11 +132,11 @@ export class KeyboardComponent extends Component<KeyboardConfiguration> {
                     } else {
                         this._keyZoomHandler.disable();
                     }
-                });
+                }));
     }
 
     protected _deactivate(): void {
-        this._configurationSubscription.unsubscribe();
+        this._subscriptions.unsubscribe();
 
         this._keyPlayHandler.disable();
         this._keySequenceNavigationHandler.disable();

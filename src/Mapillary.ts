@@ -66,9 +66,22 @@ ComponentService.register(ZoomComponent);
 // Mapillary module
 export { isFallbackSupported, isSupported } from "./utils/Support";
 
+// Component types
+export { Component } from "./component/Component";
+export { ComponentEvent } from "./component/events/ComponentEvent";
+export { ComponentSize } from "./component/utils/ComponentSize";
+export {
+    ComponentGeometryEvent,
+    ComponentHoverEvent,
+    ComponentMarkerEvent,
+    ComponentPlayEvent,
+    ComponentStateEvent,
+    ComponentTagModeEvent,
+} from "./component/events/ComponentStateEvent";
+export { IComponent } from "./component/interfaces/IComponent";
+
 // Viewer types
 export { Alignment } from "./viewer/enums/Alignment";
-export { ComponentSize } from "./component/utils/ComponentSize";
 export { IViewer } from "./viewer/interfaces/IViewer";
 export { ICustomRenderer } from "./viewer/interfaces/ICustomRenderer";
 export { PointOfView } from "./viewer/interfaces/PointOfView";

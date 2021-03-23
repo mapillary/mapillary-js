@@ -34,6 +34,9 @@ export interface DirectionConfiguration extends ComponentConfiguration {
     /**
      * The node id representing the direction arrow to be highlighted.
      *
+     * @description The arrow pointing towards the node corresponding to the
+     * highlight id will be highlighted.
+     *
      * @default undefined
      */
     highlightId?: string;
@@ -42,8 +45,13 @@ export interface DirectionConfiguration extends ComponentConfiguration {
      * The min width of the non transformed container element holding
      * the navigation arrows.
      *
-     * @description If the min width is larger than the max width the
+     * @description  Set min width of the non transformed
+     * container element holding the navigation arrows.
+     * If the min width is larger than the max width the
      * min width value will be used.
+     *
+     * The container element is automatically resized when the resize
+     * method on the Viewer class is called.
      *
      * @default 260
      */
@@ -53,8 +61,13 @@ export interface DirectionConfiguration extends ComponentConfiguration {
      * The max width of the non transformed container element holding
      * the navigation arrows.
      *
-     * @description If the min width is larger than the max width the
+     * @description Set max width of the non transformed
+     * container element holding the navigation arrows.
+     * If the min width is larger than the max width the
      * min width value will be used.
+     *
+     * The container element is automatically resized when the resize
+     * method on the Viewer class is called.
      *
      * @default 460
      */
