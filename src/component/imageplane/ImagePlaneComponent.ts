@@ -39,12 +39,13 @@ import { RenderPass } from "../../render/RenderPass";
 import { GLRenderHash } from "../../render/interfaces/IGLRenderHash";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { RenderCamera } from "../../render/RenderCamera";
-import { IAnimationState } from "../../state/interfaces/IAnimationState";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
-import { ImageTileLoader } from "../../tiles/ImageTileLoader";
-import { ImageTileStore } from "../../tiles/ImageTileStore";
-import { TileRegionOfInterest } from "../../tiles/interfaces/TileRegionOfInterest";
-import { RegionOfInterestCalculator } from "../../tiles/RegionOfInterestCalculator";
+import { TileLoader } from "../../tiles/TileLoader";
+import { TileStore } from "../../tiles/TileStore";
+import { TileRegionOfInterest }
+    from "../../tiles/interfaces/TileRegionOfInterest";
+import { RegionOfInterestCalculator }
+    from "../../tiles/RegionOfInterestCalculator";
 import { TextureProvider } from "../../tiles/TextureProvider";
 import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { Transform } from "../../geo/Transform";
@@ -63,13 +64,13 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
     private _rendererCreator$: Subject<void>;
     private _rendererDisposer$: Subject<void>;
 
-    private _imageTileLoader: ImageTileLoader;
+    private _imageTileLoader: TileLoader;
     private _roiCalculator: RegionOfInterestCalculator;
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._imageTileLoader = new ImageTileLoader(navigator.api.data);
+        this._imageTileLoader = new TileLoader(navigator.api);
         this._roiCalculator = new RegionOfInterestCalculator();
 
         this._rendererOperation$ = new Subject<ImagePlaneGLRendererOperation>();
@@ -162,21 +163,18 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                 this._container.renderService.size$),
             map(
                 ([frame, renderer, size]: [AnimationFrame, THREE.WebGLRenderer, ViewportSize]): TextureProvider => {
-                    let state: IAnimationState = frame.state;
-                    let viewportSize: number = Math.max(size.width, size.height);
-
-                    let currentNode: GraphNode = state.currentNode;
-                    let currentTransform: Transform = state.currentTransform;
-                    let tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
+                    let state = frame.state;
+                    let currentNode = state.currentNode;
+                    let currentTransform = state.currentTransform;
+                    let tileSize = 1024;
 
                     return new TextureProvider(
                         currentNode.id,
                         currentTransform.basicWidth,
                         currentTransform.basicHeight,
-                        tileSize,
                         currentNode.image,
                         this._imageTileLoader,
-                        new ImageTileStore(),
+                        new TileStore(),
                         renderer);
                 }),
             publishReplay(1),
@@ -194,22 +192,6 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                     };
                 }))
             .subscribe(this._rendererOperation$));
-
-        subs.push(this._container.renderService.size$.pipe(
-            switchMap(
-                (size: ViewportSize): Observable<[TextureProvider, ViewportSize]> => {
-                    return observableCombineLatest(
-                        textureProvider$,
-                        observableOf<ViewportSize>(size)).pipe(
-                            first());
-                }))
-            .subscribe(
-                ([provider, size]: [TextureProvider, ViewportSize]): void => {
-                    let viewportSize: number = Math.max(size.width, size.height);
-                    let tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
-
-                    provider.setTileSize(tileSize);
-                }));
 
         subs.push(textureProvider$.pipe(
             pairwise())

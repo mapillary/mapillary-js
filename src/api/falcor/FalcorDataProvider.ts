@@ -1,6 +1,4 @@
-import {
-    Model,
-} from "falcor";
+import { Model } from "falcor";
 
 import { DataProviderBase } from "../DataProviderBase";
 import { GeometryProviderBase } from "../GeometryProviderBase";
@@ -8,7 +6,8 @@ import { GeohashGeometryProvider } from "../GeohashGeometryProvider";
 import { FalcorModelCreator } from "./FalcorModelCreator";
 import { MapillaryError } from "../../error/MapillaryError";
 
-import { ClusterReconstructionContract } from "../contracts/ClusterReconstructionContract";
+import { ClusterReconstructionContract }
+    from "../contracts/ClusterReconstructionContract";
 import { MeshContract } from "../contracts/MeshContract";
 import { CoreImagesContract } from "../contracts/CoreImagesContract";
 import { SpatialImagesContract } from "../contracts/SpatialImagesContract";
@@ -31,11 +30,15 @@ import {
     FalcorSequenceByKeyContract,
     FalcorSpatialImageByKeyContract,
 } from "./FalcorContracts";
+import { ImageTilesRequestContract }
+    from "../contracts/ImageTilesRequestContract";
+import { ImageTilesContract } from "../contracts/ImageTilesContract";
+import { FalcorTileURLGenerator } from "./FalcorTileURLGenerator";
 
 type APIPath =
-    "imageByKey" |
-    "imagesByH" |
-    "sequenceByKey";
+    | "imageByKey"
+    | "imagesByH"
+    | "sequenceByKey";
 
 /**
  * @class FalcorDataProvider
@@ -45,6 +48,7 @@ type APIPath =
 export class FalcorDataProvider extends DataProviderBase {
     private _urls: FalcorDataProviderUrls;
     private _convert: FalcorConverter;
+    private _tileURL: FalcorTileURLGenerator;
 
     private _model: Model;
     private _modelCreator: FalcorModelCreator;
@@ -75,6 +79,7 @@ export class FalcorDataProvider extends DataProviderBase {
 
         this._urls = new FalcorDataProviderUrls(options);
         this._convert = new FalcorConverter(this._urls);
+        this._tileURL = new FalcorTileURLGenerator(this._urls);
 
         this._modelCreator = options.creator != null ?
             options.creator : new FalcorModelCreator();
@@ -88,9 +93,7 @@ export class FalcorDataProvider extends DataProviderBase {
         this._pathSequenceByKey = "sequenceByKey";
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     public getCoreImages(cellId: string): Promise<CoreImagesContract> {
         return Promise
             .resolve(<PromiseLike<FalcorImagesByHContract>>this._model
@@ -135,9 +138,7 @@ export class FalcorDataProvider extends DataProviderBase {
                 });
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     public getClusterReconstruction(
         url: string,
         abort?: Promise<void>): Promise<ClusterReconstructionContract> {
@@ -156,9 +157,7 @@ export class FalcorDataProvider extends DataProviderBase {
                 (reason: Error) => { throw reason; });
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     public getSpatialImages(keys: string[]): Promise<SpatialImagesContract> {
         return Promise
             .resolve(<PromiseLike<FalcorSpatialImageByKeyContract>>this._model
@@ -185,6 +184,7 @@ export class FalcorDataProvider extends DataProviderBase {
                         const spatial = this._convert.spatial(item);
                         result.push({ node: spatial, node_id: spatial.id });
                     }
+                    this._tileURL.add(result.map(item => item.node));
                     return result;
                 },
                 (error: Error) => {
@@ -193,9 +193,7 @@ export class FalcorDataProvider extends DataProviderBase {
                 });
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     public getImages(keys: string[]): Promise<ImagesContract> {
         return Promise
             .resolve(<PromiseLike<FalcorImageByKeyContract>>this._model
@@ -224,6 +222,7 @@ export class FalcorDataProvider extends DataProviderBase {
                         const image = Object.assign({}, core, spatial);
                         result.push({ node: image, node_id: image.id });
                     }
+                    this._tileURL.add(result.map(item => item.node));
                     return result;
                 },
                 (error: Error) => {
@@ -232,35 +231,21 @@ export class FalcorDataProvider extends DataProviderBase {
                 });
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     public getImageBuffer(url: string, abort?: Promise<void>): Promise<ArrayBuffer> {
         return fetchArrayBuffer(url, abort);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public getImageTileBuffer(
-        imageKey: string,
-        x: number,
-        y: number,
-        w: number,
-        h: number,
-        scaledW: number,
-        scaledH: number,
-        abort?: Promise<void>): Promise<ArrayBuffer> {
-        const coords: string = `${x},${y},${w},${h}`
-        const size: string = `${scaledW},${scaledH}`;
-        return fetchArrayBuffer(
-            this._urls.imageTile(imageKey, coords, size),
-            abort);
+    /** @inheritdoc */
+    public getImageTiles(
+        tiles: ImageTilesRequestContract): Promise<ImageTilesContract> {
+        return new Promise((resolve, reject) => {
+            try { resolve(this._tileURL.generate(tiles)); }
+            catch (error) { reject(error); }
+        })
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     public getMesh(url: string, abort?: Promise<void>): Promise<MeshContract> {
         return fetchArrayBuffer(url, abort)
             .then(
@@ -270,9 +255,7 @@ export class FalcorDataProvider extends DataProviderBase {
                 (reason: Error) => { throw reason; });
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     public getSequences(sequenceIds: string[]): Promise<SequencesContract> {
         return Promise
             .resolve(<PromiseLike<FalcorSequenceByKeyContract>>this._model
@@ -306,9 +289,7 @@ export class FalcorDataProvider extends DataProviderBase {
                 });
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     public setUserToken(userToken?: string): void {
         this._model.invalidate([]);
         this._model = null;

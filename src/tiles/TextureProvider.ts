@@ -1,20 +1,39 @@
 import * as THREE from "three";
-
 import {
     publishReplay,
     refCount,
     startWith,
+    tap,
 } from "rxjs/operators";
-
 import {
     Observable,
+    of as observableOf,
     Subject,
     Subscription,
 } from "rxjs";
 
-import { ImageTileLoader } from "./ImageTileLoader";
-import { ImageTileStore } from "./ImageTileStore";
+import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { ImageTileEnt } from "../api/ents/ImageTileEnt";
 import { TileRegionOfInterest } from "./interfaces/TileRegionOfInterest";
+import {
+    TileImageSize,
+    TileCoords3D,
+    TilePixelCoords2D,
+    TileCoords2D,
+    TileLevel,
+    TILE_MIN_REQUEST_LEVEL,
+} from "./interfaces/TileTypes";
+import {
+    basicToTileCoords2D,
+    cornersToTilesCoords2D,
+    hasOverlap2D,
+    clampedImageLevel,
+    tileToPixelCoords2D,
+    verifySize,
+    baseImageLevel,
+} from "./TileMath";
+import { TileLoader } from "./TileLoader";
+import { TileStore } from "./TileStore";
 
 /**
  * @class TextureProvider
@@ -22,99 +41,98 @@ import { TileRegionOfInterest } from "./interfaces/TileRegionOfInterest";
  * @classdesc Represents a provider of textures.
  */
 export class TextureProvider {
-    private _background: HTMLImageElement;
-    private _camera: THREE.OrthographicCamera;
-    private _imageTileLoader: ImageTileLoader;
-    private _imageTileStore: ImageTileStore;
+    private readonly _loader: TileLoader;
+    private readonly _store: TileStore;
+    private readonly _subscriptions: Map<string, Subscription>;
+    private readonly _urlSubscriptions: Map<number, Subscription>;
+    private readonly _renderedLevel: Set<string>;
+    private readonly _rendered: Map<string, TileCoords3D>;
+
+    private readonly _created$: Observable<THREE.Texture>;
+    private readonly _createdSubject$: Subject<THREE.Texture>;
+    private readonly _hasSubject$: Subject<boolean>;
+    private readonly _has$: Observable<boolean>;
+    private readonly _updated$: Subject<boolean>;
+    private readonly _holder: SubscriptionHolder;
+
+    private readonly _size: TileImageSize;
+    private readonly _imageId: string;
+    private readonly _level: TileLevel;
+
     private _renderer: THREE.WebGLRenderer;
-    private _renderTarget: THREE.WebGLRenderTarget;
-    private _roi: TileRegionOfInterest;
+    private _render: {
+        camera: THREE.OrthographicCamera;
+        target: THREE.WebGLRenderTarget;
+    };
 
-    private _abortFunctions: Function[];
-    private _tileSubscriptions: { [key: string]: Subscription };
-
-    private _created$: Observable<THREE.Texture>;
-    private _createdSubject$: Subject<THREE.Texture>;
-    private _createdSubscription: Subscription;
-    private _hasSubject$: Subject<boolean>;
-    private _has$: Observable<boolean>;
-    private _hasSubscription: Subscription;
-    private _updated$: Subject<boolean>;
+    private _background: HTMLImageElement;
+    private _aborts: Function[];
 
     private _disposed: boolean;
-    private _height: number;
-    private _id: string;
-    private _tileSize: number;
-    private _maxLevel: number;
-    private _currentLevel: number;
-    private _renderedCurrentLevelTiles: { [key: string]: boolean };
-    private _renderedTiles: { [level: string]: number[][] };
-    private _width: number;
 
     /**
      * Create a new node texture provider instance.
      *
-     * @param {string} id - The identifier of the image for which to request tiles.
+     * @param {string} imageId - The identifier of the image for which to request tiles.
      * @param {number} width - The full width of the original image.
      * @param {number} height - The full height of the original image.
-     * @param {number} tileSize - The size used when requesting tiles.
      * @param {HTMLImageElement} background - Image to use as background.
-     * @param {ImageTileLoader} imageTileLoader - Loader for retrieving tiles.
-     * @param {ImageTileStore} imageTileStore - Store for saving tiles.
+     * @param {TileLoader} loader - Loader for retrieving tiles.
+     * @param {TileStore} store - Store for saving tiles.
      * @param {THREE.WebGLRenderer} renderer - Renderer used for rendering tiles to texture.
      */
     constructor(
-        id: string,
+        imageId: string,
         width: number,
         height: number,
-        tileSize: number,
         background: HTMLImageElement,
-        imageTileLoader: ImageTileLoader,
-        imageTileStore: ImageTileStore,
+        loader: TileLoader,
+        store: TileStore,
         renderer: THREE.WebGLRenderer) {
 
-        this._disposed = false;
-
-        this._id = id;
-
-        if (width <= 0 || height <= 0) {
-            console.warn(`Original image size (${width}, ${height}) is invalid (${id}). Tiles will not be loaded.`);
+        const size = { h: height, w: width };
+        if (!verifySize(size)) {
+            console.warn(
+                `Original image size (${width}, ${height}) ` +
+                `is invalid (${imageId}). Tiles will not be loaded.`);
         }
 
-        this._width = width;
-        this._height = height;
-        this._maxLevel = Math.ceil(Math.log(Math.max(height, width)) / Math.log(2));
-        this._currentLevel = -1;
-        this._tileSize = tileSize;
+        this._imageId = imageId;
+        this._size = size;
+        this._level = {
+            max: baseImageLevel(this._size),
+            z: -1,
+        };
 
+        this._holder = new SubscriptionHolder();
         this._updated$ = new Subject<boolean>();
         this._createdSubject$ = new Subject<THREE.Texture>();
-        this._created$ = this._createdSubject$.pipe(
-            publishReplay(1),
-            refCount());
-
-        this._createdSubscription = this._created$.subscribe(() => { /*noop*/ });
+        this._created$ = this._createdSubject$
+            .pipe(
+                publishReplay(1),
+                refCount());
+        this._holder.push(this._created$.subscribe(() => { /*noop*/ }));
 
         this._hasSubject$ = new Subject<boolean>();
-        this._has$ = this._hasSubject$.pipe(
-            startWith(false),
-            publishReplay(1),
-            refCount());
+        this._has$ = this._hasSubject$
+            .pipe(
+                startWith(false),
+                publishReplay(1),
+                refCount());
+        this._holder.push(this._has$.subscribe(() => { /*noop*/ }));
 
-        this._hasSubscription = this._has$.subscribe(() => { /*noop*/ });
-
-        this._abortFunctions = [];
-        this._tileSubscriptions = {};
-        this._renderedCurrentLevelTiles = {};
-        this._renderedTiles = {};
+        this._renderedLevel = new Set();
+        this._rendered = new Map();
+        this._subscriptions = new Map();
+        this._urlSubscriptions = new Map();
+        this._loader = loader;
+        this._store = store;
 
         this._background = background;
-        this._camera = null;
-        this._imageTileLoader = imageTileLoader;
-        this._imageTileStore = imageTileStore;
         this._renderer = renderer;
-        this._renderTarget = null;
-        this._roi = null;
+        this._aborts = [];
+        this._render = null;
+        this._disposed = false;
     }
 
     /**
@@ -145,7 +163,7 @@ export class TextureProvider {
      * which to render textures.
      */
     public get id(): string {
-        return this._id;
+        return this._imageId;
     }
 
     /**
@@ -172,21 +190,11 @@ export class TextureProvider {
      * Abort all outstanding image tile requests.
      */
     public abort(): void {
-        for (let key in this._tileSubscriptions) {
-            if (!this._tileSubscriptions.hasOwnProperty(key)) {
-                continue;
-            }
+        this._subscriptions.forEach(sub => sub.unsubscribe());
+        this._subscriptions.clear();
 
-            this._tileSubscriptions[key].unsubscribe();
-        }
-
-        this._tileSubscriptions = {};
-
-        for (let abort of this._abortFunctions) {
-            abort();
-        }
-
-        this._abortFunctions = [];
+        for (const abort of this._aborts) { abort(); }
+        this._aborts = [];
     }
 
     /**
@@ -197,28 +205,28 @@ export class TextureProvider {
      */
     public dispose(): void {
         if (this._disposed) {
-            console.warn(`Texture already disposed (${this._id})`);
+            console.warn(`Texture already disposed (${this._imageId})`);
             return;
         }
 
+        this._urlSubscriptions.forEach(sub => sub.unsubscribe());
+        this._urlSubscriptions.clear();
+
         this.abort();
 
-        if (this._renderTarget != null) {
-            this._renderTarget.dispose();
-            this._renderTarget = null;
+        if (this._render != null) {
+            this._render.target.dispose();
+            this._render.target = null;
+            this._render.camera = null;
+            this._render = null;
         }
 
-        this._imageTileStore.dispose();
-        this._imageTileStore = null;
+        this._store.dispose();
+        this._holder.unsubscribe();
+        this._renderedLevel.clear();
 
         this._background = null;
-        this._camera = null;
-        this._imageTileLoader = null;
         this._renderer = null;
-        this._roi = null;
-
-        this._createdSubscription.unsubscribe();
-        this._hasSubscription.unsubscribe();
 
         this._disposed = true;
     }
@@ -234,86 +242,46 @@ export class TextureProvider {
      * @param {TileRegionOfInterest} roi - Spatial edges to cache.
      */
     public setRegionOfInterest(roi: TileRegionOfInterest): void {
-        if (this._width <= 0 || this._height <= 0) {
-            return;
-        }
+        if (!verifySize(this._size)) { return; }
 
-        this._roi = roi;
+        const virtualWidth = 1 / roi.pixelWidth;
+        const virtualHeight = 1 / roi.pixelHeight;
+        const level = clampedImageLevel(
+            { h: virtualHeight, w: virtualWidth },
+            this._level.max);
 
-        let width: number = 1 / this._roi.pixelWidth;
-        let height: number = 1 / this._roi.pixelHeight;
-        let size: number = Math.max(height, width);
-
-        let currentLevel: number = Math.max(0, Math.min(this._maxLevel, Math.ceil(Math.log(size) / Math.log(2))));
-        if (currentLevel !== this._currentLevel) {
+        if (level !== this._level.z) {
             this.abort();
-
-            this._currentLevel = currentLevel;
-            if (!(this._currentLevel in this._renderedTiles)) {
-                this._renderedTiles[this._currentLevel] = [];
-            }
-
-            this._renderedCurrentLevelTiles = {};
-            for (let tile of this._renderedTiles[this._currentLevel]) {
-                this._renderedCurrentLevelTiles[this._tileKey(this._tileSize, tile)] = true;
-            }
-        }
-
-        let topLeft: number[] = this._getTileCoords([this._roi.bbox.minX, this._roi.bbox.minY]);
-        let bottomRight: number[] = this._getTileCoords([this._roi.bbox.maxX, this._roi.bbox.maxY]);
-
-        let tiles: number[][] = this._getTiles(topLeft, bottomRight);
-
-        if (this._camera == null) {
-            this._camera = new THREE.OrthographicCamera(
-                -this._width / 2,
-                this._width / 2,
-                this._height / 2,
-                -this._height / 2,
-                -1,
-                1);
-
-            this._camera.position.z = 1;
-
-            let gl: WebGLRenderingContext = this._renderer.getContext();
-            let maxTextureSize: number = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-            let backgroundSize: number = Math.max(this._width, this._height);
-            let scale: number = maxTextureSize > backgroundSize ? 1 : maxTextureSize / backgroundSize;
-
-            let targetWidth: number = Math.floor(scale * this._width);
-            let targetHeight: number = Math.floor(scale * this._height);
-
-            this._renderTarget = new THREE.WebGLRenderTarget(
-                targetWidth,
-                targetHeight,
-                {
-                    depthBuffer: false,
-                    format: THREE.RGBFormat,
-                    magFilter: THREE.LinearFilter,
-                    minFilter: THREE.LinearFilter,
-                    stencilBuffer: false,
+            this._level.z = level;
+            this._renderedLevel.clear();
+            this._rendered
+                .forEach((tile, id) => {
+                    if (tile.z !== level) { return; }
+                    this._renderedLevel.add(id);
                 });
-
-            this._renderToTarget(0, 0, this._width, this._height, this._background);
-
-            this._createdSubject$.next(this._renderTarget.texture);
-            this._hasSubject$.next(true);
         }
 
-        this._fetchTiles(tiles);
-    }
+        if (level < TILE_MIN_REQUEST_LEVEL) { return; }
 
-    public setTileSize(tileSize: number): void {
-        this._tileSize = tileSize;
-    }
+        if (this._render == null) { this._initRender(); }
 
-    /**
-     * Update the image used as background for the texture.
-     *
-     * @param {HTMLImageElement} background - The background image.
-     */
-    public updateBackground(background: HTMLImageElement): void {
-        this._background = background;
+        const topLeft = basicToTileCoords2D(
+            [roi.bbox.minX, roi.bbox.minY],
+            this._size,
+            this._level);
+
+        const bottomRight = basicToTileCoords2D(
+            [roi.bbox.maxX, roi.bbox.maxY],
+            this._size,
+            this._level);
+
+        const tiles = cornersToTilesCoords2D(
+            topLeft,
+            bottomRight,
+            this._size,
+            this._level);
+
+        this._fetchTiles(level, tiles);
     }
 
     /**
@@ -323,158 +291,171 @@ export class TextureProvider {
      * texture. Add the tile to the store and emit to the updated
      * observable.
      *
-     * @param {Array<number>} tile - The tile coordinates.
-     * @param {number} level - The tile level.
-     * @param {number} x - The top left x pixel coordinate of the tile.
-     * @param {number} y - The top left y pixel coordinate of the tile.
-     * @param {number} w - The pixel width of the tile.
-     * @param {number} h - The pixel height of the tile.
-     * @param {number} scaledW - The scaled width of the returned tile.
-     * @param {number} scaledH - The scaled height of the returned tile.
+     * @param {ImageTileEnt} tile - The tile ent.
      */
-    private _fetchTile(
-        tile: number[],
-        level: number,
-        x: number,
-        y: number,
-        w: number,
-        h: number,
-        scaledX: number,
-        scaledY: number): void {
+    private _fetchTile(tile: ImageTileEnt): void {
+        const getTile = this._loader.getImage$(tile.url);
+        const tile$ = getTile[0];
+        const abort = getTile[1];
+        this._aborts.push(abort);
+        const tileId = this._store.inventId(tile);
 
-        let getTile: [Observable<HTMLImageElement>, Function] =
-            this._imageTileLoader.getTile(this._id, x, y, w, h, scaledX, scaledY);
-
-        let tile$: Observable<HTMLImageElement> = getTile[0];
-        let abort: Function = getTile[1];
-
-        this._abortFunctions.push(abort);
-
-        let tileKey: string = this._tileKey(this._tileSize, tile);
-
-        let subscription: Subscription = tile$
-            .subscribe(
-                (image: HTMLImageElement): void => {
-                    this._renderToTarget(x, y, w, h, image);
-
-                    this._removeFromDictionary(tileKey, this._tileSubscriptions);
-                    this._removeFromArray(abort, this._abortFunctions);
-
-                    this._setTileRendered(tile, this._currentLevel);
-
-                    this._imageTileStore.addImage(image, tileKey, level);
-
-                    this._updated$.next(true);
-                },
-                (error: Error): void => {
-                    this._removeFromDictionary(tileKey, this._tileSubscriptions);
-                    this._removeFromArray(abort, this._abortFunctions);
-
-                    console.error(error);
-                });
+        const subscription = tile$.subscribe(
+            (image: HTMLImageElement): void => {
+                const pixels = tileToPixelCoords2D(
+                    tile,
+                    this._size,
+                    this._level);
+                this._renderToTarget(pixels, image);
+                this._subscriptions.delete(tileId);
+                this._removeFromArray(abort, this._aborts);
+                this._markRendered(tile);
+                this._store.add(tileId, image);
+                this._updated$.next(true);
+            },
+            (error: Error): void => {
+                this._subscriptions.delete(tileId);
+                this._removeFromArray(abort, this._aborts);
+                console.error(error);
+            });
 
         if (!subscription.closed) {
-            this._tileSubscriptions[tileKey] = subscription;
+            this._subscriptions.set(tileId, subscription);
         }
     }
 
     /**
-     * Retrieve image tiles.
+     * Fetch image tiles.
      *
      * @description Retrieve a image tiles and render them to the
-     * texture. Retrieve from store if it exists, otherwise Retrieve
+     * texture. Retrieve from store if it exists, otherwise retrieve
      * from loader.
      *
-     * @param {Array<Array<number>>} tiles - Array of tile coordinates to
+     * @param {Array<TileCoords2D>} tiles - Array of tile coordinates to
      * retrieve.
      */
-    private _fetchTiles(tiles: number[][]): void {
-        let tileSize: number = this._tileSize * Math.pow(2, this._maxLevel - this._currentLevel);
+    private _fetchTiles(level: number, tiles: TileCoords2D[]): void {
+        const urls$ = this._store.hasURLLevel(level) ?
+            observableOf(undefined) :
+            this._loader
+                .getURLs$(this._imageId, level)
+                .pipe(
+                    tap(ents => {
+                        this._store.addURLs(level, ents)
+                    }));
 
-        for (let tile of tiles) {
-            let tileKey: string = this._tileKey(this._tileSize, tile);
-            if (tileKey in this._renderedCurrentLevelTiles ||
-                tileKey in this._tileSubscriptions) {
-                continue;
-            }
+        const subscription = urls$.subscribe(
+            (): void => {
+                if (level !== this._level.z) { return; }
+                for (const tile of tiles) {
+                    const ent: ImageTileEnt = {
+                        x: tile.x,
+                        y: tile.y,
+                        z: level,
+                        url: null,
+                    };
+                    const id = this._store.inventId(ent);
+                    if (this._renderedLevel.has(id) ||
+                        this._subscriptions.has(id)) {
+                        continue;
+                    }
 
-            let tileX: number = tileSize * tile[0];
-            let tileY: number = tileSize * tile[1];
-            let tileWidth: number = tileX + tileSize > this._width ? this._width - tileX : tileSize;
-            let tileHeight: number = tileY + tileSize > this._height ? this._height - tileY : tileSize;
+                    if (this._store.has(id)) {
+                        const pixels = tileToPixelCoords2D(
+                            tile,
+                            this._size,
+                            this._level);
 
-            if (this._imageTileStore.hasImage(tileKey, this._currentLevel)) {
-                this._renderToTarget(tileX, tileY, tileWidth, tileHeight, this._imageTileStore.getImage(tileKey, this._currentLevel));
-                this._setTileRendered(tile, this._currentLevel);
+                        this._renderToTarget(
+                            pixels,
+                            this._store.get(id));
 
-                this._updated$.next(true);
-                continue;
-            }
+                        this._markRendered(ent);
+                        this._updated$.next(true);
+                        continue;
+                    }
 
-            let scaledX: number = Math.floor(tileWidth / tileSize * this._tileSize);
-            let scaledY: number = Math.floor(tileHeight / tileSize * this._tileSize);
+                    ent.url = this._store.getURL(id);
+                    this._fetchTile(ent);
+                }
+                this._urlSubscriptions.delete(level);
+            },
+            (error: Error): void => {
+                this._urlSubscriptions.delete(level);
+                console.error(error);
+            });
 
-            this._fetchTile(tile, this._currentLevel, tileX, tileY, tileWidth, tileHeight, scaledX, scaledY);
+        if (!subscription.closed) {
+            this._urlSubscriptions.set(level, subscription);
         }
     }
 
-    /**
-     * Get tile coordinates for a point using the current level.
-     *
-     * @param {Array<number>} point - Point in basic coordinates.
-     *
-     * @returns {Array<number>} x and y tile coodinates.
-     */
-    private _getTileCoords(point: number[]): number[] {
-        let tileSize: number = this._tileSize * Math.pow(2, this._maxLevel - this._currentLevel);
+    private _initRender(): void {
+        const dx = this._size.w / 2;
+        const dy = this._size.h / 2;
+        const near = -1;
+        const far = 1;
+        const camera =
+            new THREE.OrthographicCamera(-dx, dx, dy, -dy, near, far);
+        camera.position.z = 1;
+        const gl = this._renderer.getContext();
+        const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+        const backgroundSize = Math.max(this._size.w, this._size.h);
+        const scale = maxTextureSize > backgroundSize ?
+            1 : maxTextureSize / backgroundSize;
 
-        let maxX: number = Math.ceil(this._width / tileSize) - 1;
-        let maxY: number = Math.ceil(this._height / tileSize) - 1;
+        const targetWidth = Math.floor(scale * this._size.w);
+        const targetHeight = Math.floor(scale * this._size.h);
 
-        return [
-            Math.min(Math.floor(this._width * point[0] / tileSize), maxX),
-            Math.min(Math.floor(this._height * point[1] / tileSize), maxY),
-        ];
+        const target = new THREE.WebGLRenderTarget(
+            targetWidth,
+            targetHeight,
+            {
+                depthBuffer: false,
+                format: THREE.RGBFormat,
+                magFilter: THREE.LinearFilter,
+                minFilter: THREE.LinearFilter,
+                stencilBuffer: false,
+            });
+
+        this._render = { camera, target };
+
+        const pixels = tileToPixelCoords2D(
+            { x: 0, y: 0 },
+            this._size,
+            { max: this._level.max, z: 0 });
+        this._renderToTarget(pixels, this._background);
+
+        this._createdSubject$.next(target.texture);
+        this._hasSubject$.next(true);
     }
 
     /**
-     * Get tile coordinates for all tiles contained in a bounding
-     * box.
+     * Mark a tile as rendered.
      *
-     * @param {Array<number>} topLeft - Top left tile coordinate of bounding box.
-     * @param {Array<number>} bottomRight - Bottom right tile coordinate of bounding box.
+     * @description Clears tiles marked as rendered in other
+     * levels of the tile pyramid if they overlap the
+     * newly rendered tile.
      *
-     * @returns {Array<Array<number>>} Array of x, y tile coodinates.
+     * @param {Arrary<number>} tile - The tile ent.
      */
-    private _getTiles(topLeft: number[], bottomRight: number[]): number[][] {
-        let xs: number[] = [];
+    private _markRendered(tile: ImageTileEnt): void {
+        const others =
+            Array.from(this._rendered.entries())
+                .filter(
+                    ([_, t]: [string, TileCoords3D]): boolean => {
+                        return t.z !== tile.z;
+                    });
 
-        if (topLeft[0] > bottomRight[0]) {
-            let tileSize: number = this._tileSize * Math.pow(2, this._maxLevel - this._currentLevel);
-            let maxX: number = Math.ceil(this._width / tileSize) - 1;
-
-            for (let x: number = topLeft[0]; x <= maxX; x++) {
-                xs.push(x);
-            }
-
-            for (let x: number = 0; x <= bottomRight[0]; x++) {
-                xs.push(x);
-            }
-        } else {
-            for (let x: number = topLeft[0]; x <= bottomRight[0]; x++) {
-                xs.push(x);
+        for (const [otherId, other] of others) {
+            if (hasOverlap2D(tile, other)) {
+                this._rendered.delete(otherId);
             }
         }
 
-        let tiles: number[][] = [];
-
-        for (let x of xs) {
-            for (let y: number = topLeft[1]; y <= bottomRight[1]; y++) {
-                tiles.push([x, y]);
-            }
-        }
-
-        return tiles;
+        const id = this._store.inventId(tile);
+        this._rendered.set(id, tile);
+        this._renderedLevel.add(id);
     }
 
     /**
@@ -484,53 +465,43 @@ export class TextureProvider {
      * @param {Array<T>} array - Array from which item should be removed.
      */
     private _removeFromArray<T>(item: T, array: T[]): void {
-        let index: number = array.indexOf(item);
+        const index = array.indexOf(item);
         if (index !== -1) {
             array.splice(index, 1);
         }
     }
 
     /**
-     * Remove an item from a dictionary.
-     *
-     * @param {string} key - Key of the item to remove.
-     * @param {Object} dict - Dictionary from which item should be removed.
-     */
-    private _removeFromDictionary<T>(key: string, dict: { [key: string]: T }): void {
-        if (key in dict) {
-            delete dict[key];
-        }
-    }
-
-    /**
      * Render an image tile to the target texture.
      *
-     * @param {number} x - The top left x pixel coordinate of the tile.
-     * @param {number} y - The top left y pixel coordinate of the tile.
-     * @param {number} w - The pixel width of the tile.
-     * @param {number} h - The pixel height of the tile.
-     * @param {HTMLImageElement} background - The image tile to render.
+     * @param {ImageTileEnt} tile - Tile ent.
+     * @param {HTMLImageElement} image - The image tile to render.
      */
-    private _renderToTarget(x: number, y: number, w: number, h: number, image: HTMLImageElement): void {
-        let texture: THREE.Texture = new THREE.Texture(image);
+    private _renderToTarget(
+        pixel: TilePixelCoords2D,
+        image: HTMLImageElement): void {
+        const texture = new THREE.Texture(image);
         texture.minFilter = THREE.LinearFilter;
         texture.needsUpdate = true;
 
-        let geometry: THREE.PlaneGeometry = new THREE.PlaneGeometry(w, h);
-        let material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({ map: texture, side: THREE.FrontSide });
+        const geometry = new THREE.PlaneGeometry(pixel.w, pixel.h);
+        const material = new THREE.MeshBasicMaterial({
+            map: texture,
+            side: THREE.FrontSide,
+        });
 
-        let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
-        mesh.position.x = -this._width / 2 + x + w / 2;
-        mesh.position.y = this._height / 2 - y - h / 2;
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.x = -this._size.w / 2 + pixel.x + pixel.w / 2;
+        mesh.position.y = this._size.h / 2 - pixel.y - pixel.h / 2;
 
-        let scene: THREE.Scene = new THREE.Scene();
+        const scene = new THREE.Scene();
         scene.add(mesh);
 
-        const target: THREE.RenderTarget = this._renderer.getRenderTarget();
+        const target = this._renderer.getRenderTarget();
 
         this._renderer.resetState();
-        this._renderer.setRenderTarget(this._renderTarget)
-        this._renderer.render(scene, this._camera);
+        this._renderer.setRenderTarget(this._render.target)
+        this._renderer.render(scene, this._render.camera);
         this._renderer.setRenderTarget(target);
 
         scene.remove(mesh);
@@ -538,78 +509,5 @@ export class TextureProvider {
         geometry.dispose();
         material.dispose();
         texture.dispose();
-    }
-
-    /**
-     * Mark a tile as rendered.
-     *
-     * @description Clears tiles marked as rendered in other
-     * levels of the tile pyramid  if they were rendered on
-     * top of or below the tile.
-     *
-     * @param {Arrary<number>} tile - The tile coordinates.
-     * @param {number} level - Tile level of the tile coordinates.
-     */
-    private _setTileRendered(tile: number[], level: number): void {
-        let otherLevels: number[] =
-            Object.keys(this._renderedTiles)
-                .map(
-                    (key: string): number => {
-                        return parseInt(key, 10);
-                    })
-                .filter(
-                    (renderedLevel: number): boolean => {
-                        return renderedLevel !== level;
-                    });
-
-        for (let otherLevel of otherLevels) {
-            let scale: number = Math.pow(2, otherLevel - level);
-
-            if (otherLevel < level) {
-                let x: number = Math.floor(scale * tile[0]);
-                let y: number = Math.floor(scale * tile[1]);
-
-                for (let otherTile of this._renderedTiles[otherLevel].slice()) {
-                    if (otherTile[0] === x && otherTile[1] === y) {
-                        let index: number = this._renderedTiles[otherLevel].indexOf(otherTile);
-                        this._renderedTiles[otherLevel].splice(index, 1);
-                    }
-                }
-            } else {
-                let startX: number = scale * tile[0];
-                let endX: number = startX + scale - 1;
-                let startY: number = scale * tile[1];
-                let endY: number = startY + scale - 1;
-
-                for (let otherTile of this._renderedTiles[otherLevel].slice()) {
-                    if (otherTile[0] >= startX && otherTile[0] <= endX &&
-                        otherTile[1] >= startY && otherTile[1] <= endY) {
-                        let index: number = this._renderedTiles[otherLevel].indexOf(otherTile);
-                        this._renderedTiles[otherLevel].splice(index, 1);
-
-                    }
-                }
-            }
-
-            if (this._renderedTiles[otherLevel].length === 0) {
-                delete this._renderedTiles[otherLevel];
-            }
-        }
-
-        this._renderedTiles[level].push(tile);
-        this._renderedCurrentLevelTiles[this._tileKey(this._tileSize, tile)] = true;
-    }
-
-    /**
-     * Create a tile key from a tile coordinates.
-     *
-     * @description Tile keys are used as a hash for
-     * storing the tile in a dictionary.
-     *
-     * @param {number} tileSize - The tile size.
-     * @param {Arrary<number>} tile - The tile coordinates.
-     */
-    private _tileKey(tileSize: number, tile: number[]): string {
-        return tileSize + "-" + tile[0] + "-" + tile[1];
     }
 }

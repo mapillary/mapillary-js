@@ -7,6 +7,9 @@ import { CoreImagesContract } from "./contracts/CoreImagesContract";
 import { ImagesContract } from "./contracts/ImagesContract";
 import { SpatialImagesContract } from "./contracts/SpatialImagesContract";
 import { SequencesContract } from "./contracts/SequencesContract";
+import { ImageTilesRequestContract }
+    from "./contracts/ImageTilesRequestContract";
+import { ImageTilesContract } from "./contracts/ImageTilesContract";
 
 /**
  * @class API
@@ -20,21 +23,28 @@ export class APIWrapper {
         return this._data;
     }
 
-    public getSpatialImages$(
-        imageIds: string[]): Observable<SpatialImagesContract> {
-        return this._wrap$(this._data.getSpatialImages(imageIds));
+    public getCoreImages$(cellId: string): Observable<CoreImagesContract> {
+        return this._wrap$(this._data.getCoreImages(cellId));
     }
 
     public getImages$(imageIds: string[]): Observable<ImagesContract> {
         return this._wrap$(this._data.getImages(imageIds));
     }
 
-    public getCoreImages$(cellId: string): Observable<CoreImagesContract> {
-        return this._wrap$(this._data.getCoreImages(cellId));
+    public getImageTiles(
+        tiles: ImageTilesRequestContract)
+        : Observable<ImageTilesContract> {
+        return this._wrap$(this._data.getImageTiles(tiles));
+
     }
 
     public getSequences$(sequenceIds: string[]): Observable<SequencesContract> {
         return this._wrap$(this._data.getSequences(sequenceIds));
+    }
+
+    public getSpatialImages$(
+        imageIds: string[]): Observable<SpatialImagesContract> {
+        return this._wrap$(this._data.getSpatialImages(imageIds));
     }
 
     public setUserToken(userToken?: string): void {

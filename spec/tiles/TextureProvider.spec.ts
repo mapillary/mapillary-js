@@ -1,551 +1,184 @@
-import { empty as observableEmpty } from "rxjs";
 import * as THREE from "three";
-import { ImageTileLoader } from "../../src/tiles/ImageTileLoader";
-import { ImageTileStore } from "../../src/tiles/ImageTileStore";
-import { TileRegionOfInterest } from "../../src/tiles/interfaces/TileRegionOfInterest";
+import {
+    empty as observableEmpty,
+    Subject,
+} from "rxjs";
+
 import { TextureProvider } from "../../src/tiles/TextureProvider";
+import { TileLoader } from "../../src/tiles/TileLoader";
+import { TileStore } from "../../src/tiles/TileStore";
+import {
+    TILE_MIN_REQUEST_LEVEL,
+    TILE_SIZE,
+} from "../../src/tiles/interfaces/TileTypes";
+import { TileRegionOfInterest }
+    from "../../src/tiles/interfaces/TileRegionOfInterest";
 
 import { MockCreator } from "../helper/MockCreator";
+import { RendererMock } from "../helper/WebGLRenderer";
+import { ImageTileEnt } from "../../src/api/ents/ImageTileEnt";
 
-
-class RendererMock implements THREE.Renderer {
-    public domElement: HTMLCanvasElement = document.createElement("canvas");
-
-    public getContext(): void { /* noop */ }
-    public render(s: THREE.Scene, c: THREE.Camera, t?: THREE.WebGLRenderTarget): void { /* noop */ }
-    public resetState(): void { /* noop */ }
-    public getRenderTarget(): THREE.RenderTarget { return; }
-    public setRenderTarget(): void { /* noop */ }
-    public setSize(w: number, h: number, updateStyle?: boolean): void { /* noop */ }
-}
+const mockCreator = new MockCreator();
 
 describe("TextureProvider.ctor", () => {
-    it("should be contructed", () => {
+    test("should be contructed", () => {
         spyOn(console, "warn").and.stub();
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
-        (<jasmine.Spy>imageTileLoader.getTile).and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
+        const store = mockCreator.create(TileStore, "TileStore");
+        const loader = mockCreator.create(TileLoader, "TileLoader");
+        (<jasmine.Spy>loader.getImage$)
+            .and.returnValue([
+                observableEmpty(),
+                (): void => { /* noop */ },
+            ]);
 
-        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
+        const renderer = <THREE.WebGLRenderer><unknown>new RendererMock();
+        spyOn(THREE, "WebGLRenderer").and.returnValue(renderer);
 
-        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
-
-        let textureProvider: TextureProvider =
+        const textureProvider =
             new TextureProvider(
                 "",
                 1,
                 1,
-                1,
                 new Image(),
-                imageTileLoader,
-                imageTileStore,
-                rendererMock);
+                loader,
+                store,
+                renderer);
 
         expect(textureProvider).toBeDefined();
     });
 });
 
 describe("TextureProvider.setRegionOfInterest", () => {
-    it("should request one tile for the whole image with original size when resolution is the same as the image size", () => {
+    beforeEach(() => {
         spyOn(console, "warn").and.stub();
+    });
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
-        let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
+    let store: TileStore = undefined;
+    let getURLSpy: jasmine.Spy = undefined;
+    let loader: TileLoader = undefined;
+    let getImageSpy: jasmine.Spy = undefined;
+    let getURLsSpy: jasmine.Spy = undefined;
+    let renderer: THREE.WebGLRenderer = undefined;
 
-        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
+    beforeEach(() => {
+        loader = mockCreator.create(TileLoader, "TileLoader");
+        getURLsSpy = <jasmine.Spy>loader.getURLs$;
+        getImageSpy = <jasmine.Spy>loader.getImage$;
+        getImageSpy.and.returnValue([
+            observableEmpty(),
+            (): void => { /* noop */ },
+        ]);
 
-        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue(
-            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
+        store = mockCreator.create(TileStore, "TileStore");
+        getURLSpy = <jasmine.Spy>store.getURL;
 
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
+        renderer = <THREE.WebGLRenderer><unknown>new RendererMock();
+        spyOn(renderer, "getContext").and.returnValue(
+            <WebGLRenderingContext><unknown>{
+                getParameter: () => {
+                    return 2048;
+                }
+            });
+        spyOn(THREE, "WebGLRenderer").and.returnValue(renderer);
+    })
 
-        let tileSize: number = 512;
-        let width: number = tileSize;
-        let height: number = tileSize;
+    test("should request one tile", () => {
+        const width = TILE_SIZE + 1;
+        const height = TILE_SIZE;
 
-        let textureProvider: TextureProvider =
+        const getURLs = new Subject<ImageTileEnt[]>();
+        getURLsSpy.and.returnValue(getURLs);
+
+        const imageId = "image-id";
+        const textureProvider =
             new TextureProvider(
-                "",
+                imageId,
                 width,
                 height,
-                tileSize,
                 new Image(),
-                imageTileLoader,
-                imageTileStore,
-                rendererMock);
+                loader,
+                store,
+                renderer);
 
-        let roi: TileRegionOfInterest = {
-            bbox: { maxX: 0, maxY: 0, minX: 0, minY: 0 },
+        const roi: TileRegionOfInterest = {
+            bbox: { maxX: 0.75, maxY: 0.75, minX: 0.25, minY: 0.25 },
             pixelHeight: 1 / height,
             pixelWidth: 1 / width,
         };
 
         textureProvider.setRegionOfInterest(roi);
 
-        expect(getTileSpy.calls.count()).toBe(1);
+        expect(getURLsSpy.calls.count()).toBe(1);
+        const getURLsCI = getURLsSpy.calls.first();
+        expect(getURLsCI.args.length).toBe(2);
+        expect(getURLsCI.args[0]).toBe(imageId);
+        expect(getURLsCI.args[1]).toBe(TILE_MIN_REQUEST_LEVEL);
 
-        let callInfo = getTileSpy.calls.first();
+        expect(getImageSpy.calls.count()).toBe(0);
 
-        expect(callInfo.args.length).toBe(7);
+        const url = "url";
+        getURLSpy.and.returnValue(url);
 
-        expect(callInfo.args[1]).toBe(0);
-        expect(callInfo.args[2]).toBe(0);
-        expect(callInfo.args[3]).toBe(width);
-        expect(callInfo.args[4]).toBe(height);
-        expect(callInfo.args[5]).toBe(width);
-        expect(callInfo.args[6]).toBe(height);
+        const ent: ImageTileEnt = { url, x: 0, y: 0, z: 11 };
+        getURLs.next([ent]);
+        getURLs.complete();
+
+        expect(getImageSpy.calls.count()).toBe(1);
+        const getImageCI = getImageSpy.calls.first();
+        expect(getImageCI.args.length).toBe(1);
+        expect(getImageCI.args[0]).toBe(ent.url);
     });
 
-    it("should request one tile for the whole image with original size when resolution higher than image size", () => {
-        spyOn(console, "warn").and.stub();
+    test("should not request when lower than min request level", () => {
+        const width = 2 * TILE_SIZE;
+        const height = 2 * TILE_SIZE;
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
-        let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { return; }]);
+        const getURLs = new Subject<ImageTileEnt[]>();
+        getURLsSpy.and.returnValue(getURLs);
 
-        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
-
-        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue(
-            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
-
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
-
-        let tileSize: number = 512;
-        let width: number = tileSize;
-        let height: number = tileSize;
-
-        let textureProvider: TextureProvider =
+        const imageId = "image-id";
+        const textureProvider =
             new TextureProvider(
-                "",
+                imageId,
                 width,
                 height,
-                tileSize,
                 new Image(),
-                imageTileLoader,
-                imageTileStore,
-                rendererMock);
+                loader,
+                store,
+                renderer);
 
-        let roi: TileRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0 },
-            pixelHeight: 1 / height / 4,
-            pixelWidth: 1 / width / 4,
+        const roi: TileRegionOfInterest = {
+            bbox: { maxX: 0.75, maxY: 0.75, minX: 0.25, minY: 0.25 },
+            pixelHeight: 1,
+            pixelWidth: 1,
         };
 
         textureProvider.setRegionOfInterest(roi);
 
-        expect(getTileSpy.calls.count()).toBe(1);
-
-        let callInfo = getTileSpy.calls.first();
-
-        expect(callInfo.args.length).toBe(7);
-
-        expect(callInfo.args[1]).toBe(0);
-        expect(callInfo.args[2]).toBe(0);
-        expect(callInfo.args[3]).toBe(width);
-        expect(callInfo.args[4]).toBe(height);
-        expect(callInfo.args[5]).toBe(width);
-        expect(callInfo.args[6]).toBe(height);
+        expect(getURLsSpy.calls.count()).toBe(0);
+        expect(getImageSpy.calls.count()).toBe(0);
     });
 
-    it("should request one tile for the whole image with scaled size when resolution is lower than image size", () => {
-        spyOn(console, "warn").and.stub();
+    test("should request multiple tiles in x direction", () => {
+        const width = 2 * TILE_SIZE;
+        const height = 2 * TILE_SIZE;
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
-        let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
+        const getURLs = new Subject<ImageTileEnt[]>();
+        getURLsSpy.and.returnValue(getURLs);
 
-        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
-
-        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue(
-            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
-
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
-
-        let tileSize: number = 512;
-        let width: number = tileSize;
-        let height: number = tileSize;
-
-        let textureProvider: TextureProvider =
+        const imageId = "image-id";
+        const textureProvider =
             new TextureProvider(
-                "",
+                imageId,
                 width,
                 height,
-                tileSize,
                 new Image(),
-                imageTileLoader,
-                imageTileStore,
-                rendererMock);
-
-        let roi: TileRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0 },
-            pixelHeight: 2 / height,
-            pixelWidth: 2 / width,
-        };
-
-        textureProvider.setRegionOfInterest(roi);
-
-        expect(getTileSpy.calls.count()).toBe(1);
-
-        let callInfo = getTileSpy.calls.first();
-
-        expect(callInfo.args.length).toBe(7);
-
-        expect(callInfo.args[1]).toBe(0);
-        expect(callInfo.args[2]).toBe(0);
-        expect(callInfo.args[3]).toBe(width);
-        expect(callInfo.args[4]).toBe(height);
-        expect(callInfo.args[5]).toBe(width / 2);
-        expect(callInfo.args[6]).toBe(height / 2);
-    });
-
-    it("should request one tile for the whole image with scaled size 1 x 1 when image is contained in one screen pixel", () => {
-        spyOn(console, "warn").and.stub();
-
-        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
-        let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
-
-        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
-
-        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue(
-            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
-
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
-
-        let tileSize: number = 512;
-        let width: number = tileSize;
-        let height: number = tileSize;
-
-        let textureProvider: TextureProvider =
-            new TextureProvider(
-                "",
-                width,
-                height,
-                tileSize,
-                new Image(),
-                imageTileLoader,
-                imageTileStore,
-                rendererMock);
-
-        let roi: TileRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0 },
-            pixelHeight: 2,
-            pixelWidth: 2,
-        };
-
-        textureProvider.setRegionOfInterest(roi);
-
-        expect(getTileSpy.calls.count()).toBe(1);
-
-        let callInfo = getTileSpy.calls.first();
-
-        expect(callInfo.args.length).toBe(7);
-
-        expect(callInfo.args[1]).toBe(0);
-        expect(callInfo.args[2]).toBe(0);
-        expect(callInfo.args[3]).toBe(width);
-        expect(callInfo.args[4]).toBe(height);
-        expect(callInfo.args[5]).toBe(1);
-        expect(callInfo.args[6]).toBe(1);
-    });
-
-    it("should request one tile with correct size when image width is larger than tile size", () => {
-        spyOn(console, "warn").and.stub();
-
-        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
-        let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
-
-        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
-
-        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue(
-            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
-
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
-
-        let tileSize: number = 512;
-        let width: number = 512 + 100;
-        let height: number = 512;
-
-        let textureProvider: TextureProvider =
-            new TextureProvider(
-                "",
-                width,
-                height,
-                tileSize,
-                new Image(),
-                imageTileLoader,
-                imageTileStore,
-                rendererMock);
-
-        let roi: TileRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 1, minY: 0 },
-            pixelHeight: 1 / height / 2,
-            pixelWidth: 1 / width / 2,
-        };
-
-        textureProvider.setRegionOfInterest(roi);
-
-        expect(getTileSpy.calls.count()).toBe(1);
-
-        let callInfo = getTileSpy.calls.first();
-
-        expect(callInfo.args.length).toBe(7);
-
-        expect(callInfo.args[1]).toBe(tileSize);
-        expect(callInfo.args[2]).toBe(0);
-        expect(callInfo.args[3]).toBe(width - tileSize);
-        expect(callInfo.args[4]).toBe(height);
-        expect(callInfo.args[5]).toBe(width - tileSize);
-        expect(callInfo.args[6]).toBe(height);
-    });
-
-    it("should request one tile with correct size when image width is larger than tile size", () => {
-        spyOn(console, "warn").and.stub();
-
-        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
-        let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
-
-        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
-
-        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue(
-            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
-
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
-
-        let tileSize: number = 512;
-        let width: number = 512;
-        let height: number = 512 + 200;
-
-        let textureProvider: TextureProvider =
-            new TextureProvider(
-                "",
-                width,
-                height,
-                tileSize,
-                new Image(),
-                imageTileLoader,
-                imageTileStore,
-                rendererMock);
-
-        let roi: TileRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 1 },
-            pixelHeight: 1 / height / 2,
-            pixelWidth: 1 / width / 2,
-        };
-
-        textureProvider.setRegionOfInterest(roi);
-
-        expect(getTileSpy.calls.count()).toBe(1);
-
-        let callInfo = getTileSpy.calls.first();
-
-        expect(callInfo.args.length).toBe(7);
-
-        expect(callInfo.args[1]).toBe(0);
-        expect(callInfo.args[2]).toBe(tileSize);
-        expect(callInfo.args[3]).toBe(width);
-        expect(callInfo.args[4]).toBe(height - tileSize);
-        expect(callInfo.args[5]).toBe(width);
-        expect(callInfo.args[6]).toBe(height - tileSize);
-    });
-
-    it("should request one tile with correct size when image width is larger than tile size", () => {
-        spyOn(console, "warn").and.stub();
-
-        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
-        let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
-
-        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
-
-        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue(
-            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
-
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
-
-        let tileSize: number = 512;
-        let width: number = 512 + 16;
-        let height: number = 512 + 16;
-
-        let textureProvider: TextureProvider =
-            new TextureProvider(
-                "",
-                width,
-                height,
-                tileSize,
-                new Image(),
-                imageTileLoader,
-                imageTileStore,
-                rendererMock);
-
-        let roi: TileRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 1, minY: 1 },
-            pixelHeight: 1 / height / 2,
-            pixelWidth: 1 / width / 2,
-        };
-
-        textureProvider.setRegionOfInterest(roi);
-
-        expect(getTileSpy.calls.count()).toBe(1);
-
-        let callInfo = getTileSpy.calls.first();
-
-        expect(callInfo.args.length).toBe(7);
-
-        expect(callInfo.args[1]).toBe(tileSize);
-        expect(callInfo.args[2]).toBe(tileSize);
-        expect(callInfo.args[3]).toBe(width - tileSize);
-        expect(callInfo.args[4]).toBe(height - tileSize);
-        expect(callInfo.args[5]).toBe(width - tileSize);
-        expect(callInfo.args[6]).toBe(height - tileSize);
-    });
-
-    it("should request correct width and height and not scale image when image aspect ratio is not square", () => {
-        spyOn(console, "warn").and.stub();
-
-        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
-        let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
-
-        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
-
-        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue(
-            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
-
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
-
-        let tileSize: number = 512;
-        let width: number = 488;
-        let height: number = 324;
-
-        let textureProvider: TextureProvider =
-            new TextureProvider(
-                "",
-                width,
-                height,
-                tileSize,
-                new Image(),
-                imageTileLoader,
-                imageTileStore,
-                rendererMock);
-
-        let roi: TileRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0 },
-            pixelHeight: 1 / tileSize,
-            pixelWidth: 1 / tileSize,
-        };
-
-        textureProvider.setRegionOfInterest(roi);
-
-        expect(getTileSpy.calls.count()).toBe(1);
-
-        let callInfo = getTileSpy.calls.first();
-
-        expect(callInfo.args.length).toBe(7);
-
-        expect(callInfo.args[1]).toBe(0);
-        expect(callInfo.args[2]).toBe(0);
-        expect(callInfo.args[3]).toBe(width);
-        expect(callInfo.args[4]).toBe(height);
-        expect(callInfo.args[5]).toBe(width);
-        expect(callInfo.args[6]).toBe(height);
-    });
-
-    it("should request correct width and height and scale image when image aspect ratio is not square", () => {
-        spyOn(console, "warn").and.stub();
-
-        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
-        let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
-
-        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
-
-        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue(
-            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
-
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
-
-        let tileSize: number = 512;
-        let width: number = 488;
-        let height: number = 324;
-
-        let textureProvider: TextureProvider =
-            new TextureProvider(
-                "",
-                width,
-                height,
-                tileSize,
-                new Image(),
-                imageTileLoader,
-                imageTileStore,
-                rendererMock);
-
-        let roi: TileRegionOfInterest = {
-            bbox: { maxX: 1, maxY: 1, minX: 0, minY: 0 },
-            pixelHeight: 2 / tileSize,
-            pixelWidth: 2 / tileSize,
-        };
-
-        textureProvider.setRegionOfInterest(roi);
-
-        expect(getTileSpy.calls.count()).toBe(1);
-
-        let callInfo = getTileSpy.calls.first();
-
-        expect(callInfo.args.length).toBe(7);
-
-        expect(callInfo.args[1]).toBe(0);
-        expect(callInfo.args[2]).toBe(0);
-        expect(callInfo.args[3]).toBe(width);
-        expect(callInfo.args[4]).toBe(height);
-        expect(callInfo.args[5]).toBe(width / 2);
-        expect(callInfo.args[6]).toBe(height / 2);
-    });
-
-    it("should request multiple tiles in x direction", () => {
-        spyOn(console, "warn").and.stub();
-
-        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
-        let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
-
-        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
-
-        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue(
-            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
-
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
-
-        let tileSize: number = 512;
-        let width: number = 2 * tileSize;
-        let height: number = 2 * tileSize;
-
-        let textureProvider: TextureProvider =
-            new TextureProvider(
-                "",
-                width,
-                height,
-                tileSize,
-                new Image(),
-                imageTileLoader,
-                imageTileStore,
-                rendererMock);
-
-        let roi: TileRegionOfInterest = {
+                loader,
+                store,
+                renderer);
+
+        const roi: TileRegionOfInterest = {
             bbox: { maxX: 0.75, maxY: 0.25, minX: 0.25, minY: 0 },
             pixelHeight: 1 / width,
             pixelWidth: 1 / height,
@@ -553,60 +186,54 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         textureProvider.setRegionOfInterest(roi);
 
-        expect(getTileSpy.calls.count()).toBe(2);
+        expect(getURLsSpy.calls.count()).toBe(1);
+        const getURLsCI = getURLsSpy.calls.first();
+        expect(getURLsCI.args.length).toBe(2);
+        expect(getURLsCI.args[0]).toBe(imageId);
+        expect(getURLsCI.args[1]).toBe(TILE_MIN_REQUEST_LEVEL);
 
-        let args1: any[] = getTileSpy.calls.argsFor(0);
+        expect(getImageSpy.calls.count()).toBe(0);
 
-        expect(args1.length).toBe(7);
-        expect(args1[1]).toBe(0);
-        expect(args1[2]).toBe(0);
-        expect(args1[3]).toBe(tileSize);
-        expect(args1[4]).toBe(tileSize);
-        expect(args1[5]).toBe(tileSize);
-        expect(args1[6]).toBe(tileSize);
+        let first = true;
+        getURLSpy.and.callFake(() => {
+            if (first) { first = false; return "url-1"; }
+            return "url-2";
+        });
 
-        let args2: any[] = getTileSpy.calls.argsFor(1);
+        const ent1: ImageTileEnt = { url: "url-1", x: 0, y: 0, z: 11 };
+        const ent2: ImageTileEnt = { url: "url-2", x: 1, y: 0, z: 11 };
+        getURLs.next([ent1, ent2]);
+        getURLs.complete();
 
-        expect(args2.length).toBe(7);
-        expect(args2[1]).toBe(tileSize);
-        expect(args2[2]).toBe(0);
-        expect(args2[3]).toBe(tileSize);
-        expect(args2[4]).toBe(tileSize);
-        expect(args2[5]).toBe(tileSize);
-        expect(args2[6]).toBe(tileSize);
+        expect(getImageSpy.calls.count()).toBe(2);
+        const args1 = getImageSpy.calls.argsFor(0);
+        expect(args1.length).toBe(1);
+        expect(args1[0]).toBe(ent1.url);
+
+        const args2 = getImageSpy.calls.argsFor(1);
+        expect(args2.length).toBe(1);
+        expect(args2[0]).toBe(ent2.url);
     });
 
-    it("should request multiple tiles in y direction", () => {
-        spyOn(console, "warn").and.stub();
+    test("should request multiple tiles in y direction", () => {
+        const width = 2 * TILE_SIZE;
+        const height = 2 * TILE_SIZE;
 
-        let imageTileLoader: ImageTileLoader = new MockCreator().create(ImageTileLoader, "ImageTileLoader");
-        let getTileSpy: jasmine.Spy = <jasmine.Spy>imageTileLoader.getTile;
-        getTileSpy.and.returnValue([observableEmpty(), (): void => { /* noop */ }]);
+        const getURLs = new Subject<ImageTileEnt[]>();
+        getURLsSpy.and.returnValue(getURLs);
 
-        let imageTileStore: ImageTileStore = new MockCreator().create(ImageTileStore, "ImageTileStore");
-
-        let rendererMock: THREE.WebGLRenderer = <any>new RendererMock();
-        spyOn(rendererMock, "getContext").and.returnValue(
-            <WebGLRenderingContext><unknown>{ getParameter: () => { return 1024; } });
-
-        spyOn(THREE, "WebGLRenderer").and.returnValue(rendererMock);
-
-        let tileSize: number = 512;
-        let width: number = 2 * tileSize;
-        let height: number = 2 * tileSize;
-
-        let textureProvider: TextureProvider =
+        const imageId = "image-id";
+        const textureProvider =
             new TextureProvider(
-                "",
+                imageId,
                 width,
                 height,
-                tileSize,
                 new Image(),
-                imageTileLoader,
-                imageTileStore,
-                rendererMock);
+                loader,
+                store,
+                renderer);
 
-        let roi: TileRegionOfInterest = {
+        const roi: TileRegionOfInterest = {
             bbox: { maxX: 0.25, maxY: 0.75, minX: 0, minY: 0.25 },
             pixelHeight: 1 / width,
             pixelWidth: 1 / height,
@@ -614,26 +241,32 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         textureProvider.setRegionOfInterest(roi);
 
-        expect(getTileSpy.calls.count()).toBe(2);
+        expect(getURLsSpy.calls.count()).toBe(1);
+        const getURLsCI = getURLsSpy.calls.first();
+        expect(getURLsCI.args.length).toBe(2);
+        expect(getURLsCI.args[0]).toBe(imageId);
+        expect(getURLsCI.args[1]).toBe(TILE_MIN_REQUEST_LEVEL);
 
-        let args1: any[] = getTileSpy.calls.argsFor(0);
+        expect(getImageSpy.calls.count()).toBe(0);
 
-        expect(args1.length).toBe(7);
-        expect(args1[1]).toBe(0);
-        expect(args1[2]).toBe(0);
-        expect(args1[3]).toBe(tileSize);
-        expect(args1[4]).toBe(tileSize);
-        expect(args1[5]).toBe(tileSize);
-        expect(args1[6]).toBe(tileSize);
+        let first = true;
+        getURLSpy.and.callFake(() => {
+            if (first) { first = false; return "url-1"; }
+            return "url-2";
+        });
 
-        let args2: any[] = getTileSpy.calls.argsFor(1);
+        const ent1: ImageTileEnt = { url: "url-1", x: 0, y: 0, z: 11 };
+        const ent2: ImageTileEnt = { url: "url-2", x: 0, y: 1, z: 11 };
+        getURLs.next([ent1, ent2]);
+        getURLs.complete();
 
-        expect(args2.length).toBe(7);
-        expect(args2[1]).toBe(0);
-        expect(args2[2]).toBe(tileSize);
-        expect(args2[3]).toBe(tileSize);
-        expect(args2[4]).toBe(tileSize);
-        expect(args2[5]).toBe(tileSize);
-        expect(args2[6]).toBe(tileSize);
+        expect(getImageSpy.calls.count()).toBe(2);
+        const args1 = getImageSpy.calls.argsFor(0);
+        expect(args1.length).toBe(1);
+        expect(args1[0]).toBe(ent1.url);
+
+        const args2 = getImageSpy.calls.argsFor(1);
+        expect(args2.length).toBe(1);
+        expect(args2[0]).toBe(ent2.url);
     });
 });
