@@ -1,12 +1,15 @@
 import { MapillaryError } from "../error/MapillaryError";
 import { EventEmitter } from "../utils/EventEmitter";
-import { ClusterReconstructionContract } from "./contracts/ClusterReconstructionContract";
+import { ClusterReconstructionContract }
+    from "./contracts/ClusterReconstructionContract";
 import { MeshContract } from "./contracts/MeshContract";
 import { GeometryProviderBase } from "./GeometryProviderBase";
 import { CoreImagesContract } from "./contracts/CoreImagesContract";
 import { SpatialImagesContract } from "./contracts/SpatialImagesContract";
 import { ImagesContract } from "./contracts/ImagesContract";
 import { SequencesContract } from "./contracts/SequencesContract";
+import { ImageTilesContract } from "./contracts/ImageTilesContract";
+import { ImageTilesRequestContract } from "./contracts/ImageTilesRequestContract";
 
 /**
  * @class DataProviderBase
@@ -54,8 +57,8 @@ export abstract class DataProviderBase extends EventEmitter {
      * Get core properties for images in a geometry cell.
      *
      * @param {string} cellId - The id of the geometry cell.
-     * @returns {Promise} Promise to the core images of the
-     * requested cell id.
+     * @returns {Promise<CoreImagesContract>} Promise to
+     * the core images of the requested geometry cell id.
      * @throws {Error} Rejects the promise on errors.
      */
     public getCoreImages(
@@ -85,8 +88,8 @@ export abstract class DataProviderBase extends EventEmitter {
      *
      * @param {Array<string>} imageIds - The ids for the
      * images to retrieve.
-     * @returns {Promise} Promise to the spatial images of the
-     * requested image ids.
+     * @returns {Promise<SpatialImagesContract>} Promise to
+     * the spatial images of the requested image ids.
      * @throws {Error} Rejects the promise on errors.
      */
     public getSpatialImages(
@@ -99,7 +102,7 @@ export abstract class DataProviderBase extends EventEmitter {
      *
      * @param {Array<string>} imageIds - The ids for the
      * images to retrieve.
-     * @returns {Promise} Promise to the images of the
+     * @returns {Promise<ImagesContract>} Promise to the images of the
      * requested image ids.
      * @throws {Error} Rejects the promise on errors.
      */
@@ -112,7 +115,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * Get an image as an array buffer.
      *
      * @param {string} url - URL for image to retrieve.
-     * @param {Promise} [abort] - Optional promise for aborting
+     * @param {Promise<void>} [abort] - Optional promise for aborting
      * the request through rejection.
      * @returns {Promise<ArrayBuffer>} Promise to the array
      * buffer containing the image.
@@ -125,30 +128,25 @@ export abstract class DataProviderBase extends EventEmitter {
     }
 
     /**
-     * Get an image tile as an array buffer.
+     * Get image tiles urls for a single tile or
+     * a tile level.
      *
-     * @param {string} imageId - Image id.
-     * @param {number} x - Pixel coordinate.
-     * @param {number} y - Pixel coordinate.
-     * @param {number} w - Pixel width.
-     * @param {number} h - Pixel height.
-     * @param {number} scaledW - Scaled width for returned tile.
-     * @param {number} scaledH - Scaled height for returned tile.
-     * @param {Promise} [abort] - Optional promise for aborting
-     * the request through rejection.
-     * @returns {Promise<ArrayBuffer>} Promise to the array
-     * buffer containing the image.
+     * @param {ImageTilesRequestContract} tiles - Tiles to request
+     * @returns {Promise<ImageTilesContract>} Promise to the
+     * image tiles response contract
      * @throws {Error} Rejects the promise on errors.
+     *
+     * @example
+     * var singleTile = { imageId: 'image-id', x: 0, y: 0, z: 12 };
+     * provider.getImageTiles(singleTile)
+     *   .then((response) => console.log(response));
+     *
+     * var tileLevel = { imageId: 'image-id', z: 12 };
+     * provider.getImageTiles(tileLevel)
+     *   .then((response) => console.log(response));
      */
-    public getImageTileBuffer(
-        imageId: string,
-        x: number,
-        y: number,
-        w: number,
-        h: number,
-        scaledW: number,
-        scaledH: number,
-        abort?: Promise<void>): Promise<ArrayBuffer> {
+    public getImageTiles(
+        tiles: ImageTilesRequestContract): Promise<ImageTilesContract> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 
@@ -156,7 +154,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * Get a mesh.
      *
      * @param {string} url - URL for mesh to retrieve.
-     * @param {Promise} [abort] - Optional promise for aborting
+     * @param {Promise<void>} [abort] - Optional promise for aborting
      * the request through rejection.
      * @returns {Promise<MeshContract>} Promise to the mesh.
      * @throws {Error} Rejects the promise on errors.

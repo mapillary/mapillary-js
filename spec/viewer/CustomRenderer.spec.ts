@@ -75,7 +75,7 @@ describe("CustomRenderer.add", () => {
             container,
             navigator);
 
-        const viewerMock = <any>{};
+        const viewer = <any>{};
         const referenceMock = { alt: 1, lat: 2, lon: 2 };
         const rendererId = "id";
 
@@ -83,8 +83,8 @@ describe("CustomRenderer.add", () => {
             {
                 id: rendererId,
                 renderPass: RenderPass.Opaque,
-                onAdd: (viewer, reference, context) => {
-                    expect(viewer).toBe(viewerMock);
+                onAdd: (v, reference, context) => {
+                    expect(v).toBe(v);
                     expect(reference).toBe(referenceMock);
                     expect(context).toBe(contextMock);
                     expect(customRenderer.has(rendererId)).toBe(true);
@@ -94,9 +94,9 @@ describe("CustomRenderer.add", () => {
                 onRemove: () => { /* noop */ },
                 render: () => { /* noop */ },
             },
-            viewerMock);
+            viewer);
 
-        const rendererMock: WebGLRenderer = <WebGLRenderer>new RendererMock();
+        const rendererMock = <WebGLRenderer><unknown>new RendererMock();
         const contextMock = new MockCreator()
             .create(WebGL2RenderingContext, "WebGL2RenderingContext");
         spyOn(rendererMock, "getContext").and.returnValue(contextMock);
@@ -116,7 +116,7 @@ describe("CustomRenderer.add", () => {
             container,
             navigator);
 
-        const viewerMock = <any>{};
+        const viewer = <any>{};
         const referenceMock = { alt: 1, lat: 2, lon: 2 };
         const rendererId = "id";
 
@@ -130,9 +130,9 @@ describe("CustomRenderer.add", () => {
                 onRemove: () => { /* noop */ },
                 render: () => { /* noop */ },
             },
-            viewerMock);
+            viewer);
 
-        const rendererMock: WebGLRenderer = <WebGLRenderer>new RendererMock();
+        const rendererMock = <WebGLRenderer><unknown>new RendererMock();
         const contextMock = new MockCreator()
             .create(WebGL2RenderingContext, "WebGL2RenderingContext");
         spyOn(rendererMock, "getContext").and.returnValue(contextMock);
@@ -154,7 +154,7 @@ describe("CustomRenderer.add", () => {
             container,
             navigator);
 
-        const viewerMock = <any>{};
+        const viewer = <any>{};
         const referenceMock = { alt: 1, lat: 2, lon: 2 };
         const rendererId = "id";
 
@@ -168,9 +168,9 @@ describe("CustomRenderer.add", () => {
                 onRemove: () => { /* noop */ },
                 render: () => { /* noop */ },
             },
-            viewerMock);
+            viewer);
 
-        const rendererMock: WebGLRenderer = <WebGLRenderer>new RendererMock();
+        const rendererMock = <WebGLRenderer><unknown>new RendererMock();
         const contextMock = new MockCreator()
             .create(WebGL2RenderingContext, "WebGL2RenderingContext");
         spyOn(rendererMock, "getContext").and.returnValue(contextMock);
@@ -195,7 +195,7 @@ describe("CustomRenderer.add", () => {
             container,
             navigator);
 
-        const viewerMock = <any>{};
+        const viewer = <any>{};
         const referenceMock = { alt: 1, lat: 2, lon: 2 };
         const rendererId = "id";
 
@@ -213,9 +213,9 @@ describe("CustomRenderer.add", () => {
                     done();
                 },
             },
-            viewerMock);
+            viewer);
 
-        const rendererMock: WebGLRenderer = <WebGLRenderer>new RendererMock();
+        const rendererMock = <WebGLRenderer><unknown>new RendererMock();
         const contextMock = new MockCreator()
             .create(WebGL2RenderingContext, "WebGL2RenderingContext");
         spyOn(rendererMock, "getContext").and.returnValue(contextMock);
@@ -287,8 +287,7 @@ describe("CustomRenderer.remove", () => {
             container,
             navigator);
 
-        const viewerMock = <any>{};
-        const referenceMock = { alt: 1, lat: 2, lon: 2 };
+        const viewer = <any>{};
         const rendererId = "id";
 
         customRenderer.add(
@@ -297,19 +296,19 @@ describe("CustomRenderer.remove", () => {
                 renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
                 onReferenceChanged: () => { /* noop */ },
-                onRemove: (viewer, context) => {
-                    expect(viewer).toBe(viewerMock);
+                onRemove: (v, context) => {
+                    expect(v).toBe(v);
                     expect(context).toBe(contextMock);
                     expect(customRenderer.has(rendererId)).toBe(false);
                     done();
                 },
                 render: () => { /* noop */ },
             },
-            viewerMock);
+            viewer);
 
-        customRenderer.remove(rendererId, viewerMock);
+        customRenderer.remove(rendererId, viewer);
 
-        const rendererMock: WebGLRenderer = <WebGLRenderer>new RendererMock();
+        const rendererMock = <WebGLRenderer><unknown>new RendererMock();
         const contextMock = new MockCreator()
             .create(WebGL2RenderingContext, "WebGL2RenderingContext");
         spyOn(rendererMock, "getContext").and.returnValue(contextMock);
@@ -358,7 +357,7 @@ describe("CustomRenderer.dispose", () => {
             container,
             navigator);
 
-        const viewerMock = <any>{};
+        const viewer = <any>{};
         const rendererId = "id";
 
         customRenderer.add(
@@ -367,19 +366,19 @@ describe("CustomRenderer.dispose", () => {
                 renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
                 onReferenceChanged: () => { /* noop */ },
-                onRemove: (viewer, context) => {
-                    expect(viewer).toBe(viewerMock);
+                onRemove: (v, context) => {
+                    expect(v).toBe(v);
                     expect(context).toBe(contextMock);
                     expect(customRenderer.has(rendererId)).toBe(false);
                     done();
                 },
                 render: () => { /* noop */ },
             },
-            viewerMock);
+            viewer);
 
-        customRenderer.dispose(viewerMock);
+        customRenderer.dispose(viewer);
 
-        const rendererMock: WebGLRenderer = <WebGLRenderer>new RendererMock();
+        const rendererMock = <WebGLRenderer><unknown>new RendererMock();
         const contextMock = new MockCreator()
             .create(WebGL2RenderingContext, "WebGL2RenderingContext");
         spyOn(rendererMock, "getContext").and.returnValue(contextMock);

@@ -60,21 +60,27 @@ export class FalcorDataProviderUrls {
         return this._imageTileHost;
     }
 
-    public clusterReconstruction(key: string): string {
-        return `${this._scheme}://${this._clusterReconstructionHost}/${key}/v1.0/aligned.jsonz`;
+    public clusterReconstruction(clusterId: string): string {
+        return `${this._scheme}://${this._clusterReconstructionHost}/${clusterId}/v1.0/aligned.jsonz`;
     }
 
-    public imageTile(imageKey: string, coords: string, size: string): string {
-        return `${this.tileScheme}://${this.tileDomain}/${imageKey}/${coords}/${size}/0/default.jpg`;
+    public imageTile(
+        imageId: string,
+        coords: string,
+        size: string): string {
+        return `${this.tileScheme}://${this.tileDomain}/${imageId}/${coords}/${size}/0/default.jpg`;
     }
 
-    public protoMesh(key: string): string {
-        return `${this._scheme}://${this._meshHost}/v2/mesh/${key}`;
+    public protoMesh(imageId: string): string {
+        return `${this._scheme}://${this._meshHost}/v2/mesh/${imageId}`;
     }
 
-    public thumbnail(key: string, size: number, origin?: string): string {
+    public thumbnail(
+        imageId: string,
+        size: number,
+        origin?: string): string {
         const query: string = !!origin ? `?origin=${origin}` : "";
 
-        return `${this._scheme}://${this._imageHost}/${key}/thumb-${size}.jpg${query}`;
+        return `${this._scheme}://${this._imageHost}/${imageId}/thumb-${size}.jpg${query}`;
     }
 }

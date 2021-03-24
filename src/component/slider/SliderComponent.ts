@@ -4,7 +4,6 @@ import {
     combineLatest as observableCombineLatest,
     concat as observableConcat,
     empty as observableEmpty,
-    of as observableOf,
     zip as observableZip,
     Observable,
     Subscription,
@@ -48,11 +47,13 @@ import { RenderCamera } from "../../render/RenderCamera";
 import { IAnimationState } from "../../state/interfaces/IAnimationState";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { State } from "../../state/State";
-import { ImageTileLoader } from "../../tiles/ImageTileLoader";
-import { ImageTileStore } from "../../tiles/ImageTileStore";
+import { TileLoader } from "../../tiles/TileLoader";
+import { TileStore } from "../../tiles/TileStore";
 import { TileBoundingBox } from "../../tiles/interfaces/TileBoundingBox";
-import { TileRegionOfInterest } from "../../tiles/interfaces/TileRegionOfInterest";
-import { RegionOfInterestCalculator } from "../../tiles/RegionOfInterestCalculator";
+import { TileRegionOfInterest }
+    from "../../tiles/interfaces/TileRegionOfInterest";
+import { RegionOfInterestCalculator }
+    from "../../tiles/RegionOfInterestCalculator";
 import { TextureProvider } from "../../tiles/TextureProvider";
 import { Component } from "../Component";
 import {
@@ -94,7 +95,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
 
     private _viewportCoords: ViewportCoords;
     private _domRenderer: SliderDOMRenderer;
-    private _imageTileLoader: ImageTileLoader;
+    private _imageTileLoader: TileLoader;
     private _roiCalculator: RegionOfInterestCalculator;
     private _spatial: Spatial;
 
@@ -115,7 +116,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
 
         this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
         this._domRenderer = new SliderDOMRenderer(container);
-        this._imageTileLoader = new ImageTileLoader(navigator.api.data);
+        this._imageTileLoader = new TileLoader(navigator.api);
         this._roiCalculator = new RegionOfInterestCalculator();
         this._spatial = new Spatial();
 
@@ -412,10 +413,9 @@ export class SliderComponent extends Component<SliderConfiguration> {
                         currentNode.id,
                         currentTransform.basicWidth,
                         currentTransform.basicHeight,
-                        tileSize,
                         currentNode.image,
                         this._imageTileLoader,
-                        new ImageTileStore(),
+                        new TileStore(),
                         renderer);
                 }),
             publishReplay(1),
@@ -433,22 +433,6 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     };
                 }))
             .subscribe(this._glRendererOperation$));
-
-        subs.push(this._container.renderService.size$.pipe(
-            switchMap(
-                (size: ViewportSize): Observable<[TextureProvider, ViewportSize]> => {
-                    return observableCombineLatest(
-                        textureProvider$,
-                        observableOf<ViewportSize>(size)).pipe(
-                            first());
-                }))
-            .subscribe(
-                ([provider, size]: [TextureProvider, ViewportSize]): void => {
-                    let viewportSize: number = Math.max(size.width, size.height);
-                    let tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
-
-                    provider.setTileSize(tileSize);
-                }));
 
         subs.push(textureProvider$.pipe(
             pairwise())
@@ -550,21 +534,17 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 this._container.renderService.size$),
             map(
                 ([frame, renderer, size]: [AnimationFrame, THREE.WebGLRenderer, ViewportSize]): TextureProvider => {
-                    const state: IAnimationState = frame.state;
-                    const viewportSize: number = Math.max(size.width, size.height);
-
-                    const previousNode: Node = state.previousNode;
-                    const previousTransform: Transform = state.previousTransform;
-                    const tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
+                    const state = frame.state;
+                    const previousNode = state.previousNode;
+                    const previousTransform = state.previousTransform;
 
                     return new TextureProvider(
                         previousNode.id,
                         previousTransform.basicWidth,
                         previousTransform.basicHeight,
-                        tileSize,
                         previousNode.image,
                         this._imageTileLoader,
-                        new ImageTileStore(),
+                        new TileStore(),
                         renderer);
                 }),
             publishReplay(1),
@@ -582,22 +562,6 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     };
                 }))
             .subscribe(this._glRendererOperation$));
-
-        subs.push(this._container.renderService.size$.pipe(
-            switchMap(
-                (size: ViewportSize): Observable<[TextureProvider, ViewportSize]> => {
-                    return observableCombineLatest(
-                        textureProviderPrev$,
-                        observableOf<ViewportSize>(size)).pipe(
-                            first());
-                }))
-            .subscribe(
-                ([provider, size]: [TextureProvider, ViewportSize]): void => {
-                    let viewportSize: number = Math.max(size.width, size.height);
-                    let tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
-
-                    provider.setTileSize(tileSize);
-                }));
 
         subs.push(textureProviderPrev$.pipe(
             pairwise())
