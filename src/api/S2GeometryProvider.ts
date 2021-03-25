@@ -1,10 +1,10 @@
 import { S2 } from "s2-geometry";
+import { enuToGeodetic } from "../geo/GeoCoords";
 
 import { GeometryProviderBase } from "./GeometryProviderBase";
 import { CellCorners, CellNeighbors } from "./interfaces/CellCorners";
 import { LatLon } from "./interfaces/LatLon";
 
-import { GeoCoords } from "../geo/GeoCoords";
 
 /**
  * @class S2GeometryProvider
@@ -26,12 +26,9 @@ export class S2GeometryProvider extends GeometryProviderBase {
 
     /**
      * Create a new S2 geometry provider instance.
-     *
-     * @ignore @param {GeoCoords} [geoCoords] - Optional geo coords instance.
      */
-    constructor(geoCoords?: GeoCoords) {
-        super(geoCoords);
-
+    constructor() {
+        super();
         this._level = 17;
     }
 
@@ -42,13 +39,13 @@ export class S2GeometryProvider extends GeometryProviderBase {
 
     /** @inheritdoc */
     public getNeighbors(cellId: string): CellNeighbors {
-        const s2key: string = S2.idToKey(cellId);
-        const position: string = s2key.split('/')[1];
-        const level: number = position.length;
+        const s2key = S2.idToKey(cellId);
+        const position = s2key.split('/')[1];
+        const level = position.length;
 
-        const [w, n, e, s]: string[] = this._getNeighbors(s2key, level);
-        const [, nw, , sw]: string[] = this._getNeighbors(w, level);
-        const [, ne, , se]: string[] = this._getNeighbors(e, level);
+        const [w, n, e, s] = this._getNeighbors(s2key, level);
+        const [, nw, , sw] = this._getNeighbors(w, level);
+        const [, ne, , se] = this._getNeighbors(e, level);
 
         return {
             e: S2.keyToId(e),
@@ -64,14 +61,14 @@ export class S2GeometryProvider extends GeometryProviderBase {
 
     /** @inheritdoc */
     public getCorners(cellId: string): CellCorners {
-        const key: string = S2.idToKey(cellId);
-        const cell: S2.S2Cell = S2.S2Cell.FromHilbertQuadKey(key);
-        const corners: S2.ILatLng[] = cell.getCornerLatLngs();
+        const key = S2.idToKey(cellId);
+        const cell = S2.S2Cell.FromHilbertQuadKey(key);
+        const corners = cell.getCornerLatLngs();
 
-        let south: number = Number.POSITIVE_INFINITY;
-        let north: number = Number.NEGATIVE_INFINITY;
-        let west: number = Number.POSITIVE_INFINITY;
-        let east: number = Number.NEGATIVE_INFINITY;
+        let south = Number.POSITIVE_INFINITY;
+        let north = Number.NEGATIVE_INFINITY;
+        let west = Number.POSITIVE_INFINITY;
+        let east = Number.NEGATIVE_INFINITY;
 
         for (let c of corners) {
             if (c.lat < south) { south = c.lat; }
@@ -95,9 +92,9 @@ export class S2GeometryProvider extends GeometryProviderBase {
 
     /** @inheritdoc */
     public latLonToCellIds(latLon: LatLon, threshold: number): string[] {
-        const cellId: string = this._latLonToId(latLon, this._level);
-        const neighbors: CellNeighbors = this.getNeighbors(cellId);
-        const corners: LatLon[] =
+        const cellId = this._latLonToId(latLon, this._level);
+        const neighbors = this.getNeighbors(cellId);
+        const corners =
             this._getLatLonBoundingBoxCorners(latLon, threshold);
 
         for (let corner of corners) {
@@ -120,7 +117,7 @@ export class S2GeometryProvider extends GeometryProviderBase {
     }
 
     private _enuToGeodetic(point: number[], reference: LatLon): LatLon {
-        const [lat, lon]: number[] = this._geoCoords.enuToGeodetic(
+        const [lat, lon] = enuToGeodetic(
             point[0],
             point[1],
             point[2],
@@ -145,8 +142,8 @@ export class S2GeometryProvider extends GeometryProviderBase {
     }
 
     private _getNeighbors(s2key: string, level: number): string[] {
-        const latlng: S2.ILatLng = S2.keyToLatLng(s2key);
-        const neighbors: string[] = S2.latLngToNeighborKeys(
+        const latlng = S2.keyToLatLng(s2key);
+        const neighbors = S2.latLngToNeighborKeys(
             latlng.lat,
             latlng.lng,
             level);
@@ -155,7 +152,7 @@ export class S2GeometryProvider extends GeometryProviderBase {
     }
 
     private _latLonToId(latLon: LatLon, level: number): string {
-        const s2key: string = S2.latLngToKey(
+        const s2key = S2.latLngToKey(
             latLon.lat,
             latLon.lon,
             level);

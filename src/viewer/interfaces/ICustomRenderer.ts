@@ -49,7 +49,7 @@ export interface ICustomRenderer {
      *
      * @description Calculate the topocentric positions
      * for scene objects using the provided reference and
-     * the {GeoCoords#geodeticToEnu} method.
+     * the {GeoCoords#geodeticToEnu} function.
      *
      * @param {IViewer} viewer - The viewer this custom renderer
      * was just added to.
@@ -69,7 +69,7 @@ export interface ICustomRenderer {
      *
      * @description Calculate the updated topocentric positions
      * for scene objects using the provided reference and
-     * the {GeoCoords#geodeticToEnu} method.
+     * the {GeoCoords#geodeticToEnu} function.
      *
      * @param {IViewer} viewer - The viewer this custom renderer
      * is added to.

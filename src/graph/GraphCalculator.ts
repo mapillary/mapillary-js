@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { LatLon } from "../api/interfaces/LatLon";
-import { GeoCoords } from "../geo/GeoCoords";
+import { enuToGeodetic } from "../geo/GeoCoords";
 
 /**
  * @class GraphCalculator
@@ -9,17 +9,6 @@ import { GeoCoords } from "../geo/GeoCoords";
  * @classdesc Represents a calculator for graph entities.
  */
 export class GraphCalculator {
-    private _geoCoords: GeoCoords;
-
-    /**
-     * Create a new graph calculator instance.
-     *
-     * @param {GeoCoords} geoCoords - Geo coords instance.
-     */
-    constructor(geoCoords?: GeoCoords) {
-        this._geoCoords = geoCoords != null ? geoCoords : new GeoCoords();
-    }
-
     /**
      * Get the bounding box corners for a circle with radius of a threshold
      * with center in a geodetic position.
@@ -30,24 +19,25 @@ export class GraphCalculator {
      * @returns {Array<LatLon>} The south west and north east corners of the
      * bounding box.
      */
-    public boundingBoxCorners(latLon: LatLon, threshold: number): [LatLon, LatLon] {
-        let bl: number[] =
-            this._geoCoords.enuToGeodetic(
-                -threshold,
-                -threshold,
-                0,
-                latLon.lat,
-                latLon.lon,
-                0);
+    public boundingBoxCorners(
+        latLon: LatLon,
+        threshold: number)
+        : [LatLon, LatLon] {
+        let bl = enuToGeodetic(
+            -threshold,
+            -threshold,
+            0,
+            latLon.lat,
+            latLon.lon,
+            0);
 
-        let tr: number[] =
-            this._geoCoords.enuToGeodetic(
-                threshold,
-                threshold,
-                0,
-                latLon.lat,
-                latLon.lon,
-                0);
+        let tr = enuToGeodetic(
+            threshold,
+            threshold,
+            0,
+            latLon.lat,
+            latLon.lon,
+            0);
 
         return [
             { lat: bl[0], lon: bl[1] },
@@ -63,10 +53,12 @@ export class GraphCalculator {
      *
      * @returns {Array<number>} Angle axis rotation vector.
      */
-    public rotationFromCompass(compassAngle: number, orientation: number): number[] {
-        let x: number = 0;
-        let y: number = 0;
-        let z: number = 0;
+    public rotationFromCompass(
+        compassAngle: number,
+        orientation: number): number[] {
+        let x = 0;
+        let y = 0;
+        let z = 0;
 
         switch (orientation) {
             case 1:
@@ -88,11 +80,12 @@ export class GraphCalculator {
                 break;
         }
 
-        let rz: THREE.Matrix4 = new THREE.Matrix4().makeRotationZ(z);
-        let euler: THREE.Euler = new THREE.Euler(x, y, compassAngle * Math.PI / 180, "XYZ");
-        let re: THREE.Matrix4 = new THREE.Matrix4().makeRotationFromEuler(euler);
+        let rz = new THREE.Matrix4().makeRotationZ(z);
+        let euler = new THREE.Euler(x, y, compassAngle * Math.PI / 180, "XYZ");
+        let re = new THREE.Matrix4().makeRotationFromEuler(euler);
 
-        let rotation: THREE.Vector4 = new THREE.Vector4().setAxisAngleFromRotationMatrix(<any>re.multiply(rz));
+        let rotation = new THREE.Vector4()
+            .setAxisAngleFromRotationMatrix(re.multiply(rz));
 
         return rotation.multiplyScalar(rotation.w).toArray().slice(0, 3);
     }

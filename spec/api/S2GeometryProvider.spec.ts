@@ -3,7 +3,7 @@ import { CellCorners } from "../../src/api/interfaces/CellCorners";
 import { LatLon } from "../../src/api/interfaces/LatLon";
 import { S2GeometryProvider } from "../../src/api/S2GeometryProvider";
 import { MapillaryError } from "../../src/error/MapillaryError";
-import { GeoCoords } from "../../src/geo/GeoCoords";
+import * as GeoCoords from "../../src/geo/GeoCoords";
 
 describe("S2GeometryProvider.ctor", () => {
     it("should be defined", () => {
@@ -37,8 +37,8 @@ describe("GS2GeometryProvider.latLonToCellId", () => {
 });
 
 describe("S2GeometryProvider.latLonToCellIds", () => {
-    const setupSpies: (geoCoords: GeoCoords, tileSize: number) => void =
-        (geoCoords: GeoCoords, tileSize: number): void => {
+    const setupSpies: (tileSize: number) => void =
+        (tileSize: number): void => {
             spyOn(S2, "latLngToKey").and.callFake(
                 (lat: number, lng: number): string => {
                     return `${Math.round(lat)}/${Math.round(lng)}`;
@@ -92,7 +92,7 @@ describe("S2GeometryProvider.latLonToCellIds", () => {
                     ];
                 });
 
-            spyOn(geoCoords, "enuToGeodetic").and.callFake(
+            spyOn(GeoCoords, "enuToGeodetic").and.callFake(
                 (x: number, y: number, _: number, refLat: number, refLon: number): number[] => {
                     return [
                         refLon + x / tileSize,
@@ -102,13 +102,12 @@ describe("S2GeometryProvider.latLonToCellIds", () => {
         };
 
     it("should return cell id of position only", () => {
-        const geoCoords: GeoCoords = new GeoCoords();
-        const geometry: S2GeometryProvider = new S2GeometryProvider(geoCoords);
+        const geometry: S2GeometryProvider = new S2GeometryProvider();
 
         const threshold: number = 20;
         const tileSize: number = 2 * (threshold + 1);
 
-        setupSpies(geoCoords, tileSize);
+        setupSpies(tileSize);
 
         const cellIds: string[] = geometry.latLonToCellIds({ lat: 0, lon: 0 }, threshold);
 
@@ -116,60 +115,62 @@ describe("S2GeometryProvider.latLonToCellIds", () => {
         expect(cellIds[0]).toBe("0.0");
     });
 
-    it("should return cell id of position and all neighbours when tile outside", () => {
-        const geoCoords: GeoCoords = new GeoCoords();
-        const geometry: S2GeometryProvider = new S2GeometryProvider(geoCoords);
+    it(
+        "should return cell id of position and all " +
+        "neighbours when tile outside",
+        () => {
+            const geometry: S2GeometryProvider = new S2GeometryProvider();
 
-        const threshold: number = 20;
-        const tileSize: number = 2 * (threshold - 1);
+            const threshold: number = 20;
+            const tileSize: number = 2 * (threshold - 1);
 
-        setupSpies(geoCoords, tileSize);
+            setupSpies(tileSize);
 
-        const cellIds: string[] = geometry.latLonToCellIds({ lat: 0, lon: 0 }, threshold);
+            const cellIds: string[] = geometry.latLonToCellIds({ lat: 0, lon: 0 }, threshold);
 
-        expect(cellIds.length).toBe(9);
-        expect(cellIds.indexOf("0.0")).not.toBe(-1);
-        expect(cellIds.indexOf("0.1")).not.toBe(-1);
-        expect(cellIds.indexOf("-1.1")).not.toBe(-1);
-        expect(cellIds.indexOf("-1.0")).not.toBe(-1);
-        expect(cellIds.indexOf("-1.-1")).not.toBe(-1);
-        expect(cellIds.indexOf("0.-1")).not.toBe(-1);
-        expect(cellIds.indexOf("1.-1")).not.toBe(-1);
-        expect(cellIds.indexOf("1.0")).not.toBe(-1);
-        expect(cellIds.indexOf("1.1")).not.toBe(-1);
-    });
+            expect(cellIds.length).toBe(9);
+            expect(cellIds.indexOf("0.0")).not.toBe(-1);
+            expect(cellIds.indexOf("0.1")).not.toBe(-1);
+            expect(cellIds.indexOf("-1.1")).not.toBe(-1);
+            expect(cellIds.indexOf("-1.0")).not.toBe(-1);
+            expect(cellIds.indexOf("-1.-1")).not.toBe(-1);
+            expect(cellIds.indexOf("0.-1")).not.toBe(-1);
+            expect(cellIds.indexOf("1.-1")).not.toBe(-1);
+            expect(cellIds.indexOf("1.0")).not.toBe(-1);
+            expect(cellIds.indexOf("1.1")).not.toBe(-1);
+        });
+
+    it(
+        "should return cell id of position and all neighbours when outside",
+        () => {
+            const geometry: S2GeometryProvider = new S2GeometryProvider();
+
+            const threshold: number = 20;
+            const tileSize: number = 2 * (threshold + 1);
+
+            setupSpies(tileSize);
+
+            const cellIds: string[] = geometry.latLonToCellIds({ lat: 0, lon: 0.4 }, threshold);
+
+            expect(cellIds.length).toBe(9);
+            expect(cellIds.indexOf("0.0")).not.toBe(-1);
+            expect(cellIds.indexOf("0.1")).not.toBe(-1);
+            expect(cellIds.indexOf("-1.1")).not.toBe(-1);
+            expect(cellIds.indexOf("-1.0")).not.toBe(-1);
+            expect(cellIds.indexOf("-1.-1")).not.toBe(-1);
+            expect(cellIds.indexOf("0.-1")).not.toBe(-1);
+            expect(cellIds.indexOf("1.-1")).not.toBe(-1);
+            expect(cellIds.indexOf("1.0")).not.toBe(-1);
+            expect(cellIds.indexOf("1.1")).not.toBe(-1);
+        });
 
     it("should return cell id of position and all neighbours when outside", () => {
-        const geoCoords: GeoCoords = new GeoCoords();
-        const geometry: S2GeometryProvider = new S2GeometryProvider(geoCoords);
+        const geometry: S2GeometryProvider = new S2GeometryProvider();
 
         const threshold: number = 20;
         const tileSize: number = 2 * (threshold + 1);
 
-        setupSpies(geoCoords, tileSize);
-
-        const cellIds: string[] = geometry.latLonToCellIds({ lat: 0, lon: 0.4 }, threshold);
-
-        expect(cellIds.length).toBe(9);
-        expect(cellIds.indexOf("0.0")).not.toBe(-1);
-        expect(cellIds.indexOf("0.1")).not.toBe(-1);
-        expect(cellIds.indexOf("-1.1")).not.toBe(-1);
-        expect(cellIds.indexOf("-1.0")).not.toBe(-1);
-        expect(cellIds.indexOf("-1.-1")).not.toBe(-1);
-        expect(cellIds.indexOf("0.-1")).not.toBe(-1);
-        expect(cellIds.indexOf("1.-1")).not.toBe(-1);
-        expect(cellIds.indexOf("1.0")).not.toBe(-1);
-        expect(cellIds.indexOf("1.1")).not.toBe(-1);
-    });
-
-    it("should return cell id of position and all neighbours when outside", () => {
-        const geoCoords: GeoCoords = new GeoCoords();
-        const geometry: S2GeometryProvider = new S2GeometryProvider(geoCoords);
-
-        const threshold: number = 20;
-        const tileSize: number = 2 * (threshold + 1);
-
-        setupSpies(geoCoords, tileSize);
+        setupSpies(tileSize);
 
         const cellIds: string[] = geometry.latLonToCellIds({ lat: 0.4, lon: 0 }, threshold);
 
@@ -199,10 +200,9 @@ describe("S2GeometryProvider.bboxToCellIds", () => {
     });
 
     it("should call latLonToCellIds with center and correct threshold", () => {
-        const geoCoords: GeoCoords = new GeoCoords();
-        const geometry: S2GeometryProvider = new S2GeometryProvider(geoCoords);
+        const geometry: S2GeometryProvider = new S2GeometryProvider();
 
-        spyOn(geoCoords, "geodeticToEnu").and.returnValue([10, 20, 0]);
+        spyOn(GeoCoords, "geodeticToEnu").and.returnValue([10, 20, 0]);
         const encodeHsSpy: jasmine.Spy = spyOn(geometry, "latLonToCellIds").and.stub();
 
         geometry.bboxToCellIds({ lat: 0, lon: 0 }, { lat: 1, lon: 3 });

@@ -1,5 +1,5 @@
 import { LatLon } from "../../src/api/interfaces/LatLon";
-import { GeoCoords } from "../../src/geo/GeoCoords";
+import * as GeoCoords from "../../src/geo/GeoCoords";
 import { GraphCalculator } from "../../src/graph/GraphCalculator";
 
 describe("GraphCalculator.ctor", () => {
@@ -12,14 +12,12 @@ describe("GraphCalculator.ctor", () => {
 
 describe("GraphCalculator.boundingBoxCorners", () => {
     it("should return sw and ne in correct order", () => {
-        let geoCoords: GeoCoords = new GeoCoords();
-
-        spyOn(geoCoords, "enuToGeodetic").and.callFake(
+        spyOn(GeoCoords, "enuToGeodetic").and.callFake(
             (x: number, y: number, z: number, refLat: number, refLon: number, refAlt: number): number[] => {
                 return [refLat + x, refLon + y, refAlt + z];
             });
 
-        let calculator: GraphCalculator = new GraphCalculator(geoCoords);
+        let calculator: GraphCalculator = new GraphCalculator();
 
         let threshold: number = 1;
         let bbox: [LatLon, LatLon] = calculator.boundingBoxCorners({ lat: 0, lon: 0 }, threshold);

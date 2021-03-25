@@ -3,20 +3,18 @@ import * as THREE from "three";
 import { Unprojection } from "./interfaces/Unprojection";
 
 import { LatLon } from "../api/interfaces/LatLon";
-import { GeoCoords } from "../geo/GeoCoords";
 import { Spatial } from "../geo/Spatial";
 import { Transform } from "../geo/Transform";
 import { ViewportCoords } from "../geo/ViewportCoords";
 import { LatLonAlt } from "../api/interfaces/LatLonAlt";
 import { RenderCamera } from "../render/RenderCamera";
+import { enuToGeodetic, geodeticToEnu } from "../geo/GeoCoords";
 
 export class Projection {
-    private _geoCoords: GeoCoords;
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
 
-    constructor(geoCoords?: GeoCoords, viewportCoords?: ViewportCoords, spatial?: Spatial) {
-        this._geoCoords = !!geoCoords ? geoCoords : new GeoCoords();
+    constructor(viewportCoords?: ViewportCoords, spatial?: Spatial) {
         this._spatial = !!spatial ? spatial : new Spatial();
         this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
     }
@@ -86,14 +84,13 @@ export class Projection {
         let latLon: LatLon = null;
         if (dist > 0 && dist < 100 && !!basicPoint) {
             const point: THREE.Vector3 = direction3d.clone().multiplyScalar(dist).add(render.camera.position);
-            const latLonArray: number[] = this._geoCoords
-                .enuToGeodetic(
-                    point.x,
-                    point.y,
-                    point.z,
-                    reference.lat,
-                    reference.lon,
-                    reference.alt)
+            const latLonArray: number[] = enuToGeodetic(
+                point.x,
+                point.y,
+                point.z,
+                reference.lat,
+                reference.lon,
+                reference.alt)
                 .slice(0, 2);
 
             latLon = { lat: latLonArray[0], lon: latLonArray[1] };
@@ -110,7 +107,7 @@ export class Projection {
 
     public cameraToLatLon(render: RenderCamera, reference: LatLonAlt): LatLon {
         const position: THREE.Vector3 = render.camera.position;
-        const [lat, lon]: number[] = this._geoCoords.enuToGeodetic(
+        const [lat, lon]: number[] = enuToGeodetic(
             position.x,
             position.y,
             position.z,
@@ -127,7 +124,7 @@ export class Projection {
         render: RenderCamera,
         reference: LatLonAlt): number[] {
 
-        const point3d: number[] = this._geoCoords.geodeticToEnu(
+        const point3d: number[] = geodeticToEnu(
             latLon.lat,
             latLon.lon,
             0,

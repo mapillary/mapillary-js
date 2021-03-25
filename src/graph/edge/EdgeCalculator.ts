@@ -13,9 +13,9 @@ import { Node } from "../Node";
 import { Sequence } from "../Sequence";
 
 import { ArgumentMapillaryError } from "../../error/ArgumentMapillaryError";
-import { GeoCoords } from "../../geo/GeoCoords";
 import { Spatial } from "../../geo/Spatial";
 import { isSpherical } from "../../geo/Geo";
+import { geodeticToEnu } from "../../geo/GeoCoords";
 
 /**
  * @class EdgeCalculator
@@ -25,7 +25,6 @@ import { isSpherical } from "../../geo/Geo";
 export class EdgeCalculator {
 
     private _spatial: Spatial;
-    private _geoCoords: GeoCoords;
 
     private _settings: EdgeCalculatorSettings;
     private _directions: EdgeCalculatorDirections;
@@ -44,7 +43,6 @@ export class EdgeCalculator {
         coefficients?: EdgeCalculatorCoefficients) {
 
         this._spatial = new Spatial();
-        this._geoCoords = new GeoCoords();
 
         this._settings = settings != null ? settings : new EdgeCalculatorSettings();
         this._directions = directions != null ? directions : new EdgeCalculatorDirections();
@@ -84,7 +82,7 @@ export class EdgeCalculator {
                 continue;
             }
 
-            let enu: number[] = this._geoCoords.geodeticToEnu(
+            let enu = geodeticToEnu(
                 potential.latLon.lat,
                 potential.latLon.lon,
                 potential.computedAltitude,
