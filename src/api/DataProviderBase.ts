@@ -7,9 +7,10 @@ import { GeometryProviderBase } from "./GeometryProviderBase";
 import { CoreImagesContract } from "./contracts/CoreImagesContract";
 import { SpatialImagesContract } from "./contracts/SpatialImagesContract";
 import { ImagesContract } from "./contracts/ImagesContract";
-import { SequencesContract } from "./contracts/SequencesContract";
+import { SequenceContract } from "./contracts/SequenceContract";
 import { ImageTilesContract } from "./contracts/ImageTilesContract";
-import { ImageTilesRequestContract } from "./contracts/ImageTilesRequestContract";
+import { ImageTilesRequestContract }
+    from "./contracts/ImageTilesRequestContract";
 
 /**
  * @class DataProviderBase
@@ -166,16 +167,16 @@ export abstract class DataProviderBase extends EventEmitter {
     }
 
     /**
-     * Get sequences.
+     * Get sequence.
      *
-     * @param {Array<string>} sequenceIds - The ids for the
-     * sequences to retrieve.
+     * @param {Array<string>} sequenceId - The id for the
+     * sequence to retrieve.
      * @returns {Promise} Promise to the sequences of the
      * requested image ids.
      * @throws {Error} Rejects the promise on errors.
      */
-    public getSequences(
-        sequenceIds: string[]): Promise<SequencesContract> {
+    public getSequence(
+        sequenceId: string): Promise<SequenceContract> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 

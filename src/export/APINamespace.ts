@@ -26,7 +26,7 @@ export { MeshContract } from "../api/contracts/MeshContract";
 export { PointContract } from "../api/contracts/PointContract";
 export { ImageTilesRequestContract }
     from "../api/contracts/ImageTilesRequestContract";
-export { SequencesContract } from "../api/contracts/SequencesContract";
+export { SequenceContract } from "../api/contracts/SequenceContract";
 export { SpatialImagesContract } from "../api/contracts/SpatialImagesContract";
 
 // Ent

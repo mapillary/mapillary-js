@@ -422,7 +422,7 @@ describe("FalcorDataProvider.getSequences", () => {
 
         const skey = "skey";
 
-        provider.getSequences([skey])
+        provider.getSequence(skey)
             .then(
                 (result): void => {
                     expect(result).toBeDefined();
@@ -462,7 +462,7 @@ describe("FalcorDataProvider.getSequences", () => {
 
         const skey = "skey";
 
-        provider.getSequences([skey])
+        provider.getSequence(skey)
             .then(
                 (): void => { return; },
                 (): void => {
@@ -503,14 +503,13 @@ describe("FalcorDataProvider.getSequences", () => {
             creator: creator,
         });
 
-        provider.getSequences([skey])
+        provider.getSequence(skey)
             .then(
                 (result): void => {
                     expect(result).toBeDefined();
-                    expect(result[0]).toBeDefined();
-                    expect(result[0].node_id).toBe(skey);
-                    expect(result[0].node.image_ids.length).toBe(1);
-                    expect(result[0].node.image_ids[0]).toBe(nkey);
+                    expect(result.id).toBe(skey);
+                    expect(result.image_ids.length).toBe(1);
+                    expect(result.image_ids[0]).toBe(nkey);
 
                     done();
                 });
@@ -541,14 +540,12 @@ describe("FalcorDataProvider.getSequences", () => {
 
         const skey = "skey";
 
-        provider.getSequences([skey])
+        provider.getSequence(skey)
             .then(
                 (result): void => {
                     expect(result).toBeDefined();
-                    expect(result[0]).toBeDefined();
-                    expect(result[0].node_id).toBe(skey);
-                    expect(result[0].node.id).toBe(skey);
-                    expect(result[0].node.image_ids.length).toBe(0);
+                    expect(result.id).toBe(skey);
+                    expect(result.image_ids.length).toBe(0);
 
                     done();
                 });
@@ -579,14 +576,13 @@ describe("FalcorDataProvider.getSequences", () => {
 
         const skey = "skey";
 
-        provider.getSequences([skey])
+        provider.getSequence(skey)
             .then(
                 (result): void => {
                     expect(result).toBeDefined();
-                    expect(result[0]).toBeDefined();
-                    expect(result[0].node_id).toBe(skey);
-                    expect(result[0].node.id).toBe(skey);
-                    expect(result[0].node.image_ids.length).toBe(0);
+                    expect(result).toBeDefined();
+                    expect(result.id).toBe(skey);
+                    expect(result.image_ids.length).toBe(0);
 
                     done();
                 });

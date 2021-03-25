@@ -11,7 +11,7 @@ import { ClusterReconstructionContract }
 import { MeshContract } from "../contracts/MeshContract";
 import { CoreImagesContract } from "../contracts/CoreImagesContract";
 import { SpatialImagesContract } from "../contracts/SpatialImagesContract";
-import { SequencesContract } from "../contracts/SequencesContract";
+import { SequenceContract } from "../contracts/SequenceContract";
 import { ImagesContract } from "../contracts/ImagesContract";
 import { CoreImageEnt } from "../ents/CoreImageEnt";
 import {
@@ -256,35 +256,31 @@ export class FalcorDataProvider extends DataProviderBase {
     }
 
     /** @inheritdoc */
-    public getSequences(sequenceIds: string[]): Promise<SequencesContract> {
+    public getSequence(sequenceId: string): Promise<SequenceContract> {
         return Promise
             .resolve(<PromiseLike<FalcorSequenceByKeyContract>>this._model
                 .get([
                     this._pathSequenceByKey,
-                    sequenceIds,
+                    [sequenceId],
                     this._convert.propertiesKey
                         .concat(this._convert.propertiesSequence)]))
             .then(
-                (value: FalcorSequenceByKeyContract): SequencesContract => {
+                (value: FalcorSequenceByKeyContract): SequenceContract => {
                     if (!value) { value = { json: { sequenceByKey: {} } }; }
-                    const result: SequencesContract = [];
-                    for (const sequenceId of sequenceIds) {
-                        const exists = sequenceId in value.json.sequenceByKey;
-                        if (!exists) {
-                            console
-                                .warn(`Sequence data missing (${sequenceId})`);
-                        }
-                        const sequence = exists ?
-                            this._convert.sequence(
-                                value.json.sequenceByKey[sequenceId]) :
-                            this._convert.sequence(
-                                { key: sequenceId, keys: [] });
-                        result.push({ node: sequence, node_id: sequenceId });
+                    const exists = sequenceId in value.json.sequenceByKey;
+                    if (!exists) {
+                        console
+                            .warn(`Sequence data missing (${sequenceId})`);
                     }
-                    return result;
+                    const sequence = exists ?
+                        this._convert.sequence(
+                            value.json.sequenceByKey[sequenceId]) :
+                        this._convert.sequence(
+                            { key: sequenceId, keys: [] });
+                    return sequence;
                 },
                 (error: Error) => {
-                    this._invalidateGet(this._pathSequenceByKey, sequenceIds);
+                    this._invalidateGet(this._pathSequenceByKey, [sequenceId]);
                     throw error;
                 });
     }
