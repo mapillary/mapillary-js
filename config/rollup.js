@@ -22,11 +22,11 @@ export const plugins = [
 
 export const umdOutput = {
     format: 'umd',
-    name: 'Mapillary',
+    name: 'mapillary',
     sourcemap: true,
 }
 
-export const srcInput = 'build/esm/src/Mapillary.js';
+export const srcInput = 'build/esm/src/mapillary.js';
 
 export const esm = {
     input: srcInput,

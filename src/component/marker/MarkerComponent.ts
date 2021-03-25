@@ -71,7 +71,7 @@ import {
  *
  * @example
  * ```
- * var viewer = new Mapillary.Viewer({ component: { marker: true }, ... });
+ * var viewer = new mapillary.Viewer({ component: { marker: true }, ... });
  *
  * var markerComponent = viewer.getComponent("marker");
  * ```

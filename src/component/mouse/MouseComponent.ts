@@ -19,7 +19,7 @@ import { TouchZoomHandler } from "./TouchZoomHandler";
  *
  * @example
  * ```
- * var viewer = new Mapillary.Viewer({ ... });
+ * var viewer = new mapillary.Viewer({ ... });
  *
  * var mouseComponent = viewer.getComponent("mouse");
  * ```

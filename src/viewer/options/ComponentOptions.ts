@@ -39,7 +39,7 @@ export interface ComponentOptions {
     cache?: boolean | CacheConfiguration;
 
     /**
-     * Use a cover and avoid loading initial data from Mapillary.
+     * Use a cover to avoid loading data until viewer interaction.
      *
      * @default true
      */

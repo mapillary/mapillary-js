@@ -1,6 +1,6 @@
 {
     "entryPoints": [
-        "./src/Mapillary.ts"
+        "./src/mapillary.ts"
     ],
     "excludeExternals": true,
     "excludePrivate": true,

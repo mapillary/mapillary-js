@@ -32,10 +32,10 @@ import { Navigator } from "../../viewer/Navigator";
  *
  * @example
  * ```
- * var viewer = new Mapillary.Viewer({ ... });
+ * var viewer = new mapillary.Viewer({ ... });
  *
  * var zoomComponent = viewer.getComponent("zoom");
- * zoomComponent.configure({ size: Mapillary.ComponentSize.Small });
+ * zoomComponent.configure({ size: mapillary.ComponentSize.Small });
  * ```
  */
 export class ZoomComponent extends Component<ZoomConfiguration> {

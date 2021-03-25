@@ -13,11 +13,11 @@ import { LatLon } from "./interfaces/LatLon";
  *
  * @example
  * ```
- * class MyDataProvider extends Mapillary.API.DataProviderBase {
+ * class MyDataProvider extends mapillary.API.DataProviderBase {
  *      ...
  * }
  *
- * const s2GeometryProvider = new Mapillary.API.S2GeometryProvider();
+ * const s2GeometryProvider = new mapillary.API.S2GeometryProvider();
  * const myDataProvider = new MyDataProvider(s2GeometryProvider);
  * ```
  */

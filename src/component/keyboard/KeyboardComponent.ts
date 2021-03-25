@@ -21,7 +21,7 @@ import { KeyPlayHandler } from "./KeyPlayHandler";
  *
  * @example
  * ```
- * var viewer = new Mapillary.Viewer({ ... });
+ * var viewer = new mapillary.Viewer({ ... });
  *
  * var keyboardComponent = viewer.getComponent("keyboard");
  * ```

@@ -16,8 +16,8 @@ import { TagDomain } from "./TagDomain";
  *
  * @example
  * ```
- * var geometry = new Mapillary.TagComponent.RectGeometry([0.3, 0.3, 0.5, 0.4]);
- * var tag = new Mapillary.TagComponent.OutlineTag(
+ * var geometry = new mapillary.TagComponent.RectGeometry([0.3, 0.3, 0.5, 0.4]);
+ * var tag = new mapillary.TagComponent.OutlineTag(
  *     "id-1",
  *     geometry
  *     { editable: true, lineColor: 0xff0000 });

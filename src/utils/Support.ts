@@ -113,7 +113,7 @@ export function isWebGLSupported(): boolean {
  *
  * @return {boolean}
  *
- * @example `var supported = Mapillary.isSupported();`
+ * @example `var supported = mapillary.isSupported();`
  */
 export function isSupported(): boolean {
     return isFallbackSupported() &&
@@ -129,7 +129,7 @@ export function isSupported(): boolean {
  *
  * @return {boolean}
  *
- * @example `var fallbackSupported = Mapillary.isFallbackSupported();`
+ * @example `var fallbackSupported = mapillary.isFallbackSupported();`
  */
 export function isFallbackSupported(): boolean {
     return isBrowser() &&

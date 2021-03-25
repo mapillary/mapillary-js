@@ -37,16 +37,16 @@ import { PopupAlignment } from "./PopupAlignment";
  * var defaultSpan = document.createElement('span');
  * defaultSpan.innerHTML = 'hello default';
  *
- * var defaultPopup = new Mapillary.PopupComponent.Popup();
+ * var defaultPopup = new mapillary.PopupComponent.Popup();
  * defaultPopup.setDOMContent(defaultSpan);
  * defaultPopup.setBasicPoint([0.3, 0.3]);
  *
  * var cleanSpan = document.createElement('span');
  * cleanSpan.innerHTML = 'hello clean';
  *
- * var cleanPopup = new Mapillary.PopupComponent.Popup({
+ * var cleanPopup = new mapillary.PopupComponent.Popup({
  *     clean: true,
- *     float: Mapillary.Alignment.Top,
+ *     float: mapillary.Alignment.Top,
  *     offset: 10,
  *     opacity: 0.7,
  * });
@@ -134,7 +134,7 @@ export class Popup {
      *
      * @example
      * ```
-     * var popup = new Mapillary.PopupComponent.Popup();
+     * var popup = new mapillary.PopupComponent.Popup();
      * popup.setText('hello image');
      * popup.setBasicPoint([0.3, 0.3]);
      *
@@ -159,7 +159,7 @@ export class Popup {
      *
      * @example
      * ```
-     * var popup = new Mapillary.PopupComponent.Popup();
+     * var popup = new mapillary.PopupComponent.Popup();
      * popup.setText('hello image');
      * popup.setBasicRect([0.3, 0.3, 0.5, 0.6]);
      *
@@ -183,7 +183,7 @@ export class Popup {
      * var div = document.createElement('div');
      * div.innerHTML = 'hello image';
      *
-     * var popup = new Mapillary.PopupComponent.Popup();
+     * var popup = new mapillary.PopupComponent.Popup();
      * popup.setDOMContent(div);
      * popup.setBasicPoint([0.3, 0.3]);
      *
@@ -217,7 +217,7 @@ export class Popup {
      *
      * @example
      * ```
-     * var popup = new Mapillary.PopupComponent.Popup();
+     * var popup = new mapillary.PopupComponent.Popup();
      * popup.setHTML('<div>hello image</div>');
      * popup.setBasicPoint([0.3, 0.3]);
      *
@@ -252,7 +252,7 @@ export class Popup {
      *
      * @example
      * ```
-     * var popup = new Mapillary.PopupComponent.Popup();
+     * var popup = new mapillary.PopupComponent.Popup();
      * popup.setText('hello image');
      * popup.setBasicPoint([0.3, 0.3]);
      *

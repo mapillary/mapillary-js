@@ -12,7 +12,7 @@ import { geodeticToEnu } from "../geo/GeoCoords";
  *
  * @example
  * ```
- * class MyGeometryProvider extends Mapillary.API.GeometryProviderBase {
+ * class MyGeometryProvider extends mapillary.API.GeometryProviderBase {
  *      ...
  * }
  * ```

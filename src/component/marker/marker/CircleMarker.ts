@@ -16,11 +16,11 @@ import { Marker } from "./Marker";
  *
  * @example
  * ```
- * var defaultMarker = new Mapillary.MarkerComponent.CircleMarker(
+ * var defaultMarker = new mapillary.MarkerComponent.CircleMarker(
  *     "id-1",
  *     { lat: 0, lon: 0, });
  *
- * var configuredMarker = new Mapillary.MarkerComponent.CircleMarker(
+ * var configuredMarker = new mapillary.MarkerComponent.CircleMarker(
  *     "id-2",
  *     { lat: 0, lon: 0, },
  *     {

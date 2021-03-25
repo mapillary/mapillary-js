@@ -12,7 +12,7 @@ import { isSpherical } from "../../../geo/Geo";
  * @example
  * ```
  * var basicPolygon = [[0.5, 0.3], [0.7, 0.3], [0.6, 0.5], [0.5, 0.3]];
- * var polygonGeometry = new Mapillary.TagComponent.PolygonGeometry(basicPolygon);
+ * var polygonGeometry = new mapillary.TagComponent.PolygonGeometry(basicPolygon);
  * ```
  */
 export class PolygonGeometry extends VertexGeometry {

@@ -7,7 +7,7 @@ import { NavigationDirection } from "../../graph/edge/NavigationDirection";
  * @interface
  * @example
  * ```
- * var viewer = new Mapillary.Viewer({
+ * var viewer = new mapillary.Viewer({
  *     ...
  *     component: {
  *         sequence: {

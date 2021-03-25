@@ -8,7 +8,7 @@ export type ViewerEvent =
      * @type {ViewerBearingStateEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("bearing", function() {
      *   console.log("A bearing event has occurred.");
@@ -26,7 +26,7 @@ export type ViewerEvent =
      * @type {ViewerMouseEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("click", function() {
      *   console.log("A click event has occurred.");
@@ -44,7 +44,7 @@ export type ViewerEvent =
      * @type {ViewerMouseEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("contextmenu", function() {
      *   console.log("A contextmenu event has occurred.");
@@ -62,7 +62,7 @@ export type ViewerEvent =
      * @type {ViewerMouseEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("dblclick", function() {
      *   console.log("A dblclick event has occurred.");
@@ -79,7 +79,7 @@ export type ViewerEvent =
      * @type {ViewerStateEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("fov", function() {
      *   console.log("A fov event has occurred.");
@@ -96,7 +96,7 @@ export type ViewerEvent =
      * @type {ViewerLoadingEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("loading", function() {
      *   console.log("A loading event has occurred.");
@@ -114,7 +114,7 @@ export type ViewerEvent =
      * @type {ViewerMouseEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("mousedown", function() {
      *   console.log("A mousedown event has occurred.");
@@ -132,7 +132,7 @@ export type ViewerEvent =
      * @type {ViewerMouseEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("mousemove", function() {
      *   console.log("A mousemove event has occurred.");
@@ -150,7 +150,7 @@ export type ViewerEvent =
      * @type {ViewerMouseEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("mouseout", function() {
      *   console.log("A mouseout event has occurred.");
@@ -168,7 +168,7 @@ export type ViewerEvent =
      * @type {ViewerMouseEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("mouseover", function() {
      *   console.log("A mouseover event has occurred.");
@@ -186,7 +186,7 @@ export type ViewerEvent =
      * @type {ViewerMouseEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("mouseup", function() {
      *   console.log("A mouseup event has occurred.");
@@ -205,7 +205,7 @@ export type ViewerEvent =
      * @type {ViewerStateEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("moveend", function() {
      *   console.log("A moveend event has occurred.");
@@ -225,7 +225,7 @@ export type ViewerEvent =
      * @type {ViewerStateEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("movestart", function() {
      *   console.log("A movestart event has occurred.");
@@ -242,7 +242,7 @@ export type ViewerEvent =
      * @type {ViewerNavigableEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("navigable", function() {
      *   console.log("A navigable event has occurred.");
@@ -259,7 +259,7 @@ export type ViewerEvent =
      * @type {ViewerNodeEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("node", function() {
      *   console.log("A node event has occurred.");
@@ -279,7 +279,7 @@ export type ViewerEvent =
      * @type {ViewerStateEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("position", function() {
      *   console.log("A position event has occurred.");
@@ -297,7 +297,7 @@ export type ViewerEvent =
      * @type {ViewerStateEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("pov", function() {
      *   console.log("A pov event has occurred.");
@@ -315,7 +315,7 @@ export type ViewerEvent =
      * @type {ViewerStateEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("remove", function() {
      *   console.log("A remove event has occurred.");
@@ -332,7 +332,7 @@ export type ViewerEvent =
      * @type {ViewerNavigationEdgeStatusEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("sequenceedges", function() {
      *   console.log("A sequenceedges event has occurred.");
@@ -349,7 +349,7 @@ export type ViewerEvent =
      * @type {ViewerNavigationEdgeStatusEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("spatialedges", function() {
      *   console.log("A spatialedges event has occurred.");

@@ -22,9 +22,9 @@ import { ImageTilesRequestContract }
  *
  * @example
  * ```
- * class MyDataProvider extends Mapillary.API.DataProviderBase {
+ * class MyDataProvider extends mapillary.API.DataProviderBase {
  *      constructor() {
- *          super(new Mapillary.API.S2GeometryProvider());
+ *          super(new mapillary.API.S2GeometryProvider());
  *      }
  *      ...
  * }
