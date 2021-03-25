@@ -5,7 +5,6 @@ import { EulerRotation } from "../interfaces/EulerRotation";
 import { IStateBase } from "../interfaces/IStateBase";
 import { ArgumentMapillaryError } from "../../error/ArgumentMapillaryError";
 import { Camera } from "../../geo/Camera";
-import { GeoCoords } from "../../geo/GeoCoords";
 import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
 import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
@@ -14,7 +13,6 @@ import { CameraType } from "../../geo/interfaces/CameraType";
 
 export abstract class StateBase implements IStateBase {
     protected _spatial: Spatial;
-    protected _geoCoords: GeoCoords;
 
     protected _reference: LatLonAlt;
 
@@ -41,7 +39,6 @@ export abstract class StateBase implements IStateBase {
 
     constructor(state: IStateBase) {
         this._spatial = new Spatial();
-        this._geoCoords = new GeoCoords();
 
         this._referenceThreshold = 0.01;
         this._transitionMode = state.transitionMode;

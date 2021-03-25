@@ -26,7 +26,6 @@ import { Node } from "../../graph/Node";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { LatLon } from "../../api/interfaces/LatLon";
-import { GeoCoords } from "../../geo/GeoCoords";
 import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { GraphCalculator } from "../../graph/GraphCalculator";
@@ -40,6 +39,10 @@ import { MarkerSet } from "./MarkerSet";
 import { MarkerScene } from "./MarkerScene";
 import { ComponentMarkerEvent } from "../events/ComponentStateEvent";
 import { ComponentEvent } from "../events/ComponentEvent";
+import {
+    enuToGeodetic,
+    geodeticToEnu,
+} from "../../geo/GeoCoords";
 
 /**
  * @class MarkerComponent
@@ -76,7 +79,6 @@ import { ComponentEvent } from "../events/ComponentEvent";
 export class MarkerComponent extends Component<MarkerConfiguration> {
     public static componentName: string = "marker";
 
-    private _geoCoords: GeoCoords;
     private _graphCalculator: GraphCalculator;
     private _markerScene: MarkerScene;
     private _markerSet: MarkerSet;
@@ -92,7 +94,6 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
 
         super(name, container, navigator);
 
-        this._geoCoords = new GeoCoords();
         this._graphCalculator = new GraphCalculator();
         this._markerScene = new MarkerScene();
         this._markerSet = new MarkerSet();
@@ -286,7 +287,6 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                 }))
             .subscribe(
                 ([markers, reference, alt]: [Marker[], LatLonAlt, number]): void => {
-                    const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
                     const sceneMarkers: { [id: string]: Marker } = markerScene.markers;
                     const markersToRemove: { [id: string]: Marker } = Object.assign({}, sceneMarkers);
@@ -295,8 +295,8 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                         if (marker.id in sceneMarkers) {
                             delete markersToRemove[marker.id];
                         } else {
-                            const point3d: number[] = geoCoords
-                                .geodeticToEnu(
+                            const point3d =
+                                geodeticToEnu(
                                     marker.latLon.lat,
                                     marker.latLon.lon,
                                     reference.alt + alt,
@@ -328,7 +328,6 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                 }))
             .subscribe(
                 ([markers, [sw, ne], reference, alt]: [Marker[], [LatLon, LatLon], LatLonAlt, number]): void => {
-                    const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
 
                     for (const marker of markers) {
@@ -339,8 +338,8 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                             marker.latLon.lon < ne.lon;
 
                         if (visible) {
-                            const point3d: number[] = geoCoords
-                                .geodeticToEnu(
+                            const point3d =
+                                geodeticToEnu(
                                     marker.latLon.lat,
                                     marker.latLon.lon,
                                     reference.alt + alt,
@@ -360,12 +359,11 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
             withLatestFrom(groundAltitude$))
             .subscribe(
                 ([reference, alt]: [LatLonAlt, number]): void => {
-                    const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
 
                     for (const marker of markerScene.getAll()) {
-                        const point3d: number[] = geoCoords
-                            .geodeticToEnu(
+                        const point3d =
+                            geodeticToEnu(
                                 marker.latLon.lat,
                                 marker.latLon.lon,
                                 reference.alt + alt,
@@ -384,11 +382,10 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                 currentlatLon$))
             .subscribe(
                 ([alt, reference, latLon]: [number, LatLonAlt, LatLon]): void => {
-                    const geoCoords: GeoCoords = this._geoCoords;
                     const markerScene: MarkerScene = this._markerScene;
 
-                    const position: number[] = geoCoords
-                        .geodeticToEnu(
+                    const position =
+                        geodeticToEnu(
                             latLon.lat,
                             latLon.lon,
                             reference.alt + alt,
@@ -397,8 +394,8 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                             reference.alt);
 
                     for (const marker of markerScene.getAll()) {
-                        const point3d: number[] = geoCoords
-                            .geodeticToEnu(
+                        const point3d =
+                            geodeticToEnu(
                                 marker.latLon.lat,
                                 marker.latLon.lon,
                                 reference.alt + alt,
@@ -598,8 +595,8 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
 
                     intersection.z = render.perspective.position.z + this._relativeGroundAltitude;
 
-                    const [lat, lon]: number[] = this._geoCoords
-                        .enuToGeodetic(
+                    const [lat, lon] =
+                        enuToGeodetic(
                             intersection.x,
                             intersection.y,
                             intersection.z,

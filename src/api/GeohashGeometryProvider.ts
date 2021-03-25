@@ -1,10 +1,10 @@
 import * as geohash from "latlon-geohash";
+import { geodeticToEnu } from "../geo/GeoCoords";
 
 import { GeometryProviderBase } from "./GeometryProviderBase";
 import { CellCorners, CellNeighbors } from "./interfaces/CellCorners";
 import { LatLon } from "./interfaces/LatLon";
 
-import { GeoCoords } from "../geo/GeoCoords";
 
 /**
  * @class GeohashGeometryProvider
@@ -26,12 +26,9 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
 
     /**
      * Create a new geohash geometry provider instance.
-     *
-     * @ignore @param {GeoCoords} [geoCoords] - Optional geo coords instance.
      */
-    constructor(geoCoords?: GeoCoords) {
-        super(geoCoords);
-
+    constructor() {
+        super();
         this._level = 7;
     }
 
@@ -79,7 +76,6 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
     public latLonToCellId(
         latLon: LatLon,
         relativeLevel: number = 0): string {
-
         return geohash.encode(
             latLon.lat,
             latLon.lon,
@@ -130,9 +126,9 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
         corners: CellCorners,
         neighbors: CellNeighbors): string[] {
 
-        const bl: number[] = [0, 0, 0];
-        const tr: number[] =
-            this._geoCoords.geodeticToEnu(
+        const bl = [0, 0, 0];
+        const tr =
+            geodeticToEnu(
                 corners.ne.lat,
                 corners.ne.lon,
                 0,
@@ -140,8 +136,8 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
                 corners.sw.lon,
                 0);
 
-        const position: number[] =
-            this._geoCoords.geodeticToEnu(
+        const position =
+            geodeticToEnu(
                 latLon.lat,
                 latLon.lon,
                 0,
@@ -149,10 +145,10 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
                 corners.sw.lon,
                 0);
 
-        const left: number = position[0] - bl[0];
-        const right: number = tr[0] - position[0];
-        const bottom: number = position[1] - bl[1];
-        const top: number = tr[1] - position[1];
+        const left = position[0] - bl[0];
+        const right = tr[0] - position[0];
+        const bottom = position[1] - bl[1];
+        const top = tr[1] - position[1];
 
         const l: boolean = left < threshold;
         const r: boolean = right < threshold;

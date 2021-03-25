@@ -1,12 +1,11 @@
 import * as THREE from "three";
 
-import { GeoCoords } from "./GeoCoords";
 import { Spatial } from "./Spatial";
 import { Transform } from "./Transform";
 import { ViewportCoords } from "./ViewportCoords";
 import { LatLonAlt } from "../api/interfaces/LatLonAlt";
+import { geodeticToEnu } from "./GeoCoords";
 
-const geoCoords = new GeoCoords();
 const spatial = new Spatial();
 
 export function isSpherical(cameraType: string): boolean {
@@ -18,7 +17,7 @@ export function isFisheye(cameraType: string): boolean {
 }
 
 export function computeTranslation(position: LatLonAlt, rotation: number[], reference: LatLonAlt): number[] {
-    const C: number[] = geoCoords.geodeticToEnu(
+    const C = geodeticToEnu(
         position.lat,
         position.lon,
         position.alt,

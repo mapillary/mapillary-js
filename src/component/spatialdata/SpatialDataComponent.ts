@@ -33,8 +33,8 @@ import {
     CellNeighbors,
     CellCorners,
 } from "../../api/interfaces/CellCorners";
-import { ClusterReconstructionContract } from "../../api/contracts/ClusterReconstructionContract";
-import { GeoCoords } from "../../geo/GeoCoords";
+import { ClusterReconstructionContract }
+    from "../../api/contracts/ClusterReconstructionContract";
 import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
 import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
@@ -46,15 +46,16 @@ import { GLRenderHash } from "../../render/interfaces/IGLRenderHash";
 import { RenderCamera } from "../../render/RenderCamera";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { State } from "../../state/State";
-import { SubscriptionHolder } from "../../utils/SubscriptionHolder";
 import { PlayService } from "../../viewer/PlayService";
 import { Component } from "../Component";
-import { SpatialDataConfiguration } from "../interfaces/SpatialDataConfiguration";
+import { SpatialDataConfiguration }
+    from "../interfaces/SpatialDataConfiguration";
 import { CameraVisualizationMode } from "./CameraVisualizationMode";
 import { OriginalPositionMode } from "./OriginalPositionMode";
 import { SpatialDataScene } from "./SpatialDataScene";
 import { SpatialDataCache } from "./SpatialDataCache";
 import { CameraType } from "../../geo/interfaces/CameraType";
+import { geodeticToEnu } from "../../geo/GeoCoords";
 
 type IntersectEvent = MouseEvent | FocusEvent;
 
@@ -69,7 +70,6 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
     private _cache: SpatialDataCache;
     private _scene: SpatialDataScene;
     private _viewportCoords: ViewportCoords;
-    private _geoCoords: GeoCoords;
     private _spatial: Spatial;
 
     /** @ignore */
@@ -81,7 +81,6 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             navigator.api.data);
         this._scene = new SpatialDataScene(this._getDefaultConfiguration());
         this._viewportCoords = new ViewportCoords();
-        this._geoCoords = new GeoCoords();
         this._spatial = new Spatial();
     }
 
@@ -604,7 +603,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
     }
 
     private _computeOriginalPosition(node: Node, reference: LatLonAlt): number[] {
-        return this._geoCoords.geodeticToEnu(
+        return geodeticToEnu(
             node.originalLatLon.lat,
             node.originalLatLon.lon,
             node.originalAltitude != null ? node.originalAltitude : node.computedAltitude,
@@ -617,7 +616,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         const corners: CellCorners =
             this._navigator.api.data.geometry.getCorners(hash);
 
-        const sw: number[] = this._geoCoords.geodeticToEnu(
+        const sw = geodeticToEnu(
             corners.sw.lat,
             corners.sw.lon,
             0,
@@ -625,7 +624,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             reference.lon,
             reference.alt);
 
-        const ne: number[] = this._geoCoords.geodeticToEnu(
+        const ne = geodeticToEnu(
             corners.ne.lat,
             corners.ne.lon,
             0,
@@ -697,7 +696,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
     }
 
     private _computeTranslation(reconstruction: ClusterReconstructionContract, reference: LatLonAlt): number[] {
-        return this._geoCoords.geodeticToEnu(
+        return geodeticToEnu(
             reconstruction.reference.lat,
             reconstruction.reference.lon,
             reconstruction.reference.alt,

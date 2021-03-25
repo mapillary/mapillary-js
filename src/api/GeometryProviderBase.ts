@@ -2,7 +2,7 @@ import { CellCorners, CellNeighbors } from "./interfaces/CellCorners";
 import { LatLon } from "./interfaces/LatLon";
 
 import { MapillaryError } from "../error/MapillaryError";
-import { GeoCoords } from "../geo/GeoCoords";
+import { geodeticToEnu } from "../geo/GeoCoords";
 
 /**
  * @class GeometryProviderBase
@@ -18,15 +18,10 @@ import { GeoCoords } from "../geo/GeoCoords";
  * ```
  */
 export abstract class GeometryProviderBase {
-    protected _geoCoords: GeoCoords;
     /**
      * Create a new geometry provider base instance.
-     *
-     * @ignore @param {GeoCoords} [geoCoords] - Optional geo coords instance.
      */
-    constructor(geoCoords?: GeoCoords) {
-        this._geoCoords = geoCoords != null ? geoCoords : new GeoCoords();
-    }
+    constructor() { /** noop */ }
 
     /**
      * Convert a geodetic bounding box to the the minimum set
@@ -72,7 +67,10 @@ export abstract class GeometryProviderBase {
      * @param {LatLon} latlon - Latitude and longitude to convert.
      * @returns {string} Cell id for the latitude, longitude.
      */
-    public latLonToCellId(latLon: LatLon, relativeLevel?: number): string {
+    public latLonToCellId(
+        latLon: LatLon,
+        relativeLevel?: number)
+        : string {
         throw new MapillaryError("Not implemented");
     }
 
@@ -88,20 +86,26 @@ export abstract class GeometryProviderBase {
      * @returns {Array<string>} Array of cell ids reachable within
      * the threshold.
      */
-    public latLonToCellIds(latLon: LatLon, threshold: number, relativeLevel?: number): string[] {
+    public latLonToCellIds(
+        latLon: LatLon,
+        threshold: number,
+        relativeLevel?: number)
+        : string[] {
         throw new MapillaryError("Not implemented");
     }
 
+    /** @ignore */
     protected _bboxSquareToCellIds(sw: LatLon, ne: LatLon): string[] {
         if (ne.lat <= sw.lat || ne.lon <= sw.lon) {
-            throw new MapillaryError("North east needs to be top right of south west");
+            throw new MapillaryError(
+                "North east needs to be top right of south west");
         }
 
-        const centerLat: number = (sw.lat + ne.lat) / 2;
-        const centerLon: number = (sw.lon + ne.lon) / 2;
+        const centerLat = (sw.lat + ne.lat) / 2;
+        const centerLon = (sw.lon + ne.lon) / 2;
 
-        const enu: number[] =
-            this._geoCoords.geodeticToEnu(
+        const enu =
+            geodeticToEnu(
                 ne.lat,
                 ne.lon,
                 0,
@@ -109,7 +113,7 @@ export abstract class GeometryProviderBase {
                 centerLon,
                 0);
 
-        const threshold: number = Math.max(enu[0], enu[1]);
+        const threshold = Math.max(enu[0], enu[1]);
 
         return this.latLonToCellIds(
             { lat: centerLat, lon: centerLon },

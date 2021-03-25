@@ -23,7 +23,6 @@ import {
 import * as Geo from "../geo/Geo";
 
 import { LatLon } from "../api/interfaces/LatLon";
-import { GeoCoords } from "../geo/GeoCoords";
 import { Spatial } from "../geo/Spatial";
 import { Transform } from "../geo/Transform";
 import { ViewportCoords } from "../geo/ViewportCoords";
@@ -36,6 +35,7 @@ import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { SubscriptionHolder } from "../utils/SubscriptionHolder";
 import { CameraType } from "../geo/interfaces/CameraType";
 import { isSpherical } from "../geo/Geo";
+import { geodeticToEnu } from "../geo/GeoCoords";
 
 enum PanMode {
     Disabled,
@@ -47,7 +47,6 @@ export class PanService {
     private _graphService: GraphService;
     private _stateService: StateService;
     private _graphCalculator: GraphCalculator;
-    private _geoCoords: GeoCoords;
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
 
@@ -62,19 +61,18 @@ export class PanService {
         graphService: GraphService,
         stateService: StateService,
         enabled?: boolean,
-        geoCoords?: GeoCoords,
         graphCalculator?: GraphCalculator,
         spatial?: Spatial,
         viewportCoords?: ViewportCoords) {
 
         this._graphService = graphService;
         this._stateService = stateService;
-        this._geoCoords = !!geoCoords ? geoCoords : new GeoCoords();
-        this._graphCalculator = !!graphCalculator ? graphCalculator : new GraphCalculator(this._geoCoords);
-        this._spatial = !!spatial ? spatial : new Spatial();
-        this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
+        this._graphCalculator = graphCalculator ?? new GraphCalculator();
+        this._spatial = spatial ?? new Spatial();
+        this._viewportCoords = viewportCoords ?? new ViewportCoords();
 
-        this._mode = enabled !== false ? PanMode.Enabled : PanMode.Disabled;
+        this._mode = enabled !== false ?
+            PanMode.Enabled : PanMode.Disabled;
 
         this._panNodesSubject$ = new Subject<[Node, Transform, number][]>();
         this._panNodes$ = this._panNodesSubject$.pipe(
@@ -317,7 +315,7 @@ export class PanService {
     }
 
     private _distance(node: Node, reference: Node): number {
-        const [x, y, z]: number[] = this._geoCoords.geodeticToEnu(
+        const [x, y, z] = geodeticToEnu(
             node.latLon.lat,
             node.latLon.lon,
             node.computedAltitude,
@@ -329,7 +327,8 @@ export class PanService {
     }
 
     private _timeDifference(node: Node, reference: Node): number {
-        return Math.abs(node.capturedAt - reference.capturedAt) / (1000 * 60 * 60 * 24 * 30);
+        const milliSecond = (1000 * 60 * 60 * 24 * 30);
+        return Math.abs(node.capturedAt - reference.capturedAt) / milliSecond;
     }
 
     private _createTransform(node: Node, translation: number[]): Transform {
