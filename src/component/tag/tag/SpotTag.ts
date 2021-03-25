@@ -9,8 +9,8 @@ import { SpotTagOptions } from "../interfaces/SpotTagOptions";
  *
  * @example
  * ```
- * var geometry = new Mapillary.TagComponent.PointGeometry([0.3, 0.3]);
- * var tag = new Mapillary.TagComponent.SpotTag(
+ * var geometry = new mapillary.TagComponent.PointGeometry([0.3, 0.3]);
+ * var tag = new mapillary.TagComponent.SpotTag(
  *     "id-1",
  *     geometry
  *     { editable: true, color: 0xff0000 });

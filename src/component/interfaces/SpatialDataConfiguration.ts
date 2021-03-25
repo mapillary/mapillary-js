@@ -9,7 +9,7 @@ import { OriginalPositionMode } from "../spatialdata/OriginalPositionMode";
  * @example
  * ```
  * var mode = Mapilary.SpatialDataComponent.CameraVisualizationMode;
- * var viewer = new Mapillary.Viewer({
+ * var viewer = new mapillary.Viewer({
  *     ...
  *     component: {
  *         spatialData: {

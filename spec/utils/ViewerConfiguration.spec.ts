@@ -1,6 +1,5 @@
-import { notDeepEqual } from "assert";
-import { ViewerOptions } from "../../src/Mapillary";
 import { ViewerConfiguration } from "../../src/utils/ViewerConfiguration";
+import { ViewerOptions } from "../../src/viewer/options/ViewerOptions";
 
 describe("Urls.setOptions", () => {
     it("should set all option properties", () => {

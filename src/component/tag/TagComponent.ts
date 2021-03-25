@@ -85,7 +85,7 @@ import { ComponentGeometryEvent, ComponentStateEvent, ComponentTagModeEvent } fr
  *
  * @example
  * ```
- * var viewer = new Mapillary.Viewer({ component: { tag: true } }, ...);
+ * var viewer = new mapillary.Viewer({ component: { tag: true } }, ...);
  *
  * var tagComponent = viewer.getComponent("tag");
  * ```
@@ -379,7 +379,7 @@ export class TagComponent extends Component<TagConfiguration> {
      *
      * @fires TagComponent#modechanged
      *
-     * @example ```tagComponent.changeMode(Mapillary.TagComponent.TagMode.CreateRect);```
+     * @example ```tagComponent.changeMode(mapillary.TagComponent.TagMode.CreateRect);```
      */
     public changeMode(mode: TagMode): void {
         this.configure({ mode: mode });

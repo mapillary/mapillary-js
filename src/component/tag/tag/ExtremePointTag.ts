@@ -10,8 +10,8 @@ import { ExtremePointTagOptions } from "../interfaces/ExtremePointTagOptions";
  *
  * @example
  * ```
- * var geometry = new Mapillary.TagComponent.PointsGeometry([[0.3, 0.3], [0.5, 0.4]]);
- * var tag = new Mapillary.TagComponent.ExtremePointTag(
+ * var geometry = new mapillary.TagComponent.PointsGeometry([[0.3, 0.3], [0.5, 0.4]]);
+ * var tag = new mapillary.TagComponent.ExtremePointTag(
  *     "id-1",
  *     geometry
  *     { editable: true, lineColor: 0xff0000 });

@@ -8,7 +8,7 @@ export type ComponentEvent =
      * @type {ComponentGeometryEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * var component = viewer.getComponet('<component-name>');
      * // Set an event listener
      * component.on('geometrycreated', function() {
@@ -27,7 +27,7 @@ export type ComponentEvent =
      * @type {ComponentHoverEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * var component = viewer.getComponet('<component-name>');
      * // Set an event listener
      * component.on('hover', function() {
@@ -45,7 +45,7 @@ export type ComponentEvent =
      * @type {ComponentMarkerEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * var component = viewer.getComponet('<component-name>');
      * // Set an event listener
      * component.on('markerdragend', function() {
@@ -63,7 +63,7 @@ export type ComponentEvent =
      * @type {ComponentMarkerEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * var component = viewer.getComponet('<component-name>');
      * // Set an event listener
      * component.on('markerdragstart', function() {
@@ -81,7 +81,7 @@ export type ComponentEvent =
      * @type {ComponentMarkerEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * var component = viewer.getComponet('<component-name>');
      * // Set an event listener
      * component.on('markerposition', function() {
@@ -99,7 +99,7 @@ export type ComponentEvent =
      * @type {ComponentPlayEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * var component = viewer.getComponet('<component-name>');
      * // Set an event listener
      * component.on('playing', function() {
@@ -120,7 +120,7 @@ export type ComponentEvent =
      * @type {ComponentStateEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * var component = viewer.getComponet('<component-name>');
      * // Set an event listener
      * component.on('tagcreateend', function() {
@@ -141,7 +141,7 @@ export type ComponentEvent =
      * @type {ComponentStateEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * var component = viewer.getComponet('<component-name>');
      * // Set an event listener
      * component.on('tagcreatestart', function() {
@@ -159,7 +159,7 @@ export type ComponentEvent =
      * @type {ComponentTagModeEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * var component = viewer.getComponet('<component-name>');
      * // Set an event listener
      * component.on('tagmode', function() {
@@ -177,7 +177,7 @@ export type ComponentEvent =
      * @type {ComponentStateEvent}
      * @example
      * // Initialize the viewer
-     * var viewer = new Mapillary.Viewer({ // viewer options });
+     * var viewer = new mapillary.Viewer({ // viewer options });
      * var component = viewer.getComponet('<component-name>');
      * // Set an event listener
      * component.on('tags', function() {

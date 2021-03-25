@@ -1,8 +1,8 @@
-import { ViewerEvent } from "../../src/Mapillary";
 import * as ComponentController from "../../src/viewer/ComponentController";
 import * as Container from "../../src/viewer/Container";
 import * as CustomRenderer from "../../src/viewer/CustomRenderer";
 import { RenderPass } from "../../src/viewer/enums/RenderPass";
+import { ViewerEvent } from "../../src/viewer/events/ViewerEvent";
 import * as Navigator from "../../src/viewer/Navigator";
 import * as Observer from "../../src/viewer/Observer";
 

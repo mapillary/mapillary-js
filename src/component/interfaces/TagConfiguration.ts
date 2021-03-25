@@ -7,12 +7,12 @@ import { TagMode } from "../tag/TagMode";
  * @interface
  * @example
  * ```
- * var viewer = new Mapillary.Viewer({
+ * var viewer = new mapillary.Viewer({
  *     ...
  *     component: {
  *         tag: {
  *             createColor: 0xFF0000,
- *             mode: Mapillary.TagComponent.TagMode.CreateRect,
+ *             mode: mapillary.TagComponent.TagMode.CreateRect,
  *         },
  *     },
  *     ...

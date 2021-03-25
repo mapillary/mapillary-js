@@ -102,8 +102,7 @@ export class Viewer extends EventEmitter implements IViewer {
     private _observer: Observer;
 
     /**
-     * Private navigator object which controls navigation throught
-     * the vast seas of Mapillary.
+     * Private navigator object which controls navigation.
      */
     private _navigator: Navigator;
 
@@ -151,7 +150,7 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * @example
      * ```
-     * var viewer = new Mapillary.Viewer({
+     * var viewer = new mapillary.Viewer({
      *     apiClient: "<my-client-id>",
      *     container: "<my-container-id>",
      * });
@@ -537,7 +536,7 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * @example
      * ```
-     * viewer.moveDir(Mapillary.EdgeDirection.Next).then(
+     * viewer.moveDir(mapillary.EdgeDirection.Next).then(
      *     (n) => { console.log(n); },
      *     (e) => { console.error(e); });
      * ```
@@ -881,7 +880,7 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * @example
      * ```
-     * viewer.setRenderMode(Mapillary.RenderMode.Letterbox);
+     * viewer.setRenderMode(mapillary.RenderMode.Letterbox);
      * ```
      */
     public setRenderMode(renderMode: RenderMode): void {
@@ -895,7 +894,7 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * @example
      * ```
-     * viewer.setTransitionMode(Mapillary.TransitionMode.Instantaneous);
+     * viewer.setTransitionMode(mapillary.TransitionMode.Instantaneous);
      * ```
      */
     public setTransitionMode(transitionMode: TransitionMode): void {

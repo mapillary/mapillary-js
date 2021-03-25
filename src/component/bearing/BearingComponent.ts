@@ -56,9 +56,9 @@ interface NodeFovOperation {
  *
  * @example
  * ```
- * var viewer = new Mapillary.Viewer({ ... });
+ * var viewer = new mapillary.Viewer({ ... });
  * var bearingComponent = viewer.getComponent("bearing");
- * bearingComponent.configure({ size: Mapillary.ComponentSize.Small });
+ * bearingComponent.configure({ size: mapillary.ComponentSize.Small });
  * ```
  */
 export class BearingComponent extends Component<BearingConfiguration> {

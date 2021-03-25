@@ -8,7 +8,7 @@ export default {
         "<rootDir>/src/api/ents/",
         "<rootDir>/src/export/",
         "<rootDir>/src/component/shaders/",
-        "<rootDir>/src/Mapillary.js",
+        "<rootDir>/src/mapillary.js",
         "<rootDir>/src/viewer/events/",
         "<rootDir>/src/viewer/options/",
         "interfaces"

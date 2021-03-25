@@ -44,7 +44,7 @@ import { Popup } from "./popup/Popup";
  *
  * @example
  * ```
- * var viewer = new Mapillary.Viewer({ component: { popup: true }, ... });
+ * var viewer = new mapillary.Viewer({ component: { popup: true }, ... });
  *
  * var popupComponent = viewer.getComponent("popup");
  * ```

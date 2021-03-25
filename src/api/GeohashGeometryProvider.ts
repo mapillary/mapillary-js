@@ -13,11 +13,11 @@ import { LatLon } from "./interfaces/LatLon";
  *
  * @example
  * ```
- * class MyDataProvider extends Mapillary.API.DataProviderBase {
+ * class MyDataProvider extends mapillary.API.DataProviderBase {
  *      ...
  * }
  *
- * const geohashGeometryProvider = new Mapillary.API.GeohashGeometryProvider();
+ * const geohashGeometryProvider = new mapillary.API.GeohashGeometryProvider();
  * const myDataProvider = new MyDataProvider(geohashGeometryProvider);
  * ```
  */

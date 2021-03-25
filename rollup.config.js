@@ -35,7 +35,7 @@ const bundles = [
         ],
     },
     {
-        input: 'build/esm/src/Mapillary.d.ts',
+        input: 'build/esm/src/mapillary.d.ts',
         output: [
             {
                 file: 'dist/mapillary.d.ts',

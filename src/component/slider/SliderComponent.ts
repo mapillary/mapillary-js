@@ -80,7 +80,7 @@ import { ViewerConfiguration } from "../../utils/ViewerConfiguration";
  *
  * @example
  * ```
- * var viewer = new Mapillary.Viewer({ ... });
+ * var viewer = new mapillary.Viewer({ ... });
  *
  * viewer.deactivateComponent("imagePlane");
  * viewer.deactivateComponent("direction");
