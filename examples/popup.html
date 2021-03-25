@@ -7,7 +7,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-    <link rel="stylesheet" href="../dist/mapillary.css" />
+    <link rel="stylesheet" href="./dist/mapillary.css" />
 
     <style>
         body {
@@ -28,10 +28,10 @@
     <script type="module">
         import {
             Alignment,
-            PopupComponent as PopupComp,
-            TagComponent as TagComp,
+            PopupComponent as Popup,
+            TagComponent as Tag,
             Viewer,
-        } from '../dist/mapillary.module.js';
+        } from './dist/mapillary.module.js';
 
         // Change popup point or rect based on tag geometry
         function onGeometryChanged(tag) {
@@ -44,7 +44,7 @@
                 float: Alignment.Top,
                 position: Alignment.Top,
             };
-            const popup = new PopupComp.Popup(popupOptions);
+            const popup = new Popup.Popup(popupOptions);
             const span = document.createElement('span');
             span.innerHTML = label;
             popup.setDOMContent(span);
@@ -68,10 +68,10 @@
                         const y0 = row / rows + paddingY;
                         const y1 = y0 + itemHeight - 2 * paddingY;
                         const rect = [x0, y0, x1, y1];
-                        const geometry = new TagComp.RectGeometry(rect);
+                        const geometry = new Tag.RectGeometry(rect);
                         const id = `tag-id-${row}-${col}`;
                         const options = { editable: false };
-                        const tag = new TagComp.OutlineTag(id, geometry, options);
+                        const tag = new Tag.OutlineTag(id, geometry, options);
                         tag.on('geometrychanged', onGeometryChanged);
                         const popup = createPopup(id);
                         popup.setBasicRect(rect);
@@ -114,13 +114,13 @@
         const popupComp = viewer.getComponent('popup');
         const tagComp = viewer.getComponent('tag');
 
-        const onNodeChanged = () => {
+        const onNode = () => {
             tagComp.removeAll();
             tagComp.add(tags);
             popupComp.removeAll();
             popupComp.add(popups);
         }
-        viewer.on('nodechanged', onNodeChanged);
+        viewer.on('node', onNode);
     </script>
 </body>
 

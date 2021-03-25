@@ -53,7 +53,6 @@ export interface ComponentMarkerEvent extends ComponentStateEvent {
     marker: Marker;
 }
 
-
 export interface ComponentPlayEvent extends ComponentStateEvent {
     /**
      * Value indiciating if the component is playing or not.

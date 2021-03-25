@@ -25,9 +25,9 @@ const logger = (req, res, next) => {
 
 const app = express();
 app.use(logger);
-app.use('/', express.static(pathname('debug')));
+app.use('/', express.static(pathname('examples')));
 app.use('/dist', express.static(pathname('dist')));
-app.get('/debug', (_, res) => { res.redirect('/'); });
+app.get('/examples', (_, res) => { res.redirect('/'); });
 
 app.listen(PORT, () => {
     const message =

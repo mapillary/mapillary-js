@@ -7,8 +7,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-    <link rel="stylesheet" href="dist/mapillary.css" />
-    <script src="dist/mapillary.js"></script>
+    <link rel="stylesheet" href="./dist/mapillary.css" />
 
     <style>
         body {
@@ -28,8 +27,13 @@
 <body>
     <div id="mly"></div>
 
-    <script>
-        const viewer = new Mapillary.Viewer({
+    <script type="module">
+        import {
+            SpatialDataComponent as Spatial,
+            Viewer,
+        } from './dist/mapillary.module.js';
+
+        const viewer = new Viewer({
             apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
             component: { cover: false, stats: false, spatialData: true },
             container: "mly",
@@ -42,7 +46,7 @@
             spatial.defaultConfiguration,
             { imagesVisible: true });
 
-        const camMode = Mapillary.SpatialDataComponent.CameraVisualizationMode;
+        const camMode = Spatial.CameraVisualizationMode;
         const none = camMode.Default;
         const cluster = camMode.Cluster;
         const connectedComponent = camMode.ConnectedComponent;
@@ -54,7 +58,7 @@
         camModeRotation[connectedComponent] = sequence;
         camModeRotation[sequence] = none;
 
-        const posMode = Mapillary.SpatialDataComponent.OriginalPositionMode;
+        const posMode = Spatial.OriginalPositionMode;
         const hidden = posMode.Hidden;
         const flat = posMode.Flat;
         const altitude = posMode.Altitude;
@@ -98,8 +102,8 @@
             spatial.configure(c);
         }
 
-        var filterIndex = 0;
-        var filters = [
+        let filterIndex = 0;
+        const filters = [
             [],
             ["==", "cameraType", "spherical"],
             ["==", "sequenceId", "s5I5m7BvYykB677MpFnOIw"],

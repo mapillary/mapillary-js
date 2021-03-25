@@ -7,8 +7,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-    <link rel="stylesheet" href="dist/mapillary.css" />
-    <script src="dist/mapillary.js"></script>
+    <link rel="stylesheet" href="./dist/mapillary.css" />
 
     <style>
         body {
@@ -31,8 +30,14 @@
 
 <body>
     <div id="mly"></div>
-    <script>
-        const mly = new Mapillary.Viewer({
+
+    <script type="module">
+        import {
+            MarkerComponent as Marker,
+            Viewer,
+        } from './dist/mapillary.module.js';
+
+        const mly = new Viewer({
             apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
             component: { cover: false, marker: true },
             container: "mly",
@@ -82,7 +87,7 @@
                 const lat = getRandomUniform(minLat, maxLat);
                 const lon = getRandomUniform(minLon, maxLon);
 
-                const marker = new Mapillary.MarkerComponent.SimpleMarker(
+                const marker = new Marker.SimpleMarker(
                     i.toString(), { lat: lat, lon: lon, }, { interactive: true });
 
                 markers.push(marker);

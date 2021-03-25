@@ -1,43 +1,36 @@
-import commonjs from '@rollup/plugin-commonjs';
 import dts from 'rollup-plugin-dts';
-import resolve from '@rollup/plugin-node-resolve';
-import sourcemaps from 'rollup-plugin-sourcemaps';
-import virtual from '@rollup/plugin-virtual';
 import { terser } from 'rollup-plugin-terser';
-import { virtualModules, resolveOptions } from './rollup.options.config';
-import umd from './rollup.umd.config';
+import {
+    esm,
+    srcInput as input,
+    plugins,
+    umdOutput,
+} from './config/rollup.js';
+
+const unminifiedOutput = Object.assign(
+    { file: 'dist/mapillary.unminified.js' },
+    umdOutput);
+
+const minifiedOutput = Object.assign(
+    { file: 'dist/mapillary.js' },
+    umdOutput);
 
 const bundles = [
+    esm,
     {
-        input: 'build/esm/src/Mapillary.js',
+        input,
         output: [
-            {
-                file: 'dist/mapillary.module.js',
-                format: 'es',
-                sourcemap: true,
-            }],
-        plugins: [
-            sourcemaps(),
-            virtual(virtualModules),
-            resolve(resolveOptions),
-            commonjs(),
+            unminifiedOutput
         ],
+        plugins,
     },
     {
-        input: 'build/esm/src/Mapillary.js',
+        input,
         output: [
-            {
-                file: 'dist/mapillary.min.js',
-                format: 'umd',
-                name: 'Mapillary',
-                sourcemap: true,
-            }
+            minifiedOutput,
         ],
         plugins: [
-            sourcemaps(),
-            virtual(virtualModules),
-            resolve(resolveOptions),
-            commonjs(),
+            ...plugins,
             terser(),
         ],
     },
@@ -55,6 +48,6 @@ const bundles = [
     },
 ];
 
-bundles.push(...umd);
+bundles.unshift(esm);
 
 export default bundles;

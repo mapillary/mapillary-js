@@ -90,7 +90,6 @@ export type ComponentEvent =
      */
     | "markerposition"
 
-
     /**
      * Event fired when playing starts or stops.
      *
