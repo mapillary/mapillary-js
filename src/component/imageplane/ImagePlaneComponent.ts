@@ -49,6 +49,7 @@ import { RegionOfInterestCalculator }
 import { TextureProvider } from "../../tiles/TextureProvider";
 import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { Transform } from "../../geo/Transform";
+import { ViewerConfiguration } from "../../utils/ViewerConfiguration";
 
 interface ImagePlaneGLRendererOperation {
     (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer;
@@ -152,33 +153,35 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                 }))
             .subscribe(this._rendererOperation$));
 
-        const textureProvider$ = this._navigator.stateService.currentState$.pipe(
-            distinctUntilChanged(
-                undefined,
-                (frame: AnimationFrame): string => {
-                    return frame.state.currentNode.id;
-                }),
-            withLatestFrom(
-                this._container.glRenderer.webGLRenderer$,
-                this._container.renderService.size$),
-            map(
-                ([frame, renderer, size]: [AnimationFrame, THREE.WebGLRenderer, ViewportSize]): TextureProvider => {
-                    let state = frame.state;
-                    let currentNode = state.currentNode;
-                    let currentTransform = state.currentTransform;
-                    let tileSize = 1024;
+        const textureProvider$ = this._navigator.stateService.currentState$
+            .pipe(
+                filter(() => ViewerConfiguration.imageTiling),
+                distinctUntilChanged(
+                    undefined,
+                    (frame: AnimationFrame): string => {
+                        return frame.state.currentNode.id;
+                    }),
+                withLatestFrom(
+                    this._container.glRenderer.webGLRenderer$,
+                    this._container.renderService.size$),
+                map(
+                    ([frame, renderer, size]: [AnimationFrame, THREE.WebGLRenderer, ViewportSize]): TextureProvider => {
+                        let state = frame.state;
+                        let currentNode = state.currentNode;
+                        let currentTransform = state.currentTransform;
+                        let tileSize = 1024;
 
-                    return new TextureProvider(
-                        currentNode.id,
-                        currentTransform.basicWidth,
-                        currentTransform.basicHeight,
-                        currentNode.image,
-                        this._imageTileLoader,
-                        new TileStore(),
-                        renderer);
-                }),
-            publishReplay(1),
-            refCount());
+                        return new TextureProvider(
+                            currentNode.id,
+                            currentTransform.basicWidth,
+                            currentTransform.basicHeight,
+                            currentNode.image,
+                            this._imageTileLoader,
+                            new TileStore(),
+                            renderer);
+                    }),
+                publishReplay(1),
+                refCount());
 
         subs.push(textureProvider$.subscribe(() => { /*noop*/ }));
 
@@ -204,6 +207,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
         const roiTrigger$ = observableCombineLatest(
             this._container.renderService.renderCameraFrame$,
             this._container.renderService.size$.pipe(debounceTime(250))).pipe(
+                filter(() => ViewerConfiguration.imageTiling),
                 map(
                     ([camera, size]: [RenderCamera, ViewportSize]): PositionLookat => {
                         return [

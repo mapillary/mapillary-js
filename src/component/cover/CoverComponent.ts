@@ -5,7 +5,6 @@ import {
     empty as observableEmpty,
     of as observableOf,
     Observable,
-    Subscription,
     Subscriber,
 } from "rxjs";
 
@@ -27,7 +26,7 @@ import { MapillaryError } from "../../error/MapillaryError";
 import { Node } from "../../graph/Node";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
-import { Urls } from "../../utils/Urls";
+import { ViewerConfiguration } from "../../utils/ViewerConfiguration";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { ImagesContract } from "../../api/contracts/ImagesContract";
@@ -168,7 +167,7 @@ export class CoverComponent extends Component<CoverConfiguration> {
             "div.mapillary-cover-button",
             [vd.h("div.mapillary-cover-button-icon", [])]);
 
-        const coverLogo: vd.VNode = vd.h("a.mapillary-cover-logo", { href: Urls.explore, target: "_blank" }, []);
+        const coverLogo: vd.VNode = vd.h("a.mapillary-cover-logo", { href: ViewerConfiguration.explore, target: "_blank" }, []);
         const coverIndicator: vd.VNode = vd.h(
             "div.mapillary-cover-indicator",
             { onclick: (): void => { this.configure({ state: CoverState.Loading }); } },

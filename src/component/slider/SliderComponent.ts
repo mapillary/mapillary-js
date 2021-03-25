@@ -64,6 +64,7 @@ import { SliderGLRenderer } from "./SliderGLRenderer";
 import { Transform } from "../../geo/Transform";
 import { SliderDOMRenderer } from "./SliderDOMRenderer";
 import { isSpherical } from "../../geo/Geo";
+import { ViewerConfiguration } from "../../utils/ViewerConfiguration";
 
 /**
  * @class SliderComponent
@@ -391,35 +392,37 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 }));
 
 
-        const textureProvider$ = this._navigator.stateService.currentState$.pipe(
-            distinctUntilChanged(
-                undefined,
-                (frame: AnimationFrame): string => {
-                    return frame.state.currentNode.id;
-                }),
-            withLatestFrom(
-                this._container.glRenderer.webGLRenderer$,
-                this._container.renderService.size$),
-            map(
-                ([frame, renderer, size]: [AnimationFrame, THREE.WebGLRenderer, ViewportSize]): TextureProvider => {
-                    const state: IAnimationState = frame.state;
-                    const viewportSize: number = Math.max(size.width, size.height);
+        const textureProvider$ = this._navigator.stateService.currentState$
+            .pipe(
+                filter(() => ViewerConfiguration.imageTiling),
+                distinctUntilChanged(
+                    undefined,
+                    (frame: AnimationFrame): string => {
+                        return frame.state.currentNode.id;
+                    }),
+                withLatestFrom(
+                    this._container.glRenderer.webGLRenderer$,
+                    this._container.renderService.size$),
+                map(
+                    ([frame, renderer, size]: [AnimationFrame, THREE.WebGLRenderer, ViewportSize]): TextureProvider => {
+                        const state: IAnimationState = frame.state;
+                        const viewportSize: number = Math.max(size.width, size.height);
 
-                    const currentNode: Node = state.currentNode;
-                    const currentTransform: Transform = state.currentTransform;
-                    const tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
+                        const currentNode: Node = state.currentNode;
+                        const currentTransform: Transform = state.currentTransform;
+                        const tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
 
-                    return new TextureProvider(
-                        currentNode.id,
-                        currentTransform.basicWidth,
-                        currentTransform.basicHeight,
-                        currentNode.image,
-                        this._imageTileLoader,
-                        new TileStore(),
-                        renderer);
-                }),
-            publishReplay(1),
-            refCount());
+                        return new TextureProvider(
+                            currentNode.id,
+                            currentTransform.basicWidth,
+                            currentTransform.basicHeight,
+                            currentNode.image,
+                            this._imageTileLoader,
+                            new TileStore(),
+                            renderer);
+                    }),
+                publishReplay(1),
+                refCount());
 
         subs.push(textureProvider$.subscribe(() => { /*noop*/ }));
 
@@ -445,6 +448,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
         const roiTrigger$ = observableCombineLatest(
             this._container.renderService.renderCameraFrame$,
             this._container.renderService.size$.pipe(debounceTime(250))).pipe(
+                filter(() => ViewerConfiguration.imageTiling),
                 map(
                     ([camera, size]: [RenderCamera, ViewportSize]): PositionLookat => {
                         return [
@@ -520,6 +524,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
         subs.push(hasTexture$.subscribe(() => { /*noop*/ }));
 
         const textureProviderPrev$ = this._navigator.stateService.currentState$.pipe(
+            filter(() => ViewerConfiguration.imageTiling),
             filter(
                 (frame: AnimationFrame): boolean => {
                     return !!frame.state.previousNode;
@@ -574,6 +579,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
         const roiTriggerPrev$ = observableCombineLatest(
             this._container.renderService.renderCameraFrame$,
             this._container.renderService.size$.pipe(debounceTime(250))).pipe(
+                filter(() => ViewerConfiguration.imageTiling),
                 map(
                     ([camera, size]: [RenderCamera, ViewportSize]): PositionLookat => {
                         return [

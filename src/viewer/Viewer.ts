@@ -18,7 +18,7 @@ import { RenderCamera } from "../render/RenderCamera";
 import { RenderMode } from "../render/RenderMode";
 import { TransitionMode } from "../state/TransitionMode";
 import { EventEmitter } from "../utils/EventEmitter";
-import { Urls } from "../utils/Urls";
+import { ViewerConfiguration } from "../utils/ViewerConfiguration";
 
 import { ICustomRenderer } from "./interfaces/ICustomRenderer";
 import { PointOfView } from "./interfaces/PointOfView";
@@ -160,17 +160,34 @@ export class Viewer extends EventEmitter implements IViewer {
     constructor(options: ViewerOptions) {
         super();
 
-        Urls.setOptions(options.url);
-        this._navigator = new Navigator(options);
-        this._container = new Container(options, this._navigator.stateService);
-        this._observer = new Observer(this, this._navigator, this._container);
-        this._componentController = new ComponentController(
-            this._container,
-            this._navigator,
-            this._observer,
-            options.imageId,
-            options.component);
-        this._customRenderer = new CustomRenderer(this._container, this._navigator);
+        ViewerConfiguration.setOptions(options);
+
+        this._navigator =
+            new Navigator(options);
+
+        this._container =
+            new Container(
+                options,
+                this._navigator.stateService);
+
+        this._observer =
+            new Observer(
+                this,
+                this._navigator,
+                this._container);
+
+        this._componentController =
+            new ComponentController(
+                this._container,
+                this._navigator,
+                this._observer,
+                options.imageId,
+                options.component);
+
+        this._customRenderer =
+            new CustomRenderer(
+                this._container,
+                this._navigator);
     }
 
     /**

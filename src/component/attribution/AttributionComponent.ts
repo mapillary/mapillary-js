@@ -1,23 +1,25 @@
 import * as vd from "virtual-dom";
 
 import { combineLatest as observableCombineLatest } from "rxjs";
-
 import { map } from "rxjs/operators";
-
-import { Component } from "../Component";
-import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 
 import { Node } from "../../graph/Node";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
-import { Urls } from "../../utils/Urls";
+import { ViewerConfiguration } from "../../utils/ViewerConfiguration";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
+
+import { Component } from "../Component";
+import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 
 export class AttributionComponent extends Component<ComponentConfiguration> {
     public static componentName: string = "attribution";
 
-    constructor(name: string, container: Container, navigator: Navigator) {
+    constructor(
+        name: string,
+        container: Container,
+        navigator: Navigator) {
         super(name, container, navigator);
     }
 
@@ -29,7 +31,11 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
                     ([node, size]: [Node, ViewportSize]): VirtualNodeHash => {
                         return {
                             name: this._name,
-                            vnode: this._getAttributionNode(node.creatorUsername, node.id, node.capturedAt, size.width),
+                            vnode: this._getAttributionNode(
+                                node.creatorUsername,
+                                node.id,
+                                node.capturedAt,
+                                size.width),
                         };
                     }))
             .subscribe(this._container.domRenderer.render$));
@@ -43,35 +49,58 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
         return {};
     }
 
-    private _getAttributionNode(username: string, id: string, capturedAt: number, width: number): vd.VNode {
-        const compact: boolean = width <= 640;
+    private _getAttributionNode(
+        username: string,
+        id: string,
+        capturedAt: number,
+        width: number)
+        : vd.VNode {
+        const compact = width <= 640;
 
-        const mapillaryIcon: vd.VNode = vd.h("div.AttributionMapillaryLogo", []);
-        const mapillaryLink: vd.VNode = vd.h(
+        const mapillaryIcon = vd.h(
+            "div.AttributionMapillaryLogo",
+            []);
+        const mapillaryLink = vd.h(
             "a.AttributionIconContainer",
-            { href: Urls.explore, target: "_blank" },
+            { href: ViewerConfiguration.explore, target: "_blank" },
             [mapillaryIcon]);
 
-        const imageBy: string = compact ? `${username}` : `image by ${username}`;
-        const imageByContent: vd.VNode = vd.h("div.AttributionUsername", { textContent: imageBy }, []);
+        const imageBy = compact ?
+            `${username}` : `image by ${username}`;
+        const imageByContent = vd.h(
+            "div.AttributionUsername",
+            { textContent: imageBy },
+            []);
 
-        const date: string[] = new Date(capturedAt).toDateString().split(" ");
-        const formatted: string = (date.length > 3 ?
+        const date = new Date(capturedAt)
+            .toDateString()
+            .split(" ");
+        const formatted = (date.length > 3 ?
             compact ?
                 [date[3]] :
                 [date[1], date[2] + ",", date[3]] :
             date).join(" ");
 
-        const dateContent: vd.VNode = vd.h("div.AttributionDate", { textContent: formatted }, []);
+        const dateContent = vd.h(
+            "div.AttributionDate",
+            { textContent: formatted },
+            []);
 
-        const imageLink: vd.VNode =
+        const imageLink =
             vd.h(
                 "a.mapillary-attribution-image-container",
-                { href: Urls.exploreImage(id), target: "_blank" },
+                {
+                    href: ViewerConfiguration.exploreImage(id),
+                    target: "_blank",
+                },
                 [imageByContent, dateContent]);
 
-        const compactClass: string = compact ? ".mapillary-attribution-compact" : "";
+        const compactClass = compact ?
+            ".mapillary-attribution-compact" : "";
 
-        return vd.h("div.mapillary-attribution-container" + compactClass, {}, [mapillaryLink, imageLink]);
+        return vd.h(
+            "div.mapillary-attribution-container" + compactClass,
+            {},
+            [mapillaryLink, imageLink]);
     }
 }

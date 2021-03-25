@@ -48,7 +48,12 @@ export class RenderService {
 
     private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
-    constructor(element: HTMLElement, currentFrame$: Observable<AnimationFrame>, renderMode: RenderMode, renderCamera?: RenderCamera) {
+    constructor(
+        element: HTMLElement,
+        currentFrame$: Observable<AnimationFrame>,
+        renderMode: RenderMode,
+        renderCamera?: RenderCamera) {
+
         this._element = element;
         this._currentFrame$ = currentFrame$;
 
@@ -57,20 +62,23 @@ export class RenderService {
         renderMode = renderMode != null ? renderMode : RenderMode.Fill;
 
         this._resize$ = new Subject<void>();
-        this._renderCameraOperation$ = new Subject<RenderCameraOperation>();
+        this._renderCameraOperation$ =
+            new Subject<RenderCameraOperation>();
 
         this._size$ =
-            new BehaviorSubject<ViewportSize>(
-                {
-                    height: this._element.offsetHeight,
-                    width: this._element.offsetWidth,
-                });
+            new BehaviorSubject<ViewportSize>({
+                height: this._element.offsetHeight,
+                width: this._element.offsetWidth,
+            });
 
         const subs = this._subscriptions;
         subs.push(this._resize$.pipe(
             map(
                 (): ViewportSize => {
-                    return { height: this._element.offsetHeight, width: this._element.offsetWidth };
+                    return {
+                        height: this._element.offsetHeight,
+                        width: this._element.offsetWidth,
+                    };
                 }))
             .subscribe(this._size$));
 
@@ -85,7 +93,12 @@ export class RenderService {
                 (rc: RenderCamera, operation: RenderCameraOperation): RenderCamera => {
                     return operation(rc);
                 },
-                !!renderCamera ? renderCamera : new RenderCamera(this._element.offsetWidth, this._element.offsetHeight, renderMode)),
+                !!renderCamera ?
+                    renderCamera :
+                    new RenderCamera(
+                        this._element.offsetWidth,
+                        this._element.offsetHeight,
+                        renderMode)),
             publishReplay(1),
             refCount());
 
