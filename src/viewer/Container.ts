@@ -36,60 +36,86 @@ export class Container {
         stateService: StateService,
         dom?: DOM) {
 
-        this._dom = !!dom ? dom : new DOM();
+        this._dom = dom ?? new DOM();
 
         if (typeof options.container === "string") {
-            this._container =
-                this._dom.document.getElementById(options.container);
+            this._container = this._dom.document
+                .getElementById(options.container);
             if (!this._container) {
-                throw new Error(`Container "${options.container}" not found.`);
+                throw new Error(
+                    `Container "${options.container}" not found.`);
             }
         } else if (options.container instanceof HTMLElement) {
             this._container = options.container;
         } else {
-            throw new Error(`Invalid type: "container" must be a String or HTMLElement.`);
+            throw new Error(
+                `Invalid type: "container" must be ` +
+                `a String or HTMLElement.`);
         }
 
-        this.id = !!this._container.id ? this._container.id : "mapillary-fallback-container-id";
+        this.id = this._container.id ??
+            "mapillary-fallback-container-id";
 
-        this._container.classList.add("mapillary-viewer");
-        this._canvasContainer = this._dom.createElement("div", "mapillary-interactive", this._container);
+        this._container.classList
+            .add("mapillary-viewer");
 
-        this._canvas = this._dom.createElement("canvas", "mapillary-canvas");
+        this._canvasContainer = this._dom
+            .createElement(
+                "div",
+                "mapillary-interactive",
+                this._container);
+
+        this._canvas = this._dom
+            .createElement(
+                "canvas",
+                "mapillary-canvas");
         this._canvas.style.position = "absolute";
         this._canvas.setAttribute("tabindex", "0");
 
-        // Add DOM container after canvas container to render DOM
-        // elements on top of the interactive canvas.
-        this._domContainer = this._dom.createElement("div", "mapillary-dom", this._container);
+        // Add DOM container after canvas container to
+        // render DOM elements on top of the interactive
+        // canvas.
+        this._domContainer = this._dom
+            .createElement(
+                "div",
+                "mapillary-dom",
+                this._container);
 
-        this.renderService = new RenderService(
-            this._container,
-            stateService.currentState$,
-            options.renderMode);
+        this.renderService =
+            new RenderService(
+                this._container,
+                stateService.currentState$,
+                options.renderMode);
 
-        this.glRenderer = new GLRenderer(
-            this._canvas,
-            this._canvasContainer,
-            this.renderService);
+        this.glRenderer =
+            new GLRenderer(
+                this._canvas,
+                this._canvasContainer,
+                this.renderService);
 
-        this.domRenderer = new DOMRenderer(
-            this._domContainer,
-            this.renderService,
-            stateService.currentState$);
+        this.domRenderer =
+            new DOMRenderer(
+                this._domContainer,
+                this.renderService,
+                stateService.currentState$);
 
-        this.keyboardService = new KeyboardService(this._canvasContainer);
-        this.mouseService = new MouseService(
-            this._container,
-            this._canvasContainer,
-            this._domContainer,
-            document);
+        this.keyboardService =
+            new KeyboardService(this._canvasContainer);
 
-        this.touchService = new TouchService(
-            this._canvasContainer,
-            this._domContainer);
+        this.mouseService =
+            new MouseService(
+                this._container,
+                this._canvasContainer,
+                this._domContainer,
+                document);
 
-        this.spriteService = new SpriteService(options.sprite);
+        this.touchService =
+            new TouchService(
+                this._canvasContainer,
+                this._domContainer);
+
+        this.spriteService =
+            new SpriteService(options.sprite);
     }
 
     public get canvas(): HTMLCanvasElement {
@@ -122,7 +148,8 @@ export class Container {
         this._removeNode(this._canvasContainer);
         this._removeNode(this._domContainer);
 
-        this._container.classList.remove("mapillary-viewer");
+        this._container.classList
+            .remove("mapillary-viewer");
     }
 
     private _removeNode(node: Node): void {

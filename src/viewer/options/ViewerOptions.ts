@@ -51,6 +51,19 @@ export interface ViewerOptions {
     imageId?: string;
 
     /**
+     * Value indicating if the viewer should fetch high resolution
+     * image tiles.
+     *
+     * @description Can be used when extending `mapillary-js` with
+     * a custom data provider. If no image tiling server exists
+     * the image tiling can be inactivated to avoid error
+     * messages about non-existing tiles in the console.
+     *
+     * @default true
+     */
+    imageTiling?: boolean
+
+    /**
      * The render mode in the viewer.
      * @default {RenderMode.Fill}
      */
