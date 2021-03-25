@@ -43,9 +43,9 @@
     <button onclick="setFilter()">Filter</button>
     <button onclick="remove()">Remove</button>
     <script>
-        const sup = Mapillary.isSupported();
-        const fSup = Mapillary.isFallbackSupported();
-        console.log(`isSupported: ${sup}, isFallbackSupported: ${fSup}`);
+        const sup = `isSupported: ${Mapillary.isSupported()}`;
+        const fSup = `isFallbackSupported: ${Mapillary.isFallbackSupported()}`;
+        console.log(`${sup}, ${fSup}`);
 
         const viewer = new Mapillary.Viewer({
             apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
@@ -54,8 +54,6 @@
             imageId: "zarcRdNFZwg3FkXNcsFeGw",
             renderMode: Mapillary.RenderMode.Letterbox,
         });
-
-        window.addEventListener("resize", function () { viewer.resize(); });
 
         function letterbox() {
             viewer.setRenderMode(Mapillary.RenderMode.Letterbox);

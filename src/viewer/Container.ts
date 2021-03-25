@@ -31,6 +31,8 @@ export class Container {
 
     private _dom: DOM;
 
+    private readonly _trackResize: boolean;
+
     constructor(
         options: ViewerOptions,
         stateService: StateService,
@@ -52,6 +54,10 @@ export class Container {
                 `Invalid type: "container" must be ` +
                 `a String or HTMLElement.`);
         }
+
+        this._trackResize =
+            options.trackResize === false ?
+                false : true;
 
         this.id = this._container.id ??
             "mapillary-fallback-container-id";
@@ -116,6 +122,8 @@ export class Container {
 
         this.spriteService =
             new SpriteService(options.sprite);
+
+        window.addEventListener('resize', this._onWindowResize, false);
     }
 
     public get canvas(): HTMLCanvasElement {
@@ -136,6 +144,8 @@ export class Container {
     }
 
     public remove(): void {
+        window.removeEventListener('resize', this._onWindowResize, false);
+
         this.spriteService.dispose();
         this.touchService.dispose();
         this.mouseService.dispose();
@@ -150,6 +160,12 @@ export class Container {
 
         this._container.classList
             .remove("mapillary-viewer");
+    }
+
+    private _onWindowResize = () => {
+        if (this._trackResize) {
+            this.renderService.resize$.next();
+        }
     }
 
     private _removeNode(node: Node): void {
