@@ -124,7 +124,7 @@ describe("RenderService.size", () => {
                 (e: Error): void => { return; },
                 (): void => { done(); });
 
-        renderService.resize$.next(null);
+        renderService.resize$.next();
     });
 });
 
@@ -263,7 +263,7 @@ describe("RenderService.renderCameraFrame", () => {
 
         frame$.next(createFrame(0));
 
-        renderService.resize$.next(null);
+        renderService.resize$.next();
         frame$.next(createFrame(1));
         frame$.complete();
     });
@@ -334,7 +334,7 @@ describe("RenderService.renderCameraFrame", () => {
         frame$.next(createFrame(1));
 
         renderService.renderMode$.next(RenderMode.Fill);
-        renderService.resize$.next(null);
+        renderService.resize$.next();
 
         frame$.next(createFrame(2));
         frame$.next(createFrame(3));
@@ -415,7 +415,7 @@ describe("RenderService.renderCamera$", () => {
         spyOn(element, "getOffsetHeight");
         spyOn(element, "getOffsetWidth");
 
-        renderService.resize$.next(null);
+        renderService.resize$.next();
 
         expect((<jasmine.Spy>element.getOffsetHeight).calls.count()).toBe(1);
         expect((<jasmine.Spy>element.getOffsetWidth).calls.count()).toBe(1);

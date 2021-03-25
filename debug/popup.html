@@ -96,7 +96,6 @@
                 container,
             };
             const viewer = new Viewer(viewerOptions);
-            window.addEventListener("resize", () => { viewer.resize(); });
             viewer.moveTo("FnqSkFAZXjv4Uqmqd4X_NA")
                 .catch(error => console.error(error));
             return viewer;

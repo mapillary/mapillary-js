@@ -747,7 +747,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * ```
      */
     public resize(): void {
-        this._container.renderService.resize$.next(null);
+        this._container.renderService.resize$.next();
     }
 
     /**

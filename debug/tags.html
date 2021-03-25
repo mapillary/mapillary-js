@@ -48,8 +48,6 @@
             renderMode: Mapillary.RenderMode.Letterbox,
         });
 
-        window.addEventListener("resize", function () { viewer.resize(); });
-
         function deactivate() { viewer.deactivateComponent("tag"); }
 
         function activate() { viewer.activateComponent("tag"); }

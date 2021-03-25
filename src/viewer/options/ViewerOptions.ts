@@ -76,10 +76,12 @@ export interface ViewerOptions {
     sprite?: string;
 
     /**
-     * Optional user bearer token for API requests of
-     * protected resources.
+     * If `true`, the viewer will automatically resize when the
+     * browser window resizes.
+     *
+     * @default true
      */
-    userToken?: string;
+    trackResize?: boolean;
 
     /**
      * The transtion mode in the viewer.
@@ -91,4 +93,10 @@ export interface ViewerOptions {
      * The URL options.
      */
     url?: UrlOptions;
+
+    /**
+     * Optional user bearer token for API requests of
+     * protected resources.
+     */
+    userToken?: string;
 }
