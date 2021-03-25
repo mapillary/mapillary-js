@@ -6,7 +6,7 @@ import { DataProviderBase } from "./DataProviderBase";
 import { CoreImagesContract } from "./contracts/CoreImagesContract";
 import { ImagesContract } from "./contracts/ImagesContract";
 import { SpatialImagesContract } from "./contracts/SpatialImagesContract";
-import { SequencesContract } from "./contracts/SequencesContract";
+import { SequenceContract } from "./contracts/SequenceContract";
 import { ImageTilesRequestContract }
     from "./contracts/ImageTilesRequestContract";
 import { ImageTilesContract } from "./contracts/ImageTilesContract";
@@ -35,11 +35,10 @@ export class APIWrapper {
         tiles: ImageTilesRequestContract)
         : Observable<ImageTilesContract> {
         return this._wrap$(this._data.getImageTiles(tiles));
-
     }
 
-    public getSequences$(sequenceIds: string[]): Observable<SequencesContract> {
-        return this._wrap$(this._data.getSequences(sequenceIds));
+    public getSequence$(sequenceId: string): Observable<SequenceContract> {
+        return this._wrap$(this._data.getSequence(sequenceId));
     }
 
     public getSpatialImages$(

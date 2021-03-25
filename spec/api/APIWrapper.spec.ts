@@ -200,21 +200,20 @@ describe("APIWrappersequenceByKey$", () => {
         };
 
         const provider = new DataProvider();
-        const providerSpy: jasmine.Spy = spyOn(provider, "getSequences");
+        const providerSpy: jasmine.Spy = spyOn(provider, "getSequence");
         providerSpy.and.returnValue(promise);
 
         const api: APIWrapper = new APIWrapper(provider);
 
         const skey: string = "skey";
 
-        api.getSequences$([skey])
+        api.getSequence$(skey)
             .subscribe(
                 (result): void => {
                     expect(result).toBeDefined();
 
                     expect(providerSpy.calls.count()).toBe(1);
-                    expect(providerSpy.calls.first().args[0].length).toBe(1);
-                    expect(providerSpy.calls.first().args[0][0]).toBe(skey);
+                    expect(providerSpy.calls.first().args[0]).toBe(skey);
 
                     done();
                 });
@@ -228,14 +227,14 @@ describe("APIWrappersequenceByKey$", () => {
         };
 
         const provider = new DataProvider();
-        const providerSpy: jasmine.Spy = spyOn(provider, "getSequences");
+        const providerSpy: jasmine.Spy = spyOn(provider, "getSequence");
         providerSpy.and.returnValue(promise);
 
         const api: APIWrapper = new APIWrapper(provider);
 
         const skey: string = "skey";
 
-        api.getSequences$([skey]).pipe(
+        api.getSequence$(skey).pipe(
             catchError(
                 (err: Error): Observable<{}> => {
                     expect(err).toBeDefined();

@@ -40,7 +40,7 @@ import { LatLon } from "../api/interfaces/LatLon";
 import { GraphMapillaryError } from "../error/GraphMapillaryError";
 import { SpatialImagesContract } from "../api/contracts/SpatialImagesContract";
 import { ImagesContract } from "../api/contracts/ImagesContract";
-import { SequencesContract } from "../api/contracts/SequencesContract";
+import { SequenceContract } from "../api/contracts/SequenceContract";
 import { CoreImagesContract } from "../api/contracts/CoreImagesContract";
 
 type NodeTiles = {
@@ -1619,22 +1619,20 @@ export class Graph {
         }
 
         this._cachingSequences$[sequenceId] = this._api
-            .getSequences$([sequenceId])
+            .getSequence$(sequenceId)
             .pipe(
                 tap(
-                    (sequences: SequencesContract): void => {
-                        for (const sequence of sequences) {
-                            if (!sequence.node) {
-                                console.warn(
-                                    `Sequence does not exist ` +
-                                    `(${sequence.node_id})`);
-                            } else {
-                                if (!(sequence.node_id in this._sequences)) {
-                                    this._sequences[sequence.node_id] = {
-                                        accessed: new Date().getTime(),
-                                        sequence: new Sequence(sequence.node),
-                                    };
-                                }
+                    (sequence: SequenceContract): void => {
+                        if (!sequence) {
+                            console.warn(
+                                `Sequence does not exist ` +
+                                `(${sequenceId})`);
+                        } else {
+                            if (!(sequence.id in this._sequences)) {
+                                this._sequences[sequence.id] = {
+                                    accessed: new Date().getTime(),
+                                    sequence: new Sequence(sequence),
+                                };
                             }
 
                             delete this._cachingSequences$[sequenceId];

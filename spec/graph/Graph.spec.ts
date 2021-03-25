@@ -18,21 +18,17 @@ import { APIWrapper } from "../../src/api/APIWrapper";
 import { FalcorDataProvider } from "../../src/api/falcor/FalcorDataProvider";
 import { GeohashGeometryProvider } from "../../src/api/GeohashGeometryProvider";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
-import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { ImageEnt } from "../../src/api/ents/ImageEnt";
 import { GraphMapillaryError } from "../../src/error/GraphMapillaryError";
 import { EdgeCalculator } from "../../src/graph/edge/EdgeCalculator";
-import {
-    Graph,
-    NodeIndexItem,
-} from "../../src/graph/Graph";
+import { Graph } from "../../src/graph/Graph";
 import { GraphCalculator } from "../../src/graph/GraphCalculator";
-import { GraphConfiguration } from "../../src/graph/interfaces/GraphConfiguration";
-import { Sequence } from "../../src/graph/Sequence";
-import { DataProvider, GeometryProvider } from "../helper/ProviderHelper";
-import { SequenceEnt } from "../../src/api/ents/SequenceEnt";
-import { SpatialImagesContract } from "../../src/api/contracts/SpatialImagesContract";
-import { SequencesContract } from "../../src/api/contracts/SequencesContract";
+import { GraphConfiguration }
+    from "../../src/graph/interfaces/GraphConfiguration";
+import { DataProvider } from "../helper/ProviderHelper";
+import { SpatialImagesContract }
+    from "../../src/api/contracts/SpatialImagesContract";
+import { SequenceContract } from "../../src/api/contracts/SequenceContract";
 import { ImagesContract } from "../../src/api/contracts/ImagesContract";
 import { CoreImagesContract } from "../../src/api/contracts/CoreImagesContract";
 
@@ -889,8 +885,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator = new GraphCalculator(null);
         const edgeCalculator = new EdgeCalculator();
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
@@ -902,12 +898,9 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [id] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = { id: sequenceId, image_ids: [id] };
+        getSequence.next(result);
+        getSequence.complete();
 
         expect(graph.hasSequenceNodes(sequenceId)).toBe(false);
     });
@@ -917,8 +910,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator = new GraphCalculator(null);
         const edgeCalculator = new EdgeCalculator();
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
@@ -930,12 +923,9 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [id] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = { id: sequenceId, image_ids: [id] };
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
@@ -947,8 +937,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator = new GraphCalculator(null);
         const edgeCalculator = new EdgeCalculator();
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
@@ -960,12 +950,10 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [nodeKey] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract =
+            { id: sequenceId, image_ids: [nodeKey] };
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
@@ -1001,8 +989,8 @@ describe("Graph.cacheSequenceNodes$", () => {
             maxUnusedTiles: 0,
         };
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
@@ -1014,12 +1002,10 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [nodeKey] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract =
+            { id: sequenceId, image_ids: [nodeKey] };
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
@@ -1057,8 +1043,8 @@ describe("Graph.cacheSequenceNodes$", () => {
             maxUnusedTiles: 1,
         };
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
@@ -1070,12 +1056,10 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [nodeKey] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract =
+            { id: sequenceId, image_ids: [nodeKey] };
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
@@ -1115,8 +1099,8 @@ describe("Graph.cacheSequenceNodes$", () => {
             maxUnusedTiles: 0,
         };
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
@@ -1128,12 +1112,10 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [nodeKey] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract =
+            { id: sequenceId, image_ids: [nodeKey] };
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
@@ -1171,8 +1153,8 @@ describe("Graph.cacheSequenceNodes$", () => {
             maxUnusedTiles: 0,
         };
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
@@ -1184,12 +1166,10 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [nodeKey] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract =
+            { id: sequenceId, image_ids: [nodeKey] };
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
@@ -1229,8 +1209,8 @@ describe("Graph.cacheSequenceNodes$", () => {
             maxUnusedTiles: 0,
         };
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
@@ -1242,12 +1222,10 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [nodeKey] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract =
+            { id: sequenceId, image_ids: [nodeKey] };
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
@@ -1313,8 +1291,8 @@ describe("Graph.cacheSequenceNodes$", () => {
             maxUnusedTiles: 0,
         };
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
@@ -1326,12 +1304,10 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [nodeKey] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract =
+            { id: sequenceId, image_ids: [nodeKey] };
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
@@ -1383,8 +1359,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator = new GraphCalculator(null);
         const edgeCalculator = new EdgeCalculator();
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
@@ -1396,12 +1372,10 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [nodeKey] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract =
+            { id: sequenceId, image_ids: [nodeKey] };
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
@@ -1422,8 +1396,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator = new GraphCalculator(null);
         const edgeCalculator = new EdgeCalculator();
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
@@ -1436,12 +1410,10 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [nodeKey] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract =
+            { id: sequenceId, image_ids: [nodeKey] };
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
         graph.cacheSequenceNodes$(sequenceId).subscribe();
@@ -1463,8 +1435,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator = new GraphCalculator(null);
         const edgeCalculator = new EdgeCalculator();
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(imageByKey);
@@ -1476,12 +1448,10 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [nodeKey] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract =
+            { id: sequenceId, image_ids: [nodeKey] };
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId)
             .subscribe(
@@ -1500,8 +1470,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator = new GraphCalculator(null);
         const edgeCalculator = new EdgeCalculator();
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
@@ -1513,17 +1483,14 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: SequencesContract = [{
-            node: {
-                id: sequenceId,
-                image_ids: Array(200)
-                    .fill(undefined)
-                    .map((_, i) => i.toString())
-            },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = {
+            id: sequenceId,
+            image_ids: Array(200)
+                .fill(undefined)
+                .map((_, i) => i.toString())
+        };
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
@@ -1543,8 +1510,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator = new GraphCalculator(null);
         const edgeCalculator = new EdgeCalculator();
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
@@ -1556,17 +1523,14 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         graph.cacheSequence$(sequenceId).subscribe();
 
-        const result: SequencesContract = [{
-            node: {
-                id: sequenceId,
-                image_ids: Array(201)
-                    .fill(undefined)
-                    .map((_, i) => i.toString()),
-            },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = {
+            id: sequenceId,
+            image_ids: Array(201)
+                .fill(undefined)
+                .map((_, i) => i.toString()),
+        };
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId).subscribe();
 
@@ -1587,8 +1551,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator = new GraphCalculator(null);
         const edgeCalculator = new EdgeCalculator();
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
@@ -1602,19 +1566,16 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const referenceNodeKey = "referenceNodeKey";
 
-        const result: SequencesContract = [{
-            node: {
-                id: sequenceId,
-                image_ids: Array
-                    .from(
-                        new Array(400),
-                        (_, i): string => i.toString())
-            },
-            node_id: sequenceId,
-        }];
-        result[0].node.image_ids.splice(0, 1, referenceNodeKey);
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = {
+            id: sequenceId,
+            image_ids: Array
+                .from(
+                    new Array(400),
+                    (_, i): string => i.toString())
+        };
+        result.image_ids.splice(0, 1, referenceNodeKey);
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId, referenceNodeKey).subscribe();
 
@@ -1637,8 +1598,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator = new GraphCalculator(null);
         const edgeCalculator = new EdgeCalculator();
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
@@ -1652,19 +1613,16 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const referenceNodeKey = "referenceNodeKey";
 
-        const result: SequencesContract = [{
-            node: {
-                id: sequenceId,
-                image_ids: Array
-                    .from(
-                        new Array(400),
-                        (_, i) => i.toString()),
-            },
-            node_id: sequenceId,
-        }];
-        result[0].node.image_ids.splice(399, 1, referenceNodeKey);
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = {
+            id: sequenceId,
+            image_ids: Array
+                .from(
+                    new Array(400),
+                    (_, i) => i.toString()),
+        };
+        result.image_ids.splice(399, 1, referenceNodeKey);
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId, referenceNodeKey).subscribe();
 
@@ -1688,8 +1646,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator = new GraphCalculator(null);
         const edgeCalculator = new EdgeCalculator();
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
@@ -1703,19 +1661,16 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const referenceNodeKey = "referenceNodeKey";
 
-        const result: SequencesContract = [{
-            node: {
-                id: sequenceId,
-                image_ids: Array
-                    .from(
-                        new Array(400),
-                        (_, i) => i.toString()),
-            },
-            node_id: sequenceId,
-        }];
-        result[0].node.image_ids.splice(200, 1, referenceNodeKey);
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = {
+            id: sequenceId,
+            image_ids: Array
+                .from(
+                    new Array(400),
+                    (_, i) => i.toString()),
+        };
+        result.image_ids.splice(200, 1, referenceNodeKey);
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId, referenceNodeKey).subscribe();
 
@@ -1740,8 +1695,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator = new GraphCalculator(null);
         const edgeCalculator = new EdgeCalculator();
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
@@ -1755,26 +1710,23 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const referenceNodeKey = "referenceNodeKey";
 
-        const result: SequencesContract = [{
-            node: {
-                id: sequenceId,
-                image_ids: Array
-                    .from(
-                        new Array(400),
-                        (_, i) => i.toString()),
-            },
-            node_id: sequenceId,
-        }];
-        result[0].node.image_ids.splice(200, 1, referenceNodeKey);
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = {
+            id: sequenceId,
+            image_ids: Array
+                .from(
+                    new Array(400),
+                    (_, i) => i.toString()),
+        };
+        result.image_ids.splice(200, 1, referenceNodeKey);
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId, referenceNodeKey).subscribe();
 
         expect(graph.isCachingSequenceNodes(sequenceId)).toBe(true);
         expect(graph.getSequence(sequenceId).imageIds.length).toBe(400);
         expect(graph.getSequence(sequenceId).imageIds)
-            .toEqual(result[0].node.image_ids);
+            .toEqual(result.image_ids);
     });
 
     it("should create single batch when fewer than or equal to 50 nodes", () => {
@@ -1782,8 +1734,8 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator = new GraphCalculator(null);
         const edgeCalculator = new EdgeCalculator();
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const imageByKey = new Subject<ImagesContract>();
         const imageByKeySpy = spyOn(api, "getImages$");
@@ -1797,19 +1749,16 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const referenceNodeKey = "referenceNodeKey";
 
-        const result: SequencesContract = [{
-            node: {
-                id: sequenceId,
-                image_ids: Array
-                    .from(
-                        new Array(50),
-                        (_, i) => i.toString()),
-            },
-            node_id: sequenceId,
-        }];
-        result[0].node.image_ids.splice(20, 1, referenceNodeKey);
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = {
+            id: sequenceId,
+            image_ids: Array
+                .from(
+                    new Array(50),
+                    (_, i) => i.toString()),
+        };
+        result.image_ids.splice(20, 1, referenceNodeKey);
+        getSequence.next(result);
+        getSequence.complete();
 
         graph.cacheSequenceNodes$(sequenceId, referenceNodeKey).subscribe();
 
@@ -1938,8 +1887,8 @@ describe("Graph.cacheSpatialEdges", () => {
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -1953,15 +1902,12 @@ describe("Graph.cacheSpatialEdges", () => {
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const result: SequencesContract = [{
-            node: {
-                id: fullNode.sequence.id,
-                image_ids: ["prev", fullNode.id, "next"],
-            },
-            node_id: fullNode.sequence.id,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = {
+            id: fullNode.sequence.id,
+            image_ids: ["prev", fullNode.id, "next"],
+        };
+        getSequence.next(result);
+        getSequence.complete();
 
         const node = graph.getNode(fullNode.id);
 
@@ -2014,8 +1960,8 @@ describe("Graph.cacheSpatialEdges", () => {
             new Subject<CoreImagesContract>();
         spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const graph = new Graph(
             api,
@@ -2034,15 +1980,12 @@ describe("Graph.cacheSpatialEdges", () => {
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const result: SequencesContract = [{
-            node: {
-                id: fullNode.sequence.id,
-                image_ids: ["prev", fullNode.id, "next"],
-            },
-            node_id: fullNode.sequence.id,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = {
+            id: fullNode.sequence.id,
+            image_ids: ["prev", fullNode.id, "next"],
+        };
+        getSequence.next(result);
+        getSequence.complete();
 
         const node = graph.getNode(fullNode.id);
         expect(node).toBeDefined();
@@ -2105,8 +2048,8 @@ describe("Graph.cacheSpatialEdges", () => {
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2120,15 +2063,12 @@ describe("Graph.cacheSpatialEdges", () => {
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const result: SequencesContract = [{
-            node: {
-                id: fullNode.sequence.id,
-                image_ids: ["prev", fullNode.id, "next"],
-            },
-            node_id: fullNode.sequence.id,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = {
+            id: fullNode.sequence.id,
+            image_ids: ["prev", fullNode.id, "next"],
+        };
+        getSequence.next(result);
+        getSequence.complete();
 
         const node = graph.getNode(fullNode.id);
 
@@ -2196,8 +2136,8 @@ describe("Graph.cacheNodeSequence$", () => {
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -2225,8 +2165,8 @@ describe("Graph.cacheNodeSequence$", () => {
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -2248,15 +2188,12 @@ describe("Graph.cacheNodeSequence$", () => {
                     expect(g.isCachingNodeSequence(fullNode.id)).toBe(false);
                 });
 
-        const result: SequencesContract = [{
-            node: {
-                id: fullNode.sequence.id,
-                image_ids: [fullNode.id],
-            },
-            node_id: fullNode.sequence.id,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = {
+            id: fullNode.sequence.id,
+            image_ids: [fullNode.id],
+        };
+        getSequence.next(result);
+        getSequence.complete();
 
         expect(graph.hasNodeSequence(fullNode.id)).toBe(true);
         expect(graph.isCachingNodeSequence(fullNode.id)).toBe(false);
@@ -2269,8 +2206,8 @@ describe("Graph.cacheNodeSequence$", () => {
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -2287,8 +2224,8 @@ describe("Graph.cacheNodeSequence$", () => {
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -2305,15 +2242,12 @@ describe("Graph.cacheNodeSequence$", () => {
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const result: SequencesContract = [{
-            node: {
-                id: fullNode.sequence.id,
-                image_ids: [fullNode.id],
-            },
-            node_id: fullNode.sequence.id,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = {
+            id: fullNode.sequence.id,
+            image_ids: [fullNode.id],
+        };
+        getSequence.next(result);
+        getSequence.complete();
 
         expect(graph.hasNodeSequence(fullNode.id)).toBe(true);
 
@@ -2327,9 +2261,9 @@ describe("Graph.cacheNodeSequence$", () => {
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
 
-        const getSequences = new Subject<SequencesContract>();
-        const sequenceByKeySpy = spyOn(api, "getSequences$");
-        sequenceByKeySpy.and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        const sequenceByKeySpy = spyOn(api, "getSequence$");
+        sequenceByKeySpy.and.returnValue(getSequence);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -2357,8 +2291,8 @@ describe("Graph.cacheNodeSequence$", () => {
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -2385,15 +2319,12 @@ describe("Graph.cacheNodeSequence$", () => {
                     done();
                 });
 
-        const result: SequencesContract = [{
-            node: {
-                id: fullNode.sequence.id,
-                image_ids: [fullNode.id],
-            },
-            node_id: fullNode.sequence.id,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = {
+            id: fullNode.sequence.id,
+            image_ids: [fullNode.id],
+        };
+        getSequence.next(result);
+        getSequence.complete();
     });
 });
 
@@ -2424,8 +2355,8 @@ describe("Graph.cacheSequence$", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -2441,8 +2372,8 @@ describe("Graph.cacheSequence$", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -2462,21 +2393,19 @@ describe("Graph.cacheSequence$", () => {
                     done();
                 });
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [id] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract =
+            { id: sequenceId, image_ids: [id] };
+        getSequence.next(result);
+        getSequence.complete();
     });
 
     it("should call api only once when caching the same sequence twice in succession", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const getSequences = new Subject<SequencesContract>();
-        const sequenceByKeySpy = spyOn(api, "getSequences$");
-        sequenceByKeySpy.and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        const sequenceByKeySpy = spyOn(api, "getSequence$");
+        sequenceByKeySpy.and.returnValue(getSequence);
 
         const graph = new Graph(api, undefined, calculator);
 
@@ -2506,8 +2435,8 @@ describe("Graph.resetSpatialEdges", () => {
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2521,15 +2450,12 @@ describe("Graph.resetSpatialEdges", () => {
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const result: SequencesContract = [{
-            node: {
-                id: fullNode.sequence.id,
-                image_ids: ["prev", fullNode.id, "next"]
-            },
-            node_id: fullNode.sequence.id,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = {
+            id: fullNode.sequence.id,
+            image_ids: ["prev", fullNode.id, "next"]
+        };
+        getSequence.next(result);
+        getSequence.complete();
 
         const node = graph.getNode(fullNode.id);
 
@@ -2579,8 +2505,8 @@ describe("Graph.resetSpatialEdges", () => {
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const graph = new Graph(api, undefined, graphCalculator, edgeCalculator);
         graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
@@ -2594,15 +2520,12 @@ describe("Graph.resetSpatialEdges", () => {
 
         graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
 
-        const result: SequencesContract = [{
-            node: {
-                id: fullNode.sequence.id,
-                image_ids: ["prev", fullNode.id, "next"]
-            },
-            node_id: fullNode.sequence.id,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract = {
+            id: fullNode.sequence.id,
+            image_ids: ["prev", fullNode.id, "next"]
+        };
+        getSequence.next(result);
+        getSequence.complete();
 
         expect(graph.hasTiles(fullNode.id)).toBe(false);
         expect(graph.isCachingTiles(fullNode.id)).toBe(false);
@@ -3492,8 +3415,8 @@ describe("Graph.uncache", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -3508,12 +3431,10 @@ describe("Graph.uncache", () => {
 
         graph.cacheSequence$(sequenceId).subscribe(() => { /*noop*/ });
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract =
+            { id: sequenceId, image_ids: [] };
+        getSequence.next(result);
+        getSequence.complete();
 
         expect(graph.hasSequence(sequenceId)).toBe(true);
 
@@ -3533,8 +3454,8 @@ describe("Graph.uncache", () => {
         const api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const configuration: GraphConfiguration = {
             maxSequences: 0,
@@ -3549,12 +3470,10 @@ describe("Graph.uncache", () => {
 
         graph.cacheSequence$(sequenceId).subscribe(() => { /*noop*/ });
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract =
+            { id: sequenceId, image_ids: [] };
+        getSequence.next(result);
+        getSequence.complete();
 
         expect(graph.hasSequence(sequenceId)).toBe(true);
 
@@ -3575,8 +3494,8 @@ describe("Graph.uncache", () => {
             new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
 
-        const getSequences = new Subject<SequencesContract>();
-        spyOn(api, "getSequences$").and.returnValue(getSequences);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
 
         const configuration: GraphConfiguration = {
             maxSequences: 1,
@@ -3591,12 +3510,10 @@ describe("Graph.uncache", () => {
 
         graph.cacheSequence$(sequenceId).subscribe(() => { /*noop*/ });
 
-        const result: SequencesContract = [{
-            node: { id: sequenceId, image_ids: [] },
-            node_id: sequenceId,
-        }];
-        getSequences.next(result);
-        getSequences.complete();
+        const result: SequenceContract =
+            { id: sequenceId, image_ids: [] };
+        getSequence.next(result);
+        getSequence.complete();
 
         expect(graph.hasSequence(sequenceId)).toBe(true);
 
@@ -3616,7 +3533,7 @@ describe("Graph.uncache", () => {
         const api = new APIWrapper(
             new FalcorDataProvider({ clientToken: "cid" }));
         const calculator = new GraphCalculator(null);
-        const getSequencesSpy = spyOn(api, "getSequences$");
+        const getSequenceSpy = spyOn(api, "getSequence$");
         const configuration: GraphConfiguration = {
             maxSequences: 1,
             maxUnusedNodes: 0,
@@ -3632,15 +3549,13 @@ describe("Graph.uncache", () => {
             configuration);
 
         const sequenceId1 = "sequenceId1";
-        const sequences1 = new Subject<SequencesContract>();
-        getSequencesSpy.and.returnValue(sequences1);
+        const sequences1 = new Subject<SequenceContract>();
+        getSequenceSpy.and.returnValue(sequences1);
 
         graph.cacheSequence$(sequenceId1).subscribe(() => { /*noop*/ });
 
-        const result1: SequencesContract = [{
-            node_id: sequenceId1,
-            node: { id: sequenceId1, image_ids: [] },
-        }];
+        const result1: SequenceContract =
+            { id: sequenceId1, image_ids: [] };
         sequences1.next(result1);
         sequences1.complete();
 
@@ -3650,17 +3565,15 @@ describe("Graph.uncache", () => {
         const sequenceDisposeSpy1 = spyOn(sequence1, "dispose").and.stub();
 
         const sequenceId2 = "sequenceId2";
-        const getSequences2 = new Subject<SequencesContract>();
-        getSequencesSpy.and.returnValue(getSequences2);
+        const getSequence2 = new Subject<SequenceContract>();
+        getSequenceSpy.and.returnValue(getSequence2);
 
         graph.cacheSequence$(sequenceId2).subscribe(() => { /*noop*/ });
 
-        const result2: SequencesContract = [{
-            node_id: sequenceId2,
-            node: { id: sequenceId2, image_ids: [] },
-        }];
-        getSequences2.next(result2);
-        getSequences2.complete();
+        const result2: SequenceContract =
+            { id: sequenceId2, image_ids: [] };
+        getSequence2.next(result2);
+        getSequence2.complete();
 
         expect(graph.hasSequence(sequenceId2)).toBe(true);
         const sequence2 = graph.getSequence(sequenceId2);
