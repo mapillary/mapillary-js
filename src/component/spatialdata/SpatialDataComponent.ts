@@ -31,7 +31,6 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import {
     CellNeighbors,
-    CellCorners,
 } from "../../api/interfaces/CellCorners";
 import { ClusterReconstructionContract }
     from "../../api/contracts/ClusterReconstructionContract";
@@ -56,6 +55,7 @@ import { SpatialDataScene } from "./SpatialDataScene";
 import { SpatialDataCache } from "./SpatialDataCache";
 import { CameraType } from "../../geo/interfaces/CameraType";
 import { geodeticToEnu } from "../../geo/GeoCoords";
+import { LatLon } from "../../api/interfaces/LatLon";
 
 type IntersectEvent = MouseEvent | FocusEvent;
 
@@ -205,7 +205,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                             observableOf([
                                 hash,
                                 this._navigator.api.data.geometry
-                                    .getNeighbors(hash)[<keyof CellNeighbors>direction]]) :
+                                    .getAdjacent(hash)[<keyof CellNeighbors>direction]]) :
                             observableOf(this._computeTiles(hash, direction));
                     }),
                 publish<string[]>(),
@@ -580,7 +580,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
 
         for (const hash of currentHashes) {
             const hashNeighbours: CellNeighbors =
-                this._navigator.api.data.geometry.getNeighbors(hash);
+                this._navigator.api.data.geometry.getAdjacent(hash);
 
             for (const direction in hashNeighbours) {
                 if (!hashNeighbours.hasOwnProperty(direction)) {
@@ -613,26 +613,21 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
     }
 
     private _computeTileBBox(hash: string, reference: LatLonAlt): number[][] {
-        const corners: CellCorners =
-            this._navigator.api.data.geometry.getCorners(hash);
+        const vertices =
+            this._navigator.api.data.geometry
+                .getVertices(hash)
+                .map(
+                    (vertex: LatLon): number[] => {
+                        return geodeticToEnu(
+                            vertex.lat,
+                            vertex.lon,
+                            0,
+                            reference.lat,
+                            reference.lon,
+                            reference.alt);
+                    });
 
-        const sw = geodeticToEnu(
-            corners.sw.lat,
-            corners.sw.lon,
-            0,
-            reference.lat,
-            reference.lon,
-            reference.alt);
-
-        const ne = geodeticToEnu(
-            corners.ne.lat,
-            corners.ne.lon,
-            0,
-            reference.lat,
-            reference.lon,
-            reference.alt);
-
-        return [sw, ne];
+        return vertices;
     }
 
     private _createTransform(node: Node, reference: LatLonAlt): Transform {
@@ -680,7 +675,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         }
 
         const neighbours: CellNeighbors =
-            this._navigator.api.data.geometry.getNeighbors(currentHash);
+            this._navigator.api.data.geometry.getAdjacent(currentHash);
         const directionIndex: number = directions.indexOf(direction);
         const length: number = directions.length;
 

@@ -2,9 +2,8 @@ import { S2 } from "s2-geometry";
 import { enuToGeodetic } from "../geo/GeoCoords";
 
 import { GeometryProviderBase } from "./GeometryProviderBase";
-import { CellCorners, CellNeighbors } from "./interfaces/CellCorners";
+import { CellNeighbors } from "./interfaces/CellCorners";
 import { LatLon } from "./interfaces/LatLon";
-
 
 /**
  * @class S2GeometryProvider
@@ -38,7 +37,7 @@ export class S2GeometryProvider extends GeometryProviderBase {
     }
 
     /** @inheritdoc */
-    public getNeighbors(cellId: string): CellNeighbors {
+    public getAdjacent(cellId: string): CellNeighbors {
         const s2key = S2.idToKey(cellId);
         const position = s2key.split('/')[1];
         const level = position.length;
@@ -60,29 +59,15 @@ export class S2GeometryProvider extends GeometryProviderBase {
     }
 
     /** @inheritdoc */
-    public getCorners(cellId: string): CellCorners {
+    public getVertices(cellId: string): LatLon[] {
         const key = S2.idToKey(cellId);
         const cell = S2.S2Cell.FromHilbertQuadKey(key);
-        const corners = cell.getCornerLatLngs();
-
-        let south = Number.POSITIVE_INFINITY;
-        let north = Number.NEGATIVE_INFINITY;
-        let west = Number.POSITIVE_INFINITY;
-        let east = Number.NEGATIVE_INFINITY;
-
-        for (let c of corners) {
-            if (c.lat < south) { south = c.lat; }
-            if (c.lat > north) { north = c.lat; }
-            if (c.lng < west) { west = c.lng; }
-            if (c.lng > east) { east = c.lng; }
-        }
-
-        return {
-            ne: { lat: north, lon: east },
-            nw: { lat: north, lon: west },
-            se: { lat: south, lon: east },
-            sw: { lat: south, lon: west },
-        };
+        return cell
+            .getCornerLatLngs()
+            .map(
+                (c: S2.ILatLng): LatLon => {
+                    return { lat: c.lat, lon: c.lng };
+                });
     }
 
     /** @inheritdoc */
@@ -93,7 +78,7 @@ export class S2GeometryProvider extends GeometryProviderBase {
     /** @inheritdoc */
     public latLonToCellIds(latLon: LatLon, threshold: number): string[] {
         const cellId = this._latLonToId(latLon, this._level);
-        const neighbors = this.getNeighbors(cellId);
+        const neighbors = this.getAdjacent(cellId);
         const corners =
             this._getLatLonBoundingBoxCorners(latLon, threshold);
 
@@ -129,7 +114,10 @@ export class S2GeometryProvider extends GeometryProviderBase {
     }
 
     private _getLatLonBoundingBoxCorners(
-        latLon: LatLon, threshold: number): LatLon[] {
+        latLon: LatLon,
+        threshold: number)
+        : LatLon[] {
+
         return [
             [-threshold, threshold, 0],
             [threshold, threshold, 0],

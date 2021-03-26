@@ -1,4 +1,4 @@
-import { CellCorners, CellNeighbors } from "./interfaces/CellCorners";
+import { CellNeighbors } from "./interfaces/CellCorners";
 import { LatLon } from "./interfaces/LatLon";
 
 import { MapillaryError } from "../error/MapillaryError";
@@ -41,12 +41,17 @@ export abstract class GeometryProviderBase {
     }
 
     /**
-     * Get the corners of a cell.
+     * Get the vertices of a cell.
+     *
+     * @description The vertices form a clockwise polygon
+     * in the 2D latitude, longitude space. No assumption
+     * on the position of the first vertex relative to the
+     * others can be made.
      *
      * @param {string} cellId - Id of cell.
-     * @returns {CellCorners} Cell corners struct.
+     * @returns {Array<LatLon>} Clockwise polygon.
      */
-    public getCorners(cellId: string): CellCorners {
+    public getVertices(cellId: string): LatLon[] {
         throw new MapillaryError("Not implemented");
     }
 
@@ -57,7 +62,7 @@ export abstract class GeometryProviderBase {
      * @param {LatLon} ne - North east corner of the bounding box.
      * @returns {CellCorners} Cell corners struct.
      */
-    public getNeighbors(cellId: string): CellNeighbors {
+    public getAdjacent(cellId: string): CellNeighbors {
         throw new MapillaryError("Not implemented");
     }
 
@@ -68,8 +73,7 @@ export abstract class GeometryProviderBase {
      * @returns {string} Cell id for the latitude, longitude.
      */
     public latLonToCellId(
-        latLon: LatLon,
-        relativeLevel?: number)
+        latLon: LatLon)
         : string {
         throw new MapillaryError("Not implemented");
     }
@@ -88,8 +92,7 @@ export abstract class GeometryProviderBase {
      */
     public latLonToCellIds(
         latLon: LatLon,
-        threshold: number,
-        relativeLevel?: number)
+        threshold: number)
         : string[] {
         throw new MapillaryError("Not implemented");
     }

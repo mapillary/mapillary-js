@@ -41,6 +41,5 @@ export { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
 export { URLEnt } from "../api/ents/URLEnt";
 
 // Type
-export { CellCorners } from "../api/interfaces/CellCorners";
 export { LatLon } from "../api/interfaces/LatLon";
 export { LatLonAlt } from "../api/interfaces/LatLonAlt";

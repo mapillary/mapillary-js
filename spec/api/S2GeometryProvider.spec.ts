@@ -1,9 +1,9 @@
 import { S2 } from "s2-geometry";
-import { CellCorners } from "../../src/api/interfaces/CellCorners";
 import { LatLon } from "../../src/api/interfaces/LatLon";
 import { S2GeometryProvider } from "../../src/api/S2GeometryProvider";
 import { MapillaryError } from "../../src/error/MapillaryError";
 import * as GeoCoords from "../../src/geo/GeoCoords";
+import { isClockwise } from "../helper/TestMath";
 
 describe("S2GeometryProvider.ctor", () => {
     it("should be defined", () => {
@@ -231,20 +231,17 @@ describe("S2GeometryProvider.getCorners", () => {
         ];
 
         for (let latLon of latLons) {
-            const cellId: string = geometry.latLonToCellId(latLon);
-            const corners: CellCorners = geometry.getCorners(cellId);
+            const cellId = geometry.latLonToCellId(latLon);
+            const vertices = geometry.getVertices(cellId);
+            expect(vertices.length).toBe(4);
 
-            expect(corners.se.lat).toBeLessThan(corners.ne.lat);
-            expect(corners.se.lat).toBeLessThan(corners.nw.lat);
+            const polygon = vertices
+                .map(
+                    (ll: LatLon): number[] => {
+                        return [ll.lon, ll.lat];
+                    });
 
-            expect(corners.sw.lat).toBeLessThan(corners.ne.lat);
-            expect(corners.sw.lat).toBeLessThan(corners.nw.lat);
-
-            expect(corners.sw.lon).toBeLessThan(corners.se.lon);
-            expect(corners.sw.lon).toBeLessThan(corners.ne.lon);
-
-            expect(corners.nw.lon).toBeLessThan(corners.se.lon);
-            expect(corners.nw.lon).toBeLessThan(corners.ne.lon);
+            expect(isClockwise(polygon)).toBe(true);
         }
     });
 });
