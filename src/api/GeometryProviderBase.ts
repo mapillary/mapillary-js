@@ -1,8 +1,10 @@
-import { CellNeighbors } from "./interfaces/CellCorners";
 import { LatLon } from "./interfaces/LatLon";
 
 import { MapillaryError } from "../error/MapillaryError";
-import { geodeticToEnu } from "../geo/GeoCoords";
+import {
+    enuToGeodetic,
+    geodeticToEnu,
+} from "../geo/GeoCoords";
 
 /**
  * @class GeometryProviderBase
@@ -41,28 +43,29 @@ export abstract class GeometryProviderBase {
     }
 
     /**
-     * Get the vertices of a cell.
+     * Get the adjacent cells
      *
-     * @description The vertices form a clockwise polygon
-     * in the 2D latitude, longitude space. No assumption
-     * on the position of the first vertex relative to the
-     * others can be made.
-     *
-     * @param {string} cellId - Id of cell.
-     * @returns {Array<LatLon>} Clockwise polygon.
+     * @param {LatLon} sw - South west corner of the bounding box.
+     * @param {LatLon} ne - North east corner of the bounding box.
+     * @returns {Array<string>} Array of cell ids. No specific
+     * order is guaranteed.
      */
-    public getVertices(cellId: string): LatLon[] {
+    public getAdjacent(cellId: string): string[] {
         throw new MapillaryError("Not implemented");
     }
 
     /**
-     * Get the neighbors of a cell.
+     * Get the vertices of a cell.
      *
-     * @param {LatLon} sw - South west corner of the bounding box.
-     * @param {LatLon} ne - North east corner of the bounding box.
-     * @returns {CellCorners} Cell corners struct.
+     * @description The vertices form an unclosed
+     * clockwise polygon in the 2D latitude, longitude
+     * space. No assumption on the position of the first
+     * vertex relative to the others can be made.
+     *
+     * @param {string} cellId - Id of cell.
+     * @returns {Array<LatLon>} Unclosed clockwise polygon.
      */
-    public getAdjacent(cellId: string): CellNeighbors {
+    public getVertices(cellId: string): LatLon[] {
         throw new MapillaryError("Not implemented");
     }
 
@@ -72,9 +75,7 @@ export abstract class GeometryProviderBase {
      * @param {LatLon} latlon - Latitude and longitude to convert.
      * @returns {string} Cell id for the latitude, longitude.
      */
-    public latLonToCellId(
-        latLon: LatLon)
-        : string {
+    public latLonToCellId(latLon: LatLon): string {
         throw new MapillaryError("Not implemented");
     }
 
@@ -121,5 +122,35 @@ export abstract class GeometryProviderBase {
         return this.latLonToCellIds(
             { lat: centerLat, lon: centerLon },
             threshold);
+    }
+
+    /** @ignore */
+    protected _enuToGeodetic(point: number[], reference: LatLon): LatLon {
+        const [lat, lon] = enuToGeodetic(
+            point[0],
+            point[1],
+            point[2],
+            reference.lat,
+            reference.lon,
+            0);
+
+        return { lat, lon };
+    }
+
+    /** @ignore */
+    protected _getLatLonBoundingBoxCorners(
+        latLon: LatLon,
+        threshold: number)
+        : LatLon[] {
+
+        return [
+            [-threshold, threshold, 0],
+            [threshold, threshold, 0],
+            [threshold, -threshold, 0],
+            [-threshold, -threshold, 0],
+        ].map(
+            (point: number[]): LatLon => {
+                return this._enuToGeodetic(point, latLon);
+            });
     }
 }

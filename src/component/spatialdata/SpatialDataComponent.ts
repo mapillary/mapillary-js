@@ -29,9 +29,6 @@ import {
 import { Node } from "../../graph/Node";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
-import {
-    CellNeighbors,
-} from "../../api/interfaces/CellCorners";
 import { ClusterReconstructionContract }
     from "../../api/contracts/ClusterReconstructionContract";
 import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
@@ -64,6 +61,8 @@ type Cell = {
     nodes: Node[];
 }
 
+type AdjancentParams = [boolean, boolean, number, Node];
+
 export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
     public static componentName: string = "spatialData";
 
@@ -87,6 +86,9 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
     protected _activate(): void {
         const subs = this._subscriptions;
 
+        subs.push(this._navigator.stateService.reference$
+            .subscribe((): void => { this._scene.uncache(); }));
+
         subs.push(this._configuration$.pipe(
             map(
                 (configuration: SpatialDataConfiguration): boolean => {
@@ -106,47 +108,27 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         subs.push(this._navigator.graphService.filter$
             .subscribe(nodeFilter => { this._scene.setFilter(nodeFilter); }));
 
-        const direction$ = this._container.renderService.bearing$.pipe(
+        const bearing$ = this._container.renderService.bearing$.pipe(
             map(
-                (bearing: number): string => {
-                    let direction: string = "";
-
-                    if (bearing > 292.5 || bearing <= 67.5) {
-                        direction += "n";
-                    }
-
-                    if (bearing > 112.5 && bearing <= 247.5) {
-                        direction += "s";
-                    }
-
-                    if (bearing > 22.5 && bearing <= 157.5) {
-                        direction += "e";
-                    }
-
-                    if (bearing > 202.5 && bearing <= 337.5) {
-                        direction += "w";
-                    }
-
-                    return direction;
+                (bearing: number): number => {
+                    const interval = 6;
+                    const discrete = interval * Math.floor(bearing / interval);
+                    return discrete;
                 }),
             distinctUntilChanged(),
             publishReplay(1),
             refCount());
 
-        const hash$ = this._navigator.stateService.reference$.pipe(
-            tap((): void => { this._scene.uncache(); }),
-            switchMap(
-                (): Observable<string> => {
-                    return this._navigator.stateService.currentNode$.pipe(
-                        map(
-                            (node: Node): string => {
-                                return this._navigator.api.data.geometry
-                                    .latLonToCellId(node.latLon);
-                            }),
-                        distinctUntilChanged());
-                }),
-            publishReplay(1),
-            refCount());
+        const cellId$ = this._navigator.stateService.currentNode$
+            .pipe(
+                map(
+                    (node: Node): string => {
+                        return this._navigator.api.data.geometry
+                            .latLonToCellId(node.latLon);
+                    }),
+                distinctUntilChanged(),
+                publishReplay(1),
+                refCount());
 
         const sequencePlay$: Observable<boolean> = observableCombineLatest(
             this._navigator.playService.playing$,
@@ -173,45 +155,44 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                 this._scene.setNavigationState(earth);
             }));
 
-        const hashes$ = observableCombineLatest(
+        const cellIds$ = observableCombineLatest(
             earth$,
-            hash$,
             sequencePlay$,
-            direction$).pipe(
-                distinctUntilChanged(
-                    (
-                        [e1, h1, s1, d1]: [boolean, string, boolean, string],
-                        [e2, h2, s2, d2]: [boolean, string, boolean, string]): boolean => {
-
-                        if (e1 !== e2) {
-                            return false;
-                        }
-
-                        if (e1) {
-                            return h1 === h2 && s1 === s2;
-                        }
-
-                        return h1 === h2 && s1 === s2 && d1 === d2;
-                    }),
+            bearing$,
+            this._navigator.stateService.currentNode$)
+            .pipe(
+                distinctUntilChanged((
+                    [e1, s1, d1, n1]: AdjancentParams,
+                    [e2, s2, d2, n2]: AdjancentParams)
+                    : boolean => {
+                    if (e1 !== e2) { return false; }
+                    if (e1) { return n1.id === n2.id && s1 === s2; }
+                    return n1.id === n2.id && s1 === s2 && d1 === d2;
+                }),
                 concatMap(
-                    ([earth, hash, sequencePlay, direction]: [boolean, string, boolean, string]): Observable<string[]> => {
+                    ([earth, sequencePlay, bearing, node]
+                        : AdjancentParams)
+                        : Observable<string[]> => {
                         if (earth) {
-                            return sequencePlay ?
-                                observableOf([hash]) :
-                                observableOf(this._adjacentComponent(hash, 1));
+                            const cellId = this._navigator.api.data.geometry
+                                .latLonToCellId(node.latLon);
+                            const cells = sequencePlay ?
+                                [cellId] :
+                                this._adjacentComponent(cellId, 1)
+                            return observableOf(cells);
                         }
 
-                        return sequencePlay ?
-                            observableOf([
-                                hash,
-                                this._navigator.api.data.geometry
-                                    .getAdjacent(hash)[<keyof CellNeighbors>direction]]) :
-                            observableOf(this._computeTiles(hash, direction));
+                        const fov = sequencePlay ? 30 : 90;
+                        return observableOf(
+                            this._cellsInFov(
+                                node,
+                                bearing,
+                                fov));
                     }),
                 publish<string[]>(),
                 refCount());
 
-        const tile$: Observable<Cell> = hashes$.pipe(
+        const tile$: Observable<Cell> = cellIds$.pipe(
             switchMap(
                 (cellIds: string[]): Observable<Cell> => {
                     return observableFrom(cellIds).pipe(
@@ -273,15 +254,20 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                 }),
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([[hash, reconstruction], reference]: [[string, ClusterReconstructionContract], LatLonAlt]): void => {
-                    if (this._scene.hasClusterReconstruction(reconstruction.id, hash)) {
+                ([[cellId, reconstruction], reference]: [[string, ClusterReconstructionContract], LatLonAlt]): void => {
+                    if (this._scene
+                        .hasClusterReconstruction(
+                            reconstruction.id,
+                            cellId)) {
                         return;
                     }
 
                     this._scene.addClusterReconstruction(
                         reconstruction,
-                        this._computeTranslation(reconstruction, reference),
-                        hash);
+                        this._computeTranslation(
+                            reconstruction,
+                            reference),
+                        cellId);
                 }));
 
         subs.push(this._configuration$.pipe(
@@ -322,12 +308,12 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                     this._scene.setPositionMode(opm);
                 }));
 
-        subs.push(hash$
+        subs.push(cellId$
             .subscribe(
-                (hash: string): void => {
-                    const keepHashes = this._adjacentComponent(hash, 1);
-                    this._scene.uncache(keepHashes);
-                    this._cache.uncache(keepHashes);
+                (cellId: string): void => {
+                    const keepCells = this._adjacentComponent(cellId, 1);
+                    this._scene.uncache(keepCells);
+                    this._cache.uncache(keepCells);
                 }));
 
         subs.push(this._navigator.playService.playing$.pipe(
@@ -505,15 +491,15 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                     }),
                 withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([[hash, reconstruction], reference]: [[string, ClusterReconstructionContract], LatLonAlt]): void => {
-                    if (this._scene.hasClusterReconstruction(reconstruction.id, hash)) {
+                ([[cellId, reconstruction], reference]: [[string, ClusterReconstructionContract], LatLonAlt]): void => {
+                    if (this._scene.hasClusterReconstruction(reconstruction.id, cellId)) {
                         return;
                     }
 
                     this._scene.addClusterReconstruction(
                         reconstruction,
                         this._computeTranslation(reconstruction, reference),
-                        hash);
+                        cellId);
                 }));
     }
 
@@ -557,49 +543,75 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         }
     }
 
-    private _adjacentComponent(hash: string, depth: number): string[] {
-        const hashSet: Set<string> = new Set<string>();
-        hashSet.add(hash);
-
-        this._adjacentComponentRecursive(hashSet, [hash], 0, depth);
-
-        return this._setToArray(hashSet);
+    private _adjacentComponent(cellId: string, depth: number): string[] {
+        const cells = new Set<string>();
+        cells.add(cellId);
+        this._adjacentComponentRecursive(cells, [cellId], 0, depth);
+        return Array.from(cells);
     }
 
     private _adjacentComponentRecursive(
-        hashSet: Set<string>,
-        currentHashes: string[],
+        cells: Set<string>,
+        current: string[],
         currentDepth: number,
-        maxDepth: number): void {
+        maxDepth: number)
+        : void {
 
-        if (currentDepth === maxDepth) {
-            return;
+        if (currentDepth === maxDepth) { return; }
+
+        const adjacent: string[] = [];
+        for (const cellId of current) {
+            const aCells =
+                this._navigator.api.data.geometry.getAdjacent(cellId);
+            adjacent.push(...aCells);
         }
 
-        const neighbours: string[] = [];
+        const newCells: string[] = [];
+        for (const a of adjacent) {
+            if (cells.has(a)) { continue; }
+            cells.add(a);
+            newCells.push(a);
+        }
 
-        for (const hash of currentHashes) {
-            const hashNeighbours: CellNeighbors =
-                this._navigator.api.data.geometry.getAdjacent(hash);
+        this._adjacentComponentRecursive(
+            cells,
+            newCells,
+            currentDepth + 1,
+            maxDepth);
+    }
 
-            for (const direction in hashNeighbours) {
-                if (!hashNeighbours.hasOwnProperty(direction)) {
-                    continue;
+    private _cellsInFov(
+        node: Node,
+        bearing: number,
+        fov: number)
+        : string[] {
+        const spatial = this._spatial;
+        const geometry = this._navigator.api.data.geometry;
+        const cell = geometry.latLonToCellId(node.latLon);
+        const cells = [cell];
+        const threshold = fov / 2;
+        const adjacent = geometry.getAdjacent(cell);
+        for (const a of adjacent) {
+            const vertices = geometry.getVertices(a);
+            for (const vertex of vertices) {
+                const [x, y] =
+                    geodeticToEnu(
+                        vertex.lat,
+                        vertex.lon,
+                        0,
+                        node.latLon.lat,
+                        node.latLon.lon,
+                        0);
+                const azimuthal = Math.atan2(y, x);
+                const vertexBearing = spatial.radToDeg(
+                    spatial.azimuthalToBearing(azimuthal));
+
+                if (Math.abs(vertexBearing - bearing) < threshold) {
+                    cells.push(a);
                 }
-
-                neighbours.push(hashNeighbours[<keyof CellNeighbors>direction]);
             }
         }
-
-        const newHashes: string[] = [];
-        for (const neighbour of neighbours) {
-            if (!hashSet.has(neighbour)) {
-                hashSet.add(neighbour);
-                newHashes.push(neighbour);
-            }
-        }
-
-        this._adjacentComponentRecursive(hashSet, newHashes, currentDepth + 1, maxDepth);
+        return cells;
     }
 
     private _computeOriginalPosition(node: Node, reference: LatLonAlt): number[] {
@@ -612,10 +624,10 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             reference.alt);
     }
 
-    private _computeTileBBox(hash: string, reference: LatLonAlt): number[][] {
+    private _computeTileBBox(cellId: string, reference: LatLonAlt): number[][] {
         const vertices =
             this._navigator.api.data.geometry
-                .getVertices(hash)
+                .getVertices(cellId)
                 .map(
                     (vertex: LatLon): number[] => {
                         return geodeticToEnu(
@@ -628,6 +640,19 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                     });
 
         return vertices;
+    }
+
+    private _computeTranslation(
+        reconstruction: ClusterReconstructionContract,
+        reference: LatLonAlt)
+        : number[] {
+        return geodeticToEnu(
+            reconstruction.reference.lat,
+            reconstruction.reference.lon,
+            reconstruction.reference.alt,
+            reference.lat,
+            reference.lon,
+            reference.alt);
     }
 
     private _createTransform(node: Node, reference: LatLonAlt): Transform {
@@ -649,69 +674,5 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             <CameraType>node.cameraType);
 
         return transform;
-    }
-
-    private _computeTiles(hash: string, direction: string): string[] {
-        const hashSet: Set<string> = new Set<string>();
-        const directions: string[] = ["n", "ne", "e", "se", "s", "sw", "w", "nw"];
-
-        this._computeTilesRecursive(hashSet, hash, direction, directions, 0, 1);
-
-        return this._setToArray(hashSet);
-    }
-
-    private _computeTilesRecursive(
-        hashSet: Set<string>,
-        currentHash: string,
-        direction: string,
-        directions: string[],
-        currentDepth: number,
-        maxDepth: number): void {
-
-        hashSet.add(currentHash);
-
-        if (currentDepth === maxDepth) {
-            return;
-        }
-
-        const neighbours: CellNeighbors =
-            this._navigator.api.data.geometry.getAdjacent(currentHash);
-        const directionIndex: number = directions.indexOf(direction);
-        const length: number = directions.length;
-
-        const directionNeighbours: string[] = [
-            neighbours[<keyof CellNeighbors>directions[this._modulo((directionIndex - 1), length)]],
-            neighbours[<keyof CellNeighbors>direction],
-            neighbours[<keyof CellNeighbors>directions[this._modulo((directionIndex + 1), length)]],
-        ];
-
-        for (let directionNeighbour of directionNeighbours) {
-            this._computeTilesRecursive(hashSet, directionNeighbour, direction, directions, currentDepth + 1, maxDepth);
-        }
-    }
-
-    private _computeTranslation(reconstruction: ClusterReconstructionContract, reference: LatLonAlt): number[] {
-        return geodeticToEnu(
-            reconstruction.reference.lat,
-            reconstruction.reference.lon,
-            reconstruction.reference.alt,
-            reference.lat,
-            reference.lon,
-            reference.alt);
-    }
-
-    private _modulo(a: number, n: number): number {
-        return ((a % n) + n) % n;
-    }
-
-    private _setToArray<T>(s: Set<T>): T[] {
-        const a: T[] = [];
-
-        s.forEach(
-            (value: T) => {
-                a.push(value);
-            });
-
-        return a;
     }
 }
