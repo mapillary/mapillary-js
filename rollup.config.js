@@ -48,6 +48,4 @@ const bundles = [
     },
 ];
 
-bundles.unshift(esm);
-
 export default bundles;

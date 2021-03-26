@@ -2,7 +2,7 @@ import * as geohash from "latlon-geohash";
 import { geodeticToEnu } from "../geo/GeoCoords";
 
 import { GeometryProviderBase } from "./GeometryProviderBase";
-import { CellCorners, CellNeighbors } from "./interfaces/CellCorners";
+import { CellNeighbors } from "./interfaces/CellCorners";
 import { LatLon } from "./interfaces/LatLon";
 
 
@@ -51,17 +51,17 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
     }
 
     /** @inheritdoc */
-    public getCorners(cellId: string): CellCorners {
-        const bounds: geohash.Bounds = geohash.bounds(cellId);
-        const nw: LatLon = { lat: bounds.ne.lat, lon: bounds.sw.lon };
-        const ne: LatLon = { lat: bounds.ne.lat, lon: bounds.ne.lon };
-        const se: LatLon = { lat: bounds.ne.lat, lon: bounds.sw.lon };
-        const sw: LatLon = { lat: bounds.sw.lat, lon: bounds.sw.lon };
-        return { nw, ne, se, sw };
+    public getVertices(cellId: string): LatLon[] {
+        const bounds = geohash.bounds(cellId);
+        const nw = { lat: bounds.ne.lat, lon: bounds.sw.lon };
+        const ne = { lat: bounds.ne.lat, lon: bounds.ne.lon };
+        const se = { lat: bounds.sw.lat, lon: bounds.ne.lon };
+        const sw = { lat: bounds.sw.lat, lon: bounds.sw.lon };
+        return [nw, ne, se, sw];
     }
 
     /** @inheritdoc */
-    public getNeighbors(cellId: string): CellNeighbors {
+    public getAdjacent(cellId: string): CellNeighbors {
         return geohash.neighbours(cellId);
     }
 
@@ -73,13 +73,11 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
      *
      * @returns {string} The geohash tile for the lat, lon and precision.
      */
-    public latLonToCellId(
-        latLon: LatLon,
-        relativeLevel: number = 0): string {
+    public latLonToCellId(latLon: LatLon): string {
         return geohash.encode(
             latLon.lat,
             latLon.lon,
-            this._level + relativeLevel);
+            this._level);
     }
 
     /**
@@ -95,27 +93,20 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
      */
     public latLonToCellIds(
         latLon: LatLon,
-        threshold: number,
-        relativeLevel: number = 0): string[] {
+        threshold: number)
+        : string[] {
 
-        const h: string = geohash.encode(
-            latLon.lat, latLon.lon, this._level + relativeLevel);
+        const h = geohash.encode(
+            latLon.lat, latLon.lon, this._level);
 
-        const bounds: geohash.Bounds = geohash.bounds(h);
-        const corners: CellCorners = {
-            ne: { lat: bounds.ne.lat, lon: bounds.ne.lon },
-            nw: { lat: bounds.ne.lat, lon: bounds.sw.lon },
-            se: { lat: bounds.sw.lat, lon: bounds.ne.lon },
-            sw: { lat: bounds.sw.lat, lon: bounds.sw.lon },
-        };
-
-        const neighbours: CellNeighbors = this.getNeighbors(h);
+        const bounds = geohash.bounds(h);
+        const neighbours = this.getAdjacent(h);
 
         return this._filterNeighbors(
             latLon,
             threshold,
             h,
-            corners,
+            bounds,
             neighbours);
     }
 
@@ -123,17 +114,17 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
         latLon: LatLon,
         threshold: number,
         cellId: string,
-        corners: CellCorners,
+        bounds: geohash.Bounds,
         neighbors: CellNeighbors): string[] {
 
         const bl = [0, 0, 0];
         const tr =
             geodeticToEnu(
-                corners.ne.lat,
-                corners.ne.lon,
+                bounds.ne.lat,
+                bounds.ne.lon,
                 0,
-                corners.sw.lat,
-                corners.sw.lon,
+                bounds.sw.lat,
+                bounds.sw.lon,
                 0);
 
         const position =
@@ -141,8 +132,8 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
                 latLon.lat,
                 latLon.lon,
                 0,
-                corners.sw.lat,
-                corners.sw.lon,
+                bounds.sw.lat,
+                bounds.sw.lon,
                 0);
 
         const left = position[0] - bl[0];
@@ -150,12 +141,12 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
         const bottom = position[1] - bl[1];
         const top = tr[1] - position[1];
 
-        const l: boolean = left < threshold;
-        const r: boolean = right < threshold;
-        const b: boolean = bottom < threshold;
-        const t: boolean = top < threshold;
+        const l = left < threshold;
+        const r = right < threshold;
+        const b = bottom < threshold;
+        const t = top < threshold;
 
-        const cellIds: string[] = [cellId];
+        const cellIds = [cellId];
 
         if (t) {
             cellIds.push(neighbors.n);

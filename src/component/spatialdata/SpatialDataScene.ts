@@ -1,12 +1,14 @@
 import * as THREE from "three";
 import { PointContract } from "../../api/contracts/PointContract";
-import { ClusterReconstructionContract } from "../../api/contracts/ClusterReconstructionContract";
+import { ClusterReconstructionContract }
+    from "../../api/contracts/ClusterReconstructionContract";
 import { MapillaryError } from "../../error/MapillaryError";
 import { isSpherical } from "../../geo/Geo";
 import { Transform } from "../../geo/Transform";
 import { FilterFunction } from "../../graph/FilterCreator";
 import { Node } from "../../graph/Node";
-import { SpatialDataConfiguration } from "../interfaces/SpatialDataConfiguration";
+import { SpatialDataConfiguration }
+    from "../interfaces/SpatialDataConfiguration";
 import { CameraVisualizationMode } from "./CameraVisualizationMode";
 import { OriginalPositionMode } from "./OriginalPositionMode";
 
@@ -65,11 +67,14 @@ abstract class CameraFrameBase extends THREE.Object3D {
     }
 
     protected _createBufferGeometry(
-        positions: number[][]): THREE.BufferGeometry {
-        const positionAttribute = new THREE.BufferAttribute(
-            new Float32Array(3 * positions.length), 3)
-        const colorAttribute = new THREE.BufferAttribute(
-            new Float32Array(3 * positions.length), 3)
+        positions: number[][])
+        : THREE.BufferGeometry {
+        const positionAttribute =
+            new THREE.BufferAttribute(
+                new Float32Array(3 * positions.length), 3);
+        const colorAttribute =
+            new THREE.BufferAttribute(
+                new Float32Array(3 * positions.length), 3);
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute("position", positionAttribute);
         geometry.setAttribute("color", colorAttribute);
@@ -80,8 +85,8 @@ abstract class CameraFrameBase extends THREE.Object3D {
         origin: number[],
         relativePositions: number[][],
         scale: number,
-        color: string):
-        CameraFrameLine {
+        color: string)
+        : CameraFrameLine {
         const geometry = this._createBufferGeometry(relativePositions);
         const material = new THREE.LineBasicMaterial({
             vertexColors: true,
@@ -97,7 +102,8 @@ abstract class CameraFrameBase extends THREE.Object3D {
 
     protected _updateColorAttribute(
         frame: CameraFrameLine | CameraFrameLineSegments,
-        color: string): void {
+        color: string)
+        : void {
         const [r, g, b] = new THREE.Color(color).toArray();
         const colorAttribute =
             <THREE.BufferAttribute>frame.geometry.attributes.color;
@@ -122,7 +128,8 @@ abstract class CameraFrameBase extends THREE.Object3D {
 
     protected _updatePositionAttribute(
         frame: CameraFrameLine | CameraFrameLineSegments,
-        scale: number): void {
+        scale: number)
+        : void {
         const positionAttribute =
             <THREE.BufferAttribute>frame.geometry.attributes.position;
         const positions = <Float32Array>positionAttribute.array;
@@ -188,7 +195,8 @@ class PerspectiveCameraFrame extends CameraFrameBase {
 
     private _calculateRelativeDiagonals(
         transform: Transform,
-        origin: number[]): number[][] {
+        origin: number[])
+        : number[][] {
         const depth = this._originalSize;
         const [topLeft, topRight, bottomRight, bottomLeft] =
             this._makeRelative(
@@ -211,8 +219,10 @@ class PerspectiveCameraFrame extends CameraFrameBase {
         return vertices;
     }
 
-    private _calculateRelativeFrame(transform: Transform, origin: number[]):
-        number[][] {
+    private _calculateRelativeFrame(
+        transform: Transform,
+        origin: number[])
+        : number[][] {
         const vertices2d: number[][] = [];
         const vertical = this._verticalFrameSamples;
         const horizontal = this._horizontalFrameSamples;
@@ -235,7 +245,8 @@ class PerspectiveCameraFrame extends CameraFrameBase {
         transform: Transform,
         scale: number,
         origin: number[],
-        color: string): CameraFrameLineSegments {
+        color: string)
+        : CameraFrameLineSegments {
         const positions = this._calculateRelativeDiagonals(transform, origin);
         const geometry = this._createBufferGeometry(positions);
         const material = new THREE.LineBasicMaterial({
@@ -256,11 +267,11 @@ class PerspectiveCameraFrame extends CameraFrameBase {
         transform: Transform,
         scale: number,
         origin: number[],
-        color: string): CameraFrameLine {
+        color: string)
+        : CameraFrameLine {
         const positions = this._calculateRelativeFrame(transform, origin);
         return this._createCameraFrame(origin, positions, scale, color);
     }
-
 
     private _interpolate(a: number, b: number, alpha: number): number {
         return a + alpha * (b - a);
@@ -269,7 +280,8 @@ class PerspectiveCameraFrame extends CameraFrameBase {
     private _subsample(
         p1: number[],
         p2: number[],
-        subsamples: number): number[][] {
+        subsamples: number)
+        : number[][] {
         if (subsamples < 1) {
             return [p1, p2];
         }
@@ -330,8 +342,10 @@ class SphericalCameraFrame extends CameraFrameBase {
         this.add(axis, lat, lon1, lon2, lon3, lon4);
     }
 
-    private _calculateRelativeAxis(transform: Transform, origin: number[]):
-        number[][] {
+    private _calculateRelativeAxis(
+        transform: Transform,
+        origin: number[])
+        : number[][] {
         const depth = this._originalSize;
         const north: number[] = transform.unprojectBasic([0.5, 0], depth * 1.1);
         const south: number[] = transform.unprojectBasic([0.5, 1], depth * 0.8);
@@ -343,7 +357,8 @@ class SphericalCameraFrame extends CameraFrameBase {
         basicY: number,
         numVertices: number,
         transform: Transform,
-        origin: number[]): number[][] {
+        origin: number[])
+        : number[][] {
 
         const depth = 0.8 * this._originalSize;
         const positions: number[][] = [];
@@ -362,7 +377,8 @@ class SphericalCameraFrame extends CameraFrameBase {
         basicX: number,
         numVertices: number,
         transform: Transform,
-        origin: number[]): number[][] {
+        origin: number[])
+        : number[][] {
         const scaledDepth = 0.8 * this._originalSize;
         const positions: number[][] = [];
 
@@ -381,7 +397,8 @@ class SphericalCameraFrame extends CameraFrameBase {
         transform: Transform,
         scale: number,
         origin: number[],
-        color: string): CameraFrameLine {
+        color: string)
+        : CameraFrameLine {
         const positions = this._calculateRelativeAxis(transform, origin);
         return this._createCameraFrame(origin, positions, scale, color);
     }
@@ -392,7 +409,8 @@ class SphericalCameraFrame extends CameraFrameBase {
         transform: Transform,
         scale: number,
         origin: number[],
-        color: string): CameraFrameLine {
+        color: string)
+        : CameraFrameLine {
         const positions = this._calculateRelativeLatitude(
             basicY, numVertices, transform, origin);
         return this._createCameraFrame(origin, positions, scale, color);
@@ -404,7 +422,8 @@ class SphericalCameraFrame extends CameraFrameBase {
         transform: Transform,
         scale: number,
         origin: number[],
-        color: string): CameraFrameLine {
+        color: string)
+        : CameraFrameLine {
         const positions = this._calculateRelativeLongitude(
             basicX, numVertices, transform, origin);
         return this._createCameraFrame(origin, positions, scale, color);
@@ -450,7 +469,8 @@ class ClusterPoints extends THREE.Points {
 
     private _getArrays(
         reconstruction: ClusterReconstructionContract,
-        translation: number[]): [Float32Array, Float32Array] {
+        translation: number[])
+        : [Float32Array, Float32Array] {
         const points = Object
             .keys(reconstruction.points)
             .map(
@@ -482,9 +502,9 @@ class ClusterPoints extends THREE.Points {
 }
 
 class TileLine extends THREE.Line {
-    constructor(bbox: number[][]) {
+    constructor(vertices: number[][]) {
         super();
-        this.geometry = this._createGeometry(bbox);
+        this.geometry = this._createGeometry(vertices);
         this.material = new THREE.LineBasicMaterial();
     }
 
@@ -493,27 +513,18 @@ class TileLine extends THREE.Line {
         (<THREE.Material>this.material).dispose();
     }
 
-    private _createGeometry(bbox: number[][]): THREE.BufferGeometry {
-        const sw: number[] = bbox[0];
-        const ne: number[] = bbox[1];
-
-        const vertices = [
-            sw.slice(),
-            [sw[0], ne[1], (sw[2] + ne[2]) / 2],
-            ne.slice(),
-            [ne[0], sw[1], (sw[2] + ne[2]) / 2],
-            sw.slice(),
-        ];
-
-        const positions = new Float32Array(3 * vertices.length);
+    private _createGeometry(vertices: number[][]): THREE.BufferGeometry {
+        const polygon = vertices.slice()
+        polygon.push(vertices[0]);
+        const positions = new Float32Array(3 * (vertices.length + 1));
         let index = 0;
-        for (const vertex of vertices) {
+        for (const vertex of polygon) {
             positions[index++] = vertex[0];
             positions[index++] = vertex[1];
             positions[index++] = vertex[2];
         }
 
-        const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+        const geometry = new THREE.BufferGeometry();
         geometry.setAttribute(
             "position",
             new THREE.BufferAttribute(positions, 3));
@@ -565,8 +576,8 @@ class PositionLine extends THREE.Line {
     private _createGeometry(
         transform: Transform,
         originalPosition: number[],
-        altitude: number):
-        THREE.BufferGeometry {
+        altitude: number)
+        : THREE.BufferGeometry {
         const vertices = [
             [
                 originalPosition[0],
@@ -583,7 +594,7 @@ class PositionLine extends THREE.Line {
             positions[index++] = vertex[2];
         }
 
-        const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+        const geometry = new THREE.BufferGeometry();
         geometry.setAttribute(
             "position",
             new THREE.BufferAttribute(positions, 3));
@@ -1112,12 +1123,12 @@ export class SpatialDataScene {
         this._needsRender = true;
     }
 
-    public addTile(bbox: number[][], cellId: string): void {
+    public addTile(vertices: number[][], cellId: string): void {
         if (this.hasTile(cellId)) {
             return;
         }
 
-        const tile = new TileLine(bbox);
+        const tile = new TileLine(vertices);
         this._tiles[cellId] = new THREE.Object3D();
         this._tiles[cellId].visible = this._tilesVisible;
         this._tiles[cellId].add(tile);
