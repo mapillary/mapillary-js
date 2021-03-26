@@ -45,7 +45,6 @@ export class PlayService {
 
     private _graphService: GraphService;
     private _stateService: StateService;
-    private _graphCalculator: GraphCalculator;
 
     private _nodesAhead: number;
     private _playing: boolean;
@@ -68,10 +67,9 @@ export class PlayService {
 
     private _bridging$: Observable<Node>;
 
-    constructor(graphService: GraphService, stateService: StateService, graphCalculator?: GraphCalculator) {
+    constructor(graphService: GraphService, stateService: StateService) {
         this._graphService = graphService;
         this._stateService = stateService;
-        this._graphCalculator = !!graphCalculator ? graphCalculator : new GraphCalculator();
 
         const subs = this._subscriptions;
 

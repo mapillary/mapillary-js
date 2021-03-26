@@ -18,13 +18,13 @@ describe("GeohashGeometryProvider.latLonToCellId", () => {
     beforeEach(() => { mockedGeohash.encode.mockClear(); });
 
     test("should call encoder correctly", () => {
-        const mockEncode = mockedGeohash.encode.mockReturnValueOnce("0,0");
+        const mockEncode = mockedGeohash.encode.mockReturnValueOnce("0/0");
 
         const level = 7;
         const geometry = new GeohashGeometryProvider();
 
-        const lat: number = -1;
-        const lon: number = 1;
+        const lat = -1;
+        const lon = 1;
 
         geometry.latLonToCellId({ lat: -1, lon: 1 });
 
@@ -36,27 +36,50 @@ describe("GeohashGeometryProvider.latLonToCellId", () => {
 describe("GeohashGeometryProvider.latLonToCellIds", () => {
     const setupSpies: (tileSize: number) => void =
         (tileSize: number): void => {
-            spyOn(geohash, "encode").and.returnValue("0,0");
-            spyOn(geohash, "bounds").and.returnValue({
-                ne: { lat: 1, lon: 1 },
-                sw: { lat: -1, lon: -1 },
-            });
-            spyOn(geohash, "neighbours").and.returnValue({
-                e: "1,0",
-                n: "0,1",
-                ne: "1,1",
-                nw: "-1,1",
-                s: "0,-1",
-                se: "1,-1",
-                sw: "-1,-1",
-                w: "-1,0",
-            });
+            spyOn(geohash, "encode").and.callFake(
+                (lat: number, lng: number): string => {
+                    return `${Math.round(lat)}/${Math.round(lng)}`;
+                });
 
-            spyOn(GeoCoords, "geodeticToEnu").and.callFake(
-                (lat: number, lon: number, alt: number, refLat: number, refLon: number): number[] => {
+            spyOn(geohash, "decode").and.callFake(
+                (cellId: string): geohash.Point => {
+                    const [lat, lng] = cellId.split("/");
+                    return {
+                        lat: parseInt(lat, 10),
+                        lon: parseInt(lng, 10),
+                    };
+                });
+
+            spyOn(geohash, "bounds").and.callFake(
+                (lat: number, lng: number): geohash.Bounds => {
+                    return {
+                        ne: { lat: lat + 0.5, lon: lng + 0.5 },
+                        sw: { lat: lat - 0.5, lon: lng - 0.5 },
+                    }
+                });
+
+            spyOn(geohash, "neighbours").and.callFake(
+                (cellId: string): geohash.Neighbours => {
+                    const ll = geohash.decode(cellId);
+                    const lat = ll.lat;
+                    const lng = ll.lon;
+                    return {
+                        w: `${lat}/${lng - 1}`,
+                        n: `${lat + 1}/${lng}`,
+                        e: `${lat}/${lng + 1}`,
+                        s: `${lat - 1}/${lng}`,
+                        nw: `${lat + 1}/${lng - 1}`,
+                        ne: `${lat + 1}/${lng + 1}`,
+                        sw: `${lat - 1}/${lng - 1}`,
+                        se: `${lat - 1}/${lng + 1}`,
+                    };
+                });
+
+            spyOn(GeoCoords, "enuToGeodetic").and.callFake(
+                (x: number, y: number, _: number, refLat: number, refLon: number): number[] => {
                     return [
-                        tileSize / 2 * (lat - refLat),
-                        tileSize / 2 * (lon - refLon),
+                        refLat + y / tileSize,
+                        refLon + x / tileSize,
                         0];
                 });
         };
@@ -64,165 +87,165 @@ describe("GeohashGeometryProvider.latLonToCellIds", () => {
     test("should return h of position only", () => {
         const geometry = new GeohashGeometryProvider();
 
-        const threshold: number = 20;
-        const tileSize: number = 2 * (threshold + 1);
+        const threshold = 20;
+        const tileSize = 2 * (threshold + 1);
 
         setupSpies(tileSize);
 
-        const hs: string[] = geometry.latLonToCellIds({ lat: 0, lon: 0 }, threshold);
+        const hs = geometry.latLonToCellIds({ lat: 0, lon: 0 }, threshold);
 
         expect(hs.length).toBe(1);
-        expect(hs[0]).toBe("0,0");
+        expect(hs[0]).toBe("0/0");
     });
 
     test("should return h of position and north neighbour", () => {
         const geometry = new GeohashGeometryProvider();
 
-        const threshold: number = 20;
-        const tileSize: number = 2 * (threshold + 1);
+        const threshold = 20;
+        const tileSize = 2 * (threshold + 1);
 
         setupSpies(tileSize);
 
-        const hs: string[] = geometry.latLonToCellIds({ lat: 0, lon: 0.5 }, threshold);
+        const hs = geometry
+            .latLonToCellIds(
+                { lat: 0, lon: 0.4 },
+                threshold);
 
-        expect(hs.length).toBe(2);
-        expect(hs.indexOf("0,0")).not.toBe(-1);
-        expect(hs.indexOf("0,1")).not.toBe(-1);
+        expect(hs.length).toBe(9);
+        expect(hs.indexOf("0/0")).not.toBe(-1);
+        expect(hs.indexOf("0/1")).not.toBe(-1);
+        expect(hs.indexOf("0/-1")).not.toBe(-1);
+        expect(hs.indexOf("1/0")).not.toBe(-1);
+        expect(hs.indexOf("1/-1")).not.toBe(-1);
+        expect(hs.indexOf("1/1")).not.toBe(-1);
+        expect(hs.indexOf("-1/0")).not.toBe(-1);
+        expect(hs.indexOf("-1/-1")).not.toBe(-1);
+        expect(hs.indexOf("-1/1")).not.toBe(-1);
     });
 
-    test("should return h of position and east neighbour", () => {
+    test("should return neighbors", () => {
         const geometry = new GeohashGeometryProvider();
 
-        const threshold: number = 20;
-        const tileSize: number = 2 * (threshold + 1);
+        const threshold = 20;
+        const tileSize = 2 * (threshold + 1);
 
         setupSpies(tileSize);
 
-        const hs: string[] = geometry.latLonToCellIds({ lat: 0.5, lon: 0 }, threshold);
+        const hs = geometry
+            .latLonToCellIds(
+                { lat: 0.4, lon: 0 },
+                threshold);
 
-        expect(hs.length).toBe(2);
-        expect(hs.indexOf("0,0")).not.toBe(-1);
-        expect(hs.indexOf("1,0")).not.toBe(-1);
+        expect(hs.length).toBe(9);
+        expect(hs.indexOf("0/0")).not.toBe(-1);
+        expect(hs.indexOf("0/1")).not.toBe(-1);
+        expect(hs.indexOf("0/-1")).not.toBe(-1);
+        expect(hs.indexOf("1/0")).not.toBe(-1);
+        expect(hs.indexOf("1/-1")).not.toBe(-1);
+        expect(hs.indexOf("1/1")).not.toBe(-1);
+        expect(hs.indexOf("-1/0")).not.toBe(-1);
+        expect(hs.indexOf("-1/-1")).not.toBe(-1);
+        expect(hs.indexOf("-1/1")).not.toBe(-1);
     });
 
-    test("should return h of position and south neighbour", () => {
+    test("should return neighbors", () => {
         const geometry = new GeohashGeometryProvider();
 
-        const threshold: number = 20;
-        const tileSize: number = 2 * (threshold + 1);
+        const threshold = 20;
+        const tileSize = 2 * (threshold + 1);
 
         setupSpies(tileSize);
 
-        const hs: string[] = geometry.latLonToCellIds({ lat: 0, lon: -0.5 }, threshold);
+        const hs = geometry
+            .latLonToCellIds(
+                { lat: 0, lon: -0.4 },
+                threshold);
 
-        expect(hs.length).toBe(2);
-        expect(hs.indexOf("0,0")).not.toBe(-1);
-        expect(hs.indexOf("0,-1")).not.toBe(-1);
+        expect(hs.length).toBe(9);
+        expect(hs.indexOf("0/0")).not.toBe(-1);
+        expect(hs.indexOf("0/1")).not.toBe(-1);
+        expect(hs.indexOf("0/-1")).not.toBe(-1);
+        expect(hs.indexOf("1/0")).not.toBe(-1);
+        expect(hs.indexOf("1/-1")).not.toBe(-1);
+        expect(hs.indexOf("1/1")).not.toBe(-1);
+        expect(hs.indexOf("-1/0")).not.toBe(-1);
+        expect(hs.indexOf("-1/-1")).not.toBe(-1);
+        expect(hs.indexOf("-1/1")).not.toBe(-1);
     });
 
-    test("should return h of position and west neighbour", () => {
+    test("should return neighbours", () => {
         const geometry = new GeohashGeometryProvider();
 
-        const threshold: number = 20;
-        const tileSize: number = 2 * (threshold + 1);
+        const threshold = 20;
+        const tileSize = 2 * (threshold + 1);
 
         setupSpies(tileSize);
 
-        const hs: string[] = geometry.latLonToCellIds({ lat: -0.5, lon: 0 }, threshold);
+        const hs = geometry
+            .latLonToCellIds(
+                { lat: -0.4, lon: 0 },
+                threshold);
 
-        expect(hs.length).toBe(2);
-        expect(hs.indexOf("0,0")).not.toBe(-1);
-        expect(hs.indexOf("-1,0")).not.toBe(-1);
+        expect(hs.length).toBe(9);
+        expect(hs.indexOf("0/0")).not.toBe(-1);
+        expect(hs.indexOf("0/1")).not.toBe(-1);
+        expect(hs.indexOf("0/-1")).not.toBe(-1);
+        expect(hs.indexOf("1/0")).not.toBe(-1);
+        expect(hs.indexOf("1/-1")).not.toBe(-1);
+        expect(hs.indexOf("1/1")).not.toBe(-1);
+        expect(hs.indexOf("-1/0")).not.toBe(-1);
+        expect(hs.indexOf("-1/-1")).not.toBe(-1);
+        expect(hs.indexOf("-1/1")).not.toBe(-1);
     });
 
     test("should return h of position and north east neighbours", () => {
         const geometry = new GeohashGeometryProvider();
 
-        const threshold: number = 20;
-        const tileSize: number = 2 * (threshold + 1);
+        const threshold = 20;
+        const tileSize = 2 * (threshold + 1);
 
         setupSpies(tileSize);
 
-        const hs: string[] = geometry.latLonToCellIds({ lat: 0.5, lon: 0.5 }, threshold);
+        const hs = geometry
+            .latLonToCellIds(
+                { lat: 0.4, lon: 0.4 },
+                threshold);
 
-        expect(hs.length).toBe(4);
-        expect(hs.indexOf("0,0")).not.toBe(-1);
-        expect(hs.indexOf("0,1")).not.toBe(-1);
-        expect(hs.indexOf("1,1")).not.toBe(-1);
-        expect(hs.indexOf("1,0")).not.toBe(-1);
-    });
-
-    test("should return h of position and south east neighbours", () => {
-        const geometry = new GeohashGeometryProvider();
-
-        const threshold: number = 20;
-        const tileSize: number = 2 * (threshold + 1);
-
-        setupSpies(tileSize);
-
-        const hs: string[] = geometry.latLonToCellIds({ lat: 0.5, lon: -0.5 }, threshold);
-
-        expect(hs.length).toBe(4);
-        expect(hs.indexOf("0,0")).not.toBe(-1);
-        expect(hs.indexOf("1,0")).not.toBe(-1);
-        expect(hs.indexOf("1,-1")).not.toBe(-1);
-        expect(hs.indexOf("0,-1")).not.toBe(-1);
-    });
-
-    test("should return h of position and south west neighbours", () => {
-        const geometry = new GeohashGeometryProvider();
-
-        const threshold: number = 20;
-        const tileSize: number = 2 * (threshold + 1);
-
-        setupSpies(tileSize);
-
-        const hs: string[] = geometry.latLonToCellIds({ lat: -0.5, lon: -0.5 }, threshold);
-
-        expect(hs.length).toBe(4);
-        expect(hs.indexOf("0,0")).not.toBe(-1);
-        expect(hs.indexOf("0,-1")).not.toBe(-1);
-        expect(hs.indexOf("-1,-1")).not.toBe(-1);
-        expect(hs.indexOf("-1,0")).not.toBe(-1);
-    });
-
-    test("should return h of position and north west neighbours", () => {
-        const geometry = new GeohashGeometryProvider();
-
-        const threshold: number = 20;
-        const tileSize: number = 2 * (threshold + 1);
-
-        setupSpies(tileSize);
-
-        const hs: string[] = geometry.latLonToCellIds({ lat: -0.5, lon: 0.5 }, threshold);
-
-        expect(hs.length).toBe(4);
-        expect(hs.indexOf("0,0")).not.toBe(-1);
-        expect(hs.indexOf("-1,0")).not.toBe(-1);
-        expect(hs.indexOf("-1,1")).not.toBe(-1);
-        expect(hs.indexOf("0,1")).not.toBe(-1);
+        expect(hs.length).toBe(9);
+        expect(hs.indexOf("0/0")).not.toBe(-1);
+        expect(hs.indexOf("0/1")).not.toBe(-1);
+        expect(hs.indexOf("0/-1")).not.toBe(-1);
+        expect(hs.indexOf("1/0")).not.toBe(-1);
+        expect(hs.indexOf("1/-1")).not.toBe(-1);
+        expect(hs.indexOf("1/1")).not.toBe(-1);
+        expect(hs.indexOf("-1/0")).not.toBe(-1);
+        expect(hs.indexOf("-1/-1")).not.toBe(-1);
+        expect(hs.indexOf("-1/1")).not.toBe(-1);
     });
 
     test("should return h of position and all neighbours", () => {
         const geometry = new GeohashGeometryProvider();
 
-        const threshold: number = 20;
-        const tileSize: number = 2 * (threshold - 1);
+        const threshold = 20;
+        const tileSize = 2 * (threshold - 1);
 
         setupSpies(tileSize);
 
-        const hs: string[] = geometry.latLonToCellIds({ lat: 0, lon: 0 }, threshold);
+        const hs = geometry
+            .latLonToCellIds(
+                { lat: 0, lon: 0 },
+                threshold);
 
         expect(hs.length).toBe(9);
-        expect(hs.indexOf("0,0")).not.toBe(-1);
-        expect(hs.indexOf("0,1")).not.toBe(-1);
-        expect(hs.indexOf("-1,1")).not.toBe(-1);
-        expect(hs.indexOf("-1,0")).not.toBe(-1);
-        expect(hs.indexOf("-1,-1")).not.toBe(-1);
-        expect(hs.indexOf("0,-1")).not.toBe(-1);
-        expect(hs.indexOf("1,-1")).not.toBe(-1);
-        expect(hs.indexOf("1,0")).not.toBe(-1);
-        expect(hs.indexOf("1,1")).not.toBe(-1);
+        expect(hs.indexOf("0/0")).not.toBe(-1);
+        expect(hs.indexOf("0/1")).not.toBe(-1);
+        expect(hs.indexOf("-1/1")).not.toBe(-1);
+        expect(hs.indexOf("-1/0")).not.toBe(-1);
+        expect(hs.indexOf("-1/-1")).not.toBe(-1);
+        expect(hs.indexOf("0/-1")).not.toBe(-1);
+        expect(hs.indexOf("1/-1")).not.toBe(-1);
+        expect(hs.indexOf("1/0")).not.toBe(-1);
+        expect(hs.indexOf("1/1")).not.toBe(-1);
     });
 });
 
@@ -230,11 +253,23 @@ describe("GeohashGeometryProvider.bboxToCellIds", () => {
     test("should throw if north east is not larger than south west", () => {
         const geometry = new GeohashGeometryProvider();
 
-        expect(() => { geometry.bboxToCellIds({ lat: 0, lon: 0 }, { lat: -1, lon: 1 }); })
+        expect(() => {
+            geometry.bboxToCellIds(
+                { lat: 0, lon: 0 },
+                { lat: -1, lon: 1 });
+        })
             .toThrowError(MapillaryError);
-        expect(() => { geometry.bboxToCellIds({ lat: 0, lon: 0 }, { lat: 1, lon: -1 }); })
+        expect(() => {
+            geometry.bboxToCellIds(
+                { lat: 0, lon: 0 },
+                { lat: 1, lon: -1 });
+        })
             .toThrowError(MapillaryError);
-        expect(() => { geometry.bboxToCellIds({ lat: 0, lon: 0 }, { lat: -1, lon: -1 }); })
+        expect(() => {
+            geometry.bboxToCellIds(
+                { lat: 0, lon: 0 },
+                { lat: -1, lon: -1 });
+        })
             .toThrowError(MapillaryError);
     });
 
@@ -244,7 +279,7 @@ describe("GeohashGeometryProvider.bboxToCellIds", () => {
             const geometry = new GeohashGeometryProvider();
 
             spyOn(GeoCoords, "geodeticToEnu").and.returnValue([10, 20, 0]);
-            const encodeHsSpy: jasmine.Spy = spyOn(geometry, "latLonToCellIds").and.stub();
+            const encodeHsSpy = spyOn(geometry, "latLonToCellIds").and.stub();
 
             geometry.bboxToCellIds({ lat: 0, lon: 0 }, { lat: 1, lon: 3 });
 

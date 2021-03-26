@@ -1,8 +1,6 @@
 import * as geohash from "latlon-geohash";
-import { geodeticToEnu } from "../geo/GeoCoords";
 
 import { GeometryProviderBase } from "./GeometryProviderBase";
-import { CellNeighbors } from "./interfaces/CellCorners";
 import { LatLon } from "./interfaces/LatLon";
 
 
@@ -22,14 +20,11 @@ import { LatLon } from "./interfaces/LatLon";
  * ```
  */
 export class GeohashGeometryProvider extends GeometryProviderBase {
-    private _level: number;
-
     /**
      * Create a new geohash geometry provider instance.
      */
-    constructor() {
+    constructor(private readonly _level: number = 7) {
         super();
-        this._level = 7;
     }
 
     /**
@@ -61,8 +56,18 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
     }
 
     /** @inheritdoc */
-    public getAdjacent(cellId: string): CellNeighbors {
-        return geohash.neighbours(cellId);
+    public getAdjacent(cellId: string): string[] {
+        const neighbors = geohash.neighbours(cellId);
+        return [
+            neighbors.e,
+            neighbors.n,
+            neighbors.ne,
+            neighbors.nw,
+            neighbors.s,
+            neighbors.se,
+            neighbors.sw,
+            neighbors.w,
+        ];
     }
 
     /**
@@ -95,91 +100,16 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
         latLon: LatLon,
         threshold: number)
         : string[] {
-
-        const h = geohash.encode(
+        const cellId = geohash.encode(
             latLon.lat, latLon.lon, this._level);
 
-        const bounds = geohash.bounds(h);
-        const neighbours = this.getAdjacent(h);
-
-        return this._filterNeighbors(
-            latLon,
-            threshold,
-            h,
-            bounds,
-            neighbours);
-    }
-
-    private _filterNeighbors(
-        latLon: LatLon,
-        threshold: number,
-        cellId: string,
-        bounds: geohash.Bounds,
-        neighbors: CellNeighbors): string[] {
-
-        const bl = [0, 0, 0];
-        const tr =
-            geodeticToEnu(
-                bounds.ne.lat,
-                bounds.ne.lon,
-                0,
-                bounds.sw.lat,
-                bounds.sw.lon,
-                0);
-
-        const position =
-            geodeticToEnu(
-                latLon.lat,
-                latLon.lon,
-                0,
-                bounds.sw.lat,
-                bounds.sw.lon,
-                0);
-
-        const left = position[0] - bl[0];
-        const right = tr[0] - position[0];
-        const bottom = position[1] - bl[1];
-        const top = tr[1] - position[1];
-
-        const l = left < threshold;
-        const r = right < threshold;
-        const b = bottom < threshold;
-        const t = top < threshold;
-
-        const cellIds = [cellId];
-
-        if (t) {
-            cellIds.push(neighbors.n);
+        const corners =
+            this._getLatLonBoundingBoxCorners(latLon, threshold);
+        for (let c of corners) {
+            if (geohash.encode(c.lat, c.lon, this._level) !== cellId) {
+                return [cellId, ...this.getAdjacent(cellId)];
+            }
         }
-
-        if (t && l) {
-            cellIds.push(neighbors.nw);
-        }
-
-        if (l) {
-            cellIds.push(neighbors.w);
-        }
-
-        if (l && b) {
-            cellIds.push(neighbors.sw);
-        }
-
-        if (b) {
-            cellIds.push(neighbors.s);
-        }
-
-        if (b && r) {
-            cellIds.push(neighbors.se);
-        }
-
-        if (r) {
-            cellIds.push(neighbors.e);
-        }
-
-        if (r && t) {
-            cellIds.push(neighbors.ne);
-        }
-
-        return cellIds;
+        return [cellId];
     }
 }
