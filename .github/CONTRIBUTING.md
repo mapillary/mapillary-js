@@ -5,7 +5,7 @@ Thanks in advance for contributing to MapillaryJS. Please follow the conventions
 Facebook has adopted the [Contributor Covenant](https://www.contributor-covenant.org/) as its Code of Conduct, and we expect project participants to adhere to it. Please read [the full text](.CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
 
 ## Contribution Prerequisites
-- You have [Node](https://nodejs.org) installed at v10.0.0+ and [Yarn](https://classic.yarnpkg.com) at v1.2.0+.
+- You have [Node](https://nodejs.org) installed at v14.16.0+ and [Yarn](https://classic.yarnpkg.com) at v1.2.0+.
 - You are familiar with [Git](https://git-scm.com/).
 
 ## Sending a Pull Request
