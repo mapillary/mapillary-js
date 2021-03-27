@@ -1,6 +1,6 @@
+import { GeometryProviderBase } from "../../src/api/GeometryProviderBase";
 import { LatLon } from "../../src/api/interfaces/LatLon";
 import { MapillaryError } from "../../src/error/MapillaryError";
-import { GeometryProviderBase } from "../../src/export/APINamespace";
 import * as GeoCoords from "../../src/geo/GeoCoords";
 import { isClockwise } from "../helper/TestMath";
 

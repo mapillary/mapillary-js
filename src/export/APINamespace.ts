@@ -1,5 +1,9 @@
 // Class
-export * as Common from "../api/Common";
+export {
+    decompress,
+    fetchArrayBuffer,
+    readMeshPbf,
+} from "../api/Common";
 export { DataProviderBase } from "../api/DataProviderBase";
 export { GeohashGeometryProvider } from "../api/GeohashGeometryProvider";
 export { GeometryProviderBase } from "../api/GeometryProviderBase";
