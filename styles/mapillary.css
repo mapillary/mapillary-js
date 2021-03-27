@@ -6,11 +6,11 @@
 }
 
 .mapillary-interactive {
-     cursor: grab;
+    cursor: grab;
 }
 
 .mapillary-interactive:active {
-     cursor: grabbing;
+    cursor: grabbing;
 }
 
 .mapillary-viewer .mapillary-dom {

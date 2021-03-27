@@ -1,40 +1,40 @@
 {
-    "compilerOptions": {
-        "allowSyntheticDefaultImports": true,
-        "declaration": true,
-        "lib": [
-            "es6",
-            "dom"
-        ],
-        "module": "es6",
-        "moduleResolution": "node",
-        "noImplicitAny": true,
-        "outDir": "build/esm/",
-        "sourceMap": true,
-        "target": "es6",
-        "typeRoots": [
-            "node_modules/@types",
-            "types",
-            "types/@mapbox"
-        ],
-        "types": [
-            "earcut",
-            "falcor",
-            "falcor-http-datasource",
-            "jest",
-            "latlon-geohash",
-            "node",
-            "pbf",
-            "polylabel",
-            "rbush",
-            "s2-geometry",
-            "three",
-            "unitbezier",
-            "virtual-dom"
-        ]
-    },
-    "include": [
-        "src/**/*",
-        "test/**/*"
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "module": "es6",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "outDir": "build/esm/",
+    "sourceMap": true,
+    "target": "es6",
+    "typeRoots": [
+      "node_modules/@types",
+      "types",
+      "types/@mapbox"
+    ],
+    "types": [
+      "earcut",
+      "falcor",
+      "falcor-http-datasource",
+      "jest",
+      "latlon-geohash",
+      "node",
+      "pbf",
+      "polylabel",
+      "rbush",
+      "s2-geometry",
+      "three",
+      "unitbezier",
+      "virtual-dom"
     ]
+  },
+  "include": [
+    "src/**/*",
+    "test/**/*"
+  ]
 }
