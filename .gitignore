@@ -1,22 +1,20 @@
 # IDE
-.vscode/*
-.vagrant/*
+.idea/
+.vagrant/
+.vscode/
 vagrant.*
 Vagrantfile
 
-# npm
-node_modules/*
+# Package
+node_modules/
+yarn-error.log
+yarn-debug.log
 
-# File types
-*.DS_Store
-*.log
+# Filetypes
+*.DS_STORE
 *.tgz
-.#*
 
-# Build artifacts
-dist/*
-spec/*.js
-build/*
-
-# Documentation artifacts
-docs/build/*
+# Artifacts
+build/
+dist/
+docs/build/
