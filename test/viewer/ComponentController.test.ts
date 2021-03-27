@@ -17,6 +17,7 @@ import { Viewer } from "../../src/viewer/Viewer";
 import { Component } from "../../src/component/Component";
 import { ComponentConfiguration } from "../../src/component/interfaces/ComponentConfiguration";
 import { CoverState } from "../../src/component/cover/CoverState";
+import { ViewerNavigableEvent } from "../../src/viewer/events/ViewerStateEvent";
 
 class CMock extends Component<ComponentConfiguration> {
     protected static _cn: string = "mock";
@@ -264,9 +265,9 @@ describe("ComponentController.navigable", () => {
         let navigableChangedCount: number = 0;
         viewer.on(
             "navigable",
-            (navigable: boolean): void => {
+            (event: ViewerNavigableEvent): void => {
                 navigableChangedCount++;
-                expect(navigable).toBe(true);
+                expect(event.navigable).toBe(true);
             });
 
         (<Subject<string>>navigator.stateService.currentId$).next(null);
@@ -354,9 +355,9 @@ describe("ComponentController.navigable", () => {
         let navigableChangedCount: number = 0;
         viewer.on(
             "navigable",
-            (navigable: boolean): void => {
+            (event: ViewerNavigableEvent): void => {
                 navigableChangedCount++;
-                expect(navigable).toBe(false);
+                expect(event.navigable).toBe(false);
             });
 
         componentController.activateCover();

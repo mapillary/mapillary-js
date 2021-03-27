@@ -108,11 +108,16 @@ export class TagComponent extends Component<TagConfiguration> {
 
     private _creatingConfiguration$: Observable<TagConfiguration>;
 
-    private _createHandlers: { [K in keyof typeof TagMode]: CreateHandlerBase };
+    private _createHandlers: {
+        [K in keyof typeof TagMode]: CreateHandlerBase;
+    };
     private _editVertexHandler: EditVertexHandler;
 
     /** @ignore */
-    constructor(name: string, container: Container, navigator: Navigator) {
+    constructor(
+        name: string,
+        container: Container,
+        navigator: Navigator) {
         super(name, container, navigator);
 
         this._tagDomRenderer = new TagDOMRenderer();

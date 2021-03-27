@@ -30,7 +30,15 @@ import { Observer } from "./Observer";
 import { CustomRenderer } from "./CustomRenderer";
 import { ViewerEvent } from "./events/ViewerEvent";
 import { IViewer } from "./interfaces/IViewer";
-import { ViewerStateEvent } from "./events/ViewerStateEvent";
+import {
+    ViewerBearingEvent,
+    ViewerLoadingEvent,
+    ViewerNavigableEvent,
+    ViewerNavigationEdgeStatusEvent,
+    ViewerNodeEvent,
+    ViewerStateEvent,
+} from "./events/ViewerStateEvent";
+import { ViewerMouseEvent } from "./events/ViewerMouseEvent";
 /**
  * @class Viewer
  *
@@ -592,18 +600,174 @@ export class Viewer extends EventEmitter implements IViewer {
             });
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
+    public off(
+        type: "bearing",
+        handler: (event: ViewerBearingEvent) => void)
+        : void;
+    public off(
+        type: "click",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public off(
+        type: "contextmenu",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public off(
+        type: "dblclick",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public off(
+        type: "fov",
+        handler: (event: ViewerStateEvent) => void)
+        : void;
+    public off(
+        type: "loading",
+        handler: (event: ViewerLoadingEvent) => void)
+        : void;
+    public off(
+        type: "mousedown",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public off(
+        type: "mousemove",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public off(
+        type: "mouseout",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public off(
+        type: "mouseover",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public off(
+        type: "mouseup",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public off(
+        type: "moveend",
+        handler: (event: ViewerStateEvent) => void)
+        : void;
+    public off(
+        type: "movestart",
+        handler: (event: ViewerStateEvent) => void)
+        : void;
+    public off(
+        type: "navigable",
+        handler: (event: ViewerNavigableEvent) => void)
+        : void;
+    public off(
+        type: "node",
+        handler: (event: ViewerNodeEvent) => void)
+        : void;
+    public off(
+        type: "position",
+        handler: (event: ViewerStateEvent) => void)
+        : void;
+    public off(
+        type: "pov",
+        handler: (event: ViewerStateEvent) => void)
+        : void;
+    public off(
+        type: "remove",
+        handler: (event: ViewerStateEvent) => void)
+        : void;
+    public off(
+        type: "sequenceedges",
+        handler: (event: ViewerNavigationEdgeStatusEvent) => void)
+        : void;
+    public off(
+        type: "spatialedges",
+        handler: (event: ViewerNavigationEdgeStatusEvent) => void)
+        : void;
     public off<T>(
         type: ViewerEvent,
         handler: (event: T) => void): void {
         super.off(type, handler);
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
+    public on(
+        type: "bearing",
+        handler: (event: ViewerBearingEvent) => void)
+        : void;
+    public on(
+        type: "click",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public on(
+        type: "contextmenu",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public on(
+        type: "dblclick",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public on(
+        type: "fov",
+        handler: (event: ViewerStateEvent) => void)
+        : void;
+    public on(
+        type: "loading",
+        handler: (event: ViewerLoadingEvent) => void)
+        : void;
+    public on(
+        type: "mousedown",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public on(
+        type: "mousemove",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public on(
+        type: "mouseout",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public on(
+        type: "mouseover",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public on(
+        type: "mouseup",
+        handler: (event: ViewerMouseEvent) => void)
+        : void;
+    public on(
+        type: "moveend",
+        handler: (event: ViewerStateEvent) => void)
+        : void;
+    public on(
+        type: "movestart",
+        handler: (event: ViewerStateEvent) => void)
+        : void;
+    public on(
+        type: "navigable",
+        handler: (event: ViewerNavigableEvent) => void)
+        : void;
+    public on(
+        type: "node",
+        handler: (event: ViewerNodeEvent) => void)
+        : void;
+    public on(
+        type: "position",
+        handler: (event: ViewerStateEvent) => void)
+        : void;
+    public on(
+        type: "pov",
+        handler: (event: ViewerStateEvent) => void)
+        : void;
+    public on(
+        type: "remove",
+        handler: (event: ViewerStateEvent) => void)
+        : void;
+    public on(
+        type: "sequenceedges",
+        handler: (event: ViewerNavigationEdgeStatusEvent) => void)
+        : void;
+    public on(
+        type: "spatialedges",
+        handler: (event: ViewerNavigationEdgeStatusEvent) => void)
+        : void;
     public on<T>(
         type: ViewerEvent,
         handler: (event: T) => void): void {
