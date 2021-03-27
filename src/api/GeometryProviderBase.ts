@@ -1,10 +1,9 @@
-import { LatLon } from "./interfaces/LatLon";
-
 import { MapillaryError } from "../error/MapillaryError";
 import {
     enuToGeodetic,
     geodeticToEnu,
 } from "../geo/GeoCoords";
+import { LatLon } from "./interfaces/LatLon";
 
 /**
  * @class GeometryProviderBase
@@ -45,8 +44,7 @@ export abstract class GeometryProviderBase {
     /**
      * Get the adjacent cells
      *
-     * @param {LatLon} sw - South west corner of the bounding box.
-     * @param {LatLon} ne - North east corner of the bounding box.
+     * @param {string} cellId - Id of cell.
      * @returns {Array<string>} Array of cell ids. No specific
      * order is guaranteed.
      */
@@ -79,27 +77,8 @@ export abstract class GeometryProviderBase {
         throw new MapillaryError("Not implemented");
     }
 
-    /**
-     * Convert a geodetic square to cell ids.
-     *
-     * The square is specified as a latitude, longitude
-     * and a threshold from the position using Manhattan distance.
-     *
-     * @param {LatLon} latlon - Latitude and longitude.
-     * @param {number} threshold - Threshold of the conversion in meters.
-     *
-     * @returns {Array<string>} Array of cell ids reachable within
-     * the threshold.
-     */
-    public latLonToCellIds(
-        latLon: LatLon,
-        threshold: number)
-        : string[] {
-        throw new MapillaryError("Not implemented");
-    }
-
     /** @ignore */
-    protected _bboxSquareToCellIds(sw: LatLon, ne: LatLon): string[] {
+    protected _approxBboxToCellIds(sw: LatLon, ne: LatLon): string[] {
         if (ne.lat <= sw.lat || ne.lon <= sw.lon) {
             throw new MapillaryError(
                 "North east needs to be top right of south west");
@@ -119,13 +98,13 @@ export abstract class GeometryProviderBase {
 
         const threshold = Math.max(enu[0], enu[1]);
 
-        return this.latLonToCellIds(
+        return this._latLonToCellIds(
             { lat: centerLat, lon: centerLon },
             threshold);
     }
 
     /** @ignore */
-    protected _enuToGeodetic(point: number[], reference: LatLon): LatLon {
+    private _enuToGeodetic(point: number[], reference: LatLon): LatLon {
         const [lat, lon] = enuToGeodetic(
             point[0],
             point[1],
@@ -138,7 +117,7 @@ export abstract class GeometryProviderBase {
     }
 
     /** @ignore */
-    protected _getLatLonBoundingBoxCorners(
+    private _getLatLonBoundingBoxCorners(
         latLon: LatLon,
         threshold: number)
         : LatLon[] {
@@ -152,5 +131,36 @@ export abstract class GeometryProviderBase {
             (point: number[]): LatLon => {
                 return this._enuToGeodetic(point, latLon);
             });
+    }
+
+
+    /**
+     * Convert a geodetic square to cell ids.
+     *
+     * The square is specified as a latitude, longitude
+     * and a threshold from the position using Manhattan distance.
+     *
+     * @param {LatLon} latlon - Latitude and longitude.
+     * @param {number} threshold - Threshold of the conversion in meters.
+     *
+     * @returns {Array<string>} Array of cell ids reachable within
+     * the threshold.
+     *
+     * @ignore
+     */
+    private _latLonToCellIds(
+        latLon: LatLon,
+        threshold: number)
+        : string[] {
+        const cellId = this.latLonToCellId(latLon);
+        const bboxCorners =
+            this._getLatLonBoundingBoxCorners(latLon, threshold);
+        for (const corner of bboxCorners) {
+            const cid = this.latLonToCellId(corner);
+            if (cid !== cellId) {
+                return [cellId, ...this.getAdjacent(cellId)];
+            }
+        }
+        return [cellId];
     }
 }

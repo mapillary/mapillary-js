@@ -23,9 +23,7 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
     /**
      * Create a new geohash geometry provider instance.
      */
-    constructor(private readonly _level: number = 7) {
-        super();
-    }
+    constructor(private readonly _level: number = 7) { super(); }
 
     /**
      * Encode the minimum set of geohash tiles containing a bounding box.
@@ -42,7 +40,7 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
      * @returns {string} The geohash tiles containing the bounding box.
      */
     public bboxToCellIds(sw: LatLon, ne: LatLon): string[] {
-        return this._bboxSquareToCellIds(sw, ne);
+        return this._approxBboxToCellIds(sw, ne);
     }
 
     /** @inheritdoc */
@@ -83,33 +81,5 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
             latLon.lat,
             latLon.lon,
             this._level);
-    }
-
-    /**
-     * Encode the geohash tiles within a threshold from a position
-     * using Manhattan distance.
-     *
-     * @param {LatLon} latlon - Latitude and longitude to encode.
-     * @param {number} precision - Precision of the encoding.
-     * @param {number} threshold - Threshold of the encoding in meters.
-     *
-     * @returns {Array<string>} The geohash tiles reachable within the
-     * threshold.
-     */
-    public latLonToCellIds(
-        latLon: LatLon,
-        threshold: number)
-        : string[] {
-        const cellId = geohash.encode(
-            latLon.lat, latLon.lon, this._level);
-
-        const corners =
-            this._getLatLonBoundingBoxCorners(latLon, threshold);
-        for (let c of corners) {
-            if (geohash.encode(c.lat, c.lon, this._level) !== cellId) {
-                return [cellId, ...this.getAdjacent(cellId)];
-            }
-        }
-        return [cellId];
     }
 }

@@ -22,13 +22,11 @@ export class S2GeometryProvider extends GeometryProviderBase {
     /**
      * Create a new S2 geometry provider instance.
      */
-    constructor(private readonly _level: number = 17) {
-        super();
-    }
+    constructor(private readonly _level: number = 17) { super(); }
 
     /** @inheritdoc */
     public bboxToCellIds(sw: LatLon, ne: LatLon): string[] {
-        return this._bboxSquareToCellIds(sw, ne);
+        return this._approxBboxToCellIds(sw, ne);
     }
 
     /** @inheritdoc */
@@ -77,20 +75,6 @@ export class S2GeometryProvider extends GeometryProviderBase {
     /** @inheritdoc */
     public latLonToCellId(latLon: LatLon): string {
         return this._latLonToId(latLon, this._level);
-    }
-
-    /** @inheritdoc */
-    public latLonToCellIds(latLon: LatLon, threshold: number): string[] {
-        const cellId = this._latLonToId(latLon, this._level);
-        const corners =
-            this._getLatLonBoundingBoxCorners(latLon, threshold);
-
-        for (const corner of corners) {
-            if (this._latLonToId(corner, this._level) !== cellId) {
-                return [cellId, ...this.getAdjacent(cellId)];
-            }
-        }
-        return [cellId];
     }
 
     private _getNeighbors(s2key: string, level: number): string[] {
