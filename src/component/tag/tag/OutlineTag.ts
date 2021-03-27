@@ -7,7 +7,10 @@ import { OutlineTagOptions } from "../interfaces/OutlineTagOptions";
 
 import { Tag } from "./Tag";
 import { TagDomain } from "./TagDomain";
-
+import {
+    TagEvent,
+    TagStateEvent,
+} from "./TagEvent";
 
 /**
  * @class OutlineTag
@@ -26,14 +29,6 @@ import { TagDomain } from "./TagDomain";
  * ```
  */
 export class OutlineTag extends Tag {
-    /**
-     * Event fired when the icon of the outline tag is clicked.
-     *
-     * @event OutlineTag#click
-     * @type {OutlineTag} The tag instance that was clicked.
-     */
-    public static click: string = "click";
-
     protected _geometry: VertexGeometry;
 
     private _domain: TagDomain;
@@ -91,7 +86,12 @@ export class OutlineTag extends Tag {
         this._click$
             .subscribe(
                 (): void => {
-                    this.fire(OutlineTag.click, this);
+                    const type: TagEvent = "click";
+                    const event: TagStateEvent = {
+                        target: this,
+                        type,
+                    };
+                    this.fire(type, event);
                 });
     }
 
