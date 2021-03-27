@@ -54,7 +54,11 @@ import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { Container } from "../../viewer/Container";
 import { ISpriteAtlas } from "../../viewer/interfaces/ISpriteAtlas";
 import { ComponentEvent } from "../events/ComponentEvent";
-import { ComponentGeometryEvent, ComponentStateEvent, ComponentTagModeEvent } from "../events/ComponentStateEvent";
+import {
+    ComponentGeometryEvent,
+    ComponentStateEvent,
+    ComponentTagModeEvent,
+} from "../events/ComponentStateEvent";
 
 /**
  * @class TagComponent
@@ -488,6 +492,60 @@ export class TagComponent extends Component<TagConfiguration> {
      */
     public has(tagId: string): boolean {
         return this._activated ? this._tagSet.has(tagId) : this._tagSet.hasDeactivated(tagId);
+    }
+
+    /** @inheritdoc */
+    public off(
+        type: "geometrycreated",
+        handler: (event: ComponentGeometryEvent) => void)
+        : void;
+    public off(
+        type: "tagcreateend",
+        handler: (event: ComponentStateEvent) => void)
+        : void;
+    public off(
+        type: "tagcreatestart",
+        handler: (event: ComponentStateEvent) => void)
+        : void;
+    public off(
+        type: "tagmode",
+        handler: (event: ComponentTagModeEvent) => void)
+        : void;
+    public off(
+        type: "tags",
+        handler: (event: ComponentStateEvent) => void)
+        : void;
+    public off<T>(
+        type: ComponentEvent,
+        handler: (event: T) => void): void {
+        super.off(type, handler);
+    }
+
+    /** @inheritdoc */
+    public on(
+        type: "geometrycreated",
+        handler: (event: ComponentGeometryEvent) => void)
+        : void;
+    public on(
+        type: "tagcreateend",
+        handler: (event: ComponentStateEvent) => void)
+        : void;
+    public on(
+        type: "tagcreatestart",
+        handler: (event: ComponentStateEvent) => void)
+        : void;
+    public on(
+        type: "tagmode",
+        handler: (event: ComponentTagModeEvent) => void)
+        : void;
+    public on(
+        type: "tags",
+        handler: (event: ComponentStateEvent) => void)
+        : void;
+    public on<T>(
+        type: ComponentEvent,
+        handler: (event: T) => void): void {
+        super.on(type, handler);
     }
 
     /**

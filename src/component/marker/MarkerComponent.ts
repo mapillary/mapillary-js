@@ -202,6 +202,44 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
         return this._markerSet.has(markerId);
     }
 
+    /** @inheritdoc */
+    public off(
+        type: "markerdragend",
+        handler: (event: ComponentMarkerEvent) => void)
+        : void;
+    public off(
+        type: "markerdragstart",
+        handler: (event: ComponentMarkerEvent) => void)
+        : void;
+    public off(
+        type: "markerposition",
+        handler: (event: ComponentMarkerEvent) => void)
+        : void;
+    public off<T>(
+        type: ComponentEvent,
+        handler: (event: T) => void): void {
+        super.on(type, handler);
+    }
+
+    /** @inheritdoc */
+    public on(
+        type: "markerdragend",
+        handler: (event: ComponentMarkerEvent) => void)
+        : void;
+    public on(
+        type: "markerdragstart",
+        handler: (event: ComponentMarkerEvent) => void)
+        : void;
+    public on(
+        type: "markerposition",
+        handler: (event: ComponentMarkerEvent) => void)
+        : void;
+    public on<T>(
+        type: ComponentEvent,
+        handler: (event: T) => void): void {
+        super.on(type, handler);
+    }
+
     /**
      * Remove markers with the specified ids from the marker set.
      *

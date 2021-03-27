@@ -45,7 +45,11 @@ import { SequenceDOMRenderer } from "./SequenceDOMRenderer";
 import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { Component } from "../Component";
 import { ComponentEvent } from "../events/ComponentEvent";
-import { ComponentHoverEvent, ComponentPlayEvent } from "../events/ComponentStateEvent";
+import {
+    ComponentHoverEvent,
+    ComponentPlayEvent,
+    ComponentStateEvent,
+} from "../events/ComponentStateEvent";
 
 /**
  * @class SequenceComponent
@@ -113,6 +117,36 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                         this.configure({ direction });
                     }
                 });
+    }
+
+    /** @inheritdoc */
+    public off(
+        type: "hover",
+        handler: (event: ComponentHoverEvent) => void)
+        : void;
+    public off(
+        type: "playing",
+        handler: (event: ComponentPlayEvent) => void)
+        : void;
+    public off<T>(
+        type: ComponentEvent,
+        handler: (event: T) => void): void {
+        super.off(type, handler);
+    }
+
+    /** @inheritdoc */
+    public on(
+        type: "hover",
+        handler: (event: ComponentHoverEvent) => void)
+        : void;
+    public on(
+        type: "playing",
+        handler: (event: ComponentPlayEvent) => void)
+        : void;
+    public on<T>(
+        type: ComponentEvent,
+        handler: (event: T) => void): void {
+        super.on(type, handler);
     }
 
     /**
