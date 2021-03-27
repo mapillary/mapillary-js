@@ -11,7 +11,7 @@ import { ComponentService } from "../../src/component/ComponentService";
 import { CoverComponent } from "../../src/component/cover/CoverComponent";
 import { CoverConfiguration } from "../../src/component/interfaces/CoverConfiguration";
 import { Observer } from "../../src/viewer/Observer";
-import { EventEmitter } from "../../src/utils/EventEmitter";
+import { EventEmitter } from "../../src/util/EventEmitter";
 import { ComponentController } from "../../src/viewer/ComponentController";
 import { Viewer } from "../../src/viewer/Viewer";
 import { Component } from "../../src/component/Component";

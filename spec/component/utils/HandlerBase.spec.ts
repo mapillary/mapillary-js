@@ -5,7 +5,7 @@ import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
 import { Navigator } from "../../../src/viewer/Navigator";
 import { Component } from "../../../src/component/Component";
 import { ComponentConfiguration } from "../../../src/component/interfaces/ComponentConfiguration";
-import { HandlerBase } from "../../../src/component/utils/HandlerBase";
+import { HandlerBase } from "../../../src/component/util/HandlerBase";
 import { Container } from "../../../src/viewer/Container";
 
 interface TestConfiguration extends ComponentConfiguration {

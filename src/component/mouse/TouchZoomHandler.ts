@@ -22,7 +22,7 @@ import { Navigator } from "../../viewer/Navigator";
 import { TouchPinch } from "../../viewer/interfaces/TouchPinch";
 import { Component } from "../Component";
 import { MouseConfiguration } from "../interfaces/MouseConfiguration";
-import { HandlerBase } from "../utils/HandlerBase";
+import { HandlerBase } from "../util/HandlerBase";
 import { isSpherical } from "../../geo/Geo";
 
 /**

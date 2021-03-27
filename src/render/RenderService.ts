@@ -22,7 +22,7 @@ import { ViewportSize } from "./interfaces/ViewportSize";
 
 import { Spatial } from "../geo/Spatial";
 import { AnimationFrame } from "../state/interfaces/AnimationFrame";
-import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { SubscriptionHolder } from "../util/SubscriptionHolder";
 
 interface RenderCameraOperation {
     (rc: RenderCamera): RenderCamera;

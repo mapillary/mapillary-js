@@ -8,7 +8,7 @@ import { NodeHelper } from "../helper/NodeHelper";
 import { Node } from "../../src/graph/Node";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { IStateBase } from "../../src/state/interfaces/IStateBase";
-import { TraversingState } from "../../src/state/states/TraversingState";
+import { TraversingState } from "../../src/state/state/TraversingState";
 import { Camera } from "../../src/geo/Camera";
 import { TransitionMode } from "../../src/state/TransitionMode";
 import { TransformHelper } from "../helper/TransformHelper";

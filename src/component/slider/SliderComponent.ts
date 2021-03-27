@@ -47,14 +47,14 @@ import { RenderCamera } from "../../render/RenderCamera";
 import { IAnimationState } from "../../state/interfaces/IAnimationState";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { State } from "../../state/State";
-import { TileLoader } from "../../tiles/TileLoader";
-import { TileStore } from "../../tiles/TileStore";
-import { TileBoundingBox } from "../../tiles/interfaces/TileBoundingBox";
+import { TileLoader } from "../../tile/TileLoader";
+import { TileStore } from "../../tile/TileStore";
+import { TileBoundingBox } from "../../tile/interfaces/TileBoundingBox";
 import { TileRegionOfInterest }
-    from "../../tiles/interfaces/TileRegionOfInterest";
+    from "../../tile/interfaces/TileRegionOfInterest";
 import { RegionOfInterestCalculator }
-    from "../../tiles/RegionOfInterestCalculator";
-import { TextureProvider } from "../../tiles/TextureProvider";
+    from "../../tile/RegionOfInterestCalculator";
+import { TextureProvider } from "../../tile/TextureProvider";
 import { Component } from "../Component";
 import {
     SliderConfiguration,
@@ -64,7 +64,7 @@ import { SliderGLRenderer } from "./SliderGLRenderer";
 import { Transform } from "../../geo/Transform";
 import { SliderDOMRenderer } from "./SliderDOMRenderer";
 import { isSpherical } from "../../geo/Geo";
-import { ViewerConfiguration } from "../../utils/ViewerConfiguration";
+import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
 
 /**
  * @class SliderComponent

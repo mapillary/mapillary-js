@@ -21,7 +21,7 @@ import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
 import { State } from "../../state/State";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
-import { ComponentSize } from "../utils/ComponentSize";
+import { ComponentSize } from "../util/ComponentSize";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 

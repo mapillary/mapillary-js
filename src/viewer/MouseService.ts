@@ -28,7 +28,7 @@ import {
 
 import { MouseClaim } from "./interfaces/MouseClaim";
 import { MousePixelDeferral } from "./interfaces/MousePixelDeferral";
-import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { SubscriptionHolder } from "../util/SubscriptionHolder";
 
 type Button = 0 | 2;
 

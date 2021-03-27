@@ -1,5 +1,5 @@
 import { MapillaryError } from "../error/MapillaryError";
-import { EventEmitter } from "../utils/EventEmitter";
+import { EventEmitter } from "../util/EventEmitter";
 import { ClusterReconstructionContract }
     from "./contracts/ClusterReconstructionContract";
 import { MeshContract } from "./contracts/MeshContract";

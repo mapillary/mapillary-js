@@ -24,7 +24,7 @@ import {
     takeUntil,
 } from "rxjs/operators";
 
-import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { TouchPinch } from "./interfaces/TouchPinch";
 
 interface PinchOperation {

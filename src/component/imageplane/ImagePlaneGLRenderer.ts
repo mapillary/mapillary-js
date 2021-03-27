@@ -5,9 +5,9 @@ import { IAnimationState } from "../../state/interfaces/IAnimationState";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { Node } from "../../graph/Node";
 import { Transform } from "../../geo/Transform";
-import { TextureProvider } from "../../tiles/TextureProvider";
-import { MeshFactory } from "../utils/MeshFactory";
-import { MeshScene } from "../utils/MeshScene";
+import { TextureProvider } from "../../tile/TextureProvider";
+import { MeshFactory } from "../util/MeshFactory";
+import { MeshScene } from "../util/MeshScene";
 import { ProjectorShaderMaterial } from "./interfaces/ProjectorShaderMaterial";
 
 export class ImagePlaneGLRenderer {

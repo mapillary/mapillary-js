@@ -5,7 +5,7 @@ import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { ImageEnt } from "../../src/api/ents/ImageEnt";
 import { EulerRotation } from "../../src/state/interfaces/EulerRotation";
 import { IStateBase } from "../../src/state/interfaces/IStateBase";
-import { StateBase } from "../../src/state/states/StateBase";
+import { StateBase } from "../../src/state/state/StateBase";
 import { Camera } from "../../src/geo/Camera";
 import { TransitionMode } from "../../src/state/TransitionMode";
 

@@ -4,15 +4,15 @@ import {
     Subject,
 } from "rxjs";
 
-import { TextureProvider } from "../../src/tiles/TextureProvider";
-import { TileLoader } from "../../src/tiles/TileLoader";
-import { TileStore } from "../../src/tiles/TileStore";
+import { TextureProvider } from "../../src/tile/TextureProvider";
+import { TileLoader } from "../../src/tile/TileLoader";
+import { TileStore } from "../../src/tile/TileStore";
 import {
     TILE_MIN_REQUEST_LEVEL,
     TILE_SIZE,
-} from "../../src/tiles/interfaces/TileTypes";
+} from "../../src/tile/interfaces/TileTypes";
 import { TileRegionOfInterest }
-    from "../../src/tiles/interfaces/TileRegionOfInterest";
+    from "../../src/tile/interfaces/TileRegionOfInterest";
 
 import { MockCreator } from "../helper/MockCreator";
 import { RendererMock } from "../helper/WebGLRenderer";

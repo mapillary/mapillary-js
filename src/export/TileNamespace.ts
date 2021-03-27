@@ -1,4 +1,4 @@
-export * as Math from '../tiles/TileMath';
+export * as Math from '../tile/TileMath';
 export {
     TileCoords2D,
     TileCoords3D,
@@ -6,4 +6,4 @@ export {
     TileLevel,
     TileLevelColumnRows,
     TilePixelCoords2D,
-} from '../tiles/interfaces/TileTypes';
+} from '../tile/interfaces/TileTypes';

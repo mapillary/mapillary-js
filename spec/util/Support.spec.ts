@@ -1,4 +1,4 @@
-import * as support from "../../src/utils/Support";
+import * as support from "../../src/util/Support";
 
 describe("isWebGLSupported", () => {
     it("should not be supported when get context returns undefined", () => {

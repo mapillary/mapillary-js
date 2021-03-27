@@ -14,7 +14,7 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
 import { MouseConfiguration } from "../interfaces/MouseConfiguration";
-import { HandlerBase } from "../utils/HandlerBase";
+import { HandlerBase } from "../util/HandlerBase";
 import { isSpherical } from "../../geo/Geo";
 
 /**

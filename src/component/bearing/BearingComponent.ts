@@ -29,11 +29,11 @@ import { RenderCamera } from "../../render/RenderCamera";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
-import { ComponentSize } from "../utils/ComponentSize";
+import { ComponentSize } from "../util/ComponentSize";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { isSpherical } from "../../geo/Geo";
-import { SubscriptionHolder } from "../../utils/SubscriptionHolder";
+import { SubscriptionHolder } from "../../util/SubscriptionHolder";
 
 type NodeFov = [number, number];
 

@@ -1,4 +1,4 @@
-import { ViewerOptions } from "../viewer/options/ViewerOptions";
+import { ViewerOptions } from "./options/ViewerOptions";
 
 export class ViewerConfiguration {
     private static _exploreHost: string = "www.mapillary.com";

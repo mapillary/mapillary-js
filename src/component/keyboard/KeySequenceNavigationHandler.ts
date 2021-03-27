@@ -10,7 +10,7 @@ import {
 import { Node } from "../../graph/Node";
 import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
 import { KeyboardConfiguration } from "../interfaces/KeyboardConfiguration";
-import { HandlerBase } from "../utils/HandlerBase";
+import { HandlerBase } from "../util/HandlerBase";
 import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { AbortMapillaryError } from "../../error/AbortMapillaryError";
 

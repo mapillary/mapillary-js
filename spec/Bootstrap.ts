@@ -1,7 +1,7 @@
 import { ComponentService } from "../src/component/ComponentService";
 import { MarkerSet } from "../src/component/marker/MarkerSet";
 import { Graph } from "../src/graph/Graph";
-import { TraversingState } from "../src/state/states/TraversingState";
+import { TraversingState } from "../src/state/state/TraversingState";
 import { Interpolator } from "../src/state/interfaces/IInterpolator";
 
 type Item = {

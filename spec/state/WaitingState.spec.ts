@@ -5,7 +5,7 @@ import { NodeHelper } from "../helper/NodeHelper";
 import { Node } from "../../src/graph/Node";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { IStateBase } from "../../src/state/interfaces/IStateBase";
-import { WaitingState } from "../../src/state/states/WaitingState";
+import { WaitingState } from "../../src/state/state/WaitingState";
 import { Camera } from "../../src/geo/Camera";
 import { TransitionMode } from "../../src/state/TransitionMode";
 import { TransformHelper } from "../helper/TransformHelper";

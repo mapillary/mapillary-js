@@ -1,12 +1,12 @@
 import {
     TileImageSize,
     TILE_SIZE,
-} from "../../tiles/interfaces/TileTypes";
+} from "../../tile/interfaces/TileTypes";
 import {
     tileToPixelCoords2D,
     baseImageLevel,
     sizeToLevelColumnsRows,
-} from "../../tiles/TileMath";
+} from "../../tile/TileMath";
 import { ImageTilesContract } from "../contracts/ImageTilesContract";
 import { ImageTilesRequestContract }
     from "../contracts/ImageTilesRequestContract";

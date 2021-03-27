@@ -2,11 +2,11 @@ import { State } from "./State";
 import { TransitionMode } from "./TransitionMode";
 import { EulerRotation } from "./interfaces/EulerRotation";
 import { IStateContext } from "./interfaces/IStateContext";
-import { EarthState } from "./states/EarthState";
-import { InteractiveWaitingState } from "./states/InteractiveWaitingState";
-import { StateBase } from "./states/StateBase";
-import { TraversingState } from "./states/TraversingState";
-import { WaitingState } from "./states/WaitingState";
+import { EarthState } from "./state/EarthState";
+import { InteractiveWaitingState } from "./state/InteractiveWaitingState";
+import { StateBase } from "./state/StateBase";
+import { TraversingState } from "./state/TraversingState";
+import { WaitingState } from "./state/WaitingState";
 
 import { Camera } from "../geo/Camera";
 import { Transform } from "../geo/Transform";

@@ -14,7 +14,7 @@ import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatu
 import { Node } from "../../graph/Node";
 import { State } from "../../state/State";
 import { KeyboardConfiguration } from "../interfaces/KeyboardConfiguration";
-import { HandlerBase } from "../utils/HandlerBase";
+import { HandlerBase } from "../util/HandlerBase";
 
 /**
  * The `KeyPlayHandler` allows the user to control the play behavior

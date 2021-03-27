@@ -34,7 +34,7 @@ import { Camera } from "../geo/Camera";
 import { Node } from "../graph/Node";
 import { Transform } from "../geo/Transform";
 import { LatLonAlt } from "../api/interfaces/LatLonAlt";
-import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { SubscriptionHolder } from "../util/SubscriptionHolder";
 
 interface IContextOperation {
     (context: IStateContext): IStateContext;

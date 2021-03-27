@@ -6,7 +6,7 @@ import {
     FilterValue,
 } from "./FilterExpression";
 
-import { Func } from "../utils/Func";
+import { Func } from "../util/Func";
 
 export type FilterFunction = Func<Node, boolean>;
 
