@@ -1240,11 +1240,14 @@ export class Graph {
         let nodeTiles: NodeTiles = { cache: [], caching: [] };
 
         if (!(key in this._requiredNodeTiles)) {
-            let node: Node = this.getNode(key);
-            nodeTiles.cache = this._api.data.geometry
-                .latLonToCellIds(
+            const node = this.getNode(key);
+            const [sw, ne] = this._graphCalculator
+                .boundingBoxCorners(
                     node.latLon,
                     this._tileThreshold)
+
+            nodeTiles.cache = this._api.data.geometry
+                .bboxToCellIds(sw, ne)
                 .filter(
                     (h: string): boolean => {
                         return !(h in this._cachedTiles);
@@ -1385,59 +1388,60 @@ export class Graph {
      * reference to either tiles or nodes and may be uncached
      * even if they are related to the nodes that should be kept.
      *
-     * @param {Array<string>} keepKeys - Keys of nodes to keep in
+     * @param {Array<string>} keepIds - Ids of nodes to keep in
      * graph unrelated to last access. Tiles related to those keys
      * will also be kept in graph.
-     * @param {string} keepSequenceKey - Optional key of sequence
+     * @param {string} keepSequenceId - Optional id of sequence
      * for which the belonging nodes should not be disposed or
      * removed from the graph. These nodes may still be uncached if
      * not specified in keep keys param.
      */
-    public uncache(keepKeys: string[], keepSequenceKey?: string): void {
-        let keysInUse: { [key: string]: boolean } = {};
+    public uncache(keepIds: string[], keepSequenceId?: string): void {
+        let idsInUse: { [id: string]: boolean } = {};
 
-        this._addNewKeys(keysInUse, this._cachingFull$);
-        this._addNewKeys(keysInUse, this._cachingFill$);
-        this._addNewKeys(keysInUse, this._cachingSpatialArea$);
-        this._addNewKeys(keysInUse, this._requiredNodeTiles);
-        this._addNewKeys(keysInUse, this._requiredSpatialArea);
+        this._addNewKeys(idsInUse, this._cachingFull$);
+        this._addNewKeys(idsInUse, this._cachingFill$);
+        this._addNewKeys(idsInUse, this._cachingSpatialArea$);
+        this._addNewKeys(idsInUse, this._requiredNodeTiles);
+        this._addNewKeys(idsInUse, this._requiredSpatialArea);
 
-        for (let key of keepKeys) {
-            if (key in keysInUse) {
-                continue;
-            }
-
-            keysInUse[key] = true;
+        for (const key of keepIds) {
+            if (key in idsInUse) { continue; }
+            idsInUse[key] = true;
         }
 
-        let keepHs: { [h: string]: boolean } = {};
-        for (let key in keysInUse) {
-            if (!keysInUse.hasOwnProperty(key)) {
-                continue;
-            }
+        const tileThreshold = this._tileThreshold;
+        const calculator = this._graphCalculator;
+        const geometry = this._api.data.geometry;
+        const keepCells: { [h: string]: boolean } = {};
+        for (let id in idsInUse) {
+            if (!idsInUse.hasOwnProperty(id)) { continue; }
 
-            let node: Node = this._nodes[key];
+            const node = this._nodes[id];
+            const [sw, ne] = calculator
+                .boundingBoxCorners(
+                    node.latLon,
+                    tileThreshold,
+                )
+            const nodeCells = geometry.bboxToCellIds(sw, ne)
 
-            let nodeHs: string[] = this._api.data.geometry
-                .latLonToCellIds(node.latLon, this._tileThreshold);
-
-            for (let nodeH of nodeHs) {
-                if (!(nodeH in keepHs)) {
-                    keepHs[nodeH] = true;
+            for (const nodeCell of nodeCells) {
+                if (!(nodeCell in keepCells)) {
+                    keepCells[nodeCell] = true;
                 }
             }
         }
 
-        let potentialHs: [string, TileAccess][] = [];
-        for (let h in this._cachedTiles) {
-            if (!this._cachedTiles.hasOwnProperty(h) || h in keepHs) {
+        const potentialCells: [string, TileAccess][] = [];
+        for (let cellId in this._cachedTiles) {
+            if (!this._cachedTiles.hasOwnProperty(cellId) ||
+                cellId in keepCells) {
                 continue;
             }
-
-            potentialHs.push([h, this._cachedTiles[h]]);
+            potentialCells.push([cellId, this._cachedTiles[cellId]]);
         }
 
-        let uncacheHs: string[] = potentialHs
+        const uncacheCells = potentialCells
             .sort(
                 (h1: [string, TileAccess], h2: [string, TileAccess]): number => {
                     return h2[1].accessed - h1[1].accessed;
@@ -1448,39 +1452,39 @@ export class Graph {
                     return h[0];
                 });
 
-        for (let uncacheH of uncacheHs) {
-            this._uncacheTile(uncacheH, keepSequenceKey);
+        for (let uncacheCell of uncacheCells) {
+            this._uncacheTile(uncacheCell, keepSequenceId);
         }
 
-        let potentialPreStored: [NodeAccess, string][] = [];
-        let nonCachedPreStored: [string, string][] = [];
-        for (let h in this._preStored) {
-            if (!this._preStored.hasOwnProperty(h) || h in this._cachingTiles$) {
+        const potentialPreStored: [NodeAccess, string][] = [];
+        const nonCachedPreStored: [string, string][] = [];
+        for (let cellId in this._preStored) {
+            if (!this._preStored.hasOwnProperty(cellId) ||
+                cellId in this._cachingTiles$) {
                 continue;
             }
 
-            const prestoredNodes: { [key: string]: Node } = this._preStored[h];
-
-            for (let key in prestoredNodes) {
-                if (!prestoredNodes.hasOwnProperty(key) || key in keysInUse) {
+            const prestoredNodes = this._preStored[cellId];
+            for (let id in prestoredNodes) {
+                if (!prestoredNodes.hasOwnProperty(id) || id in idsInUse) {
                     continue;
                 }
 
-                if (prestoredNodes[key].sequenceId === keepSequenceKey) {
+                if (prestoredNodes[id].sequenceId === keepSequenceId) {
                     continue;
                 }
 
-                if (key in this._cachedNodes) {
-                    potentialPreStored.push([this._cachedNodes[key], h]);
+                if (id in this._cachedNodes) {
+                    potentialPreStored.push([this._cachedNodes[id], cellId]);
                 } else {
-                    nonCachedPreStored.push([key, h]);
+                    nonCachedPreStored.push([id, cellId]);
                 }
             }
         }
 
-        let uncachePreStored: [string, string][] = potentialPreStored
+        const uncachePreStored = potentialPreStored
             .sort(
-                ([na1, h1]: [NodeAccess, string], [na2, h2]: [NodeAccess, string]): number => {
+                ([na1]: [NodeAccess, string], [na2]: [NodeAccess, string]): number => {
                     return na2.accessed - na1.accessed;
                 })
             .slice(this._configuration.maxUnusedPreStoredNodes)
@@ -1492,61 +1496,61 @@ export class Graph {
         this._uncachePreStored(nonCachedPreStored);
         this._uncachePreStored(uncachePreStored);
 
-        let potentialNodes: NodeAccess[] = [];
-        for (let key in this._cachedNodes) {
-            if (!this._cachedNodes.hasOwnProperty(key) || key in keysInUse) {
+        const potentialNodes: NodeAccess[] = [];
+        for (let id in this._cachedNodes) {
+            if (!this._cachedNodes.hasOwnProperty(id) || id in idsInUse) {
                 continue;
             }
 
-            potentialNodes.push(this._cachedNodes[key]);
+            potentialNodes.push(this._cachedNodes[id]);
         }
 
-        let uncacheNodes: NodeAccess[] = potentialNodes
+        const uncacheNodes = potentialNodes
             .sort(
                 (n1: NodeAccess, n2: NodeAccess): number => {
                     return n2.accessed - n1.accessed;
                 })
             .slice(this._configuration.maxUnusedNodes);
 
-        for (let nodeAccess of uncacheNodes) {
+        for (const nodeAccess of uncacheNodes) {
             nodeAccess.node.uncache();
-            let key: string = nodeAccess.node.id;
-            delete this._cachedNodes[key];
+            const id = nodeAccess.node.id;
+            delete this._cachedNodes[id];
 
-            if (key in this._cachedNodeTiles) {
-                delete this._cachedNodeTiles[key];
+            if (id in this._cachedNodeTiles) {
+                delete this._cachedNodeTiles[id];
             }
 
-            if (key in this._cachedSpatialEdges) {
-                delete this._cachedSpatialEdges[key];
+            if (id in this._cachedSpatialEdges) {
+                delete this._cachedSpatialEdges[id];
             }
         }
 
-        let potentialSequences: SequenceAccess[] = [];
-        for (let sequenceKey in this._sequences) {
-            if (!this._sequences.hasOwnProperty(sequenceKey) ||
-                sequenceKey in this._cachingSequences$ ||
-                sequenceKey === keepSequenceKey) {
+        const potentialSequences: SequenceAccess[] = [];
+        for (let sequenceId in this._sequences) {
+            if (!this._sequences.hasOwnProperty(sequenceId) ||
+                sequenceId in this._cachingSequences$ ||
+                sequenceId === keepSequenceId) {
                 continue;
             }
 
-            potentialSequences.push(this._sequences[sequenceKey]);
+            potentialSequences.push(this._sequences[sequenceId]);
         }
 
-        let uncacheSequences: SequenceAccess[] = potentialSequences
+        const uncacheSequences = potentialSequences
             .sort(
                 (s1: SequenceAccess, s2: SequenceAccess): number => {
                     return s2.accessed - s1.accessed;
                 })
             .slice(this._configuration.maxSequences);
 
-        for (let sequenceAccess of uncacheSequences) {
-            let sequenceKey: string = sequenceAccess.sequence.id;
+        for (const sequenceAccess of uncacheSequences) {
+            const sequenceId = sequenceAccess.sequence.id;
 
-            delete this._sequences[sequenceKey];
+            delete this._sequences[sequenceId];
 
-            if (sequenceKey in this._cachedSequenceNodes) {
-                delete this._cachedSequenceNodes[sequenceKey];
+            if (sequenceId in this._cachedSequenceNodes) {
+                delete this._cachedSequenceNodes[sequenceId];
             }
 
             sequenceAccess.sequence.dispose();

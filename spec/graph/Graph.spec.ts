@@ -121,7 +121,6 @@ describe("Graph.cacheBoundingBox$", () => {
 
         const h = "h";
         spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
 
         const coreImages =
@@ -197,7 +196,6 @@ describe("Graph.cacheBoundingBox$", () => {
 
         const h = "h";
         spyOn(dataProvider.geometry, "bboxToCellIds").and.returnValue([h]);
-        spyOn(dataProvider.geometry, "latLonToCellIds").and.returnValue([h]);
         spyOn(dataProvider.geometry, "latLonToCellId").and.returnValue(h);
 
         const coreImages =
@@ -406,7 +404,7 @@ describe("Graph.cacheFull$", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const coreImages =
             new Subject<CoreImagesContract>();
@@ -478,7 +476,7 @@ describe("Graph.cacheFill$", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const coreImages =
             new Subject<CoreImagesContract>();
@@ -533,7 +531,7 @@ describe("Graph.cacheFill$", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const coreImages =
             new Subject<CoreImagesContract>();
@@ -596,7 +594,7 @@ describe("Graph.cacheFill$", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const coreImages =
             new Subject<CoreImagesContract>();
@@ -652,7 +650,7 @@ describe("Graph.cacheFill$", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const coreImages =
             new Subject<CoreImagesContract>();
@@ -722,7 +720,7 @@ describe("Graph.cacheTiles$", () => {
 
         const node = helper.createNode();
 
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue(["h"]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue(["h"]);
 
         const coreImages =
             new Subject<CoreImagesContract>();
@@ -754,7 +752,7 @@ describe("Graph.cacheTiles$", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const imageByKeyResult: ImagesContract = [{
             node: fullNode,
@@ -798,7 +796,7 @@ describe("Graph.cacheTiles$", () => {
         const node = helper.createNode();
 
         const h = "h";
-        const encodeHsSpy = spyOn(geometryProvider, "latLonToCellIds");
+        const encodeHsSpy = spyOn(geometryProvider, "bboxToCellIds");
         encodeHsSpy.and.returnValue([h]);
 
         const coreImages =
@@ -828,7 +826,7 @@ describe("Graph.cacheTiles$", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        const encodeHsSpy = spyOn(geometryProvider, "latLonToCellIds");
+        const encodeHsSpy = spyOn(geometryProvider, "bboxToCellIds");
         encodeHsSpy.and.returnValue([h]);
 
         const imageByKeyResult: ImagesContract = [{
@@ -1199,7 +1197,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator = new GraphCalculator();
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const edgeCalculator = new EdgeCalculator();
         const configuration: GraphConfiguration = {
@@ -1281,7 +1279,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const graphCalculator = new GraphCalculator();
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const edgeCalculator = new EdgeCalculator();
         const configuration: GraphConfiguration = {
@@ -1825,7 +1823,7 @@ describe("Graph.cacheSpatialArea$", () => {
 
         const h = "h";
         spyOn(dataProvider.geometry, "latLonToCellId").and.returnValue(h);
-        spyOn(dataProvider.geometry, "latLonToCellIds").and.returnValue([h]);
+        spyOn(dataProvider.geometry, "bboxToCellIds").and.returnValue([h]);
 
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
@@ -1939,7 +1937,7 @@ describe("Graph.cacheSpatialEdges", () => {
         const dataProvider = new DataProvider();
         spyOn(dataProvider.geometry, "latLonToCellId")
             .and.returnValue(cellId);
-        spyOn(dataProvider.geometry, "latLonToCellIds")
+        spyOn(dataProvider.geometry, "bboxToCellIds")
             .and.returnValue([cellId]);
         const api = new APIWrapper(dataProvider);
         const graphCalculator = new GraphCalculator();
@@ -2497,7 +2495,7 @@ describe("Graph.resetSpatialEdges", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        const encodeHsSpy = spyOn(geometryProvider, "latLonToCellIds");
+        const encodeHsSpy = spyOn(geometryProvider, "bboxToCellIds");
         encodeHsSpy.and.returnValue([h]);
 
         const fullNode = helper.createFullNode();
@@ -3055,7 +3053,7 @@ describe("Graph.uncache", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
@@ -3121,7 +3119,7 @@ describe("Graph.uncache", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
@@ -3189,7 +3187,7 @@ describe("Graph.uncache", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
@@ -3256,7 +3254,7 @@ describe("Graph.uncache", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
@@ -3318,7 +3316,7 @@ describe("Graph.uncache", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const getImagesSpy = spyOn(api, "getImages$");
 
@@ -3604,7 +3602,7 @@ describe("Graph.uncache", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
@@ -3669,7 +3667,7 @@ describe("Graph.uncache", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
@@ -3736,7 +3734,7 @@ describe("Graph.uncache", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
@@ -3802,7 +3800,7 @@ describe("Graph.uncache", () => {
 
         const h = "h";
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(h);
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([h]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([h]);
 
         const getImages = new Subject<ImagesContract>();
         spyOn(api, "getImages$").and.returnValue(getImages);
@@ -3923,7 +3921,7 @@ describe("Graph.cacheCell$", () => {
         const calculator = new GraphCalculator();
 
         const cellId = "cell-id";
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([cellId]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([cellId]);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(cellId);
 
         const coreImages =
@@ -3996,7 +3994,7 @@ describe("Graph.cacheCell$", () => {
         const calculator = new GraphCalculator();
 
         const cellId = "cell-id";
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([cellId]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([cellId]);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(cellId);
 
         const coreImages =
@@ -4089,7 +4087,7 @@ describe("Graph.cacheCell$", () => {
         const calculator = new GraphCalculator();
 
         const cellId = "cell-id";
-        spyOn(geometryProvider, "latLonToCellIds").and.returnValue([cellId]);
+        spyOn(geometryProvider, "bboxToCellIds").and.returnValue([cellId]);
         spyOn(geometryProvider, "latLonToCellId").and.returnValue(cellId);
 
         const coreImages =
