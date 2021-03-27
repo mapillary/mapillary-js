@@ -5,7 +5,7 @@ export type ViewerEvent =
      * @event bearing
      * @memberof Viewer
      * @instance
-     * @type {ViewerBearingStateEvent}
+     * @type {ViewerBearingEvent}
      * @example
      * // Initialize the viewer
      * var viewer = new mapillary.Viewer({ // viewer options });
