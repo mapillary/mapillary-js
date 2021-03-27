@@ -26,7 +26,7 @@ export interface CameraEnt {
      *
      * @description Supported camera types are:
      *
-     * ```
+     * ```js
      *   'spherical'
      *   'fisheye'
      *   'perspective'

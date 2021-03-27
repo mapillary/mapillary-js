@@ -79,7 +79,7 @@ import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
  * To retrive and use the slider component
  *
  * @example
- * ```
+ * ```js
  * var viewer = new mapillary.Viewer({ ... });
  *
  * viewer.deactivateComponent("imagePlane");

@@ -9,7 +9,7 @@ import { isSpherical } from "../../../geo/Geo";
  * @classdesc Represents a point set in the 2D basic image coordinate system.
  *
  * @example
- * ```
+ * ```js
  * var points = [[0.5, 0.3], [0.7, 0.3], [0.6, 0.5]];
  * var pointsGeometry = new mapillary.TagComponent.PointsGeometry(points);
  * ```

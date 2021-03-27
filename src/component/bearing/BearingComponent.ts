@@ -55,7 +55,7 @@ interface NodeFovOperation {
  * @classdesc Component for indicating bearing and field of view.
  *
  * @example
- * ```
+ * ```js
  * var viewer = new mapillary.Viewer({ ... });
  * var bearingComponent = viewer.getComponent("bearing");
  * bearingComponent.configure({ size: mapillary.ComponentSize.Small });

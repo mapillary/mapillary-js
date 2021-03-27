@@ -5,7 +5,7 @@ import { ComponentConfiguration } from "./ComponentConfiguration";
  *
  * @interface
  *  @example
- * ```
+ * ```js
  * var viewer = new mapillary.Viewer({
  *     ...
  *     component: {

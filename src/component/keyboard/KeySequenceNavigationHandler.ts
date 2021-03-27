@@ -22,7 +22,7 @@ import { AbortMapillaryError } from "../../error/AbortMapillaryError";
  * `ALT` + `Down Arrow`: Navigate to previous image in sequence.
  *
  * @example
- * ```
+ * ```js
  * var keyboardComponent = viewer.getComponent("keyboard");
  *
  * keyboardComponent.keySequenceNavigation.disable();

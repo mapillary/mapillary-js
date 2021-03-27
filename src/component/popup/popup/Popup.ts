@@ -33,7 +33,7 @@ import { PopupAlignment } from "./PopupAlignment";
  * use
  *
  * @example
- * ```
+ * ```js
  * var defaultSpan = document.createElement('span');
  * defaultSpan.innerHTML = 'hello default';
  *
@@ -133,7 +133,7 @@ export class Popup {
      * @param {Array<number>} basicPoint - Point in 2D basic image coordinates.
      *
      * @example
-     * ```
+     * ```js
      * var popup = new mapillary.PopupComponent.Popup();
      * popup.setText('hello image');
      * popup.setBasicPoint([0.3, 0.3]);
@@ -158,7 +158,7 @@ export class Popup {
      * coordinates ([topLeftX, topLeftY, bottomRightX, bottomRightY]) .
      *
      * @example
-     * ```
+     * ```js
      * var popup = new mapillary.PopupComponent.Popup();
      * popup.setText('hello image');
      * popup.setBasicRect([0.3, 0.3, 0.5, 0.6]);
@@ -179,7 +179,7 @@ export class Popup {
      * @param {Node} htmlNode - A DOM node to be used as content for the popup.
      *
      * @example
-     * ```
+     * ```js
      * var div = document.createElement('div');
      * div.innerHTML = 'hello image';
      *
@@ -216,7 +216,7 @@ export class Popup {
      * @param {string} html - A string representing HTML content for the popup.
      *
      * @example
-     * ```
+     * ```js
      * var popup = new mapillary.PopupComponent.Popup();
      * popup.setHTML('<div>hello image</div>');
      * popup.setBasicPoint([0.3, 0.3]);
@@ -251,7 +251,7 @@ export class Popup {
      * @param {string} text - Textual content for the popup.
      *
      * @example
-     * ```
+     * ```js
      * var popup = new mapillary.PopupComponent.Popup();
      * popup.setText('hello image');
      * popup.setBasicPoint([0.3, 0.3]);

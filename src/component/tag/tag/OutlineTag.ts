@@ -7,10 +7,8 @@ import { OutlineTagOptions } from "../interfaces/OutlineTagOptions";
 
 import { Tag } from "./Tag";
 import { TagDomain } from "./TagDomain";
-import {
-    TagEvent,
-    TagStateEvent,
-} from "./TagEvent";
+import { TagEvent } from "./TagEvent";
+import { TagStateEvent } from "./TagStateEvent";
 
 /**
  * @class OutlineTag
@@ -18,7 +16,7 @@ import {
  * @classdesc Tag holding properties for visualizing a geometry outline.
  *
  * @example
- * ```
+ * ```js
  * var geometry = new mapillary.TagComponent.RectGeometry([0.3, 0.3, 0.5, 0.4]);
  * var tag = new mapillary.TagComponent.OutlineTag(
  *     "id-1",
@@ -356,15 +354,71 @@ export class OutlineTag extends Tag {
         this._notifyChanged$.next(this);
     }
 
-    /** @inheritdoc */
+    public off(
+        type: "click",
+        handler: (event: TagStateEvent) => void)
+        : void;
+    public off(
+        type: "geometry",
+        handler: (event: TagStateEvent) => void)
+        : void;
+    public off(
+        type: "tag",
+        handler: (event: TagStateEvent) => void)
+        : void;
+    public off(
+        type: TagEvent,
+        handler: (event: TagStateEvent) => void): void {
+        super.on(type, handler);
+    }
+
+    /**
+     * Event fired when the icon of the outline tag is clicked.
+     *
+     * @event click
+     * @example
+     * ```js
+     * var tag = new mapillary.TagComponent.OutlineTag({ // tag options });
+     * // Set an event listener
+     * tag.on('click', function() {
+     *   console.log("A click event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "click",
         handler: (event: TagStateEvent) => void)
         : void;
+    /**
+     * Event fired when the geometry of the tag has changed.
+     *
+     * @event geometry
+     * @example
+     * ```js
+     * var tag = new mapillary.TagComponent.OutlineTag({ // tag options });
+     * // Set an event listener
+     * tag.on('geometry', function() {
+     *   console.log("A geometry event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "geometry",
         handler: (event: TagStateEvent) => void)
         : void;
+    /**
+     * Event fired when a tag has been updated.
+     *
+     * @event tag
+     * @example
+     * ```js
+     * var tag = new mapillary.TagComponent.OutlineTag({ // tag options });
+     * // Set an event listener
+     * tag.on('tag', function() {
+     *   console.log("A tag event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "tag",
         handler: (event: TagStateEvent) => void)

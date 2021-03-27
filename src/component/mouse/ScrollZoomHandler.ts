@@ -21,7 +21,7 @@ import { isSpherical } from "../../geo/Geo";
  * The `ScrollZoomHandler` allows the user to zoom the viewer image by scrolling.
  *
  * @example
- * ```
+ * ```js
  * var mouseComponent = viewer.getComponent("mouse");
  *
  * mouseComponent.scrollZoom.disable();

@@ -20,7 +20,7 @@ import { KeyPlayHandler } from "./KeyPlayHandler";
  * To retrive and use the keyboard component
  *
  * @example
- * ```
+ * ```js
  * var viewer = new mapillary.Viewer({ ... });
  *
  * var keyboardComponent = viewer.getComponent("keyboard");

@@ -9,7 +9,7 @@ import { ExtremePointTagOptions } from "../interfaces/ExtremePointTagOptions";
  * and their outline.
  *
  * @example
- * ```
+ * ```js
  * var geometry = new mapillary.TagComponent.PointsGeometry([[0.3, 0.3], [0.5, 0.4]]);
  * var tag = new mapillary.TagComponent.ExtremePointTag(
  *     "id-1",

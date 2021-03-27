@@ -31,7 +31,7 @@ import { Navigator } from "../../viewer/Navigator";
  * @classdesc Component rendering UI elements used for zooming.
  *
  * @example
- * ```
+ * ```js
  * var viewer = new mapillary.Viewer({ ... });
  *
  * var zoomComponent = viewer.getComponent("zoom");

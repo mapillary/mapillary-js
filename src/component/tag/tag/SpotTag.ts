@@ -8,7 +8,7 @@ import { SpotTagOptions } from "../interfaces/SpotTagOptions";
  * @classdesc Tag holding properties for visualizing the centroid of a geometry.
  *
  * @example
- * ```
+ * ```js
  * var geometry = new mapillary.TagComponent.PointGeometry([0.3, 0.3]);
  * var tag = new mapillary.TagComponent.SpotTag(
  *     "id-1",

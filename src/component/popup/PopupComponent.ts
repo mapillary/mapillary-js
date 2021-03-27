@@ -43,7 +43,7 @@ import { Popup } from "./popup/Popup";
  * To retrive and use the popup component
  *
  * @example
- * ```
+ * ```js
  * var viewer = new mapillary.Viewer({ component: { popup: true }, ... });
  *
  * var popupComponent = viewer.getComponent("popup");
@@ -85,7 +85,10 @@ export class PopupComponent extends Component<ComponentConfiguration> {
      *
      * @param {Array<Popup>} popups - Popups to add.
      *
-     * @example ```popupComponent.add([popup1, popup2]);```
+     * @example
+     * ```js
+     * popupComponent.add([popup1, popup2]);
+     * ```
      */
     public add(popups: Popup[]): void {
         for (const popup of popups) {
@@ -107,7 +110,10 @@ export class PopupComponent extends Component<ComponentConfiguration> {
     /**
      * Returns an array of all popups.
      *
-     * @example ```var popups = popupComponent.getAll();```
+     * @example
+     * ```js
+     * var popups = popupComponent.getAll();
+     * ```
      */
     public getAll(): Popup[] {
         return this._popups.slice();
@@ -118,7 +124,10 @@ export class PopupComponent extends Component<ComponentConfiguration> {
      *
      * @param {Array<Popup>} popups - Popups to remove.
      *
-     * @example ```popupComponent.remove([popup1, popup2]);```
+     * @example
+     * ```js
+     * popupComponent.remove([popup1, popup2]);
+     * ```
      */
     public remove(popups: Popup[]): void {
         for (const popup of popups) {
@@ -131,7 +140,10 @@ export class PopupComponent extends Component<ComponentConfiguration> {
     /**
      * Remove all popups from the popup set.
      *
-     * @example ```popupComponent.removeAll();```
+     * @example
+     * ```js
+     * popupComponent.removeAll();
+     * ```
      */
     public removeAll(): void {
         for (const popup of this._popups.slice()) {

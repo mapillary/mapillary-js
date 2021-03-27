@@ -7,7 +7,7 @@ import { Geometry } from "./Geometry";
  * @classdesc Represents a point geometry in the 2D basic image coordinate system.
  *
  * @example
- * ```
+ * ```js
  * var basicPoint = [0.5, 0.7];
  * var pointGeometry = new mapillary.TagComponent.PointGeometry(basicPoint);
  * ```

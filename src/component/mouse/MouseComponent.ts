@@ -18,7 +18,7 @@ import { TouchZoomHandler } from "./TouchZoomHandler";
  * To retrive and use the mouse component
  *
  * @example
- * ```
+ * ```js
  * var viewer = new mapillary.Viewer({ ... });
  *
  * var mouseComponent = viewer.getComponent("mouse");

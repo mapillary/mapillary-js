@@ -40,7 +40,7 @@ import { isSpherical } from "../../geo/Geo";
  * `SHIFT` + `Rigth Arrow`: Turn to the right.
  *
  * @example
- * ```
+ * ```js
  * var keyboardComponent = viewer.getComponent("keyboard");
  *
  * keyboardComponent.keySpatialNavigation.disable();

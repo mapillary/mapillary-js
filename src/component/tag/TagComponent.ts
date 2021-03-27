@@ -88,7 +88,7 @@ import {
  * To retrive and use the tag component
  *
  * @example
- * ```
+ * ```js
  * var viewer = new mapillary.Viewer({ component: { tag: true } }, ...);
  *
  * var tagComponent = viewer.getComponent("tag");
@@ -282,7 +282,10 @@ export class TagComponent extends Component<TagConfiguration> {
      *
      * @param {Array<Tag>} tags - Tags to add.
      *
-     * @example ```tagComponent.add([tag1, tag2]);```
+     * @example
+     * ```js
+     * tagComponent.add([tag1, tag2]);
+     * ```
      */
     public add(tags: Tag[]): void {
         if (this._activated) {
@@ -358,7 +361,7 @@ export class TagComponent extends Component<TagConfiguration> {
      * @fires TagComponent.geometrycreated
      *
      * @example
-     * ```
+     * ```js
      * tagComponent.on("geometrycreated", function(geometry) {
      *     console.log(geometry);
      * });
@@ -388,7 +391,10 @@ export class TagComponent extends Component<TagConfiguration> {
      *
      * @fires TagComponent#modechanged
      *
-     * @example ```tagComponent.changeMode(mapillary.TagComponent.TagMode.CreateRect);```
+     * @example
+     * ```js
+     * tagComponent.changeMode(mapillary.TagComponent.TagMode.CreateRect);
+     * ```
      */
     public changeMode(mode: TagMode): void {
         this.configure({ mode: mode });
@@ -400,7 +406,10 @@ export class TagComponent extends Component<TagConfiguration> {
      *
      * @param {string} tagId - Id of the tag.
      *
-     * @example ```var tag = tagComponent.get("tagId");```
+     * @example
+     * ```js
+     * var tag = tagComponent.get("tagId");
+     * ```
      */
     public get(tagId: string): Tag {
         if (this._activated) {
@@ -414,7 +423,10 @@ export class TagComponent extends Component<TagConfiguration> {
     /**
      * Returns an array of all tags.
      *
-     * @example ```var tags = tagComponent.getAll();```
+     * @example
+     * ```js
+     * var tags = tagComponent.getAll();
+     * ```
      */
     public getAll(): Tag[] {
         if (this.activated) {
@@ -452,7 +464,7 @@ export class TagComponent extends Component<TagConfiguration> {
      * contain the specified pixel point.
      *
      * @example
-     * ```
+     * ```js
      * tagComponent.getTagIdsAt([100, 100])
      *     .then((tagIds) => { console.log(tagIds); });
      * ```
@@ -488,13 +500,15 @@ export class TagComponent extends Component<TagConfiguration> {
      *
      * @param {string} tagId - Id of the tag.
      *
-     * @example ```var tagExists = tagComponent.has("tagId");```
+     * @example
+     * ```js
+     * var tagExists = tagComponent.has("tagId");
+     * ```
      */
     public has(tagId: string): boolean {
         return this._activated ? this._tagSet.has(tagId) : this._tagSet.hasDeactivated(tagId);
     }
 
-    /** @inheritdoc */
     public off(
         type: "geometrycreated",
         handler: (event: ComponentGeometryEvent) => void)
@@ -521,23 +535,103 @@ export class TagComponent extends Component<TagConfiguration> {
         super.off(type, handler);
     }
 
-    /** @inheritdoc */
+    /**
+     * Event fired when a geometry has been created.
+     *
+     * @event geometrycreated
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var component = viewer.getComponet('<component-name>');
+     * // Set an event listener
+     * component.on('geometrycreated', function() {
+     *   console.log("A geometrycreated event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "geometrycreated",
         handler: (event: ComponentGeometryEvent) => void)
         : void;
+    /**
+     * Event fired when an interaction to create a geometry ends.
+     *
+     * @description A create interaction can by a geometry being created
+     * or by the creation being aborted.
+     *
+     * @event tagcreateend
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var component = viewer.getComponet('<component-name>');
+     * // Set an event listener
+     * component.on('tagcreateend', function() {
+     *   console.log("A tagcreateend event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "tagcreateend",
         handler: (event: ComponentStateEvent) => void)
         : void;
+    /**
+     * Event fired when an interaction to create a geometry starts.
+     *
+     * @description A create interaction starts when the first vertex
+     * is created in the geometry.
+     *
+     * @event tagcreatestart
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var component = viewer.getComponet('<component-name>');
+     * // Set an event listener
+     * component.on('tagcreatestart', function() {
+     *   console.log("A tagcreatestart event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "tagcreatestart",
         handler: (event: ComponentStateEvent) => void)
         : void;
+    /**
+     * Event fired when the create mode is changed.
+     *
+     * @event tagmode
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var component = viewer.getComponet('<component-name>');
+     * // Set an event listener
+     * component.on('tagmode', function() {
+     *   console.log("A tagmode event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "tagmode",
         handler: (event: ComponentTagModeEvent) => void)
         : void;
+    /**
+     * Event fired when the tags collection has changed.
+     *
+     * @event tags
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var component = viewer.getComponet('<component-name>');
+     * // Set an event listener
+     * component.on('tags', function() {
+     *   console.log("A tags event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "tags",
         handler: (event: ComponentStateEvent) => void)
@@ -553,7 +647,10 @@ export class TagComponent extends Component<TagConfiguration> {
      *
      * @param {Array<string>} tagIds - Ids for tags to remove.
      *
-     * @example ```tagComponent.remove(["id-1", "id-2"]);```
+     * @example
+     * ```js
+     * tagComponent.remove(["id-1", "id-2"]);
+     * ```
      */
     public remove(tagIds: string[]): void {
         if (this._activated) {
@@ -567,7 +664,10 @@ export class TagComponent extends Component<TagConfiguration> {
     /**
      * Remove all tags from the tag set.
      *
-     * @example ```tagComponent.removeAll();```
+     * @example
+     * ```js
+     * tagComponent.removeAll();
+     * ```
      */
     public removeAll(): void {
         if (this._activated) {

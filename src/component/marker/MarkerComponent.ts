@@ -70,7 +70,7 @@ import {
  * To retrive and use the marker component
  *
  * @example
- * ```
+ * ```js
  * var viewer = new mapillary.Viewer({ component: { marker: true }, ... });
  *
  * var markerComponent = viewer.getComponent("marker");
@@ -114,7 +114,10 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
      *
      * @param {Array<Marker>} markers - Markers to add.
      *
-     * @example ```markerComponent.add([marker1, marker2]);```
+     * @example
+     * ```js
+     * markerComponent.add([marker1, marker2]);
+     * ```
      */
     public add(markers: Marker[]): void {
         this._markerSet.add(markers);
@@ -126,7 +129,10 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
      *
      * @param {string} markerId - Id of the marker.
      *
-     * @example ```var marker = markerComponent.get("markerId");```
+     * @example
+     * ```js
+     * var marker = markerComponent.get("markerId");
+     * ```
      *
      */
     public get(markerId: string): Marker {
@@ -136,7 +142,10 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
     /**
      * Returns an array of all markers.
      *
-     * @example ```var markers = markerComponent.getAll();```
+     * @example
+     * ```js
+     * var markers = markerComponent.getAll();
+     * ```
      */
     public getAll(): Marker[] {
         return this._markerSet.getAll();
@@ -160,7 +169,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
      * interactive marker exist at the pixel point, `null` will be returned.
      *
      * @example
-     * ```
+     * ```js
      * markerComponent.getMarkerIdAt([100, 100])
      *     .then((markerId) => { console.log(markerId); });
      * ```
@@ -196,13 +205,15 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
      *
      * @param {string} markerId - Id of the marker.
      *
-     * @example ```var markerExists = markerComponent.has("markerId");```
+     * @example
+     * ```js
+     * var markerExists = markerComponent.has("markerId");
+     * ```
      */
     public has(markerId: string): boolean {
         return this._markerSet.has(markerId);
     }
 
-    /** @inheritdoc */
     public off(
         type: "markerdragend",
         handler: (event: ComponentMarkerEvent) => void)
@@ -221,15 +232,59 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
         super.on(type, handler);
     }
 
-    /** @inheritdoc */
+    /**
+     * Fired when a marker drag interaction ends.
+     *
+     * @event markerdragend
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var component = viewer.getComponet('<component-name>');
+     * // Set an event listener
+     * component.on('markerdragend', function() {
+     *   console.log("A markerdragend event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "markerdragend",
         handler: (event: ComponentMarkerEvent) => void)
         : void;
+    /**
+     * Fired when a marker drag interaction starts.
+     *
+     * @event markerdragstart
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var component = viewer.getComponet('<component-name>');
+     * // Set an event listener
+     * component.on('markerdragstart', function() {
+     *   console.log("A markerdragstart event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "markerdragstart",
         handler: (event: ComponentMarkerEvent) => void)
         : void;
+    /**
+     * Fired when the position of a marker is changed.
+     *
+     * @event markerposition
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var component = viewer.getComponet('<component-name>');
+     * // Set an event listener
+     * component.on('markerposition', function() {
+     *   console.log("A markerposition event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "markerposition",
         handler: (event: ComponentMarkerEvent) => void)
@@ -245,7 +300,10 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
      *
      * @param {Array<string>} markerIds - Ids for markers to remove.
      *
-     * @example ```markerComponent.remove(["id-1", "id-2"]);```
+     * @example
+     * ```js
+     * markerComponent.remove(["id-1", "id-2"]);
+     * ```
      */
     public remove(markerIds: string[]): void {
         this._markerSet.remove(markerIds);
@@ -254,7 +312,10 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
     /**
      * Remove all markers from the marker set.
      *
-     * @example ```markerComponent.removeAll();```
+     * @example
+     * ```js
+     * markerComponent.removeAll();
+     * ```
      */
     public removeAll(): void {
         this._markerSet.removeAll();

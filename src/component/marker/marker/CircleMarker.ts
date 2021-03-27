@@ -15,7 +15,7 @@ import { Marker } from "./Marker";
  * and one with configuration use
  *
  * @example
- * ```
+ * ```js
  * var defaultMarker = new mapillary.MarkerComponent.CircleMarker(
  *     "id-1",
  *     { lat: 0, lon: 0, });

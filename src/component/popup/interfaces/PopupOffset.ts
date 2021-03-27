@@ -7,7 +7,7 @@
  * @interface
  *
  * @example
- * ```
+ * ```js
  * var offset = = {
  *     bottom: [0, 10],
  *     bottomLeft: [-10, 10],

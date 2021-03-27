@@ -70,11 +70,11 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
         this._hoveredId$ = this._hoveredIdSubject$.pipe(share());
     }
 
-    /** @inheritdoc */
     public off(
         type: "hover",
         handler: (event: ComponentHoverEvent) => void)
         : void;
+    /** @ignore */
     public off(
         type: ComponentEvent,
         handler: (event: ComponentStateEvent) => void)
@@ -85,11 +85,26 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
         super.off(type, handler);
     }
 
-    /** @inheritdoc */
+    /**
+     * Fired when the hovered element of a component changes.
+     *
+     * @event hover
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var component = viewer.getComponet('<component-name>');
+     * // Set an event listener
+     * component.on('hover', function() {
+     *   console.log("A hover event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "hover",
         handler: (event: ComponentHoverEvent) => void)
         : void;
+    /** @ignore */
     public on(
         type: ComponentEvent,
         handler: (event: ComponentStateEvent) => void)

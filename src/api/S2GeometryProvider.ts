@@ -9,7 +9,7 @@ import { LatLon } from "./interfaces/LatLon";
  * @classdesc Geometry provider based on S2 cells.
  *
  * @example
- * ```
+ * ```js
  * class MyDataProvider extends mapillary.API.DataProviderBase {
  *      ...
  * }

@@ -40,7 +40,7 @@ import { isSpherical } from "../../geo/Geo";
  * The `DragPanHandler` allows the user to pan the viewer image by clicking and dragging the cursor.
  *
  * @example
- * ```
+ * ```js
  * var mouseComponent = viewer.getComponent("mouse");
  *
  * mouseComponent.dragPan.disable();
