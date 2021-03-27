@@ -9,7 +9,10 @@ import {
 
 import { EventEmitter } from "../../../util/EventEmitter";
 import { Geometry } from "../geometry/Geometry";
-import { TagEvent, TagStateEvent } from "./TagEvent";
+import {
+    TagEvent,
+    TagStateEvent,
+} from "./TagEvent";
 
 /**
  * @class Tag
@@ -93,9 +96,27 @@ export abstract class Tag extends EventEmitter {
     public get geometryChanged$(): Observable<Tag> {
         return this._geometry.changed$.pipe(
             map(
-                (geometry: Geometry): Tag => {
+                (): Tag => {
                     return this;
                 }),
             share());
+    }
+
+    /** @inheritdoc */
+    public on(
+        type: "geometry",
+        handler: (event: TagStateEvent) => void)
+        : void;
+    public on(
+        type: "tag",
+        handler: (event: TagStateEvent) => void)
+        : void;
+    public on(
+        type: TagEvent,
+        handler: (event: TagStateEvent) => void): void;
+    public on<T>(
+        type: TagEvent,
+        handler: (event: T) => void): void {
+        super.on(type, handler);
     }
 }

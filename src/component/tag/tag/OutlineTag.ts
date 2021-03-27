@@ -356,6 +356,25 @@ export class OutlineTag extends Tag {
         this._notifyChanged$.next(this);
     }
 
+    /** @inheritdoc */
+    public on(
+        type: "click",
+        handler: (event: TagStateEvent) => void)
+        : void;
+    public on(
+        type: "geometry",
+        handler: (event: TagStateEvent) => void)
+        : void;
+    public on(
+        type: "tag",
+        handler: (event: TagStateEvent) => void)
+        : void;
+    public on(
+        type: TagEvent,
+        handler: (event: TagStateEvent) => void): void {
+        super.on(type, handler);
+    }
+
     /**
      * Set options for tag.
      *
