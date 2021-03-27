@@ -12,7 +12,7 @@ import { LatLon } from "./interfaces/LatLon";
  * provider class.
  *
  * @example
- * ```
+ * ```js
  * class MyGeometryProvider extends mapillary.API.GeometryProviderBase {
  *      ...
  * }

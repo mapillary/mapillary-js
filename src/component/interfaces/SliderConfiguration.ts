@@ -58,7 +58,7 @@ export interface SliderConfigurationIds {
  * Interface for configuration of slider component.
  *
  * @interface
- * ```
+ * ```js
  * var viewer = new mapillary.Viewer({
  *     ...
  *     component: {

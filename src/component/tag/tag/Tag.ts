@@ -9,10 +9,8 @@ import {
 
 import { EventEmitter } from "../../../util/EventEmitter";
 import { Geometry } from "../geometry/Geometry";
-import {
-    TagEvent,
-    TagStateEvent,
-} from "./TagEvent";
+import { TagEvent } from "./TagEvent";
+import { TagStateEvent } from "./TagStateEvent";
 
 /**
  * @class Tag
@@ -102,15 +100,59 @@ export abstract class Tag extends EventEmitter {
             share());
     }
 
-    /** @inheritdoc */
+    public off(
+        type: "geometry",
+        handler: (event: TagStateEvent) => void)
+        : void;
+    public off(
+        type: "tag",
+        handler: (event: TagStateEvent) => void)
+        : void;
+    /** @ignore */
+    public off(
+        type: TagEvent,
+        handler: (event: TagStateEvent) => void): void;
+    public off<T>(
+        type: TagEvent,
+        handler: (event: T) => void): void {
+        super.on(type, handler);
+    }
+
+    /**
+     * Event fired when the geometry of the tag has changed.
+     *
+     * @event geometry
+     * @example
+     * ```js
+     * var tag = new mapillary.TagComponent.OutlineTag({ // tag options });
+     * // Set an event listener
+     * tag.on('geometry', function() {
+     *   console.log("A geometry event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "geometry",
         handler: (event: TagStateEvent) => void)
         : void;
+    /**
+     * Event fired when a tag has been updated.
+     *
+     * @event tag
+     * @example
+     * ```js
+     * var tag = new mapillary.TagComponent.OutlineTag({ // tag options });
+     * // Set an event listener
+     * tag.on('tag', function() {
+     *   console.log("A tag event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "tag",
         handler: (event: TagStateEvent) => void)
         : void;
+    /** @ignore */
     public on(
         type: TagEvent,
         handler: (event: TagStateEvent) => void): void;

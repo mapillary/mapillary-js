@@ -21,7 +21,7 @@ import { ImageTilesRequestContract }
  * @fires IDataAddedEvent
  *
  * @example
- * ```
+ * ```js
  * class MyDataProvider extends mapillary.API.DataProviderBase {
  *      constructor() {
  *          super(new mapillary.API.S2GeometryProvider());

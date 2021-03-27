@@ -10,7 +10,7 @@ import { isSpherical } from "../../../geo/Geo";
  * All polygons and holes provided to the constructor needs to be closed.
  *
  * @example
- * ```
+ * ```js
  * var basicPolygon = [[0.5, 0.3], [0.7, 0.3], [0.6, 0.5], [0.5, 0.3]];
  * var polygonGeometry = new mapillary.TagComponent.PolygonGeometry(basicPolygon);
  * ```

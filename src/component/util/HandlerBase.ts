@@ -12,7 +12,10 @@ export abstract class HandlerBase<TConfiguration extends ComponentConfiguration>
     protected _enabled: boolean;
 
     /** @ignore */
-    constructor(component: Component<TConfiguration>, container: Container, navigator: Navigator) {
+    constructor(
+        component: Component<TConfiguration>,
+        container: Container,
+        navigator: Navigator) {
         this._component = component;
         this._container = container;
         this._navigator = navigator;
@@ -32,7 +35,10 @@ export abstract class HandlerBase<TConfiguration extends ComponentConfiguration>
     /**
      * Enables the interaction.
      *
-     * @example ```<component-name>.<handler-name>.enable();```
+     * @example
+     * ```js
+     * <component-name>.<handler-name>.enable();
+     * ```
      */
     public enable(): void {
         if (this._enabled || !this._component.activated) { return; }
@@ -46,7 +52,10 @@ export abstract class HandlerBase<TConfiguration extends ComponentConfiguration>
     /**
      * Disables the interaction.
      *
-     * @example ```<component-name>.<handler-name>.disable();```
+     * @example
+     * ```js
+     * <component-name>.<handler-name>.disable();
+     * ```
      */
     public disable(): void {
         if (!this._enabled) { return; }

@@ -9,7 +9,7 @@ import { isSpherical } from "../../../geo/Geo";
  * @classdesc Represents a rectangle geometry in the 2D basic image coordinate system.
  *
  * @example
- * ```
+ * ```js
  * var basicRect = [0.5, 0.3, 0.7, 0.4];
  * var rectGeometry = new mapillary.TagComponent.RectGeometry(basicRect);
  * ```

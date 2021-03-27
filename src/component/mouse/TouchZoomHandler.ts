@@ -29,7 +29,7 @@ import { isSpherical } from "../../geo/Geo";
  * The `TouchZoomHandler` allows the user to zoom the viewer image by pinching on a touchscreen.
  *
  * @example
- * ```
+ * ```js
  * var mouseComponent = viewer.getComponent("mouse");
  *
  * mouseComponent.touchZoom.disable();

@@ -18,7 +18,7 @@ import { HandlerBase } from "../util/HandlerBase";
  * `-`: Zoom out.
  *
  * @example
- * ```
+ * ```js
  * var keyboardComponent = viewer.getComponent("keyboard");
  *
  * keyboardComponent.keyZoom.disable();

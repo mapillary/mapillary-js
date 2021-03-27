@@ -26,7 +26,7 @@ import { HandlerBase } from "../util/HandlerBase";
  * `>`: Increase speed.
  *
  * @example
- * ```
+ * ```js
  * var keyboardComponent = viewer.getComponent("keyboard");
  *
  * keyboardComponent.keyPlay.disable();

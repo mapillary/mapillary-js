@@ -9,7 +9,8 @@ import {
 
 import { LatLon } from "../api/interfaces/LatLon";
 import { Component } from "../component/Component";
-import { ComponentConfiguration } from "../component/interfaces/ComponentConfiguration";
+import { ComponentConfiguration }
+    from "../component/interfaces/ComponentConfiguration";
 import { LatLonAlt } from "../api/interfaces/LatLonAlt";
 import { FilterExpression } from "../graph/FilterExpression";
 import { Node } from "../graph/Node";
@@ -39,6 +40,7 @@ import {
     ViewerStateEvent,
 } from "./events/ViewerStateEvent";
 import { ViewerMouseEvent } from "./events/ViewerMouseEvent";
+
 /**
  * @class Viewer
  *
@@ -59,7 +61,7 @@ import { ViewerMouseEvent } from "./events/ViewerMouseEvent";
  * directed according to the following for a viewer container with a width
  * of 640 pixels and height of 480 pixels.
  *
- * ```
+ * ```js
  * (0,0)                          (640, 0)
  *      +------------------------>
  *      |
@@ -76,7 +78,7 @@ import { ViewerMouseEvent } from "./events/ViewerMouseEvent";
  * corner of the image and the axes are directed
  * according to the following for all image types.
  *
- * ```
+ * ```js
  * (0,0)                          (1, 0)
  *      +------------------------>
  *      |
@@ -157,7 +159,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * specifing Viewer's and the components' initial setup.
      *
      * @example
-     * ```
+     * ```js
      * var viewer = new mapillary.Viewer({
      *     apiClient: "<my-client-id>",
      *     container: "<my-container-id>",
@@ -229,7 +231,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * @param {string} name - Name of the component which will become active.
      *
      * @example
-     * ```
+     * ```js
      * viewer.activateComponent("marker");
      * ```
      */
@@ -272,7 +274,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * @param {string} name - Name of component which become inactive.
      *
      * @example
-     * ```
+     * ```js
      * viewer.deactivateComponent("mouse");
      * ```
      */
@@ -302,7 +304,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * of the current viewer camera.
      *
      * @example
-     * ```
+     * ```js
      * viewer.getBearing().then((b) => { console.log(b); });
      * ```
      */
@@ -360,7 +362,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * of the current image at the center for the viewport.
      *
      * @example
-     * ```
+     * ```js
      * viewer.getCenter().then((c) => { console.log(c); });
      * ```
      */
@@ -385,7 +387,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * @returns {Component} The requested component.
      *
      * @example
-     * ```
+     * ```js
      * var mouseComponent = viewer.getComponent("mouse");
      * ```
      */
@@ -412,7 +414,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * of the viewer camera.
      *
      * @example
-     * ```
+     * ```js
      * viewer.getFieldOfView().then((fov) => { console.log(fov); });
      * ```
      */
@@ -438,7 +440,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * of the viewer camera.
      *
      * @example
-     * ```
+     * ```js
      * viewer.getPointOfView().then((pov) => { console.log(pov); });
      * ```
      */
@@ -469,7 +471,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * position.
      *
      * @example
-     * ```
+     * ```js
      * viewer.getPosition().then((pos) => { console.log(pos); });
      * ```
      */
@@ -497,7 +499,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * zoom level.
      *
      * @example
-     * ```
+     * ```js
      * viewer.getZoom().then((z) => { console.log(z); });
      * ```
      */
@@ -543,7 +545,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * before the move dir call has completed.
      *
      * @example
-     * ```
+     * ```js
      * viewer.moveDir(mapillary.EdgeDirection.Next).then(
      *     (n) => { console.log(n); },
      *     (e) => { console.error(e); });
@@ -577,7 +579,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * move request is made before the move to id call has completed.
      *
      * @example
-     * ```
+     * ```js
      * viewer.moveTo("<my-image-id>").then(
      *     (n) => { console.log(n); },
      *     (e) => { console.error(e); });
@@ -600,7 +602,6 @@ export class Viewer extends EventEmitter implements IViewer {
             });
     }
 
-    /** @inheritdoc */
     public off(
         type: "bearing",
         handler: (event: ViewerBearingEvent) => void)
@@ -687,83 +688,379 @@ export class Viewer extends EventEmitter implements IViewer {
         super.off(type, handler);
     }
 
-    /** @inheritdoc */
+    /**
+     * Fired when the viewing direction of the camera changes.
+     *
+     * @event bearing
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("bearing", function() {
+     *   console.log("A bearing event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "bearing",
         handler: (event: ViewerBearingEvent) => void)
         : void;
+    /**
+     * Fired when a pointing device (usually a mouse) is
+     * pressed and released at the same point in the viewer.
+     *
+     * @event click
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("click", function() {
+     *   console.log("A click event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "click",
         handler: (event: ViewerMouseEvent) => void)
         : void;
+    /**
+     * Fired when the right button of the mouse is clicked
+     * within the viewer.
+     *
+     * @event contextmenu
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("contextmenu", function() {
+     *   console.log("A contextmenu event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "contextmenu",
         handler: (event: ViewerMouseEvent) => void)
         : void;
+    /**
+     * Fired when a pointing device (usually a mouse) is clicked twice at
+     * the same point in the viewer.
+     *
+     * @event dblclick
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("dblclick", function() {
+     *   console.log("A dblclick event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "dblclick",
         handler: (event: ViewerMouseEvent) => void)
         : void;
+    /**
+     * Fired when the viewer's vertical field of view changes.
+     *
+     * @event fov
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("fov", function() {
+     *   console.log("A fov event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "fov",
         handler: (event: ViewerStateEvent) => void)
         : void;
+    /**
+     * Fired when the viewer is loading data.
+     *
+     * @event loading
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("loading", function() {
+     *   console.log("A loading event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "loading",
         handler: (event: ViewerLoadingEvent) => void)
         : void;
+    /**
+     * Fired when a pointing device (usually a mouse) is pressed
+     * within the viewer.
+     *
+     * @event mousedown
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("mousedown", function() {
+     *   console.log("A mousedown event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "mousedown",
         handler: (event: ViewerMouseEvent) => void)
         : void;
+    /**
+     * Fired when a pointing device (usually a mouse)
+     * is moved within the viewer.
+     *
+     * @event mousemove
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("mousemove", function() {
+     *   console.log("A mousemove event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "mousemove",
         handler: (event: ViewerMouseEvent) => void)
         : void;
+    /**
+     * Fired when a pointing device (usually a mouse)
+     * leaves the viewer's canvas.
+     *
+     * @event mouseout
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("mouseout", function() {
+     *   console.log("A mouseout event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "mouseout",
         handler: (event: ViewerMouseEvent) => void)
         : void;
+    /**
+     * Fired when a pointing device (usually a mouse)
+     * is moved onto the viewer's canvas.
+     *
+     * @event mouseover
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("mouseover", function() {
+     *   console.log("A mouseover event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "mouseover",
         handler: (event: ViewerMouseEvent) => void)
         : void;
+    /**
+     * Fired when a pointing device (usually a mouse)
+     * is released within the viewer.
+     *
+     * @event mouseup
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("mouseup", function() {
+     *   console.log("A mouseup event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "mouseup",
         handler: (event: ViewerMouseEvent) => void)
         : void;
+    /**
+     * Fired when the viewer motion stops and it is in a fixed
+     * position with a fixed point of view.
+     *
+     * @event moveend
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("moveend", function() {
+     *   console.log("A moveend event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "moveend",
         handler: (event: ViewerStateEvent) => void)
         : void;
+    /**
+     * Fired when the motion from one view to another start,
+     * either by changing the position (e.g. when changing node)
+     * or when changing point of view
+     * (e.g. by interaction such as pan and zoom).
+     *
+     * @event movestart
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("movestart", function() {
+     *   console.log("A movestart event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "movestart",
         handler: (event: ViewerStateEvent) => void)
         : void;
+    /**
+     * Fired when the navigable state of the viewer changes.
+     *
+     * @event navigable
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("navigable", function() {
+     *   console.log("A navigable event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "navigable",
         handler: (event: ViewerNavigableEvent) => void)
         : void;
+    /**
+     * Fired every time the viewer navigates to a new node.
+     *
+     * @event node
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("node", function() {
+     *   console.log("A node event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "node",
         handler: (event: ViewerNodeEvent) => void)
         : void;
+    /**
+     * Fired when the viewer's position changes.
+     *
+     * @description The viewer's position changes when transitioning
+     * between nodes.
+     *
+     * @event position
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("position", function() {
+     *   console.log("A position event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "position",
         handler: (event: ViewerStateEvent) => void)
         : void;
+    /**
+     * Fired when the viewer's point of view changes. The
+     * point of view changes when the bearing, or tilt changes.
+     *
+     * @event pov
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("pov", function() {
+     *   console.log("A pov event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "pov",
         handler: (event: ViewerStateEvent) => void)
         : void;
+    /**
+     * Fired when the viewer is removed. After this event is emitted
+     * you must not call any methods on the viewer.
+     *
+     * @event remove
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("remove", function() {
+     *   console.log("A remove event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "remove",
         handler: (event: ViewerStateEvent) => void)
         : void;
+    /**
+     * Fired every time the sequence edges of the current node changes.
+     *
+     * @event sequenceedges
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("sequenceedges", function() {
+     *   console.log("A sequenceedges event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "sequenceedges",
         handler: (event: ViewerNavigationEdgeStatusEvent) => void)
         : void;
+    /**
+     * Fired every time the spatial edges of the current node changes.
+     *
+     * @event spatialedges
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("spatialedges", function() {
+     *   console.log("A spatialedges event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "spatialedges",
         handler: (event: ViewerNavigationEdgeStatusEvent) => void)
@@ -798,7 +1095,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * to the latLon.
      *
      * @example
-     * ```
+     * ```js
      * viewer.project({ lat: 0, lon: 0 })
      *     .then((pixelPoint) => {
      *          if (!pixelPoint) {
@@ -837,7 +1134,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * to the basic image point.
      *
      * @example
-     * ```
+     * ```js
      * viewer.projectFromBasic([0.3, 0.7])
      *     .then((pixelPoint) => { console.log(pixelPoint); });
      * ```
@@ -870,7 +1167,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * @fires Viewer#removed
      *
      * @example
-     * ```
+     * ```js
      * viewer.remove();
      * ```
      */
@@ -905,7 +1202,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * new size and resize their rendered elements if needed.
      *
      * @example
-     * ```
+     * ```js
      * viewer.resize();
      * ```
      */
@@ -926,7 +1223,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * image to be at the center for the viewport.
      *
      * @example
-     * ```
+     * ```js
      * viewer.setCenter([0.5, 0.5]);
      * ```
      */
@@ -946,7 +1243,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * @param {number} fov - Vertical field of view in degrees.
      *
      * @example
-     * ```
+     * ```js
      * viewer.setFieldOfView(45);
      * ```
      */
@@ -1001,7 +1298,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * documentation for a full list of properties that can be used
      * in a filter) and common use cases:
      *
-     * ```
+     * ```js
      * cameraType     // Show only spherical or not
      * ownerId        // Show images from one or several owners
      * sequenceId     // Show images from one or several sequences
@@ -1013,7 +1310,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * @returns {Promise<void>} Promise that resolves after filter is applied.
      *
      * @example
-     * ```
+     * ```js
      * viewer.setFilter(["==", "sequenceId", "<my-sequence-id>"]);
      *
      * // Other examples
@@ -1043,7 +1340,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * @param {RenderMode} renderMode - Render mode.
      *
      * @example
-     * ```
+     * ```js
      * viewer.setRenderMode(mapillary.RenderMode.Letterbox);
      * ```
      */
@@ -1057,7 +1354,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * @param {TransitionMode} transitionMode - Transition mode.
      *
      * @example
-     * ```
+     * ```js
      * viewer.setTransitionMode(mapillary.TransitionMode.Instantaneous);
      * ```
      */
@@ -1087,7 +1384,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * @throws {Error} When viewer is not navigable.
      *
      * @example
-     * ```
+     * ```js
      * viewer.setUserToken("<my user token>")
      *     .then(() => { console.log("user token set"); });
      * ```
@@ -1120,7 +1417,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * @param {number} The image's current zoom level.
      *
      * @example
-     * ```
+     * ```js
      * viewer.setZoom(2);
      * ```
      */
@@ -1156,7 +1453,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * @returns {Promise<LatLon>} Promise to the latLon corresponding to the pixel point.
      *
      * @example
-     * ```
+     * ```js
      * viewer.unproject([100, 100])
      *     .then((latLon) => { console.log(latLon); });
      * ```
@@ -1188,7 +1485,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * to the pixel point.
      *
      * @example
-     * ```
+     * ```js
      * viewer.unprojectToBasic([100, 100])
      *     .then((basicPoint) => { console.log(basicPoint); });
      * ```

@@ -15,7 +15,7 @@ import { Marker } from "./Marker";
  * (non-interactive) and one interactive with configuration use
  *
  * @example
- * ```
+ * ```js
  * var defaultMarker = new mapillary.MarkerComponent.SimpleMarker(
  *     "id-1",
  *     { lat: 0, lon: 0, });

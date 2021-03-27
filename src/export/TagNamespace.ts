@@ -18,7 +18,5 @@ export { TagDomain } from "../component/tag/tag/TagDomain";
 export { TagMode } from "../component/tag/TagMode";
 export { TagComponent } from "../component/tag/TagComponent";
 
-export {
-    TagEvent,
-    TagStateEvent,
-} from "../component/tag/tag/TagEvent";
+export { TagEvent } from "../component/tag/tag/TagEvent";
+export { TagStateEvent } from "../component/tag/tag/TagStateEvent";

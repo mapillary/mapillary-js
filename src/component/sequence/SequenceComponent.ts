@@ -48,7 +48,6 @@ import { ComponentEvent } from "../events/ComponentEvent";
 import {
     ComponentHoverEvent,
     ComponentPlayEvent,
-    ComponentStateEvent,
 } from "../events/ComponentStateEvent";
 
 /**
@@ -119,7 +118,6 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                 });
     }
 
-    /** @inheritdoc */
     public off(
         type: "hover",
         handler: (event: ComponentHoverEvent) => void)
@@ -134,11 +132,40 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
         super.off(type, handler);
     }
 
-    /** @inheritdoc */
+    /**
+     * Fired when the hovered element of a component changes.
+     *
+     * @event hover
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var component = viewer.getComponet('<component-name>');
+     * // Set an event listener
+     * component.on('hover', function() {
+     *   console.log("A hover event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "hover",
         handler: (event: ComponentHoverEvent) => void)
         : void;
+    /**
+     * Event fired when playing starts or stops.
+     *
+     * @event playing
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var component = viewer.getComponet('<component-name>');
+     * // Set an event listener
+     * component.on('playing', function() {
+     *   console.log("A playing event has occurred.");
+     * });
+     * ```
+     */
     public on(
         type: "playing",
         handler: (event: ComponentPlayEvent) => void)
