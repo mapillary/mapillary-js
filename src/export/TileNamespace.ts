@@ -1,4 +1,4 @@
-export * as TileMath from '../tiles/TileMath';
+export * as Math from '../tiles/TileMath';
 export {
     TileCoords2D,
     TileCoords3D,
