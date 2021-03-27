@@ -17,8 +17,8 @@ import { NavigationDirection } from "../graph/edge/NavigationDirection";
 import { RenderCamera } from "../render/RenderCamera";
 import { RenderMode } from "../render/RenderMode";
 import { TransitionMode } from "../state/TransitionMode";
-import { EventEmitter } from "../utils/EventEmitter";
-import { ViewerConfiguration } from "../utils/ViewerConfiguration";
+import { EventEmitter } from "../util/EventEmitter";
+import { ViewerConfiguration } from "./ViewerConfiguration";
 
 import { ICustomRenderer } from "./interfaces/ICustomRenderer";
 import { PointOfView } from "./interfaces/PointOfView";

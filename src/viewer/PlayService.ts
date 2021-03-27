@@ -38,7 +38,7 @@ import { State } from "../state/State";
 import { StateService } from "../state/StateService";
 import { IAnimationState } from "../state/interfaces/IAnimationState";
 import { AnimationFrame } from "../state/interfaces/AnimationFrame";
-import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { SubscriptionHolder } from "../util/SubscriptionHolder";
 
 export class PlayService {
     public static readonly sequenceSpeed: number = 0.54;

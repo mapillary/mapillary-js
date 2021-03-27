@@ -30,7 +30,7 @@ import { Node } from "./Node";
 import { Sequence } from "./Sequence";
 
 import { LatLon } from "../api/interfaces/LatLon";
-import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { DataAddedProviderEvent } from "../api/interfaces/DataAddedProviderEvent";
 
 /**

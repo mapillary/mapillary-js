@@ -19,7 +19,7 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { RenderCamera } from "../../render/RenderCamera";
-import { DOM } from "../../utils/DOM";
+import { DOM } from "../../util/DOM";
 import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { Component } from "../Component";
 import { Popup } from "./popup/Popup";

@@ -1,5 +1,5 @@
 import { ComponentConfiguration } from "./ComponentConfiguration";
-import { ComponentSize } from "../utils/ComponentSize";
+import { ComponentSize } from "../util/ComponentSize";
 
 export interface ZoomConfiguration extends ComponentConfiguration {
     /**

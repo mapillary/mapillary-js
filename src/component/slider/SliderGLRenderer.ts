@@ -6,12 +6,12 @@ import { Transform } from "../../geo/Transform";
 import { Node } from "../../graph/Node";
 import { IAnimationState } from "../../state/interfaces/IAnimationState";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
-import { TextureProvider } from "../../tiles/TextureProvider";
+import { TextureProvider } from "../../tile/TextureProvider";
 import { BBoxProjectorShaderMaterial } from "../imageplane/interfaces/BBoxProjectorShaderMaterial";
 import { ProjectorShaderMaterial } from "../imageplane/interfaces/ProjectorShaderMaterial";
 import { SliderConfigurationMode } from "../interfaces/SliderConfiguration";
-import { MeshFactory } from "../utils/MeshFactory";
-import { MeshScene } from "../utils/MeshScene";
+import { MeshFactory } from "../util/MeshFactory";
+import { MeshScene } from "../util/MeshScene";
 import { isSpherical } from "../../geo/Geo";
 import { CameraType } from "../../geo/interfaces/CameraType";
 

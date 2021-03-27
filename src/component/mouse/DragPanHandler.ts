@@ -28,11 +28,11 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
 import { MouseConfiguration } from "../interfaces/MouseConfiguration";
-import { HandlerBase } from "../utils/HandlerBase";
+import { HandlerBase } from "../util/HandlerBase";
 import { Spatial } from "../../geo/Spatial";
 import { EulerRotation } from "../../state/interfaces/EulerRotation";
 import { MouseTouchPair } from "./HandlerTypes";
-import { MouseOperator } from "../utils/MouseOperator";
+import { MouseOperator } from "../util/MouseOperator";
 import * as ImageBoundary from "./ImageBoundary";
 import { isSpherical } from "../../geo/Geo";
 

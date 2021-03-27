@@ -12,7 +12,7 @@ import {
     Subscription,
 } from "rxjs";
 
-import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { ImageTileEnt } from "../api/ents/ImageTileEnt";
 import { TileRegionOfInterest } from "./interfaces/TileRegionOfInterest";
 import {

@@ -1,4 +1,4 @@
-import { ViewerConfiguration } from "../../src/utils/ViewerConfiguration";
+import { ViewerConfiguration } from "../../src/viewer/ViewerConfiguration";
 import { ViewerOptions } from "../../src/viewer/options/ViewerOptions";
 
 describe("Urls.setOptions", () => {

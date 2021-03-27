@@ -15,7 +15,7 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
 import { KeyboardConfiguration } from "../interfaces/KeyboardConfiguration";
-import { HandlerBase } from "../utils/HandlerBase";
+import { HandlerBase } from "../util/HandlerBase";
 import { Spatial } from "../../geo/Spatial";
 import { NavigationEdge } from "../../graph/edge/interfaces/NavigationEdge";
 import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";

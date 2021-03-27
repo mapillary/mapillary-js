@@ -15,8 +15,8 @@ import { ComponentConfiguration } from "./interfaces/ComponentConfiguration";
 
 import { Container } from "../viewer/Container";
 import { Navigator } from "../viewer/Navigator";
-import { EventEmitter } from "../utils/EventEmitter";
-import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { EventEmitter } from "../util/EventEmitter";
+import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { IComponent } from "./interfaces/IComponent";
 import { ComponentEvent } from "./events/ComponentEvent";
 

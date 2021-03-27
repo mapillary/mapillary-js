@@ -8,7 +8,7 @@ import { DOMRenderer } from "../render/DOMRenderer";
 import { GLRenderer } from "../render/GLRenderer";
 import { RenderService } from "../render/RenderService";
 import { StateService } from "../state/StateService";
-import { DOM } from "../utils/DOM";
+import { DOM } from "../util/DOM";
 
 export class Container {
     public id: string;

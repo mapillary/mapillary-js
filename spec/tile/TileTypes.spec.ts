@@ -1,7 +1,7 @@
 import {
     TILE_MIN_REQUEST_LEVEL,
     TILE_SIZE,
-} from "../../src/tiles/interfaces/TileTypes";
+} from "../../src/tile/interfaces/TileTypes";
 
 describe("MIN_REQUEST_LEVEL", () => {
     it("should return 11", () => {

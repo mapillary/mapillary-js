@@ -3,7 +3,7 @@ import {
     TileCoords3D,
     TileImageSize,
     TileLevel,
-} from "../../src/tiles/interfaces/TileTypes";
+} from "../../src/tile/interfaces/TileTypes";
 import {
     baseImageLevel,
     basicToTileCoords2D,
@@ -17,7 +17,7 @@ import {
     tileSize,
     tileToPixelCoords2D,
     verifySize,
-} from "../../src/tiles/TileMath";
+} from "../../src/tile/TileMath";
 
 const NUM_DIGITS = 5;
 

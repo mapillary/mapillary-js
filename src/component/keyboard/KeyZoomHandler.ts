@@ -8,7 +8,7 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
 import { KeyboardConfiguration } from "../interfaces/KeyboardConfiguration";
-import { HandlerBase } from "../utils/HandlerBase";
+import { HandlerBase } from "../util/HandlerBase";
 
 /**
  * The `KeyZoomHandler` allows the user to zoom in and out using the

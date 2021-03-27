@@ -20,7 +20,7 @@ MarkerSet.register(GeoRBush);
 
 // Bootstrap UnitBezier
 import UnitBezier from "@mapbox/unitbezier";
-import { TraversingState } from "./state/states/TraversingState";
+import { TraversingState } from "./state/state/TraversingState";
 TraversingState.register(UnitBezier);
 
 // Bootstrap components
@@ -68,12 +68,12 @@ ComponentService.register(TagComponent);
 ComponentService.register(ZoomComponent);
 
 // Mapillary module
-export { isFallbackSupported, isSupported } from "./utils/Support";
+export { isFallbackSupported, isSupported } from "./util/Support";
 
 // Component types
 export { Component } from "./component/Component";
 export { ComponentEvent } from "./component/events/ComponentEvent";
-export { ComponentSize } from "./component/utils/ComponentSize";
+export { ComponentSize } from "./component/util/ComponentSize";
 export {
     ComponentGeometryEvent,
     ComponentHoverEvent,

@@ -27,7 +27,7 @@ import { LatLonAlt } from "../api/interfaces/LatLonAlt";
 import { Node } from "../graph/Node";
 import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
 import { RenderCamera } from "../render/RenderCamera";
-import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { ViewerEvent } from "./events/ViewerEvent";
 import {
     ViewerBearingEvent,

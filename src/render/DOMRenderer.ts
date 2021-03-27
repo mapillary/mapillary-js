@@ -22,7 +22,7 @@ import { ViewportSize } from "./interfaces/ViewportSize";
 import { VirtualNodeHash } from "./interfaces/VirtualNodeHash";
 
 import { AnimationFrame } from "../state/interfaces/AnimationFrame";
-import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { SubscriptionHolder } from "../util/SubscriptionHolder";
 
 interface VirtualNodePatch {
     vnode: vd.VNode;

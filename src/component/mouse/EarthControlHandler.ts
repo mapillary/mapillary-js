@@ -24,8 +24,8 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
 import { MouseConfiguration } from "../interfaces/MouseConfiguration";
-import { HandlerBase } from "../utils/HandlerBase";
-import { MouseOperator } from "../utils/MouseOperator";
+import { HandlerBase } from "../util/HandlerBase";
+import { MouseOperator } from "../util/MouseOperator";
 
 
 export class EarthControlHandler extends HandlerBase<MouseConfiguration> {

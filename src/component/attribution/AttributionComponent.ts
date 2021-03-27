@@ -6,7 +6,7 @@ import { map } from "rxjs/operators";
 import { Node } from "../../graph/Node";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
-import { ViewerConfiguration } from "../../utils/ViewerConfiguration";
+import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 

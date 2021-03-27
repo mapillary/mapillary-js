@@ -32,7 +32,7 @@ import { GraphService } from "../graph/GraphService";
 import { Node } from "../graph/Node";
 import { StateService } from "../state/StateService";
 import { AnimationFrame } from "../state/interfaces/AnimationFrame";
-import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { CameraType } from "../geo/interfaces/CameraType";
 import { isSpherical } from "../geo/Geo";
 import { geodeticToEnu } from "../geo/GeoCoords";

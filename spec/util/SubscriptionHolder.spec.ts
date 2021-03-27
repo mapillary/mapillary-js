@@ -1,5 +1,5 @@
 import { Subscription } from "rxjs";
-import { SubscriptionHolder } from "../../src/utils/SubscriptionHolder";
+import { SubscriptionHolder } from "../../src/util/SubscriptionHolder";
 
 describe("SubscriptionHolder", () => {
     it("should be defined", () => {

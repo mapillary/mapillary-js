@@ -5,7 +5,7 @@ import { Container } from "../../../viewer/Container";
 import { Navigator } from "../../../viewer/Navigator";
 import { Component } from "../../Component";
 import { TagConfiguration } from "../../interfaces/TagConfiguration";
-import { HandlerBase } from "../../utils/HandlerBase";
+import { HandlerBase } from "../../util/HandlerBase";
 
 export abstract class TagHandlerBase extends HandlerBase<TagConfiguration> {
     protected _name: string;

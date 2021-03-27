@@ -7,7 +7,7 @@ import { Transform } from "../../../geo/Transform";
 import { ViewportCoords } from "../../../geo/ViewportCoords";
 import { ViewportSize } from "../../../render/interfaces/ViewportSize";
 import { RenderCamera } from "../../../render/RenderCamera";
-import { DOM } from "../../../utils/DOM";
+import { DOM } from "../../../util/DOM";
 import { Alignment } from "../../../viewer/enums/Alignment";
 import { PopupOffset } from "../interfaces/PopupOffset";
 import { PopupOptions } from "../interfaces/PopupOptions";

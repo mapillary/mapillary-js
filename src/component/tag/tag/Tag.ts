@@ -10,7 +10,7 @@ import {
 
 import { Geometry } from "../geometry/Geometry";
 
-import { EventEmitter } from "../../../utils/EventEmitter";
+import { EventEmitter } from "../../../util/EventEmitter";
 
 
 /**

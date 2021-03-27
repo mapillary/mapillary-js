@@ -30,7 +30,7 @@ import { GLRenderFunction } from "./interfaces/GLRenderFunction";
 import { GLRenderHash } from "./interfaces/IGLRenderHash";
 import { ViewportSize } from "./interfaces/ViewportSize";
 
-import { SubscriptionHolder } from "../utils/SubscriptionHolder";
+import { SubscriptionHolder } from "../util/SubscriptionHolder";
 
 interface GLRendererStatus {
     needsRender: boolean;

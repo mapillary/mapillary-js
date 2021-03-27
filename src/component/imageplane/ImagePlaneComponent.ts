@@ -40,16 +40,16 @@ import { GLRenderHash } from "../../render/interfaces/IGLRenderHash";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { RenderCamera } from "../../render/RenderCamera";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
-import { TileLoader } from "../../tiles/TileLoader";
-import { TileStore } from "../../tiles/TileStore";
+import { TileLoader } from "../../tile/TileLoader";
+import { TileStore } from "../../tile/TileStore";
 import { TileRegionOfInterest }
-    from "../../tiles/interfaces/TileRegionOfInterest";
+    from "../../tile/interfaces/TileRegionOfInterest";
 import { RegionOfInterestCalculator }
-    from "../../tiles/RegionOfInterestCalculator";
-import { TextureProvider } from "../../tiles/TextureProvider";
+    from "../../tile/RegionOfInterestCalculator";
+import { TextureProvider } from "../../tile/TextureProvider";
 import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { Transform } from "../../geo/Transform";
-import { ViewerConfiguration } from "../../utils/ViewerConfiguration";
+import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
 
 interface ImagePlaneGLRendererOperation {
     (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer;
