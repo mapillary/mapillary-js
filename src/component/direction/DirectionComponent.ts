@@ -4,7 +4,6 @@ import {
     combineLatest as observableCombineLatest,
     of as observableOf,
     Observable,
-    Subscription,
     Subject,
 } from "rxjs";
 
@@ -33,7 +32,10 @@ import { RenderCamera } from "../../render/RenderCamera";
 import { DirectionConfiguration } from "../interfaces/DirectionConfiguration";
 import { DirectionDOMRenderer } from "./DirectionDOMRenderer";
 import { ComponentEvent } from "../events/ComponentEvent";
-import { ComponentHoverEvent } from "../events/ComponentStateEvent";
+import {
+    ComponentHoverEvent,
+    ComponentStateEvent,
+} from "../events/ComponentStateEvent";
 
 /**
  * @class DirectionComponent
@@ -66,6 +68,36 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
         this._hoveredIdSubject$ = new Subject<string>();
 
         this._hoveredId$ = this._hoveredIdSubject$.pipe(share());
+    }
+
+    /** @inheritdoc */
+    public off(
+        type: "hover",
+        handler: (event: ComponentHoverEvent) => void)
+        : void;
+    public off(
+        type: ComponentEvent,
+        handler: (event: ComponentStateEvent) => void)
+        : void;
+    public off<T>(
+        type: ComponentEvent,
+        handler: (event: T) => void): void {
+        super.off(type, handler);
+    }
+
+    /** @inheritdoc */
+    public on(
+        type: "hover",
+        handler: (event: ComponentHoverEvent) => void)
+        : void;
+    public on(
+        type: ComponentEvent,
+        handler: (event: ComponentStateEvent) => void)
+        : void;
+    public on<T>(
+        type: ComponentEvent,
+        handler: (event: T) => void): void {
+        super.on(type, handler);
     }
 
     protected _activate(): void {
