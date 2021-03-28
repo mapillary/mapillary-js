@@ -27,16 +27,16 @@ export class GraphCalculator {
             -threshold,
             -threshold,
             0,
-            lngLat.lat,
             lngLat.lng,
+            lngLat.lat,
             0);
 
         let tr = enuToGeodetic(
             threshold,
             threshold,
             0,
-            lngLat.lat,
             lngLat.lng,
+            lngLat.lat,
             0);
 
         return [

@@ -424,11 +424,11 @@ export abstract class StateBase implements IStateBase {
         }
 
         // 50 km/h moves 28m in 2s
-        let distance: number = this._spatial.distanceFromLatLon(
-            current.originalLngLat.lat,
+        let distance = this._spatial.distanceFromLngLat(
             current.originalLngLat.lng,
-            previous.originalLngLat.lat,
-            previous.originalLngLat.lng);
+            current.originalLngLat.lat,
+            previous.originalLngLat.lng,
+            previous.originalLngLat.lat);
 
         return distance < 25;
     }

@@ -317,11 +317,11 @@ export class PanService {
 
     private _distance(image: Image, reference: Image): number {
         const [x, y, z] = geodeticToEnu(
-            image.lngLat.lat,
             image.lngLat.lng,
+            image.lngLat.lat,
             image.computedAltitude,
-            reference.lngLat.lat,
             reference.lngLat.lng,
+            reference.lngLat.lat,
             reference.computedAltitude);
 
         return Math.sqrt(x * x + y * y + z * z);
