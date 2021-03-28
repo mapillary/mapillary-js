@@ -56,7 +56,7 @@ export abstract class GeometryProviderBase {
      * Get the vertices of a cell.
      *
      * @description The vertices form an unclosed
-     * clockwise polygon in the 2D latitude, longitude
+     * clockwise polygon in the 2D longitude, latitude
      * space. No assumption on the position of the first
      * vertex relative to the others can be made.
      *
@@ -70,8 +70,8 @@ export abstract class GeometryProviderBase {
     /**
      * Convert geodetic coordinates to a cell id.
      *
-     * @param {LngLat} lngLat - Latitude and longitude to convert.
-     * @returns {string} Cell id for the latitude, longitude.
+     * @param {LngLat} lngLat - Longitude, latitude to convert.
+     * @returns {string} Cell id for the longitude, latitude.
      */
     public lngLatToCellId(lngLat: LngLat): string {
         throw new MapillaryError("Not implemented");
@@ -137,10 +137,10 @@ export abstract class GeometryProviderBase {
     /**
      * Convert a geodetic square to cell ids.
      *
-     * The square is specified as a latitude, longitude
+     * The square is specified as a longitude, latitude
      * and a threshold from the position using Manhattan distance.
      *
-     * @param {LngLat} lngLat - Latitude and longitude.
+     * @param {LngLat} lngLat - Longitude, latitude.
      * @param {number} threshold - Threshold of the conversion in meters.
      *
      * @returns {Array<string>} Array of cell ids reachable within

@@ -9,7 +9,7 @@
  * Earth-Centered, Earth-Fixed (ECEF) and local topocentric
  * East, North, Up (ENU) reference frames.
  *
- * The WGS84 has latitude (degrees), longitude (degrees) and
+ * The WGS84 has longitude (degrees), latitude (degrees) and
  * altitude (meters) values.
  *
  * The ECEF Z-axis pierces the north pole and the

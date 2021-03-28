@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { Spatial } from "./Spatial";
 import { Transform } from "./Transform";
 import { ViewportCoords } from "./ViewportCoords";
-import { LatLonAlt } from "../api/interfaces/LatLonAlt";
+import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { geodeticToEnu } from "./GeoCoords";
 
 const spatial = new Spatial();
@@ -16,7 +16,7 @@ export function isFisheye(cameraType: string): boolean {
     return cameraType === "fisheye";
 }
 
-export function computeTranslation(position: LatLonAlt, rotation: number[], reference: LatLonAlt): number[] {
+export function computeTranslation(position: LngLatAlt, rotation: number[], reference: LngLatAlt): number[] {
     const C = geodeticToEnu(
         position.lat,
         position.lng,

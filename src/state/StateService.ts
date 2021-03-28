@@ -33,7 +33,7 @@ import { LngLat } from "../api/interfaces/LngLat";
 import { Camera } from "../geo/Camera";
 import { Image } from "../graph/Image";
 import { Transform } from "../geo/Transform";
-import { LatLonAlt } from "../api/interfaces/LatLonAlt";
+import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
 
 interface IContextOperation {
@@ -57,7 +57,7 @@ export class StateService {
     private _currentCamera$: Observable<Camera>;
     private _currentId$: BehaviorSubject<string>;
     private _currentTransform$: Observable<Transform>;
-    private _reference$: Observable<LatLonAlt>;
+    private _reference$: Observable<LngLatAlt>;
 
     private _inMotionOperation$: Subject<boolean>;
     private _inMotion$: Observable<boolean>;
@@ -196,14 +196,14 @@ export class StateService {
 
         this._reference$ = imageChangedSubject$.pipe(
             map(
-                (f: AnimationFrame): LatLonAlt => {
+                (f: AnimationFrame): LngLatAlt => {
                     return f.state.reference;
                 }),
             distinctUntilChanged(
                 (r1: LngLat, r2: LngLat): boolean => {
                     return r1.lat === r2.lat && r1.lng === r2.lng;
                 },
-                (reference: LatLonAlt): LngLat => {
+                (reference: LngLatAlt): LngLat => {
                     return { lat: reference.lat, lng: reference.lng };
                 }),
             publishReplay(1),
@@ -362,7 +362,7 @@ export class StateService {
         return this._state$;
     }
 
-    public get reference$(): Observable<LatLonAlt> {
+    public get reference$(): Observable<LngLatAlt> {
         return this._reference$;
     }
 

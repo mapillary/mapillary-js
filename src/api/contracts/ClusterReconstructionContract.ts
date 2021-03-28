@@ -1,6 +1,6 @@
 import { CameraContract } from "./CameraContract";
 import { CameraShotContract } from "./CameraShotContract";
-import { LatLonAlt } from "../interfaces/LatLonAlt";
+import { LngLatAlt } from "../interfaces/LngLatAlt";
 import { PointContract } from "./PointContract";
 
 export interface ClusterReconstructionContract {
@@ -20,12 +20,12 @@ export interface ClusterReconstructionContract {
     points: { [pointId: string]: PointContract };
 
     /**
-     * The reference latitude, longitue, altitude of
+     * The reference longitude, latitude, altitude of
      * the reconstruction. Determines the
      * position of the reconstruction in world reference
      * frame.
      */
-    reference: LatLonAlt;
+    reference: LngLatAlt;
 
     /**
      * The shots of the reconstruction.

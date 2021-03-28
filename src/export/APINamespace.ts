@@ -46,4 +46,4 @@ export { URLEnt } from "../api/ents/URLEnt";
 
 // Type
 export { LngLat } from "../api/interfaces/LngLat";
-export { LatLonAlt } from "../api/interfaces/LatLonAlt";
+export { LngLatAlt } from "../api/interfaces/LngLatAlt";

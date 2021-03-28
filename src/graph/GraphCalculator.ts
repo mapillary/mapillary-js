@@ -13,7 +13,7 @@ export class GraphCalculator {
      * Get the bounding box corners for a circle with radius of a threshold
      * with center in a geodetic position.
      *
-     * @param {LngLat} lngLat - Latitude and longitude to encode.
+     * @param {LngLat} lngLat - Longitude, latitude to encode.
      * @param {number} threshold - Threshold distance from the position in meters.
      *
      * @returns {Array<LngLat>} The south west and north east corners of the

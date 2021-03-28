@@ -31,7 +31,7 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { ClusterReconstructionContract }
     from "../../api/contracts/ClusterReconstructionContract";
-import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
+import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
 import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
 import { ViewportCoords } from "../../geo/ViewportCoords";
@@ -213,7 +213,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         subs.push(tile$.pipe(
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([cell, reference]: [Cell, LatLonAlt]): void => {
+                ([cell, reference]: [Cell, LngLatAlt]): void => {
                     if (this._scene.hasTile(cell.id)) {
                         return;
                     }
@@ -226,7 +226,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         subs.push(tile$.pipe(
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([cell, reference]: [Cell, LatLonAlt]): void => {
+                ([cell, reference]: [Cell, LngLatAlt]): void => {
                     this._addSceneImages(cell, reference);
                 }));
 
@@ -254,7 +254,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                 }),
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([[cellId, reconstruction], reference]: [[string, ClusterReconstructionContract], LatLonAlt]): void => {
+                ([[cellId, reconstruction], reference]: [[string, ClusterReconstructionContract], LngLatAlt]): void => {
                     if (this._scene
                         .hasClusterReconstruction(
                             reconstruction.id,
@@ -446,7 +446,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                         return this._cache.hasTile(cellId);
                     }),
                 mergeMap(
-                    (cellId: string): Observable<[Cell, LatLonAlt]> => {
+                    (cellId: string): Observable<[Cell, LngLatAlt]> => {
                         return this._cache.updateCell$(cellId).pipe(
                             map((images: Image[]) => ({ id: cellId, images })),
                             withLatestFrom(
@@ -454,19 +454,19 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                             )
                         );
                     }),
-                publish<[Cell, LatLonAlt]>(),
+                publish<[Cell, LngLatAlt]>(),
                 refCount())
 
         subs.push(updatedCell$
             .subscribe(
-                ([cell, reference]: [Cell, LatLonAlt]): void => {
+                ([cell, reference]: [Cell, LngLatAlt]): void => {
                     this._addSceneImages(cell, reference);
                 }));
 
         subs.push(updatedCell$
             .pipe(
                 concatMap(
-                    ([cell]: [Cell, LatLonAlt]): Observable<[string, ClusterReconstructionContract]> => {
+                    ([cell]: [Cell, LngLatAlt]): Observable<[string, ClusterReconstructionContract]> => {
                         const cellId = cell.id;
                         const cache = this._cache;
                         let reconstructions$: Observable<ClusterReconstructionContract>;
@@ -491,7 +491,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                     }),
                 withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([[cellId, reconstruction], reference]: [[string, ClusterReconstructionContract], LatLonAlt]): void => {
+                ([[cellId, reconstruction], reference]: [[string, ClusterReconstructionContract], LngLatAlt]): void => {
                     if (this._scene.hasClusterReconstruction(reconstruction.id, cellId)) {
                         return;
                     }
@@ -529,7 +529,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         };
     }
 
-    private _addSceneImages(cell: Cell, reference: LatLonAlt): void {
+    private _addSceneImages(cell: Cell, reference: LngLatAlt): void {
         const cellId = cell.id;
         const images = cell.images;
         for (const image of images) {
@@ -614,7 +614,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         return cells;
     }
 
-    private _computeOriginalPosition(image: Image, reference: LatLonAlt): number[] {
+    private _computeOriginalPosition(image: Image, reference: LngLatAlt): number[] {
         return geodeticToEnu(
             image.originalLngLat.lat,
             image.originalLngLat.lng,
@@ -624,7 +624,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             reference.alt);
     }
 
-    private _computeTileBBox(cellId: string, reference: LatLonAlt): number[][] {
+    private _computeTileBBox(cellId: string, reference: LngLatAlt): number[][] {
         const vertices =
             this._navigator.api.data.geometry
                 .getVertices(cellId)
@@ -644,7 +644,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
 
     private _computeTranslation(
         reconstruction: ClusterReconstructionContract,
-        reference: LatLonAlt)
+        reference: LngLatAlt)
         : number[] {
         return geodeticToEnu(
             reconstruction.reference.lat,
@@ -655,7 +655,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             reference.alt);
     }
 
-    private _createTransform(image: Image, reference: LatLonAlt): Transform {
+    private _createTransform(image: Image, reference: LngLatAlt): Transform {
         const translation: number[] = Geo.computeTranslation(
             { alt: image.computedAltitude, lat: image.lngLat.lat, lng: image.lngLat.lng },
             image.rotation,

@@ -8,7 +8,7 @@ import { LngLat } from "../interfaces/LngLat";
  */
 export interface CoreImageEnt extends IDEnt {
     /**
-     * SfM computed latitude longitude in WGS84 datum, measured in degrees.
+     * SfM computed longitude, latitude in WGS84 datum, measured in degrees.
      *
      * @description Optional - no 3D interaction available
      * if unset.
@@ -16,7 +16,7 @@ export interface CoreImageEnt extends IDEnt {
     computed_geometry?: LngLat;
 
     /**
-     * Original EXIF latitude longitude in WGS84 datum, measured in degrees.
+     * Original EXIF longitude, latitude in WGS84 datum, measured in degrees.
      */
     geometry: LngLat;
 

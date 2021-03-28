@@ -88,7 +88,7 @@ describe("Marker.updatePosition", () => {
         expect(marker.geometry.position.z).toBe(3);
     });
 
-    it("should update lat lon", () => {
+    it("should update lng lat", () => {
         let marker: Marker = new TestMarker("id", { lat: 0, lng: 0 });
         marker.createGeometry([0, 0, 0]);
         marker.updatePosition([1, 2, 3], { lat: 1, lng: 2 });

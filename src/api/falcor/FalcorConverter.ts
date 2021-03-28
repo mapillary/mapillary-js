@@ -10,7 +10,7 @@ import { IDEnt } from "../ents/IDEnt";
 import { SpatialImageEnt } from "../ents/SpatialImageEnt";
 import { SequenceEnt } from "../ents/SequenceEnt";
 import { ClusterReconstructionContract } from "../contracts/ClusterReconstructionContract";
-import { LatLonAlt } from "../interfaces/LatLonAlt";
+import { LngLatAlt } from "../interfaces/LngLatAlt";
 import { CameraEnt } from "../ents/CameraEnt";
 import { FalcorClusterReconstructionContract } from "./FalcorContracts";
 import { isSpherical } from "../../geo/Geo";
@@ -93,7 +93,7 @@ export class FalcorConverter {
         const id = item.key;
         const points = item.points;
         const lla = item.reference_lla;
-        const reference: LatLonAlt = {
+        const reference: LngLatAlt = {
             alt: lla.altitude,
             lat: lla.latitude,
             lng: lla.longitude,

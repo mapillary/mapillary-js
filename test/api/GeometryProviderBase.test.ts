@@ -12,42 +12,42 @@ class GeometryProvider extends GeometryProviderBase {
     public getVertices(cellId: string): LngLat[] {
         const ll = this._cellIdToLatLng(cellId);
         const lat = ll.lat;
-        const lon = ll.lng;
+        const lng = ll.lng;
         return [
-            { lat: lat - 0.5, lng: lon + 0.5 },
-            { lat: lat - 0.5, lng: lon - 0.5 },
-            { lat: lat + 0.5, lng: lon - 0.5 },
-            { lat: lat + 0.5, lng: lon + 0.5 },
+            { lat: lat - 0.5, lng: lng + 0.5 },
+            { lat: lat - 0.5, lng: lng - 0.5 },
+            { lat: lat + 0.5, lng: lng - 0.5 },
+            { lat: lat + 0.5, lng: lng + 0.5 },
         ];
     }
 
     public getAdjacent(cellId: string): string[] {
         const ll = this._cellIdToLatLng(cellId);
         const lat = ll.lat;
-        const lon = ll.lng;
+        const lng = ll.lng;
         return [
-            `${lat}/${lon - 1}`,
-            `${lat + 1}/${lon}`,
-            `${lat}/${lon + 1}`,
-            `${lat - 1}/${lon}`,
-            `${lat + 1}/${lon - 1}`,
-            `${lat + 1}/${lon + 1}`,
-            `${lat - 1}/${lon - 1}`,
-            `${lat - 1}/${lon + 1}`,
+            `${lat}/${lng - 1}`,
+            `${lat + 1}/${lng}`,
+            `${lat}/${lng + 1}`,
+            `${lat - 1}/${lng}`,
+            `${lat + 1}/${lng - 1}`,
+            `${lat + 1}/${lng + 1}`,
+            `${lat - 1}/${lng - 1}`,
+            `${lat - 1}/${lng + 1}`,
         ];
     }
 
     public lngLatToCellId(lngLat: LngLat): string {
         const lat = lngLat.lat;
-        const lon = lngLat.lng;
-        return `${Math.round(lat)}/${Math.round(lon)}`;
+        const lng = lngLat.lng;
+        return `${Math.round(lat)}/${Math.round(lng)}`;
     }
 
     private _cellIdToLatLng(cellId: string): LngLat {
         const [c0, c1] = cellId.split("/");
         const lat = Number.parseInt(c0, 10);
-        const lon = Number.parseInt(c1, 10);
-        return { lat, lng: lon };
+        const lng = Number.parseInt(c1, 10);
+        return { lat, lng: lng };
     }
 }
 
@@ -71,21 +71,21 @@ describe("GeometryProvider.bboxToCellIds", () => {
         spyOn(GeoCoords, "geodeticToEnu").and.callFake(
             (
                 lat: number,
-                lon: number,
+                lng: number,
                 _: number,
                 refLat: number,
-                refLon: number)
+                refLng: number)
                 : number[] => {
                 return [
-                    refLon + lon,
+                    refLng + lng,
                     refLat + lat,
                     0];
             });
 
         spyOn(GeoCoords, "enuToGeodetic").and.callFake(
-            (x: number, y: number, _: number, refLat: number, refLon: number): number[] => {
+            (x: number, y: number, _: number, refLat: number, refLng: number): number[] => {
                 return [
-                    refLon + x,
+                    refLng + x,
                     refLat + y,
                     0];
             });

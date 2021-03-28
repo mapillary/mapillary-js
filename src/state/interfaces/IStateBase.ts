@@ -1,5 +1,5 @@
 import { Camera } from "../../geo/Camera";
-import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
+import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
 import { TransitionMode } from "../TransitionMode";
 import { Image } from "../../graph/Image";
 
@@ -7,7 +7,7 @@ export interface IStateBase {
     alpha: number;
     camera: Camera;
     currentIndex: number;
-    reference: LatLonAlt;
+    reference: LngLatAlt;
     trajectory: Image[];
     transitionMode: TransitionMode;
     zoom: number;

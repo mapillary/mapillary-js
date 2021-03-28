@@ -108,9 +108,9 @@ describe("S2GeometryProvider.bboxToCellIds", () => {
                 });
 
             spyOn(GeoCoords, "enuToGeodetic").and.callFake(
-                (x: number, y: number, _: number, refLat: number, refLon: number): number[] => {
+                (x: number, y: number, _: number, refLat: number, refLng: number): number[] => {
                     return [
-                        refLon + x / tileSize,
+                        refLng + x / tileSize,
                         refLat + y / tileSize,
                         0];
                 });

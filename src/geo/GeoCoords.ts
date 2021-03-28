@@ -37,8 +37,8 @@ export function geodeticToEnu(
  * @param {number} refLat Reference latitude in degrees.
  * @param {number} refLng Reference longitude in degrees.
  * @param {number} refAlt Reference altitude in meters.
- * @returns {Array<number>} The latitude and longitude in degrees
- *                          as well as altitude in meters.
+ * @returns {Array<number>} The longitude, latitude in degrees
+ * and altitude in meters.
  */
 export function enuToGeodetic(
     x: number,
@@ -179,8 +179,8 @@ export function geodeticToEcef(
  * @param {number} X ECEF X-value.
  * @param {number} Y ECEF Y-value.
  * @param {number} Z ECEF Z-value.
- * @returns {Array<number>} The latitude and longitude in degrees
- *                          as well as altitude in meters.
+ * @returns {Array<number>} The longitude, latitude in degrees
+ * and altitude in meters.
  */
 export function ecefToGeodetic(
     X: number,

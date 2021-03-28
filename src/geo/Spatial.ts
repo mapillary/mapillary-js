@@ -242,7 +242,7 @@ export class Spatial {
 
     /**
      * Calculates the distance between two coordinates
-     * (latitude longitude pairs) in meters according to
+     * (longitude, latitude pairs) in meters according to
      * the haversine formula.
      *
      * @param {number} lat1 - Latitude of the first coordinate in degrees.

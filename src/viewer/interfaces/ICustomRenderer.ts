@@ -1,4 +1,4 @@
-import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
+import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
 import { RenderPass } from "../enums/RenderPass";
 import { IViewer } from "./IViewer";
 
@@ -53,14 +53,14 @@ export interface ICustomRenderer {
      *
      * @param {IViewer} viewer - The viewer this custom renderer
      * was just added to.
-     * @param {LatLonAlt} reference - The viewer's current
+     * @param {LngLatAlt} reference - The viewer's current
      * reference position.
      * @param {WebGLRenderingContext | WebGL2RenderingContext} context -
      * The viewer's gl context.
      */
     onAdd(
         viewer: IViewer,
-        reference: LatLonAlt,
+        reference: LngLatAlt,
         context: WebGLRenderingContext | WebGL2RenderingContext): void;
 
     /**
@@ -73,12 +73,12 @@ export interface ICustomRenderer {
      *
      * @param {IViewer} viewer - The viewer this custom renderer
      * is added to.
-     * @param {LatLonAlt} reference - The viewer's current
+     * @param {LngLatAlt} reference - The viewer's current
      * reference position.
      */
     onReferenceChanged(
         viewer: IViewer,
-        reference: LatLonAlt): void;
+        reference: LngLatAlt): void;
 
     /**
      * Method called when the renderer has been removed from the

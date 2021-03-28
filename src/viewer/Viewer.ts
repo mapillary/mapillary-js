@@ -11,7 +11,7 @@ import { LngLat } from "../api/interfaces/LngLat";
 import { Component } from "../component/Component";
 import { ComponentConfiguration }
     from "../component/interfaces/ComponentConfiguration";
-import { LatLonAlt } from "../api/interfaces/LatLonAlt";
+import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { FilterExpression } from "../graph/FilterExpression";
 import { Image } from "../graph/Image";
 import { NavigationDirection } from "../graph/edge/NavigationDirection";
@@ -475,7 +475,7 @@ export class Viewer extends EventEmitter implements IViewer {
                     this._navigator.stateService.reference$).pipe(
                         first())
                     .subscribe(
-                        ([render, reference]: [RenderCamera, LatLonAlt]): void => {
+                        ([render, reference]: [RenderCamera, LngLatAlt]): void => {
                             resolve(this._observer.projection.cameraToLngLat(render, reference));
                         },
                         (error: Error): void => {
@@ -1022,8 +1022,8 @@ export class Viewer extends EventEmitter implements IViewer {
      * viewer camera. In the case of no correspondence the returned value will
      * be `null`.
      *
-     * If the distance from the viewer camera position to the provided lat-lon
-     * is more than 1000 meters `null` will be returned.
+     * If the distance from the viewer camera position to the provided
+     * longitude-latitude is more than 1000 meters `null` will be returned.
      *
      * The projection is performed from the ground plane, i.e.
      * the altitude with respect to the ground plane for the geographical

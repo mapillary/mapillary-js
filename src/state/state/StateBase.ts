@@ -7,14 +7,14 @@ import { ArgumentMapillaryError } from "../../error/ArgumentMapillaryError";
 import { Camera } from "../../geo/Camera";
 import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
-import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
+import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
 import { Image } from "../../graph/Image";
 import { CameraType } from "../../geo/interfaces/CameraType";
 
 export abstract class StateBase implements IStateBase {
     protected _spatial: Spatial;
 
-    protected _reference: LatLonAlt;
+    protected _reference: LngLatAlt;
 
     protected _alpha: number;
     protected _camera: Camera;
@@ -90,7 +90,7 @@ export abstract class StateBase implements IStateBase {
             this._currentCamera.clone();
     }
 
-    public get reference(): LatLonAlt {
+    public get reference(): LngLatAlt {
         return this._reference;
     }
 
@@ -400,7 +400,7 @@ export abstract class StateBase implements IStateBase {
         }
     }
 
-    private _imageToTranslation(image: Image, reference: LatLonAlt): number[] {
+    private _imageToTranslation(image: Image, reference: LngLatAlt): number[] {
         return Geo.computeTranslation(
             { alt: image.computedAltitude, lat: image.lngLat.lat, lng: image.lngLat.lng },
             image.rotation,
