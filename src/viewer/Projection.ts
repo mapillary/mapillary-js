@@ -88,8 +88,8 @@ export class Projection {
                 point.x,
                 point.y,
                 point.z,
-                reference.lat,
                 reference.lng,
+                reference.lat,
                 reference.alt)
                 .slice(0, 2);
 
@@ -111,8 +111,8 @@ export class Projection {
             position.x,
             position.y,
             position.z,
-            reference.lat,
             reference.lng,
+            reference.lat,
             reference.alt);
 
         return { lat, lng };
@@ -125,11 +125,11 @@ export class Projection {
         reference: LngLatAlt): number[] {
 
         const point3d: number[] = geodeticToEnu(
-            lngLat.lat,
             lngLat.lng,
+            lngLat.lat,
             0,
-            reference.lat,
             reference.lng,
+            reference.lat,
             reference.alt);
 
         const canvas: number[] = this._viewportCoords.projectToCanvasSafe(
@@ -141,10 +141,10 @@ export class Projection {
     }
 
     public distanceBetweenLngLats(lngLat1: LngLat, lngLat2: LngLat): number {
-        return this._spatial.distanceFromLatLon(
-            lngLat1.lat,
+        return this._spatial.distanceFromLngLat(
             lngLat1.lng,
-            lngLat2.lat,
-            lngLat2.lng);
+            lngLat1.lat,
+            lngLat2.lng,
+            lngLat2.lat);
     }
 }

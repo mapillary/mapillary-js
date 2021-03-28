@@ -18,11 +18,11 @@ export function isFisheye(cameraType: string): boolean {
 
 export function computeTranslation(position: LngLatAlt, rotation: number[], reference: LngLatAlt): number[] {
     const C = geodeticToEnu(
-        position.lat,
         position.lng,
+        position.lat,
         position.alt,
-        reference.lat,
         reference.lng,
+        reference.lat,
         reference.alt);
 
     const RC: THREE.Vector3 = spatial.rotate(C, rotation);

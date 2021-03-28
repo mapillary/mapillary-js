@@ -418,11 +418,11 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                         } else {
                             const point3d =
                                 geodeticToEnu(
-                                    marker.lngLat.lat,
                                     marker.lngLat.lng,
+                                    marker.lngLat.lat,
                                     reference.alt + alt,
-                                    reference.lat,
                                     reference.lng,
+                                    reference.lat,
                                     reference.alt);
 
                             markerScene.add(marker, point3d);
@@ -461,11 +461,11 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                         if (visible) {
                             const point3d =
                                 geodeticToEnu(
-                                    marker.lngLat.lat,
                                     marker.lngLat.lng,
+                                    marker.lngLat.lat,
                                     reference.alt + alt,
-                                    reference.lat,
                                     reference.lng,
+                                    reference.lat,
                                     reference.alt);
 
                             markerScene.add(marker, point3d);
@@ -485,11 +485,11 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                     for (const marker of markerScene.getAll()) {
                         const point3d =
                             geodeticToEnu(
-                                marker.lngLat.lat,
                                 marker.lngLat.lng,
+                                marker.lngLat.lat,
                                 reference.alt + alt,
-                                reference.lat,
                                 reference.lng,
+                                reference.lat,
                                 reference.alt);
 
                         markerScene.update(marker.id, point3d);
@@ -507,21 +507,21 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
 
                     const position =
                         geodeticToEnu(
-                            lngLat.lat,
                             lngLat.lng,
+                            lngLat.lat,
                             reference.alt + alt,
-                            reference.lat,
                             reference.lng,
+                            reference.lat,
                             reference.alt);
 
                     for (const marker of markerScene.getAll()) {
                         const point3d =
                             geodeticToEnu(
-                                marker.lngLat.lat,
                                 marker.lngLat.lng,
+                                marker.lngLat.lat,
                                 reference.alt + alt,
-                                reference.lat,
                                 reference.lng,
+                                reference.lat,
                                 reference.alt);
 
                         const distanceX: number = point3d[0] - position[0];
@@ -721,8 +721,8 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                             intersection.x,
                             intersection.y,
                             intersection.z,
-                            reference.lat,
                             reference.lng,
+                            reference.lat,
                             reference.alt);
 
                     this._markerScene

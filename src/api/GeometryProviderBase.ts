@@ -85,35 +85,35 @@ export abstract class GeometryProviderBase {
         }
 
         const centerLat = (sw.lat + ne.lat) / 2;
-        const centerLon = (sw.lng + ne.lng) / 2;
+        const centerLng = (sw.lng + ne.lng) / 2;
 
         const enu =
             geodeticToEnu(
-                ne.lat,
                 ne.lng,
+                ne.lat,
                 0,
+                centerLng,
                 centerLat,
-                centerLon,
                 0);
 
         const threshold = Math.max(enu[0], enu[1]);
 
         return this._lngLatToCellIds(
-            { lat: centerLat, lng: centerLon },
+            { lat: centerLat, lng: centerLng },
             threshold);
     }
 
     /** @ignore */
     private _enuToGeodetic(point: number[], reference: LngLat): LngLat {
-        const [lat, lon] = enuToGeodetic(
+        const [lng, lat] = enuToGeodetic(
             point[0],
             point[1],
             point[2],
-            reference.lat,
             reference.lng,
+            reference.lat,
             0);
 
-        return { lat, lng: lon };
+        return { lat, lng };
     }
 
     /** @ignore */

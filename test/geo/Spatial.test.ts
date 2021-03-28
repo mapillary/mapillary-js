@@ -683,24 +683,34 @@ describe("Spatial.distanceFromLatLon", () => {
 
     it("should be approximately 100 meters for Bredgatan", () => {
         let lat1: number = 55.60804;
-        let lon1: number = 13.01846;
+        let lng1: number = 13.01846;
 
         let lat2: number = 55.60719;
-        let lon2: number = 13.01788;
+        let lng2: number = 13.01788;
 
-        let distance: number = spatial.distanceFromLatLon(lat1, lon1, lat2, lon2);
+        let distance: number = spatial
+            .distanceFromLngLat(
+                lng1,
+                lat1,
+                lng2,
+                lat2);
 
         expect(Math.abs(distance - 100)).toBeLessThan(10);
     });
 
     it("should be approximately 20 meters for Karlskronaplan", () => {
         let lat1: number = 55.59381;
-        let lon1: number = 13.01861;
+        let lng1: number = 13.01861;
 
         let lat2: number = 55.59373;
-        let lon2: number = 13.01890;
+        let lng2: number = 13.01890;
 
-        let distance: number = spatial.distanceFromLatLon(lat1, lon1, lat2, lon2);
+        let distance: number = spatial
+            .distanceFromLngLat(
+                lng1,
+                lat1,
+                lng2,
+                lat2);
 
         expect(Math.abs(distance - 20)).toBeLessThan(2);
     });

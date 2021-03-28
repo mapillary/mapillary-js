@@ -596,11 +596,11 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             for (const vertex of vertices) {
                 const [x, y] =
                     geodeticToEnu(
-                        vertex.lat,
                         vertex.lng,
+                        vertex.lat,
                         0,
-                        image.lngLat.lat,
                         image.lngLat.lng,
+                        image.lngLat.lat,
                         0);
                 const azimuthal = Math.atan2(y, x);
                 const vertexBearing = spatial.radToDeg(
@@ -616,11 +616,11 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
 
     private _computeOriginalPosition(image: Image, reference: LngLatAlt): number[] {
         return geodeticToEnu(
-            image.originalLngLat.lat,
             image.originalLngLat.lng,
+            image.originalLngLat.lat,
             image.originalAltitude != null ? image.originalAltitude : image.computedAltitude,
-            reference.lat,
             reference.lng,
+            reference.lat,
             reference.alt);
     }
 
@@ -631,11 +631,11 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                 .map(
                     (vertex: LngLat): number[] => {
                         return geodeticToEnu(
-                            vertex.lat,
                             vertex.lng,
+                            vertex.lat,
                             0,
-                            reference.lat,
                             reference.lng,
+                            reference.lat,
                             reference.alt);
                     });
 
@@ -647,11 +647,11 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         reference: LngLatAlt)
         : number[] {
         return geodeticToEnu(
-            reconstruction.reference.lat,
             reconstruction.reference.lng,
+            reconstruction.reference.lat,
             reconstruction.reference.alt,
-            reference.lat,
             reference.lng,
+            reference.lat,
             reference.alt);
     }
 
