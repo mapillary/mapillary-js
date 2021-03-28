@@ -9,7 +9,7 @@ import { ICustomRenderer } from "./interfaces/ICustomRenderer";
 import { Navigator } from "./Navigator";
 import { Container } from "./Container";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
-import { LatLonAlt } from "../api/interfaces/LatLonAlt";
+import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { WebGLRenderer } from "three";
 import { RenderCamera } from "../render/RenderCamera";
 import { IViewer } from "./interfaces/IViewer";
@@ -40,7 +40,7 @@ export class CustomRenderer {
             .pipe(take(1))
             .subscribe(
                 ([gl, reference]:
-                    [WebGLRenderer, LatLonAlt]): void => {
+                    [WebGLRenderer, LngLatAlt]): void => {
                     renderer.onAdd(viewer, reference, gl.getContext());
                 }));
 
@@ -67,7 +67,7 @@ export class CustomRenderer {
         subs.push(this._navigator.stateService.reference$
             .pipe(skip(1))
             .subscribe(
-                (reference: LatLonAlt): void => {
+                (reference: LngLatAlt): void => {
                     renderer.onReferenceChanged(viewer, reference);
                 }));
     }

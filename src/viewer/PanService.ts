@@ -26,7 +26,7 @@ import { LngLat } from "../api/interfaces/LngLat";
 import { Spatial } from "../geo/Spatial";
 import { Transform } from "../geo/Transform";
 import { ViewportCoords } from "../geo/ViewportCoords";
-import { LatLonAlt } from "../api/interfaces/LatLonAlt";
+import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { GraphCalculator } from "../graph/GraphCalculator";
 import { GraphService } from "../graph/GraphService";
 import { Image } from "../graph/Image";
@@ -174,7 +174,7 @@ export class PanService {
                     return observableCombineLatest(current$, adjacent$).pipe(
                         withLatestFrom(this._stateService.reference$),
                         map(
-                            ([[cn, adjacent], reference]: [[Image, Image[]], LatLonAlt]): [Image, Transform, number][] => {
+                            ([[cn, adjacent], reference]: [[Image, Image[]], LngLatAlt]): [Image, Transform, number][] => {
                                 const currentDirection: THREE.Vector3 = this._spatial.viewingDirection(cn.rotation);
                                 const currentTranslation: number[] = Geo.computeTranslation(
                                     { lat: cn.lngLat.lat, lng: cn.lngLat.lng, alt: cn.computedAltitude },

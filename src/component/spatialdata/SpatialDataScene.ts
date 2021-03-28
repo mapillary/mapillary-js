@@ -303,8 +303,8 @@ class PerspectiveCameraFrame extends CameraFrameBase {
 }
 
 class SphericalCameraFrame extends CameraFrameBase {
-    private readonly _latitudeVertices: number;
-    private readonly _longitudeVertices: number;
+    private readonly _latVertices: number;
+    private readonly _lngVertices: number;
 
     constructor(
         originalSize: number,
@@ -313,33 +313,33 @@ class SphericalCameraFrame extends CameraFrameBase {
         color: string) {
         super(originalSize);
 
-        this._latitudeVertices = 10;
-        this._longitudeVertices = 6;
+        this._latVertices = 10;
+        this._lngVertices = 6;
 
-        const latV = this._latitudeVertices;
-        const lonV = this._longitudeVertices;
+        const latV = this._latVertices;
+        const lngV = this._lngVertices;
         const origin = transform.unprojectBasic([0, 0], 0, true);
         const axis =
             this._createAxis(transform, scale, origin, color);
         const lat =
-            this._createLatitude(0.5, latV, transform, scale, origin, color);
-        const lon1 =
-            this._createLongitude(0, lonV, transform, scale, origin, color);
-        const lon2 =
-            this._createLongitude(0.25, lonV, transform, scale, origin, color);
-        const lon3 =
-            this._createLongitude(0.5, lonV, transform, scale, origin, color);
-        const lon4 =
-            this._createLongitude(0.75, lonV, transform, scale, origin, color);
+            this._createLat(0.5, latV, transform, scale, origin, color);
+        const lng1 =
+            this._createLng(0, lngV, transform, scale, origin, color);
+        const lng2 =
+            this._createLng(0.25, lngV, transform, scale, origin, color);
+        const lng3 =
+            this._createLng(0.5, lngV, transform, scale, origin, color);
+        const lng4 =
+            this._createLng(0.75, lngV, transform, scale, origin, color);
 
         this._updateMatrixWorld(axis);
         this._updateMatrixWorld(lat);
-        this._updateMatrixWorld(lon1);
-        this._updateMatrixWorld(lon2);
-        this._updateMatrixWorld(lon3);
-        this._updateMatrixWorld(lon4);
+        this._updateMatrixWorld(lng1);
+        this._updateMatrixWorld(lng2);
+        this._updateMatrixWorld(lng3);
+        this._updateMatrixWorld(lng4);
 
-        this.add(axis, lat, lon1, lon2, lon3, lon4);
+        this.add(axis, lat, lng1, lng2, lng3, lng4);
     }
 
     private _calculateRelativeAxis(
@@ -373,7 +373,7 @@ class SphericalCameraFrame extends CameraFrameBase {
         return this._makeRelative(positions, origin);
     }
 
-    private _calculateRelativeLongitude(
+    private _calculateRelativeLng(
         basicX: number,
         numVertices: number,
         transform: Transform,
@@ -403,7 +403,7 @@ class SphericalCameraFrame extends CameraFrameBase {
         return this._createCameraFrame(origin, positions, scale, color);
     }
 
-    private _createLatitude(
+    private _createLat(
         basicY: number,
         numVertices: number,
         transform: Transform,
@@ -416,7 +416,7 @@ class SphericalCameraFrame extends CameraFrameBase {
         return this._createCameraFrame(origin, positions, scale, color);
     }
 
-    private _createLongitude(
+    private _createLng(
         basicX: number,
         numVertices: number,
         transform: Transform,
@@ -424,7 +424,7 @@ class SphericalCameraFrame extends CameraFrameBase {
         origin: number[],
         color: string)
         : CameraFrameLine {
-        const positions = this._calculateRelativeLongitude(
+        const positions = this._calculateRelativeLng(
             basicX, numVertices, transform, origin);
         return this._createCameraFrame(origin, positions, scale, color);
     }

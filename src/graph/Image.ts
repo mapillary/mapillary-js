@@ -211,7 +211,7 @@ export class Image {
      *
      * @description Will not be set if SfM has not been run.
      *
-     * @returns {LngLat} SfM computed latitude longitude in WGS84 datum,
+     * @returns {LngLat} SfM computed longitude, latitude in WGS84 datum,
      * measured in degrees.
      */
     public get computedLngLat(): LngLat {
@@ -293,11 +293,11 @@ export class Image {
     /**
      * Get lngLat.
      *
-     * @description If the SfM computed latitude longitude exist
+     * @description If the SfM computed longitude, latitude exist
      * it will be returned, otherwise the original EXIF latitude
      * longitude.
      *
-     * @returns {LngLat} Latitude longitude in WGS84 datum,
+     * @returns {LngLat} Longitude, latitude in WGS84 datum,
      * measured in degrees.
      */
     public get lngLat(): LngLat {
@@ -375,7 +375,7 @@ export class Image {
     /**
      * Get originalLngLat.
      *
-     * @returns {LngLat} Original EXIF latitude longitude in
+     * @returns {LngLat} Original EXIF longitude, latitude in
      * WGS84 datum, measured in degrees.
      */
     public get originalLngLat(): LngLat {

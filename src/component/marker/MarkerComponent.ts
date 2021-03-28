@@ -26,7 +26,7 @@ import { Image } from "../../graph/Image";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { LngLat } from "../../api/interfaces/LngLat";
-import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
+import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { GraphCalculator } from "../../graph/GraphCalculator";
 import { RenderPass } from "../../render/RenderPass";
@@ -400,14 +400,14 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
 
         subs.push(geoInitiated$.pipe(
             switchMap(
-                (): Observable<[Marker[], LatLonAlt, number]> => {
+                (): Observable<[Marker[], LngLatAlt, number]> => {
                     return visibleMarkers$.pipe(
                         withLatestFrom(
                             this._navigator.stateService.reference$,
                             groundAltitude$));
                 }))
             .subscribe(
-                ([markers, reference, alt]: [Marker[], LatLonAlt, number]): void => {
+                ([markers, reference, alt]: [Marker[], LngLatAlt, number]): void => {
                     const markerScene: MarkerScene = this._markerScene;
                     const sceneMarkers: { [id: string]: Marker } = markerScene.markers;
                     const markersToRemove: { [id: string]: Marker } = Object.assign({}, sceneMarkers);
@@ -440,7 +440,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
 
         subs.push(geoInitiated$.pipe(
             switchMap(
-                (): Observable<[Marker[], [LngLat, LngLat], LatLonAlt, number]> => {
+                (): Observable<[Marker[], [LngLat, LngLat], LngLatAlt, number]> => {
                     return this._markerSet.updated$.pipe(
                         withLatestFrom(
                             visibleBBox$,
@@ -448,7 +448,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                             groundAltitude$));
                 }))
             .subscribe(
-                ([markers, [sw, ne], reference, alt]: [Marker[], [LngLat, LngLat], LatLonAlt, number]): void => {
+                ([markers, [sw, ne], reference, alt]: [Marker[], [LngLat, LngLat], LngLatAlt, number]): void => {
                     const markerScene: MarkerScene = this._markerScene;
 
                     for (const marker of markers) {
@@ -479,7 +479,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
             skip(1),
             withLatestFrom(groundAltitude$))
             .subscribe(
-                ([reference, alt]: [LatLonAlt, number]): void => {
+                ([reference, alt]: [LngLatAlt, number]): void => {
                     const markerScene: MarkerScene = this._markerScene;
 
                     for (const marker of markerScene.getAll()) {
@@ -502,7 +502,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                 this._navigator.stateService.reference$,
                 currentLngLat$))
             .subscribe(
-                ([alt, reference, lngLat]: [number, LatLonAlt, LngLat]): void => {
+                ([alt, reference, lngLat]: [number, LngLatAlt, LngLat]): void => {
                     const markerScene: MarkerScene = this._markerScene;
 
                     const position =
@@ -679,7 +679,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                     clampedConfiguration$))
             .subscribe(
                 ([event, [marker, offset, render], reference, configuration]:
-                    [MouseEvent, [Marker, number[], RenderCamera], LatLonAlt, MarkerConfiguration]): void => {
+                    [MouseEvent, [Marker, number[], RenderCamera], LngLatAlt, MarkerConfiguration]): void => {
                     if (!this._markerScene.has(marker.id)) {
                         return;
                     }
@@ -716,7 +716,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
 
                     intersection.z = render.perspective.position.z + this._relativeGroundAltitude;
 
-                    const [lat, lon] =
+                    const [lat, lng] =
                         enuToGeodetic(
                             intersection.x,
                             intersection.y,
@@ -729,7 +729,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                         .update(
                             marker.id,
                             intersection.toArray(),
-                            { lat: lat, lng: lon });
+                            { lat, lng });
 
                     this._markerSet.update(marker);
 

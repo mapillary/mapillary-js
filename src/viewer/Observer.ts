@@ -23,7 +23,7 @@ import { ViewerMouseEvent } from "./events/ViewerMouseEvent";
 
 import { LngLat } from "../api/interfaces/LngLat";
 import { Transform } from "../geo/Transform";
-import { LatLonAlt } from "../api/interfaces/LatLonAlt";
+import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { Image } from "../graph/Image";
 import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
 import { RenderCamera } from "../render/RenderCamera";
@@ -43,7 +43,7 @@ type UnprojectionParams = [
         MouseEvent,
     ],
     RenderCamera,
-    LatLonAlt,
+    LngLatAlt,
     Transform,
 ]
 
@@ -130,9 +130,9 @@ export class Observer {
             this._navigator.stateService.reference$).pipe(
                 first(),
                 map(
-                    ([render, image, reference]: [RenderCamera, Image, LatLonAlt]): number[] => {
+                    ([render, image, reference]: [RenderCamera, Image, LngLatAlt]): number[] => {
                         if (this._projection
-                            .distanceBetweenLatLons(
+                            .distanceBetweenLngLats(
                                 lngLat,
                                 image.lngLat) > 1000) {
                             return null;
@@ -392,7 +392,7 @@ export class Observer {
             this._navigator.stateService.currentTransform$).pipe(
                 first(),
                 map(
-                    ([render, reference, transform]: [RenderCamera, LatLonAlt, Transform]): LngLat => {
+                    ([render, reference, transform]: [RenderCamera, LngLatAlt, Transform]): LngLat => {
                         const unprojection: Unprojection =
                             this._projection.canvasToUnprojection(
                                 canvasPoint,

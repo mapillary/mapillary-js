@@ -1,7 +1,7 @@
 import { Image } from "../../src/graph/Image";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
-import { LatLonAlt } from "../../src/api/interfaces/LatLonAlt";
+import { LngLatAlt } from "../../src/api/interfaces/LngLatAlt";
 import { PotentialEdge } from "../../src/graph/edge/interfaces/PotentialEdge";
 import { CameraType } from "../../src/geo/interfaces/CameraType";
 
@@ -27,13 +27,13 @@ export class EdgeCalculatorHelper {
 
     public createCoreImage(
         key: string,
-        latLonAlt: LatLonAlt,
+        lngLatAlt: LngLatAlt,
         sequenceKey: string): Image {
 
         let coreImage: CoreImageEnt = {
-            computed_geometry: { lat: latLonAlt.lat, lng: latLonAlt.lng },
+            computed_geometry: { lat: lngLatAlt.lat, lng: lngLatAlt.lng },
             id: key,
-            geometry: { lat: latLonAlt.lat, lng: latLonAlt.lng },
+            geometry: { lat: lngLatAlt.lat, lng: lngLatAlt.lng },
             sequence: { id: sequenceKey },
         };
 
@@ -42,7 +42,7 @@ export class EdgeCalculatorHelper {
 
     public createSpatialImageEn(
         key: string = "key",
-        latLonAlt: LatLonAlt = { alt: 0, lat: 0, lng: 0 },
+        lngLatAlt: LngLatAlt = { alt: 0, lat: 0, lng: 0 },
         sequenceKey: string = "skey",
         r: number[] = [0, 0, 0],
         mergeCC: number = 2,
@@ -50,13 +50,13 @@ export class EdgeCalculatorHelper {
         capturedAt: number = 0,
         mergeVersion: number = 1): Image {
 
-        let image: Image = this.createCoreImage(key, latLonAlt, sequenceKey);
+        let image: Image = this.createCoreImage(key, lngLatAlt, sequenceKey);
         let spatialImage: SpatialImageEnt = {
             altitude: 0,
             atomic_scale: 0,
             computed_rotation: r,
             compass_angle: 0,
-            computed_altitude: latLonAlt.alt,
+            computed_altitude: lngLatAlt.alt,
             camera_parameters: cameraType === "spherical" ?
                 [] : [1, 0, 0],
             camera_type: cameraType,
@@ -87,12 +87,19 @@ export class EdgeCalculatorHelper {
     public createDefaultImage(spherical: boolean = false): Image {
         let key: string = "key";
         let sequenceKey: string = "skey";
-        let latLonAlt: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
+        let lngLatAlt: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
 
         let cameraType: CameraType = spherical ?
             "spherical" :
             null;
 
-        return this.createSpatialImageEn(key, latLonAlt, sequenceKey, [0, 0, 0], 2, cameraType, 0);
+        return this.createSpatialImageEn(
+            key,
+            lngLatAlt,
+            sequenceKey,
+            [0, 0, 0],
+            2,
+            cameraType,
+            0);
     }
 }

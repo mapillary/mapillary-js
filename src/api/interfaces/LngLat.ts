@@ -1,5 +1,5 @@
 /**
- * Interface that represents a latitude and longitude coordinate,
+ * Interface that represents a longitude, latitude coordinate,
  * measured in degrees. Coordinates are defined in the WGS84 datum.
  */
 export interface LngLat {

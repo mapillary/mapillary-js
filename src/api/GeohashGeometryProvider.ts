@@ -71,7 +71,7 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
     /**
      * Encode the geohash tile for geodetic coordinates.
      *
-     * @param {LngLat} lngLat - Latitude and longitude to encode.
+     * @param {LngLat} lngLat - Longitude, latitude to encode.
      * @param {number} precision - Precision of the encoding.
      *
      * @returns {string} The geohash tile for the lat, lon and precision.

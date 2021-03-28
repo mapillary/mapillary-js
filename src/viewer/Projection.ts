@@ -6,7 +6,7 @@ import { LngLat } from "../api/interfaces/LngLat";
 import { Spatial } from "../geo/Spatial";
 import { Transform } from "../geo/Transform";
 import { ViewportCoords } from "../geo/ViewportCoords";
-import { LatLonAlt } from "../api/interfaces/LatLonAlt";
+import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { RenderCamera } from "../render/RenderCamera";
 import { enuToGeodetic, geodeticToEnu } from "../geo/GeoCoords";
 
@@ -49,7 +49,7 @@ export class Projection {
         event: MouseEvent | Touch,
         container: HTMLElement,
         render: RenderCamera,
-        reference: LatLonAlt,
+        reference: LngLatAlt,
         transform: Transform): Unprojection {
 
         const pixelPoint: number[] = this._viewportCoords.canvasPosition(event, container);
@@ -61,7 +61,7 @@ export class Projection {
         canvasPoint: number[],
         container: HTMLElement,
         render: RenderCamera,
-        reference: LatLonAlt,
+        reference: LngLatAlt,
         transform: Transform): Unprojection {
 
         const canvasX: number = canvasPoint[0];
@@ -105,9 +105,9 @@ export class Projection {
         return unprojection;
     }
 
-    public cameraToLngLat(render: RenderCamera, reference: LatLonAlt): LngLat {
+    public cameraToLngLat(render: RenderCamera, reference: LngLatAlt): LngLat {
         const position: THREE.Vector3 = render.camera.position;
-        const [lat, lon]: number[] = enuToGeodetic(
+        const [lat, lng]: number[] = enuToGeodetic(
             position.x,
             position.y,
             position.z,
@@ -115,14 +115,14 @@ export class Projection {
             reference.lng,
             reference.alt);
 
-        return { lat: lat, lng: lon };
+        return { lat, lng };
     }
 
     public lngLatToCanvas(
         lngLat: LngLat,
         container: HTMLElement,
         render: RenderCamera,
-        reference: LatLonAlt): number[] {
+        reference: LngLatAlt): number[] {
 
         const point3d: number[] = geodeticToEnu(
             lngLat.lat,
@@ -140,7 +140,7 @@ export class Projection {
         return canvas;
     }
 
-    public distanceBetweenLatLons(lngLat1: LngLat, lngLat2: LngLat): number {
+    public distanceBetweenLngLats(lngLat1: LngLat, lngLat2: LngLat): number {
         return this._spatial.distanceFromLatLon(
             lngLat1.lat,
             lngLat1.lng,

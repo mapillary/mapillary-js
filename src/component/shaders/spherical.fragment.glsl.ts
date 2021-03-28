@@ -16,8 +16,8 @@ void main()
 {
     vec3 b = normalize(vRstq.xyz);
     float lat = -asin(b.y);
-    float lon = atan(b.x, b.z);
-    float x = lon / tau + 0.5;
+    float lng = atan(b.x, b.z);
+    float x = lng / tau + 0.5;
     float y = lat / tau * 2.0 + 0.5;
     vec4 baseColor = texture2D(projectorTex, vec2(x, y));
     baseColor.a = opacity;

@@ -12,7 +12,7 @@ import { ContainerMockCreator } from "../helper/ContainerMockCreator";
 import { MockCreator } from "../helper/MockCreator";
 import { NavigatorMockCreator } from "../helper/NavigatorMockCreator";
 import { RendererMock } from "../helper/WebGLRenderer";
-import { LatLonAlt } from "../../src/api/interfaces/LatLonAlt";
+import { LngLatAlt } from "../../src/api/interfaces/LngLatAlt";
 import { RenderCamera } from "../../src/render/RenderCamera";
 import { RenderMode } from "../../src/render/RenderMode";
 import { RenderPass } from "../../src/viewer/enums/RenderPass";
@@ -76,7 +76,7 @@ describe("CustomRenderer.add", () => {
             navigator);
 
         const viewer = <any>{};
-        const referenceMock: LatLonAlt = { alt: 1, lat: 2, lng: 2 };
+        const referenceMock: LngLatAlt = { alt: 1, lat: 2, lng: 2 };
         const rendererId = "id";
 
         customRenderer.add(
@@ -102,7 +102,7 @@ describe("CustomRenderer.add", () => {
         spyOn(rendererMock, "getContext").and.returnValue(contextMock);
         (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
             .next(rendererMock);
-        (<Subject<LatLonAlt>>navigator.stateService.reference$)
+        (<Subject<LngLatAlt>>navigator.stateService.reference$)
             .next(referenceMock);
     });
 
@@ -117,7 +117,7 @@ describe("CustomRenderer.add", () => {
             navigator);
 
         const viewer = <any>{};
-        const referenceMock: LatLonAlt = { alt: 1, lat: 2, lng: 2 };
+        const referenceMock: LngLatAlt = { alt: 1, lat: 2, lng: 2 };
         const rendererId = "id";
 
         let invokeCount = 0;
@@ -138,7 +138,7 @@ describe("CustomRenderer.add", () => {
         spyOn(rendererMock, "getContext").and.returnValue(contextMock);
         (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
             .next(rendererMock);
-        (<Subject<LatLonAlt>>navigator.stateService.reference$)
+        (<Subject<LngLatAlt>>navigator.stateService.reference$)
             .next(referenceMock);
 
         expect(invokeCount).toBe(0);
@@ -155,7 +155,7 @@ describe("CustomRenderer.add", () => {
             navigator);
 
         const viewer = <any>{};
-        const referenceMock: LatLonAlt = { alt: 1, lat: 2, lng: 2 };
+        const referenceMock: LngLatAlt = { alt: 1, lat: 2, lng: 2 };
         const rendererId = "id";
 
         let invokeCount = 0;
@@ -177,9 +177,9 @@ describe("CustomRenderer.add", () => {
         (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
             .next(rendererMock);
 
-        (<Subject<LatLonAlt>>navigator.stateService.reference$)
+        (<Subject<LngLatAlt>>navigator.stateService.reference$)
             .next(referenceMock);
-        (<Subject<LatLonAlt>>navigator.stateService.reference$)
+        (<Subject<LngLatAlt>>navigator.stateService.reference$)
             .next(referenceMock);
 
         expect(invokeCount).toBe(1);
@@ -196,7 +196,7 @@ describe("CustomRenderer.add", () => {
             navigator);
 
         const viewer = <any>{};
-        const referenceMock: LatLonAlt = { alt: 1, lat: 2, lng: 2 };
+        const referenceMock: LngLatAlt = { alt: 1, lat: 2, lng: 2 };
         const rendererId = "id";
 
         customRenderer.add(
@@ -221,7 +221,7 @@ describe("CustomRenderer.add", () => {
         spyOn(rendererMock, "getContext").and.returnValue(contextMock);
         (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
             .next(rendererMock);
-        (<Subject<LatLonAlt>>navigator.stateService.reference$)
+        (<Subject<LngLatAlt>>navigator.stateService.reference$)
             .next(referenceMock);
 
         const renderCameraMock = new RenderCamera(1, 1, RenderMode.Fill);
