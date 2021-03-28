@@ -11,7 +11,7 @@ import {
 
 import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { State } from "../../state/State";
 import { KeyboardConfiguration } from "../interfaces/KeyboardConfiguration";
 import { HandlerBase } from "../util/HandlerBase";
@@ -44,10 +44,10 @@ export class KeyPlayHandler extends HandlerBase<KeyboardConfiguration> {
                 this._navigator.playService.playing$,
                 this._navigator.playService.direction$,
                 this._navigator.playService.speed$,
-                this._navigator.stateService.currentNode$.pipe(
+                this._navigator.stateService.currentImage$.pipe(
                     switchMap(
-                        (node: Node): Observable<NavigationEdgeStatus> => {
-                            return node.sequenceEdges$;
+                        (image: Image): Observable<NavigationEdgeStatus> => {
+                            return image.sequenceEdges$;
                         })),
                 this._navigator.stateService.state$.pipe(
                     map(

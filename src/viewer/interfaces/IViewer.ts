@@ -4,7 +4,7 @@ import { ComponentConfiguration }
     from "../../component/interfaces/ComponentConfiguration";
 import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { FilterExpression } from "../../graph/FilterExpression";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { RenderMode } from "../../render/RenderMode";
 import { TransitionMode } from "../../state/TransitionMode";
 import { ViewerEventType } from "../events/ViewerEventType";
@@ -36,8 +36,8 @@ export interface IViewer {
     getPosition(): Promise<LatLon>;
     getZoom(): Promise<number>;
     hasCustomRenderer(rendererId: string): boolean;
-    moveDir(direction: NavigationDirection): Promise<Node>;
-    moveTo(imageId: string): Promise<Node>;
+    moveDir(direction: NavigationDirection): Promise<Image>;
+    moveTo(imageId: string): Promise<Image>;
     off<T>(
         type: ViewerEventType,
         handler: (event: T) => void): void;

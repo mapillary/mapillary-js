@@ -22,7 +22,7 @@ import {
 } from "rxjs/operators";
 
 import { Component } from "../Component";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { LatLon } from "../../api/interfaces/LatLon";
@@ -370,8 +370,8 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                     return { visibleBBoxSize: Math.max(1, Math.min(200, configuration.visibleBBoxSize)) };
                 }));
 
-        const currentlatLon$ = this._navigator.stateService.currentNode$.pipe(
-            map((node: Node): LatLon => { return node.latLon; }),
+        const currentlatLon$ = this._navigator.stateService.currentImage$.pipe(
+            map((image: Image): LatLon => { return image.latLon; }),
             publishReplay(1),
             refCount());
 

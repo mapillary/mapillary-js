@@ -14,7 +14,7 @@ import {
 import { Component } from "../Component";
 import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
@@ -66,17 +66,17 @@ export class ImageComponent extends Component<ComponentConfiguration> {
 
         this._subscriptions.push(observableCombineLatest(
             canvasSize$,
-            this._navigator.stateService.currentNode$)
+            this._navigator.stateService.currentImage$)
             .subscribe(
-                ([[canvas, size], node]: [[HTMLCanvasElement, ViewportSize], Node]): void => {
+                ([[canvas, size], image]: [[HTMLCanvasElement, ViewportSize], Image]): void => {
                     canvas.width = size.width;
                     canvas.height = size.height;
                     canvas
                         .getContext("2d")
-                        .drawImage(node.image, 0, 0, size.width, size.height);
+                        .drawImage(image.image, 0, 0, size.width, size.height);
                 }));
 
-        this._container.domRenderer.renderAdaptive$.next({ name: this._name, vnode: vd.h(`canvas#${this._canvasId}`, []) });
+        this._container.domRenderer.renderAdaptive$.next({ name: this._name, vNode: vd.h(`canvas#${this._canvasId}`, []) });
     }
 
     protected _deactivate(): void {

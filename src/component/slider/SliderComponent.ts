@@ -28,13 +28,13 @@ import {
 } from "rxjs/operators";
 
 import {
-    SliderNodes,
+    SliderImages,
     SliderCombination,
     GLRendererOperation,
     PositionLookat,
 } from "./interfaces/SliderInterfaces";
 
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Spatial } from "../../geo/Spatial";
@@ -218,7 +218,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
         const spherical$ = this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: AnimationFrame): boolean => {
-                    return isSpherical(frame.state.currentNode.cameraType);
+                    return isSpherical(frame.state.currentImage.cameraType);
                 }),
             distinctUntilChanged());
 
@@ -231,12 +231,12 @@ export class SliderComponent extends Component<SliderConfiguration> {
             this._navigator.stateService.currentState$.pipe(
                 map(
                     (frame: AnimationFrame): boolean => {
-                        return !(frame.state.currentNode == null ||
-                            frame.state.previousNode == null ||
+                        return !(frame.state.currentImage == null ||
+                            frame.state.previousImage == null ||
                             (isSpherical(
-                                frame.state.currentNode.cameraType) &&
+                                frame.state.currentImage.cameraType) &&
                                 !isSpherical(
-                                    frame.state.previousNode.cameraType)));
+                                    frame.state.previousImage.cameraType)));
                     }),
                 distinctUntilChanged())).pipe(
                     map(
@@ -293,7 +293,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
                         [number, SliderConfigurationMode, boolean, boolean, boolean, ViewportSize]): VirtualNodeHash => {
                         return {
                             name: this._name,
-                            vnode: this._domRenderer.render(position, mode, motionless, spherical, sliderVisible),
+                            vNode: this._domRenderer.render(position, mode, motionless, spherical, sliderVisible),
                         };
                     }))
             .subscribe(this._container.domRenderer.render$));
@@ -352,40 +352,43 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 (configuration: SliderConfiguration): Observable<SliderCombination> => {
                     return observableZip(
                         observableZip(
-                            this._catchCacheNode$(configuration.ids.background),
-                            this._catchCacheNode$(configuration.ids.foreground)).pipe(
-                                map(
-                                    (nodes: [Node, Node]): SliderNodes => {
-                                        return { background: nodes[0], foreground: nodes[1] };
-                                    })),
+                            this._catchCacheImage$(
+                                configuration.ids.background),
+                            this._catchCacheImage$(
+                                configuration.ids.foreground)).pipe(
+                                    map(
+                                        (images: [Image, Image])
+                                            : SliderImages => {
+                                            return { background: images[0], foreground: images[1] };
+                                        })),
                         this._navigator.stateService.currentState$.pipe(first())).pipe(
                             map(
-                                (nf: [SliderNodes, AnimationFrame]): SliderCombination => {
-                                    return { nodes: nf[0], state: nf[1].state };
+                                (nf: [SliderImages, AnimationFrame]): SliderCombination => {
+                                    return { images: nf[0], state: nf[1].state };
                                 }));
                 }))
             .subscribe(
                 (co: SliderCombination): void => {
-                    if (co.state.currentNode != null &&
-                        co.state.previousNode != null &&
-                        co.state.currentNode.id === co.nodes.foreground.id &&
-                        co.state.previousNode.id === co.nodes.background.id) {
+                    if (co.state.currentImage != null &&
+                        co.state.previousImage != null &&
+                        co.state.currentImage.id === co.images.foreground.id &&
+                        co.state.previousImage.id === co.images.background.id) {
                         return;
                     }
 
-                    if (co.state.currentNode.id === co.nodes.background.id) {
-                        this._navigator.stateService.setNodes([co.nodes.foreground]);
+                    if (co.state.currentImage.id === co.images.background.id) {
+                        this._navigator.stateService.setImages([co.images.foreground]);
                         return;
                     }
 
-                    if (co.state.currentNode.id === co.nodes.foreground.id &&
+                    if (co.state.currentImage.id === co.images.foreground.id &&
                         co.state.trajectory.length === 1) {
-                        this._navigator.stateService.prependNodes([co.nodes.background]);
+                        this._navigator.stateService.prependImages([co.images.background]);
                         return;
                     }
 
-                    this._navigator.stateService.setNodes([co.nodes.background]);
-                    this._navigator.stateService.setNodes([co.nodes.foreground]);
+                    this._navigator.stateService.setImages([co.images.background]);
+                    this._navigator.stateService.setImages([co.images.foreground]);
                 },
                 (e: Error): void => {
                     console.error(e);
@@ -398,7 +401,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 distinctUntilChanged(
                     undefined,
                     (frame: AnimationFrame): string => {
-                        return frame.state.currentNode.id;
+                        return frame.state.currentImage.id;
                     }),
                 withLatestFrom(
                     this._container.glRenderer.webGLRenderer$,
@@ -408,15 +411,15 @@ export class SliderComponent extends Component<SliderConfiguration> {
                         const state: IAnimationState = frame.state;
                         const viewportSize: number = Math.max(size.width, size.height);
 
-                        const currentNode: Node = state.currentNode;
+                        const currentImage: Image = state.currentImage;
                         const currentTransform: Transform = state.currentTransform;
                         const tileSize: number = viewportSize > 2048 ? 2048 : viewportSize > 1024 ? 1024 : 512;
 
                         return new TextureProvider(
-                            currentNode.id,
+                            currentImage.id,
                             currentTransform.basicWidth,
                             currentTransform.basicHeight,
-                            currentNode.image,
+                            currentImage.image,
                             this._imageTileLoader,
                             new TileStore(),
                             renderer);
@@ -527,12 +530,12 @@ export class SliderComponent extends Component<SliderConfiguration> {
             filter(() => ViewerConfiguration.imageTiling),
             filter(
                 (frame: AnimationFrame): boolean => {
-                    return !!frame.state.previousNode;
+                    return !!frame.state.previousImage;
                 }),
             distinctUntilChanged(
                 undefined,
                 (frame: AnimationFrame): string => {
-                    return frame.state.previousNode.id;
+                    return frame.state.previousImage.id;
                 }),
             withLatestFrom(
                 this._container.glRenderer.webGLRenderer$,
@@ -540,14 +543,14 @@ export class SliderComponent extends Component<SliderConfiguration> {
             map(
                 ([frame, renderer, size]: [AnimationFrame, THREE.WebGLRenderer, ViewportSize]): TextureProvider => {
                     const state = frame.state;
-                    const previousNode = state.previousNode;
+                    const previousImage = state.previousImage;
                     const previousTransform = state.previousTransform;
 
                     return new TextureProvider(
-                        previousNode.id,
+                        previousImage.id,
                         previousTransform.basicWidth,
                         previousTransform.basicHeight,
-                        previousNode.image,
+                        previousImage.image,
                         this._imageTileLoader,
                         new TileStore(),
                         renderer);
@@ -640,12 +643,12 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 ([[roi, provider], frame]: [[TileRegionOfInterest, TextureProvider], AnimationFrame]): void => {
                     let shiftedRoi: TileRegionOfInterest = null;
 
-                    if (isSpherical(frame.state.previousNode.cameraType)) {
-                        if (isSpherical(frame.state.currentNode.cameraType)) {
+                    if (isSpherical(frame.state.previousImage.cameraType)) {
+                        if (isSpherical(frame.state.currentImage.cameraType)) {
                             const currentViewingDirection: THREE.Vector3 =
-                                this._spatial.viewingDirection(frame.state.currentNode.rotation);
+                                this._spatial.viewingDirection(frame.state.currentImage.rotation);
                             const previousViewingDirection: THREE.Vector3 =
-                                this._spatial.viewingDirection(frame.state.previousNode.rotation);
+                                this._spatial.viewingDirection(frame.state.previousImage.rotation);
 
                             const directionDiff: number = this._spatial.angleBetweenVector2(
                                 currentViewingDirection.x,
@@ -669,9 +672,9 @@ export class SliderComponent extends Component<SliderConfiguration> {
                             };
                         } else {
                             const currentViewingDirection: THREE.Vector3 =
-                                this._spatial.viewingDirection(frame.state.currentNode.rotation);
+                                this._spatial.viewingDirection(frame.state.currentImage.rotation);
                             const previousViewingDirection: THREE.Vector3 =
-                                this._spatial.viewingDirection(frame.state.previousNode.rotation);
+                                this._spatial.viewingDirection(frame.state.previousImage.rotation);
 
                             const directionDiff: number = this._spatial.angleBetweenVector2(
                                 currentViewingDirection.x,
@@ -800,11 +803,11 @@ export class SliderComponent extends Component<SliderConfiguration> {
         };
     }
 
-    private _catchCacheNode$(key: string): Observable<Node> {
-        return this._navigator.graphService.cacheNode$(key).pipe(
+    private _catchCacheImage$(imageId: string): Observable<Image> {
+        return this._navigator.graphService.cacheImage$(imageId).pipe(
             catchError(
-                (error: Error): Observable<Node> => {
-                    console.error(`Failed to cache slider node (${key})`, error);
+                (error: Error): Observable<Image> => {
+                    console.error(`Failed to cache slider image (${imageId})`, error);
 
                     return observableEmpty();
                 }));

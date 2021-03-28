@@ -3,10 +3,8 @@ import * as THREE from "three";
 import { Shaders } from "../shaders/Shaders";
 
 import { Transform } from "../../geo/Transform";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { isFisheye, isSpherical } from "../../geo/Geo";
-
-
 
 export class MeshFactory {
     private _imagePlaneDepth: number;
@@ -17,25 +15,25 @@ export class MeshFactory {
         this._imageSphereRadius = imageSphereRadius != null ? imageSphereRadius : 200;
     }
 
-    public createMesh(node: Node, transform: Transform): THREE.Mesh {
+    public createMesh(image: Image, transform: Transform): THREE.Mesh {
         if (isSpherical(transform.cameraType)) {
-            return this._createImageSphere(node, transform);
+            return this._createImageSphere(image, transform);
         } else if (isFisheye(transform.cameraType)) {
-            return this._createImagePlaneFisheye(node, transform);
+            return this._createImagePlaneFisheye(image, transform);
         } else {
-            return this._createImagePlane(node, transform);
+            return this._createImagePlane(image, transform);
         }
     }
 
     public createFlatMesh(
-        node: Node,
+        image: Image,
         transform: Transform,
         basicX0: number,
         basicX1: number,
         basicY0: number,
         basicY1: number): THREE.Mesh {
 
-        let texture: THREE.Texture = this._createTexture(node.image);
+        let texture: THREE.Texture = this._createTexture(image.image);
         let materialParameters: THREE.ShaderMaterialParameters =
             this._createDistortedPlaneMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
@@ -45,48 +43,48 @@ export class MeshFactory {
         return new THREE.Mesh(geometry, material);
     }
 
-    public createCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
+    public createCurtainMesh(image: Image, transform: Transform): THREE.Mesh {
         if (isSpherical(transform.cameraType)) {
-            return this._createSphereCurtainMesh(node, transform);
+            return this._createSphereCurtainMesh(image, transform);
         } else if (isFisheye(transform.cameraType)) {
-            return this._createCurtainMeshFisheye(node, transform);
+            return this._createCurtainMeshFisheye(image, transform);
         } else {
-            return this._createCurtainMesh(node, transform);
+            return this._createCurtainMesh(image, transform);
         }
     }
 
-    public createDistortedCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
-        return this._createDistortedCurtainMesh(node, transform);
+    public createDistortedCurtainMesh(image: Image, transform: Transform): THREE.Mesh {
+        return this._createDistortedCurtainMesh(image, transform);
     }
 
-    private _createCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this._createTexture(node.image);
+    private _createCurtainMesh(image: Image, transform: Transform): THREE.Mesh {
+        let texture: THREE.Texture = this._createTexture(image.image);
         let materialParameters: THREE.ShaderMaterialParameters =
             this._createCurtainPlaneMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
 
-        let geometry: THREE.BufferGeometry = this._useMesh(transform, node) ?
-            this._getImagePlaneGeo(transform, node) :
+        let geometry: THREE.BufferGeometry = this._useMesh(transform, image) ?
+            this._getImagePlaneGeo(transform, image) :
             this._getRegularFlatImagePlaneGeo(transform);
 
         return new THREE.Mesh(geometry, material);
     }
 
-    private _createCurtainMeshFisheye(node: Node, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this._createTexture(node.image);
+    private _createCurtainMeshFisheye(image: Image, transform: Transform): THREE.Mesh {
+        let texture: THREE.Texture = this._createTexture(image.image);
         let materialParameters: THREE.ShaderMaterialParameters =
             this._createCurtainPlaneMaterialParametersFisheye(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
 
-        let geometry: THREE.BufferGeometry = this._useMesh(transform, node) ?
-            this._getImagePlaneGeoFisheye(transform, node) :
+        let geometry: THREE.BufferGeometry = this._useMesh(transform, image) ?
+            this._getImagePlaneGeoFisheye(transform, image) :
             this._getRegularFlatImagePlaneGeo(transform);
 
         return new THREE.Mesh(geometry, material);
     }
 
-    private _createDistortedCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this._createTexture(node.image);
+    private _createDistortedCurtainMesh(image: Image, transform: Transform): THREE.Mesh {
+        let texture: THREE.Texture = this._createTexture(image.image);
         let materialParameters: THREE.ShaderMaterialParameters =
             this._createDistortedCurtainPlaneMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
@@ -96,48 +94,48 @@ export class MeshFactory {
         return new THREE.Mesh(geometry, material);
     }
 
-    private _createSphereCurtainMesh(node: Node, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this._createTexture(node.image);
+    private _createSphereCurtainMesh(image: Image, transform: Transform): THREE.Mesh {
+        let texture: THREE.Texture = this._createTexture(image.image);
         let materialParameters: THREE.ShaderMaterialParameters =
             this._createCurtainSphereMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
 
-        return this._useMesh(transform, node) ?
-            new THREE.Mesh(this._getImageSphereGeo(transform, node), material) :
+        return this._useMesh(transform, image) ?
+            new THREE.Mesh(this._getImageSphereGeo(transform, image), material) :
             new THREE.Mesh(this._getFlatImageSphereGeo(transform), material);
     }
 
-    private _createImageSphere(node: Node, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this._createTexture(node.image);
+    private _createImageSphere(image: Image, transform: Transform): THREE.Mesh {
+        let texture: THREE.Texture = this._createTexture(image.image);
         let materialParameters: THREE.ShaderMaterialParameters = this._createSphereMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
 
-        let mesh: THREE.Mesh = this._useMesh(transform, node) ?
-            new THREE.Mesh(this._getImageSphereGeo(transform, node), material) :
+        let mesh: THREE.Mesh = this._useMesh(transform, image) ?
+            new THREE.Mesh(this._getImageSphereGeo(transform, image), material) :
             new THREE.Mesh(this._getFlatImageSphereGeo(transform), material);
 
         return mesh;
     }
 
-    private _createImagePlane(node: Node, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this._createTexture(node.image);
+    private _createImagePlane(image: Image, transform: Transform): THREE.Mesh {
+        let texture: THREE.Texture = this._createTexture(image.image);
         let materialParameters: THREE.ShaderMaterialParameters = this._createPlaneMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
 
-        let geometry: THREE.BufferGeometry = this._useMesh(transform, node) ?
-            this._getImagePlaneGeo(transform, node) :
+        let geometry: THREE.BufferGeometry = this._useMesh(transform, image) ?
+            this._getImagePlaneGeo(transform, image) :
             this._getRegularFlatImagePlaneGeo(transform);
 
         return new THREE.Mesh(geometry, material);
     }
 
-    private _createImagePlaneFisheye(node: Node, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this._createTexture(node.image);
+    private _createImagePlaneFisheye(image: Image, transform: Transform): THREE.Mesh {
+        let texture: THREE.Texture = this._createTexture(image.image);
         let materialParameters: THREE.ShaderMaterialParameters = this._createPlaneMaterialParametersFisheye(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
 
-        let geometry: THREE.BufferGeometry = this._useMesh(transform, node) ?
-            this._getImagePlaneGeoFisheye(transform, node) :
+        let geometry: THREE.BufferGeometry = this._useMesh(transform, image) ?
+            this._getImagePlaneGeoFisheye(transform, image) :
             this._getRegularFlatImagePlaneGeoFisheye(transform);
 
         return new THREE.Mesh(geometry, material);
@@ -315,18 +313,18 @@ export class MeshFactory {
         return texture;
     }
 
-    private _useMesh(transform: Transform, node: Node): boolean {
-        return node.mesh.vertices.length && transform.hasValidScale;
+    private _useMesh(transform: Transform, image: Image): boolean {
+        return image.mesh.vertices.length && transform.hasValidScale;
     }
 
-    private _getImageSphereGeo(transform: Transform, node: Node): THREE.BufferGeometry {
+    private _getImageSphereGeo(transform: Transform, image: Image): THREE.BufferGeometry {
         const t = transform.srtInverse;
 
         // push everything at least 5 meters in front of the camera
         let minZ: number = 5.0 * transform.scale;
         let maxZ: number = this._imageSphereRadius * transform.scale;
 
-        let vertices: number[] = node.mesh.vertices;
+        let vertices: number[] = image.mesh.vertices;
         let numVertices: number = vertices.length / 3;
         let positions: Float32Array = new Float32Array(vertices.length);
         for (let i: number = 0; i < numVertices; ++i) {
@@ -347,7 +345,7 @@ export class MeshFactory {
             positions[index + 2] = p.z;
         }
 
-        let faces: number[] = node.mesh.faces;
+        let faces: number[] = image.mesh.faces;
         let indices: Uint16Array = new Uint16Array(faces.length);
         for (let i: number = 0; i < faces.length; ++i) {
             indices[i] = faces[i];
@@ -361,7 +359,7 @@ export class MeshFactory {
         return geometry;
     }
 
-    private _getImagePlaneGeo(transform: Transform, node: Node): THREE.BufferGeometry {
+    private _getImagePlaneGeo(transform: Transform, image: Image): THREE.BufferGeometry {
         const undistortionMarginFactor: number = 3;
         const t = transform.srtInverse;
 
@@ -369,7 +367,7 @@ export class MeshFactory {
         let minZ: number = 5.0 * transform.scale;
         let maxZ: number = this._imagePlaneDepth * transform.scale;
 
-        let vertices: number[] = node.mesh.vertices;
+        let vertices: number[] = image.mesh.vertices;
         let numVertices: number = vertices.length / 3;
         let positions: Float32Array = new Float32Array(vertices.length);
         for (let i: number = 0; i < numVertices; ++i) {
@@ -394,7 +392,7 @@ export class MeshFactory {
             positions[index + 2] = p.z;
         }
 
-        let faces: number[] = node.mesh.faces;
+        let faces: number[] = image.mesh.faces;
         let indices: Uint16Array = new Uint16Array(faces.length);
         for (let i: number = 0; i < faces.length; ++i) {
             indices[i] = faces[i];
@@ -408,14 +406,14 @@ export class MeshFactory {
         return geometry;
     }
 
-    private _getImagePlaneGeoFisheye(transform: Transform, node: Node): THREE.BufferGeometry {
+    private _getImagePlaneGeoFisheye(transform: Transform, image: Image): THREE.BufferGeometry {
         const t = transform.srtInverse;
 
         // push everything at least 5 meters in front of the camera
         let minZ: number = 5.0 * transform.scale;
         let maxZ: number = this._imagePlaneDepth * transform.scale;
 
-        let vertices: number[] = node.mesh.vertices;
+        let vertices: number[] = image.mesh.vertices;
         let numVertices: number = vertices.length / 3;
         let positions: Float32Array = new Float32Array(vertices.length);
         for (let i: number = 0; i < numVertices; ++i) {
@@ -436,7 +434,7 @@ export class MeshFactory {
             positions[index + 2] = p.z;
         }
 
-        let faces: number[] = node.mesh.faces;
+        let faces: number[] = image.mesh.faces;
         let indices: Uint16Array = new Uint16Array(faces.length);
         for (let i: number = 0; i < faces.length; ++i) {
             indices[i] = faces[i];

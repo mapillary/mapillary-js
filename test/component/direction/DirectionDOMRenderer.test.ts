@@ -1,10 +1,10 @@
 import { bootstrap } from "../../Bootstrap";
 bootstrap();
 
-import { NodeHelper } from "../../helper/NodeHelper";
+import { ImageHelper } from "../../helper/ImageHelper";
 
 import { Navigator } from "../../../src/viewer/Navigator";
-import { Node } from "../../../src/graph/Node";
+import { Image } from "../../../src/graph/Image";
 import { DirectionDOMRenderer } from "../../../src/component/direction/DirectionDOMRenderer";
 import { DirectionConfiguration } from "../../../src/component/interfaces/DirectionConfiguration";
 import { RenderCamera } from "../../../src/render/RenderCamera";
@@ -27,10 +27,10 @@ describe("DirectionDOMRenderer.ctor", () => {
 });
 
 describe("DirectionDOMRenderer.needsRender", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should not need render when constructed", () => {
@@ -45,7 +45,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         expect(renderer.needsRender).toBe(false);
     });
 
-    it("should need render when node is set", () => {
+    it("should need render when image is set", () => {
         let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
@@ -54,10 +54,10 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
 
-        let node: Node = new Node(helper.createCoreNode());
-        node.makeFull(helper.createFillNode());
+        let image: Image = new Image(helper.createCoreImageEnt());
+        image.makeComplete(helper.createSpatialImageEnt());
 
-        renderer.setNode(node);
+        renderer.setImage(image);
 
         expect(renderer.needsRender).toBe(true);
     });
@@ -71,10 +71,10 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
 
-        let node: Node = new Node(helper.createCoreNode());
-        node.makeFull(helper.createFillNode());
+        let image: Image = new Image(helper.createCoreImageEnt());
+        image.makeComplete(helper.createSpatialImageEnt());
 
-        renderer.setNode(node);
+        renderer.setImage(image);
 
         expect(renderer.needsRender).toBe(true);
 
@@ -87,7 +87,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         expect(renderer.needsRender).toBe(false);
     });
 
-    it("should not need render when setting render camera without node set", () => {
+    it("should not need render when setting render camera without image set", () => {
         let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
@@ -104,7 +104,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         expect(renderer.needsRender).toBe(false);
     });
 
-    it("should not need render when setting configuration without node set", () => {
+    it("should not need render when setting configuration without image set", () => {
         let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
@@ -119,7 +119,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         expect(renderer.needsRender).toBe(false);
     });
 
-    it("should not need render when resizing without node set", () => {
+    it("should not need render when resizing without image set", () => {
         let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
@@ -133,7 +133,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         expect(renderer.needsRender).toBe(false);
     });
 
-    it("should need render when setting changed render camera if node is set", () => {
+    it("should need render when setting changed render camera if image is set", () => {
         let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
@@ -142,10 +142,10 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
 
-        let node: Node = new Node(helper.createCoreNode());
-        node.makeFull(helper.createFillNode());
+        let image: Image = new Image(helper.createCoreImageEnt());
+        image.makeComplete(helper.createSpatialImageEnt());
 
-        renderer.setNode(node);
+        renderer.setImage(image);
 
         expect(renderer.needsRender).toBe(true);
 
@@ -167,7 +167,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         expect(renderer.needsRender).toBe(true);
     });
 
-    it("should need render when setting changed configuration if node is set", () => {
+    it("should need render when setting changed configuration if image is set", () => {
         let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
@@ -176,10 +176,10 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
 
-        let node: Node = new Node(helper.createCoreNode());
-        node.makeFull(helper.createFillNode());
+        let image: Image = new Image(helper.createCoreImageEnt());
+        image.makeComplete(helper.createSpatialImageEnt());
 
-        renderer.setNode(node);
+        renderer.setImage(image);
 
         expect(renderer.needsRender).toBe(true);
 
@@ -197,7 +197,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         expect(renderer.needsRender).toBe(true);
     });
 
-    it("should need render when resizing if node is set", () => {
+    it("should need render when resizing if image is set", () => {
         let configuration: DirectionConfiguration = {
             distinguishSequence: false,
             maxWidth: 200,
@@ -206,10 +206,10 @@ describe("DirectionDOMRenderer.needsRender", () => {
 
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
 
-        let node: Node = new Node(helper.createCoreNode());
-        node.makeFull(helper.createFillNode());
+        let image: Image = new Image(helper.createCoreImageEnt());
+        image.makeComplete(helper.createSpatialImageEnt());
 
-        renderer.setNode(node);
+        renderer.setImage(image);
 
         expect(renderer.needsRender).toBe(true);
 

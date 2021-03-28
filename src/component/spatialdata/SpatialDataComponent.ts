@@ -26,7 +26,7 @@ import {
     filter,
 } from "rxjs/operators";
 
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { ClusterReconstructionContract }
@@ -58,10 +58,10 @@ type IntersectEvent = MouseEvent | FocusEvent;
 
 type Cell = {
     id: string;
-    nodes: Node[];
+    images: Image[];
 }
 
-type AdjancentParams = [boolean, boolean, number, Node];
+type AdjancentParams = [boolean, boolean, number, Image];
 
 export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
     public static componentName: string = "spatialData";
@@ -106,7 +106,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                 }));
 
         subs.push(this._navigator.graphService.filter$
-            .subscribe(nodeFilter => { this._scene.setFilter(nodeFilter); }));
+            .subscribe(imageFilter => { this._scene.setFilter(imageFilter); }));
 
         const bearing$ = this._container.renderService.bearing$.pipe(
             map(
@@ -119,12 +119,12 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             publishReplay(1),
             refCount());
 
-        const cellId$ = this._navigator.stateService.currentNode$
+        const cellId$ = this._navigator.stateService.currentImage$
             .pipe(
                 map(
-                    (node: Node): string => {
+                    (image: Image): string => {
                         return this._navigator.api.data.geometry
-                            .latLonToCellId(node.latLon);
+                            .latLonToCellId(image.latLon);
                     }),
                 distinctUntilChanged(),
                 publishReplay(1),
@@ -159,7 +159,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             earth$,
             sequencePlay$,
             bearing$,
-            this._navigator.stateService.currentNode$)
+            this._navigator.stateService.currentImage$)
             .pipe(
                 distinctUntilChanged((
                     [e1, s1, d1, n1]: AdjancentParams,
@@ -170,12 +170,12 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                     return n1.id === n2.id && s1 === s2 && d1 === d2;
                 }),
                 concatMap(
-                    ([earth, sequencePlay, bearing, node]
+                    ([earth, sequencePlay, bearing, image]
                         : AdjancentParams)
                         : Observable<string[]> => {
                         if (earth) {
                             const cellId = this._navigator.api.data.geometry
-                                .latLonToCellId(node.latLon);
+                                .latLonToCellId(image.latLon);
                             const cells = sequencePlay ?
                                 [cellId] :
                                 this._adjacentComponent(cellId, 1)
@@ -185,7 +185,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                         const fov = sequencePlay ? 30 : 90;
                         return observableOf(
                             this._cellsInFov(
-                                node,
+                                image,
                                 bearing,
                                 fov));
                     }),
@@ -203,7 +203,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                                     this._cache.cacheTile$(cellId);
 
                                 return t$.pipe(
-                                    map((nodes: Node[]) => ({ id: cellId, nodes })));
+                                    map((images: Image[]) => ({ id: cellId, images })));
                             },
                             6));
                 }),
@@ -227,7 +227,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
                 ([cell, reference]: [Cell, LatLonAlt]): void => {
-                    this._addSceneNodes(cell, reference);
+                    this._addSceneImages(cell, reference);
                 }));
 
         subs.push(tile$.pipe(
@@ -325,7 +325,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                 }),
             withLatestFrom(this._container.renderService.renderCamera$),
             switchMap(
-                ([event, render]: [MouseEvent, RenderCamera]): Observable<Node> => {
+                ([event, render]: [MouseEvent, RenderCamera]): Observable<Image> => {
                     const element: HTMLElement = this._container.container;
                     const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
                     const viewport: number[] = this._viewportCoords.canvasToViewport(
@@ -339,7 +339,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                     return !!id ?
                         this._navigator.moveTo$(id).pipe(
                             catchError(
-                                (): Observable<Node> => {
+                                (): Observable<Image> => {
                                     return observableEmpty();
                                 })) :
                         observableEmpty();
@@ -399,7 +399,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                 ([event, render]
                     : [IntersectEvent, RenderCamera, SpatialDataConfiguration]): void => {
                     if (event.type !== "mousemove") {
-                        this._scene.setHoveredNode(null);
+                        this._scene.setHoveredImage(null);
                         return;
                     }
 
@@ -413,13 +413,13 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                     const key = this._scene.intersection
                         .intersectObjects(viewport, render.perspective);
 
-                    this._scene.setHoveredNode(key);
+                    this._scene.setHoveredImage(key);
                 }));
 
         subs.push(this._navigator.stateService.currentId$
             .subscribe(
                 (id: string): void => {
-                    this._scene.setSelectedNode(id);
+                    this._scene.setSelectedImage(id);
                 }));
 
         subs.push(this._navigator.stateService.currentState$
@@ -448,7 +448,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                 mergeMap(
                     (cellId: string): Observable<[Cell, LatLonAlt]> => {
                         return this._cache.updateCell$(cellId).pipe(
-                            map((nodes: Node[]) => ({ id: cellId, nodes })),
+                            map((images: Image[]) => ({ id: cellId, images })),
                             withLatestFrom(
                                 this._navigator.stateService.reference$
                             )
@@ -460,7 +460,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         subs.push(updatedCell$
             .subscribe(
                 ([cell, reference]: [Cell, LatLonAlt]): void => {
-                    this._addSceneNodes(cell, reference);
+                    this._addSceneImages(cell, reference);
                 }));
 
         subs.push(updatedCell$
@@ -529,16 +529,16 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         };
     }
 
-    private _addSceneNodes(cell: Cell, reference: LatLonAlt): void {
+    private _addSceneImages(cell: Cell, reference: LatLonAlt): void {
         const cellId = cell.id;
-        const nodes = cell.nodes;
-        for (const node of nodes) {
-            if (this._scene.hasNode(node.id, cellId)) { continue; }
+        const images = cell.images;
+        for (const image of images) {
+            if (this._scene.hasImage(image.id, cellId)) { continue; }
 
-            this._scene.addNode(
-                node,
-                this._createTransform(node, reference),
-                this._computeOriginalPosition(node, reference),
+            this._scene.addImage(
+                image,
+                this._createTransform(image, reference),
+                this._computeOriginalPosition(image, reference),
                 cellId);
         }
     }
@@ -581,13 +581,13 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
     }
 
     private _cellsInFov(
-        node: Node,
+        image: Image,
         bearing: number,
         fov: number)
         : string[] {
         const spatial = this._spatial;
         const geometry = this._navigator.api.data.geometry;
-        const cell = geometry.latLonToCellId(node.latLon);
+        const cell = geometry.latLonToCellId(image.latLon);
         const cells = [cell];
         const threshold = fov / 2;
         const adjacent = geometry.getAdjacent(cell);
@@ -599,8 +599,8 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                         vertex.lat,
                         vertex.lon,
                         0,
-                        node.latLon.lat,
-                        node.latLon.lon,
+                        image.latLon.lat,
+                        image.latLon.lon,
                         0);
                 const azimuthal = Math.atan2(y, x);
                 const vertexBearing = spatial.radToDeg(
@@ -614,11 +614,11 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         return cells;
     }
 
-    private _computeOriginalPosition(node: Node, reference: LatLonAlt): number[] {
+    private _computeOriginalPosition(image: Image, reference: LatLonAlt): number[] {
         return geodeticToEnu(
-            node.originalLatLon.lat,
-            node.originalLatLon.lon,
-            node.originalAltitude != null ? node.originalAltitude : node.computedAltitude,
+            image.originalLatLon.lat,
+            image.originalLatLon.lon,
+            image.originalAltitude != null ? image.originalAltitude : image.computedAltitude,
             reference.lat,
             reference.lon,
             reference.alt);
@@ -655,23 +655,23 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             reference.alt);
     }
 
-    private _createTransform(node: Node, reference: LatLonAlt): Transform {
+    private _createTransform(image: Image, reference: LatLonAlt): Transform {
         const translation: number[] = Geo.computeTranslation(
-            { alt: node.computedAltitude, lat: node.latLon.lat, lon: node.latLon.lon },
-            node.rotation,
+            { alt: image.computedAltitude, lat: image.latLon.lat, lon: image.latLon.lon },
+            image.rotation,
             reference);
 
         const transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             translation,
             undefined,
             undefined,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         return transform;
     }

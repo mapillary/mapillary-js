@@ -1,4 +1,4 @@
-import { Node } from "./Node";
+import { Image } from "./Image";
 import {
     FilterExpression,
     FilterOperation,
@@ -8,12 +8,12 @@ import {
 
 import { Func } from "../util/Func";
 
-export type FilterFunction = Func<Node, boolean>;
+export type FilterFunction = Func<Image, boolean>;
 
 /**
  * @class Filter
  *
- * @classdesc Represents a class for creating node filters. Implementation and
+ * @classdesc Represents a class for creating image filters. Implementation and
  * definitions based on https://github.com/mapbox/feature-filter.
  */
 export class FilterCreator {
@@ -39,8 +39,8 @@ export class FilterCreator {
      *
      * @param {FilterExpression} filter - Comparison, set membership or combinding filter
      * expression.
-     * @returns {FilterFunction} Function taking a node and returning a boolean that
-     * indicates whether the node passed the test or not.
+     * @returns {FilterFunction} Function taking a image and returning a boolean that
+     * indicates whether the image passed the test or not.
      */
     public createFilter(filter: FilterExpression): FilterFunction {
         return <FilterFunction>new Function("node", "return " + this._compile(filter) + ";");

@@ -47,7 +47,7 @@ export abstract class Geometry {
     /**
      * Get the 3D world coordinates for the centroid of the geometry.
      *
-     * @param {Transform} transform - The transform of the node related to the geometry.
+     * @param {Transform} transform - The transform of the image related to the geometry.
      * @returns {Array<number>} 3D world coordinates representing the centroid.
      * @ignore
      */
@@ -57,7 +57,7 @@ export abstract class Geometry {
      * Set the 2D centroid of the geometry.
      *
      * @param {Array<number>} value - The new value of the centroid in basic coordinates.
-     * @param {Transform} transform - The transform of the node related to the geometry.
+     * @param {Transform} transform - The transform of the image related to the geometry.
      * @ignore
      */
     public abstract setCentroid2d(value: number[], transform: Transform): void;

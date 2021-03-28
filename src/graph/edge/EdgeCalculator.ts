@@ -9,7 +9,7 @@ import { PotentialEdge } from "./interfaces/PotentialEdge";
 import { StepDirection } from "./interfaces/StepDirection";
 import { TurnDirection } from "./interfaces/TurnDirection";
 
-import { Node } from "../Node";
+import { Image } from "../Image";
 import { Sequence } from "../Sequence";
 
 import { ArgumentMapillaryError } from "../../error/ArgumentMapillaryError";
@@ -53,16 +53,16 @@ export class EdgeCalculator {
      * Returns the potential edges to destination nodes for a set
      * of nodes with respect to a source node.
      *
-     * @param {Node} node - Source node.
-     * @param {Array<Node>} nodes - Potential destination nodes.
+     * @param {Image} node - Source node.
+     * @param {Array<Image>} nodes - Potential destination nodes.
      * @param {Array<string>} fallbackIds - Ids for destination nodes
      * that should be returned even if they do not meet the
      * criteria for a potential edge.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public getPotentialEdges(node: Node, potentialNodes: Node[], fallbackIds: string[]): PotentialEdge[] {
-        if (!node.full) {
-            throw new ArgumentMapillaryError("Node has to be full.");
+    public getPotentialEdges(node: Image, potentialImages: Image[], fallbackIds: string[]): PotentialEdge[] {
+        if (!node.complete) {
+            throw new ArgumentMapillaryError("Image has to be full.");
         }
 
         if (!node.merged) {
@@ -76,7 +76,7 @@ export class EdgeCalculator {
 
         let potentialEdges: PotentialEdge[] = [];
 
-        for (let potential of potentialNodes) {
+        for (let potential of potentialImages) {
             if (!potential.merged ||
                 potential.id === node.id) {
                 continue;
@@ -162,16 +162,16 @@ export class EdgeCalculator {
     /**
      * Computes the sequence edges for a node.
      *
-     * @param {Node} node - Source node.
+     * @param {Image} node - Source node.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public computeSequenceEdges(node: Node, sequence: Sequence): NavigationEdge[] {
-        if (!node.full) {
-            throw new ArgumentMapillaryError("Node has to be full.");
+    public computeSequenceEdges(node: Image, sequence: Sequence): NavigationEdge[] {
+        if (!node.complete) {
+            throw new ArgumentMapillaryError("Image has to be full.");
         }
 
         if (node.sequenceId !== sequence.id) {
-            throw new ArgumentMapillaryError("Node and sequence does not correspond.");
+            throw new ArgumentMapillaryError("Image and sequence does not correspond.");
         }
 
         let edges: NavigationEdge[] = [];
@@ -210,13 +210,13 @@ export class EdgeCalculator {
      * look roughly in the same direction and are positioned closed to the node.
      * Similar edges for spherical only target other spherical.
      *
-     * @param {Node} node - Source node.
+     * @param {Image} node - Source node.
      * @param {Array<PotentialEdge>} potentialEdges - Potential edges.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public computeSimilarEdges(node: Node, potentialEdges: PotentialEdge[]): NavigationEdge[] {
-        if (!node.full) {
-            throw new ArgumentMapillaryError("Node has to be full.");
+    public computeSimilarEdges(node: Image, potentialEdges: PotentialEdge[]): NavigationEdge[] {
+        if (!node.complete) {
+            throw new ArgumentMapillaryError("Image has to be full.");
         }
 
         let nodeSpherical: boolean = isSpherical(node.cameraType);
@@ -316,20 +316,20 @@ export class EdgeCalculator {
      * @description Step edge targets can only be other perspective nodes.
      * Returns an empty array for spherical.
      *
-     * @param {Node} node - Source node.
+     * @param {Image} node - Source node.
      * @param {Array<PotentialEdge>} potentialEdges - Potential edges.
      * @param {string} prevId - Id of previous node in sequence.
      * @param {string} nextId - Id of next node in sequence.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
     public computeStepEdges(
-        node: Node,
+        node: Image,
         potentialEdges: PotentialEdge[],
         prevId: string,
         nextId: string): NavigationEdge[] {
 
-        if (!node.full) {
-            throw new ArgumentMapillaryError("Node has to be full.");
+        if (!node.complete) {
+            throw new ArgumentMapillaryError("Image has to be full.");
         }
 
         let edges: NavigationEdge[] = [];
@@ -419,13 +419,13 @@ export class EdgeCalculator {
      * @description Turn edge targets can only be other perspective images.
      * Returns an empty array for spherical.
      *
-     * @param {Node} node - Source node.
+     * @param {Image} node - Source node.
      * @param {Array<PotentialEdge>} potentialEdges - Potential edges.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public computeTurnEdges(node: Node, potentialEdges: PotentialEdge[]): NavigationEdge[] {
-        if (!node.full) {
-            throw new ArgumentMapillaryError("Node has to be full.");
+    public computeTurnEdges(node: Image, potentialEdges: PotentialEdge[]): NavigationEdge[] {
+        if (!node.complete) {
+            throw new ArgumentMapillaryError("Image has to be full.");
         }
 
         let edges: NavigationEdge[] = [];
@@ -515,13 +515,13 @@ export class EdgeCalculator {
      * @description Perspective to spherical edge targets can only be
      * spherical nodes. Returns an empty array for spherical.
      *
-     * @param {Node} node - Source node.
+     * @param {Image} node - Source node.
      * @param {Array<PotentialEdge>} potentialEdges - Potential edges.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public computePerspectiveToSphericalEdges(node: Node, potentialEdges: PotentialEdge[]): NavigationEdge[] {
-        if (!node.full) {
-            throw new ArgumentMapillaryError("Node has to be full.");
+    public computePerspectiveToSphericalEdges(node: Image, potentialEdges: PotentialEdge[]): NavigationEdge[] {
+        if (!node.complete) {
+            throw new ArgumentMapillaryError("Image has to be full.");
         }
 
         if (isSpherical(node.cameraType)) {
@@ -572,13 +572,13 @@ export class EdgeCalculator {
      * spherical nodes. spherical to step edge targets can only be perspective
      * nodes.
      *
-     * @param {Node} node - Source node.
+     * @param {Image} node - Source node.
      * @param {Array<PotentialEdge>} potentialEdges - Potential edges.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public computeSphericalEdges(node: Node, potentialEdges: PotentialEdge[]): NavigationEdge[] {
-        if (!node.full) {
-            throw new ArgumentMapillaryError("Node has to be full.");
+    public computeSphericalEdges(node: Image, potentialEdges: PotentialEdge[]): NavigationEdge[] {
+        if (!node.complete) {
+            throw new ArgumentMapillaryError("Image has to be full.");
         }
 
         if (!isSpherical(node.cameraType)) {

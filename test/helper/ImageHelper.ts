@@ -2,25 +2,25 @@ import { CameraType } from "../../src/geo/interfaces/CameraType";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { ImageEnt } from "../../src/api/ents/ImageEnt";
-import { Node } from "../../src/graph/Node";
+import { Image } from "../../src/graph/Image";
 
-export class NodeHelper {
-    private _clusterKey: string = "ckey";
-    private _nodeKey: string = "nkey";
-    private _sequenceKey: string = "skey";
-    private _userKey: string = "ukey";
-    private _username: string = "uname";
+export class ImageHelper {
+    private _clusterId: string = "clid";
+    private _imageId: string = "iid";
+    private _sequenceId: string = "sid";
+    private _creatorId: string = "crid";
+    private _creatorUsername: string = "cname";
 
-    public createCoreNode(): CoreImageEnt {
+    public createCoreImageEnt(): CoreImageEnt {
         return {
             computed_geometry: { lat: 0, lon: 0 },
-            id: this._nodeKey,
+            id: this._imageId,
             geometry: { lat: 0, lon: 0 },
-            sequence: { id: this._sequenceKey },
+            sequence: { id: this._sequenceId },
         };
     }
 
-    public createFillNode(): SpatialImageEnt {
+    public createSpatialImageEnt(): SpatialImageEnt {
         return {
             altitude: 0,
             atomic_scale: 0,
@@ -32,10 +32,10 @@ export class NodeHelper {
             computed_altitude: 0,
             computed_compass_angle: 0,
             cluster: {
-                id: this._clusterKey,
-                url: this._clusterKey + "_url",
+                id: this._clusterId,
+                url: this._clusterId + "_url",
             },
-            creator: { id: this._userKey, username: this._username },
+            creator: { id: this._creatorId, username: this._creatorUsername },
             exif_orientation: 0,
             height: 1,
             id: "id",
@@ -49,7 +49,7 @@ export class NodeHelper {
         };
     }
 
-    public createFullNode(): ImageEnt {
+    public createImageEnt(): ImageEnt {
         return {
             altitude: 0,
             atomic_scale: 0,
@@ -62,48 +62,47 @@ export class NodeHelper {
             computed_compass_angle: 0,
             computed_geometry: { lat: 0, lon: 0 },
             cluster: {
-                id: this._clusterKey,
-                url: this._clusterKey + "_url",
+                id: this._clusterId,
+                url: this._clusterId + "_url",
             },
-            creator: { id: this._userKey, username: this._username },
+            creator: { id: this._creatorId, username: this._creatorUsername },
             exif_orientation: 0,
             geometry: { lat: 0, lon: 0 },
             height: 1,
-            id: this._nodeKey,
+            id: this._imageId,
             merge_cc: 1,
             merge_version: 1,
             mesh: { id: "mesh-id", url: "mesh-url" },
             owner: { id: null },
             private: false,
-            sequence: { id: this._sequenceKey },
+            sequence: { id: this._sequenceId },
             thumb: { id: "thumb-id", url: "thumb-url" },
             width: 1,
         };
     }
 
-    public createNode(cameraType: CameraType = "perspective"): Node {
-        let fullNode = this.createFullNode();
-        fullNode.camera_type = cameraType;
-        let node = new Node(fullNode);
-        node.makeFull(fullNode);
-        return node;
+    public createImage(cameraType: CameraType = "perspective"): Image {
+        const imageEnt = this.createImageEnt();
+        imageEnt.camera_type = cameraType;
+        const image = new Image(imageEnt);
+        image.makeComplete(imageEnt);
+        return image;
     }
 
-    public createUnmergedNode(): Node {
-        let fullNode: ImageEnt = this.createFullNode();
+    public createUnmergedImage(): Image {
+        const imageEnt: ImageEnt = this.createImageEnt();
 
-        fullNode.atomic_scale = undefined;
-        fullNode.compass_angle = undefined;
-        fullNode.computed_altitude = undefined;
-        fullNode.camera_parameters = undefined;
-        fullNode.camera_type = undefined;
-        fullNode.computed_geometry = undefined;
-        fullNode.merge_cc = undefined;
-        fullNode.merge_version = undefined;
+        imageEnt.atomic_scale = undefined;
+        imageEnt.compass_angle = undefined;
+        imageEnt.computed_altitude = undefined;
+        imageEnt.camera_parameters = undefined;
+        imageEnt.camera_type = undefined;
+        imageEnt.computed_geometry = undefined;
+        imageEnt.merge_cc = undefined;
+        imageEnt.merge_version = undefined;
 
-        let node: Node = new Node(fullNode);
-        node.makeFull(fullNode);
-
-        return node;
+        const image: Image = new Image(imageEnt);
+        image.makeComplete(imageEnt);
+        return image;
     }
 }

@@ -1,6 +1,6 @@
 import { InteractiveStateBase } from "./InteractiveStateBase";
 import { IStateBase } from "../interfaces/IStateBase";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { isSpherical } from "../../geo/Geo";
 
 export class InteractiveWaitingState extends InteractiveStateBase {
@@ -12,14 +12,14 @@ export class InteractiveWaitingState extends InteractiveStateBase {
         this._motionless = this._motionlessTransition();
     }
 
-    public prepend(nodes: Node[]): void {
-        super.prepend(nodes);
+    public prepend(images: Image[]): void {
+        super.prepend(images);
 
         this._motionless = this._motionlessTransition();
     }
 
-    public set(nodes: Node[]): void {
-        super.set(nodes);
+    public set(images: Image[]): void {
+        super.set(images);
 
         this._motionless = this._motionlessTransition();
     }
@@ -62,16 +62,16 @@ export class InteractiveWaitingState extends InteractiveStateBase {
     }
 
     private _adjustCameras(): void {
-        if (this._previousNode == null) {
+        if (this._previousImage == null) {
             return;
         }
 
-        if (isSpherical(this._currentNode.cameraType)) {
+        if (isSpherical(this._currentImage.cameraType)) {
             let lookat: THREE.Vector3 = this._camera.lookat.clone().sub(this._camera.position);
             this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
         }
 
-        if (isSpherical(this._previousNode.cameraType)) {
+        if (isSpherical(this._previousImage.cameraType)) {
             let lookat: THREE.Vector3 = this._currentCamera.lookat.clone().sub(this._currentCamera.position);
             this._previousCamera.lookat.copy(lookat.clone().add(this._previousCamera.position));
         }

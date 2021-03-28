@@ -3,7 +3,7 @@ import { Subscription } from "rxjs";
 
 import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { IAnimationState } from "../../state/interfaces/IAnimationState";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { TextureProvider } from "../../tile/TextureProvider";
@@ -98,12 +98,16 @@ export class SliderGLRenderer {
         this._needsRender = true;
     }
 
-    public updateTexture(image: HTMLImageElement, node: Node): void {
-        const planes: { [key: string]: THREE.Mesh } = node.id === this._currentKey ?
-            this._scene.planes :
-            node.id === this._previousKey ?
-                this._scene.planesOld :
-                {};
+    public updateTexture(
+        imageElement: HTMLImageElement,
+        image: Image)
+        : void {
+        const planes: { [key: string]: THREE.Mesh } =
+            image.id === this._currentKey ?
+                this._scene.planes :
+                image.id === this._previousKey ?
+                    this._scene.planesOld :
+                    {};
 
         if (Object.keys(planes).length === 0) {
             return;
@@ -120,13 +124,16 @@ export class SliderGLRenderer {
             let material: ProjectorShaderMaterial = <ProjectorShaderMaterial>plane.material;
             let texture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
 
-            texture.image = image;
+            texture.image = imageElement;
             texture.needsUpdate = true;
         }
     }
 
-    public updateTextureImage(image: HTMLImageElement, node?: Node): void {
-        if (this._currentKey !== node.id) {
+    public updateTextureImage(
+        imageElement: HTMLImageElement,
+        image?: Image)
+        : void {
+        if (this._currentKey !== image.id) {
             return;
         }
 
@@ -143,7 +150,7 @@ export class SliderGLRenderer {
             let material: ProjectorShaderMaterial = <ProjectorShaderMaterial>plane.material;
             let texture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
 
-            texture.image = image;
+            texture.image = imageElement;
             texture.needsUpdate = true;
         }
     }
@@ -200,10 +207,10 @@ export class SliderGLRenderer {
     }
 
     private _setDisabled(state: IAnimationState): void {
-        this._disabled = state.currentNode == null ||
-            state.previousNode == null ||
-            (isSpherical(state.currentNode.cameraType) &&
-                !isSpherical(state.previousNode.cameraType));
+        this._disabled = state.currentImage == null ||
+            state.previousImage == null ||
+            (isSpherical(state.currentImage.cameraType) &&
+                !isSpherical(state.previousImage.cameraType));
     }
 
     private _setTextureProvider(
@@ -264,8 +271,8 @@ export class SliderGLRenderer {
     }
 
     private _updateImagePlanes(state: IAnimationState, mode: SliderConfigurationMode): void {
-        const currentChanged: boolean = state.currentNode != null && this._currentKey !== state.currentNode.id;
-        const previousChanged: boolean = state.previousNode != null && this._previousKey !== state.previousNode.id;
+        const currentChanged: boolean = state.currentImage != null && this._currentKey !== state.currentImage.id;
+        const previousChanged: boolean = state.previousImage != null && this._previousKey !== state.previousImage.id;
         const modeChanged: boolean = this._mode !== mode;
 
         if (!(currentChanged || previousChanged || modeChanged)) {
@@ -279,7 +286,7 @@ export class SliderGLRenderer {
         const motionless =
             state.motionless ||
             mode === SliderConfigurationMode.Stationary ||
-            isSpherical(state.currentNode.cameraType);
+            isSpherical(state.currentImage.cameraType);
 
         if (this.disabled || previousChanged) {
             if (this._previousKey in this._previousProviderDisposers) {
@@ -293,7 +300,7 @@ export class SliderGLRenderer {
             this._scene.setImagePlanesOld({});
         } else {
             if (previousChanged || modeChanged) {
-                const previousNode: Node = state.previousNode;
+                const previousNode: Image = state.previousImage;
 
                 this._previousKey = previousNode.id;
 
@@ -307,38 +314,38 @@ export class SliderGLRenderer {
                     [1, previousAspect / currentAspect] :
                     [currentAspect / previousAspect, 1];
 
-                let rotation: number[] = state.currentNode.rotation;
-                let width: number = state.currentNode.width;
-                let height: number = state.currentNode.height;
+                let rotation: number[] = state.currentImage.rotation;
+                let width: number = state.currentImage.width;
+                let height: number = state.currentImage.height;
 
                 if (isSpherical(previousNode.cameraType)) {
-                    rotation = state.previousNode.rotation;
+                    rotation = state.previousImage.rotation;
                     translation = this._spatial
                         .rotate(
                             this._spatial
                                 .opticalCenter(
-                                    state.currentNode.rotation,
+                                    state.currentImage.rotation,
                                     translation)
                                 .toArray(),
                             rotation)
                         .multiplyScalar(-1)
                         .toArray();
 
-                    width = state.previousNode.width;
-                    height = state.previousNode.height;
+                    width = state.previousImage.width;
+                    height = state.previousImage.height;
                 }
 
                 const transform: Transform = new Transform(
-                    state.currentNode.exifOrientation,
+                    state.currentImage.exifOrientation,
                     width,
                     height,
-                    state.currentNode.scale,
+                    state.currentImage.scale,
                     rotation,
                     translation,
                     previousNode.image,
                     textureScale,
-                    state.currentNode.cameraParameters,
-                    <CameraType>state.currentNode.cameraType);
+                    state.currentImage.cameraParameters,
+                    <CameraType>state.currentImage.cameraType);
 
                 let mesh: THREE.Mesh = undefined;
 
@@ -346,21 +353,21 @@ export class SliderGLRenderer {
                     mesh = this._factory.createMesh(
                         previousNode,
                         motionless ||
-                            isSpherical(state.currentNode.cameraType) ?
+                            isSpherical(state.currentImage.cameraType) ?
                             transform : state.previousTransform);
                 } else {
                     if (motionless) {
                         const [[basicX0, basicY0], [basicX1, basicY1]]: number[][] = this._getBasicCorners(currentAspect, previousAspect);
 
                         mesh = this._factory.createFlatMesh(
-                            state.previousNode,
+                            state.previousImage,
                             transform,
                             basicX0,
                             basicX1,
                             basicY0,
                             basicY1);
                     } else {
-                        mesh = this._factory.createMesh(state.previousNode, state.previousTransform);
+                        mesh = this._factory.createMesh(state.previousImage, state.previousTransform);
                     }
                 }
 
@@ -377,20 +384,20 @@ export class SliderGLRenderer {
                 delete this._currentProviderDisposers[this._currentKey];
             }
 
-            this._currentKey = state.currentNode.id;
+            this._currentKey = state.currentImage.id;
 
             const planes: { [key: string]: THREE.Mesh } = {};
 
-            if (isSpherical(state.currentNode.cameraType)) {
-                planes[state.currentNode.id] =
+            if (isSpherical(state.currentImage.cameraType)) {
+                planes[state.currentImage.id] =
                     this._factory.createCurtainMesh(
-                        state.currentNode,
+                        state.currentImage,
                         state.currentTransform);
             } else {
                 if (motionless) {
-                    planes[state.currentNode.id] = this._factory.createDistortedCurtainMesh(state.currentNode, state.currentTransform);
+                    planes[state.currentImage.id] = this._factory.createDistortedCurtainMesh(state.currentImage, state.currentTransform);
                 } else {
-                    planes[state.currentNode.id] = this._factory.createCurtainMesh(state.currentNode, state.currentTransform);
+                    planes[state.currentImage.id] = this._factory.createCurtainMesh(state.currentImage, state.currentTransform);
                 }
             }
 

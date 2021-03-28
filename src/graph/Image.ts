@@ -1,7 +1,7 @@
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 
-import { NodeCache } from "./NodeCache";
+import { ImageCache } from "./ImageCache";
 import { NavigationEdge } from "./edge/interfaces/NavigationEdge";
 import { NavigationEdgeStatus } from "./interfaces/NavigationEdgeStatus";
 
@@ -11,23 +11,23 @@ import { LatLon } from "../api/interfaces/LatLon";
 import { MeshContract } from "../api/contracts/MeshContract";
 
 /**
- * @class Node
+ * @class Image
  *
- * @classdesc Represents a node in the navigation graph.
+ * @classdesc Represents a image in the navigation graph.
  *
  * Explanation of position and bearing properties:
  *
  * When images are uploaded they will have GPS information in the EXIF, this is what
- * is called `originalLatLon` {@link Node.originalLatLon}.
+ * is called `originalLatLon` {@link Image.originalLatLon}.
  *
- * When Structure from Motions has been run for a node a `computedLatLon` that
+ * When Structure from Motions has been run for a image a `computedLatLon` that
  * differs from the `originalLatLon` will be created. It is different because
  * GPS positions are not very exact and SfM aligns the camera positions according
- * to the 3D reconstruction {@link Node.computedLatLon}.
+ * to the 3D reconstruction {@link Image.computedLatLon}.
  *
  * At last there exist a `latLon` property which evaluates to
  * the `computedLatLon` from SfM if it exists but falls back
- * to the `originalLatLon` from the EXIF GPS otherwise {@link Node.latLon}.
+ * to the `originalLatLon` from the EXIF GPS otherwise {@link Image.latLon}.
  *
  * Everything that is done in in the Viewer is based on the SfM positions,
  * i.e. `computedLatLon`. That is why the smooth transitions go in the right
@@ -39,18 +39,18 @@ import { MeshContract } from "../api/contracts/MeshContract";
  * The same concept as above also applies to the compass angle (or bearing) properties
  * `originalCa`, `computedCa` and `ca`.
  */
-export class Node {
-    private _cache: NodeCache;
+export class Image {
+    private _cache: ImageCache;
     private _core: CoreImageEnt;
     private _spatial: SpatialImageEnt;
 
     /**
-     * Create a new node instance.
+     * Create a new image instance.
      *
-     * @description Nodes are always created internally by the library.
-     * Nodes can not be added to the library through any API method.
+     * @description Images are always created internally by the library.
+     * Images can not be added to the library through any API method.
      *
-     * @param {CoreImageEnt} coreNode - Raw core node data.
+     * @param {CoreImageEnt} core- Raw core image data.
      * @ignore
      */
     constructor(core: CoreImageEnt) {
@@ -64,7 +64,7 @@ export class Node {
      *
      * @description The assets that need to be cached for this property
      * to report true are the following: fill properties, image and mesh.
-     * The library ensures that the current node will always have the
+     * The library ensures that the current image will always have the
      * assets cached.
      *
      * @returns {boolean} Value indicating whether all assets have been
@@ -131,7 +131,7 @@ export class Node {
      * Get clusterId.
      *
      * @returns {string} Globally unique id of the SfM cluster to which
-     * the node belongs.
+     * the image belongs.
      */
     public get clusterId(): string {
         return !!this._spatial.cluster ?
@@ -165,6 +165,21 @@ export class Node {
         return this._spatial.computed_compass_angle != null ?
             this._spatial.computed_compass_angle :
             this._spatial.compass_angle;
+    }
+
+    /**
+     * Get complete.
+     *
+     * @description The library ensures that the current image will
+     * always be full.
+     *
+     * @returns {boolean} Value indicating whether the image has all
+     * properties filled.
+     *
+     * @ignore
+     */
+    public get complete(): boolean {
+        return this._spatial != null;
     }
 
     /**
@@ -234,21 +249,6 @@ export class Node {
     }
 
     /**
-     * Get full.
-     *
-     * @description The library ensures that the current node will
-     * always be full.
-     *
-     * @returns {boolean} Value indicating whether the node has all
-     * properties filled.
-     *
-     * @ignore
-     */
-    public get full(): boolean {
-        return this._spatial != null;
-    }
-
-    /**
      * Get height.
      *
      * @returns {number} Height of original image, not adjusted
@@ -261,9 +261,9 @@ export class Node {
     /**
      * Get image.
      *
-     * @description The image will always be set on the current node.
+     * @description The image will always be set on the current image.
      *
-     * @returns {HTMLImageElement} Cached image element of the node.
+     * @returns {HTMLImageElement} Cached image element of the image.
      */
     public get image(): HTMLImageElement {
         return this._cache.image;
@@ -284,7 +284,7 @@ export class Node {
     /**
      * Get id.
      *
-     * @returns {string} Globally unique id of the node.
+     * @returns {string} Globally unique id of the image.
      */
     public get id(): string {
         return this._core.id;
@@ -310,7 +310,7 @@ export class Node {
      * Get merged.
      *
      * @returns {boolean} Value indicating whether SfM has been
-     * run on the node and the node has been merged into a
+     * run on the image and the image has been merged into a
      * connected component.
      */
     public get merged(): boolean {
@@ -323,7 +323,7 @@ export class Node {
      * Get mergeConnectedComponent.
      *
      * @description Will not be set if SfM has not yet been run on
-     * node.
+     * image.
      *
      * @returns {number} SfM connected component id to which
      * image belongs.
@@ -344,7 +344,7 @@ export class Node {
     /**
      * Get mesh.
      *
-     * @description The mesh will always be set on the current node.
+     * @description The mesh will always be set on the current image.
      *
      * @returns {MeshContract} SfM triangulated mesh of reconstructed
      * atomic 3D points.
@@ -386,7 +386,7 @@ export class Node {
      * Get ownerId.
      *
      * @returns {string} Globally unique id of the owner to which
-     * the node belongs. If the node does not belong to an
+     * the image belongs. If the image does not belong to an
      * owner the owner id will be undefined.
      */
     public get ownerId(): string {
@@ -438,7 +438,7 @@ export class Node {
      *
      * @description Will not be set if SfM has not been run.
      *
-     * @returns {number} Scale of reconstruction the node
+     * @returns {number} Scale of reconstruction the image
      * belongs to.
      */
     public get scale(): number {
@@ -449,7 +449,7 @@ export class Node {
      * Get sequenceId.
      *
      * @returns {string} Globally unique id of the sequence
-     * to which the node belongs.
+     * to which the image belongs.
      */
     public get sequenceId(): string {
         return !!this._core.sequence ?
@@ -523,36 +523,36 @@ export class Node {
      * Cache the image and mesh assets.
      *
      * @description The assets are always cached internally by the
-     * library prior to setting a node as the current node.
+     * library prior to setting a image as the current image.
      *
-     * @returns {Observable<Node>} Observable emitting this node whenever the
+     * @returns {Observable<Image>} Observable emitting this image whenever the
      * load status has changed and when the mesh or image has been fully loaded.
      *
      * @ignore
      */
-    public cacheAssets$(): Observable<Node> {
+    public cacheAssets$(): Observable<Image> {
         return this._cache
             .cacheAssets$(this._spatial, this.merged)
             .pipe(
-                map((): Node => { return this; }));
+                map((): Image => { return this; }));
     }
 
     /**
      * Cache the image asset.
      *
      * @description Use for caching a differently sized image than
-     * the one currently held by the node.
+     * the one currently held by the image.
      *
-     * @returns {Observable<Node>} Observable emitting this node whenever the
+     * @returns {Observable<Image>} Observable emitting this image whenever the
      * load status has changed and when the mesh or image has been fully loaded.
      *
      * @ignore
      */
-    public cacheImage$(): Observable<Node> {
+    public cacheImage$(): Observable<Image> {
         return this._cache
             .cacheImage$(this._spatial)
             .pipe(
-                map((): Node => { return this; }));
+                map((): Image => { return this; }));
     }
 
     /**
@@ -582,7 +582,7 @@ export class Node {
     }
 
     /**
-     * Dispose the node.
+     * Dispose the image.
      *
      * @description Disposes all cached assets.
      * @ignore
@@ -598,32 +598,32 @@ export class Node {
     }
 
     /**
-     * Initialize the node cache.
+     * Initialize the image cache.
      *
-     * @description The node cache is initialized internally by
+     * @description The image cache is initialized internally by
      * the library.
      *
-     * @param {NodeCache} cache - The node cache to set as cache.
+     * @param {ImageCache} cache - The image cache to set as cache.
      * @ignore
      */
-    public initializeCache(cache: NodeCache): void {
+    public initializeCache(cache: ImageCache): void {
         if (this._cache != null) {
-            throw new Error(`Node cache already initialized (${this.id}).`);
+            throw new Error(`Image cache already initialized (${this.id}).`);
         }
 
         this._cache = cache;
     }
 
     /**
-     * Fill the node with all properties.
+     * Complete an image with spatial properties.
      *
-     * @description The node is filled internally by
+     * @description The image is completed internally by
      * the library.
      *
-     * @param {SpatialImageEnt} fill - The fill node struct.
+     * @param {SpatialImageEnt} fill - The spatial image struct.
      * @ignore
      */
-    public makeFull(fill: SpatialImageEnt): void {
+    public makeComplete(fill: SpatialImageEnt): void {
         if (fill == null) {
             throw new Error("Fill can not be null.");
         }

@@ -19,7 +19,7 @@ import {
 
 import { GraphMode } from "../graph/GraphMode";
 import { GraphService } from "../graph/GraphService";
-import { Node } from "../graph/Node";
+import { Image } from "../graph/Image";
 import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
 import { StateService } from "../state/StateService";
 import { AnimationFrame } from "../state/interfaces/AnimationFrame";
@@ -53,14 +53,14 @@ export class CacheService {
             distinctUntilChanged(
                 undefined,
                 (frame: AnimationFrame): string => {
-                    return frame.state.currentNode.id;
+                    return frame.state.currentImage.id;
                 }),
             map(
                 (frame: AnimationFrame): [string[], string] => {
-                    const trajectory: Node[] = frame.state.trajectory;
+                    const trajectory: Image[] = frame.state.trajectory;
                     const trajectoryKeys: string[] = trajectory
                         .map(
-                            (n: Node): string => {
+                            (n: Image): string => {
                                 return n.id;
                             });
 
@@ -87,22 +87,22 @@ export class CacheService {
                 ([mode, frame]: [GraphMode, AnimationFrame]): Observable<NavigationEdgeStatus> => {
                     return mode === GraphMode.Sequence ?
                         this._keyToEdges(
-                            frame.state.currentNode.id,
-                            (node: Node): Observable<NavigationEdgeStatus> => {
-                                return node.sequenceEdges$;
+                            frame.state.currentImage.id,
+                            (image: Image): Observable<NavigationEdgeStatus> => {
+                                return image.sequenceEdges$;
                             }) :
                         observableFrom(frame.state.trajectory
                             .map(
-                                (node: Node): string => {
-                                    return node.id;
+                                (image: Image): string => {
+                                    return image.id;
                                 })
                             .slice(frame.state.currentIndex)).pipe(
                                 mergeMap(
                                     (key: string): Observable<NavigationEdgeStatus> => {
                                         return this._keyToEdges(
                                             key,
-                                            (node: Node): Observable<NavigationEdgeStatus> => {
-                                                return node.spatialEdges$;
+                                            (image: Image): Observable<NavigationEdgeStatus> => {
+                                                return image.spatialEdges$;
                                             });
                                     },
                                     6));
@@ -112,8 +112,8 @@ export class CacheService {
         subs.push(this._graphService.dataAdded$.pipe(
             withLatestFrom(this._stateService.currentId$),
             switchMap(
-                ([_, imageId]: [string, string]): Observable<Node> => {
-                    return this._graphService.cacheNode$(imageId)
+                ([_, imageId]: [string, string]): Observable<Image> => {
+                    return this._graphService.cacheImage$(imageId)
                 }))
             .subscribe(() => { /*noop*/ }))
 
@@ -127,9 +127,9 @@ export class CacheService {
         this._started = false;
     }
 
-    private _keyToEdges(key: string, nodeToEdgeMap: (node: Node) => Observable<NavigationEdgeStatus>): Observable<NavigationEdgeStatus> {
-        return this._graphService.cacheNode$(key).pipe(
-            switchMap(nodeToEdgeMap),
+    private _keyToEdges(key: string, imageToEdgeMap: (image: Image) => Observable<NavigationEdgeStatus>): Observable<NavigationEdgeStatus> {
+        return this._graphService.cacheImage$(key).pipe(
+            switchMap(imageToEdgeMap),
             first(
                 (status: NavigationEdgeStatus): boolean => {
                     return status.cached;

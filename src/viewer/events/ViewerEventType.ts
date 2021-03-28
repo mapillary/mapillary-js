@@ -13,7 +13,7 @@ export type ViewerEventType =
     | "moveend"
     | "movestart"
     | "navigable"
-    | "node"
+    | "image"
     | "position"
     | "pov"
     | "remove"

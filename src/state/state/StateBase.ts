@@ -8,7 +8,7 @@ import { Camera } from "../../geo/Camera";
 import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
 import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { CameraType } from "../../geo/interfaces/CameraType";
 
 export abstract class StateBase implements IStateBase {
@@ -22,9 +22,9 @@ export abstract class StateBase implements IStateBase {
 
     protected _currentIndex: number;
 
-    protected _trajectory: Node[];
-    protected _currentNode: Node;
-    protected _previousNode: Node;
+    protected _trajectory: Image[];
+    protected _currentImage: Image;
+    protected _previousImage: Image;
 
     protected _trajectoryTransforms: Transform[];
 
@@ -55,29 +55,29 @@ export abstract class StateBase implements IStateBase {
         this._trajectoryTransforms = [];
         this._trajectoryCameras = [];
 
-        for (let node of this._trajectory) {
-            let translation: number[] = this._nodeToTranslation(node, this._reference);
+        for (let image of this._trajectory) {
+            let translation: number[] = this._imageToTranslation(image, this._reference);
             let transform: Transform = new Transform(
-                node.exifOrientation,
-                node.width,
-                node.height,
-                node.scale,
-                node.rotation,
+                image.exifOrientation,
+                image.width,
+                image.height,
+                image.scale,
+                image.rotation,
                 translation,
-                node.image,
+                image.image,
                 undefined,
-                node.cameraParameters,
-                <CameraType>node.cameraType);
+                image.cameraParameters,
+                <CameraType>image.cameraType);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
         }
 
-        this._currentNode = this._trajectory.length > 0 ?
+        this._currentImage = this._trajectory.length > 0 ?
             this._trajectory[this._currentIndex] :
             null;
 
-        this._previousNode = this._trajectory.length > 1 && this.currentIndex > 0 ?
+        this._previousImage = this._trajectory.length > 1 && this.currentIndex > 0 ?
             this._trajectory[this._currentIndex - 1] :
             null;
 
@@ -106,7 +106,7 @@ export abstract class StateBase implements IStateBase {
         return this._zoom;
     }
 
-    public get trajectory(): Node[] {
+    public get trajectory(): Image[] {
         return this._trajectory;
     }
 
@@ -114,12 +114,12 @@ export abstract class StateBase implements IStateBase {
         return this._currentIndex;
     }
 
-    public get currentNode(): Node {
-        return this._currentNode;
+    public get currentImage(): Image {
+        return this._currentImage;
     }
 
-    public get previousNode(): Node {
-        return this._previousNode;
+    public get previousImage(): Image {
+        return this._previousImage;
     }
 
     public get currentCamera(): Camera {
@@ -178,34 +178,34 @@ export abstract class StateBase implements IStateBase {
 
     public truck(direction: number[]): void { /*noop*/ }
 
-    public append(nodes: Node[]): void {
-        if (nodes.length < 1) {
+    public append(images: Image[]): void {
+        if (images.length < 1) {
             throw Error("Trajectory can not be empty");
         }
 
         if (this._currentIndex < 0) {
-            this.set(nodes);
+            this.set(images);
         } else {
-            this._trajectory = this._trajectory.concat(nodes);
-            this._appendToTrajectories(nodes);
+            this._trajectory = this._trajectory.concat(images);
+            this._appendToTrajectories(images);
         }
     }
 
-    public prepend(nodes: Node[]): void {
-        if (nodes.length < 1) {
+    public prepend(images: Image[]): void {
+        if (images.length < 1) {
             throw Error("Trajectory can not be empty");
         }
 
-        this._trajectory = nodes.slice().concat(this._trajectory);
-        this._currentIndex += nodes.length;
+        this._trajectory = images.slice().concat(this._trajectory);
+        this._currentIndex += images.length;
 
-        this._setCurrentNode();
+        this._setCurrentImage();
 
-        let referenceReset: boolean = this._setReference(this._currentNode);
+        let referenceReset: boolean = this._setReference(this._currentImage);
         if (referenceReset) {
             this._setTrajectories();
         } else {
-            this._prependToTrajectories(nodes);
+            this._prependToTrajectories(images);
         }
 
         this._setCurrentCamera();
@@ -217,7 +217,7 @@ export abstract class StateBase implements IStateBase {
         }
 
         if (this._currentIndex - 1 < n) {
-            throw Error("Current and previous nodes can not be removed");
+            throw Error("Current and previous images can not be removed");
         }
 
         for (let i: number = 0; i < n; i++) {
@@ -227,7 +227,7 @@ export abstract class StateBase implements IStateBase {
             this._currentIndex--;
         }
 
-        this._setCurrentNode();
+        this._setCurrentImage();
     }
 
     public clearPrior(): void {
@@ -252,16 +252,16 @@ export abstract class StateBase implements IStateBase {
         }
     }
 
-    public set(nodes: Node[]): void {
-        this._setTrajectory(nodes);
-        this._setCurrentNode();
-        this._setReference(this._currentNode);
+    public set(images: Image[]): void {
+        this._setTrajectory(images);
+        this._setCurrentImage();
+        this._setReference(this._currentImage);
         this._setTrajectories();
         this._setCurrentCamera();
     }
 
     public getCenter(): number[] {
-        return this._currentNode != null ?
+        return this._currentImage != null ?
             this.currentTransform.projectBasic(this._camera.lookat.toArray()) :
             [0.5, 0.5];
     }
@@ -273,9 +273,9 @@ export abstract class StateBase implements IStateBase {
     protected _getAlpha(): number { return 1; }
 
     protected _setCurrent(): void {
-        this._setCurrentNode();
+        this._setCurrentImage();
 
-        let referenceReset: boolean = this._setReference(this._currentNode);
+        let referenceReset: boolean = this._setReference(this._currentImage);
         if (referenceReset) {
             this._setTrajectories();
         }
@@ -291,56 +291,56 @@ export abstract class StateBase implements IStateBase {
     }
 
     protected _motionlessTransition(): boolean {
-        let nodesSet: boolean = this._currentNode != null && this._previousNode != null;
+        let imagesSet: boolean = this._currentImage != null && this._previousImage != null;
 
-        return nodesSet && (
+        return imagesSet && (
             this._transitionMode === TransitionMode.Instantaneous || !(
-                this._currentNode.merged &&
-                this._previousNode.merged &&
+                this._currentImage.merged &&
+                this._previousImage.merged &&
                 this._withinOriginalDistance() &&
                 this._sameConnectedComponent()
             ));
     }
 
-    private _setReference(node: Node): boolean {
-        // do not reset reference if node is within threshold distance
-        if (Math.abs(node.latLon.lat - this.reference.lat) < this._referenceThreshold &&
-            Math.abs(node.latLon.lon - this.reference.lon) < this._referenceThreshold) {
+    private _setReference(image: Image): boolean {
+        // do not reset reference if image is within threshold distance
+        if (Math.abs(image.latLon.lat - this.reference.lat) < this._referenceThreshold &&
+            Math.abs(image.latLon.lon - this.reference.lon) < this._referenceThreshold) {
             return false;
         }
 
-        // do not reset reference if previous node exist and transition is with motion
-        if (this._previousNode != null && !this._motionlessTransition()) {
+        // do not reset reference if previous image exist and transition is with motion
+        if (this._previousImage != null && !this._motionlessTransition()) {
             return false;
         }
 
-        this._reference.lat = node.latLon.lat;
-        this._reference.lon = node.latLon.lon;
-        this._reference.alt = node.computedAltitude;
+        this._reference.lat = image.latLon.lat;
+        this._reference.lon = image.latLon.lon;
+        this._reference.alt = image.computedAltitude;
 
         return true;
     }
 
-    private _setCurrentNode(): void {
-        this._currentNode = this._trajectory.length > 0 ?
+    private _setCurrentImage(): void {
+        this._currentImage = this._trajectory.length > 0 ?
             this._trajectory[this._currentIndex] :
             null;
 
-        this._previousNode = this._currentIndex > 0 ?
+        this._previousImage = this._currentIndex > 0 ?
             this._trajectory[this._currentIndex - 1] :
             null;
     }
 
-    private _setTrajectory(nodes: Node[]): void {
-        if (nodes.length < 1) {
+    private _setTrajectory(images: Image[]): void {
+        if (images.length < 1) {
             throw new ArgumentMapillaryError("Trajectory can not be empty");
         }
 
-        if (this._currentNode != null) {
-            this._trajectory = [this._currentNode].concat(nodes);
+        if (this._currentImage != null) {
+            this._trajectory = [this._currentImage].concat(images);
             this._currentIndex = 1;
         } else {
-            this._trajectory = nodes.slice();
+            this._trajectory = images.slice();
             this._currentIndex = 0;
         }
     }
@@ -352,72 +352,72 @@ export abstract class StateBase implements IStateBase {
         this._appendToTrajectories(this._trajectory);
     }
 
-    private _appendToTrajectories(nodes: Node[]): void {
-        for (let node of nodes) {
-            if (!node.assetsCached) {
-                throw new ArgumentMapillaryError("Assets must be cached when node is added to trajectory");
+    private _appendToTrajectories(images: Image[]): void {
+        for (let image of images) {
+            if (!image.assetsCached) {
+                throw new ArgumentMapillaryError("Assets must be cached when image is added to trajectory");
             }
 
-            let translation: number[] = this._nodeToTranslation(node, this.reference);
+            let translation: number[] = this._imageToTranslation(image, this.reference);
             let transform: Transform = new Transform(
-                node.exifOrientation,
-                node.width,
-                node.height,
-                node.scale,
-                node.rotation,
+                image.exifOrientation,
+                image.width,
+                image.height,
+                image.scale,
+                image.rotation,
                 translation,
-                node.image,
+                image.image,
                 undefined,
-                node.cameraParameters,
-                <CameraType>node.cameraType);
+                image.cameraParameters,
+                <CameraType>image.cameraType);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
         }
     }
 
-    private _prependToTrajectories(nodes: Node[]): void {
-        for (let node of nodes.reverse()) {
-            if (!node.assetsCached) {
+    private _prependToTrajectories(images: Image[]): void {
+        for (let image of images.reverse()) {
+            if (!image.assetsCached) {
                 throw new ArgumentMapillaryError("Assets must be cached when added to trajectory");
             }
 
-            let translation: number[] = this._nodeToTranslation(node, this.reference);
+            let translation: number[] = this._imageToTranslation(image, this.reference);
             let transform: Transform = new Transform(
-                node.exifOrientation,
-                node.width,
-                node.height,
-                node.scale,
-                node.rotation,
+                image.exifOrientation,
+                image.width,
+                image.height,
+                image.scale,
+                image.rotation,
                 translation,
-                node.image,
+                image.image,
                 undefined,
-                node.cameraParameters,
-                <CameraType>node.cameraType);
+                image.cameraParameters,
+                <CameraType>image.cameraType);
 
             this._trajectoryTransforms.unshift(transform);
             this._trajectoryCameras.unshift(new Camera(transform));
         }
     }
 
-    private _nodeToTranslation(node: Node, reference: LatLonAlt): number[] {
+    private _imageToTranslation(image: Image, reference: LatLonAlt): number[] {
         return Geo.computeTranslation(
-            { alt: node.computedAltitude, lat: node.latLon.lat, lon: node.latLon.lon },
-            node.rotation,
+            { alt: image.computedAltitude, lat: image.latLon.lat, lon: image.latLon.lon },
+            image.rotation,
             reference);
     }
 
     private _sameConnectedComponent(): boolean {
-        let current: Node = this._currentNode;
-        let previous: Node = this._previousNode;
+        let current: Image = this._currentImage;
+        let previous: Image = this._previousImage;
 
         return !!current && !!previous &&
             current.mergeConnectedComponent === previous.mergeConnectedComponent;
     }
 
     private _withinOriginalDistance(): boolean {
-        let current: Node = this._currentNode;
-        let previous: Node = this._previousNode;
+        let current: Image = this._currentImage;
+        let previous: Image = this._previousImage;
 
         if (!current || !previous) {
             return true;

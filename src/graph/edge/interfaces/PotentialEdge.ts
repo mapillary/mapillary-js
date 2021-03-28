@@ -1,6 +1,6 @@
 /**
- * Interface that describes the properties for a node that is the destination of a
- * potential edge from an origin node.
+ * Interface that describes the properties for a image that is the destination of a
+ * potential edge from an origin image.
  *
  * @interface PotentialEdge
  */
@@ -13,19 +13,19 @@ export interface PotentialEdge {
     capturedAt: number;
 
     /**
-     * Change in viewing direction with respect to the origin node.
+     * Change in viewing direction with respect to the origin image.
      * @property {number} directionChange
      */
     directionChange: number;
 
     /**
-     * Distance to the origin node.
+     * Distance to the origin image.
      * @property {number} distance
      */
     distance: number;
 
     /**
-     * Determines if the destination node is spherical.
+     * Determines if the destination image is spherical.
      * @property {boolean} spherical
      */
     spherical: boolean;
@@ -38,40 +38,40 @@ export interface PotentialEdge {
 
     /**
      * Change in motion with respect to the viewing direction
-     * of the origin node.
+     * of the origin image.
      * @property {number} motionChange
      */
     motionChange: number;
 
     /**
-     * General camera rotation with respect to the origin node.
+     * General camera rotation with respect to the origin image.
      * @property {number} rotation
      */
     rotation: number;
 
     /**
-     * Determines if the origin and destination node are considered
+     * Determines if the origin and destination image are considered
      * to be in the same merge connected component.
      * @property {boolean} sameMergeCC
      */
     sameMergeCC: boolean;
 
     /**
-     * Determines if the origin and destination node are in the
+     * Determines if the origin and destination image are in the
      * same sequence.
      * @property {boolean} sameSequence
      */
     sameSequence: boolean;
 
     /**
-     * Determines if the origin and destination node have been captured
+     * Determines if the origin and destination image have been captured
      * by the same user.
      * @property {boolean} sameUser
      */
     sameUser: boolean;
 
     /**
-     * Determines which sequence the destination node of the potential edge
+     * Determines which sequence the destination image of the potential edge
      * belongs to.
      * @property {string} sequenceId
      */

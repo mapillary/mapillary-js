@@ -3,9 +3,9 @@ bootstrap();
 
 import * as THREE from "three";
 
-import { NodeHelper } from "../helper/NodeHelper";
+import { ImageHelper } from "../helper/ImageHelper";
 
-import { Node } from "../../src/graph/Node";
+import { Image } from "../../src/graph/Image";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { IStateBase } from "../../src/state/interfaces/IStateBase";
 import { TraversingState } from "../../src/state/state/TraversingState";
@@ -43,7 +43,7 @@ class TestTraversingState extends TraversingState {
     }
 }
 
-class TestNode extends Node {
+class TestImage extends Image {
     constructor() {
         super({
             computed_geometry: { lat: 0, lon: 0 },
@@ -65,13 +65,13 @@ class TestNode extends Node {
 describe("TraversingState.currentCamera.lookat", () => {
     let precision: number = 1e-8;
 
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
-    it("should correspond to set node", () => {
+    it("should correspond to set image", () => {
         let camera: Camera = new Camera();
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
@@ -88,11 +88,11 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let node: TestNode = new TestNode();
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        node.makeFull(fillNode);
+        let image: TestImage = new TestImage();
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        image.makeComplete(spatialImage);
 
-        traversingState.set([node]);
+        traversingState.set([image]);
 
         expect(traversingState.currentCamera.position.x).toBeCloseTo(0, precision);
         expect(traversingState.currentCamera.position.y).toBeCloseTo(0, precision);
@@ -103,7 +103,7 @@ describe("TraversingState.currentCamera.lookat", () => {
         expect(traversingState.currentCamera.lookat.z).toBeGreaterThan(0);
     });
 
-    it("should correspond to set nodes", () => {
+    it("should correspond to set images", () => {
         let camera: Camera = new Camera();
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
@@ -120,17 +120,17 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let previousNode: TestNode = new TestNode();
-        let previousFillNode: SpatialImageEnt = helper.createFillNode();
-        previousFillNode.computed_rotation = [Math.PI, 0, 0];
-        previousNode.makeFull(previousFillNode);
+        let previousImage: TestImage = new TestImage();
+        let previousSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        previousSpatialImage.computed_rotation = [Math.PI, 0, 0];
+        previousImage.makeComplete(previousSpatialImage);
 
-        let currentNode: TestNode = new TestNode();
-        let currentFillNode: SpatialImageEnt = helper.createFillNode();
-        currentNode.makeFull(currentFillNode);
+        let currentImage: TestImage = new TestImage();
+        let currentSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        currentImage.makeComplete(currentSpatialImage);
 
-        traversingState.set([previousNode]);
-        traversingState.set([currentNode]);
+        traversingState.set([previousImage]);
+        traversingState.set([currentImage]);
 
         expect(traversingState.currentCamera.position.x).toBeCloseTo(0, precision);
         expect(traversingState.currentCamera.position.y).toBeCloseTo(0, precision);
@@ -158,19 +158,19 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let previousNode: TestNode = new TestNode();
-        let preivousFillNode: SpatialImageEnt = helper.createFillNode();
-        preivousFillNode.computed_rotation = [Math.PI, 0, 0];
-        previousNode.makeFull(preivousFillNode);
+        let previousImage: TestImage = new TestImage();
+        let preivousSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        preivousSpatialImage.computed_rotation = [Math.PI, 0, 0];
+        previousImage.makeComplete(preivousSpatialImage);
 
-        let currentNode: TestNode = new TestNode();
-        let currentFillNode: SpatialImageEnt = helper.createFillNode();
-        currentFillNode.camera_type = "spherical";
+        let currentImage: TestImage = new TestImage();
+        let currentSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        currentSpatialImage.camera_type = "spherical";
 
-        currentNode.makeFull(currentFillNode);
+        currentImage.makeComplete(currentSpatialImage);
 
-        traversingState.set([previousNode]);
-        traversingState.set([currentNode]);
+        traversingState.set([previousImage]);
+        traversingState.set([currentImage]);
 
         expect(traversingState.currentCamera.position.x).toBeCloseTo(0, precision);
         expect(traversingState.currentCamera.position.y).toBeCloseTo(0, precision);
@@ -187,13 +187,13 @@ describe("TraversingState.currentCamera.lookat", () => {
 describe("TraversingState.previousCamera.lookat", () => {
     let precision: number = 1e-8;
 
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
-    it("should correspond to current node camera when previous node not set", () => {
+    it("should correspond to current image camera when previous image not set", () => {
         let camera: Camera = new Camera();
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
@@ -210,11 +210,11 @@ describe("TraversingState.previousCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let node: TestNode = new TestNode();
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        node.makeFull(fillNode);
+        let image: TestImage = new TestImage();
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        image.makeComplete(spatialImage);
 
-        traversingState.set([node]);
+        traversingState.set([image]);
 
         expect(traversingState.previousCamera.position.x).toBeCloseTo(0, precision);
         expect(traversingState.previousCamera.position.y).toBeCloseTo(0, precision);
@@ -225,7 +225,7 @@ describe("TraversingState.previousCamera.lookat", () => {
         expect(traversingState.previousCamera.lookat.z).toBeGreaterThan(0);
     });
 
-    it("should correspond to camera when previous node set", () => {
+    it("should correspond to camera when previous image set", () => {
         let camera: Camera = new Camera();
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
@@ -242,17 +242,17 @@ describe("TraversingState.previousCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let previousNode: TestNode = new TestNode();
-        let previousFillNode: SpatialImageEnt = helper.createFillNode();
-        previousFillNode.computed_rotation = [Math.PI, 0, 0];
-        previousNode.makeFull(previousFillNode);
+        let previousImage: TestImage = new TestImage();
+        let previousSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        previousSpatialImage.computed_rotation = [Math.PI, 0, 0];
+        previousImage.makeComplete(previousSpatialImage);
 
-        let currentNode: TestNode = new TestNode();
-        let currentFillNode: SpatialImageEnt = helper.createFillNode();
-        currentNode.makeFull(currentFillNode);
+        let currentImage: TestImage = new TestImage();
+        let currentSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        currentImage.makeComplete(currentSpatialImage);
 
-        traversingState.set([previousNode]);
-        traversingState.set([currentNode]);
+        traversingState.set([previousImage]);
+        traversingState.set([currentImage]);
 
         expect(traversingState.previousCamera.position.x).toBeCloseTo(0, precision);
         expect(traversingState.previousCamera.position.y).toBeCloseTo(0, precision);

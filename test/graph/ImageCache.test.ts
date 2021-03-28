@@ -1,40 +1,44 @@
-import { first, skip } from "rxjs/operators";
+import {
+    first,
+    skip,
+} from "rxjs/operators";
 import { FalcorDataProvider } from "../../src/api/falcor/FalcorDataProvider";
 import { NavigationDirection } from "../../src/graph/edge/NavigationDirection";
 import { NavigationEdge } from "../../src/graph/edge/interfaces/NavigationEdge";
-import { NavigationEdgeStatus } from "../../src/graph/interfaces/NavigationEdgeStatus";
-import { NodeCache } from "../../src/graph/NodeCache";
+import { NavigationEdgeStatus }
+    from "../../src/graph/interfaces/NavigationEdgeStatus";
+import { ImageCache } from "../../src/graph/ImageCache";
 import { MockCreator } from "../helper/MockCreator";
-import { NodeHelper } from "../helper/NodeHelper";
+import { ImageHelper } from "../helper/ImageHelper";
 
 global.URL.createObjectURL = jest.fn();
 
-describe("NodeCache.ctor", () => {
-    it("should create a node cache", () => {
-        let nodeCache: NodeCache = new NodeCache(undefined);
-        expect(nodeCache).toBeDefined();
+describe("ImageCache.ctor", () => {
+    it("should create a image cache", () => {
+        let cache = new ImageCache(undefined);
+        expect(cache).toBeDefined();
     });
 });
 
-describe("NodeCache.mesh", () => {
+describe("ImageCache.mesh", () => {
     it("should be null initially", () => {
-        let nodeCache: NodeCache = new NodeCache(undefined);
-        expect(nodeCache.mesh).toBeNull();
+        let cache = new ImageCache(undefined);
+        expect(cache.mesh).toBeNull();
     });
 });
 
-describe("NodeCache.image", () => {
+describe("ImageCache.image", () => {
     it("should be null initially", () => {
-        let nodeCache: NodeCache = new NodeCache(undefined);
-        expect(nodeCache.image).toBeNull();
+        let cache = new ImageCache(undefined);
+        expect(cache.image).toBeNull();
     });
 });
 
-describe("NodeCache.sequenceEdges$", () => {
+describe("ImageCache.sequenceEdges$", () => {
     it("should emit uncached empty edge status initially", (done: Function) => {
-        let nodeCache: NodeCache = new NodeCache(undefined);
+        let cache = new ImageCache(undefined);
 
-        nodeCache.sequenceEdges$.pipe(
+        cache.sequenceEdges$.pipe(
             first())
             .subscribe(
                 (edgeStatus: NavigationEdgeStatus): void => {
@@ -46,7 +50,7 @@ describe("NodeCache.sequenceEdges$", () => {
     });
 
     it("should emit cached non empty edge status when sequence edges cached", (done: Function) => {
-        let nodeCache: NodeCache = new NodeCache(undefined);
+        let cache = new ImageCache(undefined);
 
         let sequenceEdge: NavigationEdge = {
             data: {
@@ -57,7 +61,7 @@ describe("NodeCache.sequenceEdges$", () => {
             target: "key2",
         };
 
-        nodeCache.sequenceEdges$.pipe(
+        cache.sequenceEdges$.pipe(
             skip(1),
             first())
             .subscribe(
@@ -72,13 +76,13 @@ describe("NodeCache.sequenceEdges$", () => {
                     done();
                 });
 
-        nodeCache.cacheSequenceEdges([sequenceEdge]);
+        cache.cacheSequenceEdges([sequenceEdge]);
     });
 });
 
-describe("NodeCache.resetSequenceEdges", () => {
+describe("ImageCache.resetSequenceEdges", () => {
     it("should reset the sequence edges", () => {
-        let nodeCache: NodeCache = new NodeCache(undefined);
+        let cache = new ImageCache(undefined);
 
         let sequenceEdge: NavigationEdge = {
             data: {
@@ -89,24 +93,24 @@ describe("NodeCache.resetSequenceEdges", () => {
             target: "key2",
         };
 
-        nodeCache.cacheSequenceEdges([sequenceEdge]);
+        cache.cacheSequenceEdges([sequenceEdge]);
 
-        expect(nodeCache.sequenceEdges.cached).toBe(true);
-        expect(nodeCache.sequenceEdges.edges.length).toBe(1);
-        expect(nodeCache.sequenceEdges.edges[0].source).toBe(sequenceEdge.source);
+        expect(cache.sequenceEdges.cached).toBe(true);
+        expect(cache.sequenceEdges.edges.length).toBe(1);
+        expect(cache.sequenceEdges.edges[0].source).toBe(sequenceEdge.source);
 
-        nodeCache.resetSequenceEdges();
+        cache.resetSequenceEdges();
 
-        expect(nodeCache.sequenceEdges.cached).toBe(false);
-        expect(nodeCache.sequenceEdges.edges.length).toBe(0);
+        expect(cache.sequenceEdges.cached).toBe(false);
+        expect(cache.sequenceEdges.edges.length).toBe(0);
     });
 });
 
-describe("NodeCache.spatialEdges$", () => {
+describe("ImageCache.spatialEdges$", () => {
     it("should emit uncached empty edge status initially", (done: Function) => {
-        let nodeCache: NodeCache = new NodeCache(undefined);
+        let cache = new ImageCache(undefined);
 
-        nodeCache.spatialEdges$.pipe(
+        cache.spatialEdges$.pipe(
             first())
             .subscribe(
                 (edgeStatus: NavigationEdgeStatus): void => {
@@ -118,7 +122,7 @@ describe("NodeCache.spatialEdges$", () => {
     });
 
     it("should emit cached non empty edge status when spatial edges cached", (done: Function) => {
-        let nodeCache: NodeCache = new NodeCache(undefined);
+        let cache = new ImageCache(undefined);
 
         let spatialEdge: NavigationEdge = {
             data: {
@@ -129,7 +133,7 @@ describe("NodeCache.spatialEdges$", () => {
             target: "key2",
         };
 
-        nodeCache.spatialEdges$.pipe(
+        cache.spatialEdges$.pipe(
             skip(1),
             first())
             .subscribe(
@@ -144,13 +148,13 @@ describe("NodeCache.spatialEdges$", () => {
                     done();
                 });
 
-        nodeCache.cacheSpatialEdges([spatialEdge]);
+        cache.cacheSpatialEdges([spatialEdge]);
     });
 });
 
-describe("NodeCache.resetSpatialEdges", () => {
+describe("ImageCache.resetSpatialEdges", () => {
     it("should reset the spatial edges", () => {
-        let nodeCache: NodeCache = new NodeCache(undefined);
+        let cache = new ImageCache(undefined);
 
         let spatialEdge: NavigationEdge = {
             data: {
@@ -161,22 +165,22 @@ describe("NodeCache.resetSpatialEdges", () => {
             target: "key2",
         };
 
-        nodeCache.cacheSpatialEdges([spatialEdge]);
+        cache.cacheSpatialEdges([spatialEdge]);
 
-        expect(nodeCache.spatialEdges.cached).toBe(true);
-        expect(nodeCache.spatialEdges.edges.length).toBe(1);
-        expect(nodeCache.spatialEdges.edges[0].source).toBe(spatialEdge.source);
+        expect(cache.spatialEdges.cached).toBe(true);
+        expect(cache.spatialEdges.edges.length).toBe(1);
+        expect(cache.spatialEdges.edges[0].source).toBe(spatialEdge.source);
 
-        nodeCache.resetSpatialEdges();
+        cache.resetSpatialEdges();
 
-        expect(nodeCache.spatialEdges.cached).toBe(false);
-        expect(nodeCache.spatialEdges.edges.length).toBe(0);
+        expect(cache.spatialEdges.cached).toBe(false);
+        expect(cache.spatialEdges.edges.length).toBe(0);
     });
 });
 
-describe("NodeCache.dispose", () => {
+describe("ImageCache.dispose", () => {
     it("should clear all properties", () => {
-        let nodeCache: NodeCache = new NodeCache(undefined);
+        let cache = new ImageCache(undefined);
 
         let sequencEdge: NavigationEdge = {
             data: {
@@ -196,23 +200,23 @@ describe("NodeCache.dispose", () => {
             target: "key2",
         };
 
-        nodeCache.cacheSequenceEdges([sequencEdge]);
-        nodeCache.cacheSpatialEdges([spatialEdge]);
+        cache.cacheSequenceEdges([sequencEdge]);
+        cache.cacheSpatialEdges([spatialEdge]);
 
-        nodeCache.dispose();
+        cache.dispose();
 
-        expect(nodeCache.sequenceEdges.cached).toBe(false);
-        expect(nodeCache.sequenceEdges.edges.length).toBe(0);
+        expect(cache.sequenceEdges.cached).toBe(false);
+        expect(cache.sequenceEdges.edges.length).toBe(0);
 
-        expect(nodeCache.spatialEdges.cached).toBe(false);
-        expect(nodeCache.spatialEdges.edges.length).toBe(0);
+        expect(cache.spatialEdges.cached).toBe(false);
+        expect(cache.spatialEdges.edges.length).toBe(0);
 
-        expect(nodeCache.image).toBeNull();
+        expect(cache.image).toBeNull();
     });
 });
 
-describe("NodeCache.cacheImage$", () => {
-    it("should return the node cache with a cached image", (done: Function) => {
+describe("ImageCache.cacheImage$", () => {
+    it("should return the image cache with a cached image", (done: Function) => {
         const promise: any = {
             then: (resolve: (result: any) => void, reject: (error: Error) => void): void => {
                 resolve(undefined);
@@ -230,13 +234,13 @@ describe("NodeCache.cacheImage$", () => {
         spyOn(window, "Blob").and.returnValue(<Blob>{});
         spyOn(window.URL, "createObjectURL").and.returnValue("url");
 
-        const nodeCache: NodeCache = new NodeCache(dataProvider);
+        const cache = new ImageCache(dataProvider);
 
-        expect(nodeCache.image).toBeNull();
+        expect(cache.image).toBeNull();
 
-        nodeCache.cacheImage$(new NodeHelper().createFillNode())
+        cache.cacheImage$(new ImageHelper().createSpatialImageEnt())
             .subscribe(
-                (nc: NodeCache): void => {
+                (nc: ImageCache): void => {
                     expect(nc.image).not.toBeNull();
                     expect(nc.image).toBe(imageMock);
 
@@ -264,16 +268,16 @@ describe("NodeCache.cacheImage$", () => {
         spyOn(window, "Blob").and.returnValue(<Blob>{});
         spyOn(window.URL, "createObjectURL").and.returnValue("url");
 
-        const nodeCache: NodeCache = new NodeCache(dataProvider);
+        const cache = new ImageCache(dataProvider);
 
-        expect(nodeCache.image).toBeNull();
+        expect(cache.image).toBeNull();
 
-        nodeCache.cacheImage$(new NodeHelper().createFillNode()).subscribe();
+        cache.cacheImage$(new ImageHelper().createSpatialImageEnt()).subscribe();
 
         imageMock.dispatchEvent(new CustomEvent("load"));
 
-        expect(nodeCache.image).not.toBeNull();
-        expect(nodeCache.image).toBe(imageMock);
+        expect(cache.image).not.toBeNull();
+        expect(cache.image).toBe(imageMock);
     });
 
     it("should emit the cached image", (done: Function) => {
@@ -294,11 +298,11 @@ describe("NodeCache.cacheImage$", () => {
         spyOn(window, "Blob").and.returnValue(<Blob>{});
         spyOn(window.URL, "createObjectURL").and.returnValue("url");
 
-        const nodeCache: NodeCache = new NodeCache(dataProvider);
+        const cache = new ImageCache(dataProvider);
 
-        expect(nodeCache.image).toBeNull();
+        expect(cache.image).toBeNull();
 
-        nodeCache.image$.pipe(
+        cache.image$.pipe(
             skip(1))
             .subscribe(
                 (image: HTMLImageElement): void => {
@@ -308,7 +312,7 @@ describe("NodeCache.cacheImage$", () => {
                     done();
                 });
 
-        nodeCache.cacheImage$(new NodeHelper().createFillNode()).subscribe();
+        cache.cacheImage$(new ImageHelper().createSpatialImageEnt()).subscribe();
         imageMock.dispatchEvent(new CustomEvent("load"));
     });
 });

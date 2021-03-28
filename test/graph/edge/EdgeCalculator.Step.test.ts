@@ -4,7 +4,7 @@ import { EdgeCalculatorSettings } from "../../../src/graph/edge/EdgeCalculatorSe
 import { NavigationDirection } from "../../../src/graph/edge/NavigationDirection";
 import { NavigationEdge } from "../../../src/graph/edge/interfaces/NavigationEdge";
 import { PotentialEdge } from "../../../src/graph/edge/interfaces/PotentialEdge";
-import { Node } from "../../../src/graph/Node";
+import { Image } from "../../../src/graph/Image";
 import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper";
 
 describe("EdgeCalculator.computeStepEdges", () => {
@@ -14,7 +14,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let node: Node;
+    let image: Image;
     let potentialEdge: PotentialEdge;
 
     beforeEach(() => {
@@ -30,22 +30,22 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createDefaultNode();
+        image = helper.createDefaultImage();
 
         potentialEdge = helper.createPotentialEdge();
         potentialEdge.distance = settings.stepMaxDistance / 2;
     });
 
-    it("should throw when node is not full", () => {
-        node = helper.createCoreNode("", { alt: 0, lat: 0, lon: 0 }, "");
+    it("should throw when image is not full", () => {
+        image = helper.createCoreImage("", { alt: 0, lat: 0, lon: 0 }, "");
 
-        expect(() => { edgeCalculator.computeStepEdges(node, [], null, null); }).toThrowError(Error);
+        expect(() => { edgeCalculator.computeStepEdges(image, [], null, null); }).toThrowError(Error);
     });
 
     it("should have a step forward edge", () => {
         potentialEdge.motionChange = 0;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(1);
 
@@ -58,7 +58,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should have a step left edge", () => {
         potentialEdge.motionChange = Math.PI / 2;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(1);
 
@@ -71,7 +71,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should have a step right edge", () => {
         potentialEdge.motionChange = -Math.PI / 2;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(1);
 
@@ -84,7 +84,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should have a step back edge", () => {
         potentialEdge.motionChange = Math.PI;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(1);
 
@@ -97,7 +97,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should not have any edges because potential is spherical", () => {
         potentialEdge.spherical = true;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(0);
     });
@@ -105,7 +105,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should not have any edges because of max distance", () => {
         potentialEdge.distance = settings.stepMaxDistance + 1;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(0);
     });
@@ -113,7 +113,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should not have any edges because of direction change", () => {
         potentialEdge.directionChange = settings.stepMaxDirectionChange + Math.PI / 18;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(0);
     });
@@ -121,7 +121,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should not have any edges because of negative direction change", () => {
         potentialEdge.directionChange = -settings.stepMaxDirectionChange - Math.PI / 18;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(0);
     });
@@ -129,7 +129,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should not have any edges because of drift", () => {
         potentialEdge.motionChange = settings.stepMaxDrift + Math.PI / 18;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(0);
     });
@@ -137,17 +137,17 @@ describe("EdgeCalculator.computeStepEdges", () => {
     it("should not have any edges because of negative drift", () => {
         potentialEdge.motionChange = -settings.stepMaxDrift - Math.PI / 18;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(0);
     });
 
-    it("should fallback to next node with enabled fallback setting", () => {
+    it("should fallback to next image with enabled fallback setting", () => {
         potentialEdge.distance = settings.stepMaxDistance + 1;
         potentialEdge.motionChange = 0;
 
         let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(
-            node,
+            image,
             [potentialEdge],
             potentialEdge.id,
             null);
@@ -160,12 +160,12 @@ describe("EdgeCalculator.computeStepEdges", () => {
         expect(stepEdge.data.direction).toBe(NavigationDirection.StepForward);
     });
 
-    it("should not fallback to previous node with disabled fallback setting", () => {
+    it("should not fallback to previous image with disabled fallback setting", () => {
         potentialEdge.distance = settings.stepMaxDistance + 1;
         potentialEdge.motionChange = Math.PI;
 
         let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(
-            node,
+            image,
             [potentialEdge],
             null,
             potentialEdge.id);
@@ -173,10 +173,10 @@ describe("EdgeCalculator.computeStepEdges", () => {
         expect(stepEdges.length).toBe(0);
     });
 
-    it("should not have any edges if node is spherical", () => {
-        node = helper.createDefaultNode(true);
+    it("should not have any edges if image is spherical", () => {
+        image = helper.createDefaultImage(true);
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge], null, null);
 
         expect(stepEdges.length).toBe(0);
     });
@@ -189,7 +189,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let node: Node;
+    let image: Image;
     let potentialEdge1: PotentialEdge;
     let potentialEdge2: PotentialEdge;
 
@@ -202,7 +202,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createDefaultNode();
+        image = helper.createDefaultImage();
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge2 = helper.createPotentialEdge("pkey2");
@@ -212,7 +212,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
         potentialEdge1.distance = settings.stepPreferredDistance + 1;
         potentialEdge2.distance = settings.stepPreferredDistance;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
@@ -226,7 +226,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
         potentialEdge1.distance = settings.stepPreferredDistance - 1;
         potentialEdge2.distance = settings.stepPreferredDistance;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
@@ -240,7 +240,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
         potentialEdge1.motionChange = settings.stepMaxDrift / 2;
         potentialEdge2.motionChange = settings.stepMaxDrift / 4;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
@@ -254,7 +254,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
         potentialEdge1.motionChange = -settings.stepMaxDrift / 2;
         potentialEdge2.motionChange = -settings.stepMaxDrift / 4;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
@@ -268,7 +268,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
         potentialEdge1.verticalMotion = settings.stepMaxDrift / 2;
         potentialEdge2.verticalMotion = settings.stepMaxDrift / 4;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
@@ -282,7 +282,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
         potentialEdge1.verticalMotion = -settings.stepMaxDrift / 2;
         potentialEdge2.verticalMotion = -settings.stepMaxDrift / 4;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
@@ -299,7 +299,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
         potentialEdge2.motionChange = -settings.stepMaxDrift / 3;
         potentialEdge2.verticalMotion = -settings.stepMaxDrift / 3;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
@@ -313,7 +313,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
         potentialEdge1.sameSequence = false;
         potentialEdge2.sameSequence = true;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
@@ -327,7 +327,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
         potentialEdge1.sameMergeCC = false;
         potentialEdge2.sameMergeCC = true;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 
@@ -341,7 +341,7 @@ describe("EdgeCalculator.computeStepEdges", () => {
         potentialEdge1.rotation = 0.2;
         potentialEdge2.rotation = 0.1;
 
-        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(node, [potentialEdge1, potentialEdge2], null, null);
+        let stepEdges: NavigationEdge[] = edgeCalculator.computeStepEdges(image, [potentialEdge1, potentialEdge2], null, null);
 
         expect(stepEdges.length).toBe(1);
 

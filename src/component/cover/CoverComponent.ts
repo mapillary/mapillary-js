@@ -23,7 +23,7 @@ import { Component } from "../Component";
 import { CoverConfiguration } from "../interfaces/CoverConfiguration";
 
 import { MapillaryError } from "../../error/MapillaryError";
-import { Node } from "../../graph/Node";
+import { Image as MImage } from "../../graph/Image";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
 import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
@@ -94,23 +94,23 @@ export class CoverComponent extends Component<CoverConfiguration> {
                     return configuration.state;
                 }),
             switchMap(
-                (configuration: CoverConfiguration): Observable<[CoverState, Node]> => {
+                (configuration: CoverConfiguration): Observable<[CoverState, MImage]> => {
                     return observableCombineLatest(
                         observableOf(configuration.state),
-                        this._navigator.stateService.currentNode$);
+                        this._navigator.stateService.currentImage$);
                 }),
             switchMap(
-                ([state, node]: [CoverState, Node]): Observable<[string, string]> => {
+                ([state, image]: [CoverState, MImage]): Observable<[string, string]> => {
                     const keySrc$: Observable<[string, string]> = observableCombineLatest(
-                        observableOf(node.id),
-                        node.image$.pipe(
+                        observableOf(image.id),
+                        image.image$.pipe(
                             filter(
-                                (image: HTMLImageElement): boolean => {
-                                    return !!image;
+                                (imageElement: HTMLImageElement): boolean => {
+                                    return !!imageElement;
                                 }),
                             map(
-                                (image: HTMLImageElement): string => {
-                                    return image.src;
+                                (imageElement: HTMLImageElement): string => {
+                                    return imageElement.src;
                                 })));
 
                     return state === CoverState.Visible ? keySrc$.pipe(first()) : keySrc$;
@@ -131,7 +131,7 @@ export class CoverComponent extends Component<CoverConfiguration> {
                 map(
                     ([configuration, size]: [CoverConfiguration, ViewportSize]): VirtualNodeHash => {
                         if (!configuration.src) {
-                            return { name: this._name, vnode: vd.h("div", []) };
+                            return { name: this._name, vNode: vd.h("div", []) };
                         }
 
                         const compactClass: string = size.width <= 640 || size.height <= 480 ? ".mapillary-cover-compact" : "";
@@ -141,14 +141,14 @@ export class CoverComponent extends Component<CoverConfiguration> {
                                 "div.mapillary-cover-container.mapillary-cover-done" + compactClass,
                                 [this._getCoverBackgroundVNode(configuration)]);
 
-                            return { name: this._name, vnode: doneContainer };
+                            return { name: this._name, vNode: doneContainer };
                         }
 
                         const container: vd.VNode = vd.h(
                             "div.mapillary-cover-container" + compactClass,
                             [this._getCoverButtonVNode(configuration)]);
 
-                        return { name: this._name, vnode: container };
+                        return { name: this._name, vNode: container };
                     }))
             .subscribe(this._container.domRenderer.render$));
     }

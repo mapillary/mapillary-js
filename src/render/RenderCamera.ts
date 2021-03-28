@@ -32,8 +32,8 @@ export class RenderCamera {
     private _changed: boolean;
     private _changedForFrame: number;
 
-    private _currentNodeId: string;
-    private _previousNodeId: string;
+    private _currentImageId: string;
+    private _previousImageId: string;
 
     private _currentSpherical: boolean;
     private _previousSpherical: boolean;
@@ -63,8 +63,8 @@ export class RenderCamera {
         this._changed = false;
         this._changedForFrame = -1;
 
-        this._currentNodeId = null;
-        this._previousNodeId = null;
+        this._currentImageId = null;
+        this._previousImageId = null;
 
         this._currentSpherical = false;
         this._previousSpherical = false;
@@ -151,19 +151,19 @@ export class RenderCamera {
             this._changed = true;
         }
 
-        const currentNodeId: string = state.currentNode.id;
-        const previousNodeId: string = !!state.previousNode ? state.previousNode.id : null;
+        const currentImageId: string = state.currentImage.id;
+        const previousImageId: string = !!state.previousImage ? state.previousImage.id : null;
 
-        if (currentNodeId !== this._currentNodeId) {
-            this._currentNodeId = currentNodeId;
+        if (currentImageId !== this._currentImageId) {
+            this._currentImageId = currentImageId;
             this._currentSpherical = isSpherical(state.currentTransform.cameraType);
             this._currentProjectedPoints = this._computeProjectedPoints(state.currentTransform);
 
             this._changed = true;
         }
 
-        if (previousNodeId !== this._previousNodeId) {
-            this._previousNodeId = previousNodeId;
+        if (previousImageId !== this._previousImageId) {
+            this._previousImageId = previousImageId;
             this._previousSpherical =
                 isSpherical(state.previousTransform.cameraType);
             this._previousProjectedPoints = this._computeProjectedPoints(state.previousTransform);
@@ -254,7 +254,7 @@ export class RenderCamera {
             return 0;
         }
 
-        if (!this._currentNodeId) {
+        if (!this._currentImageId) {
             return this._initialFov;
         }
 
@@ -275,11 +275,11 @@ export class RenderCamera {
             return 0;
         }
 
-        if (!this._currentNodeId) {
+        if (!this._currentImageId) {
             return this._initialFov;
         }
 
-        return !this._previousNodeId ?
+        return !this._previousImageId ?
             this._currentFov :
             this._previousSpherical ?
                 this._yToFov(1, zoom) :

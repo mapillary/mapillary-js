@@ -17,7 +17,7 @@ export interface NavigationEdgeStatus {
      * @description If the cached property is false the edges
      * property will always be an empty array. If the cached
      * property is true, there will exist edges in the the
-     * array if the node has edges.
+     * array if the image has edges.
      */
     edges: NavigationEdge[];
 }

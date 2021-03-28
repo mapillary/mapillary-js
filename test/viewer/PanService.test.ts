@@ -1,7 +1,7 @@
 import { Subject } from "rxjs";
 import { skip } from "rxjs/operators";
 
-import { Node } from "../../src/graph/Node";
+import { Image } from "../../src/graph/Image";
 import { Transform } from "../../src/geo/Transform";
 import { LatLonAlt } from "../../src/api/interfaces/LatLonAlt";
 import { GraphService } from "../../src/graph/GraphService";
@@ -10,7 +10,7 @@ import { StateService } from "../../src/state/StateService";
 import { PanService } from "../../src/viewer/PanService";
 import { FrameHelper } from "../helper/FrameHelper";
 import { GraphServiceMockCreator } from "../helper/GraphServiceMockCreator";
-import { NodeHelper } from "../helper/NodeHelper";
+import { ImageHelper } from "../helper/ImageHelper";
 import { StateServiceMockCreator } from "../helper/StateServiceMockCreator";
 
 describe("PanService.ctor", () => {
@@ -24,24 +24,24 @@ describe("PanService.ctor", () => {
     });
 });
 
-describe("PanService.panNodes$", () => {
+describe("PanService.panImages$", () => {
     it("should emit empty initially", (done: Function) => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const stateService: StateService = new StateServiceMockCreator().create();
 
-        const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
+        const cacheBoundingBoxSubject: Subject<Image[]> = new Subject<Image[]>();
         (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(cacheBoundingBoxSubject);
 
         const panService: PanService = new PanService(graphService, stateService);
 
-        panService.panNodes$.subscribe(
-            (nodes: [Node, Transform, number][]): void => {
-                expect(nodes.length).toBe(0);
+        panService.panImages$.subscribe(
+            (images: [Image, Transform, number][]): void => {
+                expect(images.length).toBe(0);
                 done();
             });
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
-        (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());
+        (<Subject<Image>>stateService.currentImage$).next(new ImageHelper().createImage());
         (<Subject<LatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
     });
 
@@ -49,22 +49,22 @@ describe("PanService.panNodes$", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const stateService: StateService = new StateServiceMockCreator().create();
 
-        const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
+        const cacheBoundingBoxSubject: Subject<Image[]> = new Subject<Image[]>();
         (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(cacheBoundingBoxSubject);
 
         const panService: PanService = new PanService(graphService, stateService);
         panService.start();
 
-        panService.panNodes$.pipe(
+        panService.panImages$.pipe(
             skip(1))
             .subscribe(
-                (nodes: [Node, Transform, number][]): void => {
-                    expect(nodes.length).toBe(0);
+                (images: [Image, Transform, number][]): void => {
+                    expect(images.length).toBe(0);
                     done();
                 });
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
-        (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());
+        (<Subject<Image>>stateService.currentImage$).next(new ImageHelper().createImage());
         (<Subject<LatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
         cacheBoundingBoxSubject.next([]);
     });
@@ -73,22 +73,22 @@ describe("PanService.panNodes$", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const stateService: StateService = new StateServiceMockCreator().create();
 
-        const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
+        const cacheBoundingBoxSubject: Subject<Image[]> = new Subject<Image[]>();
         (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(cacheBoundingBoxSubject);
 
         const panService: PanService = new PanService(graphService, stateService);
         panService.start();
 
-        panService.panNodes$.pipe(
+        panService.panImages$.pipe(
             skip(1))
             .subscribe(
-                (nodes: [Node, Transform, number][]): void => {
-                    expect(nodes.length).toBe(0);
+                (images: [Image, Transform, number][]): void => {
+                    expect(images.length).toBe(0);
                     done();
                 });
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
-        (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createUnmergedNode());
+        (<Subject<Image>>stateService.currentImage$).next(new ImageHelper().createUnmergedImage());
         (<Subject<LatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
         cacheBoundingBoxSubject.next([]);
     });
@@ -99,30 +99,30 @@ describe("PanService.panNodes$", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const stateService: StateService = new StateServiceMockCreator().create();
 
-        const erroredCacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
+        const erroredCacheBoundingBoxSubject: Subject<Image[]> = new Subject<Image[]>();
         (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(erroredCacheBoundingBoxSubject);
 
         const panService: PanService = new PanService(graphService, stateService);
         panService.start();
 
         let emitCount: number = 0;
-        panService.panNodes$.pipe(skip(1))
+        panService.panImages$.pipe(skip(1))
             .subscribe(
                 (): void => {
                     emitCount++;
                 });
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
-        (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());
+        (<Subject<Image>>stateService.currentImage$).next(new ImageHelper().createImage());
         (<Subject<LatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
         erroredCacheBoundingBoxSubject.error(new Error());
 
         expect(emitCount).toBe(1);
 
-        const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
+        const cacheBoundingBoxSubject: Subject<Image[]> = new Subject<Image[]>();
         (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(cacheBoundingBoxSubject);
 
-        (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());
+        (<Subject<Image>>stateService.currentImage$).next(new ImageHelper().createImage());
         (<Subject<LatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
 
         cacheBoundingBoxSubject.next([]);
@@ -134,7 +134,7 @@ describe("PanService.panNodes$", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const stateService: StateService = new StateServiceMockCreator().create();
 
-        const cacheBoundingBoxSubject: Subject<Node[]> = new Subject<Node[]>();
+        const cacheBoundingBoxSubject: Subject<Image[]> = new Subject<Image[]>();
         (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(cacheBoundingBoxSubject);
 
         const panService: PanService = new PanService(graphService, stateService);
@@ -142,16 +142,16 @@ describe("PanService.panNodes$", () => {
         panService.disable();
         panService.enable();
 
-        panService.panNodes$.pipe(
+        panService.panImages$.pipe(
             skip(1))
             .subscribe(
-                (nodes: [Node, Transform, number][]): void => {
-                    expect(nodes.length).toBe(0);
+                (images: [Image, Transform, number][]): void => {
+                    expect(images.length).toBe(0);
                     done();
                 });
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
-        (<Subject<Node>>stateService.currentNode$).next(new NodeHelper().createNode());
+        (<Subject<Image>>stateService.currentImage$).next(new ImageHelper().createImage());
         (<Subject<LatLonAlt>>stateService.reference$).next({ alt: 0, lat: 0, lon: 0 });
         cacheBoundingBoxSubject.next([]);
     });

@@ -69,28 +69,28 @@
 
 
         // Show original latLon and latLon (if computed exist it will differ) of current
-        // viewer node on map. Show line linking the two points together
-        const mapNodePosition = {
+        // viewer image on map. Show line linking the two points together
+        const mapimagePosition = {
             line: L.polyline([[0, 0], [0, 0]], { color: '#0ff', weight: 1 }),
             originalPos: L.circleMarker([0, 0], { radius: 7, color: '#0ff' }),
             pos: L.circleMarker([0, 0], { radius: 7, color: '#00f' }),
         };
 
-        mly.on('node', (event) => {
-            const node = event.node;
-            const latLon = [node.latLon.lat, node.latLon.lon];
-            const originalLatLon = [node.originalLatLon.lat, node.originalLatLon.lon];
+        mly.on('image', (event) => {
+            const image = event.node;
+            const latLon = [image.latLon.lat, node.latLon.lon];
+            const originalLatLon = [image.originalLatLon.lat, node.originalLatLon.lon];
 
-            mapNodePosition.line.setLatLngs([originalLatLon, latLon]);
-            mapNodePosition.originalPos.setLatLng(originalLatLon);
-            mapNodePosition.pos.setLatLng(latLon);
+            mapimagePosition.line.setLatLngs([originalLatLon, latLon]);
+            mapimagePosition.originalPos.setLatLng(originalLatLon);
+            mapimagePosition.pos.setLatLng(latLon);
 
             map.setView(latLon);
 
-            if (!map.hasLayer(mapNodePosition.line)) {
-                mapNodePosition.line.addTo(map);
-                mapNodePosition.originalPos.addTo(map);
-                mapNodePosition.pos.addTo(map);
+            if (!map.hasLayer(mapimagePosition.line)) {
+                mapimagePosition.line.addTo(map);
+                mapimagePosition.originalPos.addTo(map);
+                mapimagePosition.pos.addTo(map);
             }
         });
 
@@ -182,7 +182,7 @@
                 return;
             }
 
-            const posLatLng = mapNodePosition.pos.getLatLng();
+            const posLatLng = mapimagePosition.pos.getLatLng();
             const lineString = [
                 [posLatLng.lat, posLatLng.lng],
                 [latLon.lat, latLon.lon],

@@ -7,7 +7,7 @@ import { ComponentConfiguration } from "./ComponentConfiguration";
  * @readonly
  *
  * @description Modes for specifying how transitions
- * between nodes are performed in slider mode. Only
+ * between images are performed in slider mode. Only
  * applicable when the slider component determines
  * that transitions with motion is possilble. When it
  * is not, the stationary mode will be applied.
@@ -17,12 +17,12 @@ export enum SliderConfigurationMode {
      * Transitions with motion.
      *
      * @description The slider component moves the
-     * camera between the node origins.
+     * camera between the image origins.
      *
      * In this mode it is not possible to zoom or pan.
      *
      * The slider component falls back to stationary
-     * mode when it determines that the pair of nodes
+     * mode when it determines that the pair of images
      * does not have a strong enough relation.
      */
     Motion,

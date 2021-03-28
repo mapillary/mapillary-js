@@ -11,7 +11,7 @@ import { TestComponent } from "../../helper/TestComponent";
 import { TransformHelper } from "../../helper/TransformHelper";
 
 import { Navigator } from "../../../src/viewer/Navigator";
-import { Node as GraphNode } from "../../../src/graph/Node";
+import { Image as MImage } from "../../../src/graph/Image";
 import { Transform } from "../../../src/geo/Transform";
 import { DragPanHandler } from "../../../src/component/mouse/DragPanHandler";
 import { Spatial } from "../../../src/geo/Spatial";
@@ -222,7 +222,7 @@ describe("DragPanHandler.enable", () => {
         const frame: AnimationFrame = new FrameHelper().createFrame();
         (<Subject<AnimationFrame>>navigatorMock.stateService.currentState$).next(frame);
 
-        (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
+        (<Subject<[MImage, Transform, number][]>>navigatorMock.panService.panImages$).next([]);
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
             .next(new RenderCamera(1, 1, RenderMode.Fill));
@@ -260,7 +260,7 @@ describe("DragPanHandler.enable", () => {
         const frame: AnimationFrame = new FrameHelper().createFrame();
         (<Subject<AnimationFrame>>navigatorMock.stateService.currentState$).next(frame);
 
-        (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
+        (<Subject<[MImage, Transform, number][]>>navigatorMock.panService.panImages$).next([]);
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
             .next(new RenderCamera(1, 1, RenderMode.Fill));
@@ -299,7 +299,7 @@ describe("DragPanHandler.enable", () => {
         const frame: AnimationFrame = new FrameHelper().createFrame();
         (<Subject<AnimationFrame>>navigatorMock.stateService.currentState$).next(frame);
 
-        (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
+        (<Subject<[MImage, Transform, number][]>>navigatorMock.panService.panImages$).next([]);
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
             .next(new RenderCamera(1, 1, RenderMode.Fill));
@@ -339,7 +339,7 @@ describe("DragPanHandler.enable", () => {
         const frame: AnimationFrame = new FrameHelper().createFrame();
         (<Subject<AnimationFrame>>navigatorMock.stateService.currentState$).next(frame);
 
-        (<Subject<[GraphNode, Transform, number][]>>navigatorMock.panService.panNodes$).next([]);
+        (<Subject<[MImage, Transform, number][]>>navigatorMock.panService.panImages$).next([]);
 
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
             .next(new RenderCamera(1, 1, RenderMode.Fill));

@@ -30,7 +30,7 @@ import {
 import { GraphCalculator } from "../graph/GraphCalculator";
 import { GraphMode } from "../graph/GraphMode";
 import { GraphService } from "../graph/GraphService";
-import { Node } from '../graph/Node';
+import { Image } from '../graph/Image';
 import { Sequence } from "../graph/Sequence";
 import { NavigationDirection } from "../graph/edge/NavigationDirection";
 import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
@@ -46,7 +46,7 @@ export class PlayService {
     private _graphService: GraphService;
     private _stateService: StateService;
 
-    private _nodesAhead: number;
+    private _imagesAhead: number;
     private _playing: boolean;
     private _speed: number;
 
@@ -65,7 +65,7 @@ export class PlayService {
     private _stopSubscription: Subscription;
     private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
-    private _bridging$: Observable<Node>;
+    private _bridging$: Observable<Image>;
 
     constructor(graphService: GraphService, stateService: StateService) {
         this._graphService = graphService;
@@ -99,7 +99,7 @@ export class PlayService {
 
         subs.push(this._speed$.subscribe());
 
-        this._nodesAhead = this._mapNodesAhead(this._mapSpeed(this._speed));
+        this._imagesAhead = this._mapImagesAhead(this._mapSpeed(this._speed));
 
         this._bridging$ = null;
     }
@@ -125,7 +125,7 @@ export class PlayService {
             return;
         }
 
-        this._stateService.cutNodes();
+        this._stateService.cutImages();
         const stateSpeed: number = this._setSpeed(this._speed);
         this._stateService.setSpeed(stateSpeed);
 
@@ -141,20 +141,20 @@ export class PlayService {
                 });
 
         this._cacheSubscription = observableCombineLatest(
-            this._stateService.currentNode$.pipe(
+            this._stateService.currentImage$.pipe(
                 map(
-                    (node: Node): [string, string] => {
-                        return [node.sequenceId, node.id];
+                    (image: Image): [string, string] => {
+                        return [image.sequenceId, image.id];
                     }),
                 distinctUntilChanged(
                     undefined,
-                    ([sequenceId, nodeKey]: [string, string]): string => {
+                    ([sequenceId]: [string, string]): string => {
                         return sequenceId;
                     })),
             this._graphService.graphMode$,
             this._direction$).pipe(
                 switchMap(
-                    ([[sequenceId, nodeKey], mode, direction]: [[string, string], GraphMode, NavigationDirection]):
+                    ([[sequenceId, imageId], mode, direction]: [[string, string], GraphMode, NavigationDirection]):
                         Observable<[Sequence, NavigationDirection]> => {
 
                         if (direction !== NavigationDirection.Next && direction !== NavigationDirection.Prev) {
@@ -162,7 +162,7 @@ export class PlayService {
                         }
 
                         const sequence$: Observable<Sequence> = (mode === GraphMode.Sequence ?
-                            this._graphService.cacheSequenceNodes$(sequenceId, nodeKey) :
+                            this._graphService.cacheSequenceImages$(sequenceId, imageId) :
                             this._graphService.cacheSequence$(sequenceId)).pipe(
                                 retry(3),
                                 catchError(
@@ -190,12 +190,12 @@ export class PlayService {
                         return this._stateService.currentState$.pipe(
                             map(
                                 (frame: AnimationFrame): [string, number] => {
-                                    return [frame.state.trajectory[frame.state.trajectory.length - 1].id, frame.state.nodesAhead];
+                                    return [frame.state.trajectory[frame.state.trajectory.length - 1].id, frame.state.imagesAhead];
                                 }),
                             scan(
                                 (
                                     [lastRequestKey, previousRequestKeys]: [string, string[]],
-                                    [lastTrajectoryKey, nodesAhead]: [string, number]):
+                                    [lastTrajectoryKey, imagesAhead]: [string, number]):
                                     [string, string[]] => {
 
                                     if (lastRequestKey === undefined) {
@@ -203,13 +203,13 @@ export class PlayService {
                                     }
 
                                     const lastIndex: number = imageIds.length - 1;
-                                    if (nodesAhead >= this._nodesAhead || imageIds[lastIndex] === lastRequestKey) {
+                                    if (imagesAhead >= this._imagesAhead || imageIds[lastIndex] === lastRequestKey) {
                                         return [lastRequestKey, []];
                                     }
 
                                     const current: number = imageIds.indexOf(lastTrajectoryKey);
                                     const start: number = imageIds.indexOf(lastRequestKey) + 1;
-                                    const end: number = Math.min(lastIndex, current + this._nodesAhead - nodesAhead) + 1;
+                                    const end: number = Math.min(lastIndex, current + this._imagesAhead - imagesAhead) + 1;
 
                                     if (end <= start) {
                                         return [lastRequestKey, []];
@@ -224,10 +224,10 @@ export class PlayService {
                                 }));
                     }),
                 mergeMap(
-                    (key: string): Observable<Node> => {
-                        return this._graphService.cacheNode$(key).pipe(
+                    (key: string): Observable<Image> => {
+                        return this._graphService.cacheImage$(key).pipe(
                             catchError(
-                                (): Observable<Node> => {
+                                (): Observable<Image> => {
                                     return observableEmpty();
                                 }));
                     },
@@ -237,40 +237,40 @@ export class PlayService {
         this._playingSubscription = this._stateService.currentState$.pipe(
             filter(
                 (frame: AnimationFrame): boolean => {
-                    return frame.state.nodesAhead < this._nodesAhead;
+                    return frame.state.imagesAhead < this._imagesAhead;
                 }),
             distinctUntilChanged(
                 undefined,
                 (frame: AnimationFrame): string => {
-                    return frame.state.lastNode.id;
+                    return frame.state.lastImage.id;
                 }),
             map(
-                (frame: AnimationFrame): [Node, boolean] => {
-                    const lastNode: Node = frame.state.lastNode;
-                    const trajectory: Node[] = frame.state.trajectory;
+                (frame: AnimationFrame): [Image, boolean] => {
+                    const lastImage: Image = frame.state.lastImage;
+                    const trajectory: Image[] = frame.state.trajectory;
                     let increasingTime: boolean = undefined;
 
                     for (let i: number = trajectory.length - 2; i >= 0; i--) {
-                        const node: Node = trajectory[i];
-                        if (node.sequenceId !== lastNode.sequenceId) {
+                        const image: Image = trajectory[i];
+                        if (image.sequenceId !== lastImage.sequenceId) {
                             break;
                         }
 
-                        if (node.capturedAt !== lastNode.capturedAt) {
-                            increasingTime = node.capturedAt < lastNode.capturedAt;
+                        if (image.capturedAt !== lastImage.capturedAt) {
+                            increasingTime = image.capturedAt < lastImage.capturedAt;
                             break;
                         }
                     }
 
-                    return [frame.state.lastNode, increasingTime];
+                    return [frame.state.lastImage, increasingTime];
                 }),
             withLatestFrom(this._direction$),
             switchMap(
-                ([[node, increasingTime], direction]: [[Node, boolean], NavigationDirection]): Observable<Node> => {
+                ([[image, increasingTime], direction]: [[Image, boolean], NavigationDirection]): Observable<Image> => {
                     return observableZip(
                         ([NavigationDirection.Next, NavigationDirection.Prev].indexOf(direction) > -1 ?
-                            node.sequenceEdges$ :
-                            node.spatialEdges$).pipe(
+                            image.sequenceEdges$ :
+                            image.spatialEdges$).pipe(
                                 first(
                                     (status: NavigationEdgeStatus): boolean => {
                                         return status.cached;
@@ -288,31 +288,31 @@ export class PlayService {
                                     return null;
                                 }),
                             switchMap(
-                                (key: string): Observable<Node> => {
+                                (key: string): Observable<Image> => {
                                     return key != null ?
-                                        this._graphService.cacheNode$(key) :
+                                        this._graphService.cacheImage$(key) :
                                         observableEmpty();
                                 }));
                 }))
             .subscribe(
-                (node: Node): void => {
-                    this._stateService.appendNodes([node]);
+                (image: Image): void => {
+                    this._stateService.appendImagess([image]);
                 },
                 (error: Error): void => {
                     console.error(error);
                     this.stop();
                 });
 
-        this._clearSubscription = this._stateService.currentNode$.pipe(
+        this._clearSubscription = this._stateService.currentImage$.pipe(
             bufferCount(1, 10))
             .subscribe(
-                (nodes: Node[]): void => {
-                    this._stateService.clearPriorNodes();
+                (images: Image[]): void => {
+                    this._stateService.clearPriorImages();
                 });
 
         this._setPlaying(true);
 
-        const currentLastNodes$: Observable<Node> = this._stateService.currentState$.pipe(
+        const currentLastImages$: Observable<Image> = this._stateService.currentState$.pipe(
             map(
                 (frame: AnimationFrame): IAnimationState => {
                     return frame.state;
@@ -322,27 +322,27 @@ export class PlayService {
                     return kc1 === kc2 && kl1 === kl2;
                 },
                 (state: IAnimationState): [string, string] => {
-                    return [state.currentNode.id, state.lastNode.id];
+                    return [state.currentImage.id, state.lastImage.id];
                 }),
             filter(
                 (state: IAnimationState): boolean => {
-                    return state.currentNode.id === state.lastNode.id &&
+                    return state.currentImage.id === state.lastImage.id &&
                         state.currentIndex === state.trajectory.length - 1;
                 }),
             map(
-                (state: IAnimationState): Node => {
-                    return state.currentNode;
+                (state: IAnimationState): Image => {
+                    return state.currentImage;
                 }));
 
         this._stopSubscription = observableCombineLatest(
-            currentLastNodes$,
+            currentLastImages$,
             this._direction$).pipe(
                 switchMap(
-                    ([node, direction]: [Node, NavigationDirection]): Observable<boolean> => {
+                    ([image, direction]: [Image, NavigationDirection]): Observable<boolean> => {
                         const edgeStatus$: Observable<NavigationEdgeStatus> = (
                             [NavigationDirection.Next, NavigationDirection.Prev].indexOf(direction) > -1 ?
-                                node.sequenceEdges$ :
-                                node.spatialEdges$).pipe(
+                                image.sequenceEdges$ :
+                                image.spatialEdges$).pipe(
                                     first(
                                         (status: NavigationEdgeStatus): boolean => {
                                             return status.cached;
@@ -377,8 +377,8 @@ export class PlayService {
 
                         return this._bridging$.pipe(
                             map(
-                                (node: Node): boolean => {
-                                    return node != null;
+                                (image: Image): boolean => {
+                                    return image != null;
                                 }),
                             catchError(
                                 (error: Error): Observable<boolean> => {
@@ -479,7 +479,7 @@ export class PlayService {
         this._clearSubscription = null;
 
         this._stateService.setSpeed(1);
-        this._stateService.cutNodes();
+        this._stateService.cutImages();
         this._graphService.setGraphMode(GraphMode.Spatial);
 
         this._setPlaying(false);
@@ -491,7 +491,7 @@ export class PlayService {
         return Math.pow(10, x) - 0.2 * x;
     }
 
-    private _mapNodesAhead(stateSpeed: number): number {
+    private _mapImagesAhead(stateSpeed: number): number {
         return Math.round(Math.max(10, Math.min(50, 8 + 6 * stateSpeed)));
     }
 
@@ -503,7 +503,7 @@ export class PlayService {
     private _setSpeed(speed: number): number {
         this._speed = speed;
         const stateSpeed: number = this._mapSpeed(this._speed);
-        this._nodesAhead = this._mapNodesAhead(stateSpeed);
+        this._imagesAhead = this._mapImagesAhead(stateSpeed);
 
         return stateSpeed;
     }

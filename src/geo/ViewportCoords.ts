@@ -36,7 +36,7 @@ export class ViewportCoords {
      * @param {number} basicX - Basic X coordinate.
      * @param {number} basicY - Basic Y coordinate.
      * @param {HTMLElement} container - The viewer container.
-     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {Transform} transform - Transform of the image to unproject from.
      * @param {THREE.Camera} camera - Camera used in rendering.
      * @returns {Array<number>} 2D canvas coordinates.
      */
@@ -64,7 +64,7 @@ export class ViewportCoords {
      * @param {number} basicX - Basic X coordinate.
      * @param {number} basicY - Basic Y coordinate.
      * @param {HTMLElement} container - The viewer container.
-     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {Transform} transform - Transform of the image to unproject from.
      * @param {THREE.Camera} camera - Camera used in rendering.
      * @returns {Array<number>} 2D canvas coordinates if the basic point represents a 3D point
      * in front of the camera, otherwise null.
@@ -96,7 +96,7 @@ export class ViewportCoords {
      *
      * @param {number} basicX - Basic X coordinate.
      * @param {number} basicY - Basic Y coordinate.
-     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {Transform} transform - Transform of the image to unproject from.
      * @param {THREE.Camera} camera - Camera used in rendering.
      * @returns {Array<number>} 2D viewport coordinates.
      */
@@ -122,7 +122,7 @@ export class ViewportCoords {
      *
      * @param {number} basicX - Basic X coordinate.
      * @param {number} basicY - Basic Y coordinate.
-     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {Transform} transform - Transform of the image to unproject from.
      * @param {THREE.Camera} camera - Camera used in rendering.
      * @returns {Array<number>} 2D viewport coordinates.
      */
@@ -189,7 +189,7 @@ export class ViewportCoords {
      * @param {number} canvasX - Canvas X coordinate.
      * @param {number} canvasY - Canvas Y coordinate.
      * @param {HTMLElement} container - The viewer container.
-     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {Transform} transform - Transform of the image to unproject from.
      * @param {THREE.Camera} camera - Camera used in rendering.
      * @returns {Array<number>} 2D basic coordinates.
      */
@@ -249,7 +249,7 @@ export class ViewportCoords {
      *
      * Determines the smallest basic distance for every side of the canvas.
      *
-     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {Transform} transform - Transform of the image to unproject from.
      * @param {THREE.Camera} camera - Camera used in rendering.
      * @returns {Array<number>} Array of basic distances as [top, right, bottom, left].
      */
@@ -304,7 +304,7 @@ export class ViewportCoords {
      * Determines the smallest pixel distance for every side of the canvas.
      *
      * @param {HTMLElement} container - The viewer container.
-     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {Transform} transform - Transform of the image to unproject from.
      * @param {THREE.Camera} camera - Camera used in rendering.
      * @returns {Array<number>} Array of pixel distances as [top, right, bottom, left].
      */
@@ -512,7 +512,7 @@ export class ViewportCoords {
      *
      * @param {number} viewportX - Viewport X coordinate.
      * @param {number} viewportY - Viewport Y coordinate.
-     * @param {Transform} transform - Transform of the node to unproject from.
+     * @param {Transform} transform - Transform of the image to unproject from.
      * @param {THREE.Camera} camera - Camera used in rendering.
      * @returns {Array<number>} 2D basic coordinates.
      */

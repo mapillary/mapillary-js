@@ -66,8 +66,8 @@ export class ScrollZoomHandler extends HandlerBase<MouseConfiguration> {
                 filter(
                     (args: [WheelEvent, AnimationFrame]): boolean => {
                         let state: IAnimationState = args[1].state;
-                        return isSpherical(state.currentNode.cameraType) ||
-                            state.nodesAhead < 1;
+                        return isSpherical(state.currentImage.cameraType) ||
+                            state.imagesAhead < 1;
                     }),
                 map(
                     (args: [WheelEvent, AnimationFrame]): WheelEvent => {

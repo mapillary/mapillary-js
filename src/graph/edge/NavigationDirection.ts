@@ -2,17 +2,17 @@
  * Enumeration for edge directions
  * @enum {number}
  * @readonly
- * @description Directions for edges in node graph describing
- * sequence, spatial and node type relations between nodes.
+ * @description Directions for edges in image graph describing
+ * sequence, spatial and image type relations between nodes.
  */
 export enum NavigationDirection {
     /**
-     * Next node in the sequence.
+     * Next image in the sequence.
      */
     Next,
 
     /**
-     * Previous node in the sequence.
+     * Previous image in the sequence.
      */
     Prev,
 

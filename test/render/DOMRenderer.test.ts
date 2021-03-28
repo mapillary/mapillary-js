@@ -40,7 +40,7 @@ describe("DOMRenderer.render$", () => {
 
         let vNode: vd.VNode = vd.h("div.testdiv", []);
 
-        domRenderer.render$.next({ name: "test", vnode: vNode });
+        domRenderer.render$.next({ name: "test", vNode: vNode });
     });
 
     it("should render multiple elements with different hash names", (done: Function) => {
@@ -71,8 +71,8 @@ describe("DOMRenderer.render$", () => {
         let vNode1: vd.VNode = vd.h("div.testdiv1", []);
         let vNode2: vd.VNode = vd.h("div.testdiv2", []);
 
-        domRenderer.render$.next({ name: "test1", vnode: vNode1 });
-        domRenderer.render$.next({ name: "test2", vnode: vNode2 });
+        domRenderer.render$.next({ name: "test1", vNode: vNode1 });
+        domRenderer.render$.next({ name: "test2", vNode: vNode2 });
     });
 
     it("should apply patch", (done: Function) => {
@@ -103,7 +103,7 @@ describe("DOMRenderer.render$", () => {
         let vNode1: vd.VNode = vd.h("div.testdiv1", []);
         let vNode2: vd.VNode = vd.h("div.testdiv2", []);
 
-        domRenderer.render$.next({ name: "test", vnode: vNode1 });
-        domRenderer.render$.next({ name: "test", vnode: vNode2 });
+        domRenderer.render$.next({ name: "test", vNode: vNode1 });
+        domRenderer.render$.next({ name: "test", vNode: vNode2 });
     });
 });

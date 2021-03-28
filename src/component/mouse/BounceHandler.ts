@@ -16,7 +16,7 @@ import {
 } from "rxjs/operators";
 
 import { Transform } from "../../geo/Transform";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { RenderCamera } from "../../render/RenderCamera";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
@@ -76,9 +76,9 @@ export class BounceHandler extends HandlerBase<MouseConfiguration> {
                                 this._container.renderService.renderCamera$,
                                 this._navigator.stateService.currentTransform$.pipe(first()));
                     }),
-                withLatestFrom(this._navigator.panService.panNodes$))
+                withLatestFrom(this._navigator.panService.panImages$))
             .subscribe(
-                ([[render, transform], nts]: [[RenderCamera, Transform], [Node, Transform, number][]]): void => {
+                ([[render, transform], nts]: [[RenderCamera, Transform], [Image, Transform, number][]]): void => {
                     if (!transform.hasValidScale && render.camera.focal < 0.1) {
                         return;
                     }

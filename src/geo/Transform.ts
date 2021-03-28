@@ -132,7 +132,7 @@ export class Transform {
     /**
      * Get basic height.
      *
-     * @description Does not fall back to node image height but
+     * @description Does not fall back to image image height but
      * uses original value from API so can be faulty.
      *
      * @returns {number} The height of the basic version image
@@ -149,7 +149,7 @@ export class Transform {
     /**
      * Get basic width.
      *
-     * @description Does not fall back to node image width but
+     * @description Does not fall back to image image width but
      * uses original value from API so can be faulty.
      *
      * @returns {number} The width of the basic version image
@@ -161,7 +161,7 @@ export class Transform {
 
     /**
      * Get focal.
-     * @returns {number} The node focal length.
+     * @returns {number} The image focal length.
      */
     public get focal(): number {
         return this._focal;
@@ -170,7 +170,7 @@ export class Transform {
     /**
      * Get height.
      *
-     * @description Falls back to the node image height if
+     * @description Falls back to the image image height if
      * the API data is faulty.
      *
      * @returns {number} The orientation adjusted image height.
@@ -213,7 +213,7 @@ export class Transform {
 
     /**
      * Get scale.
-     * @returns {number} The node atomic reconstruction scale.
+     * @returns {number} The image atomic reconstruction scale.
      */
     public get scale(): number {
         return this._scale;
@@ -239,7 +239,7 @@ export class Transform {
     /**
      * Get width.
      *
-     * @description Falls back to the node image width if
+     * @description Falls back to the image image width if
      * the API data is faulty.
      *
      * @returns {number} The orientation adjusted image width.
@@ -249,7 +249,7 @@ export class Transform {
     }
 
     /**
-     * Calculate the up vector for the node transform.
+     * Calculate the up vector for the image transform.
      *
      * @returns {THREE.Vector3} Normalized and orientation adjusted up vector.
      */

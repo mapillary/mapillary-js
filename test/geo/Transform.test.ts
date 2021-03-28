@@ -1,9 +1,9 @@
 import * as THREE from "three";
 
-import { NodeHelper } from "../helper/NodeHelper";
+import { ImageHelper } from "../helper/ImageHelper";
 import { GeoHelper } from "../helper/GeoHelper";
 
-import { Node } from "../../src/graph/Node";
+import { Image } from "../../src/graph/Image";
 import { Transform } from "../../src/geo/Transform";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { CameraType } from "../../src/geo/interfaces/CameraType";
@@ -12,32 +12,32 @@ import { CameraType } from "../../src/geo/interfaces/CameraType";
 describe("Transform.rt", () => {
     let epsilon: number = 10e-9;
 
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should have a unit Rt matrix", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.computed_rotation = r;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.computed_rotation = r;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let rt: THREE.Matrix4 = transform.rt;
 
@@ -66,22 +66,22 @@ describe("Transform.rt", () => {
         let r: number[] = [0, 0, Math.PI];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.computed_rotation = r;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.computed_rotation = r;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let rt: THREE.Matrix4 = transform.rt;
 
@@ -110,22 +110,22 @@ describe("Transform.rt", () => {
         let r: number[] = [Math.PI / 2, 0, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.computed_rotation = r;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.computed_rotation = r;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let rt: THREE.Matrix4 = transform.rt;
 
@@ -154,22 +154,22 @@ describe("Transform.rt", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [10, 20, 30];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.computed_rotation = r;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.computed_rotation = r;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let rt: THREE.Matrix4 = transform.rt;
 
@@ -198,33 +198,33 @@ describe("Transform.rt", () => {
 describe("Transform.srt", () => {
     let epsilon: number = 10e-8;
 
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should have a unit sRt matrix", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.atomic_scale = 1;
-        fillNode.computed_rotation = r;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.atomic_scale = 1;
+        spatialImage.computed_rotation = r;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let sRt: THREE.Matrix4 = transform.srt;
 
@@ -253,23 +253,23 @@ describe("Transform.srt", () => {
         let r: number[] = [0, Math.PI / 2, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.atomic_scale = 3;
-        fillNode.computed_rotation = r;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.atomic_scale = 3;
+        spatialImage.computed_rotation = r;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let sRt: THREE.Matrix4 = transform.srt;
 
@@ -298,23 +298,23 @@ describe("Transform.srt", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [-10, 20, -30];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.atomic_scale = 0.5;
-        fillNode.computed_rotation = r;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.atomic_scale = 0.5;
+        spatialImage.computed_rotation = r;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let sRt: THREE.Matrix4 = transform.srt;
 
@@ -341,399 +341,399 @@ describe("Transform.srt", () => {
 });
 
 describe("Transform.basicWidth", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
-    it("should be width of node when landscape orientation", () => {
+    it("should be width of image when landscape orientation", () => {
         let width: number = 11;
 
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.width = width;
-        fillNode.exif_orientation = 1;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.width = width;
+        spatialImage.exif_orientation = 1;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         expect(transform.basicWidth).toBe(width);
     });
 
-    it("should be height of node when portriat orientation", () => {
+    it("should be height of image when portriat orientation", () => {
         let height: number = 11;
 
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.height = height;
-        fillNode.exif_orientation = 5;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.height = height;
+        spatialImage.exif_orientation = 5;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         expect(transform.basicWidth).toBe(height);
     });
 });
 
 describe("Transform.basicHeight", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
-    it("should be height of node when landscape orientation", () => {
+    it("should be height of image when landscape orientation", () => {
         let height: number = 11;
 
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.height = height;
-        fillNode.exif_orientation = 1;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.height = height;
+        spatialImage.exif_orientation = 1;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         expect(transform.basicHeight).toBe(height);
     });
 
-    it("should be width of node when portriat orientation", () => {
+    it("should be width of image when portriat orientation", () => {
         let width: number = 11;
 
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.width = width;
-        fillNode.exif_orientation = 5;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.width = width;
+        spatialImage.exif_orientation = 5;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         expect(transform.basicHeight).toBe(width);
     });
 });
 
 describe("Transform.width", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should have fallback width", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
+        let image: Image = new Image(helper.createCoreImageEnt());
 
-        const fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.width = 0;
-        node.makeFull(fillNode);
+        const spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.width = 0;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         expect(transform.width).toBe(4);
     });
 
-    it("should have width of node", () => {
+    it("should have width of image", () => {
         let width: number = 11;
 
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.width = width;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.width = width;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         expect(transform.width).toBe(width);
     });
 });
 
 describe("Transform.height", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should have fallback height", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.height = -1;
-        fillNode.exif_orientation = 1;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.height = -1;
+        spatialImage.exif_orientation = 1;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         expect(transform.height).toBe(3);
     });
 
-    it("should have height of node", () => {
+    it("should have height of image", () => {
         let height: number = 11;
 
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.height = height;
-        fillNode.exif_orientation = 1;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.height = height;
+        spatialImage.exif_orientation = 1;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         expect(transform.height).toBe(height);
     });
 });
 
 describe("Transform.focal", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should have fallback focal", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         expect(transform.focal).toBe(1);
     });
 
-    it("should have focal of node", () => {
+    it("should have focal of image", () => {
         let focal: number = 0.84;
 
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.camera_parameters = [focal, 0, 0];
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.camera_parameters = [focal, 0, 0];
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         expect(transform.focal).toBe(focal);
     });
 });
 
 describe("Transform.orientation", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should have fallback orientation", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         expect(transform.orientation).toBe(1);
     });
 
-    it("should have orientation of node", () => {
+    it("should have orientation of image", () => {
         let orientation: number = 3;
 
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.exif_orientation = 3;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.exif_orientation = 3;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         expect(transform.orientation).toBe(orientation);
     });
 });
 
 describe("Transform.scale", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should have fallback scale", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        node.makeFull(helper.createFillNode());
+        let image: Image = new Image(helper.createCoreImageEnt());
+        image.makeComplete(helper.createSpatialImageEnt());
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         expect(transform.scale).toBe(0);
     });
 
-    it("should have scale of node", () => {
+    it("should have scale of image", () => {
         let scale: number = 0.4;
 
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.atomic_scale = 0.4;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.atomic_scale = 0.4;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         expect(transform.scale).toBe(scale);
     });
@@ -743,30 +743,30 @@ describe("Transform.unprojectSfM", () => {
     let precision: number = 8;
 
     let geoHelper: GeoHelper;
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
         geoHelper = new GeoHelper();
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should return vertex at origin", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        node.makeFull(helper.createFillNode());
+        let image: Image = new Image(helper.createCoreImageEnt());
+        image.makeComplete(helper.createSpatialImageEnt());
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let sfm: number[] = transform.unprojectSfM([0, 0], 0);
 
@@ -778,20 +778,20 @@ describe("Transform.unprojectSfM", () => {
     it("should return vertex at inverted translation", () => {
         let t: number[] = [10, -20, 30];
 
-        let node: Node = new Node(helper.createCoreNode());
-        node.makeFull(helper.createFillNode());
+        let image: Image = new Image(helper.createCoreImageEnt());
+        image.makeComplete(helper.createSpatialImageEnt());
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let sfm: number[] = transform.unprojectSfM([0, 0], 0);
 
@@ -805,22 +805,22 @@ describe("Transform.unprojectSfM", () => {
         let C: number[] = [5, 8, 12];
         let t: number[] = geoHelper.getTranslation(r, C);
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.computed_rotation = r;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.computed_rotation = r;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let sfm: number[] = transform.unprojectSfM([0, 0], 0);
 
@@ -832,20 +832,20 @@ describe("Transform.unprojectSfM", () => {
     it("should return vertex 10 units front of origin in camera direction", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        node.makeFull(helper.createFillNode());
+        let image: Image = new Image(helper.createCoreImageEnt());
+        image.makeComplete(helper.createSpatialImageEnt());
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let depth: number = 10;
         let sfm: number[] = transform.unprojectSfM([0, 0], depth);
@@ -859,22 +859,22 @@ describe("Transform.unprojectSfM", () => {
         let r: number[] = [0, 0, 0];
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.computed_rotation = r;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.computed_rotation = r;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let depth: number = 5;
         let sfm: number[] = transform.unprojectSfM([0.5, 0], depth);
@@ -888,29 +888,29 @@ describe("Transform.unprojectSfM", () => {
 describe("Transform.projectBasic", () => {
     let precision: number = 8;
 
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should project to the image center", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        node.makeFull(helper.createFillNode());
+        let image: Image = new Image(helper.createCoreImageEnt());
+        image.makeComplete(helper.createSpatialImageEnt());
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let pixel: number[] = transform.projectBasic([0, 0, 10]);
 
@@ -921,20 +921,20 @@ describe("Transform.projectBasic", () => {
     it("should project to the first quadrant", () => {
         let t: number[] = [0, 0, 0];
 
-        let node: Node = new Node(helper.createCoreNode());
-        node.makeFull(helper.createFillNode());
+        let image: Image = new Image(helper.createCoreImageEnt());
+        image.makeComplete(helper.createSpatialImageEnt());
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let pixel: number[] = transform.projectBasic([1, 1, 10]);
 
@@ -946,32 +946,32 @@ describe("Transform.projectBasic", () => {
 describe("Transform.unprojectBasic", () => {
     let precision: number = 6;
 
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should back-project to the same pixel", () => {
         let t: number[] = [10, 20, 30];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.computed_rotation = [0.1, 0.2, 0.3];
-        fillNode.exif_orientation = 1;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.computed_rotation = [0.1, 0.2, 0.3];
+        spatialImage.exif_orientation = 1;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -986,23 +986,23 @@ describe("Transform.unprojectBasic", () => {
     it("should back-project to the same pixel for orientation 3", () => {
         let t: number[] = [10, 20, 30];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.computed_rotation = [0.1, 0.2, 0.3];
-        fillNode.exif_orientation = 3;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.computed_rotation = [0.1, 0.2, 0.3];
+        spatialImage.exif_orientation = 3;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -1017,23 +1017,23 @@ describe("Transform.unprojectBasic", () => {
     it("should back-project to the same pixel for orientation 6", () => {
         let t: number[] = [10, 20, 30];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.computed_rotation = [0.1, 0.2, 0.3];
-        fillNode.exif_orientation = 6;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.computed_rotation = [0.1, 0.2, 0.3];
+        spatialImage.exif_orientation = 6;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -1048,23 +1048,23 @@ describe("Transform.unprojectBasic", () => {
     it("should back-project to the same pixel for orientation 8", () => {
         let t: number[] = [10, 20, 30];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.computed_rotation = [0.1, 0.2, 0.3];
-        fillNode.exif_orientation = 8;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.computed_rotation = [0.1, 0.2, 0.3];
+        spatialImage.exif_orientation = 8;
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -1079,24 +1079,24 @@ describe("Transform.unprojectBasic", () => {
     it("should back-project to the same pixel for spherical", () => {
         let t: number[] = [5, 15, 2];
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.computed_rotation = [0.5, -0.2, 0.3];
-        fillNode.camera_type = "spherical";
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        spatialImage.computed_rotation = [0.5, -0.2, 0.3];
+        spatialImage.camera_type = "spherical";
 
-        node.makeFull(fillNode);
+        image.makeComplete(spatialImage);
 
         let transform: Transform = new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             t,
             null,
             null,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
 
         let basicPixel: number[] = [0.4534546, 0.72344564];
 

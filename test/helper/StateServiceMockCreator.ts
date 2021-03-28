@@ -3,7 +3,7 @@ import { Subject } from "rxjs";
 import { MockCreator } from "./MockCreator";
 import { MockCreatorBase } from "./MockCreatorBase";
 
-import { Node } from "../../src/graph/Node";
+import { Image } from "../../src/graph/Image";
 import { Transform } from "stream";
 import { LatLonAlt } from "../../src/api/interfaces/LatLonAlt";
 import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
@@ -14,10 +14,10 @@ export class StateServiceMockCreator extends MockCreatorBase<StateService> {
     public create(): StateService {
         const mock: StateService = new MockCreator().create(StateService, "StateService");
 
-        this._mockProperty(mock, "currentCamera$", new Subject<Node>());
-        this._mockProperty(mock, "currentId$", new Subject<Node>());
-        this._mockProperty(mock, "currentNode$", new Subject<Node>());
-        this._mockProperty(mock, "currentNodeExternal$", new Subject<Node>());
+        this._mockProperty(mock, "currentCamera$", new Subject<Image>());
+        this._mockProperty(mock, "currentId$", new Subject<Image>());
+        this._mockProperty(mock, "currentImage$", new Subject<Image>());
+        this._mockProperty(mock, "currentImageExternal$", new Subject<Image>());
         this._mockProperty(mock, "currentState$", new Subject<AnimationFrame>());
         this._mockProperty(mock, "currentTransform$", new Subject<Transform>());
         this._mockProperty(mock, "inMotion$", new Subject<boolean>());

@@ -1,4 +1,4 @@
-import { Node } from "../../../src/graph/Node";
+import { Image } from "../../../src/graph/Image";
 import { EdgeCalculator } from "../../../src/graph/edge/EdgeCalculator";
 import { EdgeCalculatorDirections } from "../../../src/graph/edge/EdgeCalculatorDirections";
 import { EdgeCalculatorSettings } from "../../../src/graph/edge/EdgeCalculatorSettings";
@@ -13,7 +13,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let node: Node;
+    let image: Image;
     let potentialEdge1: PotentialEdge;
 
     beforeEach(() => {
@@ -32,21 +32,21 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createDefaultNode(true);
+        image = helper.createDefaultImage(true);
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.sphericalMaxDistance / 2;
         potentialEdge1.spherical = true;
     });
 
-    it("should throw when node is not full", () => {
-        node = helper.createCoreNode("", { alt: 0, lat: 0, lon: 0 }, "");
+    it("should throw when image is not full", () => {
+        image = helper.createCoreImage("", { alt: 0, lat: 0, lon: 0 }, "");
 
-        expect(() => { edgeCalculator.computeSphericalEdges(node, []); }).toThrowError(Error);
+        expect(() => { edgeCalculator.computeSphericalEdges(image, []); }).toThrowError(Error);
     });
 
     it("should have a spherical edge", () => {
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -59,7 +59,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
     it("should have a spherical edge irrespective of rotation", () => {
         potentialEdge1.directionChange = Math.PI;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -72,7 +72,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
     it("should not have a spherical edge with to long distance", () => {
         potentialEdge1.distance = settings.sphericalMaxDistance + 1;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(0);
     });
@@ -80,7 +80,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
     it("should not have a spherical edge with to short distance", () => {
         potentialEdge1.distance = settings.sphericalMinDistance / 2;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(0);
     });
@@ -88,17 +88,17 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
     it("should not have a spherical edge for non spherical", () => {
         potentialEdge1.spherical = false;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         for (let sphericalEdge of sphericalEdges) {
             expect(sphericalEdge.data.direction === NavigationDirection.Spherical).toBe(false);
         }
     });
 
-    it("should not have a spherical edge when node is not spherical", () => {
-        node = helper.createDefaultNode(false);
+    it("should not have a spherical edge when image is not spherical", () => {
+        image = helper.createDefaultImage(false);
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(0);
     });
@@ -111,7 +111,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let node: Node;
+    let image: Image;
     let potentialEdge1: PotentialEdge;
     let potentialEdge2: PotentialEdge;
 
@@ -131,7 +131,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createDefaultNode(true);
+        image = helper.createDefaultImage(true);
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.sphericalPreferredDistance;
@@ -146,7 +146,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.distance = settings.sphericalPreferredDistance + 1;
         potentialEdge2.distance = settings.sphericalPreferredDistance;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1, potentialEdge2]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -160,7 +160,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.distance = settings.sphericalPreferredDistance - 1;
         potentialEdge2.distance = settings.sphericalPreferredDistance;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1, potentialEdge2]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -174,7 +174,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.sameSequence = false;
         potentialEdge2.sameSequence = true;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1, potentialEdge2]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -188,7 +188,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.sameMergeCC = false;
         potentialEdge2.sameMergeCC = true;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1, potentialEdge2]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -202,7 +202,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = 0.2;
         potentialEdge2.motionChange = 0.1;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1, potentialEdge2]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -220,7 +220,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let node: Node;
+    let image: Image;
 
     let potentialEdge1: PotentialEdge;
     let potentialEdge2: PotentialEdge;
@@ -243,7 +243,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createDefaultNode(true);
+        image = helper.createDefaultImage(true);
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.sphericalMaxDistance / 2;
@@ -269,7 +269,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge4.motionChange = 0;
 
         let sphericalEdges = edgeCalculator.computeSphericalEdges(
-            node,
+            image,
             [potentialEdge1, potentialEdge2, potentialEdge3, potentialEdge4]);
 
         expect(sphericalEdges.length).toBe(1);
@@ -287,7 +287,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge4.motionChange = -Math.PI / 2;
 
         let sphericalEdges = edgeCalculator.computeSphericalEdges(
-            node,
+            image,
             [potentialEdge1, potentialEdge2, potentialEdge3, potentialEdge4]);
 
         expect(sphericalEdges.length).toBe(4);
@@ -318,7 +318,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge4.motionChange = -35 * Math.PI / 36;
 
         let sphericalEdges = edgeCalculator.computeSphericalEdges(
-            node,
+            image,
             [potentialEdge1, potentialEdge2, potentialEdge3, potentialEdge4]);
 
         expect(sphericalEdges.length).toBe(2);
@@ -345,7 +345,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge2.motionChange = 2 * Math.PI / 6;
 
         let sphericalEdges = edgeCalculator.computeSphericalEdges(
-            node,
+            image,
             [potentialEdge1, potentialEdge2]);
 
         expect(sphericalEdges.length).toBe(1);
@@ -364,7 +364,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let node: Node;
+    let image: Image;
     let potentialEdge1: PotentialEdge;
 
     beforeEach(() => {
@@ -385,7 +385,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createDefaultNode(true);
+        image = helper.createDefaultImage(true);
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.sphericalPreferredDistance;
@@ -396,7 +396,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = 0;
         potentialEdge1.directionChange = 0;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -410,7 +410,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = Math.PI / 2;
         potentialEdge1.directionChange = 0;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -424,7 +424,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = 0;
         potentialEdge1.directionChange = -Math.PI / 2;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -438,7 +438,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = -Math.PI / 2;
         potentialEdge1.directionChange = 0;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -452,7 +452,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = 0;
         potentialEdge1.directionChange = Math.PI / 2;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -466,7 +466,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = Math.PI;
         potentialEdge1.directionChange = 0;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -480,7 +480,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = 0;
         potentialEdge1.directionChange = Math.PI;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -494,7 +494,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = Math.PI;
         potentialEdge1.directionChange = Math.PI;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -508,7 +508,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = Math.PI / 2;
         potentialEdge1.directionChange = Math.PI / 2;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -522,7 +522,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = -Math.PI / 2;
         potentialEdge1.directionChange = -Math.PI / 2;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -536,7 +536,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = 0;
         potentialEdge1.directionChange = settings.sphericalMaxStepTurnChange + Math.PI / 18;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(0);
     });
@@ -545,7 +545,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = 0;
         potentialEdge1.directionChange = -settings.sphericalMaxStepTurnChange - Math.PI / 18;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(0);
     });
@@ -554,7 +554,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = 0;
         potentialEdge1.directionChange = Math.PI / 2 + settings.sphericalMaxStepTurnChange + Math.PI / 18;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(0);
     });
@@ -563,7 +563,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = 0;
         potentialEdge1.directionChange = Math.PI / 2 - settings.sphericalMaxStepTurnChange - Math.PI / 18;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(0);
     });
@@ -576,7 +576,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let node: Node;
+    let image: Image;
     let potentialEdge1: PotentialEdge;
     let potentialEdge2: PotentialEdge;
 
@@ -598,7 +598,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createDefaultNode(true);
+        image = helper.createDefaultImage(true);
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.sphericalPreferredDistance;
@@ -613,7 +613,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.distance = settings.sphericalPreferredDistance + 1;
         potentialEdge2.distance = settings.sphericalPreferredDistance;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1, potentialEdge2]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -627,7 +627,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.distance = settings.sphericalPreferredDistance - 1;
         potentialEdge2.distance = settings.sphericalPreferredDistance;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1, potentialEdge2]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -641,7 +641,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = Math.PI / 18;
         potentialEdge2.motionChange = Math.PI / 36;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1, potentialEdge2]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -655,7 +655,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.motionChange = -Math.PI / 18;
         potentialEdge2.motionChange = -Math.PI / 36;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1, potentialEdge2]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -669,7 +669,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge1.sameMergeCC = false;
         potentialEdge2.sameMergeCC = true;
 
-        let sphericalEdges = edgeCalculator.computeSphericalEdges(node, [potentialEdge1, potentialEdge2]);
+        let sphericalEdges = edgeCalculator.computeSphericalEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -687,7 +687,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let node: Node;
+    let image: Image;
 
     let potentialEdge1: PotentialEdge;
     let potentialEdge2: PotentialEdge;
@@ -710,7 +710,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createDefaultNode(true);
+        image = helper.createDefaultImage(true);
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.sphericalMaxDistance / 2;
@@ -736,7 +736,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge4.directionChange = Math.PI / 2;
 
         let sphericalEdges = edgeCalculator.computeSphericalEdges(
-            node,
+            image,
             [potentialEdge1, potentialEdge2, potentialEdge3, potentialEdge4]);
 
         expect(sphericalEdges.length).toBe(4);
@@ -762,7 +762,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge4.directionChange = Math.PI;
 
         let sphericalEdges = edgeCalculator.computeSphericalEdges(
-            node,
+            image,
             [potentialEdge1, potentialEdge2, potentialEdge3, potentialEdge4]);
 
         expect(sphericalEdges.length).toBe(1);
@@ -784,7 +784,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         potentialEdge3.motionChange = Math.PI / 4 + Math.PI / 36;
 
         let sphericalEdges = edgeCalculator.computeSphericalEdges(
-            node,
+            image,
             [potentialEdge1, potentialEdge2, potentialEdge3]);
 
         expect(sphericalEdges.length).toBe(1);
@@ -803,7 +803,7 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let node: Node;
+    let image: Image;
     let potentialEdge1: PotentialEdge;
     let potentialEdge2: PotentialEdge;
 
@@ -823,7 +823,7 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createDefaultNode();
+        image = helper.createDefaultImage();
 
         potentialEdge1 = helper.createPotentialEdge("pkey1");
         potentialEdge1.distance = settings.sphericalMaxDistance / 2;
@@ -835,7 +835,7 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
     });
 
     it("should return a spherical edge", () => {
-        let sphericalEdges = calculator.computePerspectiveToSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = calculator.computePerspectiveToSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -845,16 +845,16 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
         expect(sphericalEdge.data.direction).toBe(NavigationDirection.Spherical);
     });
 
-    it("should not return a spherical edge when node is spherical", () => {
-        node = helper.createDefaultNode(true);
+    it("should not return a spherical edge when image is spherical", () => {
+        image = helper.createDefaultImage(true);
 
-        let sphericalEdges = calculator.computePerspectiveToSphericalEdges(node, [potentialEdge1]);
+        let sphericalEdges = calculator.computePerspectiveToSphericalEdges(image, [potentialEdge1]);
 
         expect(sphericalEdges.length).toBe(0);
     });
 
     it("should return only one spherical edge", () => {
-        let sphericalEdges = calculator.computePerspectiveToSphericalEdges(node, [potentialEdge1, potentialEdge2]);
+        let sphericalEdges = calculator.computePerspectiveToSphericalEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(sphericalEdges.length).toBe(1);
     });
@@ -863,7 +863,7 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
         potentialEdge1.distance = settings.sphericalPreferredDistance - 1;
         potentialEdge2.distance = settings.sphericalPreferredDistance;
 
-        let sphericalEdges = calculator.computePerspectiveToSphericalEdges(node, [potentialEdge1, potentialEdge2]);
+        let sphericalEdges = calculator.computePerspectiveToSphericalEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -877,7 +877,7 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
         potentialEdge1.motionChange = -Math.PI / 9;
         potentialEdge2.motionChange = Math.PI / 18;
 
-        let sphericalEdges = calculator.computePerspectiveToSphericalEdges(node, [potentialEdge1, potentialEdge2]);
+        let sphericalEdges = calculator.computePerspectiveToSphericalEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(sphericalEdges.length).toBe(1);
 
@@ -891,7 +891,7 @@ describe("EdgeCalculator.computePerspectiveToSphericalEdges", () => {
         potentialEdge1.sameMergeCC = false;
         potentialEdge2.sameMergeCC = true;
 
-        let sphericalEdges = calculator.computePerspectiveToSphericalEdges(node, [potentialEdge1, potentialEdge2]);
+        let sphericalEdges = calculator.computePerspectiveToSphericalEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(sphericalEdges.length).toBe(1);
 

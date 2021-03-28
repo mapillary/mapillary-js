@@ -11,7 +11,7 @@ export class TileStore {
     private readonly _urls: Map<string, string>;
 
     /**
-     * Create a new node image tile store instance.
+     * Create a new image image tile store instance.
      */
     constructor() {
         this._tiles = new Map();

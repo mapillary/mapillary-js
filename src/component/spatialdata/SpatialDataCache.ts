@@ -20,7 +20,7 @@ import { DataProviderBase } from "../../api/DataProviderBase";
 import { ClusterReconstructionContract } from "../../api/contracts/ClusterReconstructionContract";
 import { AbortMapillaryError } from "../../error/AbortMapillaryError";
 import { GraphService } from "../../graph/GraphService";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 
 type ClusterData = {
     key: string;
@@ -32,14 +32,14 @@ export class SpatialDataCache {
     private _data: DataProviderBase;
 
     private _cacheRequests: { [hash: string]: Function[] };
-    private _tiles: { [hash: string]: Node[] };
+    private _tiles: { [hash: string]: Image[] };
 
     private _clusterReconstructions: { [key: string]: ClusterReconstructionContract };
     private _clusterReconstructionTiles: { [key: string]: string[] };
     private _tileClusters: { [hash: string]: ClusterData[] };
 
     private _cachingClusterReconstructions$: { [hash: string]: Observable<ClusterReconstructionContract> };
-    private _cachingTiles$: { [hash: string]: Observable<Node[]> };
+    private _cachingTiles$: { [hash: string]: Observable<Image[]> };
 
     constructor(graphService: GraphService, provider: DataProviderBase) {
         this._graphService = graphService;
@@ -71,11 +71,11 @@ export class SpatialDataCache {
 
         const duplicatedClusters: ClusterData[] = this.getTile(hash)
             .filter(
-                (n: Node): boolean => {
+                (n: Image): boolean => {
                     return !!n.clusterId && !!n.clusterUrl;
                 })
             .map(
-                (n: Node): ClusterData => {
+                (n: Image): ClusterData => {
                     return { key: n.clusterId, url: n.clusterUrl };
                 });
 
@@ -116,7 +116,7 @@ export class SpatialDataCache {
         return this._cachingClusterReconstructions$[hash];
     }
 
-    public cacheTile$(hash: string): Observable<Node[]> {
+    public cacheTile$(hash: string): Observable<Image[]> {
         if (this.hasTile(hash)) {
             throw new Error("Cannot cache tile that already exists.");
         }
@@ -127,7 +127,7 @@ export class SpatialDataCache {
 
         this._cachingTiles$[hash] = this._graphService.cacheCell$(hash).pipe(
             catchError(
-                (error: Error): Observable<Node[]> => {
+                (error: Error): Observable<Image[]> => {
                     console.error(error);
 
                     return observableEmpty();
@@ -137,9 +137,9 @@ export class SpatialDataCache {
                     return !(hash in this._tiles);
                 }),
             tap(
-                (node: Node[]): void => {
+                (images: Image[]): void => {
                     this._tiles[hash] = [];
-                    this._tiles[hash].push(...node);
+                    this._tiles[hash].push(...images);
 
                     delete this._cachingTiles$[hash];
                 }),
@@ -196,7 +196,7 @@ export class SpatialDataCache {
             [];
     }
 
-    public getTile(hash: string): Node[] {
+    public getTile(hash: string): Image[] {
         return hash in this._tiles ? this._tiles[hash] : [];
     }
 
@@ -250,14 +250,14 @@ export class SpatialDataCache {
         }
     }
 
-    public updateCell$(hash: string): Observable<Node[]> {
+    public updateCell$(hash: string): Observable<Image[]> {
         if (!this.hasTile(hash)) {
             throw new Error("Cannot update tile that does not exists.");
         }
 
         return this._graphService.cacheCell$(hash).pipe(
             catchError(
-                (error: Error): Observable<Node[]> => {
+                (error: Error): Observable<Image[]> => {
                     console.error(error);
 
                     return observableEmpty();
@@ -267,9 +267,9 @@ export class SpatialDataCache {
                     return hash in this._tiles;
                 }),
             tap(
-                (node: Node[]): void => {
+                (images: Image[]): void => {
                     this._tiles[hash] = [];
-                    this._tiles[hash].push(...node);
+                    this._tiles[hash].push(...images);
                 }),
             publish(),
             refCount());
@@ -287,11 +287,11 @@ export class SpatialDataCache {
 
         const duplicatedClusters: ClusterData[] = this.getTile(hash)
             .filter(
-                (n: Node): boolean => {
+                (n: Image): boolean => {
                     return !!n.clusterId && !!n.clusterUrl;
                 })
             .map(
-                (n: Node): ClusterData => {
+                (n: Image): ClusterData => {
                     return { key: n.clusterId, url: n.clusterUrl };
                 });
 

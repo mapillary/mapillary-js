@@ -26,8 +26,8 @@ import {
 import { FilterCreator, FilterFunction } from "./FilterCreator";
 import { FilterExpression } from "./FilterExpression";
 import { GraphCalculator } from "./GraphCalculator";
-import { Node } from "./Node";
-import { NodeCache } from "./NodeCache";
+import { Image } from "./Image";
+import { ImageCache } from "./ImageCache";
 import { Sequence } from "./Sequence";
 import { GraphConfiguration } from "./interfaces/GraphConfiguration";
 import { EdgeCalculator } from "./edge/EdgeCalculator";
@@ -49,18 +49,18 @@ type NodeTiles = {
 };
 
 type SpatialArea = {
-    all: { [key: string]: Node };
+    all: { [key: string]: Image };
     cacheKeys: string[];
-    cacheNodes: { [key: string]: Node };
+    cacheNodes: { [key: string]: Image };
 };
 
 type NodeAccess = {
-    node: Node;
+    node: Image;
     accessed: number;
 };
 
 type TileAccess = {
-    nodes: Node[];
+    nodes: Image[];
     accessed: number;
 };
 
@@ -72,7 +72,7 @@ type SequenceAccess = {
 export type NodeIndexItem = {
     lat: number;
     lon: number;
-    node: Node;
+    node: Image;
 };
 
 /**
@@ -103,7 +103,7 @@ export class Graph {
     /**
      * Nodes for which the spatial edges are cached.
      */
-    private _cachedSpatialEdges: { [key: string]: Node };
+    private _cachedSpatialEdges: { [key: string]: Image };
 
     /**
      * Cached tiles with a timestamp of last access.
@@ -156,7 +156,7 @@ export class Graph {
     /**
      * All nodes in the graph.
      */
-    private _nodes: { [key: string]: Node };
+    private _nodes: { [key: string]: Image };
 
     /**
      * Contains all nodes in the graph. Used for fast spatial lookups.
@@ -176,7 +176,7 @@ export class Graph {
     /**
      * Nodes retrieved before tiles, stored on tile level.
      */
-    private _preStored: { [h: string]: { [key: string]: Node } };
+    private _preStored: { [h: string]: { [key: string]: Image } };
 
     /**
      * Tiles required for a node to retrive spatial area.
@@ -248,8 +248,8 @@ export class Graph {
             configuration :
             {
                 maxSequences: 50,
-                maxUnusedNodes: 100,
-                maxUnusedPreStoredNodes: 30,
+                maxUnusedImages: 100,
+                maxUnusedPreStoredImages: 30,
                 maxUnusedTiles: 20,
             };
 
@@ -310,11 +310,11 @@ export class Graph {
      *
      * @param {LatLon} sw - South west corner of bounding box.
      * @param {LatLon} ne - North east corner of bounding box.
-     * @returns {Observable<Array<Node>>} Observable emitting
+     * @returns {Observable<Array<Image>>} Observable emitting
      * the full nodes in the bounding box.
      */
-    public cacheBoundingBox$(sw: LatLon, ne: LatLon): Observable<Node[]> {
-        const cacheTiles$: Observable<Graph>[] = this._api.data.geometry.bboxToCellIds(sw, ne)
+    public cacheBoundingBox$(sw: LatLon, ne: LatLon): Observable<Image[]> {
+        const cacheTiles$ = this._api.data.geometry.bboxToCellIds(sw, ne)
             .filter(
                 (h: string): boolean => {
                     return !(h in this._cachedTiles);
@@ -334,8 +334,8 @@ export class Graph {
             mergeAll(),
             last(),
             mergeMap(
-                (): Observable<Node[]> => {
-                    const nodes = this._nodeIndex
+                (): Observable<Image[]> => {
+                    const nodes = <Image[]>this._nodeIndex
                         .search({
                             maxX: ne.lat,
                             maxY: ne.lon,
@@ -343,15 +343,15 @@ export class Graph {
                             minY: sw.lon,
                         })
                         .map(
-                            (item: NodeIndexItem): Node => {
+                            (item: NodeIndexItem): Image => {
                                 return item.node;
                             });
 
-                    const fullNodes: Node[] = [];
+                    const fullNodes: Image[] = [];
                     const coreNodes: string[] = [];
 
                     for (const node of nodes) {
-                        if (node.full) {
+                        if (node.complete) {
                             fullNodes.push(node);
                         } else {
                             coreNodes.push(node.id);
@@ -366,13 +366,13 @@ export class Graph {
 
                     const fullNodes$ = observableOf(fullNodes);
                     const fillNodes$ = coreNodeBatches
-                        .map((batch: string[]): Observable<Node[]> => {
+                        .map((batch: string[]): Observable<Image[]> => {
                             return this._api
                                 .getSpatialImages$(batch)
                                 .pipe(
                                     map((items: SpatialImagesContract)
-                                        : Node[] => {
-                                        const result: Node[] = [];
+                                        : Image[] => {
+                                        const result: Image[] = [];
                                         for (const item of items) {
                                             const exists = this
                                                 .hasNode(item.node_id);
@@ -380,7 +380,7 @@ export class Graph {
 
                                             const node = this
                                                 .getNode(item.node_id);
-                                            if (!node.full) {
+                                            if (!node.complete) {
                                                 this._makeFull(node, item.node);
                                             }
                                             result.push(node);
@@ -395,7 +395,7 @@ export class Graph {
                             mergeAll()));
                 }),
             reduce(
-                (acc: Node[], value: Node[]): Node[] => {
+                (acc: Image[], value: Image[]): Image[] => {
                     return acc.concat(value);
                 }));
     }
@@ -406,10 +406,10 @@ export class Graph {
      * @description The node assets are not cached.
      *
      * @param {string} cellId - Cell id.
-     * @returns {Observable<Array<Node>>} Observable
+     * @returns {Observable<Array<Image>>} Observable
      * emitting the full nodes of the cell.
      */
-    public cacheCell$(cellId: string): Observable<Node[]> {
+    public cacheCell$(cellId: string): Observable<Image[]> {
         const cacheCell$ = cellId in this._cachedTiles ?
             observableOf(this) :
             cellId in this._cachingTiles$ ?
@@ -417,15 +417,15 @@ export class Graph {
                 this._cacheTile$(cellId);
 
         return cacheCell$.pipe(
-            mergeMap((): Observable<Node[]> => {
+            mergeMap((): Observable<Image[]> => {
                 const cachedCell = this._cachedTiles[cellId];
                 cachedCell.accessed = new Date().getTime();
                 const cellNodes = cachedCell.nodes;
 
-                const fullNodes: Node[] = [];
+                const fullNodes: Image[] = [];
                 const coreNodes: string[] = [];
                 for (const node of cellNodes) {
-                    if (node.full) {
+                    if (node.complete) {
                         fullNodes.push(node);
                     } else {
                         coreNodes.push(node.id);
@@ -440,11 +440,11 @@ export class Graph {
 
                 const fullNodes$ = observableOf(fullNodes);
                 const fillNodes$ = coreNodeBatches
-                    .map((batch: string[]): Observable<Node[]> => {
+                    .map((batch: string[]): Observable<Image[]> => {
                         return this._api.getSpatialImages$(batch).pipe(
                             map((items: SpatialImagesContract):
-                                Node[] => {
-                                const filled: Node[] = [];
+                                Image[] => {
+                                const filled: Image[] = [];
                                 for (const item of items) {
                                     if (!item.node) {
                                         console.warn(
@@ -455,7 +455,7 @@ export class Graph {
                                     const id = item.node_id;
                                     if (!this.hasNode(id)) { continue; }
                                     const node = this.getNode(id);
-                                    if (!node.full) {
+                                    if (!node.complete) {
                                         this._makeFull(node, item.node);
                                     }
                                     filled.push(node);
@@ -470,7 +470,7 @@ export class Graph {
                         mergeAll()));
             }),
             reduce(
-                (acc: Node[], value: Node[]): Node[] => {
+                (acc: Image[], value: Image[]): Image[] => {
                     return acc.concat(value);
                 }));
     }
@@ -498,7 +498,7 @@ export class Graph {
         }
 
         const node = this.getNode(key);
-        if (node.full) {
+        if (node.complete) {
             throw new GraphMapillaryError(`Cannot fill node that is already full (${key}).`);
         }
 
@@ -509,7 +509,7 @@ export class Graph {
                         if (!item.node) {
                             console.warn(`Node is empty ${item.node_id}`);
                         }
-                        if (!node.full) {
+                        if (!node.complete) {
                             this._makeFull(node, item.node);
                         }
                         delete this._cachingFill$[item.node_id];
@@ -555,7 +555,7 @@ export class Graph {
                         const id = item.node_id;
                         if (this.hasNode(id)) {
                             const node = this.getNode(key);
-                            if (!node.full) {
+                            if (!node.complete) {
                                 this._makeFull(node, item.node);
                             }
                         } else {
@@ -564,7 +564,7 @@ export class Graph {
                                     `Node has no sequence key (${key}).`);
                             }
 
-                            const node = new Node(item.node);
+                            const node = new Image(item.node);
                             this._makeFull(node, item.node);
 
                             const cellId = this._api.data.geometry
@@ -605,7 +605,7 @@ export class Graph {
             throw new GraphMapillaryError(`Cannot cache sequence edges of node that does not exist in graph (${key}).`);
         }
 
-        let node: Node = this.getNode(key);
+        let node: Image = this.getNode(key);
         if (node.sequenceId in this._sequences) {
             throw new GraphMapillaryError(`Sequence already cached (${key}), (${node.sequenceId}).`);
         }
@@ -638,7 +638,7 @@ export class Graph {
      * current graph.
      */
     public cacheSequenceEdges(key: string): void {
-        let node: Node = this.getNode(key);
+        let node: Image = this.getNode(key);
 
         if (!(node.sequenceId in this._sequences)) {
             throw new GraphMapillaryError(`Sequence is not cached (${key}), (${node.sequenceId})`);
@@ -710,7 +710,7 @@ export class Graph {
                                     const id = item.node_id;
                                     if (this.hasNode(id)) {
                                         const node = this.getNode(id);
-                                        if (!node.full) {
+                                        if (!node.complete) {
                                             this._makeFull(node, item.node);
                                         }
                                     } else {
@@ -718,7 +718,7 @@ export class Graph {
                                             console.warn(`Sequence missing, discarding node (${item.node_id})`);
                                         }
 
-                                        const node = new Node(item.node);
+                                        const node = new Image(item.node);
                                         this._makeFull(node, item.node);
 
                                         const cellId = this._api.data.geometry
@@ -801,7 +801,7 @@ export class Graph {
 
                             const id = item.node_id;
                             const spatialNode = spatialArea.cacheNodes[id];
-                            if (spatialNode.full) {
+                            if (spatialNode.complete) {
                                 delete spatialArea.cacheNodes[id];
                                 continue;
                             }
@@ -862,7 +862,7 @@ export class Graph {
             throw new GraphMapillaryError(`Spatial edges already cached (${key}).`);
         }
 
-        let node: Node = this.getNode(key);
+        let node: Image = this.getNode(key);
         let sequence: Sequence = this._sequences[node.sequenceId].sequence;
 
         let fallbackKeys: string[] = [];
@@ -876,15 +876,15 @@ export class Graph {
             fallbackKeys.push(nextKey);
         }
 
-        let allSpatialNodes: { [key: string]: Node } = this._requiredSpatialArea[key].all;
-        let potentialNodes: Node[] = [];
+        let allSpatialNodes: { [key: string]: Image } = this._requiredSpatialArea[key].all;
+        let potentialNodes: Image[] = [];
         let filter: FilterFunction = this._filter;
         for (let spatialNodeKey in allSpatialNodes) {
             if (!allSpatialNodes.hasOwnProperty(spatialNodeKey)) {
                 continue;
             }
 
-            let spatialNode: Node = allSpatialNodes[spatialNodeKey];
+            let spatialNode: Image = allSpatialNodes[spatialNodeKey];
 
             if (filter(spatialNode)) {
                 potentialNodes.push(spatialNode);
@@ -1011,9 +1011,9 @@ export class Graph {
             throw new GraphMapillaryError(`Node already in cache (${key}).`);
         }
 
-        const node: Node = this.getNode(key);
+        const node: Image = this.getNode(key);
         const provider = this._api.data;
-        node.initializeCache(new NodeCache(provider));
+        node.initializeCache(new ImageCache(provider));
 
         const accessed: number = new Date().getTime();
         this._cachedNodes[key] = { accessed: accessed, node: node };
@@ -1049,7 +1049,7 @@ export class Graph {
      * being cached.
      */
     public isCachingNodeSequence(key: string): boolean {
-        let node: Node = this.getNode(key);
+        let node: Image = this.getNode(key);
 
         return node.sequenceId in this._cachingSequences$;
     }
@@ -1125,7 +1125,7 @@ export class Graph {
      * in the graph.
      */
     public hasNodeSequence(key: string): boolean {
-        let node: Node = this.getNode(key);
+        let node: Image = this.getNode(key);
         let sequenceKey: string = node.sequenceId;
 
         let hasNodeSequence: boolean = sequenceKey in this._sequences;
@@ -1186,7 +1186,7 @@ export class Graph {
             return Object.keys(this._requiredSpatialArea[key].cacheNodes).length === 0;
         }
 
-        let node: Node = this.getNode(key);
+        let node: Image = this.getNode(key);
         let bbox: [LatLon, LatLon] = this._graphCalculator.boundingBoxCorners(node.latLon, this._tileThreshold);
 
         let spatialItems: NodeIndexItem[] = this._nodeIndex.search({
@@ -1205,7 +1205,7 @@ export class Graph {
         for (let spatialItem of spatialItems) {
             spatialNodes.all[spatialItem.node.id] = spatialItem.node;
 
-            if (!spatialItem.node.full) {
+            if (!spatialItem.node.complete) {
                 spatialNodes.cacheKeys.push(spatialItem.node.id);
                 spatialNodes.cacheNodes[spatialItem.node.id] = spatialItem.node;
             }
@@ -1267,9 +1267,9 @@ export class Graph {
      * Get a node.
      *
      * @param {string} key - Key of node.
-     * @returns {Node} Retrieved node.
+     * @returns {Image} Retrieved node.
      */
-    public getNode(key: string): Node {
+    public getNode(key: string): Image {
         let accessed: number = new Date().getTime();
 
         this._updateCachedNodeAccess(key, accessed);
@@ -1282,7 +1282,7 @@ export class Graph {
      * Get a sequence.
      *
      * @param {string} sequenceKey - Key of sequence.
-     * @returns {Node} Retrieved sequence.
+     * @returns {Image} Retrieved sequence.
      */
     public getSequence(sequenceKey: string): Sequence {
         let sequenceAccess: SequenceAccess = this._sequences[sequenceKey];
@@ -1298,7 +1298,7 @@ export class Graph {
         let cachedKeys: string[] = Object.keys(this._cachedSpatialEdges);
 
         for (let cachedKey of cachedKeys) {
-            let node: Node = this._cachedSpatialEdges[cachedKey];
+            let node: Image = this._cachedSpatialEdges[cachedKey];
             node.resetSpatialEdges();
 
             delete this._cachedSpatialEdges[cachedKey];
@@ -1313,13 +1313,13 @@ export class Graph {
      * in graph after reset.
      */
     public reset(keepKeys: string[]): void {
-        const nodes: Node[] = [];
+        const nodes: Image[] = [];
         for (const key of keepKeys) {
             if (!this.hasNode(key)) {
                 throw new Error(`Node does not exist ${key}`);
             }
 
-            const node: Node = this.getNode(key);
+            const node: Image = this.getNode(key);
             node.resetSequenceEdges();
             node.resetSpatialEdges();
             nodes.push(node);
@@ -1487,7 +1487,7 @@ export class Graph {
                 ([na1]: [NodeAccess, string], [na2]: [NodeAccess, string]): number => {
                     return na2.accessed - na1.accessed;
                 })
-            .slice(this._configuration.maxUnusedPreStoredNodes)
+            .slice(this._configuration.maxUnusedPreStoredImages)
             .map(
                 ([na, h]: [NodeAccess, string]): [string, string] => {
                     return [na.node.id, h];
@@ -1510,7 +1510,7 @@ export class Graph {
                 (n1: NodeAccess, n2: NodeAccess): number => {
                     return n2.accessed - n1.accessed;
                 })
-            .slice(this._configuration.maxUnusedNodes);
+            .slice(this._configuration.maxUnusedImages);
 
         for (const nodeAccess of uncacheNodes) {
             nodeAccess.node.uncache();
@@ -1569,7 +1569,7 @@ export class Graph {
      * cached.
      *
      * @param {Array<string>} cellIds - Cell ids.
-     * @returns {Observable<Array<Node>>} Observable
+     * @returns {Observable<Array<Image>>} Observable
      * emitting the updated cells.
      */
     public updateCells$(cellIds: string[]): Observable<string> {
@@ -1701,7 +1701,7 @@ export class Graph {
                             continue;
                         }
 
-                        const node = new Node(core);
+                        const node = new Image(core);
                         hCache.push(node);
                         const nodeIndexItem: NodeIndexItem = {
                             lat: node.latLon.lat,
@@ -1731,7 +1731,7 @@ export class Graph {
         return this._cachingTiles$[cellId];
     }
 
-    private _makeFull(node: Node, fillNode: SpatialImageEnt): void {
+    private _makeFull(node: Image, fillNode: SpatialImageEnt): void {
         if (fillNode.computed_altitude == null) {
             fillNode.computed_altitude = this._defaultAlt;
         }
@@ -1740,10 +1740,10 @@ export class Graph {
             fillNode.computed_rotation = this._graphCalculator.rotationFromCompass(fillNode.compass_angle, fillNode.exif_orientation);
         }
 
-        node.makeFull(fillNode);
+        node.makeComplete(fillNode);
     }
 
-    private _preStore(h: string, node: Node): void {
+    private _preStore(h: string, node: Image): void {
         if (!(h in this._preStored)) {
             this._preStored[h] = {};
         }
@@ -1751,8 +1751,8 @@ export class Graph {
         this._preStored[h][node.id] = node;
     }
 
-    private _removeFromPreStore(h: string): { [key: string]: Node } {
-        let preStored: { [key: string]: Node } = null;
+    private _removeFromPreStore(h: string): { [key: string]: Image } {
+        let preStored: { [key: string]: Image } = null;
 
         if (h in this._preStored) {
             preStored = this._preStored[h];
@@ -1762,7 +1762,7 @@ export class Graph {
         return preStored;
     }
 
-    private _setNode(node: Node): void {
+    private _setNode(node: Image): void {
         let key: string = node.id;
 
         if (this.hasNode(key)) {
@@ -1823,7 +1823,7 @@ export class Graph {
                 delete this._cachedNodes[key];
             }
 
-            let node: Node = this._preStored[h][key];
+            let node: Image = this._preStored[h][key];
 
             if (node.sequenceId in this._cachedSequenceNodes) {
                 delete this._cachedSequenceNodes[node.sequenceId];
@@ -1885,7 +1885,7 @@ export class Graph {
                             continue;
                         }
 
-                        const node = new Node(core);
+                        const node = new Image(core);
                         cellNodes.push(node);
                         const nodeIndexItem: NodeIndexItem = {
                             lat: node.latLon.lat,

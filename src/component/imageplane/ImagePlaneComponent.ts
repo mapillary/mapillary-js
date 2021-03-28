@@ -29,7 +29,7 @@ import {
 } from "rxjs/operators";
 
 import { Component } from "../Component";
-import { Node as GraphNode } from "../../graph/Node";
+import { Image as ImageNode } from "../../graph/Image";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { ImagePlaneGLRenderer } from "./ImagePlaneGLRenderer";
@@ -159,7 +159,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                 distinctUntilChanged(
                     undefined,
                     (frame: AnimationFrame): string => {
-                        return frame.state.currentNode.id;
+                        return frame.state.currentImage.id;
                     }),
                 withLatestFrom(
                     this._container.glRenderer.webGLRenderer$,
@@ -167,7 +167,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                 map(
                     ([frame, renderer, size]: [AnimationFrame, THREE.WebGLRenderer, ViewportSize]): TextureProvider => {
                         let state = frame.state;
-                        let currentNode = state.currentNode;
+                        let currentNode = state.currentImage;
                         let currentTransform = state.currentTransform;
                         let tileSize = 1024;
 
@@ -293,7 +293,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
 
         subs.push(hasTexture$.subscribe(() => { /*noop*/ }));
 
-        subs.push(this._navigator.panService.panNodes$.pipe(
+        subs.push(this._navigator.panService.panImages$.pipe(
             filter(
                 (panNodes: []): boolean => {
                     return panNodes.length === 0;
@@ -308,17 +308,17 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                 }))
             .subscribe(this._rendererOperation$));
 
-        const cachedPanNodes$ = this._navigator.panService.panNodes$.pipe(
+        const cachedPanNodes$ = this._navigator.panService.panImages$.pipe(
             switchMap(
-                (nts: [GraphNode, Transform, number][]): Observable<[GraphNode, Transform]> => {
+                (nts: [ImageNode, Transform, number][]): Observable<[ImageNode, Transform]> => {
                     return observableFrom(nts).pipe(
                         mergeMap(
-                            ([n, t]: [GraphNode, Transform, number]): Observable<[GraphNode, Transform]> => {
+                            ([n, t]: [ImageNode, Transform, number]): Observable<[ImageNode, Transform]> => {
                                 return observableCombineLatest(
-                                    this._navigator.graphService.cacheNode$(n.id).pipe(
+                                    this._navigator.graphService.cacheImage$(n.id).pipe(
                                         catchError(
-                                            (error: Error): Observable<GraphNode> => {
-                                                console.error(`Failed to cache periphery node (${n.id})`, error);
+                                            (error: Error): Observable<ImageNode> => {
+                                                console.error(`Failed to cache periphery image (${n.id})`, error);
 
                                                 return observableEmpty();
                                             })),
@@ -329,7 +329,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
 
         subs.push(cachedPanNodes$.pipe(
             map(
-                ([n, t]: [GraphNode, Transform]): ImagePlaneGLRendererOperation => {
+                ([n, t]: [ImageNode, Transform]): ImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.addPeripheryPlane(n, t);
 
@@ -340,15 +340,15 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
 
         subs.push(cachedPanNodes$.pipe(
             mergeMap(
-                ([n]: [GraphNode, Transform]): Observable<GraphNode> => {
+                ([n]: [ImageNode, Transform]): Observable<ImageNode> => {
                     return n.cacheImage$().pipe(
                         catchError(
-                            (): Observable<GraphNode> => {
+                            (): Observable<ImageNode> => {
                                 return observableEmpty();
                             }));
                 }),
             map(
-                (n: GraphNode): ImagePlaneGLRendererOperation => {
+                (n: ImageNode): ImagePlaneGLRendererOperation => {
                     return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
                         renderer.updateTextureImage(n.image, n);
 
@@ -378,30 +378,30 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                         return trigger;
                     }));
 
-        subs.push(this._navigator.panService.panNodes$.pipe(
+        subs.push(this._navigator.panService.panImages$.pipe(
             switchMap(
-                (nts: [GraphNode, Transform, number][]):
-                    Observable<[RenderCamera, GraphNode, Transform, [GraphNode, Transform, number][]]> => {
+                (nts: [ImageNode, Transform, number][]):
+                    Observable<[RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]> => {
 
                     return panTrigger$.pipe(
                         withLatestFrom(
                             this._container.renderService.renderCamera$,
-                            this._navigator.stateService.currentNode$,
+                            this._navigator.stateService.currentImage$,
                             this._navigator.stateService.currentTransform$),
                         mergeMap(
-                            ([, renderCamera, currentNode, currentTransform]: [boolean, RenderCamera, GraphNode, Transform]):
-                                Observable<[RenderCamera, GraphNode, Transform, [GraphNode, Transform, number][]]> => {
+                            ([, renderCamera, currentNode, currentTransform]: [boolean, RenderCamera, ImageNode, Transform]):
+                                Observable<[RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]> => {
                                 return observableOf(
                                     [
                                         renderCamera,
                                         currentNode,
                                         currentTransform,
                                         nts,
-                                    ] as [RenderCamera, GraphNode, Transform, [GraphNode, Transform, number][]]);
+                                    ] as [RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]);
                             }));
                 }),
             switchMap(
-                ([camera, cn, ct, nts]: [RenderCamera, GraphNode, Transform, [GraphNode, Transform, number][]]): Observable<GraphNode> => {
+                ([camera, cn, ct, nts]: [RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]): Observable<ImageNode> => {
                     const direction: THREE.Vector3 = camera.camera.lookat.clone().sub(camera.camera.position);
 
                     const cd: THREE.Vector3 = new Spatial().viewingDirection(cn.rotation);
@@ -429,7 +429,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
 
                     return this._navigator.moveTo$(closest[1]).pipe(
                         catchError(
-                            (): Observable<GraphNode> => {
+                            (): Observable<ImageNode> => {
                                 return observableEmpty();
                             }));
                 }))

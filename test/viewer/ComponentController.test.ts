@@ -5,10 +5,10 @@ import {
 } from "rxjs/operators";
 import { Subject } from "rxjs";
 
-import { Node } from "../../src/graph/Node";
+import { Image } from "../../src/graph/Image";
 import { ContainerMockCreator } from "../helper/ContainerMockCreator";
 import { NavigatorMockCreator } from "../helper/NavigatorMockCreator";
-import { NodeMockCreator } from "../helper/NodeMockCreator";
+import { ImageMockCreator } from "../helper/ImageMockCreator";
 import { MockCreator } from "../helper/MockCreator";
 import { ComponentService } from "../../src/component/ComponentService";
 import { CoverComponent } from "../../src/component/cover/CoverComponent";
@@ -227,7 +227,7 @@ describe("ComponentController.navigable", () => {
         expect(componentService.coverActivated).toBe(false);
     });
 
-    it("should change when initialized with key and cover false and node retrieved", () => {
+    it("should change when initialized with key and cover false and image retrieved", () => {
         const container = new ContainerMockCreator().create();
         const navigator = new NavigatorMockCreator().create();
         (<jasmine.Spy>navigator.api.getImages$)
@@ -238,7 +238,7 @@ describe("ComponentController.navigable", () => {
 
         (<jasmine.Spy>container.mouseService.filtered$).and.returnValue(new Subject<MouseEvent>());
         (<jasmine.Spy>container.mouseService.filteredWheel$).and.returnValue(new Subject<MouseEvent>());
-        const moveToKey$: Subject<Node> = new Subject<Node>();
+        const moveToKey$: Subject<Image> = new Subject<Image>();
         (<jasmine.Spy>navigator.moveTo$).and.returnValue(moveToKey$);
 
         const key: string = "key";
@@ -277,7 +277,7 @@ describe("ComponentController.navigable", () => {
             });
 
         (<Subject<string>>navigator.stateService.currentId$).next(null);
-        moveToKey$.next(new NodeMockCreator().create({ key: "key" }));
+        moveToKey$.next(new ImageMockCreator().create({ key: "key" }));
 
         expect(componentController.navigable).toBe(true);
         expect(configurationCount).toBe(1);
@@ -285,7 +285,7 @@ describe("ComponentController.navigable", () => {
         expect(componentService.coverActivated).toBe(false);
     });
 
-    it("should not change when initialized with key and cover false and node retrieval fail", () => {
+    it("should not change when initialized with key and cover false and image retrieval fail", () => {
         spyOn(console, "error").and.stub();
 
         const container = new ContainerMockCreator().create();
@@ -297,7 +297,7 @@ describe("ComponentController.navigable", () => {
         const observer = new Observer(viewer, navigator, container);
 
         (<jasmine.Spy>container.mouseService.filtered$).and.returnValue(new Subject<MouseEvent>());
-        const moveToKey$: Subject<Node> = new Subject<Node>();
+        const moveToKey$: Subject<Image> = new Subject<Image>();
         (<jasmine.Spy>navigator.moveTo$).and.returnValue(moveToKey$);
 
         const key = "key";
@@ -339,7 +339,7 @@ describe("ComponentController.navigable", () => {
 
         (<jasmine.Spy>container.mouseService.filtered$).and.returnValue(new Subject<MouseEvent>());
         (<jasmine.Spy>container.mouseService.filteredWheel$).and.returnValue(new Subject<MouseEvent>());
-        const moveToKey$: Subject<Node> = new Subject<Node>();
+        const moveToKey$: Subject<Image> = new Subject<Image>();
         (<jasmine.Spy>navigator.moveTo$).and.returnValue(moveToKey$);
 
         const key = "key";
@@ -353,7 +353,7 @@ describe("ComponentController.navigable", () => {
                 componentService);
 
         (<Subject<string>>navigator.stateService.currentId$).next(null);
-        moveToKey$.next(new NodeMockCreator().create({ key: "key" }));
+        moveToKey$.next(new ImageMockCreator().create({ key: "key" }));
 
         expect(componentController.navigable).toBe(true);
         expect(componentService.coverActivated).toBe(false);
@@ -387,7 +387,7 @@ describe("ComponentController.activateCover", () => {
         (<jasmine.Spy>container.mouseService.filteredWheel$).and.returnValue(new Subject<MouseEvent>());
 
         const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigator.moveTo$;
-        const moveToKey$: Subject<Node> = new Subject<Node>();
+        const moveToKey$: Subject<Image> = new Subject<Image>();
         moveToKeySpy.and.returnValue(moveToKey$);
 
         const key = "key_key";
@@ -425,7 +425,7 @@ describe("ComponentController.activateCover", () => {
         (<jasmine.Spy>container.mouseService.filteredWheel$).and.returnValue(new Subject<MouseEvent>());
 
         const moveToKeySpy: jasmine.Spy = <jasmine.Spy>navigator.moveTo$;
-        const moveToKey$: Subject<Node> = new Subject<Node>();
+        const moveToKey$: Subject<Image> = new Subject<Image>();
         moveToKeySpy.and.returnValue(moveToKey$);
 
         const stopEmitSpy: jasmine.Spy = <jasmine.Spy>observer.stopEmit;

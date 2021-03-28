@@ -3,7 +3,7 @@ import { EdgeCalculatorDirections } from "../../../src/graph/edge/EdgeCalculator
 import { EdgeCalculatorSettings } from "../../../src/graph/edge/EdgeCalculatorSettings";
 import { NavigationDirection } from "../../../src/graph/edge/NavigationDirection";
 import { NavigationEdge } from "../../../src/graph/edge/interfaces/NavigationEdge";
-import { Node } from "../../../src/graph/Node";
+import { Image } from "../../../src/graph/Image";
 import { Sequence } from "../../../src/graph/Sequence";
 import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper";
 
@@ -23,25 +23,25 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         helper = new EdgeCalculatorHelper();
     });
 
-    it("should throw when node is not full", () => {
+    it("should throw when image is not full", () => {
         let key: string = "key";
         let sequenceKey: string = "skey";
 
-        let node: Node = helper.createCoreNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey);
+        let image: Image = helper.createCoreImage(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey);
         let sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [key] });
 
-        expect(() => { edgeCalculator.computeSequenceEdges(node, sequence); }).toThrowError(Error);
+        expect(() => { edgeCalculator.computeSequenceEdges(image, sequence); }).toThrowError(Error);
     });
 
-    it("should throw when node sequence key differ from key of sequence", () => {
+    it("should throw when image sequence key differ from key of sequence", () => {
         let key: string = "key";
         let sequenceKey1: string = "skey1";
         let sequenceKey2: string = "skey2";
 
-        let node: Node = helper.createCoreNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey1);
+        let image: Image = helper.createCoreImage(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey1);
         let sequence: Sequence = new Sequence({ id: sequenceKey2, image_ids: [key] });
 
-        expect(() => { edgeCalculator.computeSequenceEdges(node, sequence); }).toThrowError(Error);
+        expect(() => { edgeCalculator.computeSequenceEdges(image, sequence); }).toThrowError(Error);
     });
 
     it("should return a next edge", () => {
@@ -49,10 +49,10 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let nextKey: string = "nextKey";
         let sequenceKey: string = "skey";
 
-        let node: Node = helper.createFullNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
+        let image: Image = helper.createSpatialImageEn(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
         let sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [key, nextKey] });
 
-        let sequenceEdges: NavigationEdge[] = edgeCalculator.computeSequenceEdges(node, sequence);
+        let sequenceEdges: NavigationEdge[] = edgeCalculator.computeSequenceEdges(image, sequence);
 
         expect(sequenceEdges.length).toBe(1);
 
@@ -67,10 +67,10 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let prevKey: string = "prevKey";
         let sequenceKey: string = "skey";
 
-        let node: Node = helper.createFullNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
+        let image: Image = helper.createSpatialImageEn(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
         let sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [prevKey, key] });
 
-        let sequenceEdges: NavigationEdge[] = edgeCalculator.computeSequenceEdges(node, sequence);
+        let sequenceEdges: NavigationEdge[] = edgeCalculator.computeSequenceEdges(image, sequence);
 
         expect(sequenceEdges.length).toBe(1);
 
@@ -87,10 +87,10 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
 
         let sequenceKey: string = "skey";
 
-        let node: Node = helper.createFullNode(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
+        let image: Image = helper.createSpatialImageEn(key, { alt: 0, lat: 0, lon: 0 }, sequenceKey, [0, 0, 0]);
         let sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [prevKey, key, nextKey] });
 
-        let sequenceEdges: NavigationEdge[] = edgeCalculator.computeSequenceEdges(node, sequence);
+        let sequenceEdges: NavigationEdge[] = edgeCalculator.computeSequenceEdges(image, sequence);
 
         expect(sequenceEdges.length).toBe(2);
 

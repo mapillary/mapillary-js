@@ -24,7 +24,7 @@ import { ViewerMouseEvent } from "./events/ViewerMouseEvent";
 import { LatLon } from "../api/interfaces/LatLon";
 import { Transform } from "../geo/Transform";
 import { LatLonAlt } from "../api/interfaces/LatLonAlt";
-import { Node } from "../graph/Node";
+import { Image } from "../graph/Image";
 import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
 import { RenderCamera } from "../render/RenderCamera";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
@@ -32,7 +32,7 @@ import { ViewerEventType } from "./events/ViewerEventType";
 import { IViewer } from "./interfaces/IViewer";
 import { ViewerNavigableEvent } from "./events/ViewerNavigableEvent";
 import { ViewerLoadingEvent } from "./events/ViewerLoadingEvent";
-import { ViewerNodeEvent } from "./events/ViewerNodeEvent";
+import { ViewerImageEvent } from "./events/ViewerImageEvent";
 import { ViewerNavigationEdgeEvent } from "./events/ViewerNavigationEdgeEvent";
 import { ViewerStateEvent } from "./events/ViewerStateEvent";
 import { ViewerBearingEvent } from "./events/ViewerBearingEvent";
@@ -126,12 +126,15 @@ export class Observer {
         : Observable<number[]> {
         return observableCombineLatest(
             this._container.renderService.renderCamera$,
-            this._navigator.stateService.currentNode$,
+            this._navigator.stateService.currentImage$,
             this._navigator.stateService.reference$).pipe(
                 first(),
                 map(
-                    ([render, node, reference]: [RenderCamera, Node, LatLonAlt]): number[] => {
-                        if (this._projection.distanceBetweenLatLons(latLon, node.latLon) > 1000) {
+                    ([render, image, reference]: [RenderCamera, Image, LatLonAlt]): number[] => {
+                        if (this._projection
+                            .distanceBetweenLatLons(
+                                latLon,
+                                image.latLon) > 1000) {
                             return null;
                         }
 
@@ -174,21 +177,21 @@ export class Observer {
         this._started = true;
         const subs = this._emitSubscriptions;
 
-        subs.push(this._navigator.stateService.currentNodeExternal$
-            .subscribe((node: Node): void => {
-                const type: ViewerEventType = "node";
-                const event: ViewerNodeEvent = {
-                    node,
+        subs.push(this._navigator.stateService.currentImageExternal$
+            .subscribe((image: Image): void => {
+                const type: ViewerEventType = "image";
+                const event: ViewerImageEvent = {
+                    image: image,
                     target: this._viewer,
                     type,
                 }
                 this._viewer.fire(type, event);
             }));
 
-        subs.push(this._navigator.stateService.currentNodeExternal$.pipe(
+        subs.push(this._navigator.stateService.currentImageExternal$.pipe(
             switchMap(
-                (node: Node): Observable<NavigationEdgeStatus> => {
-                    return node.sequenceEdges$;
+                (image: Image): Observable<NavigationEdgeStatus> => {
+                    return image.sequenceEdges$;
                 }))
             .subscribe(
                 (status: NavigationEdgeStatus): void => {
@@ -201,10 +204,10 @@ export class Observer {
                     this._viewer.fire(type, event);
                 }));
 
-        subs.push(this._navigator.stateService.currentNodeExternal$.pipe(
+        subs.push(this._navigator.stateService.currentImageExternal$.pipe(
             switchMap(
-                (node: Node): Observable<NavigationEdgeStatus> => {
-                    return node.spatialEdges$;
+                (image: Image): Observable<NavigationEdgeStatus> => {
+                    return image.spatialEdges$;
                 }))
             .subscribe(
                 (status: NavigationEdgeStatus): void => {

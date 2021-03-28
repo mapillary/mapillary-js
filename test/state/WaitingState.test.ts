@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
-import { NodeHelper } from "../helper/NodeHelper";
+import { ImageHelper } from "../helper/ImageHelper";
 
-import { Node } from "../../src/graph/Node";
+import { Image } from "../../src/graph/Image";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { IStateBase } from "../../src/state/interfaces/IStateBase";
 import { WaitingState } from "../../src/state/state/WaitingState";
@@ -40,7 +40,7 @@ class TestWaitingState extends WaitingState {
     }
 }
 
-class TestNode extends Node {
+class TestImage extends Image {
     constructor() {
         super({
             computed_geometry: { lat: 0, lon: 0 },
@@ -62,13 +62,13 @@ class TestNode extends Node {
 describe("WaitingState.currentCamera.lookat", () => {
     let precision: number = 1e-8;
 
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
-    it("should correspond to set node", () => {
+    it("should correspond to set image", () => {
         let camera: Camera = new Camera();
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
@@ -85,11 +85,11 @@ describe("WaitingState.currentCamera.lookat", () => {
 
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
-        let node: TestNode = new TestNode();
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        node.makeFull(fillNode);
+        let image: TestImage = new TestImage();
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        image.makeComplete(spatialImage);
 
-        waitingState.set([node]);
+        waitingState.set([image]);
 
         expect(waitingState.currentCamera.position.x).toBeCloseTo(0, precision);
         expect(waitingState.currentCamera.position.y).toBeCloseTo(0, precision);
@@ -100,7 +100,7 @@ describe("WaitingState.currentCamera.lookat", () => {
         expect(waitingState.currentCamera.lookat.z).toBeGreaterThan(0);
     });
 
-    it("should correspond to set nodes", () => {
+    it("should correspond to set images", () => {
         let camera: Camera = new Camera();
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
@@ -117,17 +117,17 @@ describe("WaitingState.currentCamera.lookat", () => {
 
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
-        let previousNode: TestNode = new TestNode();
-        let previousFillNode: SpatialImageEnt = helper.createFillNode();
-        previousFillNode.computed_rotation = [Math.PI, 0, 0];
-        previousNode.makeFull(previousFillNode);
+        let previousImage: TestImage = new TestImage();
+        let previousSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        previousSpatialImage.computed_rotation = [Math.PI, 0, 0];
+        previousImage.makeComplete(previousSpatialImage);
 
-        let currentNode: TestNode = new TestNode();
-        let currentFillNode: SpatialImageEnt = helper.createFillNode();
-        currentNode.makeFull(currentFillNode);
+        let currentImage: TestImage = new TestImage();
+        let currentSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        currentImage.makeComplete(currentSpatialImage);
 
-        waitingState.set([previousNode]);
-        waitingState.set([currentNode]);
+        waitingState.set([previousImage]);
+        waitingState.set([currentImage]);
 
         expect(waitingState.currentCamera.position.x).toBeCloseTo(0, precision);
         expect(waitingState.currentCamera.position.y).toBeCloseTo(0, precision);
@@ -155,19 +155,19 @@ describe("WaitingState.currentCamera.lookat", () => {
 
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
-        let previousNode: TestNode = new TestNode();
-        let previousFillNode: SpatialImageEnt = helper.createFillNode();
-        previousFillNode.computed_rotation = [Math.PI, 0, 0];
-        previousNode.makeFull(previousFillNode);
+        let previousImage: TestImage = new TestImage();
+        let previousSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        previousSpatialImage.computed_rotation = [Math.PI, 0, 0];
+        previousImage.makeComplete(previousSpatialImage);
 
-        let currentNode: TestNode = new TestNode();
-        let currentFillNode: SpatialImageEnt = helper.createFillNode();
-        currentFillNode.camera_type = "spherical";
+        let currentImage: TestImage = new TestImage();
+        let currentSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        currentSpatialImage.camera_type = "spherical";
 
-        currentNode.makeFull(currentFillNode);
+        currentImage.makeComplete(currentSpatialImage);
 
-        waitingState.set([previousNode]);
-        waitingState.set([currentNode]);
+        waitingState.set([previousImage]);
+        waitingState.set([currentImage]);
 
         expect(waitingState.currentCamera.position.x).toBeCloseTo(0, precision);
         expect(waitingState.currentCamera.position.y).toBeCloseTo(0, precision);
@@ -188,13 +188,13 @@ describe("WaitingState.currentCamera.lookat", () => {
 describe("WaitingState.previousCamera.lookat", () => {
     let precision: number = 1e-8;
 
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
-    it("should correspond to current node camera when previous node not set", () => {
+    it("should correspond to current image camera when previous image not set", () => {
         let camera: Camera = new Camera();
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
@@ -211,11 +211,11 @@ describe("WaitingState.previousCamera.lookat", () => {
 
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
-        let node: TestNode = new TestNode();
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        node.makeFull(fillNode);
+        let image: TestImage = new TestImage();
+        let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        image.makeComplete(spatialImage);
 
-        waitingState.set([node]);
+        waitingState.set([image]);
 
         expect(waitingState.previousCamera.position.x).toBeCloseTo(0, precision);
         expect(waitingState.previousCamera.position.y).toBeCloseTo(0, precision);
@@ -226,7 +226,7 @@ describe("WaitingState.previousCamera.lookat", () => {
         expect(waitingState.previousCamera.lookat.z).toBeGreaterThan(0);
     });
 
-    it("should correspond to previous node when previous node set", () => {
+    it("should correspond to previous image when previous image set", () => {
         let camera: Camera = new Camera();
         camera.position.fromArray([10, 10, 0]);
         camera.lookat.fromArray([15, 15, 0]);
@@ -243,17 +243,17 @@ describe("WaitingState.previousCamera.lookat", () => {
 
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
-        let previousNode: TestNode = new TestNode();
-        let previousFillNode: SpatialImageEnt = helper.createFillNode();
-        previousNode.makeFull(previousFillNode);
+        let previousImage: TestImage = new TestImage();
+        let previousSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        previousImage.makeComplete(previousSpatialImage);
 
-        let currentNode: TestNode = new TestNode();
-        let currentFillNode: SpatialImageEnt = helper.createFillNode();
-        currentFillNode.computed_rotation = [Math.PI, 0, 0];
-        currentNode.makeFull(currentFillNode);
+        let currentImage: TestImage = new TestImage();
+        let currentSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        currentSpatialImage.computed_rotation = [Math.PI, 0, 0];
+        currentImage.makeComplete(currentSpatialImage);
 
-        waitingState.set([previousNode]);
-        waitingState.set([currentNode]);
+        waitingState.set([previousImage]);
+        waitingState.set([currentImage]);
 
         expect(waitingState.previousCamera.position.x).toBeCloseTo(0, precision);
         expect(waitingState.previousCamera.position.y).toBeCloseTo(0, precision);
@@ -264,7 +264,7 @@ describe("WaitingState.previousCamera.lookat", () => {
         expect(waitingState.previousCamera.lookat.z).toBeGreaterThan(0);
     });
 
-    it("should correspond to direction of current camera when spherical and previous node set", () => {
+    it("should correspond to direction of current camera when spherical and previous image set", () => {
         let camera: Camera = new Camera();
 
         let state: IStateBase = {
@@ -279,19 +279,19 @@ describe("WaitingState.previousCamera.lookat", () => {
 
         let waitingState: TestWaitingState = new TestWaitingState(state);
 
-        let previousNode: TestNode = new TestNode();
-        let previousFillNode: SpatialImageEnt = helper.createFillNode();
-        previousFillNode.camera_type = "spherical";
+        let previousImage: TestImage = new TestImage();
+        let previousSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        previousSpatialImage.camera_type = "spherical";
 
-        previousNode.makeFull(previousFillNode);
+        previousImage.makeComplete(previousSpatialImage);
 
-        let currentNode: TestNode = new TestNode();
-        let currentFillNode: SpatialImageEnt = helper.createFillNode();
-        currentFillNode.computed_rotation = [0.2, 0.3, 0.4];
-        currentNode.makeFull(currentFillNode);
+        let currentImage: TestImage = new TestImage();
+        let currentSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        currentSpatialImage.computed_rotation = [0.2, 0.3, 0.4];
+        currentImage.makeComplete(currentSpatialImage);
 
-        waitingState.set([previousNode]);
-        waitingState.set([currentNode]);
+        waitingState.set([previousImage]);
+        waitingState.set([currentImage]);
 
         let currentDirection: THREE.Vector3 = waitingState.currentCamera.lookat
             .clone()

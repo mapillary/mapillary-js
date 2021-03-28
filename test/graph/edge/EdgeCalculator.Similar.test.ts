@@ -4,7 +4,7 @@ import { EdgeCalculatorSettings } from "../../../src/graph/edge/EdgeCalculatorSe
 import { NavigationDirection } from "../../../src/graph/edge/NavigationDirection";
 import { NavigationEdge } from "../../../src/graph/edge/interfaces/NavigationEdge";
 import { PotentialEdge } from "../../../src/graph/edge/interfaces/PotentialEdge";
-import { Node } from "../../../src/graph/Node";
+import { Image } from "../../../src/graph/Image";
 
 import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper";
 
@@ -15,7 +15,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
 
     let helper: EdgeCalculatorHelper;
 
-    let node: Node;
+    let image: Image;
     let potentialEdge: PotentialEdge;
 
     beforeEach(() => {
@@ -27,9 +27,9 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         helper = new EdgeCalculatorHelper();
     });
 
-    let createNode: (capturedAt: number) => Node =
-        (capturedAt: number): Node => {
-            return helper.createFullNode("key", { alt: 0, lat: 0, lon: 0 }, "skey", [0, 0, 0], 2, "perspective", capturedAt);
+    let createImage: (capturedAt: number) => Image =
+        (capturedAt: number): Image => {
+            return helper.createSpatialImageEn("key", { alt: 0, lat: 0, lon: 0 }, "skey", [0, 0, 0], 2, "perspective", capturedAt);
         };
 
     beforeEach(() => {
@@ -37,13 +37,13 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
     });
 
     beforeEach(() => {
-        node = helper.createDefaultNode();
+        image = helper.createDefaultImage();
     });
 
-    it("should throw when node is not full", () => {
-        node = helper.createCoreNode("", { alt: 0, lat: 0, lon: 0 }, "");
+    it("should throw when image is not full", () => {
+        image = helper.createCoreImage("", { alt: 0, lat: 0, lon: 0 }, "");
 
-        expect(() => { edgeCalculator.computeSimilarEdges(node, []); }).toThrowError(Error);
+        expect(() => { edgeCalculator.computeSimilarEdges(image, []); }).toThrowError(Error);
     });
 
     it("should have a similar edge", () => {
@@ -51,7 +51,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         potentialEdge.sameMergeCC = true;
         potentialEdge.sequenceId = "other";
 
-        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(image, [potentialEdge]);
 
         expect(similarEdges.length).toBe(1);
 
@@ -66,17 +66,17 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         potentialEdge.sameMergeCC = true;
         potentialEdge.sequenceId = null;
 
-        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(image, [potentialEdge]);
 
         expect(similarEdges.length).toBe(0);
     });
 
-    it("should not have a similar edge if node is spherical and potential node is not spherical", () => {
+    it("should not have a similar edge if image is spherical and potential image is not spherical", () => {
         potentialEdge.sameMergeCC = true;
         potentialEdge.sameSequence = true;
         potentialEdge.sequenceId = "other";
 
-        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(image, [potentialEdge]);
 
         expect(similarEdges.length).toBe(0);
     });
@@ -86,7 +86,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         potentialEdge.sameSequence = true;
         potentialEdge.sequenceId = "other";
 
-        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(image, [potentialEdge]);
 
         expect(similarEdges.length).toBe(0);
     });
@@ -95,7 +95,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         potentialEdge.sameMergeCC = false;
         potentialEdge.sequenceId = "other";
 
-        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(image, [potentialEdge]);
 
         expect(similarEdges.length).toBe(1);
     });
@@ -104,7 +104,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         potentialEdge.sameMergeCC = true;
         potentialEdge.sequenceId = "other";
 
-        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(image, [potentialEdge]);
 
         expect(similarEdges.length).toBe(1);
     });
@@ -116,7 +116,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         potentialEdge.sameMergeCC = true;
         potentialEdge.sequenceId = "other";
 
-        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(image, [potentialEdge]);
 
         expect(similarEdges.length).toBe(0);
     });
@@ -128,7 +128,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         potentialEdge.sameMergeCC = true;
         potentialEdge.sequenceId = "other";
 
-        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(image, [potentialEdge]);
 
         expect(similarEdges.length).toBe(0);
     });
@@ -141,7 +141,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         potentialEdge.sameMergeCC = true;
         potentialEdge.sequenceId = "other";
 
-        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(image, [potentialEdge]);
 
         expect(similarEdges.length).toBe(1);
 
@@ -152,7 +152,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
     });
 
     it("should not have a similar edge for the same user within min time diff", () => {
-        node = createNode(1000);
+        image = createImage(1000);
 
         settings.similarMinTimeDifference = 100;
 
@@ -161,13 +161,13 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         potentialEdge.sameUser = true;
         potentialEdge.capturedAt = 1050;
 
-        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(image, [potentialEdge]);
 
         expect(similarEdges.length).toBe(0);
     });
 
     it("should have a similar edge for the same user if above min time diff", () => {
-        node = createNode(1000);
+        image = createImage(1000);
 
         settings.similarMinTimeDifference = 100;
 
@@ -176,7 +176,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         potentialEdge.sameUser = true;
         potentialEdge.capturedAt = 1200;
 
-        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(node, [potentialEdge]);
+        let similarEdges: NavigationEdge[] = edgeCalculator.computeSimilarEdges(image, [potentialEdge]);
 
         expect(similarEdges.length).toBe(1);
 
@@ -199,7 +199,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         potentialEdge2.sequenceId = "s2";
 
         let similarEdges: NavigationEdge[] =
-            edgeCalculator.computeSimilarEdges(node, [potentialEdge1, potentialEdge2]);
+            edgeCalculator.computeSimilarEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(similarEdges.length).toBe(2);
 
@@ -235,7 +235,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         potentialEdge2.sequenceId = "s1";
 
         let similarEdges: NavigationEdge[] =
-            edgeCalculator.computeSimilarEdges(node, [potentialEdge1, potentialEdge2]);
+            edgeCalculator.computeSimilarEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(similarEdges.length).toBe(1);
 
@@ -260,7 +260,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
         potentialEdge2.sequenceId = "s1";
 
         let similarEdges: NavigationEdge[] =
-            edgeCalculator.computeSimilarEdges(node, [potentialEdge1, potentialEdge2]);
+            edgeCalculator.computeSimilarEdges(image, [potentialEdge1, potentialEdge2]);
 
         expect(similarEdges.length).toBe(1);
 

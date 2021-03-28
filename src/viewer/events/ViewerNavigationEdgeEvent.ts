@@ -7,7 +7,7 @@ import { ViewerEvent } from "./ViewerEvent";
  */
 export interface ViewerNavigationEdgeEvent extends ViewerEvent {
     /**
-     * The viewer's current node edge status.
+     * The viewer's current navigation edge status.
      */
     status: NavigationEdgeStatus;
 
