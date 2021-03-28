@@ -53,12 +53,10 @@ import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { Container } from "../../viewer/Container";
 import { ISpriteAtlas } from "../../viewer/interfaces/ISpriteAtlas";
-import { ComponentEvent } from "../events/ComponentEvent";
-import {
-    ComponentGeometryEvent,
-    ComponentStateEvent,
-    ComponentTagModeEvent,
-} from "../events/ComponentStateEvent";
+import { ComponentEventType } from "../events/ComponentEventType";
+import { ComponentTagModeEvent } from "../events/ComponentTagModeEvent";
+import { ComponentGeometryEvent } from "../events/ComponentGeometryEvent";
+import { ComponentStateEvent } from "../events/ComponentStateEvent";
 
 /**
  * @class TagComponent
@@ -263,7 +261,7 @@ export class TagComponent extends Component<TagConfiguration> {
         this._creatingConfiguration$
             .subscribe(
                 (configuration: TagConfiguration): void => {
-                    const type: ComponentEvent = "tagmode";
+                    const type: ComponentEventType = "tagmode";
                     const event: ComponentTagModeEvent = {
                         mode: configuration.mode,
                         target: this,
@@ -400,6 +398,29 @@ export class TagComponent extends Component<TagConfiguration> {
         this.configure({ mode: mode });
     }
 
+    public fire(
+        type: "geometrycreated",
+        event: ComponentGeometryEvent)
+        : void;
+    public fire(
+        type: "tagmode",
+        event: ComponentTagModeEvent)
+        : void;
+    /** @ignore */
+    public fire(
+        type:
+            | "tagcreateend"
+            | "tagcreatestart"
+            | "tags",
+        event: ComponentStateEvent)
+        : void;
+    public fire<T>(
+        type: ComponentEventType,
+        event: T)
+        : void {
+        super.fire(type, event);
+    }
+
     /**
      * Returns the tag in the tag set with the specified id, or
      * undefined if the id matches no tag.
@@ -514,24 +535,20 @@ export class TagComponent extends Component<TagConfiguration> {
         handler: (event: ComponentGeometryEvent) => void)
         : void;
     public off(
-        type: "tagcreateend",
-        handler: (event: ComponentStateEvent) => void)
-        : void;
-    public off(
-        type: "tagcreatestart",
-        handler: (event: ComponentStateEvent) => void)
-        : void;
-    public off(
         type: "tagmode",
         handler: (event: ComponentTagModeEvent) => void)
         : void;
     public off(
-        type: "tags",
+        type:
+            | "tagcreateend"
+            | "tagcreatestart"
+            | "tags",
         handler: (event: ComponentStateEvent) => void)
         : void;
     public off<T>(
-        type: ComponentEvent,
-        handler: (event: T) => void): void {
+        type: ComponentEventType,
+        handler: (event: T) => void)
+        : void {
         super.off(type, handler);
     }
 
@@ -543,7 +560,7 @@ export class TagComponent extends Component<TagConfiguration> {
      * ```js
      * // Initialize the viewer
      * var viewer = new mapillary.Viewer({ // viewer options });
-     * var component = viewer.getComponet('<component-name>');
+     * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('geometrycreated', function() {
      *   console.log("A geometrycreated event has occurred.");
@@ -565,7 +582,7 @@ export class TagComponent extends Component<TagConfiguration> {
      * ```js
      * // Initialize the viewer
      * var viewer = new mapillary.Viewer({ // viewer options });
-     * var component = viewer.getComponet('<component-name>');
+     * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('tagcreateend', function() {
      *   console.log("A tagcreateend event has occurred.");
@@ -587,7 +604,7 @@ export class TagComponent extends Component<TagConfiguration> {
      * ```js
      * // Initialize the viewer
      * var viewer = new mapillary.Viewer({ // viewer options });
-     * var component = viewer.getComponet('<component-name>');
+     * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('tagcreatestart', function() {
      *   console.log("A tagcreatestart event has occurred.");
@@ -606,7 +623,7 @@ export class TagComponent extends Component<TagConfiguration> {
      * ```js
      * // Initialize the viewer
      * var viewer = new mapillary.Viewer({ // viewer options });
-     * var component = viewer.getComponet('<component-name>');
+     * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('tagmode', function() {
      *   console.log("A tagmode event has occurred.");
@@ -625,7 +642,7 @@ export class TagComponent extends Component<TagConfiguration> {
      * ```js
      * // Initialize the viewer
      * var viewer = new mapillary.Viewer({ // viewer options });
-     * var component = viewer.getComponet('<component-name>');
+     * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('tags', function() {
      *   console.log("A tags event has occurred.");
@@ -637,8 +654,9 @@ export class TagComponent extends Component<TagConfiguration> {
         handler: (event: ComponentStateEvent) => void)
         : void;
     public on<T>(
-        type: ComponentEvent,
-        handler: (event: T) => void): void {
+        type: ComponentEventType,
+        handler: (event: T) => void)
+        : void {
         super.on(type, handler);
     }
 
@@ -702,7 +720,7 @@ export class TagComponent extends Component<TagConfiguration> {
         subs.push(handlerGeometryCreated$
             .subscribe(
                 (geometry: Geometry): void => {
-                    const type: ComponentEvent = "geometrycreated";
+                    const type: ComponentEventType = "geometrycreated";
                     const event: ComponentGeometryEvent = {
                         geometry,
                         target: this,
@@ -719,7 +737,7 @@ export class TagComponent extends Component<TagConfiguration> {
             distinctUntilChanged())
             .subscribe(
                 (tag: CreateTag<Geometry>): void => {
-                    const type: ComponentEvent = tag != null ?
+                    const type: ComponentEventType = tag != null ?
                         "tagcreatestart" :
                         "tagcreateend";
                     const event: ComponentStateEvent = {
@@ -750,7 +768,7 @@ export class TagComponent extends Component<TagConfiguration> {
         subs.push(this._renderTags$
             .subscribe(
                 (): void => {
-                    const type: ComponentEvent = "tags";
+                    const type: ComponentEventType = "tags";
                     const event: ComponentStateEvent = {
                         target: this,
                         type,

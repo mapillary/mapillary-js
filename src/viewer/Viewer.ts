@@ -20,7 +20,6 @@ import { RenderMode } from "../render/RenderMode";
 import { TransitionMode } from "../state/TransitionMode";
 import { EventEmitter } from "../util/EventEmitter";
 import { ViewerConfiguration } from "./ViewerConfiguration";
-
 import { ICustomRenderer } from "./interfaces/ICustomRenderer";
 import { PointOfView } from "./interfaces/PointOfView";
 import { ViewerOptions } from "./options/ViewerOptions";
@@ -29,17 +28,16 @@ import { Container } from "./Container";
 import { Navigator } from "./Navigator";
 import { Observer } from "./Observer";
 import { CustomRenderer } from "./CustomRenderer";
-import { ViewerEvent } from "./events/ViewerEvent";
 import { IViewer } from "./interfaces/IViewer";
-import {
-    ViewerBearingEvent,
-    ViewerLoadingEvent,
-    ViewerNavigableEvent,
-    ViewerNavigationEdgeStatusEvent,
-    ViewerNodeEvent,
-    ViewerStateEvent,
-} from "./events/ViewerStateEvent";
+import { ViewerBearingEvent } from "./events/ViewerBearingEvent";
+import { ViewerEventType } from "./events/ViewerEventType";
+import { ViewerLoadingEvent } from "./events/ViewerLoadingEvent";
 import { ViewerMouseEvent } from "./events/ViewerMouseEvent";
+import { ViewerNavigableEvent } from "./events/ViewerNavigableEvent";
+import { ViewerNavigationEdgeEvent }
+    from "./events/ViewerNavigationEdgeEvent";
+import { ViewerNodeEvent } from "./events/ViewerNodeEvent";
+import { ViewerStateEvent } from "./events/ViewerStateEvent";
 
 /**
  * @class Viewer
@@ -51,47 +49,6 @@ import { ViewerMouseEvent } from "./events/ViewerMouseEvent";
  *
  * In the case of asynchronous methods, MapillaryJS returns promises to
  * the results. Notifications are always emitted through JavaScript events.
- *
- * The viewer works with a few different coordinate systems.
- *
- * Container pixel coordinates
- *
- * Pixel coordinates are coordinates on the viewer container. The origin is
- * in the top left corner of the container. The axes are
- * directed according to the following for a viewer container with a width
- * of 640 pixels and height of 480 pixels.
- *
- * ```js
- * (0,0)                          (640, 0)
- *      +------------------------>
- *      |
- *      |
- *      |
- *      v                        +
- * (0, 480)                       (640, 480)
- * ```
- *
- * Basic image coordinates
- *
- * Basic image coordinates represents points in the original image adjusted for
- * orientation. They range from 0 to 1 on both axes. The origin is in the top left
- * corner of the image and the axes are directed
- * according to the following for all image types.
- *
- * ```js
- * (0,0)                          (1, 0)
- *      +------------------------>
- *      |
- *      |
- *      |
- *      v                        +
- * (0, 1)                         (1, 1)
- * ```
- *
- * For every camera viewing direction it is possible to convert between these
- * two coordinate systems for the current node. The image can be panned and
- * zoomed independently of the size of the viewer container resulting in
- * different conversion results for different viewing directions.
  */
 export class Viewer extends EventEmitter implements IViewer {
     /**
@@ -287,6 +244,41 @@ export class Viewer extends EventEmitter implements IViewer {
      */
     public deactivateCover(): void {
         this._componentController.deactivateCover();
+    }
+
+    public fire(
+        type: ViewerBearingEvent["type"],
+        event: ViewerBearingEvent)
+        : void;
+    public fire(
+        type: ViewerLoadingEvent["type"],
+        event: ViewerLoadingEvent)
+        : void;
+    public fire(
+        type: ViewerNavigableEvent["type"],
+        event: ViewerNavigableEvent)
+        : void;
+    public fire(
+        type: ViewerNodeEvent["type"],
+        event: ViewerNodeEvent)
+        : void;
+    public fire(
+        type: ViewerNavigationEdgeEvent["type"],
+        event: ViewerNavigationEdgeEvent)
+        : void;
+    public fire(
+        type: ViewerStateEvent["type"],
+        event: ViewerStateEvent)
+        : void;
+    public fire(
+        type: ViewerMouseEvent["type"],
+        event: ViewerMouseEvent)
+        : void;
+    public fire<T>(
+        type: ViewerEventType,
+        event: T)
+        : void {
+        super.fire(type, event);
     }
 
     /**
@@ -603,88 +595,37 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     public off(
-        type: "bearing",
+        type: ViewerBearingEvent["type"],
         handler: (event: ViewerBearingEvent) => void)
         : void;
     public off(
-        type: "click",
-        handler: (event: ViewerMouseEvent) => void)
-        : void;
-    public off(
-        type: "contextmenu",
-        handler: (event: ViewerMouseEvent) => void)
-        : void;
-    public off(
-        type: "dblclick",
-        handler: (event: ViewerMouseEvent) => void)
-        : void;
-    public off(
-        type: "fov",
-        handler: (event: ViewerStateEvent) => void)
-        : void;
-    public off(
-        type: "loading",
+        type: ViewerLoadingEvent["type"],
         handler: (event: ViewerLoadingEvent) => void)
         : void;
     public off(
-        type: "mousedown",
-        handler: (event: ViewerMouseEvent) => void)
-        : void;
-    public off(
-        type: "mousemove",
-        handler: (event: ViewerMouseEvent) => void)
-        : void;
-    public off(
-        type: "mouseout",
-        handler: (event: ViewerMouseEvent) => void)
-        : void;
-    public off(
-        type: "mouseover",
-        handler: (event: ViewerMouseEvent) => void)
-        : void;
-    public off(
-        type: "mouseup",
-        handler: (event: ViewerMouseEvent) => void)
-        : void;
-    public off(
-        type: "moveend",
-        handler: (event: ViewerStateEvent) => void)
-        : void;
-    public off(
-        type: "movestart",
-        handler: (event: ViewerStateEvent) => void)
-        : void;
-    public off(
-        type: "navigable",
+        type: ViewerNavigableEvent["type"],
         handler: (event: ViewerNavigableEvent) => void)
         : void;
     public off(
-        type: "node",
+        type: ViewerNodeEvent["type"],
         handler: (event: ViewerNodeEvent) => void)
         : void;
     public off(
-        type: "position",
+        type: ViewerNavigationEdgeEvent["type"],
+        handler: (event: ViewerNavigationEdgeEvent) => void)
+        : void;
+    public off(
+        type: ViewerStateEvent["type"],
         handler: (event: ViewerStateEvent) => void)
         : void;
     public off(
-        type: "pov",
-        handler: (event: ViewerStateEvent) => void)
-        : void;
-    public off(
-        type: "remove",
-        handler: (event: ViewerStateEvent) => void)
-        : void;
-    public off(
-        type: "sequenceedges",
-        handler: (event: ViewerNavigationEdgeStatusEvent) => void)
-        : void;
-    public off(
-        type: "spatialedges",
-        handler: (event: ViewerNavigationEdgeStatusEvent) => void)
+        type: ViewerMouseEvent["type"],
+        handler: (event: ViewerMouseEvent) => void)
         : void;
     public off<T>(
-        type: ViewerEvent,
-        handler: (event: T) => void): void {
+        type: ViewerEventType,
+        handler: (event: T) => void)
+        : void {
         super.off(type, handler);
     }
 
@@ -1045,7 +986,7 @@ export class Viewer extends EventEmitter implements IViewer {
      */
     public on(
         type: "sequenceedges",
-        handler: (event: ViewerNavigationEdgeStatusEvent) => void)
+        handler: (event: ViewerNavigationEdgeEvent) => void)
         : void;
     /**
      * Fired every time the spatial edges of the current node changes.
@@ -1063,11 +1004,12 @@ export class Viewer extends EventEmitter implements IViewer {
      */
     public on(
         type: "spatialedges",
-        handler: (event: ViewerNavigationEdgeStatusEvent) => void)
+        handler: (event: ViewerNavigationEdgeEvent) => void)
         : void;
     public on<T>(
-        type: ViewerEvent,
-        handler: (event: T) => void): void {
+        type: ViewerEventType,
+        handler: (event: T) => void)
+        : void {
         super.on(type, handler);
     }
 
@@ -1178,7 +1120,7 @@ export class Viewer extends EventEmitter implements IViewer {
         this._navigator.dispose();
         this._container.remove();
 
-        const type: ViewerEvent = "remove";
+        const type: ViewerEventType = "remove";
         const event: ViewerStateEvent = {
             target: this,
             type,

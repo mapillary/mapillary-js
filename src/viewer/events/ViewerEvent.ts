@@ -1,21 +1,17 @@
-export type ViewerEvent =
-    | "bearing"
-    | "click"
-    | "contextmenu"
-    | "dblclick"
-    | "fov"
-    | "loading"
-    | "mousedown"
-    | "mousemove"
-    | "mouseout"
-    | "mouseover"
-    | "mouseup"
-    | "moveend"
-    | "movestart"
-    | "navigable"
-    | "node"
-    | "position"
-    | "pov"
-    | "remove"
-    | "sequenceedges"
-    | "spatialedges";
+import { IViewer } from "../interfaces/IViewer";
+import { ViewerEventType } from "./ViewerEventType";
+
+/**
+ * @event
+ */
+export interface ViewerEvent {
+    /**
+     * The viewer object that fired the event.
+     */
+    target: IViewer;
+
+    /**
+     * The event type.
+     */
+    type: ViewerEventType;
+}

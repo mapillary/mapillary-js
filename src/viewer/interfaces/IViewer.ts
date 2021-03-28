@@ -7,7 +7,7 @@ import { FilterExpression } from "../../graph/FilterExpression";
 import { Node } from "../../graph/Node";
 import { RenderMode } from "../../render/RenderMode";
 import { TransitionMode } from "../../state/TransitionMode";
-import { ViewerEvent } from "../events/ViewerEvent";
+import { ViewerEventType } from "../events/ViewerEventType";
 
 import { ICustomRenderer } from "./ICustomRenderer";
 import { PointOfView } from "./PointOfView";
@@ -22,7 +22,7 @@ export interface IViewer {
     deactivateComponent(name: string): void;
     deactivateCover(): void;
     fire<T>(
-        type: ViewerEvent,
+        type: ViewerEventType,
         event: T): void;
     getBearing(): Promise<number>;
     getCanvas(): HTMLCanvasElement;
@@ -39,10 +39,10 @@ export interface IViewer {
     moveDir(direction: NavigationDirection): Promise<Node>;
     moveTo(imageId: string): Promise<Node>;
     off<T>(
-        type: ViewerEvent,
+        type: ViewerEventType,
         handler: (event: T) => void): void;
     on<T>(
-        type: ViewerEvent,
+        type: ViewerEventType,
         handler: (event: T) => void): void;
     project(latLon: LatLon): Promise<number[]>;
     projectFromBasic(basicPoint: number[]): Promise<number[]>;

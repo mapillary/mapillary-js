@@ -18,7 +18,7 @@ import { Navigator } from "../viewer/Navigator";
 import { EventEmitter } from "../util/EventEmitter";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { IComponent } from "./interfaces/IComponent";
-import { ComponentEvent } from "./events/ComponentEvent";
+import { ComponentEventType } from "./events/ComponentEventType";
 
 export abstract class Component
     <TConfiguration extends ComponentConfiguration>
@@ -145,21 +145,21 @@ export abstract class Component
 
     /** @inheritdoc */
     public fire<T>(
-        type: ComponentEvent,
+        type: ComponentEventType,
         event: T): void {
         super.fire(type, event);
     }
 
     /** @inheritdoc */
     public off<T>(
-        type: ComponentEvent,
+        type: ComponentEventType,
         handler: (event: T) => void): void {
         super.off(type, handler);
     }
 
     /** @inheritdoc */
     public on<T>(
-        type: ComponentEvent,
+        type: ComponentEventType,
         handler: (event: T) => void): void {
         super.on(type, handler);
     }

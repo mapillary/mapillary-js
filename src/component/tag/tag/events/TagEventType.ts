@@ -1,4 +1,4 @@
-export type TagEvent =
+export type TagEventType =
     | "click"
     | "geometry"
     | "tag";

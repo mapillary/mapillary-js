@@ -1,10 +1,56 @@
 /**
- * MapillaryJS is a JavaScript and WebGL library for exploring
- * street level imagery.
- * @name Mapillary
+ * @module mapillary
+ *
+ * @description
+ *
+ * MapillaryJS
+ *
+ * Interactive, customizable street imagery viewer in
+ * the browser, powered by WebGL.
+ *
+ * MapillaryJS works with a few different coordinate systems.
+ *
+ * Container pixel coordinates
+ *
+ * Pixel coordinates are coordinates on the viewer container. The origin is
+ * in the top left corner of the container. The axes are
+ * directed according to the following for a viewer container with a width
+ * of 640 pixels and height of 480 pixels.
+ *
+ * ```js
+ * (0,0)                          (640, 0)
+ *      +------------------------>
+ *      |
+ *      |
+ *      |
+ *      v                        +
+ * (0, 480)                       (640, 480)
+ * ```
+ *
+ * Basic image coordinates
+ *
+ * Basic image coordinates represents points in the original image adjusted for
+ * orientation. They range from 0 to 1 on both axes. The origin is in the top left
+ * corner of the image and the axes are directed
+ * according to the following for all image types.
+ *
+ * ```js
+ * (0,0)                          (1, 0)
+ *      +------------------------>
+ *      |
+ *      |
+ *      |
+ *      v                        +
+ * (0, 1)                         (1, 1)
+ * ```
+ *
+ * For every camera viewing direction it is possible to convert between these
+ * two coordinate systems for the current node. The image can be panned and
+ * zoomed independently of the size of the viewer container resulting in
+ * different conversion results for different viewing directions.
  */
 
-// Bootstrap
+// Bootstrap (internal)
 // This is a workaround to make the CommonJS unit testing
 // work with Jest. Once Jest/Node supports ES6 modules
 // fully this should be removed. GeoRBush and UnitBezier
@@ -70,20 +116,6 @@ ComponentService.register(ZoomComponent);
 // Mapillary module
 export { isFallbackSupported, isSupported } from "./util/Support";
 
-// Component types
-export { Component } from "./component/Component";
-export { ComponentEvent } from "./component/events/ComponentEvent";
-export { ComponentSize } from "./component/util/ComponentSize";
-export {
-    ComponentGeometryEvent,
-    ComponentHoverEvent,
-    ComponentMarkerEvent,
-    ComponentPlayEvent,
-    ComponentStateEvent,
-    ComponentTagModeEvent,
-} from "./component/events/ComponentStateEvent";
-export { IComponent } from "./component/interfaces/IComponent";
-
 // Viewer types
 export { Alignment } from "./viewer/enums/Alignment";
 export { IViewer } from "./viewer/interfaces/IViewer";
@@ -95,16 +127,16 @@ export { TransitionMode } from "./state/TransitionMode";
 export { Viewer } from "./viewer/Viewer";
 
 // Viewer events
+export { ViewerBearingEvent } from "./viewer/events/ViewerBearingEvent";
 export { ViewerEvent } from "./viewer/events/ViewerEvent";
+export { ViewerEventType } from "./viewer/events/ViewerEventType";
+export { ViewerLoadingEvent } from "./viewer/events/ViewerLoadingEvent";
 export { ViewerMouseEvent } from "./viewer/events/ViewerMouseEvent";
-export {
-    ViewerBearingEvent,
-    ViewerLoadingEvent,
-    ViewerNavigableEvent,
-    ViewerNavigationEdgeStatusEvent,
-    ViewerNodeEvent,
-    ViewerStateEvent,
-} from "./viewer/events/ViewerStateEvent";
+export { ViewerNavigableEvent } from "./viewer/events/ViewerNavigableEvent";
+export { ViewerNavigationEdgeEvent }
+    from "./viewer/events/ViewerNavigationEdgeEvent";
+export { ViewerNodeEvent } from "./viewer/events/ViewerNodeEvent";
+export { ViewerStateEvent } from "./viewer/events/ViewerStateEvent";
 
 // Viewer options
 export { ComponentOptions } from "./viewer/options/ComponentOptions";
@@ -130,6 +162,7 @@ export { MapillaryError } from "./error/MapillaryError";
 
 // Namespaces
 export * as API from "./export/APINamespace";
+export * as Component from "./export/ComponentNamespace";
 export * as Geo from "./export/GeoNamespace";
 export * as Tile from "./export/TileNamespace";
 

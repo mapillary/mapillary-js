@@ -1,7 +1,9 @@
-import { Tag } from "./Tag";
-import { TagEvent } from "./TagEvent";
+import { Tag } from "../Tag";
+import { TagEventType } from "./TagEventType";
 
 /**
+ * @event
+ *
  * `TagStateEvent` is the event type for tag
  * state changes.
  *
@@ -23,5 +25,5 @@ export interface TagStateEvent {
     /**
      * The event type.
      */
-    type: TagEvent;
+    type: TagEventType;
 }

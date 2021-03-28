@@ -5,7 +5,7 @@ import { NavigatorMockCreator } from "../helper/NavigatorMockCreator";
 import { EventEmitter } from "../../src/util/EventEmitter";
 import { Observer } from "../../src/viewer/Observer";
 import { Viewer } from "../../src/viewer/Viewer";
-import { ViewerLoadingEvent } from "../../src/viewer/events/ViewerStateEvent";
+import { ViewerLoadingEvent } from "../../src/viewer/events/ViewerLoadingEvent";
 
 describe("Observer.ctor", () => {
     it("should be defined", () => {

@@ -232,7 +232,6 @@ describe("S2GeometryProvider.bboxToCellIds", () => {
             for (let latLon of latLons) {
                 const cellId = geometry.latLonToCellId(latLon);
                 const adjacent = geometry.getAdjacent(cellId);
-                console.log(adjacent);
                 expect(adjacent.length).toBe(8);
             }
         });

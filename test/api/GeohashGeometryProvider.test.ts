@@ -172,7 +172,6 @@ describe("GeohashGeometryProvider.bboxToCellIds", () => {
             ];
 
             for (let latLon of latLons) {
-                console.log(latLon)
                 const cellId = geometry.latLonToCellId(latLon);
                 const adjacent = geometry.getAdjacent(cellId);
                 expect(adjacent.length).toBe(8);

@@ -17,8 +17,10 @@ import { ComponentOptions } from "./options/ComponentOptions";
 import { Component } from "../component/Component";
 import { ComponentService } from "../component/ComponentService";
 import { CoverComponent } from "../component/cover/CoverComponent";
-import { ComponentConfiguration } from "../component/interfaces/ComponentConfiguration";
-import { CoverConfiguration } from "../component/interfaces/CoverConfiguration";
+import { ComponentConfiguration }
+    from "../component/interfaces/ComponentConfiguration";
+import { CoverConfiguration }
+    from "../component/interfaces/CoverConfiguration";
 import { Node } from "../graph/Node";
 import { CoverState } from "../component/cover/CoverState";
 
