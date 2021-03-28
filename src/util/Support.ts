@@ -60,6 +60,17 @@ export function isObjectSupported(): boolean {
     );
 }
 
+export function isPromiseSupported(): boolean {
+    return !!(
+        "Promise" in window &&
+        Promise.resolve &&
+        Promise.reject &&
+        Promise.prototype &&
+        Promise.prototype.catch &&
+        Promise.prototype.then
+    );
+}
+
 export function isSetSupported(): boolean {
     return "Set" in window;
 }
@@ -139,5 +150,6 @@ export function isFallbackSupported(): boolean {
         isJSONSupported() &&
         isMapSupported() &&
         isObjectSupported() &&
+        isPromiseSupported() &&
         isSetSupported();
 }
