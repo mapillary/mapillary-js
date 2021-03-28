@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { Unprojection } from "./interfaces/Unprojection";
 
-import { LatLon } from "../api/interfaces/LatLon";
+import { LngLat } from "../api/interfaces/LngLat";
 import { Spatial } from "../geo/Spatial";
 import { Transform } from "../geo/Transform";
 import { ViewportCoords } from "../geo/ViewportCoords";
@@ -81,55 +81,55 @@ export class Projection {
         const direction3d: THREE.Vector3 = point3d.clone().sub(render.camera.position).normalize();
         const dist: number = -2 / direction3d.z;
 
-        let latLon: LatLon = null;
+        let lngLat: LngLat = null;
         if (dist > 0 && dist < 100 && !!basicPoint) {
             const point: THREE.Vector3 = direction3d.clone().multiplyScalar(dist).add(render.camera.position);
-            const latLonArray: number[] = enuToGeodetic(
+            const lngLatArray: number[] = enuToGeodetic(
                 point.x,
                 point.y,
                 point.z,
                 reference.lat,
-                reference.lon,
+                reference.lng,
                 reference.alt)
                 .slice(0, 2);
 
-            latLon = { lat: latLonArray[0], lon: latLonArray[1] };
+            lngLat = { lat: lngLatArray[0], lng: lngLatArray[1] };
         }
 
         const unprojection: Unprojection = {
             basicPoint: basicPoint,
-            latLon: latLon,
+            lngLat: lngLat,
             pixelPoint: [canvasX, canvasY],
         };
 
         return unprojection;
     }
 
-    public cameraToLatLon(render: RenderCamera, reference: LatLonAlt): LatLon {
+    public cameraToLngLat(render: RenderCamera, reference: LatLonAlt): LngLat {
         const position: THREE.Vector3 = render.camera.position;
         const [lat, lon]: number[] = enuToGeodetic(
             position.x,
             position.y,
             position.z,
             reference.lat,
-            reference.lon,
+            reference.lng,
             reference.alt);
 
-        return { lat: lat, lon: lon };
+        return { lat: lat, lng: lon };
     }
 
-    public latLonToCanvas(
-        latLon: LatLon,
+    public lngLatToCanvas(
+        lngLat: LngLat,
         container: HTMLElement,
         render: RenderCamera,
         reference: LatLonAlt): number[] {
 
         const point3d: number[] = geodeticToEnu(
-            latLon.lat,
-            latLon.lon,
+            lngLat.lat,
+            lngLat.lng,
             0,
             reference.lat,
-            reference.lon,
+            reference.lng,
             reference.alt);
 
         const canvas: number[] = this._viewportCoords.projectToCanvasSafe(
@@ -140,11 +140,11 @@ export class Projection {
         return canvas;
     }
 
-    public distanceBetweenLatLons(latLon1: LatLon, latLon2: LatLon): number {
+    public distanceBetweenLatLons(lngLat1: LngLat, lngLat2: LngLat): number {
         return this._spatial.distanceFromLatLon(
-            latLon1.lat,
-            latLon1.lon,
-            latLon2.lat,
-            latLon2.lon);
+            lngLat1.lat,
+            lngLat1.lng,
+            lngLat2.lat,
+            lngLat2.lng);
     }
 }

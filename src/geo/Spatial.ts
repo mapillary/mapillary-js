@@ -254,12 +254,12 @@ export class Spatial {
     public distanceFromLatLon(lat1: number, lon1: number, lat2: number, lon2: number): number {
         let r: number = 6371000;
         let dLat: number = this.degToRad(lat2 - lat1);
-        let dLon: number = this.degToRad(lon2 - lon1);
+        let dLng: number = this.degToRad(lon2 - lon1);
 
         let hav: number =
             Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos(this.degToRad(lat1)) * Math.cos(this.degToRad(lat2)) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
 
         let d: number = 2 * r * Math.atan2(Math.sqrt(hav), Math.sqrt(1 - hav));
 

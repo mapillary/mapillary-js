@@ -13,9 +13,9 @@ export class ImageHelper {
 
     public createCoreImageEnt(): CoreImageEnt {
         return {
-            computed_geometry: { lat: 0, lon: 0 },
+            computed_geometry: { lat: 0, lng: 0 },
             id: this._imageId,
-            geometry: { lat: 0, lon: 0 },
+            geometry: { lat: 0, lng: 0 },
             sequence: { id: this._sequenceId },
         };
     }
@@ -60,14 +60,14 @@ export class ImageHelper {
             camera_type: "perspective",
             captured_at: 0,
             computed_compass_angle: 0,
-            computed_geometry: { lat: 0, lon: 0 },
+            computed_geometry: { lat: 0, lng: 0 },
             cluster: {
                 id: this._clusterId,
                 url: this._clusterId + "_url",
             },
             creator: { id: this._creatorId, username: this._creatorUsername },
             exif_orientation: 0,
-            geometry: { lat: 0, lon: 0 },
+            geometry: { lat: 0, lng: 0 },
             height: 1,
             id: this._imageId,
             merge_cc: 1,

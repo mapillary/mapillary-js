@@ -52,7 +52,7 @@ import { SpatialDataScene } from "./SpatialDataScene";
 import { SpatialDataCache } from "./SpatialDataCache";
 import { CameraType } from "../../geo/interfaces/CameraType";
 import { geodeticToEnu } from "../../geo/GeoCoords";
-import { LatLon } from "../../api/interfaces/LatLon";
+import { LngLat } from "../../api/interfaces/LngLat";
 
 type IntersectEvent = MouseEvent | FocusEvent;
 
@@ -124,7 +124,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                 map(
                     (image: Image): string => {
                         return this._navigator.api.data.geometry
-                            .latLonToCellId(image.latLon);
+                            .lngLatToCellId(image.lngLat);
                     }),
                 distinctUntilChanged(),
                 publishReplay(1),
@@ -175,7 +175,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                         : Observable<string[]> => {
                         if (earth) {
                             const cellId = this._navigator.api.data.geometry
-                                .latLonToCellId(image.latLon);
+                                .lngLatToCellId(image.lngLat);
                             const cells = sequencePlay ?
                                 [cellId] :
                                 this._adjacentComponent(cellId, 1)
@@ -587,7 +587,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         : string[] {
         const spatial = this._spatial;
         const geometry = this._navigator.api.data.geometry;
-        const cell = geometry.latLonToCellId(image.latLon);
+        const cell = geometry.lngLatToCellId(image.lngLat);
         const cells = [cell];
         const threshold = fov / 2;
         const adjacent = geometry.getAdjacent(cell);
@@ -597,10 +597,10 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                 const [x, y] =
                     geodeticToEnu(
                         vertex.lat,
-                        vertex.lon,
+                        vertex.lng,
                         0,
-                        image.latLon.lat,
-                        image.latLon.lon,
+                        image.lngLat.lat,
+                        image.lngLat.lng,
                         0);
                 const azimuthal = Math.atan2(y, x);
                 const vertexBearing = spatial.radToDeg(
@@ -616,11 +616,11 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
 
     private _computeOriginalPosition(image: Image, reference: LatLonAlt): number[] {
         return geodeticToEnu(
-            image.originalLatLon.lat,
-            image.originalLatLon.lon,
+            image.originalLngLat.lat,
+            image.originalLngLat.lng,
             image.originalAltitude != null ? image.originalAltitude : image.computedAltitude,
             reference.lat,
-            reference.lon,
+            reference.lng,
             reference.alt);
     }
 
@@ -629,13 +629,13 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
             this._navigator.api.data.geometry
                 .getVertices(cellId)
                 .map(
-                    (vertex: LatLon): number[] => {
+                    (vertex: LngLat): number[] => {
                         return geodeticToEnu(
                             vertex.lat,
-                            vertex.lon,
+                            vertex.lng,
                             0,
                             reference.lat,
-                            reference.lon,
+                            reference.lng,
                             reference.alt);
                     });
 
@@ -648,16 +648,16 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
         : number[] {
         return geodeticToEnu(
             reconstruction.reference.lat,
-            reconstruction.reference.lon,
+            reconstruction.reference.lng,
             reconstruction.reference.alt,
             reference.lat,
-            reference.lon,
+            reference.lng,
             reference.alt);
     }
 
     private _createTransform(image: Image, reference: LatLonAlt): Transform {
         const translation: number[] = Geo.computeTranslation(
-            { alt: image.computedAltitude, lat: image.latLon.lat, lon: image.latLon.lon },
+            { alt: image.computedAltitude, lat: image.lngLat.lat, lng: image.lngLat.lng },
             image.rotation,
             reference);
 

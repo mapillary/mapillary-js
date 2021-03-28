@@ -52,7 +52,7 @@ let createState: () => IStateBase = (): IStateBase => {
         alpha: 1,
         camera: new Camera(),
         currentIndex: -1,
-        reference: { alt: 0, lat: 0, lon: 0 },
+        reference: { alt: 0, lat: 0, lng: 0 },
         trajectory: [],
         transitionMode: TransitionMode.Default,
         zoom: 0,

@@ -766,7 +766,7 @@ describe("FalcorDataProvider.getClusterReconstruction", () => {
                     expect(r.points).toEqual({});
                     expect(r.reference.alt).toBe(1);
                     expect(r.reference.lat).toBe(2);
-                    expect(r.reference.lon).toBe(3);
+                    expect(r.reference.lng).toBe(3);
 
                     done();
                 });

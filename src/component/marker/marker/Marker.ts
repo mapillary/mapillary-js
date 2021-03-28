@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { LatLon } from "../../../api/interfaces/LatLon";
+import { LngLat } from "../../../api/interfaces/LngLat";
 
 /**
  * @class Marker
@@ -10,11 +10,11 @@ import { LatLon } from "../../../api/interfaces/LatLon";
 export abstract class Marker {
     protected _id: string;
     protected _geometry: THREE.Object3D;
-    protected _latLon: LatLon;
+    protected _lngLat: LngLat;
 
-    constructor(id: string, latLon: LatLon) {
+    constructor(id: string, lngLat: LngLat) {
         this._id = id;
-        this._latLon = latLon;
+        this._lngLat = lngLat;
     }
 
     /**
@@ -35,11 +35,11 @@ export abstract class Marker {
     }
 
     /**
-     * Get lat lon.
-     * @returns {LatLon} The geographic coordinates of the marker.
+     * Get lngLat.
+     * @returns {LngLat} The geographic coordinates of the marker.
      */
-    public get latLon(): LatLon {
-        return this._latLon;
+    public get lngLat(): LngLat {
+        return this._lngLat;
     }
 
     /** @ignore */
@@ -84,10 +84,10 @@ export abstract class Marker {
     }
 
     /** @ignore */
-    public updatePosition(position: number[], latLon?: LatLon): void {
-        if (!!latLon) {
-            this._latLon.lat = latLon.lat;
-            this._latLon.lon = latLon.lon;
+    public updatePosition(position: number[], lngLat?: LngLat): void {
+        if (!!lngLat) {
+            this._lngLat.lat = lngLat.lat;
+            this._lngLat.lng = lngLat.lng;
         }
 
         if (!this._geometry) {

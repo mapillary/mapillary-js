@@ -55,7 +55,7 @@ Refer to the [Examples](#examples) section below and the [Index](./modules.html)
 - [Change filters](https://bl.ocks.org/oscarlorentzon/10dad7582268312b1adac2c3a869c5c5)
 - [Get center and zoom](https://bl.ocks.org/oscarlorentzon/752ffc27a31299f4ec9eb5b4e09b2d82)
 - [Set center and zoom](https://bl.ocks.org/oscarlorentzon/54ef2277ce60e62f51891af699fad871)
-- [LatLon, computedLatLon and originalLatLon explained](https://bl.ocks.org/oscarlorentzon/16946cb9eedfad2a64669cb1121e6c75)
+- [LngLat, computedLngLat and originalLngLat explained](https://bl.ocks.org/oscarlorentzon/16946cb9eedfad2a64669cb1121e6c75)
 - [Get bearing](https://bl.ocks.org/oscarlorentzon/ca9cee671156c685aca3e1f0f52a230e)
 - [Side by side compare](https://bl.ocks.org/oscarlorentzon/1f2992f9f510d908a0a2c7212f0359cf)
 

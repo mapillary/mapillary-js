@@ -1,7 +1,7 @@
 import { S2 } from "s2-geometry";
 
 import { GeometryProviderBase } from "./GeometryProviderBase";
-import { LatLon } from "./interfaces/LatLon";
+import { LngLat } from "./interfaces/LngLat";
 
 /**
  * @class S2GeometryProvider
@@ -25,7 +25,7 @@ export class S2GeometryProvider extends GeometryProviderBase {
     constructor(private readonly _level: number = 17) { super(); }
 
     /** @inheritdoc */
-    public bboxToCellIds(sw: LatLon, ne: LatLon): string[] {
+    public bboxToCellIds(sw: LngLat, ne: LngLat): string[] {
         return this._approxBboxToCellIds(sw, ne);
     }
 
@@ -61,20 +61,20 @@ export class S2GeometryProvider extends GeometryProviderBase {
     }
 
     /** @inheritdoc */
-    public getVertices(cellId: string): LatLon[] {
+    public getVertices(cellId: string): LngLat[] {
         const key = S2.idToKey(cellId);
         const cell = S2.S2Cell.FromHilbertQuadKey(key);
         return cell
             .getCornerLatLngs()
             .map(
-                (c: S2.ILatLng): LatLon => {
-                    return { lat: c.lat, lon: c.lng };
+                (c: S2.ILatLng): LngLat => {
+                    return { lat: c.lat, lng: c.lng };
                 });
     }
 
     /** @inheritdoc */
-    public latLonToCellId(latLon: LatLon): string {
-        return this._latLonToId(latLon, this._level);
+    public lngLatToCellId(lngLat: LngLat): string {
+        return this._lngLatToId(lngLat, this._level);
     }
 
     private _getNeighbors(s2key: string, level: number): string[] {
@@ -87,10 +87,10 @@ export class S2GeometryProvider extends GeometryProviderBase {
         return neighbors;
     }
 
-    private _latLonToId(latLon: LatLon, level: number): string {
+    private _lngLatToId(lngLat: LngLat, level: number): string {
         const s2key = S2.latLngToKey(
-            latLon.lat,
-            latLon.lon,
+            lngLat.lat,
+            lngLat.lng,
             level);
 
         return S2.keyToId(s2key);

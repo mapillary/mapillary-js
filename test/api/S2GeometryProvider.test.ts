@@ -1,5 +1,5 @@
 import { S2 } from "s2-geometry";
-import { LatLon } from "../../src/api/interfaces/LatLon";
+import { LngLat } from "../../src/api/interfaces/LngLat";
 import { S2GeometryProvider } from "../../src/api/S2GeometryProvider";
 import { MapillaryError } from "../../src/error/MapillaryError";
 import * as GeoCoords from "../../src/geo/GeoCoords";
@@ -13,7 +13,7 @@ describe("S2GeometryProvider.ctor", () => {
     });
 });
 
-describe("GS2GeometryProvider.latLonToCellId", () => {
+describe("GS2GeometryProvider.lngLatToCellId", () => {
     it("should call geometry correctly", () => {
         const keySpy = spyOn(S2, "latLngToKey");
         const idSpy = spyOn(S2, "keyToId");
@@ -24,12 +24,12 @@ describe("GS2GeometryProvider.latLonToCellId", () => {
         const geometry = new S2GeometryProvider(level);
 
         const lat = -1;
-        const lon = 1;
-        geometry.latLonToCellId({ lat, lon });
+        const lng = 1;
+        geometry.lngLatToCellId({ lat, lng });
 
         expect(keySpy.calls.count()).toBe(1);
         expect(keySpy.calls.first().args[0]).toBe(lat);
-        expect(keySpy.calls.first().args[1]).toBe(lon);
+        expect(keySpy.calls.first().args[1]).toBe(lng);
         expect(keySpy.calls.first().args[2]).toBe(level);
 
         expect(idSpy.calls.count()).toBe(1);
@@ -96,13 +96,13 @@ describe("S2GeometryProvider.bboxToCellIds", () => {
             spyOn(GeoCoords, "geodeticToEnu").and.callFake(
                 (
                     lat: number,
-                    lon: number,
+                    lng: number,
                     _: number,
                     refLat: number,
-                    refLon: number)
+                    refLng: number)
                     : number[] => {
                     return [
-                        tileSize * (lon - refLon),
+                        tileSize * (lng - refLng),
                         tileSize * (lat - refLat),
                         0];
                 });
@@ -121,8 +121,8 @@ describe("S2GeometryProvider.bboxToCellIds", () => {
         const tileSize = 1;
         setupSpies(tileSize);
 
-        const sw: LatLon = { lat: -0.1, lon: -0.1 };
-        const ne: LatLon = { lat: 0.1, lon: 0.1 };
+        const sw: LngLat = { lat: -0.1, lng: -0.1 };
+        const ne: LngLat = { lat: 0.1, lng: 0.1 };
         const cellIds = geometry.bboxToCellIds(sw, ne);
 
         expect(cellIds.length).toBe(1);
@@ -134,8 +134,8 @@ describe("S2GeometryProvider.bboxToCellIds", () => {
         const tileSize = 1;
         setupSpies(tileSize);
 
-        const sw: LatLon = { lat: -0.6, lon: -0.6 };
-        const ne: LatLon = { lat: 0.6, lon: 0.6 };
+        const sw: LngLat = { lat: -0.6, lng: -0.6 };
+        const ne: LngLat = { lat: 0.6, lng: 0.6 };
         const cellIds = geometry.bboxToCellIds(sw, ne);
 
         expect(cellIds.length).toBe(9);
@@ -157,21 +157,21 @@ describe("S2GeometryProvider.bboxToCellIds", () => {
             expect(() => {
                 geometry
                     .bboxToCellIds(
-                        { lat: 0, lon: 0 },
-                        { lat: -1, lon: 1 });
+                        { lat: 0, lng: 0 },
+                        { lat: -1, lng: 1 });
             }).toThrowError(MapillaryError);
 
             expect(() => {
                 geometry
                     .bboxToCellIds(
-                        { lat: 0, lon: 0 },
-                        { lat: 1, lon: -1 });
+                        { lat: 0, lng: 0 },
+                        { lat: 1, lng: -1 });
             }).toThrowError(MapillaryError);
 
             expect(() => {
                 geometry.bboxToCellIds(
-                    { lat: 0, lon: 0 },
-                    { lat: -1, lon: -1 });
+                    { lat: 0, lng: 0 },
+                    { lat: -1, lng: -1 });
             }).toThrowError(MapillaryError);
         });
     });
@@ -180,28 +180,28 @@ describe("S2GeometryProvider.bboxToCellIds", () => {
         it("should be correctly placed relative to each other", () => {
             const geometry = new S2GeometryProvider();
 
-            const latLons: LatLon[] = [
-                { lat: 0, lon: 0 },
-                { lat: 45, lon: 0 },
-                { lat: 0, lon: 45 },
-                { lat: -45, lon: 0 },
-                { lat: 0, lon: -45 },
-                { lat: 45, lon: 45 },
-                { lat: -45, lon: -45 },
-                { lat: 45, lon: -45 },
-                { lat: -45, lon: 45 },
-                { lat: -45, lon: 135 },
+            const lngLats: LngLat[] = [
+                { lat: 0, lng: 0 },
+                { lat: 45, lng: 0 },
+                { lat: 0, lng: 45 },
+                { lat: -45, lng: 0 },
+                { lat: 0, lng: -45 },
+                { lat: 45, lng: 45 },
+                { lat: -45, lng: -45 },
+                { lat: 45, lng: -45 },
+                { lat: -45, lng: 45 },
+                { lat: -45, lng: 135 },
             ];
 
-            for (let latLon of latLons) {
-                const cellId = geometry.latLonToCellId(latLon);
+            for (let lngLat of lngLats) {
+                const cellId = geometry.lngLatToCellId(lngLat);
                 const vertices = geometry.getVertices(cellId);
                 expect(vertices.length).toBe(4);
 
                 const polygon = vertices
                     .map(
-                        (ll: LatLon): number[] => {
-                            return [ll.lon, ll.lat];
+                        (ll: LngLat): number[] => {
+                            return [ll.lng, ll.lat];
                         });
 
                 expect(isClockwise(polygon)).toBe(true);
@@ -213,24 +213,24 @@ describe("S2GeometryProvider.bboxToCellIds", () => {
         it("should always be 8", () => {
             const geometry = new S2GeometryProvider();
 
-            const latLons: LatLon[] = [
-                { lat: 0, lon: 0 },
-                { lat: 45, lon: 0 },
-                { lat: 0, lon: 45 },
-                { lat: -45, lon: 0 },
-                { lat: 0, lon: -45 },
-                { lat: 45, lon: 45 },
-                { lat: -45, lon: -45 },
-                { lat: 45, lon: -45 },
-                { lat: -45, lon: 45 },
-                { lat: -45, lon: 135 },
-                { lat: -45, lon: 180 },
-                { lat: 0, lon: 180 },
-                { lat: 45, lon: 180 },
+            const lngLats: LngLat[] = [
+                { lat: 0, lng: 0 },
+                { lat: 45, lng: 0 },
+                { lat: 0, lng: 45 },
+                { lat: -45, lng: 0 },
+                { lat: 0, lng: -45 },
+                { lat: 45, lng: 45 },
+                { lat: -45, lng: -45 },
+                { lat: 45, lng: -45 },
+                { lat: -45, lng: 45 },
+                { lat: -45, lng: 135 },
+                { lat: -45, lng: 180 },
+                { lat: 0, lng: 180 },
+                { lat: 45, lng: 180 },
             ];
 
-            for (let latLon of latLons) {
-                const cellId = geometry.latLonToCellId(latLon);
+            for (let lngLat of lngLats) {
+                const cellId = geometry.lngLatToCellId(lngLat);
                 const adjacent = geometry.getAdjacent(cellId);
                 expect(adjacent.length).toBe(8);
             }

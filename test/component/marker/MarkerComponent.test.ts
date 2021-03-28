@@ -39,11 +39,11 @@ describe("MarkerComponent.add", () => {
     });
 
     it("should be able to create two markers at the exact same position", () => {
-        let m1: Marker = new SimpleMarker("1", { lat: 0, lon: 0 }, {});
+        let m1: Marker = new SimpleMarker("1", { lat: 0, lng: 0 }, {});
         markerComponent.add([m1]);
         expect(markerComponent.getAll().length).toBe(1);
 
-        let m2: Marker = new SimpleMarker("2", { lat: 0, lon: 0 }, {});
+        let m2: Marker = new SimpleMarker("2", { lat: 0, lng: 0 }, {});
         markerComponent.add([m2]);
         expect(markerComponent.getAll().length).toBe(2);
 
@@ -55,17 +55,17 @@ describe("MarkerComponent.add", () => {
     });
 
     it("should be able to update an marker by using the same id", () => {
-        let m1: Marker = new SimpleMarker("1", { lat: 0, lon: 0 }, {});
+        let m1: Marker = new SimpleMarker("1", { lat: 0, lng: 0 }, {});
         markerComponent.add([m1]);
         expect(markerComponent.getAll().length).toBe(1);
-        expect(markerComponent.get("1").latLon.lat).toBe(0);
-        expect(markerComponent.get("1").latLon.lon).toBe(0);
+        expect(markerComponent.get("1").lngLat.lat).toBe(0);
+        expect(markerComponent.get("1").lngLat.lng).toBe(0);
 
-        let m2: Marker = new SimpleMarker("1", { lat: 1, lon: 1 }, {});
+        let m2: Marker = new SimpleMarker("1", { lat: 1, lng: 1 }, {});
         markerComponent.add([m2]);
         expect(markerComponent.getAll().length).toBe(1);
-        expect(markerComponent.get("1").latLon.lat).toBe(1);
-        expect(markerComponent.get("1").latLon.lon).toBe(1);
+        expect(markerComponent.get("1").lngLat.lat).toBe(1);
+        expect(markerComponent.get("1").lngLat.lng).toBe(1);
     });
 });
 

@@ -7,7 +7,7 @@ import {
     first,
 } from "rxjs/operators";
 
-import { LatLon } from "../api/interfaces/LatLon";
+import { LngLat } from "../api/interfaces/LngLat";
 import { Component } from "../component/Component";
 import { ComponentConfiguration }
     from "../component/interfaces/ComponentConfiguration";
@@ -459,7 +459,7 @@ export class Viewer extends EventEmitter implements IViewer {
     /**
      * Get the viewer's current position
      *
-     * @returns {Promise<LatLon>} Promise to the viewers's current
+     * @returns {Promise<LngLat>} Promise to the viewers's current
      * position.
      *
      * @example
@@ -467,16 +467,16 @@ export class Viewer extends EventEmitter implements IViewer {
      * viewer.getPosition().then((pos) => { console.log(pos); });
      * ```
      */
-    public getPosition(): Promise<LatLon> {
-        return new Promise<LatLon>(
-            (resolve: (value: LatLon) => void, reject: (reason: Error) => void): void => {
+    public getPosition(): Promise<LngLat> {
+        return new Promise<LngLat>(
+            (resolve: (value: LngLat) => void, reject: (reason: Error) => void): void => {
                 observableCombineLatest(
                     this._container.renderService.renderCamera$,
                     this._navigator.stateService.reference$).pipe(
                         first())
                     .subscribe(
                         ([render, reference]: [RenderCamera, LatLonAlt]): void => {
-                            resolve(this._observer.projection.cameraToLatLon(render, reference));
+                            resolve(this._observer.projection.cameraToLngLat(render, reference));
                         },
                         (error: Error): void => {
                             reject(error);
@@ -1014,7 +1014,7 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
-     * Project an ILatLon representing geographicalcoordinates to
+     * Project an LngLat representing geographicalcoordinates to
      * canvas pixel coordinates.
      *
      * @description The geographical coordinates may not always correspond to pixel
@@ -1032,13 +1032,13 @@ export class Viewer extends EventEmitter implements IViewer {
      * Note that whenever the camera moves, the result of the method will be
      * different.
      *
-     * @param {LatLon} latLon - Geographical coordinates to project.
+     * @param {LngLat} lngLat - Geographical coordinates to project.
      * @returns {Promise<Array<number>>} Promise to the pixel coordinates corresponding
-     * to the latLon.
+     * to the lngLat.
      *
      * @example
      * ```js
-     * viewer.project({ lat: 0, lon: 0 })
+     * viewer.project({ lat: 0, lng: 0 })
      *     .then((pixelPoint) => {
      *          if (!pixelPoint) {
      *              console.log("no correspondence");
@@ -1048,10 +1048,10 @@ export class Viewer extends EventEmitter implements IViewer {
      *     });
      * ```
      */
-    public project(latLon: LatLon): Promise<number[]> {
+    public project(lngLat: LngLat): Promise<number[]> {
         return new Promise<number[]>(
             (resolve: (value: number[]) => void, reject: (reason: Error) => void): void => {
-                this._observer.project$(latLon)
+                this._observer.project$(lngLat)
                     .subscribe(
                         (pixelPoint: number[]): void => {
                             resolve(pixelPoint);
@@ -1388,25 +1388,25 @@ export class Viewer extends EventEmitter implements IViewer {
      * coordinates. In the case of no correspondence the returned value will
      * be `null`.
      *
-     * The unprojection to a latLon will be performed towards the ground plane, i.e.
-     * the altitude with respect to the ground plane for the returned latLon is zero.
+     * The unprojection to a lngLat will be performed towards the ground plane, i.e.
+     * the altitude with respect to the ground plane for the returned lngLat is zero.
      *
      * @param {Array<number>} pixelPoint - Pixel coordinates to unproject.
-     * @returns {Promise<LatLon>} Promise to the latLon corresponding to the pixel point.
+     * @returns {Promise<LngLat>} Promise to the lngLat corresponding to the pixel point.
      *
      * @example
      * ```js
      * viewer.unproject([100, 100])
-     *     .then((latLon) => { console.log(latLon); });
+     *     .then((lngLat) => { console.log(lngLat); });
      * ```
      */
-    public unproject(pixelPoint: number[]): Promise<LatLon> {
-        return new Promise<LatLon>(
-            (resolve: (value: LatLon) => void, reject: (reason: Error) => void): void => {
+    public unproject(pixelPoint: number[]): Promise<LngLat> {
+        return new Promise<LngLat>(
+            (resolve: (value: LngLat) => void, reject: (reason: Error) => void): void => {
                 this._observer.unproject$(pixelPoint)
                     .subscribe(
-                        (latLon: LatLon): void => {
-                            resolve(latLon);
+                        (lngLat: LngLat): void => {
+                            resolve(lngLat);
                         },
                         (error: Error): void => {
                             reject(error);
@@ -1423,7 +1423,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * be `null`.
      *
      * @param {Array<number>} pixelPoint - Pixel coordinates to unproject.
-     * @returns {Promise<LatLon>} Promise to the basic coordinates corresponding
+     * @returns {Promise<LngLat>} Promise to the basic coordinates corresponding
      * to the pixel point.
      *
      * @example

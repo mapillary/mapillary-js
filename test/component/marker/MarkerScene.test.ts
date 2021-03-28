@@ -1,10 +1,10 @@
 import * as THREE from "three";
-import { LatLon } from "../../../src/api/interfaces/LatLon";
+import { LngLat } from "../../../src/api/interfaces/LngLat";
 import { Marker } from "../../../src/component/marker/marker/Marker";
 import { MarkerScene } from "../../../src/component/marker/MarkerScene";
 
 class TestMarker extends Marker {
-    constructor(id: string, latLon: LatLon) { super(id, latLon); }
+    constructor(id: string, lngLat: LngLat) { super(id, lngLat); }
     protected _createGeometry(position: number[]): void { /* noop */ }
     protected _disposeGeometry(): void { /* noop */ }
     protected _getInteractiveObjects(): THREE.Object3D[] { return []; }
@@ -42,7 +42,7 @@ describe("MarkerScene.add", () => {
 
         let markerScene: MarkerScene = new MarkerScene(scene);
 
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
 
         let createGeometrySpy: jasmine.Spy = spyOn(marker, "createGeometry").and.stub();
         let getInteractiveSpy: jasmine.Spy = spyOn(marker, "getInteractiveObjects");
@@ -67,7 +67,7 @@ describe("MarkerScene.render", () => {
 
         let markerScene: MarkerScene = new MarkerScene(scene);
 
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
 
         spyOn(marker, "createGeometry").and.stub();
         spyOn(marker, "getInteractiveObjects").and.returnValue([]);
@@ -93,7 +93,7 @@ describe("MarkerScene.clear", () => {
         spyOn(scene, "add").and.stub();
 
         let markerScene: MarkerScene = new MarkerScene(scene);
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
 
         spyOn(marker, "createGeometry").and.stub();
         spyOn(marker, "getInteractiveObjects").and.returnValue([]);
@@ -123,7 +123,7 @@ describe("MarkerScene.remove", () => {
         spyOn(scene, "add").and.stub();
 
         let markerScene: MarkerScene = new MarkerScene(scene);
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
 
         spyOn(marker, "createGeometry").and.stub();
         spyOn(marker, "getInteractiveObjects").and.returnValue([]);
@@ -154,7 +154,7 @@ describe("MarkerScene.has", () => {
 
         let markerScene: MarkerScene = new MarkerScene(scene);
 
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
 
         spyOn(marker, "createGeometry").and.stub();
         spyOn(marker, "getInteractiveObjects").and.returnValue([]);
@@ -177,14 +177,14 @@ describe("MarkerScene.update", () => {
 
         let markerScene: MarkerScene = new MarkerScene(scene);
 
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
 
         spyOn(marker, "createGeometry").and.stub();
         spyOn(marker, "getInteractiveObjects").and.returnValue([]);
         let updateSpy: jasmine.Spy = spyOn(marker, "updatePosition");
 
         markerScene.add(marker, [0, 0, 0]);
-        markerScene.update(marker.id, [1, 1, 1], { lat: 1, lon: 1 });
+        markerScene.update(marker.id, [1, 1, 1], { lat: 1, lng: 1 });
 
         expect(updateSpy.calls.count()).toBe(1);
     });
@@ -204,7 +204,7 @@ describe("MarkerScene.intersectObjects", () => {
         spyOn(raycaster, "intersectObjects").and.returnValue([intersection]);
         spyOn(raycaster, "setFromCamera").and.stub();
 
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
         spyOn(marker, "createGeometry").and.stub();
         spyOn(marker, "getInteractiveObjects").and.returnValue([interactiveObject]);
 

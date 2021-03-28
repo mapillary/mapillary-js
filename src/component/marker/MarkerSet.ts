@@ -2,12 +2,12 @@ import {
     Observable,
     Subject,
 } from "rxjs";
-import { LatLon } from "../../api/interfaces/LatLon";
+import { LngLat } from "../../api/interfaces/LngLat";
 import { Marker } from "./marker/Marker";
 
 type MarkerIndexItem = {
     lat: number;
-    lon: number;
+    lng: number;
     marker: Marker;
 };
 
@@ -54,8 +54,8 @@ export class MarkerSet {
             }
 
             const item: MarkerIndexItem = {
-                lat: marker.latLon.lat,
-                lon: marker.latLon.lon,
+                lat: marker.lngLat.lat,
+                lng: marker.lngLat.lng,
                 marker: marker,
             };
 
@@ -117,13 +117,13 @@ export class MarkerSet {
         this._indexChanged$.next(this);
     }
 
-    public search([sw, ne]: [LatLon, LatLon]): Marker[] {
+    public search([sw, ne]: [LngLat, LngLat]): Marker[] {
         return this._index
             .search({
-                maxX: ne.lat,
-                maxY: ne.lon,
-                minX: sw.lat,
-                minY: sw.lon,
+                maxX: ne.lng,
+                maxY: ne.lat,
+                minX: sw.lng,
+                minY: sw.lat,
             })
             .map(
                 (indexItem: MarkerIndexItem): Marker => {
@@ -143,8 +143,8 @@ export class MarkerSet {
         index.remove(hash[id]);
 
         const item: MarkerIndexItem = {
-            lat: marker.latLon.lat,
-            lon: marker.latLon.lon,
+            lat: marker.lngLat.lat,
+            lng: marker.lngLat.lng,
             marker: marker,
         };
 

@@ -33,7 +33,7 @@ export class FrameHelper {
                 imagesAhead: 0,
                 previousImage: undefined,
                 previousTransform: undefined,
-                reference: { alt: 0, lat: 0, lon: 0 },
+                reference: { alt: 0, lat: 0, lng: 0 },
                 state: State.Traversing,
                 trajectory: [currentImage],
                 zoom: 0,

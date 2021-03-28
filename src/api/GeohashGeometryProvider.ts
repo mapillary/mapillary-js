@@ -1,7 +1,7 @@
 import * as geohash from "latlon-geohash";
 
 import { GeometryProviderBase } from "./GeometryProviderBase";
-import { LatLon } from "./interfaces/LatLon";
+import { LngLat } from "./interfaces/LngLat";
 
 
 /**
@@ -34,22 +34,22 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
      * The method currently uses the largest side as the threshold leading to
      * more tiles being returned than needed in edge cases.
      *
-     * @param {LatLon} sw - South west corner of bounding box.
-     * @param {LatLon} ne - North east corner of bounding box.
+     * @param {LngLat} sw - South west corner of bounding box.
+     * @param {LngLat} ne - North east corner of bounding box.
      *
      * @returns {string} The geohash tiles containing the bounding box.
      */
-    public bboxToCellIds(sw: LatLon, ne: LatLon): string[] {
+    public bboxToCellIds(sw: LngLat, ne: LngLat): string[] {
         return this._approxBboxToCellIds(sw, ne);
     }
 
     /** @inheritdoc */
-    public getVertices(cellId: string): LatLon[] {
+    public getVertices(cellId: string): LngLat[] {
         const bounds = geohash.bounds(cellId);
-        const nw = { lat: bounds.ne.lat, lon: bounds.sw.lon };
-        const ne = { lat: bounds.ne.lat, lon: bounds.ne.lon };
-        const se = { lat: bounds.sw.lat, lon: bounds.ne.lon };
-        const sw = { lat: bounds.sw.lat, lon: bounds.sw.lon };
+        const nw: LngLat = { lat: bounds.ne.lat, lng: bounds.sw.lon };
+        const ne: LngLat = { lat: bounds.ne.lat, lng: bounds.ne.lon };
+        const se: LngLat = { lat: bounds.sw.lat, lng: bounds.ne.lon };
+        const sw: LngLat = { lat: bounds.sw.lat, lng: bounds.sw.lon };
         return [nw, ne, se, sw];
     }
 
@@ -71,15 +71,15 @@ export class GeohashGeometryProvider extends GeometryProviderBase {
     /**
      * Encode the geohash tile for geodetic coordinates.
      *
-     * @param {LatLon} latlon - Latitude and longitude to encode.
+     * @param {LngLat} lngLat - Latitude and longitude to encode.
      * @param {number} precision - Precision of the encoding.
      *
      * @returns {string} The geohash tile for the lat, lon and precision.
      */
-    public latLonToCellId(latLon: LatLon): string {
+    public lngLatToCellId(lngLat: LngLat): string {
         return geohash.encode(
-            latLon.lat,
-            latLon.lon,
+            lngLat.lat,
+            lngLat.lng,
             this._level);
     }
 }

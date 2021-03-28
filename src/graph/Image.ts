@@ -7,7 +7,7 @@ import { NavigationEdgeStatus } from "./interfaces/NavigationEdgeStatus";
 
 import { CoreImageEnt } from "../api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
-import { LatLon } from "../api/interfaces/LatLon";
+import { LngLat } from "../api/interfaces/LngLat";
 import { MeshContract } from "../api/contracts/MeshContract";
 
 /**
@@ -18,23 +18,23 @@ import { MeshContract } from "../api/contracts/MeshContract";
  * Explanation of position and bearing properties:
  *
  * When images are uploaded they will have GPS information in the EXIF, this is what
- * is called `originalLatLon` {@link Image.originalLatLon}.
+ * is called `originalLngLat` {@link Image.originalLngLat}.
  *
- * When Structure from Motions has been run for a image a `computedLatLon` that
- * differs from the `originalLatLon` will be created. It is different because
+ * When Structure from Motions has been run for a image a `computedLngLat` that
+ * differs from the `originalLngLat` will be created. It is different because
  * GPS positions are not very exact and SfM aligns the camera positions according
- * to the 3D reconstruction {@link Image.computedLatLon}.
+ * to the 3D reconstruction {@link Image.computedLngLat}.
  *
- * At last there exist a `latLon` property which evaluates to
- * the `computedLatLon` from SfM if it exists but falls back
- * to the `originalLatLon` from the EXIF GPS otherwise {@link Image.latLon}.
+ * At last there exist a `lngLat` property which evaluates to
+ * the `computedLngLat` from SfM if it exists but falls back
+ * to the `originalLngLat` from the EXIF GPS otherwise {@link Image.lngLat}.
  *
  * Everything that is done in in the Viewer is based on the SfM positions,
- * i.e. `computedLatLon`. That is why the smooth transitions go in the right
+ * i.e. `computedLngLat`. That is why the smooth transitions go in the right
  * direction (nd not in strange directions because of bad GPS).
  *
  * E.g. when placing a marker in the Viewer it is relative to the SfM
- * position i.e. the `computedLatLon`.
+ * position i.e. the `computedLngLat`.
  *
  * The same concept as above also applies to the compass angle (or bearing) properties
  * `originalCa`, `computedCa` and `ca`.
@@ -207,14 +207,14 @@ export class Image {
     }
 
     /**
-     * Get computedLatLon.
+     * Get computedLngLat.
      *
      * @description Will not be set if SfM has not been run.
      *
-     * @returns {LatLon} SfM computed latitude longitude in WGS84 datum,
+     * @returns {LngLat} SfM computed latitude longitude in WGS84 datum,
      * measured in degrees.
      */
-    public get computedLatLon(): LatLon {
+    public get computedLngLat(): LngLat {
         return this._core.computed_geometry;
     }
 
@@ -291,16 +291,16 @@ export class Image {
     }
 
     /**
-     * Get latLon.
+     * Get lngLat.
      *
      * @description If the SfM computed latitude longitude exist
      * it will be returned, otherwise the original EXIF latitude
      * longitude.
      *
-     * @returns {LatLon} Latitude longitude in WGS84 datum,
+     * @returns {LngLat} Latitude longitude in WGS84 datum,
      * measured in degrees.
      */
-    public get latLon(): LatLon {
+    public get lngLat(): LngLat {
         return this._core.computed_geometry != null ?
             this._core.computed_geometry :
             this._core.geometry;
@@ -373,12 +373,12 @@ export class Image {
     }
 
     /**
-     * Get originalLatLon.
+     * Get originalLngLat.
      *
-     * @returns {LatLon} Original EXIF latitude longitude in
+     * @returns {LngLat} Original EXIF latitude longitude in
      * WGS84 datum, measured in degrees.
      */
-    public get originalLatLon(): LatLon {
+    public get originalLngLat(): LngLat {
         return this._core.geometry;
     }
 

@@ -3,12 +3,12 @@ bootstrap();
 
 import { first } from "rxjs/operators";
 import { Subscription } from "rxjs";
-import { LatLon } from "../../../src/api/interfaces/LatLon";
+import { LngLat } from "../../../src/api/interfaces/LngLat";
 import { Marker } from "../../../src/component/marker/marker/Marker";
 import { MarkerSet } from "../../../src/component/marker/MarkerSet";
 
 class TestMarker extends Marker {
-    constructor(id: string, latLon: LatLon) { super(id, latLon); }
+    constructor(id: string, lngLat: LngLat) { super(id, lngLat); }
     protected _createGeometry(position: number[]): void { /* noop */ }
     protected _disposeGeometry(): void { /* noop */ }
     protected _getInteractiveObjects(): THREE.Object3D[] { return []; }
@@ -35,86 +35,86 @@ describe("MarkerSet.get", () => {
 describe("MarkerSet.add", () => {
     it("should add a single marker", () => {
         let markerSet: MarkerSet = new MarkerSet();
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
 
         markerSet.add([marker]);
 
         let result: Marker = markerSet.get(marker.id);
         expect(result).toBe(marker);
         expect(result.id).toBe(marker.id);
-        expect(result.latLon.lat).toBe(marker.latLon.lat);
-        expect(result.latLon.lon).toBe(marker.latLon.lon);
+        expect(result.lngLat.lat).toBe(marker.lngLat.lat);
+        expect(result.lngLat.lng).toBe(marker.lngLat.lng);
     });
 
     it("should add multiple markers", () => {
         let markerSet: MarkerSet = new MarkerSet();
-        let marker1: TestMarker = new TestMarker("id1", { lat: 1, lon: 1 });
-        let marker2: TestMarker = new TestMarker("id2", { lat: 2, lon: 2 });
+        let marker1: TestMarker = new TestMarker("id1", { lat: 1, lng: 1 });
+        let marker2: TestMarker = new TestMarker("id2", { lat: 2, lng: 2 });
 
         markerSet.add([marker1, marker2]);
 
         let result1: Marker = markerSet.get(marker1.id);
         expect(result1).toBe(marker1);
         expect(result1.id).toBe(marker1.id);
-        expect(result1.latLon.lat).toBe(marker1.latLon.lat);
-        expect(result1.latLon.lon).toBe(marker1.latLon.lon);
+        expect(result1.lngLat.lat).toBe(marker1.lngLat.lat);
+        expect(result1.lngLat.lng).toBe(marker1.lngLat.lng);
 
         let result2: Marker = markerSet.get(marker2.id);
         expect(result2).toBe(marker2);
         expect(result2.id).toBe(marker2.id);
-        expect(result2.latLon.lat).toBe(marker2.latLon.lat);
-        expect(result2.latLon.lon).toBe(marker2.latLon.lon);
+        expect(result2.lngLat.lat).toBe(marker2.lngLat.lat);
+        expect(result2.lngLat.lng).toBe(marker2.lngLat.lng);
     });
 
     it("should replace when marker with id exist", () => {
         let markerSet: MarkerSet = new MarkerSet();
 
         let id: string = "original-id";
-        let originalMarker: TestMarker = new TestMarker(id, { lat: 0, lon: 0 });
+        let originalMarker: TestMarker = new TestMarker(id, { lat: 0, lng: 0 });
         markerSet.add([originalMarker]);
 
-        let newMarker: TestMarker = new TestMarker(id, { lat: 1, lon: 1 });
+        let newMarker: TestMarker = new TestMarker(id, { lat: 1, lng: 1 });
         markerSet.add([newMarker]);
 
         let result: Marker = markerSet.get(id);
         expect(result).not.toBe(originalMarker);
         expect(result).toBe(newMarker);
         expect(result.id).toBe(id);
-        expect(result.latLon.lat).toBe(newMarker.latLon.lat);
-        expect(result.latLon.lon).toBe(newMarker.latLon.lon);
+        expect(result.lngLat.lat).toBe(newMarker.lngLat.lat);
+        expect(result.lngLat.lng).toBe(newMarker.lngLat.lng);
     });
 
     test("should replace and update index when marker with id exist", () => {
         let markerSet: MarkerSet = new MarkerSet();
 
         let id: string = "original-id";
-        let originalMarker: TestMarker = new TestMarker(id, { lat: 0, lon: 0 });
+        let originalMarker: TestMarker = new TestMarker(id, { lat: 0, lng: 0 });
         markerSet.add([originalMarker]);
 
-        let newMarker: TestMarker = new TestMarker(id, { lat: 1, lon: 1 });
+        let newMarker: TestMarker = new TestMarker(id, { lat: 1, lng: 1 });
         markerSet.add([newMarker]);
 
         let originalResult: Marker[] = markerSet.search([
-            { lat: -0.5, lon: -0.5 },
-            { lat: 0.5, lon: 0.5 },
+            { lat: -0.5, lng: -0.5 },
+            { lat: 0.5, lng: 0.5 },
         ]);
         expect(originalResult.length).toBe(0);
 
         let updatedResult: Marker[] = markerSet.search([
-            { lat: 0.5, lon: 0.5 },
-            { lat: 1.5, lon: 1.5 },
+            { lat: 0.5, lng: 0.5 },
+            { lat: 1.5, lng: 1.5 },
         ]);
         expect(updatedResult.length).toBe(1);
         expect(updatedResult[0].id).toBe(id);
-        expect(updatedResult[0].latLon.lat).toBe(newMarker.latLon.lat);
-        expect(updatedResult[0].latLon.lon).toBe(newMarker.latLon.lon);
+        expect(updatedResult[0].lngLat.lat).toBe(newMarker.lngLat.lat);
+        expect(updatedResult[0].lngLat.lng).toBe(newMarker.lngLat.lng);
     });
 });
 
 describe("MarkerSet.getAll", () => {
     it("should return a single marker", () => {
         let markerSet: MarkerSet = new MarkerSet();
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
 
         markerSet.add([marker]);
 
@@ -126,8 +126,8 @@ describe("MarkerSet.getAll", () => {
 
     it("should return multiple markers", () => {
         let markerSet: MarkerSet = new MarkerSet();
-        let marker1: TestMarker = new TestMarker("id1", { lat: 0, lon: 0 });
-        let marker2: TestMarker = new TestMarker("id2", { lat: 0, lon: 0 });
+        let marker1: TestMarker = new TestMarker("id1", { lat: 0, lng: 0 });
+        let marker2: TestMarker = new TestMarker("id2", { lat: 0, lng: 0 });
 
         markerSet.add([marker1, marker2]);
 
@@ -152,7 +152,7 @@ describe("MarkerSet.getAll", () => {
 describe("MarkerSet.has", () => {
     it("should have an added marker", () => {
         let markerSet: MarkerSet = new MarkerSet();
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
 
         markerSet.add([marker]);
 
@@ -169,7 +169,7 @@ describe("MarkerSet.has", () => {
 describe("MarkerSet.remove", () => {
     it("should remove a single marker", () => {
         let markerSet: MarkerSet = new MarkerSet();
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
 
         markerSet.add([marker]);
         markerSet.remove([marker.id]);
@@ -180,8 +180,8 @@ describe("MarkerSet.remove", () => {
 
     it("should remove multiple markers", () => {
         let markerSet: MarkerSet = new MarkerSet();
-        let marker1: TestMarker = new TestMarker("id1", { lat: 1, lon: 1 });
-        let marker2: TestMarker = new TestMarker("id2", { lat: 2, lon: 2 });
+        let marker1: TestMarker = new TestMarker("id1", { lat: 1, lng: 1 });
+        let marker2: TestMarker = new TestMarker("id2", { lat: 2, lng: 2 });
 
         markerSet.add([marker1, marker2]);
         markerSet.remove([marker1.id, marker2.id]);
@@ -195,8 +195,8 @@ describe("MarkerSet.remove", () => {
 
     it("should remove a single out of multiple markers", () => {
         let markerSet: MarkerSet = new MarkerSet();
-        let marker1: TestMarker = new TestMarker("id1", { lat: 1, lon: 1 });
-        let marker2: TestMarker = new TestMarker("id2", { lat: 2, lon: 2 });
+        let marker1: TestMarker = new TestMarker("id1", { lat: 1, lng: 1 });
+        let marker2: TestMarker = new TestMarker("id2", { lat: 2, lng: 2 });
 
         markerSet.add([marker1, marker2]);
         markerSet.remove([marker1.id]);
@@ -210,7 +210,7 @@ describe("MarkerSet.remove", () => {
 
     it("should not have effect if id does not exist", () => {
         let markerSet: MarkerSet = new MarkerSet();
-        let marker: TestMarker = new TestMarker("id", { lat: 1, lon: 1 });
+        let marker: TestMarker = new TestMarker("id", { lat: 1, lng: 1 });
 
         markerSet.add([marker]);
         markerSet.remove(["other-id"]);
@@ -223,7 +223,7 @@ describe("MarkerSet.remove", () => {
 describe("MarkerSet.removeAll", () => {
     it("should remove a single marker", () => {
         let markerSet: MarkerSet = new MarkerSet();
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
 
         markerSet.add([marker]);
         markerSet.removeAll();
@@ -237,8 +237,8 @@ describe("MarkerSet.removeAll", () => {
 
     it("should remove multiple markers", () => {
         let markerSet: MarkerSet = new MarkerSet();
-        let marker1: TestMarker = new TestMarker("id1", { lat: 1, lon: 1 });
-        let marker2: TestMarker = new TestMarker("id2", { lat: 2, lon: 2 });
+        let marker1: TestMarker = new TestMarker("id1", { lat: 1, lng: 1 });
+        let marker2: TestMarker = new TestMarker("id2", { lat: 2, lng: 2 });
 
         markerSet.add([marker1, marker2]);
         markerSet.removeAll();
@@ -259,43 +259,43 @@ describe("MarkerSet.update", () => {
         let markerSet: MarkerSet = new MarkerSet();
 
         let id: string = "id";
-        let originalMarker: TestMarker = new TestMarker(id, { lat: 0, lon: 0 });
+        let originalMarker: TestMarker = new TestMarker(id, { lat: 0, lng: 0 });
         markerSet.add([originalMarker]);
 
-        let updatedMarker: TestMarker = new TestMarker(id, { lat: 1, lon: 1 });
+        let updatedMarker: TestMarker = new TestMarker(id, { lat: 1, lng: 1 });
         markerSet.update(updatedMarker);
 
         let result: Marker = markerSet.get(id);
         expect(result).not.toBe(originalMarker);
         expect(result).toBe(updatedMarker);
-        expect(result.latLon.lat).toBe(updatedMarker.latLon.lat);
-        expect(result.latLon.lon).toBe(updatedMarker.latLon.lon);
+        expect(result.lngLat.lat).toBe(updatedMarker.lngLat.lat);
+        expect(result.lngLat.lng).toBe(updatedMarker.lngLat.lng);
     });
 
     it("should replace the original marker and update index", () => {
         let markerSet: MarkerSet = new MarkerSet();
 
         let id: string = "id";
-        let originalMarker: TestMarker = new TestMarker(id, { lat: 0, lon: 0 });
+        let originalMarker: TestMarker = new TestMarker(id, { lat: 0, lng: 0 });
         markerSet.add([originalMarker]);
 
-        let updatedMarker: TestMarker = new TestMarker(id, { lat: 1, lon: 1 });
+        let updatedMarker: TestMarker = new TestMarker(id, { lat: 1, lng: 1 });
         markerSet.update(updatedMarker);
 
         let originalResult: Marker[] = markerSet.search([
-            { lat: -0.5, lon: -0.5 },
-            { lat: 0.5, lon: 0.5 },
+            { lat: -0.5, lng: -0.5 },
+            { lat: 0.5, lng: 0.5 },
         ]);
         expect(originalResult.length).toBe(0);
 
         let updatedResult: Marker[] = markerSet.search([
-            { lat: 0.5, lon: 0.5 },
-            { lat: 1.5, lon: 1.5 },
+            { lat: 0.5, lng: 0.5 },
+            { lat: 1.5, lng: 1.5 },
         ]);
         expect(updatedResult.length).toBe(1);
         expect(updatedResult[0].id).toBe(id);
-        expect(updatedResult[0].latLon.lat).toBe(updatedMarker.latLon.lat);
-        expect(updatedResult[0].latLon.lon).toBe(updatedMarker.latLon.lon);
+        expect(updatedResult[0].lngLat.lat).toBe(updatedMarker.lngLat.lat);
+        expect(updatedResult[0].lngLat.lng).toBe(updatedMarker.lngLat.lng);
     });
 });
 
@@ -303,7 +303,7 @@ describe("MarkerSet.changed$", () => {
     it("should emit when adding marker", (done: Function) => {
         let markerSet: MarkerSet = new MarkerSet();
 
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
 
         markerSet.changed$.pipe(
             first())
@@ -320,7 +320,7 @@ describe("MarkerSet.changed$", () => {
     it("should not emit when all added markers already exist", () => {
         let markerSet: MarkerSet = new MarkerSet();
 
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
         markerSet.add([marker]);
 
         let hasEmitted: boolean = false;
@@ -340,7 +340,7 @@ describe("MarkerSet.changed$", () => {
     it("should emit when removing marker", (done: Function) => {
         let markerSet: MarkerSet = new MarkerSet();
 
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
         markerSet.add([marker]);
 
         markerSet.changed$.pipe(
@@ -377,7 +377,7 @@ describe("MarkerSet.updated$", () => {
     it("should emit not when adding a new marker", () => {
         let markerSet: MarkerSet = new MarkerSet();
 
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
 
         let hasEmitted: boolean = false;
         markerSet.updated$.pipe(
@@ -395,7 +395,7 @@ describe("MarkerSet.updated$", () => {
     it("should emit when adding an existing marker", (done: Function) => {
         let markerSet: MarkerSet = new MarkerSet();
 
-        let marker: TestMarker = new TestMarker("id", { lat: 0, lon: 0 });
+        let marker: TestMarker = new TestMarker("id", { lat: 0, lng: 0 });
         markerSet.add([marker]);
 
         markerSet.updated$.pipe(
@@ -414,10 +414,10 @@ describe("MarkerSet.updated$", () => {
     it("should emit to both updated and changed", (done: Function) => {
         let markerSet: MarkerSet = new MarkerSet();
 
-        let marker1: TestMarker = new TestMarker("id1", { lat: 0, lon: 0 });
+        let marker1: TestMarker = new TestMarker("id1", { lat: 0, lng: 0 });
         markerSet.add([marker1]);
 
-        let marker2: TestMarker = new TestMarker("id2", { lat: 0, lon: 0 });
+        let marker2: TestMarker = new TestMarker("id2", { lat: 0, lng: 0 });
 
         let firstDone: boolean = false;
         markerSet.updated$.pipe(

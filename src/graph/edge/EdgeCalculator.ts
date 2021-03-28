@@ -83,11 +83,11 @@ export class EdgeCalculator {
             }
 
             let enu = geodeticToEnu(
-                potential.latLon.lat,
-                potential.latLon.lon,
+                potential.lngLat.lat,
+                potential.lngLat.lng,
                 potential.computedAltitude,
-                node.latLon.lat,
-                node.latLon.lon,
+                node.lngLat.lat,
+                node.lngLat.lng,
                 node.computedAltitude);
 
             let motion: THREE.Vector3 = new THREE.Vector3(enu[0], enu[1], enu[2]);

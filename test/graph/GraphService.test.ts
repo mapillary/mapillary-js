@@ -24,6 +24,7 @@ import { GraphService } from "../../src/graph/GraphService";
 import { NavigationEdgeStatus } from "../../src/graph/interfaces/NavigationEdgeStatus";
 import { Sequence } from "../../src/graph/Sequence";
 import { DataProvider } from "../helper/ProviderHelper";
+import { LngLat } from "../../src/export/APINamespace";
 
 describe("GraphService.ctor", () => {
     it("should create a graph service", () => {
@@ -46,14 +47,17 @@ describe("GraphService.cacheBoundingBox$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        graphService.cacheBoundingBox$({ lat: 0, lon: 1 }, { lat: 2, lon: 3 })
+        const sw: LngLat = { lat: 0, lng: 1 };
+        const ne: LngLat = { lat: 2, lng: 3 };
+
+        graphService.cacheBoundingBox$(sw, ne)
             .subscribe(
                 (): void => {
                     expect(cacheBoundingBoxSpy.calls.count()).toBe(1);
                     expect(cacheBoundingBoxSpy.calls.argsFor(0)[0].lat).toBe(0);
-                    expect(cacheBoundingBoxSpy.calls.argsFor(0)[0].lon).toBe(1);
+                    expect(cacheBoundingBoxSpy.calls.argsFor(0)[0].lng).toBe(1);
                     expect(cacheBoundingBoxSpy.calls.argsFor(0)[1].lat).toBe(2);
-                    expect(cacheBoundingBoxSpy.calls.argsFor(0)[1].lon).toBe(3);
+                    expect(cacheBoundingBoxSpy.calls.argsFor(0)[1].lng).toBe(3);
 
                     done();
                 });

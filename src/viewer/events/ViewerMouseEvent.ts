@@ -1,4 +1,4 @@
-import { LatLon } from "../../api/interfaces/LatLon";
+import { LngLat } from "../../api/interfaces/LngLat";
 import { ViewerEvent } from "./ViewerEvent";
 
 /**
@@ -14,7 +14,7 @@ import { ViewerEvent } from "./ViewerEvent";
  * viewer.on('click', function(e) {
  *   // The event object (e) contains information like the
  *   // coordinates of the point in the viewer that was clicked.
- *   console.log('A click event has occurred at ' + e.latLon);
+ *   console.log('A click event has occurred at ' + e.lngLat);
  * });
  * ```
  */
@@ -41,7 +41,7 @@ export interface ViewerMouseEvent extends ViewerEvent {
      * geographic location for the mouse event target. In that case the
      * geographic coordinates will be `null`.
      */
-    latLon: LatLon;
+    lngLat: LngLat;
 
     /**
      * The pixel coordinates of the mouse event target, relative to

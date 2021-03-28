@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { LatLon } from "../api/interfaces/LatLon";
+import { LngLat } from "../api/interfaces/LngLat";
 import { enuToGeodetic } from "../geo/GeoCoords";
 
 /**
@@ -13,35 +13,35 @@ export class GraphCalculator {
      * Get the bounding box corners for a circle with radius of a threshold
      * with center in a geodetic position.
      *
-     * @param {LatLon} latlon - Latitude and longitude to encode.
+     * @param {LngLat} lngLat - Latitude and longitude to encode.
      * @param {number} threshold - Threshold distance from the position in meters.
      *
-     * @returns {Array<LatLon>} The south west and north east corners of the
+     * @returns {Array<LngLat>} The south west and north east corners of the
      * bounding box.
      */
     public boundingBoxCorners(
-        latLon: LatLon,
+        lngLat: LngLat,
         threshold: number)
-        : [LatLon, LatLon] {
+        : [LngLat, LngLat] {
         let bl = enuToGeodetic(
             -threshold,
             -threshold,
             0,
-            latLon.lat,
-            latLon.lon,
+            lngLat.lat,
+            lngLat.lng,
             0);
 
         let tr = enuToGeodetic(
             threshold,
             threshold,
             0,
-            latLon.lat,
-            latLon.lon,
+            lngLat.lat,
+            lngLat.lng,
             0);
 
         return [
-            { lat: bl[0], lon: bl[1] },
-            { lat: tr[0], lon: tr[1] },
+            { lat: bl[0], lng: bl[1] },
+            { lat: tr[0], lng: tr[1] },
         ];
     }
 

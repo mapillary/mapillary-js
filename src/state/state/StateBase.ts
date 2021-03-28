@@ -304,8 +304,8 @@ export abstract class StateBase implements IStateBase {
 
     private _setReference(image: Image): boolean {
         // do not reset reference if image is within threshold distance
-        if (Math.abs(image.latLon.lat - this.reference.lat) < this._referenceThreshold &&
-            Math.abs(image.latLon.lon - this.reference.lon) < this._referenceThreshold) {
+        if (Math.abs(image.lngLat.lat - this.reference.lat) < this._referenceThreshold &&
+            Math.abs(image.lngLat.lng - this.reference.lng) < this._referenceThreshold) {
             return false;
         }
 
@@ -314,8 +314,8 @@ export abstract class StateBase implements IStateBase {
             return false;
         }
 
-        this._reference.lat = image.latLon.lat;
-        this._reference.lon = image.latLon.lon;
+        this._reference.lat = image.lngLat.lat;
+        this._reference.lng = image.lngLat.lng;
         this._reference.alt = image.computedAltitude;
 
         return true;
@@ -402,7 +402,7 @@ export abstract class StateBase implements IStateBase {
 
     private _imageToTranslation(image: Image, reference: LatLonAlt): number[] {
         return Geo.computeTranslation(
-            { alt: image.computedAltitude, lat: image.latLon.lat, lon: image.latLon.lon },
+            { alt: image.computedAltitude, lat: image.lngLat.lat, lng: image.lngLat.lng },
             image.rotation,
             reference);
     }
@@ -425,10 +425,10 @@ export abstract class StateBase implements IStateBase {
 
         // 50 km/h moves 28m in 2s
         let distance: number = this._spatial.distanceFromLatLon(
-            current.originalLatLon.lat,
-            current.originalLatLon.lon,
-            previous.originalLatLon.lat,
-            previous.originalLatLon.lon);
+            current.originalLngLat.lat,
+            current.originalLngLat.lng,
+            previous.originalLngLat.lat,
+            previous.originalLngLat.lng);
 
         return distance < 25;
     }

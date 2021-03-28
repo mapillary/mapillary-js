@@ -6,7 +6,7 @@ import { Interpolator } from "../src/state/interfaces/IInterpolator";
 
 type Item = {
     lat: number;
-    lon: number;
+    lng: number;
 };
 
 type BBox = {
@@ -29,10 +29,10 @@ class SpatialIndexMock<T extends Item> {
         return this._items
             .filter(
                 item => {
-                    return item.lat > bbox.minX &&
-                        item.lat < bbox.maxX &&
-                        item.lon > bbox.minY &&
-                        item.lon < bbox.maxY;
+                    return item.lng > bbox.minX &&
+                        item.lng < bbox.maxX &&
+                        item.lat > bbox.minY &&
+                        item.lat < bbox.maxY;
                 });
     }
 }

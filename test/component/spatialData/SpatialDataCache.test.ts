@@ -407,7 +407,7 @@ describe("SpatialDataCache.updateReconstructions$", () => {
             cameras: {},
             id: key,
             points: {},
-            reference: { lat: 0, lon: 0, alt: 0 },
+            reference: { lat: 0, lng: 0, alt: 0 },
             shots: {},
         }
     }

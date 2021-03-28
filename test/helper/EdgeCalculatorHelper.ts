@@ -31,9 +31,9 @@ export class EdgeCalculatorHelper {
         sequenceKey: string): Image {
 
         let coreImage: CoreImageEnt = {
-            computed_geometry: { lat: latLonAlt.lat, lon: latLonAlt.lon },
+            computed_geometry: { lat: latLonAlt.lat, lng: latLonAlt.lng },
             id: key,
-            geometry: { lat: latLonAlt.lat, lon: latLonAlt.lon },
+            geometry: { lat: latLonAlt.lat, lng: latLonAlt.lng },
             sequence: { id: sequenceKey },
         };
 
@@ -42,7 +42,7 @@ export class EdgeCalculatorHelper {
 
     public createSpatialImageEn(
         key: string = "key",
-        latLonAlt: LatLonAlt = { alt: 0, lat: 0, lon: 0 },
+        latLonAlt: LatLonAlt = { alt: 0, lat: 0, lng: 0 },
         sequenceKey: string = "skey",
         r: number[] = [0, 0, 0],
         mergeCC: number = 2,
@@ -87,7 +87,7 @@ export class EdgeCalculatorHelper {
     public createDefaultImage(spherical: boolean = false): Image {
         let key: string = "key";
         let sequenceKey: string = "skey";
-        let latLonAlt: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let latLonAlt: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
 
         let cameraType: CameraType = spherical ?
             "spherical" :

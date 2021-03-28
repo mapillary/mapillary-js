@@ -14,6 +14,7 @@ import { LatLonAlt } from "../interfaces/LatLonAlt";
 import { CameraEnt } from "../ents/CameraEnt";
 import { FalcorClusterReconstructionContract } from "./FalcorContracts";
 import { isSpherical } from "../../geo/Geo";
+import { LngLat } from "../interfaces/LngLat";
 
 function convertCameraType(falcorProjectionType: string): string {
     return falcorProjectionType === "equirectangular" ?
@@ -95,7 +96,7 @@ export class FalcorConverter {
         const reference: LatLonAlt = {
             alt: lla.altitude,
             lat: lla.latitude,
-            lon: lla.longitude,
+            lng: lla.longitude,
         };
         const shots = item.shots;
         return {
@@ -108,8 +109,12 @@ export class FalcorConverter {
     }
 
     public core<T extends FalcorCoreImageEnt>(item: T): CoreImageEnt {
-        const computedGeometry = item.cl;
-        const geometry = item.l;
+        const cl = item.cl;
+        const computedGeometry: LngLat = cl ? {
+            lat: cl.lat,
+            lng: cl.lon,
+        } : null;
+        const geometry: LngLat = { lat: item.l.lat, lng: item.l.lon };
         const id = item.key;
         const sequence: IDEnt = { id: item.sequence_key };
         return {

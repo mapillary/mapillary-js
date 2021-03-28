@@ -378,11 +378,11 @@ export class Transform {
      */
     private _sfmToBearing(sfm: number[]): number[] {
         if (isSpherical(this._cameraType)) {
-            let lon: number = sfm[0] * 2 * Math.PI;
+            let lng: number = sfm[0] * 2 * Math.PI;
             let lat: number = -sfm[1] * 2 * Math.PI;
-            let x: number = Math.cos(lat) * Math.sin(lon);
+            let x: number = Math.cos(lat) * Math.sin(lng);
             let y: number = -Math.sin(lat);
-            let z: number = Math.cos(lat) * Math.cos(lon);
+            let z: number = Math.cos(lat) * Math.cos(lng);
             return [x, y, z];
         } else if (isFisheye(this._cameraType)) {
             let [dxn, dyn]: number[] = [sfm[0] / this._focal, sfm[1] / this._focal];
@@ -440,9 +440,9 @@ export class Transform {
             let x: number = bearing[0];
             let y: number = bearing[1];
             let z: number = bearing[2];
-            let lon: number = Math.atan2(x, z);
+            let lng: number = Math.atan2(x, z);
             let lat: number = Math.atan2(-y, Math.sqrt(x * x + z * z));
-            return [lon / (2 * Math.PI), -lat / (2 * Math.PI)];
+            return [lng / (2 * Math.PI), -lat / (2 * Math.PI)];
         } else if (isFisheye(this._cameraType)) {
             if (bearing[2] > 0) {
                 const [x, y, z]: number[] = bearing;
