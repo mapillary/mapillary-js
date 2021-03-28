@@ -1,7 +1,7 @@
 import { IAnimationState } from "./IAnimationState";
 import { EulerRotation } from "./EulerRotation";
 import { TransitionMode } from "../TransitionMode";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 
 export interface IStateContext extends IAnimationState {
     earth(): void;
@@ -10,13 +10,13 @@ export interface IStateContext extends IAnimationState {
     waitInteractively(): void;
 
     update(fps: number): void;
-    append(nodes: Node[]): void;
-    prepend(nodes: Node[]): void;
+    append(images: Image[]): void;
+    prepend(images: Image[]): void;
     remove(n: number): void;
     clear(): void;
     clearPrior(): void;
     cut(): void;
-    set(nodes: Node[]): void;
+    set(images: Image[]): void;
 
     rotate(delta: EulerRotation): void;
     rotateUnbounded(delta: EulerRotation): void;

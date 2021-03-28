@@ -7,7 +7,7 @@ import { EulerRotation } from "../interfaces/EulerRotation";
 import { IStateBase } from "../interfaces/IStateBase";
 import { Camera } from "../../geo/Camera";
 import { Transform } from "../../geo/Transform";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { isSpherical } from "../../geo/Geo";
 
 export abstract class InteractiveStateBase extends StateBase {
@@ -65,7 +65,7 @@ export abstract class InteractiveStateBase extends StateBase {
     }
 
     public rotate(rotationDelta: EulerRotation): void {
-        if (this._currentNode == null) {
+        if (this._currentImage == null) {
             return;
         }
 
@@ -86,7 +86,7 @@ export abstract class InteractiveStateBase extends StateBase {
     }
 
     public rotateUnbounded(delta: EulerRotation): void {
-        if (this._currentNode == null) {
+        if (this._currentImage == null) {
             return;
         }
 
@@ -129,7 +129,7 @@ export abstract class InteractiveStateBase extends StateBase {
     }
 
     public rotateWithoutInertia(rotationDelta: EulerRotation): void {
-        if (this._currentNode == null) {
+        if (this._currentImage == null) {
             return;
         }
 
@@ -149,7 +149,7 @@ export abstract class InteractiveStateBase extends StateBase {
     }
 
     public rotateBasic(basicRotation: number[]): void {
-        if (this._currentNode == null) {
+        if (this._currentImage == null) {
             return;
         }
 
@@ -174,7 +174,7 @@ export abstract class InteractiveStateBase extends StateBase {
     }
 
     public rotateBasicUnbounded(basicRotation: number[]): void {
-        if (this._currentNode == null) {
+        if (this._currentImage == null) {
             return;
         }
 
@@ -187,7 +187,7 @@ export abstract class InteractiveStateBase extends StateBase {
     }
 
     public rotateBasicWithoutInertia(basic: number[]): void {
-        if (this._currentNode == null) {
+        if (this._currentImage == null) {
             return;
         }
 
@@ -206,7 +206,7 @@ export abstract class InteractiveStateBase extends StateBase {
     }
 
     public rotateToBasic(basic: number[]): void {
-        if (this._currentNode == null) {
+        if (this._currentImage == null) {
             return;
         }
 
@@ -221,7 +221,7 @@ export abstract class InteractiveStateBase extends StateBase {
     }
 
     public zoomIn(delta: number, reference: number[]): void {
-        if (this._currentNode == null) {
+        if (this._currentImage == null) {
             return;
         }
 
@@ -250,7 +250,7 @@ export abstract class InteractiveStateBase extends StateBase {
         let newCenterX: number = refX - zoom0 / zoom1 * (refX - currentCenterX);
         let newCenterY: number = refY - zoom0 / zoom1 * (refY - currentCenterY);
 
-        if (isSpherical(this._currentNode.cameraType)) {
+        if (isSpherical(this._currentImage.cameraType)) {
             newCenterX = this._spatial
                 .wrap(newCenterX + this._basicRotation[0], 0, 1);
             newCenterY = this._spatial
@@ -275,7 +275,7 @@ export abstract class InteractiveStateBase extends StateBase {
             this._spatial.clamp(center[1], 0, 1),
         ];
 
-        if (this._currentNode == null) {
+        if (this._currentImage == null) {
             this._desiredCenter = clamped;
             return;
         }
@@ -333,10 +333,10 @@ export abstract class InteractiveStateBase extends StateBase {
     }
 
     protected _applyRotationBasic(basicRotation: number[]): void {
-        let currentNode: Node = this._currentNode;
-        let previousNode: Node = this._previousNode != null ?
-            this.previousNode :
-            this.currentNode;
+        let currentImage: Image = this._currentImage;
+        let previousImage: Image = this._previousImage != null ?
+            this.previousImage :
+            this.currentImage;
 
         let currentCamera: Camera = this._currentCamera;
         let previousCamera: Camera = this._previousCamera;
@@ -349,7 +349,7 @@ export abstract class InteractiveStateBase extends StateBase {
         let currentBasic: number[] = currentTransform.projectBasic(currentCamera.lookat.toArray());
         let previousBasic: number[] = previousTransform.projectBasic(previousCamera.lookat.toArray());
 
-        if (isSpherical(currentNode.cameraType)) {
+        if (isSpherical(currentImage.cameraType)) {
             currentBasic[0] = this._spatial.wrap(currentBasic[0] + basicRotation[0], 0, 1);
             currentBasic[1] = this._spatial.clamp(currentBasic[1] + basicRotation[1], 0.05, 0.95);
         } else {
@@ -357,7 +357,7 @@ export abstract class InteractiveStateBase extends StateBase {
             currentBasic[1] = this._spatial.clamp(currentBasic[1] + basicRotation[1], 0, 1);
         }
 
-        if (isSpherical(previousNode.cameraType)) {
+        if (isSpherical(previousImage.cameraType)) {
             previousBasic[0] = this._spatial.wrap(previousBasic[0] + basicRotation[0], 0, 1);
             previousBasic[1] = this._spatial.clamp(previousBasic[1] + basicRotation[1], 0.05, 0.95);
         } else {
@@ -423,7 +423,7 @@ export abstract class InteractiveStateBase extends StateBase {
             return;
         }
 
-        const alpha: number = isSpherical(this.currentNode.cameraType) ?
+        const alpha: number = isSpherical(this.currentImage.cameraType) ?
             1 : this._alpha;
 
         this._rotationDelta.multiply(this._rotationAcceleration * alpha);
@@ -494,7 +494,7 @@ export abstract class InteractiveStateBase extends StateBase {
     }
 
     protected _clearRotation(): void {
-        if (isSpherical(this._currentNode.cameraType)) {
+        if (isSpherical(this._currentImage.cameraType)) {
             return;
         }
 
@@ -532,8 +532,8 @@ export abstract class InteractiveStateBase extends StateBase {
 
     protected _setDesiredZoom(): void {
         this._desiredZoom =
-            isSpherical(this._currentNode.cameraType) ||
-                this._previousNode == null ?
+            isSpherical(this._currentImage.cameraType) ||
+                this._previousImage == null ?
                 this._zoom : 0;
     }
 }

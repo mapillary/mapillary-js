@@ -10,7 +10,7 @@ import {
     switchMap,
 } from "rxjs/operators";
 
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
@@ -66,10 +66,10 @@ export class KeySpatialNavigationHandler extends HandlerBase<KeyboardConfigurati
     }
 
     protected _enable(): void {
-        const spatialEdges$: Observable<NavigationEdgeStatus> = this._navigator.stateService.currentNode$.pipe(
+        const spatialEdges$: Observable<NavigationEdgeStatus> = this._navigator.stateService.currentImage$.pipe(
             switchMap(
-                (node: Node): Observable<NavigationEdgeStatus> => {
-                    return node.spatialEdges$;
+                (image: Image): Observable<NavigationEdgeStatus> => {
+                    return image.spatialEdges$;
                 }));
 
         this._keyDownSubscription = this._container.keyboardService.keyDown$.pipe(
@@ -77,7 +77,7 @@ export class KeySpatialNavigationHandler extends HandlerBase<KeyboardConfigurati
                 spatialEdges$,
                 this._navigator.stateService.currentState$))
             .subscribe(([event, edgeStatus, frame]: [KeyboardEvent, NavigationEdgeStatus, AnimationFrame]): void => {
-                let spherical = isSpherical(frame.state.currentNode.cameraType);
+                let spherical = isSpherical(frame.state.currentImage.cameraType);
                 let direction: NavigationDirection = null;
                 switch (event.keyCode) {
                     case 37: // left

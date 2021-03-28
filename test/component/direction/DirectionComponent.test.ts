@@ -1,15 +1,15 @@
 import { throwError as observableThrowError, of as observableOf, Subject } from "rxjs";
 import { DirectionComponent } from "../../../src/component/direction/DirectionComponent";
 import { DirectionDOMRenderer } from "../../../src/component/direction/DirectionDOMRenderer";
-import { NodeCache } from "../../../src/graph/NodeCache";
+import { ImageCache } from "../../../src/graph/ImageCache";
 import { Sequence } from "../../../src/graph/Sequence";
 import { Container } from "../../../src/viewer/Container";
 import { Navigator } from "../../../src/viewer/Navigator";
-import { Node } from "../../../src/graph/Node";
+import { Image } from "../../../src/graph/Image";
 
 import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
 import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
-import { NodeHelper } from "../../helper/NodeHelper";
+import { ImageHelper } from "../../helper/ImageHelper";
 
 describe("DirectionComponent.ctor", () => {
     it("should be defined", () => {
@@ -37,7 +37,7 @@ describe("DirectionComponent.deactivate", () => {
 });
 
 describe("DirectionComponent.activate", () => {
-    it("should set edges when node spatial edges emits", () => {
+    it("should set edges when image spatial edges emits", () => {
         const containerMock: Container = new ContainerMockCreator().create();
         const navigatorMock: Navigator = new NavigatorMockCreator().create();
         const renderer: DirectionDOMRenderer = new DirectionDOMRenderer({}, { height: 1, width: 1 });
@@ -52,10 +52,10 @@ describe("DirectionComponent.activate", () => {
 
         directionComponent.activate();
 
-        const node: Node = new NodeHelper().createNode();
-        node.initializeCache(new NodeCache(undefined));
-        node.cacheSpatialEdges([]);
-        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
+        const image: Image = new ImageHelper().createImage();
+        image.initializeCache(new ImageCache(undefined));
+        image.cacheSpatialEdges([]);
+        (<Subject<Image>>navigatorMock.stateService.currentImage$).next(image);
 
         expect(setEdgesSpy.calls.count()).toBe(1);
         expect(setEdgesSpy.calls.argsFor(0)[1]).toBe(null);
@@ -80,10 +80,10 @@ describe("DirectionComponent.activate", () => {
         const sequence: Sequence = new Sequence({ id: "skey", image_ids: [] });
         (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(observableOf<Sequence>(sequence));
 
-        const node: Node = new NodeHelper().createNode();
-        node.initializeCache(new NodeCache(undefined));
-        node.cacheSpatialEdges([]);
-        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
+        const image: Image = new ImageHelper().createImage();
+        image.initializeCache(new ImageCache(undefined));
+        image.cacheSpatialEdges([]);
+        (<Subject<Image>>navigatorMock.stateService.currentImage$).next(image);
 
         expect(setEdgesSpy.calls.count()).toBe(1);
         expect(setEdgesSpy.calls.argsFor(0)[1]).toBe(sequence);
@@ -109,10 +109,10 @@ describe("DirectionComponent.activate", () => {
         const cacheSequence$: Subject<Sequence> = new Subject<Sequence>();
         (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(cacheSequence$);
 
-        const node: Node = new NodeHelper().createNode();
-        node.initializeCache(new NodeCache(undefined));
-        node.cacheSpatialEdges([]);
-        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
+        const image: Image = new ImageHelper().createImage();
+        image.initializeCache(new ImageCache(undefined));
+        image.cacheSpatialEdges([]);
+        (<Subject<Image>>navigatorMock.stateService.currentImage$).next(image);
 
         cacheSequence$.next(sequence);
         cacheSequence$.complete();
@@ -141,10 +141,10 @@ describe("DirectionComponent.activate", () => {
 
         (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(observableThrowError(new Error("Failed to cache seq.")));
 
-        const node: Node = new NodeHelper().createNode();
-        node.initializeCache(new NodeCache(undefined));
-        node.cacheSpatialEdges([]);
-        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
+        const image: Image = new ImageHelper().createImage();
+        image.initializeCache(new ImageCache(undefined));
+        image.cacheSpatialEdges([]);
+        (<Subject<Image>>navigatorMock.stateService.currentImage$).next(image);
 
         expect(setEdgesSpy.calls.count()).toBe(1);
         expect(setEdgesSpy.calls.argsFor(0)[1]).toBe(null);

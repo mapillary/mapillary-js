@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { InteractiveStateBase } from "./InteractiveStateBase";
 import { IStateBase } from "../interfaces/IStateBase";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { Interpolator } from "../interfaces/IInterpolator";
 import { isSpherical } from "../../geo/Geo";
 
@@ -35,14 +35,14 @@ export class TraversingState extends InteractiveStateBase {
         TraversingState._interpolator = interpolator;
     }
 
-    public append(nodes: Node[]): void {
+    public append(images: Image[]): void {
         let emptyTrajectory: boolean = this._trajectory.length === 0;
 
         if (emptyTrajectory) {
             this._resetTransition();
         }
 
-        super.append(nodes);
+        super.append(images);
 
         if (emptyTrajectory) {
             this._setDesiredCenter();
@@ -50,14 +50,14 @@ export class TraversingState extends InteractiveStateBase {
         }
     }
 
-    public prepend(nodes: Node[]): void {
+    public prepend(images: Image[]): void {
         let emptyTrajectory: boolean = this._trajectory.length === 0;
 
         if (emptyTrajectory) {
             this._resetTransition();
         }
 
-        super.prepend(nodes);
+        super.prepend(images);
 
         if (emptyTrajectory) {
             this._setDesiredCenter();
@@ -65,8 +65,8 @@ export class TraversingState extends InteractiveStateBase {
         }
     }
 
-    public set(nodes: Node[]): void {
-        super.set(nodes);
+    public set(images: Image[]): void {
+        super.set(images);
 
         this._desiredLookat = null;
 
@@ -97,7 +97,7 @@ export class TraversingState extends InteractiveStateBase {
             this._clearRotation();
 
             this._desiredZoom =
-                isSpherical(this._currentNode.cameraType) ?
+                isSpherical(this._currentImage.cameraType) ?
                     this._zoom : 0;
 
             this._desiredLookat = null;
@@ -139,14 +139,14 @@ export class TraversingState extends InteractiveStateBase {
     }
 
     private _adjustCameras(): void {
-        if (this._previousNode == null) {
+        if (this._previousImage == null) {
             return;
         }
 
         let lookat: THREE.Vector3 = this._camera.lookat.clone().sub(this._camera.position);
         this._previousCamera.lookat.copy(lookat.clone().add(this._previousCamera.position));
 
-        if (isSpherical(this._currentNode.cameraType)) {
+        if (isSpherical(this._currentImage.cameraType)) {
             this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
         }
     }

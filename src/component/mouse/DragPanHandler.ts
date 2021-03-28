@@ -20,7 +20,7 @@ import {
 } from "rxjs/operators";
 
 import { Transform } from "../../geo/Transform";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { RenderCamera } from "../../render/RenderCamera";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
@@ -136,8 +136,8 @@ export class DragPanHandler extends HandlerBase<MouseConfiguration> {
         const rotation$: Observable<EulerRotation> = this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: AnimationFrame): boolean => {
-                    return isSpherical(frame.state.currentNode.cameraType) ||
-                        frame.state.nodesAhead < 1;
+                    return isSpherical(frame.state.currentImage.cameraType) ||
+                        frame.state.imagesAhead < 1;
                 }),
             distinctUntilChanged(),
             switchMap(
@@ -172,14 +172,14 @@ export class DragPanHandler extends HandlerBase<MouseConfiguration> {
             withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$,
-                this._navigator.panService.panNodes$),
+                this._navigator.panService.panImages$),
             map(
                 ([events, render, transform, nts]:
                     [
                         MouseTouchPair,
                         RenderCamera,
                         Transform,
-                        [Node, Transform, number][],
+                        [Image, Transform, number][],
                     ]): EulerRotation => {
                     let previousEvent: MouseEvent | Touch = events[0];
                     let event: MouseEvent | Touch = events[1];

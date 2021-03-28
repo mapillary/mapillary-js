@@ -119,7 +119,7 @@ export class RectGeometry extends VertexGeometry {
      * @description Setting the opposite vertex may change the anchor index.
      *
      * @param {Array<number>} opposite - The new value of the vertex opposite to the anchor.
-     * @param {Transform} transform - The transform of the node related to the rectangle.
+     * @param {Transform} transform - The transform of the image related to the rectangle.
      *
      * @throws {Error} When anchor indexing has not been initialized.
      * @ignore
@@ -306,7 +306,7 @@ export class RectGeometry extends VertexGeometry {
      *
      * @param {number} index - The index of the vertex to be set.
      * @param {Array<number>} value - The new value of the vertex.
-     * @param {Transform} transform - The transform of the node related to the rectangle.
+     * @param {Transform} transform - The transform of the image related to the rectangle.
      * @ignore
      */
     public setVertex2d(index: number, value: number[], transform: Transform): void {
@@ -443,7 +443,7 @@ export class RectGeometry extends VertexGeometry {
      * Get the 3D coordinates for the vertices of the rectangle with
      * interpolated points along the lines.
      *
-     * @param {Transform} transform - The transform of the node related to
+     * @param {Transform} transform - The transform of the image related to
      * the rectangle.
      * @returns {Array<Array<number>>} Polygon array of 3D world coordinates
      * representing the rectangle.
@@ -496,7 +496,7 @@ export class RectGeometry extends VertexGeometry {
      * the vertices following in clockwise order.
      *
      * @param {number} index - Vertex index.
-     * @param {Transform} transform - The transform of the node related to the geometry.
+     * @param {Transform} transform - The transform of the image related to the geometry.
      * @returns {Array<Array<number>>} Polygon array of 3D world coordinates representing
      * the vertices of the geometry.
      * @ignore
@@ -525,7 +525,7 @@ export class RectGeometry extends VertexGeometry {
      * @description The first vertex represents the bottom-left corner with the rest of
      * the vertices following in clockwise order.
      *
-     * @param {Transform} transform - The transform of the node related to the rectangle.
+     * @param {Transform} transform - The transform of the image related to the rectangle.
      * @returns {Array<Array<number>>} Polygon array of 3D world coordinates representing
      * the rectangle vertices.
      * @ignore

@@ -60,7 +60,7 @@ export class PointGeometry extends Geometry {
      * Get the 3D world coordinates for the centroid of the point, i.e. the 3D
      * world coordinates of the point itself.
      *
-     * @param {Transform} transform - The transform of the node related to the point.
+     * @param {Transform} transform - The transform of the image related to the point.
      * @returns {Array<number>} 3D world coordinates representing the centroid.
      * @ignore
      */
@@ -72,7 +72,7 @@ export class PointGeometry extends Geometry {
      * Set the centroid of the point, i.e. the point coordinates.
      *
      * @param {Array<number>} value - The new value of the centroid.
-     * @param {Transform} transform - The transform of the node related to the point.
+     * @param {Transform} transform - The transform of the image related to the point.
      * @ignore
      */
     public setCentroid2d(value: number[], transform: Transform): void {

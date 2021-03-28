@@ -7,7 +7,7 @@ import {
     withLatestFrom,
 } from "rxjs/operators";
 
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
 import { KeyboardConfiguration } from "../interfaces/KeyboardConfiguration";
 import { HandlerBase } from "../util/HandlerBase";
@@ -35,10 +35,10 @@ export class KeySequenceNavigationHandler extends HandlerBase<KeyboardConfigurat
     private _keyDownSubscription: Subscription;
 
     protected _enable(): void {
-        const sequenceEdges$: Observable<NavigationEdgeStatus> = this._navigator.stateService.currentNode$.pipe(
+        const sequenceEdges$: Observable<NavigationEdgeStatus> = this._navigator.stateService.currentImage$.pipe(
             switchMap(
-                (node: Node): Observable<NavigationEdgeStatus> => {
-                    return node.sequenceEdges$;
+                (image: Image): Observable<NavigationEdgeStatus> => {
+                    return image.sequenceEdges$;
                 }));
 
         this._keyDownSubscription = this._container.keyboardService.keyDown$.pipe(

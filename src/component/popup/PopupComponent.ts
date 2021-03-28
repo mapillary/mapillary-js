@@ -38,7 +38,7 @@ import { Popup } from "./popup/Popup";
  *
  * Popups are only relevant to a single image because they are based on
  * 2D basic image coordinates. Popups related to a certain image should
- * be removed when the viewer is moved to another node.
+ * be removed when the viewer is moved to another image.
  *
  * To retrive and use the popup component
  *

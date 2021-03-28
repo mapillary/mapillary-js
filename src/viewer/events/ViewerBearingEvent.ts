@@ -9,7 +9,7 @@ export interface ViewerBearingEvent extends ViewerEvent {
      * clockwise with respect to north.
      *
      * @description Bearing is related to the computed
-     * compass angle ({@link Node.computedCompassAngle})
+     * compass angle ({@link Image.computedCompassAngle})
      * from SfM, not the original EXIF compass angle.
      */
     bearing: number;

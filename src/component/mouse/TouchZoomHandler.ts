@@ -87,8 +87,8 @@ export class TouchZoomHandler extends HandlerBase<MouseConfiguration> {
             filter(
                 (args: [TouchPinch, AnimationFrame]): boolean => {
                     let state: IAnimationState = args[1].state;
-                    return isSpherical(state.currentNode.cameraType) ||
-                        state.nodesAhead < 1;
+                    return isSpherical(state.currentImage.cameraType) ||
+                        state.imagesAhead < 1;
                 }),
             map(
                 (args: [TouchPinch, AnimationFrame]): TouchPinch => {

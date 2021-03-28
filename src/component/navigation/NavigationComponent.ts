@@ -16,7 +16,7 @@ import { Component } from "../Component";
 import { NavigationConfiguration } from "../interfaces/NavigationConfiguration";
 
 import { AbortMapillaryError } from "../../error/AbortMapillaryError";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { NavigationEdge } from "../../graph/edge/interfaces/NavigationEdge";
 import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
@@ -60,12 +60,12 @@ export class NavigationComponent extends Component<NavigationConfiguration> {
 
     protected _activate(): void {
         this._subscriptions.push(observableCombineLatest(
-            this._navigator.stateService.currentNode$,
+            this._navigator.stateService.currentImage$,
             this._configuration$).pipe(
                 switchMap(
-                    ([node, configuration]: [Node, NavigationConfiguration]): Observable<NavigationDirection[]> => {
+                    ([image, configuration]: [Image, NavigationConfiguration]): Observable<NavigationDirection[]> => {
                         const sequenceEdges$: Observable<NavigationDirection[]> = configuration.sequence ?
-                            node.sequenceEdges$.pipe(
+                            image.sequenceEdges$.pipe(
                                 map(
                                     (status: NavigationEdgeStatus): NavigationDirection[] => {
                                         return status.edges
@@ -76,9 +76,9 @@ export class NavigationComponent extends Component<NavigationConfiguration> {
                                     })) :
                             observableOf<NavigationDirection[]>([]);
 
-                        const spatialEdges$: Observable<NavigationDirection[]> = !isSpherical(node.cameraType) &&
+                        const spatialEdges$: Observable<NavigationDirection[]> = !isSpherical(image.cameraType) &&
                             configuration.spatial ?
-                            node.spatialEdges$.pipe(
+                            image.spatialEdges$.pipe(
                                 map(
                                     (status: NavigationEdgeStatus): NavigationDirection[] => {
                                         return status.edges
@@ -108,7 +108,7 @@ export class NavigationComponent extends Component<NavigationConfiguration> {
                         const spaBottomContainer: vd.VNode = vd.h(`div.mapillary-navigation-spatial-bottom`, spaBottoms);
                         const spaContainer: vd.VNode = vd.h(`div.mapillary-navigation-spatial`, [spaTopContainer, spaBottomContainer]);
 
-                        return { name: this._name, vnode: vd.h(`div.NavigationContainer`, [seqContainer, spaContainer]) };
+                        return { name: this._name, vNode: vd.h(`div.NavigationContainer`, [seqContainer, spaContainer]) };
                     }))
             .subscribe(this._container.domRenderer.render$));
     }

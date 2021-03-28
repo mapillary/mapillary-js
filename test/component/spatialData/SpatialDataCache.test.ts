@@ -1,32 +1,32 @@
 import { Subject } from "rxjs";
 
-import { Node } from "../../../src/graph/Node";
+import { Image } from "../../../src/graph/Image";
 import { FalcorDataProvider } from "../../../src/api/falcor/FalcorDataProvider";
 import { GeohashGeometryProvider } from "../../../src/api/GeohashGeometryProvider";
 import { ClusterReconstructionContract } from "../../../src/api/contracts/ClusterReconstructionContract";
 import { SpatialDataCache } from "../../../src/component/spatialdata/SpatialDataCache";
 import { GraphService } from "../../../src/graph/GraphService";
 import { GraphServiceMockCreator } from "../../helper/GraphServiceMockCreator";
-import { NodeHelper } from "../../helper/NodeHelper";
+import { ImageHelper } from "../../helper/ImageHelper";
 
 const cacheTile: (
     hash: string,
     cache: SpatialDataCache,
     graphService: GraphService,
-    nodes: Node[]) => void = (
+    images: Image[]) => void = (
         hash: string,
         cache: SpatialDataCache,
         graphService: GraphService,
-        nodes: Node[]): void => {
+        images: Image[]): void => {
 
-        const cacheCell$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheCell$: Subject<Image[]> = new Subject<Image[]>();
         const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell$);
 
         cache.cacheTile$(hash)
             .subscribe();
 
-        cacheCell$.next(nodes);
+        cacheCell$.next(images);
 
         expect(cache.hasTile(hash)).toBe(true);
     };
@@ -45,7 +45,7 @@ describe("SpatialDataCache.ctor", () => {
 describe("SpatialDataCache.cacheTile$", () => {
     it("should call cache bounding box", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cacheCell$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheCell$: Subject<Image[]> = new Subject<Image[]>();
         const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell$);
 
@@ -64,7 +64,7 @@ describe("SpatialDataCache.cacheTile$", () => {
 
     it("should be caching tile", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cacheCell$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheCell$: Subject<Image[]> = new Subject<Image[]>();
         const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell$);
 
@@ -84,7 +84,7 @@ describe("SpatialDataCache.cacheTile$", () => {
 
     it("should cache tile", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cacheCell$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheCell$: Subject<Image[]> = new Subject<Image[]>();
         const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell$);
 
@@ -101,20 +101,20 @@ describe("SpatialDataCache.cacheTile$", () => {
         cache.cacheTile$(hash)
             .subscribe();
 
-        const node: Node = new NodeHelper().createNode();
-        cacheCell$.next([node]);
+        const image: Image = new ImageHelper().createImage();
+        cacheCell$.next([image]);
 
         expect(cache.isCachingTile(hash)).toBe(false);
         expect(cache.hasTile(hash)).toBe(true);
         expect(cache.getTile(hash).length).toBe(1);
-        expect(cache.getTile(hash)[0].id).toBe(node.id);
+        expect(cache.getTile(hash)[0].id).toBe(image.id);
     });
 
     it("should catch error", (done: Function) => {
         spyOn(console, "error").and.stub();
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cacheCell$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheCell$: Subject<Image[]> = new Subject<Image[]>();
         const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell$);
 
@@ -149,7 +149,7 @@ describe("SpatialDataCache.cacheTile$", () => {
 
 describe("SpatialDataCache.cacheReconstructions$", () => {
     it("should cache a reconstruction", (done: Function) => {
-        const node: Node = new NodeHelper().createNode();
+        const image: Image = new ImageHelper().createImage();
         const hash: string = "00000000";
 
         let resolver: Function;
@@ -167,13 +167,13 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const cache: SpatialDataCache = new SpatialDataCache(graphService, dataProvider);
 
-        cacheTile(hash, cache, graphService, [node]);
+        cacheTile(hash, cache, graphService, [image]);
 
         let emitCount: number = 0;
         cache.cacheClusterReconstructions$(hash)
             .subscribe(
                 (r: ClusterReconstructionContract): void => {
-                    expect(r.id).toBe(node.clusterId);
+                    expect(r.id).toBe(image.clusterId);
                     emitCount++;
                 },
                 undefined,
@@ -183,13 +183,13 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
                     done();
                 });
 
-        resolver({ key: node.clusterId });
+        resolver({ key: image.clusterId });
     });
 
     it("should not have an errored reconstruction", (done: Function) => {
         spyOn(console, "error").and.stub();
 
-        const node: Node = new NodeHelper().createNode();
+        const image: Image = new ImageHelper().createImage();
         const hash: string = "00000000";
 
         let rejecter: Function;
@@ -206,7 +206,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const cache: SpatialDataCache = new SpatialDataCache(graphService, dataProvider);
 
-        cacheTile(hash, cache, graphService, [node]);
+        cacheTile(hash, cache, graphService, [image]);
 
         let emitCount: number = 0;
         cache.cacheClusterReconstructions$(hash)
@@ -226,7 +226,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
     });
 
     it("should abort on uncache", (done: Function) => {
-        const node: Node = new NodeHelper().createNode();
+        const image: Image = new ImageHelper().createImage();
         const hash: string = "00000000";
 
         const promise: any = {
@@ -241,7 +241,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const cache: SpatialDataCache = new SpatialDataCache(graphService, dataProvider);
 
-        cacheTile(hash, cache, graphService, [node]);
+        cacheTile(hash, cache, graphService, [image]);
 
         cache.cacheClusterReconstructions$(hash)
             .subscribe();
@@ -258,7 +258,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
     });
 
     it("should only request reconstruction once if called twice before completing", () => {
-        const node: Node = new NodeHelper().createNode();
+        const image: Image = new ImageHelper().createImage();
         const hash: string = "00000000";
 
         let resolver: Function;
@@ -276,7 +276,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const cache: SpatialDataCache = new SpatialDataCache(graphService, dataProvider);
 
-        cacheTile(hash, cache, graphService, [node]);
+        cacheTile(hash, cache, graphService, [image]);
 
         let emitCount1: number = 0;
         cache.cacheClusterReconstructions$(hash)
@@ -298,7 +298,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         expect(emitCount2).toBe(0);
 
         resolver({
-            key: node.clusterId,
+            key: image.clusterId,
             points: [],
             refererence_lla: { altitude: 0, latitude: 0, longitude: 0 },
         });
@@ -311,14 +311,14 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         expect(cache.isCachingClusterReconstructions(hash)).toBe(false);
         expect(cache.hasClusterReconstructions(hash)).toBe(true);
         expect(cache.getClusterReconstructions(hash).length).toBe(1);
-        expect(cache.getClusterReconstructions(hash)[0].id).toBe(node.clusterId);
+        expect(cache.getClusterReconstructions(hash)[0].id).toBe(image.clusterId);
     });
 });
 
 describe("SpatialDataCache.updateCell$", () => {
     it("should throw if cell does not exist", () => {
         const graphService = new GraphServiceMockCreator().create();
-        const cacheCell$ = new Subject<Node[]>();
+        const cacheCell$ = new Subject<Image[]>();
         const cacheCellSpy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell$);
 
@@ -337,7 +337,7 @@ describe("SpatialDataCache.updateCell$", () => {
 
     it("should call to update cell", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cacheCell1$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheCell1$: Subject<Image[]> = new Subject<Image[]>();
         const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell1$);
 
@@ -349,28 +349,28 @@ describe("SpatialDataCache.updateCell$", () => {
         const cellId = "1";
         cache.cacheTile$(cellId).subscribe();
 
-        const node = new NodeHelper().createNode();
-        cacheCell1$.next([node]);
+        const image = new ImageHelper().createImage();
+        cacheCell1$.next([image]);
         cacheCell1$.complete();
 
         expect(cache.hasTile(cellId)).toBe(true);
 
-        const cacheCell2$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheCell2$: Subject<Image[]> = new Subject<Image[]>();
         cacheCellSpy.and.returnValue(cacheCell2$);
 
         cache.updateCell$(cellId).subscribe();
 
-        cacheCell2$.next([node]);
+        cacheCell2$.next([image]);
 
         expect(cache.hasTile(cellId)).toBe(true);
         expect(cacheCellSpy.calls.count()).toBe(2);
         expect(cache.getTile(cellId).length).toBe(1);
-        expect(cache.getTile(cellId)[0].id).toBe(node.id);
+        expect(cache.getTile(cellId)[0].id).toBe(image.id);
     });
 
-    it("should add new nodes to cell", () => {
+    it("should add new images to cell", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cacheCell1$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheCell1$: Subject<Image[]> = new Subject<Image[]>();
         const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell1$);
 
@@ -388,16 +388,16 @@ describe("SpatialDataCache.updateCell$", () => {
         expect(cache.hasTile(cellId)).toBe(true);
         expect(cache.getTile(cellId).length).toBe(0);
 
-        const cacheCell2$: Subject<Node[]> = new Subject<Node[]>();
+        const cacheCell2$: Subject<Image[]> = new Subject<Image[]>();
         cacheCellSpy.and.returnValue(cacheCell2$);
 
         cache.updateCell$(cellId).subscribe();
 
-        const node = new NodeHelper().createNode();
-        cacheCell2$.next([node]);
+        const image = new ImageHelper().createImage();
+        cacheCell2$.next([image]);
 
         expect(cache.getTile(cellId).length).toBe(1);
-        expect(cache.getTile(cellId)[0].id).toBe(node.id);
+        expect(cache.getTile(cellId)[0].id).toBe(image.id);
     });
 });
 
@@ -427,7 +427,7 @@ describe("SpatialDataCache.updateReconstructions$", () => {
     });
 
     it("should not request an existing reconstruction", done => {
-        const node = new NodeHelper().createNode();
+        const image = new ImageHelper().createImage();
         const cellId = "123";
 
         let resolver: Function;
@@ -446,11 +446,11 @@ describe("SpatialDataCache.updateReconstructions$", () => {
         const graphService = new GraphServiceMockCreator().create();
         const cache = new SpatialDataCache(graphService, dataProvider);
 
-        cacheTile(cellId, cache, graphService, [node]);
+        cacheTile(cellId, cache, graphService, [image]);
 
         cache.cacheClusterReconstructions$(cellId).subscribe();
 
-        const cluster = createCluster(node.clusterId);
+        const cluster = createCluster(image.clusterId);
         resolver(cluster);
 
         expect(cache.hasClusterReconstructions(cellId)).toBe(true);
@@ -496,15 +496,15 @@ describe("SpatialDataCache.updateReconstructions$", () => {
         expect(cache.getClusterReconstructions(cellId).length).toBe(0);
         expect(clusterSpy.calls.count()).toBe(0);
 
-        const cacheCell$ = new Subject<Node[]>();
+        const cacheCell$ = new Subject<Image[]>();
         const cacheCellSpy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell$);
 
         cache.updateCell$(cellId)
             .subscribe();
 
-        const node = new NodeHelper().createNode();
-        cacheCell$.next([node]);
+        const image = new ImageHelper().createImage();
+        cacheCell$.next([image]);
 
         expect(cache.getTile(cellId).length).toBe(1);
 
@@ -516,12 +516,12 @@ describe("SpatialDataCache.updateReconstructions$", () => {
                     expect(cache.hasClusterReconstructions(cellId)).toBe(true);
                     const cs = cache.getClusterReconstructions(cellId);
                     expect(cs.length).toBe(1);
-                    expect(cs[0].id).toBe(node.clusterId);
+                    expect(cs[0].id).toBe(image.clusterId);
                     expect(clusterSpy.calls.count()).toBe(1);
                     done();
                 });
 
-        const cluster = createCluster(node.clusterId);
+        const cluster = createCluster(image.clusterId);
         resolver(cluster);
     });
 });

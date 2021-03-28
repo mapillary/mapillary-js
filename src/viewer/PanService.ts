@@ -29,7 +29,7 @@ import { ViewportCoords } from "../geo/ViewportCoords";
 import { LatLonAlt } from "../api/interfaces/LatLonAlt";
 import { GraphCalculator } from "../graph/GraphCalculator";
 import { GraphService } from "../graph/GraphService";
-import { Node } from "../graph/Node";
+import { Image } from "../graph/Image";
 import { StateService } from "../state/StateService";
 import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
@@ -50,9 +50,9 @@ export class PanService {
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
 
-    private _panNodesSubject$: Subject<[Node, Transform, number][]>;
-    private _panNodes$: Observable<[Node, Transform, number][]>;
-    private _panNodesSubscription: Subscription;
+    private _panImagesSubject$: Subject<[Image, Transform, number][]>;
+    private _panImages$: Observable<[Image, Transform, number][]>;
+    private _panImagesSubscription: Subscription;
     private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
     private _mode: PanMode;
@@ -74,24 +74,24 @@ export class PanService {
         this._mode = enabled !== false ?
             PanMode.Enabled : PanMode.Disabled;
 
-        this._panNodesSubject$ = new Subject<[Node, Transform, number][]>();
-        this._panNodes$ = this._panNodesSubject$.pipe(
+        this._panImagesSubject$ = new Subject<[Image, Transform, number][]>();
+        this._panImages$ = this._panImagesSubject$.pipe(
             startWith([]),
             publishReplay(1),
             refCount());
 
-        this._subscriptions.push(this._panNodes$.subscribe());
+        this._subscriptions.push(this._panImages$.subscribe());
     }
 
-    public get panNodes$(): Observable<[Node, Transform, number][]> {
-        return this._panNodes$;
+    public get panImages$(): Observable<[Image, Transform, number][]> {
+        return this._panImages$;
     }
 
     public dispose(): void {
         this.stop();
 
-        if (this._panNodesSubscription != null) {
-            this._panNodesSubscription.unsubscribe();
+        if (this._panImagesSubscription != null) {
+            this._panImagesSubscription.unsubscribe();
         }
 
         this._subscriptions.unsubscribe();
@@ -121,51 +121,51 @@ export class PanService {
             return;
         }
 
-        const panNodes$: Observable<[Node, Transform, number][]> = this._stateService.currentNode$.pipe(
+        const panImages$ = this._stateService.currentImage$.pipe(
             switchMap(
-                (current: Node): Observable<[Node, Transform, number][]> => {
+                (current: Image): Observable<[Image, Transform, number][]> => {
                     if (!current.merged || isSpherical(current.cameraType)) {
                         return observableOf([]);
                     }
 
-                    const current$: Observable<Node> = observableOf(current);
+                    const current$: Observable<Image> = observableOf(current);
 
                     const bounds: LatLon[] = this._graphCalculator.boundingBoxCorners(current.latLon, 20);
 
-                    const adjacent$: Observable<Node[]> = this._graphService
+                    const adjacent$: Observable<Image[]> = this._graphService
                         .cacheBoundingBox$(bounds[0], bounds[1]).pipe(
                             catchError(
-                                (error: Error): Observable<Node> => {
+                                (error: Error): Observable<Image> => {
                                     console.error(`Failed to cache periphery bounding box (${current.id})`, error);
 
                                     return observableEmpty();
                                 }),
                             map(
-                                (nodes: Node[]): Node[] => {
+                                (images: Image[]): Image[] => {
                                     if (isSpherical(current.cameraType)) {
                                         return [];
                                     }
 
-                                    const potential: Node[] = [];
+                                    const potential: Image[] = [];
 
-                                    for (const node of nodes) {
-                                        if (node.id === current.id) {
+                                    for (const image of images) {
+                                        if (image.id === current.id) {
                                             continue;
                                         }
 
-                                        if (node.mergeConnectedComponent !== current.mergeConnectedComponent) {
+                                        if (image.mergeConnectedComponent !== current.mergeConnectedComponent) {
                                             continue;
                                         }
 
-                                        if (isSpherical(node.cameraType)) {
+                                        if (isSpherical(image.cameraType)) {
                                             continue;
                                         }
 
-                                        if (this._distance(node, current) > 4) {
+                                        if (this._distance(image, current) > 4) {
                                             continue;
                                         }
 
-                                        potential.push(node);
+                                        potential.push(image);
                                     }
 
                                     return potential;
@@ -174,7 +174,7 @@ export class PanService {
                     return observableCombineLatest(current$, adjacent$).pipe(
                         withLatestFrom(this._stateService.reference$),
                         map(
-                            ([[cn, adjacent], reference]: [[Node, Node[]], LatLonAlt]): [Node, Transform, number][] => {
+                            ([[cn, adjacent], reference]: [[Image, Image[]], LatLonAlt]): [Image, Transform, number][] => {
                                 const currentDirection: THREE.Vector3 = this._spatial.viewingDirection(cn.rotation);
                                 const currentTranslation: number[] = Geo.computeTranslation(
                                     { lat: cn.latLon.lat, lon: cn.latLon.lon, alt: cn.computedAltitude },
@@ -193,8 +193,8 @@ export class PanService {
                                 const currentHFov: number = this._computeHorizontalFov(currentProjectedPoints) / 180 * Math.PI;
 
                                 const preferredOverlap: number = Math.PI / 8;
-                                let left: [number, Node, Transform, number] = undefined;
-                                let right: [number, Node, Transform, number] = undefined;
+                                let left: [number, Image, Transform, number] = undefined;
+                                let right: [number, Image, Transform, number] = undefined;
 
                                 for (const a of adjacent) {
                                     const translation: number[] = Geo.computeTranslation(
@@ -270,34 +270,35 @@ export class PanService {
                                     }
                                 }
 
-                                const panNodes: [Node, Transform, number][] = [];
+                                const panImagess:
+                                    [Image, Transform, number][] = [];
 
                                 if (!!left) {
-                                    panNodes.push([left[1], left[2], left[3]]);
+                                    panImagess.push([left[1], left[2], left[3]]);
                                 }
 
                                 if (!!right) {
-                                    panNodes.push([right[1], right[2], right[3]]);
+                                    panImagess.push([right[1], right[2], right[3]]);
                                 }
 
-                                return panNodes;
+                                return panImagess;
                             }),
                         startWith([]));
                 }));
 
-        this._panNodesSubscription = this._stateService.currentState$.pipe(
+        this._panImagesSubscription = this._stateService.currentState$.pipe(
             map(
                 (frame: AnimationFrame): boolean => {
-                    return frame.state.nodesAhead > 0;
+                    return frame.state.imagesAhead > 0;
                 }),
             distinctUntilChanged(),
             switchMap(
-                (traversing: boolean): Observable<[Node, Transform, number][]> => {
-                    return traversing ? observableOf([]) : panNodes$;
+                (traversing: boolean): Observable<[Image, Transform, number][]> => {
+                    return traversing ? observableOf([]) : panImages$;
                 }))
             .subscribe(
-                (panNodes: [Node, Transform, number][]): void => {
-                    this._panNodesSubject$.next(panNodes);
+                (panImages: [Image, Transform, number][]): void => {
+                    this._panImagesSubject$.next(panImages);
                 });
 
         this._mode = PanMode.Started;
@@ -308,17 +309,17 @@ export class PanService {
             return;
         }
 
-        this._panNodesSubscription.unsubscribe();
-        this._panNodesSubject$.next([]);
+        this._panImagesSubscription.unsubscribe();
+        this._panImagesSubject$.next([]);
 
         this._mode = PanMode.Enabled;
     }
 
-    private _distance(node: Node, reference: Node): number {
+    private _distance(image: Image, reference: Image): number {
         const [x, y, z] = geodeticToEnu(
-            node.latLon.lat,
-            node.latLon.lon,
-            node.computedAltitude,
+            image.latLon.lat,
+            image.latLon.lon,
+            image.computedAltitude,
             reference.latLon.lat,
             reference.latLon.lon,
             reference.computedAltitude);
@@ -326,23 +327,23 @@ export class PanService {
         return Math.sqrt(x * x + y * y + z * z);
     }
 
-    private _timeDifference(node: Node, reference: Node): number {
+    private _timeDifference(image: Image, reference: Image): number {
         const milliSecond = (1000 * 60 * 60 * 24 * 30);
-        return Math.abs(node.capturedAt - reference.capturedAt) / milliSecond;
+        return Math.abs(image.capturedAt - reference.capturedAt) / milliSecond;
     }
 
-    private _createTransform(node: Node, translation: number[]): Transform {
+    private _createTransform(image: Image, translation: number[]): Transform {
         return new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             translation,
-            node.assetsCached ? node.image : undefined,
+            image.assetsCached ? image.image : undefined,
             undefined,
-            node.cameraParameters,
-            <CameraType>node.cameraType);
+            image.cameraParameters,
+            <CameraType>image.cameraType);
     }
 
     private _computeProjectedPoints(transform: Transform): number[][] {

@@ -11,7 +11,7 @@ import { WaitingState } from "./state/WaitingState";
 import { Camera } from "../geo/Camera";
 import { Transform } from "../geo/Transform";
 import { LatLonAlt } from "../api/interfaces/LatLonAlt";
-import { Node } from "../graph/Node";
+import { Image } from "../graph/Image";
 
 type StateCreators = Map<string, new (state: StateBase) => StateBase>;
 
@@ -105,12 +105,12 @@ export class StateContext implements IStateContext {
         return this._state.zoom;
     }
 
-    public get currentNode(): Node {
-        return this._state.currentNode;
+    public get currentImage(): Image {
+        return this._state.currentImage;
     }
 
-    public get previousNode(): Node {
-        return this._state.previousNode;
+    public get previousImage(): Image {
+        return this._state.previousImage;
     }
 
     public get currentCamera(): Camera {
@@ -125,7 +125,7 @@ export class StateContext implements IStateContext {
         return this._state.previousTransform;
     }
 
-    public get trajectory(): Node[] {
+    public get trajectory(): Image[] {
         return this._state.trajectory;
     }
 
@@ -133,11 +133,11 @@ export class StateContext implements IStateContext {
         return this._state.currentIndex;
     }
 
-    public get lastNode(): Node {
+    public get lastImage(): Image {
         return this._state.trajectory[this._state.trajectory.length - 1];
     }
 
-    public get nodesAhead(): number {
+    public get imagesAhead(): number {
         return this._state.trajectory.length - 1 - this._state.currentIndex;
     }
 
@@ -177,12 +177,12 @@ export class StateContext implements IStateContext {
         this._state.update(fps);
     }
 
-    public append(nodes: Node[]): void {
-        this._state.append(nodes);
+    public append(images: Image[]): void {
+        this._state.append(images);
     }
 
-    public prepend(nodes: Node[]): void {
-        this._state.prepend(nodes);
+    public prepend(images: Image[]): void {
+        this._state.prepend(images);
     }
 
     public remove(n: number): void {
@@ -201,8 +201,8 @@ export class StateContext implements IStateContext {
         this._state.cut();
     }
 
-    public set(nodes: Node[]): void {
-        this._state.set(nodes);
+    public set(images: Image[]): void {
+        this._state.set(images);
     }
 
     public rotate(delta: EulerRotation): void {

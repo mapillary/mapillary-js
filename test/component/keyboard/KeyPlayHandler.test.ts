@@ -4,10 +4,10 @@ import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
 import { EventHelper } from "../../helper/EventHelper";
 import { MockCreator } from "../../helper/MockCreator";
 import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
-import { NodeHelper } from "../../helper/NodeHelper";
+import { ImageHelper } from "../../helper/ImageHelper";
 
 import { Navigator } from "../../../src/viewer/Navigator";
-import { Node } from "../../../src/graph/Node";
+import { Image } from "../../../src/graph/Image";
 import { Component } from "../../../src/component/Component";
 import { ComponentConfiguration } from "../../../src/component/interfaces/ComponentConfiguration";
 import { KeyPlayHandler } from "../../../src/component/keyboard/KeyPlayHandler";
@@ -66,7 +66,7 @@ describe("KeyPlayHandler.disable", () => {
 });
 
 describe("KeyPlayHandler.enable", () => {
-    let nodeHelper: NodeHelper;
+    let imageHelper: ImageHelper;
 
     let containerMock: Container;
     let navigatorMock: Navigator;
@@ -75,7 +75,7 @@ describe("KeyPlayHandler.enable", () => {
     let handler: KeyPlayHandler;
 
     beforeEach(() => {
-        nodeHelper = new NodeHelper();
+        imageHelper = new ImageHelper();
 
         containerMock = new ContainerMockCreator().create();
         navigatorMock = new NavigatorMockCreator().create();
@@ -96,10 +96,10 @@ describe("KeyPlayHandler.enable", () => {
         (<Subject<number>>navigatorMock.playService.speed$).next(0.5);
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
 
-        const node: Node = nodeHelper.createNode();
+        const image: Image = imageHelper.createImage();
         const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
-        new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
-        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
+        new MockCreator().mockProperty(image, "sequenceEdges$", sequenceEdgesSubject);
+        (<Subject<Image>>navigatorMock.stateService.currentImage$).next(image);
         sequenceEdgesSubject.next({ cached: false, edges: [] });
 
         let keyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keyDown", { key: " ", ctrlKey: true });
@@ -134,10 +134,10 @@ describe("KeyPlayHandler.enable", () => {
         (<Subject<number>>navigatorMock.playService.speed$).next(0.5);
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
 
-        const node: Node = nodeHelper.createNode();
+        const image: Image = imageHelper.createImage();
         const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
-        new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
-        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
+        new MockCreator().mockProperty(image, "sequenceEdges$", sequenceEdgesSubject);
+        (<Subject<Image>>navigatorMock.stateService.currentImage$).next(image);
         sequenceEdgesSubject.next({ cached: false, edges: [] });
 
         const setSpeedSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.playService.setSpeed;
@@ -166,10 +166,10 @@ describe("KeyPlayHandler.enable", () => {
         (<Subject<number>>navigatorMock.playService.speed$).next(0.5);
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
 
-        const node: Node = nodeHelper.createNode();
+        const image: Image = imageHelper.createImage();
         const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
-        new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
-        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
+        new MockCreator().mockProperty(image, "sequenceEdges$", sequenceEdgesSubject);
+        (<Subject<Image>>navigatorMock.stateService.currentImage$).next(image);
         sequenceEdgesSubject.next({ cached: false, edges: [] });
 
         const setDirectionSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.playService.setDirection;
@@ -200,10 +200,10 @@ describe("KeyPlayHandler.enable", () => {
         const stopSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.playService.stop;
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Traversing);
 
-        const node: Node = nodeHelper.createNode();
+        const image: Image = imageHelper.createImage();
         const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
-        new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
-        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
+        new MockCreator().mockProperty(image, "sequenceEdges$", sequenceEdgesSubject);
+        (<Subject<Image>>navigatorMock.stateService.currentImage$).next(image);
         sequenceEdgesSubject.next({ cached: false, edges: [] });
 
         (<Subject<boolean>>navigatorMock.playService.playing$).next(false);
@@ -222,7 +222,7 @@ describe("KeyPlayHandler.enable", () => {
             cached: true,
             edges: [{
                 data: { direction: NavigationDirection.Next, worldMotionAzimuth: 0 },
-                source: node.id,
+                source: image.id,
                 target: "toKey",
             }],
         });
@@ -244,10 +244,10 @@ describe("KeyPlayHandler.enable", () => {
         const stopSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.playService.stop;
         (<Subject<State>>navigatorMock.stateService.state$).next(State.Earth);
 
-        const node: Node = nodeHelper.createNode();
+        const image: Image = imageHelper.createImage();
         const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
-        new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
-        (<Subject<Node>>navigatorMock.stateService.currentNode$).next(node);
+        new MockCreator().mockProperty(image, "sequenceEdges$", sequenceEdgesSubject);
+        (<Subject<Image>>navigatorMock.stateService.currentImage$).next(image);
         sequenceEdgesSubject.next({ cached: false, edges: [] });
 
         (<Subject<boolean>>navigatorMock.playService.playing$).next(false);
@@ -266,7 +266,7 @@ describe("KeyPlayHandler.enable", () => {
             cached: true,
             edges: [{
                 data: { direction: NavigationDirection.Next, worldMotionAzimuth: 0 },
-                source: node.id,
+                source: image.id,
                 target: "toKey",
             }],
         });

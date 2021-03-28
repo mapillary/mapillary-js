@@ -1,5 +1,5 @@
-import { NodeHelper } from "../helper/NodeHelper";
-import { Node } from "../../src/graph/Node";
+import { ImageHelper } from "../helper/ImageHelper";
+import { Image } from "../../src/graph/Image";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { FilterCreator, FilterFunction } from "../../src/graph/FilterCreator";
@@ -16,10 +16,10 @@ describe("FilterCreator.ctor", () => {
 });
 
 describe("FilterCreator.createFilter", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should compare ==, string", () => {
@@ -28,25 +28,25 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "skey";
         let filter: FilterFunction = creator.createFilter(["==", "sequenceId", sequenceKey]);
 
-        let coreNode1: CoreImageEnt = helper.createCoreNode();
-        let coreNode2: CoreImageEnt = helper.createCoreNode();
-        let coreNode3: CoreImageEnt = helper.createCoreNode();
-        let coreNode4: CoreImageEnt = helper.createCoreNode();
+        let coreImage1: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage2: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage3: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage4: CoreImageEnt = helper.createCoreImageEnt();
 
-        coreNode1.sequence.id = sequenceKey;
-        coreNode2.sequence.id = sequenceKey + "w";
-        coreNode3.sequence.id = null;
-        coreNode4.sequence.id = undefined;
+        coreImage1.sequence.id = sequenceKey;
+        coreImage2.sequence.id = sequenceKey + "w";
+        coreImage3.sequence.id = null;
+        coreImage4.sequence.id = undefined;
 
-        let node1: Node = new Node(coreNode1);
-        let node2: Node = new Node(coreNode2);
-        let node3: Node = new Node(coreNode3);
-        let node4: Node = new Node(coreNode4);
+        let image1: Image = new Image(coreImage1);
+        let image2: Image = new Image(coreImage2);
+        let image3: Image = new Image(coreImage3);
+        let image4: Image = new Image(coreImage4);
 
-        expect(filter(node1)).toBe(true);
-        expect(filter(node2)).toBe(false);
-        expect(filter(node3)).toBe(false);
-        expect(filter(node4)).toBe(false);
+        expect(filter(image1)).toBe(true);
+        expect(filter(image2)).toBe(false);
+        expect(filter(image3)).toBe(false);
+        expect(filter(image4)).toBe(false);
     });
 
     it("should compare ==, number", () => {
@@ -55,30 +55,30 @@ describe("FilterCreator.createFilter", () => {
         let capturedAt: number = 1;
         let filter: FilterFunction = creator.createFilter(["==", "capturedAt", capturedAt]);
 
-        let node1: Node = new Node(helper.createCoreNode());
-        let node2: Node = new Node(helper.createCoreNode());
-        let node3: Node = new Node(helper.createCoreNode());
-        let node4: Node = new Node(helper.createCoreNode());
+        let image1: Image = new Image(helper.createCoreImageEnt());
+        let image2: Image = new Image(helper.createCoreImageEnt());
+        let image3: Image = new Image(helper.createCoreImageEnt());
+        let image4: Image = new Image(helper.createCoreImageEnt());
 
-        let fillNode1: SpatialImageEnt = helper.createFillNode();
-        let fillNode2: SpatialImageEnt = helper.createFillNode();
-        let fillNode3: SpatialImageEnt = helper.createFillNode();
-        let fillNode4: SpatialImageEnt = helper.createFillNode();
+        let fillImage1: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage2: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage3: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage4: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillNode1.captured_at = capturedAt;
-        fillNode2.captured_at = capturedAt + 1;
-        fillNode3.captured_at = null;
-        fillNode4.captured_at = undefined;
+        fillImage1.captured_at = capturedAt;
+        fillImage2.captured_at = capturedAt + 1;
+        fillImage3.captured_at = null;
+        fillImage4.captured_at = undefined;
 
-        node1.makeFull(fillNode1);
-        node2.makeFull(fillNode2);
-        node3.makeFull(fillNode3);
-        node4.makeFull(fillNode4);
+        image1.makeComplete(fillImage1);
+        image2.makeComplete(fillImage2);
+        image3.makeComplete(fillImage3);
+        image4.makeComplete(fillImage4);
 
-        expect(filter(node1)).toBe(true);
-        expect(filter(node2)).toBe(false);
-        expect(filter(node3)).toBe(false);
-        expect(filter(node4)).toBe(false);
+        expect(filter(image1)).toBe(true);
+        expect(filter(image2)).toBe(false);
+        expect(filter(image3)).toBe(false);
+        expect(filter(image4)).toBe(false);
     });
 
     it("should compare ==, null", () => {
@@ -86,38 +86,38 @@ describe("FilterCreator.createFilter", () => {
 
         let filter = creator.createFilter(["==", "creatorId", null]);
 
-        let node1: Node = new Node(helper.createCoreNode());
-        let node2: Node = new Node(helper.createCoreNode());
-        let node3: Node = new Node(helper.createCoreNode());
-        let node4: Node = new Node(helper.createCoreNode());
+        let image1: Image = new Image(helper.createCoreImageEnt());
+        let image2: Image = new Image(helper.createCoreImageEnt());
+        let image3: Image = new Image(helper.createCoreImageEnt());
+        let image4: Image = new Image(helper.createCoreImageEnt());
 
-        let fillNode1: SpatialImageEnt = helper.createFillNode();
-        let fillNode2: SpatialImageEnt = helper.createFillNode();
-        let fillNode3: SpatialImageEnt = helper.createFillNode();
-        let fillNode4: SpatialImageEnt = helper.createFillNode();
+        let fillImage1: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage2: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage3: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage4: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillNode1.creator.id = null;
-        fillNode2.creator.id = "ukey";
-        fillNode3.creator.id = "null";
-        fillNode4.creator.id = undefined;
+        fillImage1.creator.id = null;
+        fillImage2.creator.id = "ukey";
+        fillImage3.creator.id = "null";
+        fillImage4.creator.id = undefined;
 
-        node1.makeFull(fillNode1);
-        node2.makeFull(fillNode2);
-        node3.makeFull(fillNode3);
-        node4.makeFull(fillNode4);
+        image1.makeComplete(fillImage1);
+        image2.makeComplete(fillImage2);
+        image3.makeComplete(fillImage3);
+        image4.makeComplete(fillImage4);
 
-        expect(filter(node1)).toBe(true);
-        expect(filter(node2)).toBe(false);
-        expect(filter(node3)).toBe(false);
-        expect(filter(node4)).toBe(false);
+        expect(filter(image1)).toBe(true);
+        expect(filter(image2)).toBe(false);
+        expect(filter(image3)).toBe(false);
+        expect(filter(image4)).toBe(false);
     });
 });
 
 describe("FilterCreator.createFilter", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should compare !=, string", () => {
@@ -126,25 +126,25 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "skey";
         let filter: FilterFunction = creator.createFilter(["!=", "sequenceId", sequenceKey]);
 
-        let coreNode1: CoreImageEnt = helper.createCoreNode();
-        let coreNode2: CoreImageEnt = helper.createCoreNode();
-        let coreNode3: CoreImageEnt = helper.createCoreNode();
-        let coreNode4: CoreImageEnt = helper.createCoreNode();
+        let coreImage1: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage2: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage3: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage4: CoreImageEnt = helper.createCoreImageEnt();
 
-        coreNode1.sequence.id = sequenceKey;
-        coreNode2.sequence.id = sequenceKey + "w";
-        coreNode3.sequence.id = null;
-        coreNode4.sequence.id = undefined;
+        coreImage1.sequence.id = sequenceKey;
+        coreImage2.sequence.id = sequenceKey + "w";
+        coreImage3.sequence.id = null;
+        coreImage4.sequence.id = undefined;
 
-        let node1: Node = new Node(coreNode1);
-        let node2: Node = new Node(coreNode2);
-        let node3: Node = new Node(coreNode3);
-        let node4: Node = new Node(coreNode4);
+        let image1: Image = new Image(coreImage1);
+        let image2: Image = new Image(coreImage2);
+        let image3: Image = new Image(coreImage3);
+        let image4: Image = new Image(coreImage4);
 
-        expect(filter(node1)).toBe(false);
-        expect(filter(node2)).toBe(true);
-        expect(filter(node3)).toBe(true);
-        expect(filter(node4)).toBe(true);
+        expect(filter(image1)).toBe(false);
+        expect(filter(image2)).toBe(true);
+        expect(filter(image3)).toBe(true);
+        expect(filter(image4)).toBe(true);
     });
 
     it("should compare !=, number", () => {
@@ -153,30 +153,30 @@ describe("FilterCreator.createFilter", () => {
         let capturedAt: number = 1;
         let filter: FilterFunction = creator.createFilter(["!=", "capturedAt", capturedAt]);
 
-        let node1: Node = new Node(helper.createCoreNode());
-        let node2: Node = new Node(helper.createCoreNode());
-        let node3: Node = new Node(helper.createCoreNode());
-        let node4: Node = new Node(helper.createCoreNode());
+        let image1: Image = new Image(helper.createCoreImageEnt());
+        let image2: Image = new Image(helper.createCoreImageEnt());
+        let image3: Image = new Image(helper.createCoreImageEnt());
+        let image4: Image = new Image(helper.createCoreImageEnt());
 
-        let fillNode1: SpatialImageEnt = helper.createFillNode();
-        let fillNode2: SpatialImageEnt = helper.createFillNode();
-        let fillNode3: SpatialImageEnt = helper.createFillNode();
-        let fillNode4: SpatialImageEnt = helper.createFillNode();
+        let fillImage1: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage2: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage3: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage4: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillNode1.captured_at = capturedAt;
-        fillNode2.captured_at = capturedAt + 1;
-        fillNode3.captured_at = null;
-        fillNode4.captured_at = undefined;
+        fillImage1.captured_at = capturedAt;
+        fillImage2.captured_at = capturedAt + 1;
+        fillImage3.captured_at = null;
+        fillImage4.captured_at = undefined;
 
-        node1.makeFull(fillNode1);
-        node2.makeFull(fillNode2);
-        node3.makeFull(fillNode3);
-        node4.makeFull(fillNode4);
+        image1.makeComplete(fillImage1);
+        image2.makeComplete(fillImage2);
+        image3.makeComplete(fillImage3);
+        image4.makeComplete(fillImage4);
 
-        expect(filter(node1)).toBe(false);
-        expect(filter(node2)).toBe(true);
-        expect(filter(node3)).toBe(true);
-        expect(filter(node4)).toBe(true);
+        expect(filter(image1)).toBe(false);
+        expect(filter(image2)).toBe(true);
+        expect(filter(image3)).toBe(true);
+        expect(filter(image4)).toBe(true);
     });
 
     it("should compare !=, null", () => {
@@ -184,38 +184,38 @@ describe("FilterCreator.createFilter", () => {
 
         let filter = creator.createFilter(["!=", "creatorId", null]);
 
-        let node1: Node = new Node(helper.createCoreNode());
-        let node2: Node = new Node(helper.createCoreNode());
-        let node3: Node = new Node(helper.createCoreNode());
-        let node4: Node = new Node(helper.createCoreNode());
+        let image1: Image = new Image(helper.createCoreImageEnt());
+        let image2: Image = new Image(helper.createCoreImageEnt());
+        let image3: Image = new Image(helper.createCoreImageEnt());
+        let image4: Image = new Image(helper.createCoreImageEnt());
 
-        let fillNode1: SpatialImageEnt = helper.createFillNode();
-        let fillNode2: SpatialImageEnt = helper.createFillNode();
-        let fillNode3: SpatialImageEnt = helper.createFillNode();
-        let fillNode4: SpatialImageEnt = helper.createFillNode();
+        let fillImage1: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage2: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage3: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage4: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillNode1.creator.id = null;
-        fillNode2.creator.id = "ukey";
-        fillNode3.creator.id = "null";
-        fillNode4.creator.id = undefined;
+        fillImage1.creator.id = null;
+        fillImage2.creator.id = "ukey";
+        fillImage3.creator.id = "null";
+        fillImage4.creator.id = undefined;
 
-        node1.makeFull(fillNode1);
-        node2.makeFull(fillNode2);
-        node3.makeFull(fillNode3);
-        node4.makeFull(fillNode4);
+        image1.makeComplete(fillImage1);
+        image2.makeComplete(fillImage2);
+        image3.makeComplete(fillImage3);
+        image4.makeComplete(fillImage4);
 
-        expect(filter(node1)).toBe(false);
-        expect(filter(node2)).toBe(true);
-        expect(filter(node3)).toBe(true);
-        expect(filter(node4)).toBe(true);
+        expect(filter(image1)).toBe(false);
+        expect(filter(image2)).toBe(true);
+        expect(filter(image3)).toBe(true);
+        expect(filter(image4)).toBe(true);
     });
 });
 
 describe("FilterCreator.createFilter", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should compare >, number", () => {
@@ -224,35 +224,35 @@ describe("FilterCreator.createFilter", () => {
         let capturedAt: number = 1;
         let filter: FilterFunction = creator.createFilter([">", "capturedAt", capturedAt]);
 
-        let node1: Node = new Node(helper.createCoreNode());
-        let node2: Node = new Node(helper.createCoreNode());
-        let node3: Node = new Node(helper.createCoreNode());
-        let node4: Node = new Node(helper.createCoreNode());
-        let node5: Node = new Node(helper.createCoreNode());
+        let image1: Image = new Image(helper.createCoreImageEnt());
+        let image2: Image = new Image(helper.createCoreImageEnt());
+        let image3: Image = new Image(helper.createCoreImageEnt());
+        let image4: Image = new Image(helper.createCoreImageEnt());
+        let image5: Image = new Image(helper.createCoreImageEnt());
 
-        let fillNode1: SpatialImageEnt = helper.createFillNode();
-        let fillNode2: SpatialImageEnt = helper.createFillNode();
-        let fillNode3: SpatialImageEnt = helper.createFillNode();
-        let fillNode4: SpatialImageEnt = helper.createFillNode();
-        let fillNode5: SpatialImageEnt = helper.createFillNode();
+        let fillImage1: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage2: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage3: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage4: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage5: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillNode1.captured_at = capturedAt - 1;
-        fillNode2.captured_at = capturedAt;
-        fillNode3.captured_at = capturedAt + 1;
-        fillNode4.captured_at = null;
-        fillNode5.captured_at = undefined;
+        fillImage1.captured_at = capturedAt - 1;
+        fillImage2.captured_at = capturedAt;
+        fillImage3.captured_at = capturedAt + 1;
+        fillImage4.captured_at = null;
+        fillImage5.captured_at = undefined;
 
-        node1.makeFull(fillNode1);
-        node2.makeFull(fillNode2);
-        node3.makeFull(fillNode3);
-        node4.makeFull(fillNode4);
-        node5.makeFull(fillNode5);
+        image1.makeComplete(fillImage1);
+        image2.makeComplete(fillImage2);
+        image3.makeComplete(fillImage3);
+        image4.makeComplete(fillImage4);
+        image5.makeComplete(fillImage5);
 
-        expect(filter(node1)).toBe(false);
-        expect(filter(node2)).toBe(false);
-        expect(filter(node3)).toBe(true);
-        expect(filter(node4)).toBe(false);
-        expect(filter(node5)).toBe(false);
+        expect(filter(image1)).toBe(false);
+        expect(filter(image2)).toBe(false);
+        expect(filter(image3)).toBe(true);
+        expect(filter(image4)).toBe(false);
+        expect(filter(image5)).toBe(false);
     });
 
     it("should compare >, string", () => {
@@ -261,37 +261,37 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "0";
         let filter: FilterFunction = creator.createFilter([">", "sequenceId", sequenceKey]);
 
-        let coreNode1: CoreImageEnt = helper.createCoreNode();
-        let coreNode2: CoreImageEnt = helper.createCoreNode();
-        let coreNode3: CoreImageEnt = helper.createCoreNode();
-        let coreNode4: CoreImageEnt = helper.createCoreNode();
-        let coreNode5: CoreImageEnt = helper.createCoreNode();
+        let coreImage1: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage2: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage3: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage4: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage5: CoreImageEnt = helper.createCoreImageEnt();
 
-        coreNode1.sequence.id = "-1";
-        coreNode2.sequence.id = sequenceKey;
-        coreNode3.sequence.id = "1";
-        coreNode4.sequence.id = null;
-        coreNode5.sequence.id = undefined;
+        coreImage1.sequence.id = "-1";
+        coreImage2.sequence.id = sequenceKey;
+        coreImage3.sequence.id = "1";
+        coreImage4.sequence.id = null;
+        coreImage5.sequence.id = undefined;
 
-        let node1: Node = new Node(coreNode1);
-        let node2: Node = new Node(coreNode2);
-        let node3: Node = new Node(coreNode3);
-        let node4: Node = new Node(coreNode4);
-        let node5: Node = new Node(coreNode4);
+        let image1: Image = new Image(coreImage1);
+        let image2: Image = new Image(coreImage2);
+        let image3: Image = new Image(coreImage3);
+        let image4: Image = new Image(coreImage4);
+        let image5: Image = new Image(coreImage4);
 
-        expect(filter(node1)).toBe(false);
-        expect(filter(node2)).toBe(false);
-        expect(filter(node3)).toBe(true);
-        expect(filter(node4)).toBe(false);
-        expect(filter(node5)).toBe(false);
+        expect(filter(image1)).toBe(false);
+        expect(filter(image2)).toBe(false);
+        expect(filter(image3)).toBe(true);
+        expect(filter(image4)).toBe(false);
+        expect(filter(image5)).toBe(false);
     });
 });
 
 describe("FilterCreator.createFilter", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should compare >=, number", () => {
@@ -300,35 +300,35 @@ describe("FilterCreator.createFilter", () => {
         let capturedAt: number = 1;
         let filter: FilterFunction = creator.createFilter([">=", "capturedAt", capturedAt]);
 
-        let node1: Node = new Node(helper.createCoreNode());
-        let node2: Node = new Node(helper.createCoreNode());
-        let node3: Node = new Node(helper.createCoreNode());
-        let node4: Node = new Node(helper.createCoreNode());
-        let node5: Node = new Node(helper.createCoreNode());
+        let image1: Image = new Image(helper.createCoreImageEnt());
+        let image2: Image = new Image(helper.createCoreImageEnt());
+        let image3: Image = new Image(helper.createCoreImageEnt());
+        let image4: Image = new Image(helper.createCoreImageEnt());
+        let image5: Image = new Image(helper.createCoreImageEnt());
 
-        let fillNode1: SpatialImageEnt = helper.createFillNode();
-        let fillNode2: SpatialImageEnt = helper.createFillNode();
-        let fillNode3: SpatialImageEnt = helper.createFillNode();
-        let fillNode4: SpatialImageEnt = helper.createFillNode();
-        let fillNode5: SpatialImageEnt = helper.createFillNode();
+        let fillImage1: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage2: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage3: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage4: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage5: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillNode1.captured_at = capturedAt - 1;
-        fillNode2.captured_at = capturedAt;
-        fillNode3.captured_at = capturedAt + 1;
-        fillNode4.captured_at = null;
-        fillNode5.captured_at = undefined;
+        fillImage1.captured_at = capturedAt - 1;
+        fillImage2.captured_at = capturedAt;
+        fillImage3.captured_at = capturedAt + 1;
+        fillImage4.captured_at = null;
+        fillImage5.captured_at = undefined;
 
-        node1.makeFull(fillNode1);
-        node2.makeFull(fillNode2);
-        node3.makeFull(fillNode3);
-        node4.makeFull(fillNode4);
-        node5.makeFull(fillNode5);
+        image1.makeComplete(fillImage1);
+        image2.makeComplete(fillImage2);
+        image3.makeComplete(fillImage3);
+        image4.makeComplete(fillImage4);
+        image5.makeComplete(fillImage5);
 
-        expect(filter(node1)).toBe(false);
-        expect(filter(node2)).toBe(true);
-        expect(filter(node3)).toBe(true);
-        expect(filter(node4)).toBe(false);
-        expect(filter(node5)).toBe(false);
+        expect(filter(image1)).toBe(false);
+        expect(filter(image2)).toBe(true);
+        expect(filter(image3)).toBe(true);
+        expect(filter(image4)).toBe(false);
+        expect(filter(image5)).toBe(false);
     });
 
     it("should compare >=, string", () => {
@@ -337,37 +337,37 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "0";
         let filter: FilterFunction = creator.createFilter([">=", "sequenceId", sequenceKey]);
 
-        let coreNode1: CoreImageEnt = helper.createCoreNode();
-        let coreNode2: CoreImageEnt = helper.createCoreNode();
-        let coreNode3: CoreImageEnt = helper.createCoreNode();
-        let coreNode4: CoreImageEnt = helper.createCoreNode();
-        let coreNode5: CoreImageEnt = helper.createCoreNode();
+        let coreImage1: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage2: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage3: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage4: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage5: CoreImageEnt = helper.createCoreImageEnt();
 
-        coreNode1.sequence.id = "-1";
-        coreNode2.sequence.id = sequenceKey;
-        coreNode3.sequence.id = "1";
-        coreNode4.sequence.id = null;
-        coreNode5.sequence.id = undefined;
+        coreImage1.sequence.id = "-1";
+        coreImage2.sequence.id = sequenceKey;
+        coreImage3.sequence.id = "1";
+        coreImage4.sequence.id = null;
+        coreImage5.sequence.id = undefined;
 
-        let node1: Node = new Node(coreNode1);
-        let node2: Node = new Node(coreNode2);
-        let node3: Node = new Node(coreNode3);
-        let node4: Node = new Node(coreNode4);
-        let node5: Node = new Node(coreNode4);
+        let image1: Image = new Image(coreImage1);
+        let image2: Image = new Image(coreImage2);
+        let image3: Image = new Image(coreImage3);
+        let image4: Image = new Image(coreImage4);
+        let image5: Image = new Image(coreImage4);
 
-        expect(filter(node1)).toBe(false);
-        expect(filter(node2)).toBe(true);
-        expect(filter(node3)).toBe(true);
-        expect(filter(node4)).toBe(false);
-        expect(filter(node5)).toBe(false);
+        expect(filter(image1)).toBe(false);
+        expect(filter(image2)).toBe(true);
+        expect(filter(image3)).toBe(true);
+        expect(filter(image4)).toBe(false);
+        expect(filter(image5)).toBe(false);
     });
 });
 
 describe("FilterCreator.createFilter", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should compare <, number", () => {
@@ -376,35 +376,35 @@ describe("FilterCreator.createFilter", () => {
         let capturedAt: number = 1;
         let filter: FilterFunction = creator.createFilter(["<", "capturedAt", capturedAt]);
 
-        let node1: Node = new Node(helper.createCoreNode());
-        let node2: Node = new Node(helper.createCoreNode());
-        let node3: Node = new Node(helper.createCoreNode());
-        let node4: Node = new Node(helper.createCoreNode());
-        let node5: Node = new Node(helper.createCoreNode());
+        let image1: Image = new Image(helper.createCoreImageEnt());
+        let image2: Image = new Image(helper.createCoreImageEnt());
+        let image3: Image = new Image(helper.createCoreImageEnt());
+        let image4: Image = new Image(helper.createCoreImageEnt());
+        let image5: Image = new Image(helper.createCoreImageEnt());
 
-        let fillNode1: SpatialImageEnt = helper.createFillNode();
-        let fillNode2: SpatialImageEnt = helper.createFillNode();
-        let fillNode3: SpatialImageEnt = helper.createFillNode();
-        let fillNode4: SpatialImageEnt = helper.createFillNode();
-        let fillNode5: SpatialImageEnt = helper.createFillNode();
+        let fillImage1: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage2: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage3: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage4: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage5: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillNode1.captured_at = capturedAt - 1;
-        fillNode2.captured_at = capturedAt;
-        fillNode3.captured_at = capturedAt + 1;
-        fillNode4.captured_at = null;
-        fillNode5.captured_at = undefined;
+        fillImage1.captured_at = capturedAt - 1;
+        fillImage2.captured_at = capturedAt;
+        fillImage3.captured_at = capturedAt + 1;
+        fillImage4.captured_at = null;
+        fillImage5.captured_at = undefined;
 
-        node1.makeFull(fillNode1);
-        node2.makeFull(fillNode2);
-        node3.makeFull(fillNode3);
-        node4.makeFull(fillNode4);
-        node5.makeFull(fillNode5);
+        image1.makeComplete(fillImage1);
+        image2.makeComplete(fillImage2);
+        image3.makeComplete(fillImage3);
+        image4.makeComplete(fillImage4);
+        image5.makeComplete(fillImage5);
 
-        expect(filter(node1)).toBe(true);
-        expect(filter(node2)).toBe(false);
-        expect(filter(node3)).toBe(false);
-        expect(filter(node4)).toBe(false);
-        expect(filter(node5)).toBe(false);
+        expect(filter(image1)).toBe(true);
+        expect(filter(image2)).toBe(false);
+        expect(filter(image3)).toBe(false);
+        expect(filter(image4)).toBe(false);
+        expect(filter(image5)).toBe(false);
     });
 
     it("should compare <, string", () => {
@@ -413,37 +413,37 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "0";
         let filter: FilterFunction = creator.createFilter(["<", "sequenceId", sequenceKey]);
 
-        let coreNode1: CoreImageEnt = helper.createCoreNode();
-        let coreNode2: CoreImageEnt = helper.createCoreNode();
-        let coreNode3: CoreImageEnt = helper.createCoreNode();
-        let coreNode4: CoreImageEnt = helper.createCoreNode();
-        let coreNode5: CoreImageEnt = helper.createCoreNode();
+        let coreImage1: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage2: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage3: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage4: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage5: CoreImageEnt = helper.createCoreImageEnt();
 
-        coreNode1.sequence.id = "-1";
-        coreNode2.sequence.id = sequenceKey;
-        coreNode3.sequence.id = "1";
-        coreNode4.sequence.id = null;
-        coreNode5.sequence.id = undefined;
+        coreImage1.sequence.id = "-1";
+        coreImage2.sequence.id = sequenceKey;
+        coreImage3.sequence.id = "1";
+        coreImage4.sequence.id = null;
+        coreImage5.sequence.id = undefined;
 
-        let node1: Node = new Node(coreNode1);
-        let node2: Node = new Node(coreNode2);
-        let node3: Node = new Node(coreNode3);
-        let node4: Node = new Node(coreNode4);
-        let node5: Node = new Node(coreNode4);
+        let image1: Image = new Image(coreImage1);
+        let image2: Image = new Image(coreImage2);
+        let image3: Image = new Image(coreImage3);
+        let image4: Image = new Image(coreImage4);
+        let image5: Image = new Image(coreImage4);
 
-        expect(filter(node1)).toBe(true);
-        expect(filter(node2)).toBe(false);
-        expect(filter(node3)).toBe(false);
-        expect(filter(node4)).toBe(false);
-        expect(filter(node5)).toBe(false);
+        expect(filter(image1)).toBe(true);
+        expect(filter(image2)).toBe(false);
+        expect(filter(image3)).toBe(false);
+        expect(filter(image4)).toBe(false);
+        expect(filter(image5)).toBe(false);
     });
 });
 
 describe("FilterCreator.createFilter", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should compare <=, number", () => {
@@ -452,35 +452,35 @@ describe("FilterCreator.createFilter", () => {
         let capturedAt: number = 1;
         let filter: FilterFunction = creator.createFilter(["<=", "capturedAt", capturedAt]);
 
-        let node1: Node = new Node(helper.createCoreNode());
-        let node2: Node = new Node(helper.createCoreNode());
-        let node3: Node = new Node(helper.createCoreNode());
-        let node4: Node = new Node(helper.createCoreNode());
-        let node5: Node = new Node(helper.createCoreNode());
+        let image1: Image = new Image(helper.createCoreImageEnt());
+        let image2: Image = new Image(helper.createCoreImageEnt());
+        let image3: Image = new Image(helper.createCoreImageEnt());
+        let image4: Image = new Image(helper.createCoreImageEnt());
+        let image5: Image = new Image(helper.createCoreImageEnt());
 
-        let fillNode1: SpatialImageEnt = helper.createFillNode();
-        let fillNode2: SpatialImageEnt = helper.createFillNode();
-        let fillNode3: SpatialImageEnt = helper.createFillNode();
-        let fillNode4: SpatialImageEnt = helper.createFillNode();
-        let fillNode5: SpatialImageEnt = helper.createFillNode();
+        let fillImage1: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage2: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage3: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage4: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage5: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillNode1.captured_at = capturedAt - 1;
-        fillNode2.captured_at = capturedAt;
-        fillNode3.captured_at = capturedAt + 1;
-        fillNode4.captured_at = null;
-        fillNode5.captured_at = undefined;
+        fillImage1.captured_at = capturedAt - 1;
+        fillImage2.captured_at = capturedAt;
+        fillImage3.captured_at = capturedAt + 1;
+        fillImage4.captured_at = null;
+        fillImage5.captured_at = undefined;
 
-        node1.makeFull(fillNode1);
-        node2.makeFull(fillNode2);
-        node3.makeFull(fillNode3);
-        node4.makeFull(fillNode4);
-        node5.makeFull(fillNode5);
+        image1.makeComplete(fillImage1);
+        image2.makeComplete(fillImage2);
+        image3.makeComplete(fillImage3);
+        image4.makeComplete(fillImage4);
+        image5.makeComplete(fillImage5);
 
-        expect(filter(node1)).toBe(true);
-        expect(filter(node2)).toBe(true);
-        expect(filter(node3)).toBe(false);
-        expect(filter(node4)).toBe(false);
-        expect(filter(node5)).toBe(false);
+        expect(filter(image1)).toBe(true);
+        expect(filter(image2)).toBe(true);
+        expect(filter(image3)).toBe(false);
+        expect(filter(image4)).toBe(false);
+        expect(filter(image5)).toBe(false);
     });
 
     it("should compare <=, string", () => {
@@ -489,37 +489,37 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "0";
         let filter: FilterFunction = creator.createFilter(["<=", "sequenceId", sequenceKey]);
 
-        let coreNode1: CoreImageEnt = helper.createCoreNode();
-        let coreNode2: CoreImageEnt = helper.createCoreNode();
-        let coreNode3: CoreImageEnt = helper.createCoreNode();
-        let coreNode4: CoreImageEnt = helper.createCoreNode();
-        let coreNode5: CoreImageEnt = helper.createCoreNode();
+        let coreImage1: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage2: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage3: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage4: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage5: CoreImageEnt = helper.createCoreImageEnt();
 
-        coreNode1.sequence.id = "-1";
-        coreNode2.sequence.id = sequenceKey;
-        coreNode3.sequence.id = "1";
-        coreNode4.sequence.id = null;
-        coreNode5.sequence.id = undefined;
+        coreImage1.sequence.id = "-1";
+        coreImage2.sequence.id = sequenceKey;
+        coreImage3.sequence.id = "1";
+        coreImage4.sequence.id = null;
+        coreImage5.sequence.id = undefined;
 
-        let node1: Node = new Node(coreNode1);
-        let node2: Node = new Node(coreNode2);
-        let node3: Node = new Node(coreNode3);
-        let node4: Node = new Node(coreNode4);
-        let node5: Node = new Node(coreNode4);
+        let image1: Image = new Image(coreImage1);
+        let image2: Image = new Image(coreImage2);
+        let image3: Image = new Image(coreImage3);
+        let image4: Image = new Image(coreImage4);
+        let image5: Image = new Image(coreImage4);
 
-        expect(filter(node1)).toBe(true);
-        expect(filter(node2)).toBe(true);
-        expect(filter(node3)).toBe(false);
-        expect(filter(node4)).toBe(false);
-        expect(filter(node5)).toBe(false);
+        expect(filter(image1)).toBe(true);
+        expect(filter(image2)).toBe(true);
+        expect(filter(image3)).toBe(false);
+        expect(filter(image4)).toBe(false);
+        expect(filter(image5)).toBe(false);
     });
 });
 
 describe("FilterCreator.createFilter", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should test in, number", () => {
@@ -528,35 +528,35 @@ describe("FilterCreator.createFilter", () => {
         let capturedAt: number = 1;
         let filter: FilterFunction = creator.createFilter(["in", "capturedAt", capturedAt]);
 
-        let node1: Node = new Node(helper.createCoreNode());
-        let node2: Node = new Node(helper.createCoreNode());
-        let node3: Node = new Node(helper.createCoreNode());
-        let node4: Node = new Node(helper.createCoreNode());
-        let node5: Node = new Node(helper.createCoreNode());
+        let image1: Image = new Image(helper.createCoreImageEnt());
+        let image2: Image = new Image(helper.createCoreImageEnt());
+        let image3: Image = new Image(helper.createCoreImageEnt());
+        let image4: Image = new Image(helper.createCoreImageEnt());
+        let image5: Image = new Image(helper.createCoreImageEnt());
 
-        let fillNode1: SpatialImageEnt = helper.createFillNode();
-        let fillNode2: SpatialImageEnt = helper.createFillNode();
-        let fillNode3: SpatialImageEnt = helper.createFillNode();
-        let fillNode4: SpatialImageEnt = helper.createFillNode();
-        let fillNode5: SpatialImageEnt = helper.createFillNode();
+        let fillImage1: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage2: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage3: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage4: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage5: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillNode1.captured_at = capturedAt - 1;
-        fillNode2.captured_at = capturedAt;
-        fillNode3.captured_at = capturedAt + 1;
-        fillNode4.captured_at = null;
-        fillNode5.captured_at = undefined;
+        fillImage1.captured_at = capturedAt - 1;
+        fillImage2.captured_at = capturedAt;
+        fillImage3.captured_at = capturedAt + 1;
+        fillImage4.captured_at = null;
+        fillImage5.captured_at = undefined;
 
-        node1.makeFull(fillNode1);
-        node2.makeFull(fillNode2);
-        node3.makeFull(fillNode3);
-        node4.makeFull(fillNode4);
-        node5.makeFull(fillNode5);
+        image1.makeComplete(fillImage1);
+        image2.makeComplete(fillImage2);
+        image3.makeComplete(fillImage3);
+        image4.makeComplete(fillImage4);
+        image5.makeComplete(fillImage5);
 
-        expect(filter(node1)).toBe(false);
-        expect(filter(node2)).toBe(true);
-        expect(filter(node3)).toBe(false);
-        expect(filter(node4)).toBe(false);
-        expect(filter(node5)).toBe(false);
+        expect(filter(image1)).toBe(false);
+        expect(filter(image2)).toBe(true);
+        expect(filter(image3)).toBe(false);
+        expect(filter(image4)).toBe(false);
+        expect(filter(image5)).toBe(false);
     });
 
     it("should test in, string", () => {
@@ -565,29 +565,29 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "0";
         let filter: FilterFunction = creator.createFilter(["in", "sequenceId", sequenceKey]);
 
-        let coreNode1: CoreImageEnt = helper.createCoreNode();
-        let coreNode2: CoreImageEnt = helper.createCoreNode();
-        let coreNode3: CoreImageEnt = helper.createCoreNode();
-        let coreNode4: CoreImageEnt = helper.createCoreNode();
-        let coreNode5: CoreImageEnt = helper.createCoreNode();
+        let coreImage1: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage2: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage3: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage4: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage5: CoreImageEnt = helper.createCoreImageEnt();
 
-        coreNode1.sequence.id = "-1";
-        coreNode2.sequence.id = sequenceKey;
-        coreNode3.sequence.id = "1";
-        coreNode4.sequence.id = null;
-        coreNode5.sequence.id = undefined;
+        coreImage1.sequence.id = "-1";
+        coreImage2.sequence.id = sequenceKey;
+        coreImage3.sequence.id = "1";
+        coreImage4.sequence.id = null;
+        coreImage5.sequence.id = undefined;
 
-        let node1: Node = new Node(coreNode1);
-        let node2: Node = new Node(coreNode2);
-        let node3: Node = new Node(coreNode3);
-        let node4: Node = new Node(coreNode4);
-        let node5: Node = new Node(coreNode4);
+        let image1: Image = new Image(coreImage1);
+        let image2: Image = new Image(coreImage2);
+        let image3: Image = new Image(coreImage3);
+        let image4: Image = new Image(coreImage4);
+        let image5: Image = new Image(coreImage4);
 
-        expect(filter(node1)).toBe(false);
-        expect(filter(node2)).toBe(true);
-        expect(filter(node3)).toBe(false);
-        expect(filter(node4)).toBe(false);
-        expect(filter(node5)).toBe(false);
+        expect(filter(image1)).toBe(false);
+        expect(filter(image2)).toBe(true);
+        expect(filter(image3)).toBe(false);
+        expect(filter(image4)).toBe(false);
+        expect(filter(image5)).toBe(false);
     });
 
     it("should test in, null", () => {
@@ -595,21 +595,21 @@ describe("FilterCreator.createFilter", () => {
 
         let filter: FilterFunction = creator.createFilter(["in", "sequenceId", null]);
 
-        let coreNode1: CoreImageEnt = helper.createCoreNode();
-        let coreNode2: CoreImageEnt = helper.createCoreNode();
-        let coreNode3: CoreImageEnt = helper.createCoreNode();
+        let coreImage1: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage2: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage3: CoreImageEnt = helper.createCoreImageEnt();
 
-        coreNode1.sequence.id = "1";
-        coreNode2.sequence.id = null;
-        coreNode3.sequence.id = undefined;
+        coreImage1.sequence.id = "1";
+        coreImage2.sequence.id = null;
+        coreImage3.sequence.id = undefined;
 
-        let node1: Node = new Node(coreNode1);
-        let node2: Node = new Node(coreNode2);
-        let node3: Node = new Node(coreNode3);
+        let image1: Image = new Image(coreImage1);
+        let image2: Image = new Image(coreImage2);
+        let image3: Image = new Image(coreImage3);
 
-        expect(filter(node1)).toBe(false);
-        expect(filter(node2)).toBe(true);
-        expect(filter(node3)).toBe(false);
+        expect(filter(image1)).toBe(false);
+        expect(filter(image2)).toBe(true);
+        expect(filter(image3)).toBe(false);
     });
 
     it("should test in, multiple", () => {
@@ -617,25 +617,25 @@ describe("FilterCreator.createFilter", () => {
 
         let filter: FilterFunction = creator.createFilter(["in", "capturedAt", 0, 1]);
 
-        let node1: Node = new Node(helper.createCoreNode());
-        let node2: Node = new Node(helper.createCoreNode());
-        let node3: Node = new Node(helper.createCoreNode());
+        let image1: Image = new Image(helper.createCoreImageEnt());
+        let image2: Image = new Image(helper.createCoreImageEnt());
+        let image3: Image = new Image(helper.createCoreImageEnt());
 
-        let fillNode1: SpatialImageEnt = helper.createFillNode();
-        let fillNode2: SpatialImageEnt = helper.createFillNode();
-        let fillNode3: SpatialImageEnt = helper.createFillNode();
+        let fillImage1: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage2: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage3: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillNode1.captured_at = 0;
-        fillNode2.captured_at = 1;
-        fillNode3.captured_at = 2;
+        fillImage1.captured_at = 0;
+        fillImage2.captured_at = 1;
+        fillImage3.captured_at = 2;
 
-        node1.makeFull(fillNode1);
-        node2.makeFull(fillNode2);
-        node3.makeFull(fillNode3);
+        image1.makeComplete(fillImage1);
+        image2.makeComplete(fillImage2);
+        image3.makeComplete(fillImage3);
 
-        expect(filter(node1)).toBe(true);
-        expect(filter(node2)).toBe(true);
-        expect(filter(node3)).toBe(false);
+        expect(filter(image1)).toBe(true);
+        expect(filter(image2)).toBe(true);
+        expect(filter(image3)).toBe(false);
     });
 
     it("should test in, large multiple", () => {
@@ -646,38 +646,38 @@ describe("FilterCreator.createFilter", () => {
 
         let filter: FilterFunction = creator.createFilter(filterDefinition);
 
-        let node1: Node = new Node(helper.createCoreNode());
-        let node2: Node = new Node(helper.createCoreNode());
-        let node3: Node = new Node(helper.createCoreNode());
-        let node4: Node = new Node(helper.createCoreNode());
+        let image1: Image = new Image(helper.createCoreImageEnt());
+        let image2: Image = new Image(helper.createCoreImageEnt());
+        let image3: Image = new Image(helper.createCoreImageEnt());
+        let image4: Image = new Image(helper.createCoreImageEnt());
 
-        let fillNode1: SpatialImageEnt = helper.createFillNode();
-        let fillNode2: SpatialImageEnt = helper.createFillNode();
-        let fillNode3: SpatialImageEnt = helper.createFillNode();
-        let fillNode4: SpatialImageEnt = helper.createFillNode();
+        let fillImage1: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage2: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage3: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage4: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillNode1.captured_at = 0;
-        fillNode2.captured_at = 1;
-        fillNode3.captured_at = 1999;
-        fillNode4.captured_at = 2000;
+        fillImage1.captured_at = 0;
+        fillImage2.captured_at = 1;
+        fillImage3.captured_at = 1999;
+        fillImage4.captured_at = 2000;
 
-        node1.makeFull(fillNode1);
-        node2.makeFull(fillNode2);
-        node3.makeFull(fillNode3);
-        node4.makeFull(fillNode4);
+        image1.makeComplete(fillImage1);
+        image2.makeComplete(fillImage2);
+        image3.makeComplete(fillImage3);
+        image4.makeComplete(fillImage4);
 
-        expect(filter(node1)).toBe(true);
-        expect(filter(node2)).toBe(true);
-        expect(filter(node3)).toBe(true);
-        expect(filter(node4)).toBe(false);
+        expect(filter(image1)).toBe(true);
+        expect(filter(image2)).toBe(true);
+        expect(filter(image3)).toBe(true);
+        expect(filter(image4)).toBe(false);
     });
 });
 
 describe("FilterCreator.createFilter", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should test !in, number", () => {
@@ -686,35 +686,35 @@ describe("FilterCreator.createFilter", () => {
         let capturedAt: number = 1;
         let filter: FilterFunction = creator.createFilter(["!in", "capturedAt", capturedAt]);
 
-        let node1: Node = new Node(helper.createCoreNode());
-        let node2: Node = new Node(helper.createCoreNode());
-        let node3: Node = new Node(helper.createCoreNode());
-        let node4: Node = new Node(helper.createCoreNode());
-        let node5: Node = new Node(helper.createCoreNode());
+        let image1: Image = new Image(helper.createCoreImageEnt());
+        let image2: Image = new Image(helper.createCoreImageEnt());
+        let image3: Image = new Image(helper.createCoreImageEnt());
+        let image4: Image = new Image(helper.createCoreImageEnt());
+        let image5: Image = new Image(helper.createCoreImageEnt());
 
-        let fillNode1: SpatialImageEnt = helper.createFillNode();
-        let fillNode2: SpatialImageEnt = helper.createFillNode();
-        let fillNode3: SpatialImageEnt = helper.createFillNode();
-        let fillNode4: SpatialImageEnt = helper.createFillNode();
-        let fillNode5: SpatialImageEnt = helper.createFillNode();
+        let fillImage1: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage2: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage3: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage4: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage5: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillNode1.captured_at = capturedAt - 1;
-        fillNode2.captured_at = capturedAt;
-        fillNode3.captured_at = capturedAt + 1;
-        fillNode4.captured_at = null;
-        fillNode5.captured_at = undefined;
+        fillImage1.captured_at = capturedAt - 1;
+        fillImage2.captured_at = capturedAt;
+        fillImage3.captured_at = capturedAt + 1;
+        fillImage4.captured_at = null;
+        fillImage5.captured_at = undefined;
 
-        node1.makeFull(fillNode1);
-        node2.makeFull(fillNode2);
-        node3.makeFull(fillNode3);
-        node4.makeFull(fillNode4);
-        node5.makeFull(fillNode5);
+        image1.makeComplete(fillImage1);
+        image2.makeComplete(fillImage2);
+        image3.makeComplete(fillImage3);
+        image4.makeComplete(fillImage4);
+        image5.makeComplete(fillImage5);
 
-        expect(filter(node1)).toBe(true);
-        expect(filter(node2)).toBe(false);
-        expect(filter(node3)).toBe(true);
-        expect(filter(node4)).toBe(true);
-        expect(filter(node5)).toBe(true);
+        expect(filter(image1)).toBe(true);
+        expect(filter(image2)).toBe(false);
+        expect(filter(image3)).toBe(true);
+        expect(filter(image4)).toBe(true);
+        expect(filter(image5)).toBe(true);
     });
 
     it("should test !in, string", () => {
@@ -723,29 +723,29 @@ describe("FilterCreator.createFilter", () => {
         let sequenceKey: string = "0";
         let filter: FilterFunction = creator.createFilter(["!in", "sequenceId", sequenceKey]);
 
-        let coreNode1: CoreImageEnt = helper.createCoreNode();
-        let coreNode2: CoreImageEnt = helper.createCoreNode();
-        let coreNode3: CoreImageEnt = helper.createCoreNode();
-        let coreNode4: CoreImageEnt = helper.createCoreNode();
-        let coreNode5: CoreImageEnt = helper.createCoreNode();
+        let coreImage1: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage2: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage3: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage4: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage5: CoreImageEnt = helper.createCoreImageEnt();
 
-        coreNode1.sequence.id = "-1";
-        coreNode2.sequence.id = sequenceKey;
-        coreNode3.sequence.id = "1";
-        coreNode4.sequence.id = null;
-        coreNode5.sequence.id = undefined;
+        coreImage1.sequence.id = "-1";
+        coreImage2.sequence.id = sequenceKey;
+        coreImage3.sequence.id = "1";
+        coreImage4.sequence.id = null;
+        coreImage5.sequence.id = undefined;
 
-        let node1: Node = new Node(coreNode1);
-        let node2: Node = new Node(coreNode2);
-        let node3: Node = new Node(coreNode3);
-        let node4: Node = new Node(coreNode4);
-        let node5: Node = new Node(coreNode4);
+        let image1: Image = new Image(coreImage1);
+        let image2: Image = new Image(coreImage2);
+        let image3: Image = new Image(coreImage3);
+        let image4: Image = new Image(coreImage4);
+        let image5: Image = new Image(coreImage4);
 
-        expect(filter(node1)).toBe(true);
-        expect(filter(node2)).toBe(false);
-        expect(filter(node3)).toBe(true);
-        expect(filter(node4)).toBe(true);
-        expect(filter(node5)).toBe(true);
+        expect(filter(image1)).toBe(true);
+        expect(filter(image2)).toBe(false);
+        expect(filter(image3)).toBe(true);
+        expect(filter(image4)).toBe(true);
+        expect(filter(image5)).toBe(true);
     });
 
     it("should test !in, null", () => {
@@ -753,21 +753,21 @@ describe("FilterCreator.createFilter", () => {
 
         let filter: FilterFunction = creator.createFilter(["!in", "sequenceId", null]);
 
-        let coreNode1: CoreImageEnt = helper.createCoreNode();
-        let coreNode2: CoreImageEnt = helper.createCoreNode();
-        let coreNode3: CoreImageEnt = helper.createCoreNode();
+        let coreImage1: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage2: CoreImageEnt = helper.createCoreImageEnt();
+        let coreImage3: CoreImageEnt = helper.createCoreImageEnt();
 
-        coreNode1.sequence.id = "1";
-        coreNode2.sequence.id = null;
-        coreNode3.sequence.id = undefined;
+        coreImage1.sequence.id = "1";
+        coreImage2.sequence.id = null;
+        coreImage3.sequence.id = undefined;
 
-        let node1: Node = new Node(coreNode1);
-        let node2: Node = new Node(coreNode2);
-        let node3: Node = new Node(coreNode3);
+        let image1: Image = new Image(coreImage1);
+        let image2: Image = new Image(coreImage2);
+        let image3: Image = new Image(coreImage3);
 
-        expect(filter(node1)).toBe(true);
-        expect(filter(node2)).toBe(false);
-        expect(filter(node3)).toBe(true);
+        expect(filter(image1)).toBe(true);
+        expect(filter(image2)).toBe(false);
+        expect(filter(image3)).toBe(true);
     });
 
     it("should test !in, multiple", () => {
@@ -775,25 +775,25 @@ describe("FilterCreator.createFilter", () => {
 
         let filter: FilterFunction = creator.createFilter(["!in", "capturedAt", 0, 1]);
 
-        let node1: Node = new Node(helper.createCoreNode());
-        let node2: Node = new Node(helper.createCoreNode());
-        let node3: Node = new Node(helper.createCoreNode());
+        let image1: Image = new Image(helper.createCoreImageEnt());
+        let image2: Image = new Image(helper.createCoreImageEnt());
+        let image3: Image = new Image(helper.createCoreImageEnt());
 
-        let fillNode1: SpatialImageEnt = helper.createFillNode();
-        let fillNode2: SpatialImageEnt = helper.createFillNode();
-        let fillNode3: SpatialImageEnt = helper.createFillNode();
+        let fillImage1: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage2: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage3: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillNode1.captured_at = 0;
-        fillNode2.captured_at = 1;
-        fillNode3.captured_at = 2;
+        fillImage1.captured_at = 0;
+        fillImage2.captured_at = 1;
+        fillImage3.captured_at = 2;
 
-        node1.makeFull(fillNode1);
-        node2.makeFull(fillNode2);
-        node3.makeFull(fillNode3);
+        image1.makeComplete(fillImage1);
+        image2.makeComplete(fillImage2);
+        image3.makeComplete(fillImage3);
 
-        expect(filter(node1)).toBe(false);
-        expect(filter(node2)).toBe(false);
-        expect(filter(node3)).toBe(true);
+        expect(filter(image1)).toBe(false);
+        expect(filter(image2)).toBe(false);
+        expect(filter(image3)).toBe(true);
     });
 
     it("should test !in, large multiple", () => {
@@ -804,81 +804,81 @@ describe("FilterCreator.createFilter", () => {
 
         let filter: FilterFunction = creator.createFilter(filterDefinition);
 
-        let node1: Node = new Node(helper.createCoreNode());
-        let node2: Node = new Node(helper.createCoreNode());
-        let node3: Node = new Node(helper.createCoreNode());
-        let node4: Node = new Node(helper.createCoreNode());
+        let image1: Image = new Image(helper.createCoreImageEnt());
+        let image2: Image = new Image(helper.createCoreImageEnt());
+        let image3: Image = new Image(helper.createCoreImageEnt());
+        let image4: Image = new Image(helper.createCoreImageEnt());
 
-        let fillNode1: SpatialImageEnt = helper.createFillNode();
-        let fillNode2: SpatialImageEnt = helper.createFillNode();
-        let fillNode3: SpatialImageEnt = helper.createFillNode();
-        let fillNode4: SpatialImageEnt = helper.createFillNode();
+        let fillImage1: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage2: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage3: SpatialImageEnt = helper.createSpatialImageEnt();
+        let fillImage4: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillNode1.captured_at = 0;
-        fillNode2.captured_at = 1;
-        fillNode3.captured_at = 1999;
-        fillNode4.captured_at = 2000;
+        fillImage1.captured_at = 0;
+        fillImage2.captured_at = 1;
+        fillImage3.captured_at = 1999;
+        fillImage4.captured_at = 2000;
 
-        node1.makeFull(fillNode1);
-        node2.makeFull(fillNode2);
-        node3.makeFull(fillNode3);
-        node4.makeFull(fillNode4);
+        image1.makeComplete(fillImage1);
+        image2.makeComplete(fillImage2);
+        image3.makeComplete(fillImage3);
+        image4.makeComplete(fillImage4);
 
-        expect(filter(node1)).toBe(false);
-        expect(filter(node2)).toBe(false);
-        expect(filter(node3)).toBe(false);
-        expect(filter(node4)).toBe(true);
+        expect(filter(image1)).toBe(false);
+        expect(filter(image2)).toBe(false);
+        expect(filter(image3)).toBe(false);
+        expect(filter(image4)).toBe(true);
     });
 });
 
 describe("FilterCreator.createFilter", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should test all", () => {
         let creator: FilterCreator = new FilterCreator();
 
-        let node: Node = new Node(helper.createCoreNode());
-        let fillNode: SpatialImageEnt = helper.createFillNode();
-        fillNode.captured_at = 1;
-        node.makeFull(fillNode);
+        let image: Image = new Image(helper.createCoreImageEnt());
+        let fillImage: SpatialImageEnt = helper.createSpatialImageEnt();
+        fillImage.captured_at = 1;
+        image.makeComplete(fillImage);
 
         let filter1: FilterFunction = creator.createFilter(["all"]);
-        expect(filter1(node)).toBe(true);
+        expect(filter1(image)).toBe(true);
 
         let filter2: FilterFunction = creator.createFilter(["all", ["==", "capturedAt", 1]]);
-        expect(filter2(node)).toBe(true);
+        expect(filter2(image)).toBe(true);
 
         let filter3: FilterFunction = creator.createFilter(["all", ["==", "capturedAt", 0]]);
-        expect(filter3(node)).toBe(false);
+        expect(filter3(image)).toBe(false);
 
         let filter4: FilterFunction = creator.createFilter(["all", ["==", "capturedAt", 0], ["==", "capturedAt", 1]]);
-        expect(filter4(node)).toBe(false);
+        expect(filter4(image)).toBe(false);
     });
 });
 
 describe("FilterCreator.createFilter", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should default to true", () => {
         let creator: FilterCreator = new FilterCreator();
 
-        let node: Node = new Node(helper.createCoreNode());
+        let image: Image = new Image(helper.createCoreImageEnt());
 
         let filter1: FilterFunction = creator.createFilter(null);
-        expect(filter1(node)).toBe(true);
+        expect(filter1(image)).toBe(true);
 
         let filter2: FilterFunction = creator.createFilter(undefined);
-        expect(filter2(node)).toBe(true);
+        expect(filter2(image)).toBe(true);
 
         let filter3: FilterFunction = creator.createFilter(["test"]);
-        expect(filter3(node)).toBe(true);
+        expect(filter3(image)).toBe(true);
     });
 });

@@ -71,7 +71,7 @@ export class TextureProvider {
     private _disposed: boolean;
 
     /**
-     * Create a new node texture provider instance.
+     * Create a new image texture provider instance.
      *
      * @param {string} imageId - The identifier of the image for which to request tiles.
      * @param {number} width - The full width of the original image.

@@ -1,6 +1,6 @@
-import { NodeHelper } from "../helper/NodeHelper";
+import { ImageHelper } from "../helper/ImageHelper";
 
-import { Node } from "../../src/graph/Node";
+import { Image } from "../../src/graph/Image";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { ImageEnt } from "../../src/api/ents/ImageEnt";
 import { EulerRotation } from "../../src/state/interfaces/EulerRotation";
@@ -33,7 +33,7 @@ class TestStateBase extends StateBase {
     protected _getAlpha(): number { return; }
 }
 
-class TestNode extends Node {
+class TestImage extends Image {
     constructor(core: CoreImageEnt) {
         super(core);
     }
@@ -59,12 +59,12 @@ let createState: () => IStateBase = (): IStateBase => {
     };
 };
 
-let createFullNode: () => Node = (): Node => {
-    let helper: NodeHelper = new NodeHelper();
-    let node: TestNode = new TestNode(helper.createCoreNode());
-    node.makeFull(helper.createFillNode());
+let createCompleteImage: () => Image = (): Image => {
+    let helper: ImageHelper = new ImageHelper();
+    let image: TestImage = new TestImage(helper.createCoreImageEnt());
+    image.makeComplete(helper.createSpatialImageEnt());
 
-    return node;
+    return image;
 };
 
 describe("StateBase.transitionMode", () => {
@@ -83,33 +83,33 @@ describe("StateBase.transitionMode", () => {
 });
 
 describe("StateBase.motionlessTransition", () => {
-    it("should be false if not both nodes set", () => {
+    it("should be false if not both images set", () => {
         const state: IStateBase = createState();
         const stateBase: TestStateBase = new TestStateBase(state);
 
         expect(stateBase.motionlessTransition()).toBe(false);
     });
 
-    it("should be false if nodes in same connected component", () => {
+    it("should be false if images in same connected component", () => {
         const state: IStateBase = createState();
         const stateBase: TestStateBase = new TestStateBase(state);
 
-        const helper: NodeHelper = new NodeHelper();
+        const helper: ImageHelper = new ImageHelper();
 
-        const fullNode1: ImageEnt = helper.createFullNode();
-        fullNode1.merge_cc = 1;
-        fullNode1.merge_version = 1;
-        const node1: Node = new TestNode(fullNode1);
-        node1.makeFull(fullNode1);
+        const imageEnt1: ImageEnt = helper.createImageEnt();
+        imageEnt1.merge_cc = 1;
+        imageEnt1.merge_version = 1;
+        const image1: Image = new TestImage(imageEnt1);
+        image1.makeComplete(imageEnt1);
 
-        const fullNode2: ImageEnt = helper.createFullNode();
-        fullNode2.merge_cc = 1;
-        fullNode2.merge_version = 1;
-        const node2: Node = new TestNode(fullNode2);
-        node2.makeFull(fullNode2);
+        const imageEnt2: ImageEnt = helper.createImageEnt();
+        imageEnt2.merge_cc = 1;
+        imageEnt2.merge_version = 1;
+        const image2: Image = new TestImage(imageEnt2);
+        image2.makeComplete(imageEnt2);
 
-        stateBase.set([node1]);
-        stateBase.set([node2]);
+        stateBase.set([image1]);
+        stateBase.set([image2]);
 
         expect(stateBase.motionlessTransition()).toBe(false);
     });
@@ -119,61 +119,61 @@ describe("StateBase.motionlessTransition", () => {
         state.transitionMode = TransitionMode.Instantaneous;
         const stateBase: TestStateBase = new TestStateBase(state);
 
-        const helper: NodeHelper = new NodeHelper();
+        const helper: ImageHelper = new ImageHelper();
 
-        const fullNode1: ImageEnt = helper.createFullNode();
-        fullNode1.merge_cc = 1;
-        fullNode1.merge_version = 1;
-        const node1: Node = new TestNode(fullNode1);
-        node1.makeFull(fullNode1);
+        const imageEnt1: ImageEnt = helper.createImageEnt();
+        imageEnt1.merge_cc = 1;
+        imageEnt1.merge_version = 1;
+        const image1: Image = new TestImage(imageEnt1);
+        image1.makeComplete(imageEnt1);
 
-        const fullNode2: ImageEnt = helper.createFullNode();
-        fullNode2.merge_cc = 1;
-        fullNode2.merge_version = 1;
-        const node2: Node = new TestNode(fullNode2);
-        node2.makeFull(fullNode2);
+        const imageEnt2: ImageEnt = helper.createImageEnt();
+        imageEnt2.merge_cc = 1;
+        imageEnt2.merge_version = 1;
+        const image2: Image = new TestImage(imageEnt2);
+        image2.makeComplete(imageEnt2);
 
-        stateBase.set([node1]);
-        stateBase.set([node2]);
+        stateBase.set([image1]);
+        stateBase.set([image2]);
 
         expect(stateBase.motionlessTransition()).toBe(true);
     });
 });
 
 describe("StateBase.set", () => {
-    it("should set current node", () => {
+    it("should set current image", () => {
         let state: IStateBase = createState();
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let node: Node = createFullNode();
-        stateBase.set([node]);
+        let image: Image = createCompleteImage();
+        stateBase.set([image]);
 
-        expect(stateBase.currentNode).toBeDefined();
+        expect(stateBase.currentImage).toBeDefined();
         expect(stateBase.currentIndex).toBe(0);
         expect(stateBase.trajectory.length).toBe(1);
     });
 
-    it("should set multiple nodes", () => {
+    it("should set multiple images", () => {
         let state: IStateBase = createState();
         let stateBase: TestStateBase = new TestStateBase(state);
 
         stateBase.set([
-            createFullNode(),
-            createFullNode(),
-            createFullNode(),
+            createCompleteImage(),
+            createCompleteImage(),
+            createCompleteImage(),
         ]);
 
-        expect(stateBase.currentNode).toBeDefined();
+        expect(stateBase.currentImage).toBeDefined();
         expect(stateBase.currentIndex).toBe(0);
         expect(stateBase.trajectory.length).toBe(3);
     });
 });
 
 describe("StateBase.remove", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should throw when removing negative number", () => {
@@ -183,80 +183,80 @@ describe("StateBase.remove", () => {
         expect((): void => { stateBase.remove(-1); }).toThrowError(Error);
     });
 
-    it("should throw when removing current node", () => {
+    it("should throw when removing current image", () => {
         let state: IStateBase = createState();
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let node: Node = createFullNode();
-        stateBase.set([node]);
+        let image: Image = createCompleteImage();
+        stateBase.set([image]);
 
         expect((): void => { stateBase.remove(1); }).toThrowError(Error);
     });
 
-    it("should throw when removing previous node", () => {
+    it("should throw when removing previous image", () => {
         let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        stateBase.set([createFullNode()]);
-        stateBase.prepend([createFullNode()]);
+        stateBase.set([createCompleteImage()]);
+        stateBase.prepend([createCompleteImage()]);
 
         expect((): void => { stateBase.remove(1); }).toThrowError(Error);
     });
 
-    it("should remove one node", () => {
+    it("should remove one image", () => {
         let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.id = "currentNode";
-        let node: TestNode = new TestNode(coreNode);
-        node.makeFull(helper.createFillNode());
+        let coreImage: CoreImageEnt = helper.createCoreImageEnt();
+        coreImage.id = "currentImage";
+        let image: TestImage = new TestImage(coreImage);
+        image.makeComplete(helper.createSpatialImageEnt());
 
-        stateBase.set([node]);
-        stateBase.prepend([createFullNode(), createFullNode()]);
+        stateBase.set([image]);
+        stateBase.prepend([createCompleteImage(), createCompleteImage()]);
 
         stateBase.remove(1);
 
-        expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.id).toBe(node.id);
+        expect(stateBase.currentImage).toBeDefined();
+        expect(stateBase.currentImage.id).toBe(image.id);
         expect(stateBase.currentIndex).toBe(1);
         expect(stateBase.trajectory.length).toBe(2);
     });
 
-    it("should remove multiple nodes", () => {
+    it("should remove multiple images", () => {
         let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.id = "currentNode";
-        let node: TestNode = new TestNode(coreNode);
-        node.makeFull(helper.createFillNode());
+        let coreImage: CoreImageEnt = helper.createCoreImageEnt();
+        coreImage.id = "currentImage";
+        let image: TestImage = new TestImage(coreImage);
+        image.makeComplete(helper.createSpatialImageEnt());
 
-        stateBase.set([node]);
+        stateBase.set([image]);
         stateBase.prepend([
-            createFullNode(),
-            createFullNode(),
-            createFullNode(),
-            createFullNode(),
+            createCompleteImage(),
+            createCompleteImage(),
+            createCompleteImage(),
+            createCompleteImage(),
         ]);
 
         stateBase.remove(3);
 
-        expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.id).toBe(node.id);
+        expect(stateBase.currentImage).toBeDefined();
+        expect(stateBase.currentImage.id).toBe(image.id);
         expect(stateBase.currentIndex).toBe(1);
         expect(stateBase.trajectory.length).toBe(2);
     });
 });
 
 describe("StateBase.clear", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should clear empty state without affecting it", () => {
@@ -268,128 +268,128 @@ describe("StateBase.clear", () => {
         expect(stateBase.currentIndex).toBe(state.currentIndex);
     });
 
-    it("should remove one previous node", () => {
+    it("should remove one previous image", () => {
         let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.id = "currentNode";
-        let node: TestNode = new TestNode(coreNode);
-        node.makeFull(helper.createFillNode());
+        let coreImage: CoreImageEnt = helper.createCoreImageEnt();
+        coreImage.id = "currentImage";
+        let image: TestImage = new TestImage(coreImage);
+        image.makeComplete(helper.createSpatialImageEnt());
 
-        stateBase.set([node]);
-        stateBase.prepend([createFullNode(), createFullNode()]);
+        stateBase.set([image]);
+        stateBase.prepend([createCompleteImage(), createCompleteImage()]);
 
         stateBase.clear();
 
-        expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.id).toBe(node.id);
+        expect(stateBase.currentImage).toBeDefined();
+        expect(stateBase.currentImage.id).toBe(image.id);
         expect(stateBase.currentIndex).toBe(1);
         expect(stateBase.trajectory.length).toBe(2);
     });
 
-    it("should remove multiple previous nodes", () => {
+    it("should remove multiple previous images", () => {
         let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.id = "currentNode";
-        let node: TestNode = new TestNode(coreNode);
-        node.makeFull(helper.createFillNode());
+        let coreImage: CoreImageEnt = helper.createCoreImageEnt();
+        coreImage.id = "currentImage";
+        let image: TestImage = new TestImage(coreImage);
+        image.makeComplete(helper.createSpatialImageEnt());
 
-        stateBase.set([node]);
+        stateBase.set([image]);
         stateBase.prepend([
-            createFullNode(),
-            createFullNode(),
-            createFullNode(),
-            createFullNode(),
+            createCompleteImage(),
+            createCompleteImage(),
+            createCompleteImage(),
+            createCompleteImage(),
         ]);
 
         stateBase.clear();
 
-        expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.id).toBe(node.id);
+        expect(stateBase.currentImage).toBeDefined();
+        expect(stateBase.currentImage.id).toBe(image.id);
         expect(stateBase.currentIndex).toBe(1);
         expect(stateBase.trajectory.length).toBe(2);
     });
 
-    it("should remove one coming node", () => {
+    it("should remove one coming image", () => {
         let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.id = "currentNode";
-        let node: TestNode = new TestNode(coreNode);
-        node.makeFull(helper.createFillNode());
+        let coreImage: CoreImageEnt = helper.createCoreImageEnt();
+        coreImage.id = "currentImage";
+        let image: TestImage = new TestImage(coreImage);
+        image.makeComplete(helper.createSpatialImageEnt());
 
-        stateBase.set([node]);
-        stateBase.append([createFullNode()]);
+        stateBase.set([image]);
+        stateBase.append([createCompleteImage()]);
 
         stateBase.clear();
 
-        expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.id).toBe(node.id);
+        expect(stateBase.currentImage).toBeDefined();
+        expect(stateBase.currentImage.id).toBe(image.id);
         expect(stateBase.currentIndex).toBe(0);
         expect(stateBase.trajectory.length).toBe(1);
     });
 
-    it("should remove multiple coming nodes", () => {
+    it("should remove multiple coming images", () => {
         let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.id = "currentNode";
-        let node: TestNode = new TestNode(coreNode);
-        node.makeFull(helper.createFillNode());
+        let coreImage: CoreImageEnt = helper.createCoreImageEnt();
+        coreImage.id = "currentImage";
+        let image: TestImage = new TestImage(coreImage);
+        image.makeComplete(helper.createSpatialImageEnt());
 
-        stateBase.set([node]);
+        stateBase.set([image]);
         stateBase.append([
-            createFullNode(),
-            createFullNode(),
-            createFullNode(),
-            createFullNode(),
+            createCompleteImage(),
+            createCompleteImage(),
+            createCompleteImage(),
+            createCompleteImage(),
         ]);
 
         stateBase.clear();
 
-        expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.id).toBe(node.id);
+        expect(stateBase.currentImage).toBeDefined();
+        expect(stateBase.currentImage.id).toBe(image.id);
         expect(stateBase.currentIndex).toBe(0);
         expect(stateBase.trajectory.length).toBe(1);
     });
 
-    it("should remove one previous and one coming node", () => {
+    it("should remove one previous and one coming image", () => {
         let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.id = "currentNode";
-        let node: TestNode = new TestNode(coreNode);
-        node.makeFull(helper.createFillNode());
+        let coreImage: CoreImageEnt = helper.createCoreImageEnt();
+        coreImage.id = "currentImage";
+        let image: TestImage = new TestImage(coreImage);
+        image.makeComplete(helper.createSpatialImageEnt());
 
-        stateBase.set([node]);
-        stateBase.prepend([createFullNode(), createFullNode()]);
-        stateBase.append([createFullNode()]);
+        stateBase.set([image]);
+        stateBase.prepend([createCompleteImage(), createCompleteImage()]);
+        stateBase.append([createCompleteImage()]);
 
         stateBase.clear();
 
-        expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.id).toBe(node.id);
+        expect(stateBase.currentImage).toBeDefined();
+        expect(stateBase.currentImage.id).toBe(image.id);
         expect(stateBase.currentIndex).toBe(1);
         expect(stateBase.trajectory.length).toBe(2);
     });
 });
 
 describe("StateBase.clearPrior", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should clear prior of empty state without affecting it", () => {
@@ -401,49 +401,49 @@ describe("StateBase.clearPrior", () => {
         expect(stateBase.currentIndex).toBe(state.currentIndex);
     });
 
-    it("should remove one previous node", () => {
+    it("should remove one previous image", () => {
         let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.id = "currentNode";
-        let node: TestNode = new TestNode(coreNode);
-        node.makeFull(helper.createFillNode());
+        let coreImage: CoreImageEnt = helper.createCoreImageEnt();
+        coreImage.id = "currentImage";
+        let image: TestImage = new TestImage(coreImage);
+        image.makeComplete(helper.createSpatialImageEnt());
 
-        stateBase.set([node]);
-        stateBase.prepend([createFullNode(), createFullNode()]);
+        stateBase.set([image]);
+        stateBase.prepend([createCompleteImage(), createCompleteImage()]);
 
         stateBase.clearPrior();
 
-        expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.id).toBe(node.id);
+        expect(stateBase.currentImage).toBeDefined();
+        expect(stateBase.currentImage.id).toBe(image.id);
         expect(stateBase.currentIndex).toBe(1);
         expect(stateBase.trajectory.length).toBe(2);
     });
 
-    it("should remove multiple previous nodes", () => {
+    it("should remove multiple previous images", () => {
         let state: IStateBase = createState();
 
         let stateBase: TestStateBase = new TestStateBase(state);
 
-        let coreNode: CoreImageEnt = helper.createCoreNode();
-        coreNode.id = "currentNode";
-        let node: TestNode = new TestNode(coreNode);
-        node.makeFull(helper.createFillNode());
+        let coreImage: CoreImageEnt = helper.createCoreImageEnt();
+        coreImage.id = "currentImage";
+        let image: TestImage = new TestImage(coreImage);
+        image.makeComplete(helper.createSpatialImageEnt());
 
-        stateBase.set([node]);
+        stateBase.set([image]);
         stateBase.prepend([
-            createFullNode(),
-            createFullNode(),
-            createFullNode(),
-            createFullNode(),
+            createCompleteImage(),
+            createCompleteImage(),
+            createCompleteImage(),
+            createCompleteImage(),
         ]);
 
         stateBase.clearPrior();
 
-        expect(stateBase.currentNode).toBeDefined();
-        expect(stateBase.currentNode.id).toBe(node.id);
+        expect(stateBase.currentImage).toBeDefined();
+        expect(stateBase.currentImage.id).toBe(image.id);
         expect(stateBase.currentIndex).toBe(1);
         expect(stateBase.trajectory.length).toBe(2);
     });

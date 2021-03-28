@@ -2,7 +2,7 @@ import { IDEnt } from "./IDEnt";
 import { LatLon } from "../interfaces/LatLon";
 
 /**
- * Interface that describes the raw core node properties.
+ * Interface that describes the raw core image properties.
  *
  * @interface CoreImageEnt
  */
@@ -21,7 +21,7 @@ export interface CoreImageEnt extends IDEnt {
     geometry: LatLon;
 
     /**
-     * Sequence that the node is part of.
+     * Sequence that the image is part of.
      */
     sequence: IDEnt;
 }

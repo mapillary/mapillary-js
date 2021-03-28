@@ -32,7 +32,7 @@ export abstract class VertexGeometry extends Geometry {
      * Get the 3D coordinates for the vertices of the geometry with possibly
      * subsampled points along the lines.
      *
-     * @param {Transform} transform - The transform of the node related to
+     * @param {Transform} transform - The transform of the image related to
      * the geometry.
      * @returns {Array<Array<number>>} Polygon array of 3D world coordinates
      * representing the geometry.
@@ -53,7 +53,7 @@ export abstract class VertexGeometry extends Geometry {
      * Get the polygon pole of inaccessibility, the most
      * distant internal point from the polygon outline.
      *
-     * @param transform - The transform of the node related to
+     * @param transform - The transform of the image related to
      * the geometry.
      * @returns {Array<number>} 3D world coordinates for the pole of inaccessibility.
      * @ignore
@@ -74,7 +74,7 @@ export abstract class VertexGeometry extends Geometry {
      * vertices of the geometry.
      *
      * @param {number} index - Vertex index.
-     * @param {Transform} transform - The transform of the node related to the geometry.
+     * @param {Transform} transform - The transform of the image related to the geometry.
      * @returns {Array<number>} Array representing the 3D world coordinates of the vertex.
      * @ignore
      */
@@ -92,7 +92,7 @@ export abstract class VertexGeometry extends Geometry {
     /**
      * Get a polygon representation of the 3D world coordinates for the vertices of the geometry.
      *
-     * @param {Transform} transform - The transform of the node related to the geometry.
+     * @param {Transform} transform - The transform of the image related to the geometry.
      * @returns {Array<Array<number>>} Polygon array of 3D world coordinates representing
      * the vertices of the geometry.
      * @ignore
@@ -103,7 +103,7 @@ export abstract class VertexGeometry extends Geometry {
      * Get a flattend array of the 3D world coordinates for the
      * triangles filling the geometry.
      *
-     * @param {Transform} transform - The transform of the node related to the geometry.
+     * @param {Transform} transform - The transform of the image related to the geometry.
      * @returns {Array<number>} Flattened array of 3D world coordinates of the triangles.
      * @ignore
      */
@@ -117,7 +117,7 @@ export abstract class VertexGeometry extends Geometry {
      *
      * @param {number} index - The index of the vertex to be set.
      * @param {Array<number>} value - The new value of the vertex.
-     * @param {Transform} transform - The transform of the node related to the geometry.
+     * @param {Transform} transform - The transform of the image related to the geometry.
      * @ignore
      */
     public abstract setVertex2d(index: number, value: number[], transform: Transform): void;

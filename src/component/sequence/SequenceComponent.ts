@@ -31,7 +31,7 @@ import {
     withLatestFrom,
 } from "rxjs/operators";
 
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { GraphMode } from "../../graph/GraphMode";
@@ -208,25 +208,25 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
     protected _activate(): void {
         this._sequenceDOMRenderer.activate();
 
-        const edgeStatus$ = this._navigator.stateService.currentNode$.pipe(
+        const edgeStatus$ = this._navigator.stateService.currentImage$.pipe(
             switchMap(
-                (node: Node): Observable<NavigationEdgeStatus> => {
-                    return node.sequenceEdges$;
+                (image: Image): Observable<NavigationEdgeStatus> => {
+                    return image.sequenceEdges$;
                 }),
             publishReplay(1),
             refCount());
 
-        const sequence$ = this._navigator.stateService.currentNode$.pipe(
+        const sequence$ = this._navigator.stateService.currentImage$.pipe(
             distinctUntilChanged(
                 undefined,
-                (node: Node): string => {
-                    return node.sequenceId;
+                (image: Image): string => {
+                    return image.sequenceId;
                 }),
             switchMap(
-                (node: Node): Observable<Sequence> => {
+                (image: Image): Observable<Sequence> => {
                     return observableConcat(
                         observableOf(null),
-                        this._navigator.graphService.cacheSequence$(node.sequenceId).pipe(
+                        this._navigator.graphService.cacheSequence$(image.sequenceId).pipe(
                             retry(3),
                             catchError(
                                 (e: Error): Observable<Sequence> => {
@@ -262,10 +262,10 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
             rendererId$.pipe(auditTime(400, this._scheduler))).pipe(
                 distinctUntilChanged(),
                 switchMap(
-                    (id: string): Observable<Node> => {
+                    (id: string): Observable<Image> => {
                         return this._navigator.moveTo$(id).pipe(
                             catchError(
-                                (): Observable<Node> => {
+                                (): Observable<Image> => {
                                     return observableEmpty();
                                 }));
                     }))
@@ -293,21 +293,21 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
 
         this._navigator.graphService.graphMode$.pipe(
             switchMap(
-                (mode: GraphMode): Observable<Node> => {
+                (mode: GraphMode): Observable<Image> => {
                     return mode === GraphMode.Spatial ?
-                        this._navigator.stateService.currentNode$.pipe(
+                        this._navigator.stateService.currentImage$.pipe(
                             take(2)) :
                         observableEmpty();
                 }),
             filter(
-                (node: Node): boolean => {
-                    return !node.spatialEdges.cached;
+                (image: Image): boolean => {
+                    return !image.spatialEdges.cached;
                 }),
             switchMap(
-                (node: Node): Observable<Node> => {
-                    return this._navigator.graphService.cacheNode$(node.id).pipe(
+                (image: Image): Observable<Image> => {
+                    return this._navigator.graphService.cacheImage$(image.id).pipe(
                         catchError(
-                            (): Observable<Node> => {
+                            (): Observable<Image> => {
                                 return observableEmpty();
                             }));
                 }))
@@ -328,15 +328,15 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
             this._sequenceDOMRenderer.changingPositionChanged$.pipe(
                 startWith(false),
                 distinctUntilChanged())).pipe(
-                    withLatestFrom(this._navigator.stateService.currentNode$),
+                    withLatestFrom(this._navigator.stateService.currentImage$),
                     switchMap(
-                        ([[mode, changing], node]: [[GraphMode, boolean], Node]): Observable<Sequence> => {
+                        ([[mode, changing], image]: [[GraphMode, boolean], Image]): Observable<Sequence> => {
                             return changing && mode === GraphMode.Sequence ?
-                                this._navigator.graphService.cacheSequenceNodes$(node.sequenceId, node.id).pipe(
+                                this._navigator.graphService.cacheSequenceImages$(image.sequenceId, image.id).pipe(
                                     retry(3),
                                     catchError(
                                         (error: Error): Observable<Sequence> => {
-                                            console.error("Failed to cache sequence nodes.", error);
+                                            console.error("Failed to cache sequence images.", error);
 
                                             return observableEmpty();
                                         })) :
@@ -366,10 +366,10 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
 
                                 return changingPosition ?
                                     rendererId$ :
-                                    this._navigator.stateService.currentNode$.pipe(
+                                    this._navigator.stateService.currentImage$.pipe(
                                         map(
-                                            (node: Node): string => {
-                                                return node.id;
+                                            (image: Image): string => {
+                                                return image.id;
                                             }),
                                         distinctUntilChanged(),
                                         skip(skipCount));
@@ -426,7 +426,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                                 this,
                                 this._navigator);
 
-                        return { name: this._name, vnode: vNode };
+                        return { name: this._name, vNode: vNode };
                     }))
             .subscribe(this._container.domRenderer.render$));
 

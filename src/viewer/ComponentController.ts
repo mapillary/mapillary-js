@@ -21,7 +21,7 @@ import { ComponentConfiguration }
     from "../component/interfaces/ComponentConfiguration";
 import { CoverConfiguration }
     from "../component/interfaces/CoverConfiguration";
-import { Node } from "../graph/Node";
+import { Image } from "../graph/Image";
 import { CoverState } from "../component/cover/CoverState";
 
 export class ComponentController {
@@ -169,7 +169,7 @@ export class ComponentController {
                         this._navigator.stateService.currentId$.pipe(
                             first(),
                             switchMap(
-                                (key: string): Observable<Node> => {
+                                (key: string): Observable<Image> => {
                                     const keyChanged: boolean = key == null || key !== conf.id;
 
                                     if (keyChanged) {
@@ -178,7 +178,7 @@ export class ComponentController {
 
                                     return keyChanged ?
                                         this._navigator.moveTo$(conf.id) :
-                                        this._navigator.stateService.currentNode$.pipe(
+                                        this._navigator.stateService.currentImage$.pipe(
                                             first());
                                 }))
                             .subscribe(

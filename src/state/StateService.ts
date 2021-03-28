@@ -31,7 +31,7 @@ import { IStateContext } from "./interfaces/IStateContext";
 
 import { LatLon } from "../api/interfaces/LatLon";
 import { Camera } from "../geo/Camera";
-import { Node } from "../graph/Node";
+import { Image } from "../graph/Image";
 import { Transform } from "../geo/Transform";
 import { LatLonAlt } from "../api/interfaces/LatLonAlt";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
@@ -52,8 +52,8 @@ export class StateService {
 
     private _currentState$: Observable<AnimationFrame>;
     private _lastState$: Observable<AnimationFrame>;
-    private _currentNode$: Observable<Node>;
-    private _currentNodeExternal$: Observable<Node>;
+    private _currentImage$: Observable<Image>;
+    private _currentImageExternal$: Observable<Image>;
     private _currentCamera$: Observable<Camera>;
     private _currentId$: BehaviorSubject<string>;
     private _currentTransform$: Observable<Transform>;
@@ -65,7 +65,7 @@ export class StateService {
     private _inTranslationOperation$: Subject<boolean>;
     private _inTranslation$: Observable<boolean>;
 
-    private _appendNode$: Subject<Node> = new Subject<Node>();
+    private _appendImage$: Subject<Image> = new Subject<Image>();
 
     private _frameGenerator: FrameGenerator;
     private _frameId: number;
@@ -131,7 +131,7 @@ export class StateService {
                 }),
             filter(
                 (fc: [number, number, IStateContext]): boolean => {
-                    return fc[2].currentNode != null;
+                    return fc[2].currentImage != null;
                 }),
             tap(
                 (fc: [number, number, IStateContext]): void => {
@@ -147,38 +147,38 @@ export class StateService {
             publishReplay(1),
             refCount());
 
-        let nodeChanged$: Observable<AnimationFrame> = this._currentState$.pipe(
+        let imageChanged$ = this._currentState$.pipe(
             distinctUntilChanged(
                 undefined,
                 (f: AnimationFrame): string => {
-                    return f.state.currentNode.id;
+                    return f.state.currentImage.id;
                 }),
             publishReplay(1),
             refCount());
 
-        let nodeChangedSubject$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
+        let imageChangedSubject$ = new Subject<AnimationFrame>();
 
-        subs.push(nodeChanged$
-            .subscribe(nodeChangedSubject$));
+        subs.push(imageChanged$
+            .subscribe(imageChangedSubject$));
 
         this._currentId$ = new BehaviorSubject<string>(null);
 
-        subs.push(nodeChangedSubject$.pipe(
+        subs.push(imageChangedSubject$.pipe(
             map(
                 (f: AnimationFrame): string => {
-                    return f.state.currentNode.id;
+                    return f.state.currentImage.id;
                 }))
             .subscribe(this._currentId$));
 
-        this._currentNode$ = nodeChangedSubject$.pipe(
+        this._currentImage$ = imageChangedSubject$.pipe(
             map(
-                (f: AnimationFrame): Node => {
-                    return f.state.currentNode;
+                (f: AnimationFrame): Image => {
+                    return f.state.currentImage;
                 }),
             publishReplay(1),
             refCount());
 
-        this._currentCamera$ = nodeChangedSubject$.pipe(
+        this._currentCamera$ = imageChangedSubject$.pipe(
             map(
                 (f: AnimationFrame): Camera => {
                     return f.state.currentCamera;
@@ -186,7 +186,7 @@ export class StateService {
             publishReplay(1),
             refCount());
 
-        this._currentTransform$ = nodeChangedSubject$.pipe(
+        this._currentTransform$ = imageChangedSubject$.pipe(
             map(
                 (f: AnimationFrame): Transform => {
                     return f.state.currentTransform;
@@ -194,7 +194,7 @@ export class StateService {
             publishReplay(1),
             refCount());
 
-        this._reference$ = nodeChangedSubject$.pipe(
+        this._reference$ = imageChangedSubject$.pipe(
             map(
                 (f: AnimationFrame): LatLonAlt => {
                     return f.state.reference;
@@ -209,19 +209,19 @@ export class StateService {
             publishReplay(1),
             refCount());
 
-        this._currentNodeExternal$ = nodeChanged$.pipe(
+        this._currentImageExternal$ = imageChanged$.pipe(
             map(
-                (f: AnimationFrame): Node => {
-                    return f.state.currentNode;
+                (f: AnimationFrame): Image => {
+                    return f.state.currentImage;
                 }),
             publishReplay(1),
             refCount());
 
-        subs.push(this._appendNode$.pipe(
+        subs.push(this._appendImage$.pipe(
             map(
-                (node: Node) => {
+                (image: Image) => {
                     return (context: IStateContext): IStateContext => {
-                        context.append([node]);
+                        context.append([image]);
 
                         return context;
                     };
@@ -230,7 +230,7 @@ export class StateService {
 
         this._inMotionOperation$ = new Subject<boolean>();
 
-        subs.push(nodeChanged$.pipe(
+        subs.push(imageChanged$.pipe(
             map(
                 (): boolean => {
                     return true;
@@ -248,7 +248,7 @@ export class StateService {
                     return this._currentState$.pipe(
                         filter(
                             (frame: AnimationFrame): boolean => {
-                                return frame.state.nodesAhead === 0;
+                                return frame.state.imagesAhead === 0;
                             }),
                         map(
                             (frame: AnimationFrame): [Camera, number] => {
@@ -279,7 +279,7 @@ export class StateService {
 
         this._inTranslationOperation$ = new Subject<boolean>();
 
-        subs.push(nodeChanged$.pipe(
+        subs.push(imageChanged$.pipe(
             map(
                 (): boolean => {
                     return true;
@@ -297,7 +297,7 @@ export class StateService {
                     return this._currentState$.pipe(
                         filter(
                             (frame: AnimationFrame): boolean => {
-                                return frame.state.nodesAhead === 0;
+                                return frame.state.imagesAhead === 0;
                             }),
                         map(
                             (frame: AnimationFrame): THREE.Vector3 => {
@@ -321,11 +321,11 @@ export class StateService {
             refCount());
 
         subs.push(this._state$.subscribe(() => { /*noop*/ }));
-        subs.push(this._currentNode$.subscribe(() => { /*noop*/ }));
+        subs.push(this._currentImage$.subscribe(() => { /*noop*/ }));
         subs.push(this._currentCamera$.subscribe(() => { /*noop*/ }));
         subs.push(this._currentTransform$.subscribe(() => { /*noop*/ }));
         subs.push(this._reference$.subscribe(() => { /*noop*/ }));
-        subs.push(this._currentNodeExternal$.subscribe(() => { /*noop*/ }));
+        subs.push(this._currentImageExternal$.subscribe(() => { /*noop*/ }));
         subs.push(this._lastState$.subscribe(() => { /*noop*/ }));
         subs.push(this._inMotion$.subscribe(() => { /*noop*/ }));
         subs.push(this._inTranslation$.subscribe(() => { /*noop*/ }));
@@ -338,16 +338,16 @@ export class StateService {
         return this._currentState$;
     }
 
-    public get currentNode$(): Observable<Node> {
-        return this._currentNode$;
+    public get currentImage$(): Observable<Image> {
+        return this._currentImage$;
     }
 
     public get currentId$(): Observable<string> {
         return this._currentId$;
     }
 
-    public get currentNodeExternal$(): Observable<Node> {
-        return this._currentNodeExternal$;
+    public get currentImageExternal$(): Observable<Image> {
+        return this._currentImageExternal$;
     }
 
     public get currentCamera$(): Observable<Camera> {
@@ -374,8 +374,8 @@ export class StateService {
         return this._inTranslation$;
     }
 
-    public get appendNode$(): Subject<Node> {
-        return this._appendNode$;
+    public get appendImage$(): Subject<Image> {
+        return this._appendImage$;
     }
 
     public dispose(): void {
@@ -401,32 +401,32 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.waitInteractively(); });
     }
 
-    public appendNodes(nodes: Node[]): void {
-        this._invokeContextOperation((context: IStateContext) => { context.append(nodes); });
+    public appendImagess(images: Image[]): void {
+        this._invokeContextOperation((context: IStateContext) => { context.append(images); });
     }
 
-    public prependNodes(nodes: Node[]): void {
-        this._invokeContextOperation((context: IStateContext) => { context.prepend(nodes); });
+    public prependImages(images: Image[]): void {
+        this._invokeContextOperation((context: IStateContext) => { context.prepend(images); });
     }
 
-    public removeNodes(n: number): void {
+    public removeImages(n: number): void {
         this._invokeContextOperation((context: IStateContext) => { context.remove(n); });
     }
 
-    public clearNodes(): void {
+    public clearImages(): void {
         this._invokeContextOperation((context: IStateContext) => { context.clear(); });
     }
 
-    public clearPriorNodes(): void {
+    public clearPriorImages(): void {
         this._invokeContextOperation((context: IStateContext) => { context.clearPrior(); });
     }
 
-    public cutNodes(): void {
+    public cutImages(): void {
         this._invokeContextOperation((context: IStateContext) => { context.cut(); });
     }
 
-    public setNodes(nodes: Node[]): void {
-        this._invokeContextOperation((context: IStateContext) => { context.set(nodes); });
+    public setImages(images: Image[]): void {
+        this._invokeContextOperation((context: IStateContext) => { context.set(images); });
     }
 
     public rotate(delta: EulerRotation): void {

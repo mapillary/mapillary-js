@@ -114,13 +114,13 @@
         const popupComp = viewer.getComponent('popup');
         const tagComp = viewer.getComponent('tag');
 
-        const onNode = () => {
+        const onimage = () => {
             tagComp.removeAll();
             tagComp.add(tags);
             popupComp.removeAll();
             popupComp.add(popups);
         }
-        viewer.on('node', onNode);
+        viewer.on('image', onimage);
     </script>
 </body>
 

@@ -9,10 +9,10 @@ import {
 } from "rxjs";
 import { take, first, skip } from "rxjs/operators";
 import { MockCreator } from "../helper/MockCreator";
-import { NodeHelper } from "../helper/NodeHelper";
+import { ImageHelper } from "../helper/ImageHelper";
 import { StateServiceMockCreator } from "../helper/StateServiceMockCreator";
 import { FrameHelper } from "../helper/FrameHelper";
-import { Node } from "../../src/graph/Node";
+import { Image } from "../../src/graph/Image";
 import { APIWrapper } from "../../src/api/APIWrapper";
 import { FalcorDataProvider } from "../../src/api/falcor/FalcorDataProvider";
 import { ImageEnt } from "../../src/api/ents/ImageEnt";
@@ -20,7 +20,7 @@ import { Graph } from "../../src/graph/Graph";
 import { GraphMode } from "../../src/graph/GraphMode";
 import { GraphService } from "../../src/graph/GraphService";
 import { NavigationEdgeStatus } from "../../src/graph/interfaces/NavigationEdgeStatus";
-import { NodeCache } from "../../src/graph/NodeCache";
+import { ImageCache } from "../../src/graph/ImageCache";
 import { Sequence } from "../../src/graph/Sequence";
 import { IAnimationState } from "../../src/state/interfaces/IAnimationState";
 import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
@@ -94,7 +94,7 @@ describe("PlayService.playing", () => {
         playService.play();
 
         const setGraphModeSpy: jasmine.Spy = spyOn(graphService, "setGraphMode").and.stub();
-        const cutNodesSpy: jasmine.Spy = spyOn(stateService, "cutNodes").and.stub();
+        const cutImagesSpy: jasmine.Spy = spyOn(stateService, "cutImages").and.stub();
         const setSpeedSpy: jasmine.Spy = spyOn(stateService, "setSpeed").and.stub();
 
         playService.stop();
@@ -102,7 +102,7 @@ describe("PlayService.playing", () => {
         expect(setGraphModeSpy.calls.count()).toBe(1);
         expect(setGraphModeSpy.calls.argsFor(0)[0]).toBe(GraphMode.Spatial);
 
-        expect(cutNodesSpy.calls.count()).toBe(1);
+        expect(cutImagesSpy.calls.count()).toBe(1);
 
         expect(setSpeedSpy.calls.count()).toBe(1);
         expect(setSpeedSpy.calls.argsFor(0)[0]).toBe(1);
@@ -205,12 +205,12 @@ let createState: () => IAnimationState = (): IAnimationState => {
         camera: null,
         currentCamera: null,
         currentIndex: 0,
-        currentNode: null,
+        currentImage: null,
         currentTransform: null,
-        lastNode: null,
+        lastImage: null,
         motionless: false,
-        nodesAhead: 0,
-        previousNode: null,
+        imagesAhead: 0,
+        previousImage: null,
         previousTransform: null,
         reference: null,
         state: State.Traversing,
@@ -220,14 +220,14 @@ let createState: () => IAnimationState = (): IAnimationState => {
 };
 
 describe("PlayService.play", () => {
-    let nodeHelper: NodeHelper;
+    let imageHelper: ImageHelper;
 
     let api: APIWrapper;
     let graphService: GraphService;
     let stateService: StateService;
 
     beforeEach(() => {
-        nodeHelper = new NodeHelper();
+        imageHelper = new ImageHelper();
 
         api = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         graphService = new GraphService(new Graph(api));
@@ -252,12 +252,12 @@ describe("PlayService.play", () => {
         expect(setGraphModeSpy.calls.argsFor(2)[0]).toBe(GraphMode.Spatial);
     });
 
-    it("should stop immediately if node does not have an edge in current direction and no bridge", () => {
+    it("should stop immediately if image does not have an edge in current direction and no bridge", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
 
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceImages$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheBoundingBox$").and.returnValue(observableOf([]));
 
         playService.setDirection(NavigationDirection.Next);
@@ -265,10 +265,10 @@ describe("PlayService.play", () => {
         playService.play();
 
         const frame: AnimationFrame = new FrameHelper().createFrame();
-        frame.state.currentNode.initializeCache(new NodeCache(undefined));
+        frame.state.currentImage.initializeCache(new ImageCache(undefined));
         (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
-        frame.state.currentNode.cacheSequenceEdges([]);
+        frame.state.currentImage.cacheSequenceEdges([]);
 
         expect(stopSpy.calls.count()).toBe(1);
     });
@@ -278,7 +278,7 @@ describe("PlayService.play", () => {
 
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceImages$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheBoundingBox$").and.returnValue(observableOf([]));
 
         playService.setDirection(NavigationDirection.Next);
@@ -297,8 +297,8 @@ describe("PlayService.play", () => {
 
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Node[]>());
+        spyOn(graphService, "cacheSequenceImages$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Image[]>());
 
         playService.setDirection(NavigationDirection.Next);
 
@@ -306,9 +306,9 @@ describe("PlayService.play", () => {
 
         const frame: AnimationFrame = new FrameHelper().createFrame();
 
-        const node: Node = frame.state.currentNode;
+        const image: Image = frame.state.currentImage;
         const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
-        new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
+        new MockCreator().mockProperty(image, "sequenceEdges$", sequenceEdgesSubject);
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
@@ -321,7 +321,7 @@ describe("PlayService.play", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
 
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceImages$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheBoundingBox$").and.returnValue(observableOf([]));
 
         playService.setDirection(NavigationDirection.Next);
@@ -346,18 +346,18 @@ describe("PlayService.play", () => {
         playService.play();
 
         const frame: AnimationFrame = new FrameHelper().createFrame();
-        frame.state.currentNode.initializeCache(new NodeCache(undefined));
+        frame.state.currentImage.initializeCache(new ImageCache(undefined));
         (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
-        frame.state.currentNode.cacheSequenceEdges([]);
+        frame.state.currentImage.cacheSequenceEdges([]);
     });
 
-    it("should not stop if nodes are not cached", () => {
+    it("should not stop if images are not cached", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
 
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceImages$").and.returnValue(new Subject<Sequence>());
         spyOn(graphService, "cacheBoundingBox$").and.returnValue(observableOf([]));
 
         playService.setDirection(NavigationDirection.Next);
@@ -365,10 +365,10 @@ describe("PlayService.play", () => {
         playService.play();
 
         const frame: AnimationFrame = new FrameHelper().createFrame();
-        const node: Node = frame.state.currentNode;
-        node.initializeCache(new NodeCache(undefined));
+        const image: Image = frame.state.currentImage;
+        image.initializeCache(new ImageCache(undefined));
         const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
-        new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
+        new MockCreator().mockProperty(image, "sequenceEdges$", sequenceEdgesSubject);
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
@@ -381,30 +381,30 @@ describe("PlayService.play", () => {
         expect(stopSpy.calls.count()).toBe(1);
     });
 
-    it("should stop if no more nodes", () => {
+    it("should stop if no more images", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
 
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheSequenceImages$").and.returnValue(new Subject<Sequence>());
 
         playService.setDirection(NavigationDirection.Next);
 
         playService.play();
 
         const frame: AnimationFrame = new FrameHelper().createFrame();
-        const node: Node = frame.state.currentNode;
-        node.initializeCache(new NodeCache(undefined));
+        const image: Image = frame.state.currentImage;
+        image.initializeCache(new ImageCache(undefined));
         const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
 
-        const prevFullNode: ImageEnt = new NodeHelper().createFullNode();
-        prevFullNode.captured_at = -1;
-        const prevNode: Node = new Node(prevFullNode);
-        prevNode.makeFull(prevFullNode);
-        frame.state.trajectory.splice(0, 0, prevNode);
+        const prevFullImage: ImageEnt = new ImageHelper().createImageEnt();
+        prevFullImage.captured_at = -1;
+        const prevImage: Image = new Image(prevFullImage);
+        prevImage.makeComplete(prevFullImage);
+        frame.state.trajectory.splice(0, 0, prevImage);
         frame.state.currentIndex = 1;
 
-        new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
+        new MockCreator().mockProperty(image, "sequenceEdges$", sequenceEdgesSubject);
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
@@ -417,102 +417,102 @@ describe("PlayService.play", () => {
         expect(stopSpy.calls.count()).toBe(1);
     });
 
-    it("should append node when cached", () => {
+    it("should append image when cached", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
 
-        const appendNodesSpy: jasmine.Spy = <jasmine.Spy>stateService.appendNodes;
-        appendNodesSpy.and.callThrough();
-        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
-        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
-        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+        const appendImagesSpy: jasmine.Spy = <jasmine.Spy>stateService.appendImagess;
+        appendImagesSpy.and.callThrough();
+        const cacheImageSpy: jasmine.Spy = spyOn(graphService, "cacheImage$");
+        const cacheImageSubject: Subject<Image> = new Subject<Image>();
+        cacheImageSpy.and.returnValue(cacheImageSubject);
 
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Node[]>());
+        spyOn(graphService, "cacheSequenceImages$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Image[]>());
 
         playService.setDirection(NavigationDirection.Next);
 
         playService.play();
 
         const frame: AnimationFrame = new FrameHelper().createFrame();
-        const node: Node = frame.state.currentNode;
-        node.initializeCache(new NodeCache(undefined));
+        const image: Image = frame.state.currentImage;
+        image.initializeCache(new ImageCache(undefined));
         const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
-        new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
+        new MockCreator().mockProperty(image, "sequenceEdges$", sequenceEdgesSubject);
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
-        const fullToNode: ImageEnt = nodeHelper.createFullNode();
-        fullToNode.id = "toKey";
-        const toNode: Node = new Node(fullToNode);
+        const fullToImage: ImageEnt = imageHelper.createImageEnt();
+        fullToImage.id = "toKey";
+        const toImage: Image = new Image(fullToImage);
 
         sequenceEdgesSubject.next({
             cached: true,
             edges: [{
                 data: { direction: NavigationDirection.Next, worldMotionAzimuth: 0 },
-                source: node.id,
-                target: toNode.id,
+                source: image.id,
+                target: toImage.id,
             }],
         });
 
-        cacheNodeSubject.next(toNode);
+        cacheImageSubject.next(toImage);
 
-        expect(cacheNodeSpy.calls.count()).toBe(1);
-        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(toNode.id);
+        expect(cacheImageSpy.calls.count()).toBe(1);
+        expect(cacheImageSpy.calls.argsFor(0)[0]).toBe(toImage.id);
 
-        expect(appendNodesSpy.calls.count()).toBe(1);
-        expect(appendNodesSpy.calls.argsFor(0)[0].length).toBe(1);
-        expect(appendNodesSpy.calls.argsFor(0)[0][0].id).toBe(toNode.id);
+        expect(appendImagesSpy.calls.count()).toBe(1);
+        expect(appendImagesSpy.calls.argsFor(0)[0].length).toBe(1);
+        expect(appendImagesSpy.calls.argsFor(0)[0][0].id).toBe(toImage.id);
     });
 
-    it("should stop on node caching error", () => {
+    it("should stop on image caching error", () => {
         spyOn(console, "error").and.stub();
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
-        const appendNodesSpy: jasmine.Spy = <jasmine.Spy>stateService.appendNodes;
-        appendNodesSpy.and.callThrough();
-        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
-        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
-        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+        const appendImagesSpy: jasmine.Spy = <jasmine.Spy>stateService.appendImagess;
+        appendImagesSpy.and.callThrough();
+        const cacheImageSpy: jasmine.Spy = spyOn(graphService, "cacheImage$");
+        const cacheImageSubject: Subject<Image> = new Subject<Image>();
+        cacheImageSpy.and.returnValue(cacheImageSubject);
 
         const stopSpy: jasmine.Spy = spyOn(playService, "stop").and.callThrough();
 
         spyOn(graphService, "cacheSequence$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheSequenceNodes$").and.returnValue(new Subject<Sequence>());
-        spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Node[]>());
+        spyOn(graphService, "cacheSequenceImages$").and.returnValue(new Subject<Sequence>());
+        spyOn(graphService, "cacheBoundingBox$").and.returnValue(new Subject<Image[]>());
 
         playService.setDirection(NavigationDirection.Next);
 
         playService.play();
 
         const frame: AnimationFrame = new FrameHelper().createFrame();
-        const node: Node = frame.state.currentNode;
-        node.initializeCache(new NodeCache(undefined));
+        const image: Image = frame.state.currentImage;
+        image.initializeCache(new ImageCache(undefined));
         const sequenceEdgesSubject: Subject<NavigationEdgeStatus> = new Subject<NavigationEdgeStatus>();
-        new MockCreator().mockProperty(node, "sequenceEdges$", sequenceEdgesSubject);
+        new MockCreator().mockProperty(image, "sequenceEdges$", sequenceEdgesSubject);
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(frame);
 
-        const fullToNode: ImageEnt = nodeHelper.createFullNode();
-        fullToNode.id = "toKey";
-        const toNode: Node = new Node(fullToNode);
+        const fullToImage: ImageEnt = imageHelper.createImageEnt();
+        fullToImage.id = "toKey";
+        const toImage: Image = new Image(fullToImage);
 
         sequenceEdgesSubject.next({
             cached: true,
             edges: [{
                 data: { direction: NavigationDirection.Next, worldMotionAzimuth: 0 },
-                source: node.id,
-                target: toNode.id,
+                source: image.id,
+                target: toImage.id,
             }],
         });
 
-        cacheNodeSubject.error(new Error());
+        cacheImageSubject.error(new Error());
 
-        expect(cacheNodeSpy.calls.count()).toBe(1);
-        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(toNode.id);
+        expect(cacheImageSpy.calls.count()).toBe(1);
+        expect(cacheImageSpy.calls.argsFor(0)[0]).toBe(toImage.id);
 
-        expect(appendNodesSpy.calls.count()).toBe(0);
+        expect(appendImagesSpy.calls.count()).toBe(0);
 
         expect(stopSpy.calls.count()).toBe(1);
     });
@@ -525,26 +525,26 @@ describe("PlayService.play", () => {
 
         const cacheSequenceSpy: jasmine.Spy = spyOn(graphService, "cacheSequence$");
         cacheSequenceSpy.and.returnValue(new Subject<Sequence>());
-        const cacheSequenceNodesSpy: jasmine.Spy = spyOn(graphService, "cacheSequenceNodes$");
-        cacheSequenceNodesSpy.and.returnValue(new Subject<Sequence>());
+        const cacheSequenceImagesSpy: jasmine.Spy = spyOn(graphService, "cacheSequenceImages$");
+        cacheSequenceImagesSpy.and.returnValue(new Subject<Sequence>());
 
         playService.play();
 
-        const currentNode: Node = nodeHelper.createNode();
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
+        const currentImage: Image = imageHelper.createImage();
+        new MockCreator().mockProperty(currentImage, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
-        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
-        currentNodeSubject.next(currentNode);
+        const currentImageSubject: Subject<Image> = <Subject<Image>>stateService.currentImage$;
+        currentImageSubject.next(currentImage);
 
         expect(cacheSequenceSpy.calls.count()).toBe(1);
-        expect(cacheSequenceSpy.calls.argsFor(0)[0]).toBe(currentNode.sequenceId);
+        expect(cacheSequenceSpy.calls.argsFor(0)[0]).toBe(currentImage.sequenceId);
 
-        expect(cacheSequenceNodesSpy.calls.count()).toBe(0);
+        expect(cacheSequenceImagesSpy.calls.count()).toBe(0);
 
         playService.stop();
     });
 
-    it("should cache sequence nodes when in sequence graph mode", () => {
+    it("should cache sequence images when in sequence graph mode", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
         playService.setDirection(NavigationDirection.Next);
         // Set speed to one so that graph mode is set to sequence when calling play
@@ -552,26 +552,26 @@ describe("PlayService.play", () => {
 
         const cacheSequenceSpy: jasmine.Spy = spyOn(graphService, "cacheSequence$");
         cacheSequenceSpy.and.returnValue(new Subject<Sequence>());
-        const cacheSequenceNodesSpy: jasmine.Spy = spyOn(graphService, "cacheSequenceNodes$");
-        cacheSequenceNodesSpy.and.returnValue(new Subject<Sequence>());
+        const cacheSequenceImagesSpy: jasmine.Spy = spyOn(graphService, "cacheSequenceImages$");
+        cacheSequenceImagesSpy.and.returnValue(new Subject<Sequence>());
 
         playService.play();
 
-        const currentNode: Node = nodeHelper.createNode();
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
+        const currentImage: Image = imageHelper.createImage();
+        new MockCreator().mockProperty(currentImage, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
-        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
-        currentNodeSubject.next(currentNode);
+        const currentImageSubject: Subject<Image> = <Subject<Image>>stateService.currentImage$;
+        currentImageSubject.next(currentImage);
 
         expect(cacheSequenceSpy.calls.count()).toBe(0);
 
-        expect(cacheSequenceNodesSpy.calls.count()).toBe(1);
-        expect(cacheSequenceNodesSpy.calls.argsFor(0)[0]).toBe(currentNode.sequenceId);
+        expect(cacheSequenceImagesSpy.calls.count()).toBe(1);
+        expect(cacheSequenceImagesSpy.calls.argsFor(0)[0]).toBe(currentImage.sequenceId);
 
         playService.stop();
     });
 
-    it("should not pre-cache if current node is last sequence node", () => {
+    it("should not pre-cache if current image is last sequence image", () => {
         graphService.setGraphMode(GraphMode.Spatial);
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -584,38 +584,38 @@ describe("PlayService.play", () => {
 
         const sequenceKey: string = "sequenceId";
 
-        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
-        currentFullNode.sequence.id = sequenceKey;
-        currentFullNode.id = "node0";
-        const currentNode: Node = new Node(currentFullNode);
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
+        const currentFullImage: ImageEnt = new ImageHelper().createImageEnt();
+        currentFullImage.sequence.id = sequenceKey;
+        currentFullImage.id = "image0";
+        const currentImage: Image = new Image(currentFullImage);
+        new MockCreator().mockProperty(currentImage, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
-        const prevNodeKey: string = "node1";
+        const prevImageKey: string = "image1";
 
-        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
-        currentNodeSubject.next(currentNode);
+        const currentImageSubject: Subject<Image> = <Subject<Image>>stateService.currentImage$;
+        currentImageSubject.next(currentImage);
 
-        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [prevNodeKey, currentNode.id] });
+        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [prevImageKey, currentImage.id] });
         cacheSequenceSubject.next(sequence);
 
-        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
-        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
-        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+        const cacheImageSpy: jasmine.Spy = spyOn(graphService, "cacheImage$");
+        const cacheImageSubject: Subject<Image> = new Subject<Image>();
+        cacheImageSpy.and.returnValue(cacheImageSubject);
 
         const state: IAnimationState = createState();
-        state.trajectory = [currentNode];
-        state.lastNode = currentNode;
-        state.currentNode = currentNode;
-        state.nodesAhead = 0;
+        state.trajectory = [currentImage];
+        state.lastImage = currentImage;
+        state.currentImage = currentImage;
+        state.imagesAhead = 0;
 
         (<Subject<AnimationFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
 
-        expect(cacheNodeSpy.calls.count()).toBe(0);
+        expect(cacheImageSpy.calls.count()).toBe(0);
 
         playService.stop();
     });
 
-    it("should pre-cache one trajectory node", () => {
+    it("should pre-cache one trajectory image", () => {
         graphService.setGraphMode(GraphMode.Spatial);
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -628,42 +628,42 @@ describe("PlayService.play", () => {
 
         const sequenceKey: string = "sequenceId";
 
-        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
-        currentFullNode.sequence.id = sequenceKey;
-        currentFullNode.id = "node0";
-        const currentNode: Node = new Node(currentFullNode);
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
+        const currentFullImage: ImageEnt = new ImageHelper().createImageEnt();
+        currentFullImage.sequence.id = sequenceKey;
+        currentFullImage.id = "image0";
+        const currentImage: Image = new Image(currentFullImage);
+        new MockCreator().mockProperty(currentImage, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
-        const nextNodeKey: string = "node1";
+        const nextImageKey: string = "image1";
 
-        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
-        currentNodeSubject.next(currentNode);
+        const currentImageSubject: Subject<Image> = <Subject<Image>>stateService.currentImage$;
+        currentImageSubject.next(currentImage);
 
-        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [currentNode.id, nextNodeKey] });
+        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [currentImage.id, nextImageKey] });
         cacheSequenceSubject.next(sequence);
 
-        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
-        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
-        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+        const cacheImageSpy: jasmine.Spy = spyOn(graphService, "cacheImage$");
+        const cacheImageSubject: Subject<Image> = new Subject<Image>();
+        cacheImageSpy.and.returnValue(cacheImageSubject);
 
         const state: IAnimationState = createState();
-        state.trajectory = [currentNode];
-        state.lastNode = currentNode;
-        state.currentNode = currentNode;
-        state.nodesAhead = 0;
+        state.trajectory = [currentImage];
+        state.lastImage = currentImage;
+        state.currentImage = currentImage;
+        state.imagesAhead = 0;
 
         const currentStateSubject$: Subject<AnimationFrame> = <Subject<AnimationFrame>>stateService.currentState$;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
-        cacheNodeSubject.next(new NodeHelper().createNode());
+        cacheImageSubject.next(new ImageHelper().createImage());
 
-        expect(cacheNodeSpy.calls.count()).toBe(1);
-        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(nextNodeKey);
+        expect(cacheImageSpy.calls.count()).toBe(1);
+        expect(cacheImageSpy.calls.argsFor(0)[0]).toBe(nextImageKey);
 
         playService.stop();
     });
 
-    it("should pre-cache one trajectory node in prev direction", () => {
+    it("should pre-cache one trajectory image in prev direction", () => {
         graphService.setGraphMode(GraphMode.Spatial);
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -676,46 +676,46 @@ describe("PlayService.play", () => {
 
         const sequenceKey: string = "sequenceId";
 
-        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
-        currentFullNode.sequence.id = sequenceKey;
-        currentFullNode.id = "node0";
-        const currentNode: Node = new Node(currentFullNode);
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
+        const currentFullImage: ImageEnt = new ImageHelper().createImageEnt();
+        currentFullImage.sequence.id = sequenceKey;
+        currentFullImage.id = "image0";
+        const currentImage: Image = new Image(currentFullImage);
+        new MockCreator().mockProperty(currentImage, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
-        const prevNodeKey: string = "node1";
+        const prevImageKey: string = "image1";
 
-        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
-        currentNodeSubject.next(currentNode);
+        const currentImageSubject: Subject<Image> = <Subject<Image>>stateService.currentImage$;
+        currentImageSubject.next(currentImage);
 
-        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [prevNodeKey, currentNode.id] });
+        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [prevImageKey, currentImage.id] });
         cacheSequenceSubject.next(sequence);
 
-        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
-        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
-        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+        const cacheImageSpy: jasmine.Spy = spyOn(graphService, "cacheImage$");
+        const cacheImageSubject: Subject<Image> = new Subject<Image>();
+        cacheImageSpy.and.returnValue(cacheImageSubject);
 
         const state: IAnimationState = createState();
-        state.trajectory = [currentNode];
-        state.lastNode = currentNode;
-        state.currentNode = currentNode;
-        state.nodesAhead = 0;
+        state.trajectory = [currentImage];
+        state.lastImage = currentImage;
+        state.currentImage = currentImage;
+        state.imagesAhead = 0;
 
         const currentStateSubject$: Subject<AnimationFrame> = <Subject<AnimationFrame>>stateService.currentState$;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
-        cacheNodeSubject.next(new NodeHelper().createNode());
+        cacheImageSubject.next(new ImageHelper().createImage());
 
-        expect(cacheNodeSpy.calls.count()).toBe(1);
-        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(prevNodeKey);
+        expect(cacheImageSpy.calls.count()).toBe(1);
+        expect(cacheImageSpy.calls.argsFor(0)[0]).toBe(prevImageKey);
 
         // Sequence should not have changed because of internal reversing
-        expect(sequence.imageIds[0]).toBe(prevNodeKey);
-        expect(sequence.imageIds[1]).toBe(currentNode.id);
+        expect(sequence.imageIds[0]).toBe(prevImageKey);
+        expect(sequence.imageIds[1]).toBe(currentImage.id);
 
         playService.stop();
     });
 
-    it("should not pre-cache the same node twice", () => {
+    it("should not pre-cache the same image twice", () => {
         graphService.setGraphMode(GraphMode.Spatial);
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -728,52 +728,52 @@ describe("PlayService.play", () => {
 
         const sequenceKey: string = "sequenceId";
 
-        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
-        currentFullNode.sequence.id = sequenceKey;
-        currentFullNode.id = "node0";
-        const currentNode: Node = new Node(currentFullNode);
-        currentNode.makeFull(currentFullNode);
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
+        const currentFullImage: ImageEnt = new ImageHelper().createImageEnt();
+        currentFullImage.sequence.id = sequenceKey;
+        currentFullImage.id = "image0";
+        const currentImage: Image = new Image(currentFullImage);
+        currentImage.makeComplete(currentFullImage);
+        new MockCreator().mockProperty(currentImage, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
-        const nextNodeKey: string = "node1";
+        const nextImageKey: string = "image1";
 
-        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
-        currentNodeSubject.next(currentNode);
+        const currentImageSubject: Subject<Image> = <Subject<Image>>stateService.currentImage$;
+        currentImageSubject.next(currentImage);
 
-        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [currentNode.id, nextNodeKey] });
+        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [currentImage.id, nextImageKey] });
         cacheSequenceSubject.next(sequence);
 
-        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
-        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
-        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+        const cacheImageSpy: jasmine.Spy = spyOn(graphService, "cacheImage$");
+        const cacheImageSubject: Subject<Image> = new Subject<Image>();
+        cacheImageSpy.and.returnValue(cacheImageSubject);
 
         const state: IAnimationState = createState();
-        state.trajectory = [currentNode];
-        state.lastNode = currentNode;
-        state.currentNode = currentNode;
-        state.nodesAhead = 0;
+        state.trajectory = [currentImage];
+        state.lastImage = currentImage;
+        state.currentImage = currentImage;
+        state.imagesAhead = 0;
 
         const currentStateSubject$: Subject<AnimationFrame> = <Subject<AnimationFrame>>stateService.currentState$;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
-        const nextFullNode: ImageEnt = new NodeHelper().createFullNode();
-        nextFullNode.sequence.id = sequenceKey;
-        nextFullNode.id = nextNodeKey;
-        const nextNode: Node = new Node(nextFullNode);
-        nextNode.makeFull(nextFullNode);
-        cacheNodeSubject.next(nextNode);
+        const nextFullImage: ImageEnt = new ImageHelper().createImageEnt();
+        nextFullImage.sequence.id = sequenceKey;
+        nextFullImage.id = nextImageKey;
+        const nextImage: Image = new Image(nextFullImage);
+        nextImage.makeComplete(nextFullImage);
+        cacheImageSubject.next(nextImage);
 
-        expect(cacheNodeSpy.calls.count()).toBe(1);
-        expect(cacheNodeSpy.calls.argsFor(0)[0]).toBe(nextNodeKey);
+        expect(cacheImageSpy.calls.count()).toBe(1);
+        expect(cacheImageSpy.calls.argsFor(0)[0]).toBe(nextImageKey);
 
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
-        expect(cacheNodeSpy.calls.count()).toBe(1);
+        expect(cacheImageSpy.calls.count()).toBe(1);
 
         playService.stop();
     });
 
-    it("should not pre-cache if all sequence nodes in trajectory", () => {
+    it("should not pre-cache if all sequence images in trajectory", () => {
         graphService.setGraphMode(GraphMode.Spatial);
 
         const playService: PlayService = new PlayService(graphService, stateService);
@@ -786,51 +786,51 @@ describe("PlayService.play", () => {
 
         const sequenceKey: string = "sequenceId";
 
-        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
-        currentFullNode.sequence.id = sequenceKey;
-        currentFullNode.id = "node0";
-        const currentNode: Node = new Node(currentFullNode);
-        currentNode.makeFull(currentFullNode);
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
+        const currentFullImage: ImageEnt = new ImageHelper().createImageEnt();
+        currentFullImage.sequence.id = sequenceKey;
+        currentFullImage.id = "image0";
+        const currentImage: Image = new Image(currentFullImage);
+        currentImage.makeComplete(currentFullImage);
+        new MockCreator().mockProperty(currentImage, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
-        const nextNodeKey: string = "node1";
-        const nextFullNode: ImageEnt = new NodeHelper().createFullNode();
-        nextFullNode.sequence.id = sequenceKey;
-        nextFullNode.id = nextNodeKey;
-        const nextNode: Node = new Node(nextFullNode);
-        nextNode.makeFull(nextFullNode);
-        new MockCreator().mockProperty(nextNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
+        const nextImageKey: string = "image1";
+        const nextFullImage: ImageEnt = new ImageHelper().createImageEnt();
+        nextFullImage.sequence.id = sequenceKey;
+        nextFullImage.id = nextImageKey;
+        const nextImage: Image = new Image(nextFullImage);
+        nextImage.makeComplete(nextFullImage);
+        new MockCreator().mockProperty(nextImage, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
-        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
-        currentNodeSubject.next(currentNode);
+        const currentImageSubject: Subject<Image> = <Subject<Image>>stateService.currentImage$;
+        currentImageSubject.next(currentImage);
 
-        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [currentNode.id, nextNodeKey] });
+        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [currentImage.id, nextImageKey] });
         cacheSequenceSubject.next(sequence);
 
-        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
-        const cacheNodeSubject: Subject<Node> = new Subject<Node>();
-        cacheNodeSpy.and.returnValue(cacheNodeSubject);
+        const cacheImageSpy: jasmine.Spy = spyOn(graphService, "cacheImage$");
+        const cacheImageSubject: Subject<Image> = new Subject<Image>();
+        cacheImageSpy.and.returnValue(cacheImageSubject);
 
         const state: IAnimationState = createState();
-        state.trajectory = [currentNode, nextNode];
-        state.lastNode = nextNode;
-        state.currentNode = currentNode;
-        state.nodesAhead = 0;
+        state.trajectory = [currentImage, nextImage];
+        state.lastImage = nextImage;
+        state.currentImage = currentImage;
+        state.imagesAhead = 0;
 
         const currentStateSubject$: Subject<AnimationFrame> = <Subject<AnimationFrame>>stateService.currentState$;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
-        expect(cacheNodeSpy.calls.count()).toBe(0);
+        expect(cacheImageSpy.calls.count()).toBe(0);
 
         playService.stop();
     });
 
-    it("should pre-cache up to specified nodes ahead", () => {
+    it("should pre-cache up to specified images ahead", () => {
         graphService.setGraphMode(GraphMode.Spatial);
 
         const playService: PlayService = new PlayService(graphService, stateService);
         playService.setDirection(NavigationDirection.Next);
-        // Zero speed means max ten nodes ahead
+        // Zero speed means max ten images ahead
         playService.setSpeed(0);
 
         const cacheSequenceSubject: Subject<Sequence> = new Subject<Sequence>();
@@ -840,133 +840,133 @@ describe("PlayService.play", () => {
 
         const sequenceKey: string = "sequenceId";
 
-        const currentFullNode: ImageEnt = new NodeHelper().createFullNode();
-        currentFullNode.sequence.id = sequenceKey;
-        currentFullNode.id = "currentNodeKey";
-        const currentNode: Node = new Node(currentFullNode);
-        currentNode.makeFull(currentFullNode);
-        new MockCreator().mockProperty(currentNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
+        const currentFullImage: ImageEnt = new ImageHelper().createImageEnt();
+        currentFullImage.sequence.id = sequenceKey;
+        currentFullImage.id = "currentImageKey";
+        const currentImage: Image = new Image(currentFullImage);
+        currentImage.makeComplete(currentFullImage);
+        new MockCreator().mockProperty(currentImage, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
-        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [currentNode.id] });
-        const sequenceNodes: Node[] = [];
+        const sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [currentImage.id] });
+        const sequenceImages: Image[] = [];
 
         for (let i: number = 0; i < 20; i++) {
-            const sequenceNodeKey: string = `node${i}`;
-            const sequenceFullNode: ImageEnt = new NodeHelper().createFullNode();
-            sequenceFullNode.sequence.id = sequenceKey;
-            sequenceFullNode.id = sequenceNodeKey;
-            const sequenceNode: Node = new Node(sequenceFullNode);
-            sequenceNode.makeFull(sequenceFullNode);
-            new MockCreator().mockProperty(sequenceNode, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
+            const sequenceImageKey: string = `image${i}`;
+            const sequenceFullImage: ImageEnt = new ImageHelper().createImageEnt();
+            sequenceFullImage.sequence.id = sequenceKey;
+            sequenceFullImage.id = sequenceImageKey;
+            const sequenceImage: Image = new Image(sequenceFullImage);
+            sequenceImage.makeComplete(sequenceFullImage);
+            new MockCreator().mockProperty(sequenceImage, "sequenceEdges$", new Subject<NavigationEdgeStatus>());
 
-            sequence.imageIds.push(sequenceNode.id);
-            sequenceNodes.push(sequenceNode);
+            sequence.imageIds.push(sequenceImage.id);
+            sequenceImages.push(sequenceImage);
         }
 
-        const currentNodeSubject: Subject<Node> = <Subject<Node>>stateService.currentNode$;
+        const currentImageSubject: Subject<Image> = <Subject<Image>>stateService.currentImage$;
 
-        currentNodeSubject.next(currentNode);
+        currentImageSubject.next(currentImage);
         cacheSequenceSubject.next(sequence);
 
-        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$").and.callFake(
-            (key: string): Observable<Node> => {
-                const fullNode: ImageEnt = new NodeHelper().createFullNode();
-                fullNode.sequence.id = sequenceKey;
-                fullNode.id = key;
-                const node: Node = new Node(fullNode);
-                node.makeFull(fullNode);
+        const cacheImageSpy: jasmine.Spy = spyOn(graphService, "cacheImage$").and.callFake(
+            (key: string): Observable<Image> => {
+                const fullImage: ImageEnt = new ImageHelper().createImageEnt();
+                fullImage.sequence.id = sequenceKey;
+                fullImage.id = key;
+                const image: Image = new Image(fullImage);
+                image.makeComplete(fullImage);
 
-                return observableOf(node);
+                return observableOf(image);
             });
 
         const state: IAnimationState = createState();
-        state.trajectory = [currentNode];
-        state.lastNode = currentNode;
-        state.currentNode = currentNode;
+        state.trajectory = [currentImage];
+        state.lastImage = currentImage;
+        state.currentImage = currentImage;
         state.currentIndex = 0;
-        state.nodesAhead = 0;
+        state.imagesAhead = 0;
 
-        // Cache ten nodes immediately
+        // Cache ten images immediately
         const currentStateSubject$: Subject<AnimationFrame> = <Subject<AnimationFrame>>stateService.currentState$;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
         let cachedCount: number = 10;
-        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+        expect(cacheImageSpy.calls.count()).toBe(cachedCount);
 
-        // Add one node to trajectory before current node has moved
-        state.trajectory = state.trajectory.concat(sequenceNodes.splice(0, 1));
-        state.lastNode = state.trajectory[state.trajectory.length - 1];
-        state.nodesAhead = 1;
+        // Add one image to trajectory before current image has moved
+        state.trajectory = state.trajectory.concat(sequenceImages.splice(0, 1));
+        state.lastImage = state.trajectory[state.trajectory.length - 1];
+        state.imagesAhead = 1;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
-        // No new nodes should be cached
-        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+        // No new images should be cached
+        expect(cacheImageSpy.calls.count()).toBe(cachedCount);
 
-        // Current node has moved one step in trajectory to the last node, nodes ahead
-        // is zero and one new node should be cached
+        // Current image has moved one step in trajectory to the last image, images ahead
+        // is zero and one new image should be cached
         state.currentIndex += 1;
-        state.currentNode = state.trajectory[state.currentIndex];
-        state.nodesAhead = 0;
+        state.currentImage = state.trajectory[state.currentIndex];
+        state.imagesAhead = 0;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
         cachedCount += 1;
-        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+        expect(cacheImageSpy.calls.count()).toBe(cachedCount);
 
-        // Add 5 nodes to trajectory and move current node 3 steps
-        state.trajectory = state.trajectory.concat(sequenceNodes.splice(0, 5));
+        // Add 5 images to trajectory and move current image 3 steps
+        state.trajectory = state.trajectory.concat(sequenceImages.splice(0, 5));
         state.currentIndex += 3;
-        state.currentNode = state.trajectory[state.currentIndex];
-        state.lastNode = state.trajectory[state.trajectory.length - 1];
-        state.nodesAhead = 2;
+        state.currentImage = state.trajectory[state.currentIndex];
+        state.lastImage = state.trajectory[state.trajectory.length - 1];
+        state.imagesAhead = 2;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
-        // Three new nodes should be cached
+        // Three new images should be cached
         cachedCount += 3;
-        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+        expect(cacheImageSpy.calls.count()).toBe(cachedCount);
 
-        // Add all 14 nodes cached so far to trajectory and move current node to last
-        // trajectory node
-        state.trajectory = state.trajectory.concat(sequenceNodes.splice(0, 8));
+        // Add all 14 images cached so far to trajectory and move current image to last
+        // trajectory image
+        state.trajectory = state.trajectory.concat(sequenceImages.splice(0, 8));
         state.currentIndex = state.trajectory.length - 1;
         expect(state.currentIndex).toBe(14);
-        state.currentNode = state.trajectory[state.currentIndex];
-        state.lastNode = state.trajectory[state.trajectory.length - 1];
-        state.nodesAhead = 0;
+        state.currentImage = state.trajectory[state.currentIndex];
+        state.lastImage = state.trajectory[state.trajectory.length - 1];
+        state.imagesAhead = 0;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
-        // Six last nodes should be cached
+        // Six last images should be cached
         cachedCount += 6;
-        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+        expect(cacheImageSpy.calls.count()).toBe(cachedCount);
 
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
-        // No new nodes should be cached
-        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+        // No new images should be cached
+        expect(cacheImageSpy.calls.count()).toBe(cachedCount);
 
-        // Add all remaining nodes to trajectory and move current node one step
-        state.trajectory = state.trajectory.concat(sequenceNodes.splice(0, sequenceNodes.length));
+        // Add all remaining images to trajectory and move current image one step
+        state.trajectory = state.trajectory.concat(sequenceImages.splice(0, sequenceImages.length));
         state.currentIndex += 1;
-        state.currentNode = state.trajectory[state.currentIndex];
-        state.lastNode = state.trajectory[state.trajectory.length - 1];
-        state.nodesAhead = 5;
+        state.currentImage = state.trajectory[state.currentIndex];
+        state.lastImage = state.trajectory[state.trajectory.length - 1];
+        state.imagesAhead = 5;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
-        // No new nodes should be cached
-        expect(cacheNodeSpy.calls.count()).toBe(cachedCount);
+        // No new images should be cached
+        expect(cacheImageSpy.calls.count()).toBe(cachedCount);
 
-        // Move current node to last trajectory node
-        state.trajectory = state.trajectory.concat(sequenceNodes.splice(0, sequenceNodes.length));
+        // Move current image to last trajectory image
+        state.trajectory = state.trajectory.concat(sequenceImages.splice(0, sequenceImages.length));
         state.currentIndex = state.trajectory.length - 1;
-        state.currentNode = state.trajectory[state.currentIndex];
-        state.lastNode = state.trajectory[state.trajectory.length - 1];
-        state.nodesAhead = 0;
+        state.currentImage = state.trajectory[state.currentIndex];
+        state.lastImage = state.trajectory[state.trajectory.length - 1];
+        state.imagesAhead = 0;
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
 
-        // No new nodes should be cached
-        expect(cacheNodeSpy.calls.count()).toBe(20);
+        // No new images should be cached
+        expect(cacheImageSpy.calls.count()).toBe(20);
 
         for (let i: number = 0; i < 20; i++) {
-            expect(cacheNodeSpy.calls.argsFor(i)[0]).toBe(sequence.imageIds[i + 1]);
+            expect(cacheImageSpy.calls.argsFor(i)[0]).toBe(sequence.imageIds[i + 1]);
         }
 
         playService.stop();

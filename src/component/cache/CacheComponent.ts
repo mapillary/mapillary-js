@@ -26,7 +26,7 @@ import {
     CacheDepthConfiguration,
 } from "../interfaces/CacheConfiguration";
 
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { NavigationEdge } from "../../graph/edge/interfaces/NavigationEdge";
 import { NavigationEdgeStatus }
     from "../../graph/interfaces/NavigationEdgeStatus";
@@ -49,10 +49,10 @@ export class CacheComponent extends Component<CacheConfiguration> {
         const subs = this._subscriptions;
 
         subs.push(observableCombineLatest(
-            this._navigator.stateService.currentNode$.pipe(
+            this._navigator.stateService.currentImage$.pipe(
                 switchMap(
-                    (node: Node): Observable<NavigationEdgeStatus> => {
-                        return node.sequenceEdges$;
+                    (image: Image): Observable<NavigationEdgeStatus> => {
+                        return image.sequenceEdges$;
                     }),
                 filter(
                     (status: NavigationEdgeStatus): boolean => {
@@ -82,12 +82,12 @@ export class CacheComponent extends Component<CacheConfiguration> {
             .subscribe(() => { /*noop*/ }));
 
         subs.push(observableCombineLatest(
-            this._navigator.stateService.currentNode$.pipe(
+            this._navigator.stateService.currentImage$.pipe(
                 switchMap(
-                    (node: Node): Observable<[Node, NavigationEdgeStatus]> => {
+                    (image: Image): Observable<[Image, NavigationEdgeStatus]> => {
                         return observableCombineLatest(
-                            observableOf<Node>(node),
-                            node.spatialEdges$.pipe(
+                            observableOf<Image>(image),
+                            image.spatialEdges$.pipe(
                                 filter(
                                     (status: NavigationEdgeStatus): boolean => {
                                         return status.cached;
@@ -95,15 +95,15 @@ export class CacheComponent extends Component<CacheConfiguration> {
                     })),
             this._configuration$).pipe(
                 switchMap(
-                    ([[node, edgeStatus], configuration]: [[Node, NavigationEdgeStatus], CacheConfiguration]): Observable<EdgesDepth> => {
+                    ([[image, edgeStatus], configuration]: [[Image, NavigationEdgeStatus], CacheConfiguration]): Observable<EdgesDepth> => {
                         let edges: NavigationEdge[] = edgeStatus.edges;
                         let depth: CacheDepthConfiguration = configuration.depth;
 
                         let sphericalDepth =
                             Math.max(0, Math.min(2, depth.spherical));
-                        let stepDepth = isSpherical(node.cameraType) ?
+                        let stepDepth = isSpherical(image.cameraType) ?
                             0 : Math.max(0, Math.min(3, depth.step));
-                        let turnDepth = isSpherical(node.cameraType) ?
+                        let turnDepth = isSpherical(image.cameraType) ?
                             0 : Math.max(0, Math.min(1, depth.turn));
 
                         let spherical$ = this._cache$(edges, NavigationDirection.Spherical, sphericalDepth);
@@ -164,10 +164,10 @@ export class CacheComponent extends Component<CacheConfiguration> {
                                 if (edge.data.direction === direction) {
                                     edgesDepths$.push(
                                         observableZip(
-                                            this._navigator.graphService.cacheNode$(edge.target).pipe(
+                                            this._navigator.graphService.cacheImage$(edge.target).pipe(
                                                 mergeMap(
-                                                    (n: Node): Observable<NavigationEdge[]> => {
-                                                        return this._nodeToEdges$(n, direction);
+                                                    (n: Image): Observable<NavigationEdge[]> => {
+                                                        return this._imageToEdges$(n, direction);
                                                     })),
                                             observableOf<number>(d - 1)));
                                 }
@@ -180,10 +180,10 @@ export class CacheComponent extends Component<CacheConfiguration> {
                 skip(1));
     }
 
-    private _nodeToEdges$(node: Node, direction: NavigationDirection): Observable<NavigationEdge[]> {
+    private _imageToEdges$(image: Image, direction: NavigationDirection): Observable<NavigationEdge[]> {
         return ([NavigationDirection.Next, NavigationDirection.Prev].indexOf(direction) > -1 ?
-            node.sequenceEdges$ :
-            node.spatialEdges$).pipe(
+            image.sequenceEdges$ :
+            image.spatialEdges$).pipe(
                 first(
                     (status: NavigationEdgeStatus): boolean => {
                         return status.cached;

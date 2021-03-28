@@ -3,7 +3,7 @@ import { Subscription } from "rxjs";
 
 import { IAnimationState } from "../../state/interfaces/IAnimationState";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { Transform } from "../../geo/Transform";
 import { TextureProvider } from "../../tile/TextureProvider";
 import { MeshFactory } from "../util/MeshFactory";
@@ -53,10 +53,10 @@ export class ImagePlaneGLRenderer {
         this._needsRender = true;
     }
 
-    public addPeripheryPlane(node: Node, transform: Transform): void {
-        const mesh: THREE.Mesh = this._factory.createMesh(node, transform);
+    public addPeripheryPlane(image: Image, transform: Transform): void {
+        const mesh: THREE.Mesh = this._factory.createMesh(image, transform);
         const planes: { [key: string]: THREE.Mesh } = {};
-        planes[node.id] = mesh;
+        planes[image.id] = mesh;
         this._scene.addPeripheryPlanes(planes);
 
         this._needsRender = true;
@@ -108,7 +108,10 @@ export class ImagePlaneGLRenderer {
         this._providerDisposers[key] = dispose;
     }
 
-    public updateTextureImage(image: HTMLImageElement, node: Node): void {
+    public updateTextureImage(
+        imageElement: HTMLImageElement,
+        image: Image)
+        : void {
         this._needsRender = true;
 
         const planes: { [key: string]: THREE.Mesh } =
@@ -119,7 +122,7 @@ export class ImagePlaneGLRenderer {
                 continue;
             }
 
-            if (key !== node.id) {
+            if (key !== image.id) {
                 continue;
             }
 
@@ -128,7 +131,7 @@ export class ImagePlaneGLRenderer {
             let material: ProjectorShaderMaterial = <ProjectorShaderMaterial>plane.material;
             let texture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
 
-            texture.image = image;
+            texture.image = imageElement;
             texture.needsUpdate = true;
         }
     }
@@ -220,12 +223,13 @@ export class ImagePlaneGLRenderer {
     }
 
     private _updateImagePlanes(state: IAnimationState): boolean {
-        if (state.currentNode == null || state.currentNode.id === this._currentKey) {
+        if (state.currentImage == null ||
+            state.currentImage.id === this._currentKey) {
             return false;
         }
 
-        let previousKey: string = state.previousNode != null ? state.previousNode.id : null;
-        let currentKey: string = state.currentNode.id;
+        let previousKey: string = state.previousImage != null ? state.previousImage.id : null;
+        let currentKey: string = state.currentImage.id;
 
         if (this._previousKey !== previousKey &&
             this._previousKey !== currentKey &&
@@ -240,7 +244,7 @@ export class ImagePlaneGLRenderer {
         if (previousKey != null) {
             if (previousKey !== this._currentKey && previousKey !== this._previousKey) {
                 let previousMesh: THREE.Mesh =
-                    this._factory.createMesh(state.previousNode, state.previousTransform);
+                    this._factory.createMesh(state.previousImage, state.previousTransform);
 
                 const previousPlanes: { [key: string]: THREE.Mesh } = {};
                 previousPlanes[previousKey] = previousMesh;
@@ -251,8 +255,10 @@ export class ImagePlaneGLRenderer {
         }
 
         this._currentKey = currentKey;
-        let currentMesh: THREE.Mesh =
-            this._factory.createMesh(state.currentNode, state.currentTransform);
+        let currentMesh =
+            this._factory.createMesh(
+                state.currentImage,
+                state.currentTransform);
 
         const planes: { [key: string]: THREE.Mesh } = {};
         planes[currentKey] = currentMesh;

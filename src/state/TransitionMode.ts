@@ -3,7 +3,7 @@
  * @enum {number}
  * @readonly
  * @description Modes for specifying how transitions
- * between nodes are performed.
+ * between images are performed.
  */
 export enum TransitionMode {
     /**

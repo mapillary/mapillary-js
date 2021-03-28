@@ -30,7 +30,7 @@ import { AbortMapillaryError } from "../error/AbortMapillaryError";
 import { FilterExpression } from "../graph/FilterExpression";
 import { Graph } from "../graph/Graph";
 import { GraphService } from "../graph/GraphService";
-import { Node } from "../graph/Node";
+import { Image } from "../graph/Image";
 import { NavigationDirection } from "../graph/edge/NavigationDirection";
 import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
 import { StateService } from "../state/StateService";
@@ -50,9 +50,9 @@ export class Navigator {
     private _idRequested$: BehaviorSubject<string>;
     private _movedToId$: BehaviorSubject<string>;
 
-    private _request$: ReplaySubject<Node>;
+    private _request$: ReplaySubject<Image>;
     private _requestSubscription: Subscription;
-    private _nodeRequestSubscription: Subscription;
+    private _imageRequestSubscription: Subscription;
 
     constructor(
         options: ViewerOptions,
@@ -103,7 +103,7 @@ export class Navigator {
 
         this._request$ = null;
         this._requestSubscription = null;
-        this._nodeRequestSubscription = null;
+        this._imageRequestSubscription = null;
     }
 
     public get api(): APIWrapper {
@@ -148,28 +148,26 @@ export class Navigator {
         this._stateService.dispose();
     }
 
-    public moveTo$(id: string): Observable<Node> {
+    public moveTo$(id: string): Observable<Image> {
         this._abortRequest(`to id ${id}`);
-
         this._loadingService.startLoading(this._loadingName);
 
-        const node$: Observable<Node> = this._moveTo$(id);
-
-        return this._makeRequest$(node$);
+        const image$ = this._moveTo$(id);
+        return this._makeRequest$(image$);
     }
 
-    public moveDir$(direction: NavigationDirection): Observable<Node> {
+    public moveDir$(direction: NavigationDirection): Observable<Image> {
         this._abortRequest(`in dir ${NavigationDirection[direction]}`);
 
         this._loadingService.startLoading(this._loadingName);
 
-        const node$: Observable<Node> = this.stateService.currentNode$.pipe(
+        const image$ = this.stateService.currentImage$.pipe(
             first(),
             mergeMap(
-                (node: Node): Observable<string> => {
+                (image: Image): Observable<string> => {
                     return ([NavigationDirection.Next, NavigationDirection.Prev].indexOf(direction) > -1 ?
-                        node.sequenceEdges$ :
-                        node.spatialEdges$).pipe(
+                        image.sequenceEdges$ :
+                        image.spatialEdges$).pipe(
                             first(),
                             map(
                                 (status: NavigationEdgeStatus): string => {
@@ -187,29 +185,29 @@ export class Navigator {
                     if (directionId == null) {
                         this._loadingService.stopLoading(this._loadingName);
 
-                        return observableThrowError(new Error(`Direction (${direction}) does not exist for current node.`));
+                        return observableThrowError(new Error(`Direction (${direction}) does not exist for current image.`));
                     }
 
                     return this._moveTo$(directionId);
                 }));
 
-        return this._makeRequest$(node$);
+        return this._makeRequest$(image$);
     }
 
     public setFilter$(filter: FilterExpression): Observable<void> {
-        this._stateService.clearNodes();
+        this._stateService.clearImages();
 
         return this._movedToId$.pipe(
             first(),
             mergeMap(
-                (id: string): Observable<Node> => {
+                (id: string): Observable<Image> => {
                     if (id != null) {
                         return this._trajectoryIds$().pipe(
                             mergeMap(
-                                (ids: string[]): Observable<Node> => {
+                                (ids: string[]): Observable<Image> => {
                                     return this._graphService.setFilter$(filter).pipe(
                                         mergeMap(
-                                            (): Observable<Node> => {
+                                            (): Observable<Image> => {
                                                 return this._cacheIds$(ids);
                                             }));
                                 }),
@@ -219,18 +217,18 @@ export class Navigator {
                     return this._idRequested$.pipe(
                         first(),
                         mergeMap(
-                            (requestedId: string): Observable<Node> => {
+                            (requestedId: string): Observable<Image> => {
                                 if (requestedId != null) {
                                     return this._graphService.setFilter$(filter).pipe(
                                         mergeMap(
-                                            (): Observable<Node> => {
-                                                return this._graphService.cacheNode$(requestedId);
+                                            (): Observable<Image> => {
+                                                return this._graphService.cacheImage$(requestedId);
                                             }));
                                 }
 
                                 return this._graphService.setFilter$(filter).pipe(
                                     map(
-                                        (): Node => {
+                                        (): Image => {
                                             return undefined;
                                         }));
                             }));
@@ -244,7 +242,7 @@ export class Navigator {
     public setUserToken$(userToken?: string): Observable<void> {
         this._abortRequest("to set user token");
 
-        this._stateService.clearNodes();
+        this._stateService.clearImages();
 
         return this._movedToId$.pipe(
             first(),
@@ -258,10 +256,10 @@ export class Navigator {
                         this._graphService.reset$([]) :
                         this._trajectoryIds$().pipe(
                             mergeMap(
-                                (ids: string[]): Observable<Node> => {
+                                (ids: string[]): Observable<Image> => {
                                     return this._graphService.reset$(ids).pipe(
                                         mergeMap(
-                                            (): Observable<Node> => {
+                                            (): Observable<Image> => {
                                                 return this._cacheIds$(ids);
                                             }));
                                 }),
@@ -273,14 +271,14 @@ export class Navigator {
                 }));
     }
 
-    private _cacheIds$(ids: string[]): Observable<Node> {
-        let cacheNodes$: Observable<Node>[] = ids
+    private _cacheIds$(ids: string[]): Observable<Image> {
+        const cacheImages$ = ids
             .map(
-                (id: string): Observable<Node> => {
-                    return this._graphService.cacheNode$(id);
+                (id: string): Observable<Image> => {
+                    return this._graphService.cacheImage$(id);
                 });
 
-        return observableFrom(cacheNodes$).pipe(
+        return observableFrom(cacheImages$).pipe(
             mergeAll());
     }
 
@@ -290,9 +288,9 @@ export class Navigator {
             this._requestSubscription = null;
         }
 
-        if (this._nodeRequestSubscription != null) {
-            this._nodeRequestSubscription.unsubscribe();
-            this._nodeRequestSubscription = null;
+        if (this._imageRequestSubscription != null) {
+            this._imageRequestSubscription.unsubscribe();
+            this._imageRequestSubscription = null;
         }
 
         if (this._request$ != null) {
@@ -304,19 +302,19 @@ export class Navigator {
         }
     }
 
-    private _makeRequest$(node$: Observable<Node>): Observable<Node> {
-        const request$: ReplaySubject<Node> = new ReplaySubject<Node>(1);
+    private _makeRequest$(image$: Observable<Image>): Observable<Image> {
+        const request$: ReplaySubject<Image> = new ReplaySubject<Image>(1);
         this._requestSubscription = request$
             .subscribe(undefined, (): void => { /*noop*/ });
 
         this._request$ = request$;
 
-        this._nodeRequestSubscription = node$
+        this._imageRequestSubscription = image$
             .subscribe(
-                (node: Node): void => {
+                (image: Image): void => {
                     this._request$ = null;
 
-                    request$.next(node);
+                    request$.next(image);
                     request$.complete();
                 },
                 (error: Error): void => {
@@ -328,14 +326,14 @@ export class Navigator {
         return request$;
     }
 
-    private _moveTo$(id: string): Observable<Node> {
+    private _moveTo$(id: string): Observable<Image> {
         this._idRequested$.next(id);
 
-        return this._graphService.cacheNode$(id).pipe(
+        return this._graphService.cacheImage$(id).pipe(
             tap(
-                (node: Node) => {
-                    this._stateService.setNodes([node]);
-                    this._movedToId$.next(node.id);
+                (image: Image) => {
+                    this._stateService.setImages([image]);
+                    this._movedToId$.next(image.id);
                 }),
             finalize(
                 (): void => {
@@ -350,8 +348,8 @@ export class Navigator {
                 (frame: AnimationFrame): string[] => {
                     return frame.state.trajectory
                         .map(
-                            (node: Node): string => {
-                                return node.id;
+                            (image: Image): string => {
+                                return image.id;
                             });
                 }));
     }

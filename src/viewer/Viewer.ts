@@ -13,7 +13,7 @@ import { ComponentConfiguration }
     from "../component/interfaces/ComponentConfiguration";
 import { LatLonAlt } from "../api/interfaces/LatLonAlt";
 import { FilterExpression } from "../graph/FilterExpression";
-import { Node } from "../graph/Node";
+import { Image } from "../graph/Image";
 import { NavigationDirection } from "../graph/edge/NavigationDirection";
 import { RenderCamera } from "../render/RenderCamera";
 import { RenderMode } from "../render/RenderMode";
@@ -36,7 +36,7 @@ import { ViewerMouseEvent } from "./events/ViewerMouseEvent";
 import { ViewerNavigableEvent } from "./events/ViewerNavigableEvent";
 import { ViewerNavigationEdgeEvent }
     from "./events/ViewerNavigationEdgeEvent";
-import { ViewerNodeEvent } from "./events/ViewerNodeEvent";
+import { ViewerImageEvent } from "./events/ViewerImageEvent";
 import { ViewerStateEvent } from "./events/ViewerStateEvent";
 
 /**
@@ -93,7 +93,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * the viewer without a id and call `moveTo` instead.
      *
      * When initializing with a id the viewer is bound to that id
-     * until the node for that id has been successfully loaded.
+     * until the image for that id has been successfully loaded.
      * Also, a cover with the image of the id will be shown.
      * If the data for that id can not be loaded because the id is
      * faulty or other errors occur it is not possible to navigate
@@ -259,8 +259,8 @@ export class Viewer extends EventEmitter implements IViewer {
         event: ViewerNavigableEvent)
         : void;
     public fire(
-        type: ViewerNodeEvent["type"],
-        event: ViewerNodeEvent)
+        type: ViewerImageEvent["type"],
+        event: ViewerImageEvent)
         : void;
     public fire(
         type: ViewerNavigationEdgeEvent["type"],
@@ -286,7 +286,7 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * @description The bearing depends on how the camera
      * is currently rotated and does not correspond
-     * to the compass angle of the current node if the view
+     * to the compass angle of the current image if the view
      * has been panned.
      *
      * Bearing is measured in degrees clockwise with respect to
@@ -528,8 +528,8 @@ export class Viewer extends EventEmitter implements IViewer {
      * @description This method has to be called through EdgeDirection enumeration as in the example.
      *
      * @param {NavigationDirection} direction - Direction in which which to move.
-     * @returns {Promise<Node>} Promise to the node that was navigated to.
-     * @throws {Error} If the current node does not have the edge direction
+     * @returns {Promise<Image>} Promise to the image that was navigated to.
+     * @throws {Error} If the current image does not have the edge direction
      * or the edges has not yet been cached.
      * @throws {Error} Propagates any IO errors to the caller.
      * @throws {Error} When viewer is not navigable.
@@ -543,16 +543,16 @@ export class Viewer extends EventEmitter implements IViewer {
      *     (e) => { console.error(e); });
      * ```
      */
-    public moveDir(direction: NavigationDirection): Promise<Node> {
-        const moveDir$: Observable<Node> = this.isNavigable ?
+    public moveDir(direction: NavigationDirection): Promise<Image> {
+        const moveDir$: Observable<Image> = this.isNavigable ?
             this._navigator.moveDir$(direction) :
             observableThrowError(new Error("Calling moveDir is not supported when viewer is not navigable."));
 
-        return new Promise<Node>(
-            (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
+        return new Promise<Image>(
+            (resolve: (value: Image) => void, reject: (reason: Error) => void): void => {
                 moveDir$.subscribe(
-                    (node: Node): void => {
-                        resolve(node);
+                    (image: Image): void => {
+                        resolve(image);
                     },
                     (error: Error): void => {
                         reject(error);
@@ -564,7 +564,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * Navigate to a given image id.
      *
      * @param {string} imageId - Id of the image to move to.
-     * @returns {Promise<Node>} Promise to the node that was navigated to.
+     * @returns {Promise<Image>} Promise to the image that was navigated to.
      * @throws {Error} Propagates any IO errors to the caller.
      * @throws {Error} When viewer is not navigable.
      * @throws {@link AbortMapillaryError} When a subsequent
@@ -577,16 +577,16 @@ export class Viewer extends EventEmitter implements IViewer {
      *     (e) => { console.error(e); });
      * ```
      */
-    public moveTo(imageId: string): Promise<Node> {
-        const moveTo$: Observable<Node> = this.isNavigable ?
+    public moveTo(imageId: string): Promise<Image> {
+        const moveTo$: Observable<Image> = this.isNavigable ?
             this._navigator.moveTo$(imageId) :
             observableThrowError(new Error("Calling moveTo is not supported when viewer is not navigable."));
 
-        return new Promise<Node>(
-            (resolve: (value: Node) => void, reject: (reason: Error) => void): void => {
+        return new Promise<Image>(
+            (resolve: (value: Image) => void, reject: (reason: Error) => void): void => {
                 moveTo$.subscribe(
-                    (node: Node): void => {
-                        resolve(node);
+                    (image: Image): void => {
+                        resolve(image);
                     },
                     (error: Error): void => {
                         reject(error);
@@ -607,8 +607,8 @@ export class Viewer extends EventEmitter implements IViewer {
         handler: (event: ViewerNavigableEvent) => void)
         : void;
     public off(
-        type: ViewerNodeEvent["type"],
-        handler: (event: ViewerNodeEvent) => void)
+        type: ViewerImageEvent["type"],
+        handler: (event: ViewerImageEvent) => void)
         : void;
     public off(
         type: ViewerNavigationEdgeEvent["type"],
@@ -856,7 +856,7 @@ export class Viewer extends EventEmitter implements IViewer {
         : void;
     /**
      * Fired when the motion from one view to another start,
-     * either by changing the position (e.g. when changing node)
+     * either by changing the position (e.g. when changing image)
      * or when changing point of view
      * (e.g. by interaction such as pan and zoom).
      *
@@ -894,28 +894,28 @@ export class Viewer extends EventEmitter implements IViewer {
         handler: (event: ViewerNavigableEvent) => void)
         : void;
     /**
-     * Fired every time the viewer navigates to a new node.
+     * Fired every time the viewer navigates to a new image.
      *
-     * @event node
+     * @event image
      * @example
      * ```js
      * // Initialize the viewer
      * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
-     * viewer.on("node", function() {
-     *   console.log("A node event has occurred.");
+     * viewer.on("image", function() {
+     *   console.log("A image event has occurred.");
      * });
      * ```
      */
     public on(
-        type: "node",
-        handler: (event: ViewerNodeEvent) => void)
+        type: "image",
+        handler: (event: ViewerImageEvent) => void)
         : void;
     /**
      * Fired when the viewer's position changes.
      *
      * @description The viewer's position changes when transitioning
-     * between nodes.
+     * between images.
      *
      * @event position
      * @example
@@ -971,7 +971,7 @@ export class Viewer extends EventEmitter implements IViewer {
         handler: (event: ViewerStateEvent) => void)
         : void;
     /**
-     * Fired every time the sequence edges of the current node changes.
+     * Fired every time the sequence edges of the current image changes.
      *
      * @event sequenceedges
      * @example
@@ -989,7 +989,7 @@ export class Viewer extends EventEmitter implements IViewer {
         handler: (event: ViewerNavigationEdgeEvent) => void)
         : void;
     /**
-     * Fired every time the spatial edges of the current node changes.
+     * Fired every time the spatial edges of the current image changes.
      *
      * @event spatialedges
      * @example
@@ -1063,7 +1063,7 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
-     * Project basic image coordinates for the current node to canvas pixel
+     * Project basic image coordinates for the current image to canvas pixel
      * coordinates.
      *
      * @description The basic image coordinates may not always correspond to a
@@ -1200,43 +1200,43 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
-     * Set the filter selecting nodes to use when calculating
+     * Set the filter selecting images to use when calculating
      * the spatial edges.
      *
      * @description The following filter types are supported:
      *
      * Comparison
      *
-     * `["==", key, value]` equality: `node[key] = value`
+     * `["==", key, value]` equality: `image[key] = value`
      *
-     * `["!=", key, value]` inequality: `node[key] ≠ value`
+     * `["!=", key, value]` inequality: `image[key] ≠ value`
      *
-     * `["<", key, value]` less than: `node[key] < value`
+     * `["<", key, value]` less than: `image[key] < value`
      *
-     * `["<=", key, value]` less than or equal: `node[key] ≤ value`
+     * `["<=", key, value]` less than or equal: `image[key] ≤ value`
      *
-     * `[">", key, value]` greater than: `node[key] > value`
+     * `[">", key, value]` greater than: `image[key] > value`
      *
-     * `[">=", key, value]` greater than or equal: `node[key] ≥ value`
+     * `[">=", key, value]` greater than or equal: `image[key] ≥ value`
      *
      * Set membership
      *
-     * `["in", key, v0, ..., vn]` set inclusion: `node[key] ∈ {v0, ..., vn}`
+     * `["in", key, v0, ..., vn]` set inclusion: `image[key] ∈ {v0, ..., vn}`
      *
-     * `["!in", key, v0, ..., vn]` set exclusion: `node[key] ∉ {v0, ..., vn}`
+     * `["!in", key, v0, ..., vn]` set exclusion: `image[key] ∉ {v0, ..., vn}`
      *
      * Combining
      *
      * `["all", f0, ..., fn]` logical `AND`: `f0 ∧ ... ∧ fn`
      *
      * A key must be a string that identifies a property name of a
-     * simple {@link Node} property. A value must be a string, number, or
+     * simple {@link Image} property. A value must be a string, number, or
      * boolean. Strictly-typed comparisons are used. The values
      * `f0, ..., fn` of the combining filter must be filter expressions.
      *
      * Clear the filter by setting it to null or empty array.
      *
-     * Commonly used filter properties (see the {@link Node} class
+     * Commonly used filter properties (see the {@link Image} class
      * documentation for a full list of properties that can be used
      * in a filter) and common use cases:
      *
@@ -1416,7 +1416,7 @@ export class Viewer extends EventEmitter implements IViewer {
 
     /**
      * Unproject canvas pixel coordinates to basic image coordinates for the
-     * current node.
+     * current image.
      *
      * @description The pixel point may not always correspond to basic image
      * coordinates. In the case of no correspondence the returned value will

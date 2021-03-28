@@ -81,7 +81,7 @@ export class ZoomComponent extends Component<ZoomConfiguration> {
 
                         return {
                             name: this._name,
-                            vnode: vd.h(
+                            vNode: vd.h(
                                 "div.mapillary-zoom-container" + compact,
                                 { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
                                 [zoomInButton, zoomOutButton]),

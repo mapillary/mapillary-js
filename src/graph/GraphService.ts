@@ -26,7 +26,7 @@ import { FilterFunction } from "./FilterCreator";
 import { FilterExpression } from "./FilterExpression";
 import { Graph } from "./Graph";
 import { GraphMode } from "./GraphMode";
-import { Node } from "./Node";
+import { Image } from "./Image";
 import { Sequence } from "./Sequence";
 
 import { LatLon } from "../api/interfaces/LatLon";
@@ -127,71 +127,71 @@ export class GraphService {
     }
 
     /**
-     * Cache full nodes in a bounding box.
+     * Cache full images in a bounding box.
      *
      * @description When called, the full properties of
-     * the node are retrieved. The node cache is not initialized
-     * for any new nodes retrieved and the node assets are not
-     * retrieved, {@link cacheNode$} needs to be called for caching
+     * the image are retrieved. The image cache is not initialized
+     * for any new images retrieved and the image assets are not
+     * retrieved, {@link cacheImage$} needs to be called for caching
      * assets.
      *
      * @param {LatLon} sw - South west corner of bounding box.
      * @param {LatLon} ne - North east corner of bounding box.
-     * @return {Observable<Array<Node>>} Observable emitting a single item,
-     * the nodes of the bounding box, when they have all been retrieved.
-     * @throws {Error} Propagates any IO node caching errors to the caller.
+     * @return {Observable<Array<Image>>} Observable emitting a single item,
+     * the images of the bounding box, when they have all been retrieved.
+     * @throws {Error} Propagates any IO image caching errors to the caller.
      */
-    public cacheBoundingBox$(sw: LatLon, ne: LatLon): Observable<Node[]> {
+    public cacheBoundingBox$(sw: LatLon, ne: LatLon): Observable<Image[]> {
         return this._graph$.pipe(
             first(),
             mergeMap(
-                (graph: Graph): Observable<Node[]> => {
+                (graph: Graph): Observable<Image[]> => {
                     return graph.cacheBoundingBox$(sw, ne);
                 }));
     }
 
     /**
-     * Cache full nodes in a cell.
+     * Cache full images in a cell.
      *
      * @description When called, the full properties of
-     * the node are retrieved. The node cache is not initialized
-     * for any new nodes retrieved and the node assets are not
-     * retrieved, {@link cacheNode$} needs to be called for caching
+     * the image are retrieved. The image cache is not initialized
+     * for any new images retrieved and the image assets are not
+     * retrieved, {@link cacheImage$} needs to be called for caching
      * assets.
      *
      * @param {string} cellId - Id of the cell.
-     * @return {Observable<Array<Node>>} Observable emitting a single item,
-     * the nodes of the cell, when they have all been retrieved.
-     * @throws {Error} Propagates any IO node caching errors to the caller.
+     * @return {Observable<Array<Image>>} Observable emitting a single item,
+     * the images of the cell, when they have all been retrieved.
+     * @throws {Error} Propagates any IO image caching errors to the caller.
      */
-    public cacheCell$(cellId: string): Observable<Node[]> {
+    public cacheCell$(cellId: string): Observable<Image[]> {
         return this._graph$.pipe(
             first(),
             mergeMap(
-                (graph: Graph): Observable<Node[]> => {
+                (graph: Graph): Observable<Image[]> => {
                     return graph.cacheCell$(cellId);
                 }));
     }
 
     /**
-     * Cache a node in the graph and retrieve it.
+     * Cache a image in the graph and retrieve it.
      *
      * @description When called, the full properties of
-     * the node are retrieved and the node cache is initialized.
-     * After that the node assets are cached and the node
+     * the image are retrieved and the image cache is initialized.
+     * After that the image assets are cached and the image
      * is emitted to the observable when.
-     * In parallel to caching the node assets, the sequence and
-     * spatial edges of the node are cached. For this, the sequence
-     * of the node and the required tiles and spatial nodes are
+     * In parallel to caching the image assets, the sequence and
+     * spatial edges of the image are cached. For this, the sequence
+     * of the image and the required tiles and spatial images are
      * retrieved. The sequence and spatial edges may be set before
-     * or after the node is returned.
+     * or after the image is returned.
      *
-     * @param {string} id - Id of the node to cache.
-     * @return {Observable<Node>} Observable emitting a single item,
-     * the node, when it has been retrieved and its assets are cached.
-     * @throws {Error} Propagates any IO node caching errors to the caller.
+     * @param {string} id - Id of the image to cache.
+     * @return {Observable<Image>} Observable emitting a single item,
+     * the image, when it has been retrieved and its assets are cached.
+     * @throws {Error} Propagates any IO image caching errors to the caller.
      */
-    public cacheNode$(id: string): Observable<Node> {
+    public cacheImage$(id: string): Observable<Image> {
         const firstGraphSubject$: Subject<Graph> = new Subject<Graph>();
 
         this._firstGraphSubjects$.push(firstGraphSubject$);
@@ -200,24 +200,24 @@ export class GraphService {
             publishReplay(1),
             refCount());
 
-        const node$: Observable<Node> = firstGraph$.pipe(
+        const image$: Observable<Image> = firstGraph$.pipe(
             map(
-                (graph: Graph): Node => {
+                (graph: Graph): Image => {
                     return graph.getNode(id);
                 }),
             mergeMap(
-                (node: Node): Observable<Node> => {
-                    return node.assetsCached ?
-                        observableOf(node) :
-                        node.cacheAssets$();
+                (image: Image): Observable<Image> => {
+                    return image.assetsCached ?
+                        observableOf(image) :
+                        image.cacheAssets$();
                 }),
             publishReplay(1),
             refCount());
 
-        node$.subscribe(
+        image$.subscribe(
             undefined,
             (error: Error): void => {
-                console.error(`Failed to cache node (${id})`, error);
+                console.error(`Failed to cache image (${id})`, error);
             });
 
         let initializeCacheSubscription: Subscription;
@@ -229,7 +229,7 @@ export class GraphService {
                         return graph.cacheFull$(id);
                     }
 
-                    if (graph.isCachingFill(id) || !graph.getNode(id).full) {
+                    if (graph.isCachingFill(id) || !graph.getNode(id).complete) {
                         return graph.cacheFill$(id);
                     }
 
@@ -343,7 +343,7 @@ export class GraphService {
                                     return graph$.pipe(
                                         catchError(
                                             (error: Error): Observable<Graph> => {
-                                                console.error(`Failed to cache spatial nodes (${id}).`, error);
+                                                console.error(`Failed to cache spatial images (${id}).`, error);
 
                                                 return observableEmpty();
                                             }));
@@ -381,10 +381,10 @@ export class GraphService {
             }
         }
 
-        return node$.pipe(
+        return image$.pipe(
             first(
-                (node: Node): boolean => {
-                    return node.assetsCached;
+                (image: Image): boolean => {
+                    return image.assetsCached;
                 }));
     }
 
@@ -394,7 +394,7 @@ export class GraphService {
      * @param {string} sequenceId - Sequence id.
      * @returns {Observable<Sequence>} Observable emitting a single item,
      * the sequence, when it has been retrieved and its assets are cached.
-     * @throws {Error} Propagates any IO node caching errors to the caller.
+     * @throws {Error} Propagates any IO image caching errors to the caller.
      */
     public cacheSequence$(sequenceId: string): Observable<Sequence> {
         return this._graph$.pipe(
@@ -414,21 +414,21 @@ export class GraphService {
     }
 
     /**
-     * Cache a sequence and its nodes in the graph and retrieve the sequence.
+     * Cache a sequence and its images in the graph and retrieve the sequence.
      *
      * @description Caches a sequence and its assets are cached and
-     * retrieves all nodes belonging to the sequence. The node assets
+     * retrieves all images belonging to the sequence. The image assets
      * or edges will not be cached.
      *
      * @param {string} sequenceId - Sequence id.
-     * @param {string} referenceNodeId - Id of node to use as reference
+     * @param {string} referenceImageId - Id of image to use as reference
      * for optimized caching.
      * @returns {Observable<Sequence>} Observable emitting a single item,
      * the sequence, when it has been retrieved, its assets are cached and
-     * all nodes belonging to the sequence has been retrieved.
-     * @throws {Error} Propagates any IO node caching errors to the caller.
+     * all images belonging to the sequence has been retrieved.
+     * @throws {Error} Propagates any IO image caching errors to the caller.
      */
-    public cacheSequenceNodes$(sequenceId: string, referenceNodeId?: string): Observable<Sequence> {
+    public cacheSequenceImages$(sequenceId: string, referenceImageId?: string): Observable<Sequence> {
         return this._graph$.pipe(
             first(),
             mergeMap(
@@ -442,7 +442,7 @@ export class GraphService {
             mergeMap(
                 (graph: Graph): Observable<Graph> => {
                     if (graph.isCachingSequenceNodes(sequenceId) || !graph.hasSequenceNodes(sequenceId)) {
-                        return graph.cacheSequenceNodes$(sequenceId, referenceNodeId);
+                        return graph.cacheSequenceNodes$(sequenceId, referenceImageId);
                     }
 
                     return observableOf<Graph>(graph);
@@ -466,7 +466,7 @@ export class GraphService {
     /**
      * Set a spatial edge filter on the graph.
      *
-     * @description Resets the spatial edges of all cached nodes.
+     * @description Resets the spatial edges of all cached images.
      *
      * @param {FilterExpression} filter - Filter expression to be applied.
      * @return {Observable<Graph>} Observable emitting a single item,
@@ -517,11 +517,11 @@ export class GraphService {
     /**
      * Reset the graph.
      *
-     * @description Resets the graph but keeps the nodes of the
+     * @description Resets the graph but keeps the images of the
      * supplied ids.
      *
-     * @param {Array<string>} keepIds - Ids of nodes to keep in graph.
-     * @return {Observable<Node>} Observable emitting a single item,
+     * @param {Array<string>} keepIds - Ids of images to keep in graph.
+     * @return {Observable<Image>} Observable emitting a single item,
      * the graph, when it has been reset.
      */
     public reset$(keepIds: string[]): Observable<void> {
@@ -545,14 +545,14 @@ export class GraphService {
     /**
      * Uncache the graph.
      *
-     * @description Uncaches the graph by removing tiles, nodes and
-     * sequences. Keeps the nodes of the supplied ids and the tiles
-     * related to those nodes.
+     * @description Uncaches the graph by removing tiles, images and
+     * sequences. Keeps the images of the supplied ids and the tiles
+     * related to those images.
      *
-     * @param {Array<string>} keepIds - Ids of nodes to keep in graph.
+     * @param {Array<string>} keepIds - Ids of images to keep in graph.
      * @param {string} keepSequenceId - Optional id of sequence
-     * for which the belonging nodes should not be disposed or
-     * removed from the graph. These nodes may still be uncached if
+     * for which the belonging images should not be disposed or
+     * removed from the graph. These images may still be uncached if
      * not specified in keep ids param.
      * @return {Observable<Graph>} Observable emitting a single item,
      * the graph, when the graph has been uncached.
@@ -574,7 +574,7 @@ export class GraphService {
         for (const subject of subjects.slice()) {
             this._removeFromArray(subject, subjects);
 
-            subject.error(new Error("Cache node request was aborted."));
+            subject.error(new Error("Cache image request was aborted."));
         }
     }
 

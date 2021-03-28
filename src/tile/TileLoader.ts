@@ -13,7 +13,7 @@ import { ImageTileEnt } from "../api/ents/ImageTileEnt";
  */
 export class TileLoader {
     /**
-     * Create a new node image tile loader instance.
+     * Create a new image image tile loader instance.
      *
      * @param {APIWrapper} _api - API wrapper.
      */

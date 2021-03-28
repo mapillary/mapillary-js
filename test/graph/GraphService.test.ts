@@ -13,9 +13,9 @@ import {
     skip,
 } from "rxjs/operators";
 
-import { NodeHelper } from "../helper/NodeHelper";
+import { ImageHelper } from "../helper/ImageHelper";
 
-import { Node } from "../../src/graph/Node";
+import { Image } from "../../src/graph/Image";
 import { APIWrapper } from "../../src/api/APIWrapper";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { Graph } from "../../src/graph/Graph";
@@ -224,7 +224,7 @@ describe("GraphService.cacheSequence$", () => {
 });
 
 describe("GraphService.cacheSequenceNodes$", () => {
-    it("should cache sequence nodes when graph does not have sequence nodes", () => {
+    it("should cache sequence images when graph does not have sequence images", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
 
@@ -242,7 +242,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        graphService.cacheSequenceNodes$("sequenceId").subscribe(() => { /*noop*/ });
+        graphService.cacheSequenceImages$("sequenceId").subscribe(() => { /*noop*/ });
 
         cacheSequenceNodes$.next(graph);
 
@@ -250,7 +250,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
         expect(getSequenceSpy.calls.count()).toBe(1);
     });
 
-    it("should cache sequence nodes when graph is caching sequence nodes", () => {
+    it("should cache sequence images when graph is caching sequence images", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
 
@@ -268,7 +268,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        graphService.cacheSequenceNodes$("sequenceId").subscribe(() => { /*noop*/ });
+        graphService.cacheSequenceImages$("sequenceId").subscribe(() => { /*noop*/ });
 
         cacheSequenceNodes$.next(graph);
 
@@ -276,7 +276,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
         expect(getSequenceSpy.calls.count()).toBe(1);
     });
 
-    it("should not cache sequence nodes when graph has sequence nodes", () => {
+    it("should not cache sequence images when graph has sequence images", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
 
@@ -294,7 +294,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        graphService.cacheSequenceNodes$("sequenceId").subscribe(() => { /*noop*/ });
+        graphService.cacheSequenceImages$("sequenceId").subscribe(() => { /*noop*/ });
 
         cacheSequenceNodes$.next(graph);
 
@@ -302,7 +302,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
         expect(getSequenceSpy.calls.count()).toBe(1);
     });
 
-    it("should supply reference node key if present", () => {
+    it("should supply reference image key if present", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
 
@@ -322,7 +322,7 @@ describe("GraphService.cacheSequenceNodes$", () => {
 
         const sequenceKey: string = "sequenceId";
         const referenceNodeKey: string = "referenceNodeKey";
-        graphService.cacheSequenceNodes$(sequenceKey, referenceNodeKey).subscribe(() => { /*noop*/ });
+        graphService.cacheSequenceImages$(sequenceKey, referenceNodeKey).subscribe(() => { /*noop*/ });
 
         cacheSequenceNodes$.next(graph);
 
@@ -424,26 +424,26 @@ describe("GraphService.graphMode$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        let helper: NodeHelper = new NodeHelper();
-        const node: TestNode = new TestNode(helper.createCoreNode());
-        node.spatialEdges.cached = false;
+        let helper: ImageHelper = new ImageHelper();
+        const image: TestNode = new TestNode(helper.createCoreImageEnt());
+        image.spatialEdges.cached = false;
 
-        const cacheAssets$: Subject<Node> = new Subject<Node>();
-        const cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        const cacheAssets$: Subject<Image> = new Subject<Image>();
+        const cacheAssetsSpy: jasmine.Spy = spyOn(image, "cacheAssets$");
         cacheAssetsSpy.and.returnValue(cacheAssets$);
 
-        spyOn(graph, "getNode").and.returnValue(node);
+        spyOn(graph, "getNode").and.returnValue(image);
 
-        graphService.cacheNode$(node.id)
+        graphService.cacheImage$(image.id)
             .subscribe(
-                (n: Node): void => {
+                (n: Image): void => {
                     expect(n).toBeDefined();
                 });
 
         cacheFull$.next(graph);
 
-        node.assetsCached = true;
-        cacheAssets$.next(node);
+        image.assetsCached = true;
+        cacheAssets$.next(image);
 
         graphService.setGraphMode(GraphMode.Sequence);
 
@@ -453,7 +453,7 @@ describe("GraphService.graphMode$", () => {
     });
 });
 
-class TestNode extends Node {
+class TestNode extends Image {
     private _assetsCached: boolean;
     private _sequenceEdges: NavigationEdgeStatus;
     private _spatialEdges: NavigationEdgeStatus;
@@ -484,13 +484,13 @@ class TestNode extends Node {
 }
 
 describe("GraphService.cacheNode$", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
-    it("should cache and return node", (done: Function) => {
+    it("should cache and return image", (done: Function) => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
 
@@ -517,15 +517,15 @@ describe("GraphService.cacheNode$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        const node: TestNode = new TestNode(helper.createCoreNode());
+        const image: TestNode = new TestNode(helper.createCoreImageEnt());
 
-        const cacheAssets$: Subject<Node> = new Subject<Node>();
-        const cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        const cacheAssets$: Subject<Image> = new Subject<Image>();
+        const cacheAssetsSpy: jasmine.Spy = spyOn(image, "cacheAssets$");
         cacheAssetsSpy.and.returnValue(cacheAssets$);
 
-        spyOn(graph, "getNode").and.returnValue(node);
+        spyOn(graph, "getNode").and.returnValue(image);
 
-        graphService.cacheNode$(node.id)
+        graphService.cacheImage$(image.id)
             .subscribe(
                 (): void => {
                     expect(cacheFullSpy.calls.count()).toBe(1);
@@ -537,11 +537,11 @@ describe("GraphService.cacheNode$", () => {
 
         cacheFull$.next(graph);
 
-        node.assetsCached = true;
-        cacheAssets$.next(node);
+        image.assetsCached = true;
+        cacheAssets$.next(image);
     });
 
-    it("should fill and return node", (done: Function) => {
+    it("should fill and return image", (done: Function) => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
 
@@ -569,15 +569,15 @@ describe("GraphService.cacheNode$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        const node: TestNode = new TestNode(helper.createCoreNode());
+        const image: TestNode = new TestNode(helper.createCoreImageEnt());
 
-        const cacheAssets$: Subject<Node> = new Subject<Node>();
-        const cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        const cacheAssets$: Subject<Image> = new Subject<Image>();
+        const cacheAssetsSpy: jasmine.Spy = spyOn(image, "cacheAssets$");
         cacheAssetsSpy.and.returnValue(cacheAssets$);
 
-        spyOn(graph, "getNode").and.returnValue(node);
+        spyOn(graph, "getNode").and.returnValue(image);
 
-        graphService.cacheNode$(node.id)
+        graphService.cacheImage$(image.id)
             .subscribe(
                 (): void => {
                     expect(cacheFillSpy.calls.count()).toBe(1);
@@ -587,11 +587,11 @@ describe("GraphService.cacheNode$", () => {
 
         cacheFill$.next(graph);
 
-        node.assetsCached = true;
-        cacheAssets$.next(node);
+        image.assetsCached = true;
+        cacheAssets$.next(image);
     });
 
-    it("should cache node sequence and sequence edges", () => {
+    it("should cache image sequence and sequence edges", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
 
@@ -620,14 +620,14 @@ describe("GraphService.cacheNode$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        const node: TestNode = new TestNode(helper.createCoreNode());
+        const image: TestNode = new TestNode(helper.createCoreImageEnt());
 
-        const cacheAssets$: Subject<Node> = new Subject<Node>();
-        spyOn(node, "cacheAssets$").and.returnValue(cacheAssets$);
+        const cacheAssets$: Subject<Image> = new Subject<Image>();
+        spyOn(image, "cacheAssets$").and.returnValue(cacheAssets$);
 
-        spyOn(graph, "getNode").and.returnValue(node);
+        spyOn(graph, "getNode").and.returnValue(image);
 
-        graphService.cacheNode$(node.id).subscribe(() => { /*noop*/ });
+        graphService.cacheImage$(image.id).subscribe(() => { /*noop*/ });
 
         cacheFull$.next(graph);
 
@@ -635,11 +635,11 @@ describe("GraphService.cacheNode$", () => {
 
         expect(cacheNodeSequenceSpy.calls.count()).toBe(1);
         expect(cacheNodeSequenceSpy.calls.first().args.length).toBe(1);
-        expect(cacheNodeSequenceSpy.calls.first().args[0]).toBe(node.id);
+        expect(cacheNodeSequenceSpy.calls.first().args[0]).toBe(image.id);
 
         expect(cacheSequenceEdgesSpy.calls.count()).toBe(1);
         expect(cacheSequenceEdgesSpy.calls.first().args.length).toBe(1);
-        expect(cacheSequenceEdgesSpy.calls.first().args[0]).toBe(node.id);
+        expect(cacheSequenceEdgesSpy.calls.first().args[0]).toBe(image.id);
     });
 
     it("should cache spatial edges", () => {
@@ -664,21 +664,21 @@ describe("GraphService.cacheNode$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        const node: TestNode = new TestNode(helper.createCoreNode());
-        node.sequenceEdges.cached = true;
+        const image: TestNode = new TestNode(helper.createCoreImageEnt());
+        image.sequenceEdges.cached = true;
 
-        const cacheAssets$: Subject<Node> = new Subject<Node>();
-        spyOn(node, "cacheAssets$").and.returnValue(cacheAssets$);
+        const cacheAssets$: Subject<Image> = new Subject<Image>();
+        spyOn(image, "cacheAssets$").and.returnValue(cacheAssets$);
 
-        spyOn(graph, "getNode").and.returnValue(node);
+        spyOn(graph, "getNode").and.returnValue(image);
 
-        graphService.cacheNode$(node.id).subscribe(() => { /*noop*/ });
+        graphService.cacheImage$(image.id).subscribe(() => { /*noop*/ });
 
         cacheFull$.next(graph);
 
         expect(cacheSpatialEdgesSpy.calls.count()).toBe(1);
         expect(cacheSpatialEdgesSpy.calls.first().args.length).toBe(1);
-        expect(cacheSpatialEdgesSpy.calls.first().args[0]).toBe(node.id);
+        expect(cacheSpatialEdgesSpy.calls.first().args[0]).toBe(image.id);
     });
 
     it("should cache spatial edges if in spatial mode", () => {
@@ -705,17 +705,17 @@ describe("GraphService.cacheNode$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        const node: TestNode = new TestNode(helper.createCoreNode());
-        node.sequenceEdges.cached = true;
+        const image: TestNode = new TestNode(helper.createCoreImageEnt());
+        image.sequenceEdges.cached = true;
 
-        const cacheAssets$: Subject<Node> = new Subject<Node>();
-        spyOn(node, "cacheAssets$").and.returnValue(cacheAssets$);
+        const cacheAssets$: Subject<Image> = new Subject<Image>();
+        spyOn(image, "cacheAssets$").and.returnValue(cacheAssets$);
 
-        spyOn(graph, "getNode").and.returnValue(node);
+        spyOn(graph, "getNode").and.returnValue(image);
 
         graphService.setGraphMode(GraphMode.Spatial);
 
-        graphService.cacheNode$(node.id).subscribe(() => { /*noop*/ });
+        graphService.cacheImage$(image.id).subscribe(() => { /*noop*/ });
 
         cacheFull$.next(graph);
 
@@ -742,17 +742,17 @@ describe("GraphService.cacheNode$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        const node: TestNode = new TestNode(helper.createCoreNode());
-        node.sequenceEdges.cached = true;
+        const image: TestNode = new TestNode(helper.createCoreImageEnt());
+        image.sequenceEdges.cached = true;
 
-        const cacheAssets$: Subject<Node> = new Subject<Node>();
-        spyOn(node, "cacheAssets$").and.returnValue(cacheAssets$);
+        const cacheAssets$: Subject<Image> = new Subject<Image>();
+        spyOn(image, "cacheAssets$").and.returnValue(cacheAssets$);
 
-        spyOn(graph, "getNode").and.returnValue(node);
+        spyOn(graph, "getNode").and.returnValue(image);
 
         graphService.setGraphMode(GraphMode.Sequence);
 
-        graphService.cacheNode$(node.id).subscribe(() => { /*noop*/ });
+        graphService.cacheImage$(image.id).subscribe(() => { /*noop*/ });
 
         cacheFull$.next(graph);
 
@@ -761,13 +761,13 @@ describe("GraphService.cacheNode$", () => {
 });
 
 describe("GraphService.reset$", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
-    it("should abort node caching and throw", () => {
+    it("should abort image caching and throw", () => {
         spyOn(console, "error").and.stub();
 
         const api: APIWrapper = new APIWrapper(new DataProvider());
@@ -796,15 +796,15 @@ describe("GraphService.reset$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        const node: TestNode = new TestNode(helper.createCoreNode());
+        const image: TestNode = new TestNode(helper.createCoreImageEnt());
 
-        const cacheAssets$: Subject<Node> = new Subject<Node>();
-        const cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        const cacheAssets$: Subject<Image> = new Subject<Image>();
+        const cacheAssetsSpy: jasmine.Spy = spyOn(image, "cacheAssets$");
         cacheAssetsSpy.and.returnValue(cacheAssets$);
 
-        spyOn(graph, "getNode").and.returnValue(node);
+        spyOn(graph, "getNode").and.returnValue(image);
 
-        graphService.cacheNode$(node.id)
+        graphService.cacheImage$(image.id)
             .subscribe(
                 (): void => { return; },
                 (e: Error): void => {
@@ -815,8 +815,8 @@ describe("GraphService.reset$", () => {
 
         cacheFull$.next(graph);
 
-        node.assetsCached = true;
-        cacheAssets$.next(node);
+        image.assetsCached = true;
+        cacheAssets$.next(image);
 
         expect(cacheFullSpy.calls.count()).toBe(1);
         expect(initializeCacheSpy.calls.count()).toBe(0);
@@ -854,25 +854,25 @@ describe("GraphService.reset$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        const node: TestNode = new TestNode(helper.createCoreNode());
-        node.spatialEdges.cached = false;
+        const image: TestNode = new TestNode(helper.createCoreImageEnt());
+        image.spatialEdges.cached = false;
 
-        const cacheAssets$: Subject<Node> = new Subject<Node>();
-        const cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        const cacheAssets$: Subject<Image> = new Subject<Image>();
+        const cacheAssetsSpy: jasmine.Spy = spyOn(image, "cacheAssets$");
         cacheAssetsSpy.and.returnValue(cacheAssets$);
 
-        spyOn(graph, "getNode").and.returnValue(node);
+        spyOn(graph, "getNode").and.returnValue(image);
 
-        graphService.cacheNode$(node.id)
+        graphService.cacheImage$(image.id)
             .subscribe(
-                (n: Node): void => {
+                (n: Image): void => {
                     expect(n).toBeDefined();
                 });
 
         cacheFull$.next(graph);
 
-        node.assetsCached = true;
-        cacheAssets$.next(node);
+        image.assetsCached = true;
+        cacheAssets$.next(image);
 
         graphService.reset$([]);
 
@@ -912,25 +912,25 @@ describe("GraphService.reset$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        const node: TestNode = new TestNode(helper.createCoreNode());
-        node.spatialEdges.cached = false;
+        const image: TestNode = new TestNode(helper.createCoreImageEnt());
+        image.spatialEdges.cached = false;
 
-        const cacheAssets$: Subject<Node> = new Subject<Node>();
-        const cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        const cacheAssets$: Subject<Image> = new Subject<Image>();
+        const cacheAssetsSpy: jasmine.Spy = spyOn(image, "cacheAssets$");
         cacheAssetsSpy.and.returnValue(cacheAssets$);
 
-        spyOn(graph, "getNode").and.returnValue(node);
+        spyOn(graph, "getNode").and.returnValue(image);
 
-        graphService.cacheNode$(node.id)
+        graphService.cacheImage$(image.id)
             .subscribe(
-                (n: Node): void => {
+                (n: Image): void => {
                     expect(n).toBeDefined();
                 });
 
         cacheFull$.next(graph);
 
-        node.assetsCached = true;
-        cacheAssets$.next(node);
+        image.assetsCached = true;
+        cacheAssets$.next(image);
 
         graphService.reset$([]);
 
@@ -941,10 +941,10 @@ describe("GraphService.reset$", () => {
 });
 
 describe("GraphService.setFilter$", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should reset spatial edges and set filter", () => {
@@ -1000,25 +1000,25 @@ describe("GraphService.setFilter$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        const node: TestNode = new TestNode(helper.createCoreNode());
-        node.spatialEdges.cached = false;
+        const image: TestNode = new TestNode(helper.createCoreImageEnt());
+        image.spatialEdges.cached = false;
 
-        const cacheAssets$: Subject<Node> = new Subject<Node>();
-        const cacheAssetsSpy: jasmine.Spy = spyOn(node, "cacheAssets$");
+        const cacheAssets$: Subject<Image> = new Subject<Image>();
+        const cacheAssetsSpy: jasmine.Spy = spyOn(image, "cacheAssets$");
         cacheAssetsSpy.and.returnValue(cacheAssets$);
 
-        spyOn(graph, "getNode").and.returnValue(node);
+        spyOn(graph, "getNode").and.returnValue(image);
 
-        graphService.cacheNode$(node.id)
+        graphService.cacheImage$(image.id)
             .subscribe(
-                (n: Node): void => {
+                (n: Image): void => {
                     expect(n).toBeDefined();
                 });
 
         cacheFull$.next(graph);
 
-        node.assetsCached = true;
-        cacheAssets$.next(node);
+        image.assetsCached = true;
+        cacheAssets$.next(image);
 
         graphService.setFilter$(["==", "sequenceId", "skey"]).subscribe(() => { /*noop*/ });
 

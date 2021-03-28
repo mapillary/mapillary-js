@@ -11,16 +11,16 @@ export interface GraphConfiguration {
     maxSequences: number;
 
     /**
-     * The maximum number of unused cached nodes left
+     * The maximum number of unused cached images left
      * after uncache.
      */
-    maxUnusedNodes: number;
+    maxUnusedImages: number;
 
     /**
-     * The maximum number of unused pre-stored cached nodes left
+     * The maximum number of unused pre-stored cached images left
      * after uncache.
      */
-    maxUnusedPreStoredNodes: number;
+    maxUnusedPreStoredImages: number;
 
     /**
      * The maximum number of unused cached tiles left

@@ -10,11 +10,11 @@ import {
 } from "rxjs";
 import { first } from "rxjs/operators";
 
-import { NodeHelper } from "../helper/NodeHelper";
+import { ImageHelper } from "../helper/ImageHelper";
 import { StateServiceMockCreator } from "../helper/StateServiceMockCreator";
 
 import { Navigator } from "../../src/viewer/Navigator";
-import { Node } from "../../src/graph/Node";
+import { Image } from "../../src/graph/Image";
 import { APIWrapper } from "../../src/api/APIWrapper";
 import { FalcorDataProvider } from "../../src/api/falcor/FalcorDataProvider";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
@@ -35,12 +35,12 @@ const createState: () => IAnimationState = (): IAnimationState => {
         camera: null,
         currentCamera: null,
         currentIndex: 0,
-        currentNode: null,
+        currentImage: null,
         currentTransform: null,
-        lastNode: null,
+        lastImage: null,
         motionless: false,
-        nodesAhead: 0,
-        previousNode: null,
+        imagesAhead: 0,
+        previousImage: null,
         previousTransform: null,
         reference: null,
         state: State.Traversing,
@@ -90,7 +90,7 @@ describe("Navigator.moveToKey$", () => {
 
         const loadingSpy: jasmine.Spy = spyOn(loadingService, "startLoading").and.stub();
 
-        spyOn(graphService, "cacheNode$").and.returnValue(observableEmpty());
+        spyOn(graphService, "cacheImage$").and.returnValue(observableEmpty());
 
         const navigator: Navigator =
             new Navigator(
@@ -121,15 +121,15 @@ describe("Navigator.moveToKey$", () => {
 
         const key: string = "key";
         const sequenceKey: string = "sequenceId";
-        spyOn(graphService, "cacheNode$").and.returnValue(observableOf<Node>(
-            new Node({
+        spyOn(graphService, "cacheImage$").and.returnValue(observableOf<Image>(
+            new Image({
                 computed_geometry: { lat: 0, lon: 0 },
                 id: key,
                 geometry: { lat: 0, lon: 0 },
                 sequence: { id: sequenceKey },
             })));
 
-        const stateSpy: jasmine.Spy = spyOn(stateService, "setNodes").and.stub();
+        const stateSpy: jasmine.Spy = spyOn(stateService, "setImages").and.stub();
 
         const navigator: Navigator =
             new Navigator(
@@ -158,9 +158,9 @@ describe("Navigator.moveToKey$", () => {
         spyOn(loadingService, "startLoading").and.stub();
         const stopLoadingSpy: jasmine.Spy = spyOn(loadingService, "stopLoading").and.stub();
 
-        spyOn(graphService, "cacheNode$").and.returnValue(observableThrowError(new Error()));
+        spyOn(graphService, "cacheImage$").and.returnValue(observableThrowError(new Error()));
 
-        const stateSpy: jasmine.Spy = spyOn(stateService, "setNodes").and.stub();
+        const stateSpy: jasmine.Spy = spyOn(stateService, "setImages").and.stub();
 
         const navigator: Navigator =
             new Navigator(
@@ -194,7 +194,7 @@ describe("Navigator.moveToKey$", () => {
 
         spyOn(loadingService, "startLoading").and.stub();
         spyOn(loadingService, "stopLoading").and.stub();
-        spyOn(graphService, "cacheNode$").and.returnValue(new Subject<Node>());
+        spyOn(graphService, "cacheImage$").and.returnValue(new Subject<Image>());
 
         const navigator: Navigator =
             new Navigator(
@@ -217,7 +217,7 @@ describe("Navigator.moveToKey$", () => {
         navigator.moveTo$("key2");
     });
 
-    it("should succeed when node is cached", (done: () => void) => {
+    it("should succeed when image is cached", (done: () => void) => {
         const clientId: string = "clientId";
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientToken: clientId })));
         const graphService: GraphService = new GraphService(new Graph(api));
@@ -229,15 +229,15 @@ describe("Navigator.moveToKey$", () => {
 
         const key: string = "key";
         const sequenceKey: string = "sequenceId";
-        const node: Node = new Node({
+        const image: Image = new Image({
             computed_geometry: { lat: 0, lon: 0 },
             id: key,
             geometry: { lat: 0, lon: 0 },
             sequence: { id: sequenceKey },
         });
 
-        spyOn(graphService, "cacheNode$").and.returnValue(observableOf<Node>(node));
-        spyOn(stateService, "setNodes").and.stub();
+        spyOn(graphService, "cacheImage$").and.returnValue(observableOf<Image>(image));
+        spyOn(stateService, "setImages").and.stub();
 
         const navigator: Navigator =
             new Navigator(
@@ -249,13 +249,13 @@ describe("Navigator.moveToKey$", () => {
 
         navigator.moveTo$(key)
             .subscribe(
-                (n: Node) => {
-                    expect(n.id).toBe(node.id);
+                (n: Image) => {
+                    expect(n.id).toBe(image.id);
                     done();
                 });
     });
 
-    it("should succeed when node is not cached prior to call", (done: () => void) => {
+    it("should succeed when image is not cached prior to call", (done: () => void) => {
         const clientId: string = "clientId";
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientToken: clientId })));
         const graphService: GraphService = new GraphService(new Graph(api));
@@ -267,16 +267,16 @@ describe("Navigator.moveToKey$", () => {
 
         const key: string = "key";
         const sequenceKey: string = "sequenceId";
-        const cacheNodeSubject$: Subject<Node> = new Subject<Node>();
-        const node: Node = new Node({
+        const cacheImageSubject$: Subject<Image> = new Subject<Image>();
+        const image: Image = new Image({
             computed_geometry: { lat: 0, lon: 0 },
             id: key,
             geometry: { lat: 0, lon: 0 },
             sequence: { id: sequenceKey },
         });
 
-        spyOn(graphService, "cacheNode$").and.returnValue(cacheNodeSubject$);
-        spyOn(stateService, "setNodes").and.stub();
+        spyOn(graphService, "cacheImage$").and.returnValue(cacheImageSubject$);
+        spyOn(stateService, "setImages").and.stub();
 
         const navigator: Navigator =
             new Navigator(
@@ -288,12 +288,12 @@ describe("Navigator.moveToKey$", () => {
 
         navigator.moveTo$(key)
             .subscribe(
-                (n: Node) => {
-                    expect(n.id).toBe(node.id);
+                (n: Image) => {
+                    expect(n.id).toBe(image.id);
                     done();
                 });
 
-        cacheNodeSubject$.next(node);
+        cacheImageSubject$.next(image);
     });
 
     describe("Navigator.moveToKey$", () => {
@@ -310,16 +310,16 @@ describe("Navigator.moveToKey$", () => {
 
             const key: string = "key1";
             const sequenceKey: string = "sequenceId";
-            const cacheNodeSubject$: Subject<Node> = new Subject<Node>();
-            const node: Node = new Node({
+            const cacheImageSubject$: Subject<Image> = new Subject<Image>();
+            const image: Image = new Image({
                 computed_geometry: { lat: 0, lon: 0 },
                 id: key,
                 geometry: { lat: 0, lon: 0 },
                 sequence: { id: sequenceKey },
             });
 
-            spyOn(graphService, "cacheNode$").and.returnValue(cacheNodeSubject$);
-            spyOn(stateService, "setNodes").and.stub();
+            spyOn(graphService, "cacheImage$").and.returnValue(cacheImageSubject$);
+            spyOn(stateService, "setImages").and.stub();
 
             const navigator: Navigator =
                 new Navigator(
@@ -347,7 +347,7 @@ describe("Navigator.moveToKey$", () => {
                         completeCount++;
                     });
 
-            cacheNodeSubject$.next(node);
+            cacheImageSubject$.next(image);
 
             expect(successCount).toBe(1);
             expect(errorCount).toBe(0);
@@ -370,15 +370,15 @@ describe("Navigator.movedToKey$", () => {
 
         const key: string = "key";
         const sequenceKey: string = "sequenceId";
-        spyOn(graphService, "cacheNode$").and.returnValue(observableOf<Node>(
-            new Node({
+        spyOn(graphService, "cacheImage$").and.returnValue(observableOf<Image>(
+            new Image({
                 computed_geometry: { lat: 0, lon: 0 },
                 id: key,
                 geometry: { lat: 0, lon: 0 },
                 sequence: { id: sequenceKey },
             })));
 
-        spyOn(stateService, "setNodes").and.stub();
+        spyOn(stateService, "setImages").and.stub();
 
         const navigator: Navigator =
             new Navigator(
@@ -420,10 +420,10 @@ class TestStateService extends StateService {
 }
 
 describe("Navigator.setFilter$", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should set filter when no key requested", (done: Function) => {
@@ -435,7 +435,7 @@ describe("Navigator.setFilter$", () => {
         const stateService: StateService = new StateService();
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
-        const clearNodesSpy: jasmine.Spy = spyOn(stateService, "clearNodes").and.stub();
+        const clearImagesSpy: jasmine.Spy = spyOn(stateService, "clearImages").and.stub();
 
         const setFilterSubject$: Subject<Graph> = new Subject<Graph>();
         const setFilterSpy: jasmine.Spy = spyOn(graphService, "setFilter$");
@@ -453,7 +453,7 @@ describe("Navigator.setFilter$", () => {
         navigator.setFilter$(["==", "key", "value"])
             .subscribe(
                 (): void => {
-                    expect(clearNodesSpy.calls.count()).toBe(1);
+                    expect(clearImagesSpy.calls.count()).toBe(1);
 
                     expect(setFilterSpy.calls.count()).toBe(1);
                     expect(setFilterSpy.calls.first().args.length).toBe(1);
@@ -481,9 +481,9 @@ describe("Navigator.setFilter$", () => {
         const setFilterSpy: jasmine.Spy = spyOn(graphService, "setFilter$");
         setFilterSpy.and.returnValue(new Subject<Graph>());
 
-        spyOn(stateService, "clearNodes").and.stub();
+        spyOn(stateService, "clearImages").and.stub();
         spyOn(loadingService, "startLoading").and.stub();
-        spyOn(graphService, "cacheNode$").and.returnValue(new Subject<Node>());
+        spyOn(graphService, "cacheImage$").and.returnValue(new Subject<Image>());
 
         const navigator: Navigator =
             new Navigator(
@@ -512,25 +512,25 @@ describe("Navigator.setFilter$", () => {
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
         spyOn(loadingService, "startLoading").and.stub();
-        const setNodesSpy: jasmine.Spy = spyOn(stateService, "setNodes").and.stub();
+        const setImagesSpy: jasmine.Spy = spyOn(stateService, "setImages").and.stub();
 
-        const clearNodesSpy: jasmine.Spy = spyOn(stateService, "clearNodes").and.stub();
+        const clearImagesSpy: jasmine.Spy = spyOn(stateService, "clearImages").and.stub();
 
         const setFilterSubject$: Subject<Graph> = new Subject<Graph>();
         const setFilterSpy: jasmine.Spy = spyOn(graphService, "setFilter$");
         setFilterSpy.and.returnValue(setFilterSubject$);
 
-        const cacheNodeSubject$: Subject<Node> = new Subject<Node>();
-        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
+        const cacheImageSubject$: Subject<Image> = new Subject<Image>();
+        const cacheImageSpy: jasmine.Spy = spyOn(graphService, "cacheImage$");
         let firstEmit: boolean = true;
-        cacheNodeSpy.and.callFake(
-            (): Observable<Node> => {
+        cacheImageSpy.and.callFake(
+            (): Observable<Image> => {
                 if (firstEmit) {
                     firstEmit = false;
-                    return new Subject<Node>();
+                    return new Subject<Image>();
                 }
 
-                return cacheNodeSubject$;
+                return cacheImageSubject$;
             });
 
         const navigator: Navigator =
@@ -547,22 +547,22 @@ describe("Navigator.setFilter$", () => {
         navigator.setFilter$(["==", "key", "value"])
             .subscribe(
                 (): void => {
-                    expect(setNodesSpy.calls.count()).toBe(0);
+                    expect(setImagesSpy.calls.count()).toBe(0);
 
-                    expect(clearNodesSpy.calls.count()).toBe(1);
+                    expect(clearImagesSpy.calls.count()).toBe(1);
                     expect(setFilterSpy.calls.count()).toBe(1);
 
-                    expect(cacheNodeSpy.calls.count()).toBe(2);
-                    expect(cacheNodeSpy.calls.mostRecent().args.length).toBe(1);
-                    expect(cacheNodeSpy.calls.mostRecent().args[0]).toBe("moveToKey");
+                    expect(cacheImageSpy.calls.count()).toBe(2);
+                    expect(cacheImageSpy.calls.mostRecent().args.length).toBe(1);
+                    expect(cacheImageSpy.calls.mostRecent().args[0]).toBe("moveToKey");
 
                     done();
                 });
 
         setFilterSubject$.next(graph);
         setFilterSubject$.complete();
-        cacheNodeSubject$.next(null);
-        cacheNodeSubject$.complete();
+        cacheImageSubject$.next(null);
+        cacheImageSubject$.complete();
     });
 
     it("should set filter and cache trajectory keys when moved to", (done: Function) => {
@@ -580,26 +580,26 @@ describe("Navigator.setFilter$", () => {
 
         spyOn(loadingService, "startLoading").and.stub();
         spyOn(loadingService, "stopLoading").and.stub();
-        const setNodesSpy: jasmine.Spy = spyOn(stateService, "setNodes").and.stub();
+        const setImagesSpy: jasmine.Spy = spyOn(stateService, "setImages").and.stub();
 
-        const clearNodesSpy: jasmine.Spy = spyOn(stateService, "clearNodes").and.stub();
+        const clearImagesSpy: jasmine.Spy = spyOn(stateService, "clearImages").and.stub();
 
         const setFilterSubject$: Subject<Graph> = new Subject<Graph>();
         const setFilterSpy: jasmine.Spy = spyOn(graphService, "setFilter$");
         setFilterSpy.and.returnValue(setFilterSubject$);
 
-        const cacheNodeSubject1$: Subject<Node> = new Subject<Node>();
-        const cacheNodeSubject2$: Subject<Node> = new Subject<Node>();
-        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
+        const cacheImageSubject1$: Subject<Image> = new Subject<Image>();
+        const cacheImageSubject2$: Subject<Image> = new Subject<Image>();
+        const cacheImageSpy: jasmine.Spy = spyOn(graphService, "cacheImage$");
         let firstEmit: boolean = true;
-        cacheNodeSpy.and.callFake(
-            (): Observable<Node> => {
+        cacheImageSpy.and.callFake(
+            (): Observable<Image> => {
                 if (firstEmit) {
                     firstEmit = false;
-                    return cacheNodeSubject1$;
+                    return cacheImageSubject1$;
                 }
 
-                return cacheNodeSubject2$;
+                return cacheImageSubject2$;
             });
 
         const navigator: Navigator =
@@ -613,54 +613,54 @@ describe("Navigator.setFilter$", () => {
 
         navigator.moveTo$("key").subscribe(() => { /*noop*/ });
 
-        const coreNode0: CoreImageEnt = helper.createCoreNode();
-        coreNode0.id = "node0";
-        const node0: Node = new Node(coreNode0);
+        const coreImage0: CoreImageEnt = helper.createCoreImageEnt();
+        coreImage0.id = "image0";
+        const image0: Image = new Image(coreImage0);
 
-        cacheNodeSubject1$.next(node0);
-        cacheNodeSubject1$.complete();
+        cacheImageSubject1$.next(image0);
+        cacheImageSubject1$.complete();
 
         navigator.setFilter$(["==", "key", "value"])
             .subscribe(
                 (): void => {
-                    expect(setNodesSpy.calls.count()).toBe(1);
+                    expect(setImagesSpy.calls.count()).toBe(1);
 
-                    expect(clearNodesSpy.calls.count()).toBe(1);
+                    expect(clearImagesSpy.calls.count()).toBe(1);
                     expect(setFilterSpy.calls.count()).toBe(1);
 
-                    expect(cacheNodeSpy.calls.count()).toBe(3);
-                    expect(cacheNodeSpy.calls.argsFor(1)[0]).toBe("node1");
-                    expect(cacheNodeSpy.calls.argsFor(2)[0]).toBe("node2");
+                    expect(cacheImageSpy.calls.count()).toBe(3);
+                    expect(cacheImageSpy.calls.argsFor(1)[0]).toBe("image1");
+                    expect(cacheImageSpy.calls.argsFor(2)[0]).toBe("image2");
 
                     done();
                 });
 
-        const coreNode1: CoreImageEnt = helper.createCoreNode();
-        coreNode1.id = "node1";
-        const node1: Node = new Node(coreNode1);
+        const coreImage1: CoreImageEnt = helper.createCoreImageEnt();
+        coreImage1.id = "image1";
+        const image1: Image = new Image(coreImage1);
 
-        const coreNode2: CoreImageEnt = helper.createCoreNode();
-        coreNode2.id = "node2";
-        const node2: Node = new Node(coreNode2);
+        const coreImage2: CoreImageEnt = helper.createCoreImageEnt();
+        coreImage2.id = "image2";
+        const image2: Image = new Image(coreImage2);
 
         const state: IAnimationState = createState();
-        state.trajectory = [node1, node2];
+        state.trajectory = [image1, image2];
 
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
         currentStateSubject$.complete();
         setFilterSubject$.next(graph);
         setFilterSubject$.complete();
-        cacheNodeSubject2$.next(node1);
-        cacheNodeSubject2$.next(node2);
-        cacheNodeSubject2$.complete();
+        cacheImageSubject2$.next(image1);
+        cacheImageSubject2$.next(image2);
+        cacheImageSubject2$.complete();
     });
 });
 
 describe("Navigator.setToken$", () => {
-    let helper: NodeHelper;
+    let helper: ImageHelper;
 
     beforeEach(() => {
-        helper = new NodeHelper();
+        helper = new ImageHelper();
     });
 
     it("should set token on api and reset when not moved to key", (done: Function) => {
@@ -674,7 +674,7 @@ describe("Navigator.setToken$", () => {
 
         spyOn(cacheService, "start").and.stub();
 
-        const clearNodesSpy: jasmine.Spy = spyOn(stateService, "clearNodes").and.stub();
+        const clearImagesSpy: jasmine.Spy = spyOn(stateService, "clearImages").and.stub();
         const setTokenSpy: jasmine.Spy = spyOn(api, "setUserToken").and.stub();
 
         const resetSubject$: Subject<Graph> = new Subject<Graph>();
@@ -693,7 +693,7 @@ describe("Navigator.setToken$", () => {
         navigator.setUserToken$("token")
             .subscribe(
                 (): void => {
-                    expect(clearNodesSpy.calls.count()).toBe(1);
+                    expect(clearImagesSpy.calls.count()).toBe(1);
                     expect(setTokenSpy.calls.count()).toBe(1);
                     expect(setTokenSpy.calls.first().args.length).toBe(1);
                     expect(setTokenSpy.calls.first().args[0]).toBe("token");
@@ -724,27 +724,27 @@ describe("Navigator.setToken$", () => {
 
         spyOn(loadingService, "startLoading").and.stub();
         spyOn(loadingService, "stopLoading").and.stub();
-        spyOn(stateService, "setNodes").and.stub();
+        spyOn(stateService, "setImages").and.stub();
 
-        const clearNodesSpy: jasmine.Spy = spyOn(stateService, "clearNodes").and.stub();
+        const clearImagesSpy: jasmine.Spy = spyOn(stateService, "clearImages").and.stub();
         const setTokenSpy: jasmine.Spy = spyOn(api, "setUserToken").and.stub();
 
         const resetSubject$: Subject<Graph> = new Subject<Graph>();
         const resetSpy: jasmine.Spy = spyOn(graphService, "reset$");
         resetSpy.and.returnValue(resetSubject$);
 
-        const cacheNodeSubject1$: Subject<Node> = new Subject<Node>();
-        const cacheNodeSubject2$: Subject<Node> = new Subject<Node>();
-        const cacheNodeSpy: jasmine.Spy = spyOn(graphService, "cacheNode$");
+        const cacheImageSubject1$: Subject<Image> = new Subject<Image>();
+        const cacheImageSubject2$: Subject<Image> = new Subject<Image>();
+        const cacheImageSpy: jasmine.Spy = spyOn(graphService, "cacheImage$");
         let firstEmit: boolean = true;
-        cacheNodeSpy.and.callFake(
-            (): Observable<Node> => {
+        cacheImageSpy.and.callFake(
+            (): Observable<Image> => {
                 if (firstEmit) {
                     firstEmit = false;
-                    return cacheNodeSubject1$;
+                    return cacheImageSubject1$;
                 }
 
-                return cacheNodeSubject2$;
+                return cacheImageSubject2$;
             });
 
         const navigator: Navigator =
@@ -758,17 +758,17 @@ describe("Navigator.setToken$", () => {
 
         navigator.moveTo$("key").subscribe(() => { /*noop*/ });
 
-        const coreNode0: CoreImageEnt = helper.createCoreNode();
-        coreNode0.id = "node0";
-        const node0: Node = new Node(coreNode0);
+        const coreImage0: CoreImageEnt = helper.createCoreImageEnt();
+        coreImage0.id = "image0";
+        const image0: Image = new Image(coreImage0);
 
-        cacheNodeSubject1$.next(node0);
-        cacheNodeSubject1$.complete();
+        cacheImageSubject1$.next(image0);
+        cacheImageSubject1$.complete();
 
         navigator.setUserToken$("token")
             .subscribe(
                 (): void => {
-                    expect(clearNodesSpy.calls.count()).toBe(1);
+                    expect(clearImagesSpy.calls.count()).toBe(1);
                     expect(setTokenSpy.calls.count()).toBe(1);
                     expect(setTokenSpy.calls.first().args.length).toBe(1);
                     expect(setTokenSpy.calls.first().args[0]).toBe("token");
@@ -776,34 +776,34 @@ describe("Navigator.setToken$", () => {
                     expect(resetSpy.calls.count()).toBe(1);
                     expect(resetSpy.calls.first().args.length).toBe(1);
                     expect(resetSpy.calls.first().args[0].length).toBe(2);
-                    expect(resetSpy.calls.first().args[0][0]).toBe("node1");
-                    expect(resetSpy.calls.first().args[0][1]).toBe("node2");
+                    expect(resetSpy.calls.first().args[0][0]).toBe("image1");
+                    expect(resetSpy.calls.first().args[0][1]).toBe("image2");
 
-                    expect(cacheNodeSpy.calls.count()).toBe(3);
-                    expect(cacheNodeSpy.calls.argsFor(1)[0]).toBe("node1");
-                    expect(cacheNodeSpy.calls.argsFor(2)[0]).toBe("node2");
+                    expect(cacheImageSpy.calls.count()).toBe(3);
+                    expect(cacheImageSpy.calls.argsFor(1)[0]).toBe("image1");
+                    expect(cacheImageSpy.calls.argsFor(2)[0]).toBe("image2");
 
                     done();
                 });
 
-        const coreNode1: CoreImageEnt = helper.createCoreNode();
-        coreNode1.id = "node1";
-        const node1: Node = new Node(coreNode1);
+        const coreImage1: CoreImageEnt = helper.createCoreImageEnt();
+        coreImage1.id = "image1";
+        const image1: Image = new Image(coreImage1);
 
-        const coreNode2: CoreImageEnt = helper.createCoreNode();
-        coreNode2.id = "node2";
-        const node2: Node = new Node(coreNode2);
+        const coreImage2: CoreImageEnt = helper.createCoreImageEnt();
+        coreImage2.id = "image2";
+        const image2: Image = new Image(coreImage2);
 
         const state: IAnimationState = createState();
-        state.trajectory = [node1, node2];
+        state.trajectory = [image1, image2];
 
         currentStateSubject$.next({ fps: 60, id: 0, state: state });
         currentStateSubject$.complete();
         resetSubject$.next(graph);
         resetSubject$.complete();
-        cacheNodeSubject2$.next(node1);
-        cacheNodeSubject2$.next(node2);
-        cacheNodeSubject2$.complete();
+        cacheImageSubject2$.next(image1);
+        cacheImageSubject2$.next(image2);
+        cacheImageSubject2$.complete();
     });
 
     it("should abort outstanding move to key request", (done: () => void) => {
@@ -817,8 +817,8 @@ describe("Navigator.setToken$", () => {
         spyOn(loadingService, "startLoading").and.stub();
         spyOn(loadingService, "stopLoading").and.stub();
 
-        spyOn(graphService, "cacheNode$").and.returnValue(new Subject<Node>());
-        spyOn(stateService, "clearNodes").and.stub();
+        spyOn(graphService, "cacheImage$").and.returnValue(new Subject<Image>());
+        spyOn(stateService, "clearImages").and.stub();
 
         const navigator: Navigator =
             new Navigator(

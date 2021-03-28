@@ -1,26 +1,26 @@
-import { NodeHelper } from "./NodeHelper";
+import { ImageHelper } from "./ImageHelper";
 import { Transform } from "../../src/geo/Transform";
 import { CameraType } from "../../src/geo/interfaces/CameraType";
 
 export class TransformHelper {
-    private _nodeHelper: NodeHelper = new NodeHelper();
+    private _imageHelper: ImageHelper = new ImageHelper();
 
     public createTransform(
         cameraType: CameraType = "perspective"): Transform {
 
-        const node = this._nodeHelper
-            .createNode(cameraType);
+        const image = this._imageHelper
+            .createImage(cameraType);
 
         return new Transform(
-            node.exifOrientation,
-            node.width,
-            node.height,
-            node.scale,
-            node.rotation,
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
             [0, 0, 0],
             null,
             null,
-            node.cameraParameters,
+            image.cameraParameters,
             cameraType);
     }
 }

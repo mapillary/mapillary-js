@@ -1,4 +1,4 @@
-import { Node } from "../../src/graph/Node";
+import { Image } from "../../src/graph/Image";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { LatLonAlt } from "../../src/api/interfaces/LatLonAlt";
@@ -25,22 +25,22 @@ export class EdgeCalculatorHelper {
         };
     }
 
-    public createCoreNode(
+    public createCoreImage(
         key: string,
         latLonAlt: LatLonAlt,
-        sequenceKey: string): Node {
+        sequenceKey: string): Image {
 
-        let coreNode: CoreImageEnt = {
+        let coreImage: CoreImageEnt = {
             computed_geometry: { lat: latLonAlt.lat, lon: latLonAlt.lon },
             id: key,
             geometry: { lat: latLonAlt.lat, lon: latLonAlt.lon },
             sequence: { id: sequenceKey },
         };
 
-        return new Node(coreNode);
+        return new Image(coreImage);
     }
 
-    public createFullNode(
+    public createSpatialImageEn(
         key: string = "key",
         latLonAlt: LatLonAlt = { alt: 0, lat: 0, lon: 0 },
         sequenceKey: string = "skey",
@@ -48,11 +48,10 @@ export class EdgeCalculatorHelper {
         mergeCC: number = 2,
         cameraType: CameraType = "perspective",
         capturedAt: number = 0,
-        mergeVersion: number = 1): Node {
+        mergeVersion: number = 1): Image {
 
-        let node: Node = this.createCoreNode(key, latLonAlt, sequenceKey);
-
-        let fillNode: SpatialImageEnt = {
+        let image: Image = this.createCoreImage(key, latLonAlt, sequenceKey);
+        let spatialImage: SpatialImageEnt = {
             altitude: 0,
             atomic_scale: 0,
             computed_rotation: r,
@@ -80,12 +79,12 @@ export class EdgeCalculatorHelper {
             width: 0,
         };
 
-        node.makeFull(fillNode);
+        image.makeComplete(spatialImage);
 
-        return node;
+        return image;
     }
 
-    public createDefaultNode(spherical: boolean = false): Node {
+    public createDefaultImage(spherical: boolean = false): Image {
         let key: string = "key";
         let sequenceKey: string = "skey";
         let latLonAlt: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
@@ -94,6 +93,6 @@ export class EdgeCalculatorHelper {
             "spherical" :
             null;
 
-        return this.createFullNode(key, latLonAlt, sequenceKey, [0, 0, 0], 2, cameraType, 0);
+        return this.createSpatialImageEn(key, latLonAlt, sequenceKey, [0, 0, 0], 2, cameraType, 0);
     }
 }

@@ -32,9 +32,9 @@ export interface DirectionConfiguration extends ComponentConfiguration {
     distinguishSequence?: boolean;
 
     /**
-     * The node id representing the direction arrow to be highlighted.
+     * The image id representing the direction arrow to be highlighted.
      *
-     * @description The arrow pointing towards the node corresponding to the
+     * @description The arrow pointing towards the image corresponding to the
      * highlight id will be highlighted.
      *
      * @default undefined

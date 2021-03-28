@@ -227,7 +227,7 @@ export class PolygonGeometry extends VertexGeometry {
      * of the geometry. Line segments between vertices will possibly be subsampled
      * resulting in a larger number of points than the total number of vertices.
      *
-     * @param {Transform} transform - The transform of the node related to the geometry.
+     * @param {Transform} transform - The transform of the image related to the geometry.
      * @returns {Array<Array<Array<number>>>} Array of hole polygons in 3D world coordinates
      * representing the vertices of each hole of the geometry.
      * @ignore
@@ -246,7 +246,7 @@ export class PolygonGeometry extends VertexGeometry {
      * Get a polygon representation of the 3D coordinates for the vertices of each hole
      * of the geometry.
      *
-     * @param {Transform} transform - The transform of the node related to the geometry.
+     * @param {Transform} transform - The transform of the image related to the geometry.
      * @returns {Array<Array<Array<number>>>} Array of hole polygons in 3D world coordinates
      * representing the vertices of each hole of the geometry.
      * @ignore

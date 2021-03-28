@@ -3,7 +3,7 @@ import { SequenceEnt } from "../api/ents/SequenceEnt";
 /**
  * @class Sequence
  *
- * @classdesc Represents a sequence of ordered nodes.
+ * @classdesc Represents a sequence of ordered images.
  */
 export class Sequence {
     private _id: string;
@@ -31,7 +31,7 @@ export class Sequence {
     /**
      * Get ids.
      *
-     * @returns {Array<string>} Array of ordered node ids in the sequence.
+     * @returns {Array<string>} Array of ordered image ids in the sequence.
      */
     public get imageIds(): string[] {
         return this._imageIds;
@@ -48,10 +48,10 @@ export class Sequence {
     }
 
     /**
-     * Find the next node id in the sequence with respect to
-     * the provided node id.
+     * Find the next image id in the sequence with respect to
+     * the provided image id.
      *
-     * @param {string} id - Reference node id.
+     * @param {string} id - Reference image id.
      * @returns {string} Next id in sequence if it exists, null otherwise.
      */
     public findNext(id: string): string {
@@ -65,10 +65,10 @@ export class Sequence {
     }
 
     /**
-     * Find the previous node id in the sequence with respect to
-     * the provided node id.
+     * Find the previous image id in the sequence with respect to
+     * the provided image id.
      *
-     * @param {string} id - Reference node id.
+     * @param {string} id - Reference image id.
      * @returns {string} Previous id in sequence if it exists, null otherwise.
      */
     public findPrev(id: string): string {

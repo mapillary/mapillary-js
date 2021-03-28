@@ -25,7 +25,7 @@ import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
 
 interface VirtualNodePatch {
-    vnode: vd.VNode;
+    vNode: vd.VNode;
     vpatch: vd.VPatch[];
 }
 
@@ -127,14 +127,14 @@ export class DOMRenderer {
         const imageAspectSubscription = this._currentFrame$.pipe(
             filter(
                 (frame: AnimationFrame): boolean => {
-                    return frame.state.currentNode != null;
+                    return frame.state.currentImage != null;
                 }),
             distinctUntilChanged(
                 (k1: string, k2: string): boolean => {
                     return k1 === k2;
                 },
                 (frame: AnimationFrame): string => {
-                    return frame.state.currentNode.id;
+                    return frame.state.currentImage.id;
                 }),
             map(
                 (frame: AnimationFrame): number => {
@@ -154,10 +154,10 @@ export class DOMRenderer {
             this._renderAdaptive$.pipe(
                 scan(
                     (vNodeHashes: VirtualNodeHashes, vNodeHash: VirtualNodeHash): VirtualNodeHashes => {
-                        if (vNodeHash.vnode == null) {
+                        if (vNodeHash.vNode == null) {
                             delete vNodeHashes[vNodeHash.name];
                         } else {
-                            vNodeHashes[vNodeHash.name] = vNodeHash.vnode;
+                            vNodeHashes[vNodeHash.name] = vNodeHash.vNode;
                         }
                         return vNodeHashes;
                     },
@@ -190,7 +190,7 @@ export class DOMRenderer {
 
                         return {
                             name: "mapillary-dom-adaptive-renderer",
-                            vnode: vd.h("div.mapillary-dom-adaptive-renderer", properties, vNodes),
+                            vNode: vd.h("div.mapillary-dom-adaptive-renderer", properties, vNodes),
                         };
                     }))
             .subscribe(this._render$);
@@ -198,10 +198,10 @@ export class DOMRenderer {
         this._vNode$ = this._render$.pipe(
             scan(
                 (vNodeHashes: VirtualNodeHashes, vNodeHash: VirtualNodeHash): VirtualNodeHashes => {
-                    if (vNodeHash.vnode == null) {
+                    if (vNodeHash.vNode == null) {
                         delete vNodeHashes[vNodeHash.name];
                     } else {
-                        vNodeHashes[vNodeHash.name] = vNodeHash.vnode;
+                        vNodeHashes[vNodeHash.name] = vNodeHash.vNode;
                     }
 
                     return vNodeHashes;
@@ -224,11 +224,11 @@ export class DOMRenderer {
         this._vPatch$ = this._vNode$.pipe(
             scan(
                 (nodePatch: VirtualNodePatch, vNode: vd.VNode): VirtualNodePatch => {
-                    nodePatch.vpatch = vd.diff(nodePatch.vnode, vNode);
-                    nodePatch.vnode = vNode;
+                    nodePatch.vpatch = vd.diff(nodePatch.vNode, vNode);
+                    nodePatch.vNode = vNode;
                     return nodePatch;
                 },
-                { vnode: vd.h("div.mapillary-dom-renderer", []), vpatch: null }),
+                { vNode: vd.h("div.mapillary-dom-renderer", []), vpatch: null }),
             pluck<VirtualNodePatch, vd.VPatch[]>("vpatch"));
 
         this._element$ = this._vPatch$.pipe(
@@ -281,8 +281,8 @@ export class DOMRenderer {
     }
 
     public clear(name: string): void {
-        this._renderAdaptive$.next({ name: name, vnode: null });
-        this._render$.next({ name: name, vnode: null });
+        this._renderAdaptive$.next({ name: name, vNode: null });
+        this._render$.next({ name: name, vNode: null });
     }
 
     public remove(): void {

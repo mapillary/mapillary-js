@@ -2,7 +2,7 @@ import * as vd from "virtual-dom";
 import { AbortMapillaryError } from "../../error/AbortMapillaryError";
 
 import { Spatial } from "../../geo/Spatial";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { Navigator } from "../../viewer/Navigator";
 import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { NavigationEdge } from "../../graph/edge/interfaces/NavigationEdge";
@@ -23,7 +23,7 @@ export class DirectionDOMRenderer {
     private _spatial: Spatial;
     private _calculator: DirectionDOMCalculator;
 
-    private _node: Node;
+    private _image: Image;
 
     private _rotation: EulerRotation;
     private _epsilon: number;
@@ -48,7 +48,7 @@ export class DirectionDOMRenderer {
         this._spatial = new Spatial();
         this._calculator = new DirectionDOMCalculator(configuration, size);
 
-        this._node = null;
+        this._image = null;
 
         this._rotation = { phi: 0, theta: 0 };
         this._epsilon = 0.5 * Math.PI / 180;
@@ -108,7 +108,7 @@ export class DirectionDOMRenderer {
         let steps: vd.VNode[] = [];
         let turns: vd.VNode[] = [];
 
-        if (isSpherical(this._node.cameraType)) {
+        if (isSpherical(this._image.cameraType)) {
             steps = steps.concat(this._createSphericalArrows(navigator, rotation));
         } else {
             steps = steps.concat(
@@ -127,12 +127,12 @@ export class DirectionDOMRenderer {
     }
 
     /**
-     * Set node for which to show edges.
+     * Set image for which to show edges.
      *
-     * @param {Node} node
+     * @param {Image} image
      */
-    public setNode(node: Node): void {
-        this._node = node;
+    public setImage(image: Image): void {
+        this._image = image;
         this._clearEdges();
 
         this._setNeedsRender();
@@ -194,7 +194,7 @@ export class DirectionDOMRenderer {
     }
 
     private _setNeedsRender(): void {
-        if (this._node != null) {
+        if (this._image != null) {
             this._needsRender = true;
         }
     }

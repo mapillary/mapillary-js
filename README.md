@@ -53,7 +53,7 @@ Refer to the [Examples](https://github.com/mapillary/mapillary-js#examples) and 
 - [Move to image](https://bl.ocks.org/oscarlorentzon/317da436accbcf2ff04c642f86cefaf8)
 - [Move in direction](https://bl.ocks.org/oscarlorentzon/63ac2aa3f0998f0c2d2b01a42c8babe4)
 - [Viewer options](https://bl.ocks.org/oscarlorentzon/08613728a283d1306b2848533852d22a)
-- [Subscribe to node changed](https://bl.ocks.org/oscarlorentzon/c5380e11fb3e84b8096f16737eb44820)
+- [Subscribe to image changed](https://bl.ocks.org/oscarlorentzon/c5380e11fb3e84b8096f16737eb44820)
 - [Edges changed events](https://bl.ocks.org/oscarlorentzon/74f7da7d957c9bb7b3088dcc7350d82f)
 - [Set filter](https://bl.ocks.org/oscarlorentzon/400b034ce75430b1a1c69af835be566c)
 - [Change filters](https://bl.ocks.org/oscarlorentzon/10dad7582268312b1adac2c3a869c5c5)

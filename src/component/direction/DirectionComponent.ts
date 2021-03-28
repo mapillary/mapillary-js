@@ -17,7 +17,7 @@ import {
     withLatestFrom,
 } from "rxjs/operators";
 
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { NavigationEdgeStatus }
@@ -141,23 +141,23 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
                     this._renderer.resize(size);
                 }));
 
-        subs.push(this._navigator.stateService.currentNode$.pipe(
+        subs.push(this._navigator.stateService.currentImage$.pipe(
             tap(
-                (node: Node): void => {
-                    this._container.domRenderer.render$.next({ name: this._name, vnode: vd.h("div", {}, []) });
-                    this._renderer.setNode(node);
+                (image: Image): void => {
+                    this._container.domRenderer.render$.next({ name: this._name, vNode: vd.h("div", {}, []) });
+                    this._renderer.setImage(image);
                 }),
             withLatestFrom(this._configuration$),
             switchMap(
-                ([node, configuration]: [Node, DirectionConfiguration]): Observable<[NavigationEdgeStatus, Sequence]> => {
+                ([image, configuration]: [Image, DirectionConfiguration]): Observable<[NavigationEdgeStatus, Sequence]> => {
                     return observableCombineLatest(
-                        node.spatialEdges$,
+                        image.spatialEdges$,
                         configuration.distinguishSequence ?
                             this._navigator.graphService
-                                .cacheSequence$(node.sequenceId).pipe(
+                                .cacheSequence$(image.sequenceId).pipe(
                                     catchError(
                                         (error: Error): Observable<Sequence> => {
-                                            console.error(`Failed to cache sequence (${node.sequenceId})`, error);
+                                            console.error(`Failed to cache sequence (${image.sequenceId})`, error);
 
                                             return observableOf<Sequence>(null);
                                         })) :
@@ -183,7 +183,7 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
                 }),
             map(
                 (renderer: DirectionDOMRenderer): VirtualNodeHash => {
-                    return { name: this._name, vnode: renderer.render(this._navigator) };
+                    return { name: this._name, vNode: renderer.render(this._navigator) };
                 }))
             .subscribe(this._container.domRenderer.render$));
 

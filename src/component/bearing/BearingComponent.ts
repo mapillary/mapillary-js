@@ -24,7 +24,7 @@ import { BearingConfiguration } from "../interfaces/BearingConfiguration";
 import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
 import { ViewportCoords } from "../../geo/ViewportCoords";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { RenderCamera } from "../../render/RenderCamera";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
@@ -34,18 +34,18 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { isSpherical } from "../../geo/Geo";
 
-type NodeFov = [number, number];
+type ImageFov = [number, number];
 
-type NodeBearingFov = [number, number, number];
+type ImageBearingFov = [number, number, number];
 
-type NodeFovState = {
+type ImageFovState = {
     alpha: number,
-    curr: NodeFov,
-    prev: NodeFov,
+    curr: ImageFov,
+    prev: ImageFov,
 };
 
-interface NodeFovOperation {
-    (state: NodeFovState): NodeFovState;
+interface ImageFovOperation {
+    (state: ImageFovState): ImageFovState;
 }
 
 /**
@@ -106,31 +106,43 @@ export class BearingComponent extends Component<BearingConfiguration> {
                             Math.abs(a2[1] - a1[1]) < this._distinctThreshold;
                     }));
 
-        const nodeFov$ = observableCombineLatest(
+        const imageFov$ = observableCombineLatest(
             this._navigator.stateService.currentState$.pipe(
                 distinctUntilChanged(
                     undefined,
                     (frame: AnimationFrame): string => {
-                        return frame.state.currentNode.id;
+                        return frame.state.currentImage.id;
                     })),
-            this._navigator.panService.panNodes$).pipe(
+            this._navigator.panService.panImages$).pipe(
                 map(
-                    ([frame, panNodes]: [AnimationFrame, [Node, Transform, number][]]): NodeFov => {
-                        const node: Node = frame.state.currentNode;
+                    ([frame, panImages]:
+                        [
+                            AnimationFrame,
+                            [
+                                Image,
+                                Transform,
+                                number][],
+                        ])
+                        : ImageFov => {
+                        const image: Image = frame.state.currentImage;
                         const transform: Transform = frame.state.currentTransform;
 
-                        if (isSpherical(node.cameraType)) {
+                        if (isSpherical(image.cameraType)) {
                             return [Math.PI, Math.PI];
                         }
 
-                        const currentProjectedPoints: number[][] = this._computeProjectedPoints(transform);
-                        const hFov: number = this._spatial.degToRad(this._computeHorizontalFov(currentProjectedPoints));
+                        const currentProjectedPoints =
+                            this._computeProjectedPoints(transform);
+                        const hFov = this._spatial
+                            .degToRad(
+                                this._computeHorizontalFov(
+                                    currentProjectedPoints));
 
                         let hFovLeft: number = hFov / 2;
                         let hFovRight: number = hFov / 2;
 
-                        for (const [n, , f] of panNodes) {
-                            const diff: number = this._spatial.wrap(n.compassAngle - node.compassAngle, -180, 180);
+                        for (const [n, , f] of panImages) {
+                            const diff: number = this._spatial.wrap(n.compassAngle - image.compassAngle, -180, 180);
                             if (diff < 0) {
                                 hFovLeft = this._spatial.degToRad(Math.abs(diff)) + f / 2;
                             } else {
@@ -142,8 +154,8 @@ export class BearingComponent extends Component<BearingConfiguration> {
                     }),
                 distinctUntilChanged(
                     (
-                        [hFovLeft1, hFovRight1]: NodeFov,
-                        [hFovLeft2, hFovRight2]: NodeFov): boolean => {
+                        [hFovLeft1, hFovRight1]: ImageFov,
+                        [hFovLeft2, hFovRight2]: ImageFov): boolean => {
 
                         return Math.abs(hFovLeft2 - hFovLeft1) < this._distinctThreshold &&
                             Math.abs(hFovRight2 - hFovRight1) < this._distinctThreshold;
@@ -154,29 +166,29 @@ export class BearingComponent extends Component<BearingConfiguration> {
                 distinctUntilChanged(
                     undefined,
                     (frame: AnimationFrame): string => {
-                        return frame.state.currentNode.id;
+                        return frame.state.currentImage.id;
                     })),
             this._container.renderService.bearing$).pipe(
                 map(
                     ([frame, bearing]: [AnimationFrame, number]): number => {
-                        const offset: number = this._spatial.degToRad(frame.state.currentNode.compassAngle - bearing);
+                        const offset: number = this._spatial.degToRad(frame.state.currentImage.compassAngle - bearing);
 
                         return offset;
                     }));
 
-        const nodeFovOperation$ = new Subject<NodeFovOperation>();
+        const imageFovOperation$ = new Subject<ImageFovOperation>();
 
-        const smoothNodeFov$ = nodeFovOperation$.pipe(
+        const smoothImageFov$ = imageFovOperation$.pipe(
             scan(
-                (state: NodeFovState, operation: NodeFovOperation): NodeFovState => {
+                (state: ImageFovState, operation: ImageFovOperation): ImageFovState => {
                     return operation(state);
                 },
                 { alpha: 0, curr: [0, 0, 0], prev: [0, 0, 0] }),
             map(
-                (state: NodeFovState): NodeFov => {
+                (state: ImageFovState): ImageFov => {
                     const alpha: number = this._unitBezier.solve(state.alpha);
-                    const curr: NodeFov = state.curr;
-                    const prev: NodeFov = state.prev;
+                    const curr: ImageFov = state.curr;
+                    const prev: ImageFov = state.prev;
 
                     return [
                         this._interpolate(prev[0], curr[0], alpha),
@@ -184,20 +196,20 @@ export class BearingComponent extends Component<BearingConfiguration> {
                     ];
                 }));
 
-        subs.push(nodeFov$.pipe(
+        subs.push(imageFov$.pipe(
             map(
-                (nbf: NodeFov): NodeFovOperation => {
-                    return (state: NodeFovState): NodeFovState => {
+                (nbf: ImageFov): ImageFovOperation => {
+                    return (state: ImageFovState): ImageFovState => {
                         const a: number = this._unitBezier.solve(state.alpha);
-                        const c: NodeFov = state.curr;
-                        const p: NodeFov = state.prev;
+                        const c: ImageFov = state.curr;
+                        const p: ImageFov = state.prev;
 
-                        const prev: NodeFov = [
+                        const prev: ImageFov = [
                             this._interpolate(p[0], c[0], a),
                             this._interpolate(p[1], c[1], a),
                         ];
 
-                        const curr: NodeFov = <NodeFov>nbf.slice();
+                        const curr: ImageFov = <ImageFov>nbf.slice();
 
                         return {
                             alpha: 0,
@@ -206,9 +218,9 @@ export class BearingComponent extends Component<BearingConfiguration> {
                         };
                     };
                 }))
-            .subscribe(nodeFovOperation$));
+            .subscribe(imageFovOperation$));
 
-        subs.push(nodeFov$.pipe(
+        subs.push(imageFov$.pipe(
             switchMap(
                 (): Observable<number> => {
                     return this._container.renderService.renderCameraFrame$.pipe(
@@ -228,28 +240,28 @@ export class BearingComponent extends Component<BearingConfiguration> {
                             }));
                 }),
             map(
-                (alpha: number): NodeFovOperation => {
-                    return (nbfState: NodeFovState): NodeFovState => {
+                (alpha: number): ImageFovOperation => {
+                    return (nbfState: ImageFovState): ImageFovState => {
                         return {
                             alpha: alpha,
-                            curr: <NodeFov>nbfState.curr.slice(),
-                            prev: <NodeFov>nbfState.prev.slice(),
+                            curr: <ImageFov>nbfState.curr.slice(),
+                            prev: <ImageFov>nbfState.prev.slice(),
                         };
                     };
                 }))
-            .subscribe(nodeFovOperation$));
+            .subscribe(imageFovOperation$));
 
-        const nodeBearingFov$ = observableCombineLatest(
+        const imageBearingFov$ = observableCombineLatest(
             offset$,
-            smoothNodeFov$).pipe(
+            smoothImageFov$).pipe(
                 map(
-                    ([offset, fov]: [number, NodeFov]): NodeBearingFov => {
+                    ([offset, fov]: [number, ImageFov]): ImageBearingFov => {
                         return [offset, fov[0], fov[1]];
                     }));
 
         subs.push(observableCombineLatest(
             cameraBearingFov$,
-            nodeBearingFov$,
+            imageBearingFov$,
             this._configuration$,
             this._container.renderService.size$).pipe(
                 map(
@@ -268,7 +280,7 @@ export class BearingComponent extends Component<BearingConfiguration> {
 
                         return {
                             name: this._name,
-                            vnode: vd.h(
+                            vNode: vd.h(
                                 "div.mapillary-bearing-indicator-container" + compact,
                                 { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
                                 [

@@ -81,7 +81,7 @@ import { ComponentStateEvent } from "../events/ComponentStateEvent";
  *
  * Tags are only relevant to a single image because they are based on
  * 2D basic image coordinates. Tags related to a certain image should
- * be removed when the viewer is moved to another node.
+ * be removed when the viewer is moved to another image.
  *
  * To retrive and use the tag component
  *
@@ -311,8 +311,8 @@ export class TagComponent extends Component<TagConfiguration> {
      * in the points geometry.
      *
      * @description The result may be different depending on if the
-     * current node is an spherical or not. If the
-     * current node is an spherical the rectangle may
+     * current image is an spherical or not. If the
+     * current image is an spherical the rectangle may
      * wrap the horizontal border of the image.
      *
      * @returns {Promise<Array<number>>} Promise to the rectangle
@@ -823,7 +823,7 @@ export class TagComponent extends Component<TagConfiguration> {
                     (): void => {
                         this._container.domRenderer.render$.next({
                             name: this._name,
-                            vnode: this._tagDomRenderer.clear(),
+                            vNode: this._tagDomRenderer.clear(),
                         });
                     })),
             this._container.renderService.renderCamera$,
@@ -839,7 +839,7 @@ export class TagComponent extends Component<TagConfiguration> {
                             VirtualNodeHash => {
                             return {
                                 name: this._name,
-                                vnode: this._tagDomRenderer.render(renderTags, ct, atlas, rc.perspective, size),
+                                vNode: this._tagDomRenderer.render(renderTags, ct, atlas, rc.perspective, size),
                             };
                         }))
             .subscribe(this._container.domRenderer.render$));

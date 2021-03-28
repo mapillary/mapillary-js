@@ -45,7 +45,7 @@
  * ```
  *
  * For every camera viewing direction it is possible to convert between these
- * two coordinate systems for the current node. The image can be panned and
+ * two coordinate systems for the current image. The image can be panned and
  * zoomed independently of the size of the viewer container resulting in
  * different conversion results for different viewing directions.
  */
@@ -130,12 +130,12 @@ export { Viewer } from "./viewer/Viewer";
 export { ViewerBearingEvent } from "./viewer/events/ViewerBearingEvent";
 export { ViewerEvent } from "./viewer/events/ViewerEvent";
 export { ViewerEventType } from "./viewer/events/ViewerEventType";
+export { ViewerImageEvent } from "./viewer/events/ViewerImageEvent";
 export { ViewerLoadingEvent } from "./viewer/events/ViewerLoadingEvent";
 export { ViewerMouseEvent } from "./viewer/events/ViewerMouseEvent";
 export { ViewerNavigableEvent } from "./viewer/events/ViewerNavigableEvent";
 export { ViewerNavigationEdgeEvent }
     from "./viewer/events/ViewerNavigationEdgeEvent";
-export { ViewerNodeEvent } from "./viewer/events/ViewerNodeEvent";
 export { ViewerStateEvent } from "./viewer/events/ViewerStateEvent";
 
 // Viewer options
@@ -144,7 +144,7 @@ export { UrlOptions } from "./viewer/options/UrlOptions";
 export { ViewerOptions } from "./viewer/options/ViewerOptions";
 
 // Graph
-export { Node } from "./graph/Node";
+export { Image } from "./graph/Image";
 export { NavigationDirection } from "./graph/edge/NavigationDirection";
 export { NavigationEdge } from "./graph/edge/interfaces/NavigationEdge";
 export { NavigationEdgeData } from "./graph/edge/interfaces/NavigationEdgeData";

@@ -14,7 +14,7 @@ export interface NavigationEdgeData {
     /**
      * The counter clockwise horizontal rotation angle from
      * the X-axis in a spherical coordiante system of the
-     * motion from the source node to the destination node.
+     * motion from the source image to the destination node.
      */
     worldMotionAzimuth: number;
 }

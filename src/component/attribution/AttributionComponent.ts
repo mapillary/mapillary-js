@@ -3,7 +3,7 @@ import * as vd from "virtual-dom";
 import { combineLatest as observableCombineLatest } from "rxjs";
 import { map } from "rxjs/operators";
 
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
 import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
@@ -25,16 +25,16 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
 
     protected _activate(): void {
         this._subscriptions.push(observableCombineLatest(
-            this._navigator.stateService.currentNode$,
+            this._navigator.stateService.currentImage$,
             this._container.renderService.size$).pipe(
                 map(
-                    ([node, size]: [Node, ViewportSize]): VirtualNodeHash => {
+                    ([image, size]: [Image, ViewportSize]): VirtualNodeHash => {
                         return {
                             name: this._name,
-                            vnode: this._getAttributionNode(
-                                node.creatorUsername,
-                                node.id,
-                                node.capturedAt,
+                            vNode: this._getAttributionVNode(
+                                image.creatorUsername,
+                                image.id,
+                                image.capturedAt,
                                 size.width),
                         };
                     }))
@@ -49,7 +49,7 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
         return {};
     }
 
-    private _getAttributionNode(
+    private _getAttributionVNode(
         username: string,
         id: string,
         capturedAt: number,

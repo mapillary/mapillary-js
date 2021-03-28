@@ -2,20 +2,20 @@ import { State } from "../State";
 import { Camera } from "../../geo/Camera";
 import { Transform } from "../../geo/Transform";
 import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
-import { Node } from "../../graph/Node";
+import { Image } from "../../graph/Image";
 
 export interface IAnimationState {
     reference: LatLonAlt;
     alpha: number;
     camera: Camera;
     zoom: number;
-    currentNode: Node;
+    currentImage: Image;
     currentCamera: Camera;
-    previousNode: Node;
-    trajectory: Node[];
+    previousImage: Image;
+    trajectory: Image[];
     currentIndex: number;
-    lastNode: Node;
-    nodesAhead: number;
+    lastImage: Image;
+    imagesAhead: number;
     currentTransform: Transform;
     previousTransform: Transform;
     motionless: boolean;
