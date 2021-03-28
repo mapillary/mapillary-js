@@ -22,7 +22,7 @@ import {
 
 import * as Geo from "../geo/Geo";
 
-import { LatLon } from "../api/interfaces/LatLon";
+import { LngLat } from "../api/interfaces/LngLat";
 import { Spatial } from "../geo/Spatial";
 import { Transform } from "../geo/Transform";
 import { ViewportCoords } from "../geo/ViewportCoords";
@@ -130,7 +130,7 @@ export class PanService {
 
                     const current$: Observable<Image> = observableOf(current);
 
-                    const bounds: LatLon[] = this._graphCalculator.boundingBoxCorners(current.latLon, 20);
+                    const bounds: LngLat[] = this._graphCalculator.boundingBoxCorners(current.lngLat, 20);
 
                     const adjacent$: Observable<Image[]> = this._graphService
                         .cacheBoundingBox$(bounds[0], bounds[1]).pipe(
@@ -177,7 +177,7 @@ export class PanService {
                             ([[cn, adjacent], reference]: [[Image, Image[]], LatLonAlt]): [Image, Transform, number][] => {
                                 const currentDirection: THREE.Vector3 = this._spatial.viewingDirection(cn.rotation);
                                 const currentTranslation: number[] = Geo.computeTranslation(
-                                    { lat: cn.latLon.lat, lon: cn.latLon.lon, alt: cn.computedAltitude },
+                                    { lat: cn.lngLat.lat, lng: cn.lngLat.lng, alt: cn.computedAltitude },
                                     cn.rotation,
                                     reference);
                                 const currentTransform: Transform = this._createTransform(cn, currentTranslation);
@@ -198,7 +198,7 @@ export class PanService {
 
                                 for (const a of adjacent) {
                                     const translation: number[] = Geo.computeTranslation(
-                                        { lat: a.latLon.lat, lon: a.latLon.lon, alt: a.computedAltitude },
+                                        { lat: a.lngLat.lat, lng: a.lngLat.lng, alt: a.computedAltitude },
                                         a.rotation,
                                         reference);
 
@@ -317,11 +317,11 @@ export class PanService {
 
     private _distance(image: Image, reference: Image): number {
         const [x, y, z] = geodeticToEnu(
-            image.latLon.lat,
-            image.latLon.lon,
+            image.lngLat.lat,
+            image.lngLat.lng,
             image.computedAltitude,
-            reference.latLon.lat,
-            reference.latLon.lon,
+            reference.lngLat.lat,
+            reference.lngLat.lng,
             reference.computedAltitude);
 
         return Math.sqrt(x * x + y * y + z * z);

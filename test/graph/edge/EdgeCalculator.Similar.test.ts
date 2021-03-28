@@ -29,7 +29,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
 
     let createImage: (capturedAt: number) => Image =
         (capturedAt: number): Image => {
-            return helper.createSpatialImageEn("key", { alt: 0, lat: 0, lon: 0 }, "skey", [0, 0, 0], 2, "perspective", capturedAt);
+            return helper.createSpatialImageEn("key", { alt: 0, lat: 0, lng: 0 }, "skey", [0, 0, 0], 2, "perspective", capturedAt);
         };
 
     beforeEach(() => {
@@ -41,7 +41,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
     });
 
     it("should throw when image is not full", () => {
-        image = helper.createCoreImage("", { alt: 0, lat: 0, lon: 0 }, "");
+        image = helper.createCoreImage("", { alt: 0, lat: 0, lng: 0 }, "");
 
         expect(() => { edgeCalculator.computeSimilarEdges(image, []); }).toThrowError(Error);
     });

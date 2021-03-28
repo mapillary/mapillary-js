@@ -1,5 +1,5 @@
 import { IDEnt } from "./IDEnt";
-import { LatLon } from "../interfaces/LatLon";
+import { LngLat } from "../interfaces/LngLat";
 
 /**
  * Interface that describes the raw core image properties.
@@ -13,12 +13,12 @@ export interface CoreImageEnt extends IDEnt {
      * @description Optional - no 3D interaction available
      * if unset.
      */
-    computed_geometry?: LatLon;
+    computed_geometry?: LngLat;
 
     /**
      * Original EXIF latitude longitude in WGS84 datum, measured in degrees.
      */
-    geometry: LatLon;
+    geometry: LngLat;
 
     /**
      * Sequence that the image is part of.

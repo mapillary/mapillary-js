@@ -21,7 +21,7 @@ import { Projection } from "./Projection";
 import { Unprojection } from "./interfaces/Unprojection";
 import { ViewerMouseEvent } from "./events/ViewerMouseEvent";
 
-import { LatLon } from "../api/interfaces/LatLon";
+import { LngLat } from "../api/interfaces/LngLat";
 import { Transform } from "../geo/Transform";
 import { LatLonAlt } from "../api/interfaces/LatLonAlt";
 import { Image } from "../graph/Image";
@@ -122,7 +122,7 @@ export class Observer {
     }
 
     public project$(
-        latLon: LatLon)
+        lngLat: LngLat)
         : Observable<number[]> {
         return observableCombineLatest(
             this._container.renderService.renderCamera$,
@@ -133,16 +133,17 @@ export class Observer {
                     ([render, image, reference]: [RenderCamera, Image, LatLonAlt]): number[] => {
                         if (this._projection
                             .distanceBetweenLatLons(
-                                latLon,
-                                image.latLon) > 1000) {
+                                lngLat,
+                                image.lngLat) > 1000) {
                             return null;
                         }
 
-                        const canvasPoint: number[] = this._projection.latLonToCanvas(
-                            latLon,
-                            this._container.container,
-                            render,
-                            reference);
+                        const canvasPoint: number[] =
+                            this._projection.lngLatToCanvas(
+                                lngLat,
+                                this._container.container,
+                                render,
+                                reference);
 
                         return !!canvasPoint ?
                             [Math.round(canvasPoint[0]), Math.round(canvasPoint[1])] :
@@ -308,7 +309,7 @@ export class Observer {
 
                         return {
                             basicPoint: unprojection.basicPoint,
-                            latLon: unprojection.latLon,
+                            lngLat: unprojection.lngLat,
                             originalEvent: event,
                             pixelPoint: unprojection.pixelPoint,
                             target: this._viewer,
@@ -384,14 +385,14 @@ export class Observer {
         this._started = false;
     }
 
-    public unproject$(canvasPoint: number[]): Observable<LatLon> {
+    public unproject$(canvasPoint: number[]): Observable<LngLat> {
         return observableCombineLatest(
             this._container.renderService.renderCamera$,
             this._navigator.stateService.reference$,
             this._navigator.stateService.currentTransform$).pipe(
                 first(),
                 map(
-                    ([render, reference, transform]: [RenderCamera, LatLonAlt, Transform]): LatLon => {
+                    ([render, reference, transform]: [RenderCamera, LatLonAlt, Transform]): LngLat => {
                         const unprojection: Unprojection =
                             this._projection.canvasToUnprojection(
                                 canvasPoint,
@@ -400,7 +401,7 @@ export class Observer {
                                 reference,
                                 transform);
 
-                        return unprojection.latLon;
+                        return unprojection.lngLat;
                     }));
     }
 

@@ -1,4 +1,4 @@
-import { LatLon } from "./LatLon";
+import { LngLat } from "./LngLat";
 
 /**
  * Interface that represents a latitude-longitude reference
@@ -7,7 +7,7 @@ import { LatLon } from "./LatLon";
  *
  * @interface LatLonAlt
  */
-export interface LatLonAlt extends LatLon {
+export interface LatLonAlt extends LngLat {
     /**
      * Altitude, measured in meters.
      */

@@ -78,7 +78,7 @@ export class StateContext implements IStateContext {
             alpha: 1,
             camera: new Camera(),
             currentIndex: -1,
-            reference: { alt: 0, lat: 0, lon: 0 },
+            reference: { alt: 0, lat: 0, lng: 0 },
             trajectory: [],
             transitionMode: transitionMode == null ? TransitionMode.Default : transitionMode,
             zoom: 0,

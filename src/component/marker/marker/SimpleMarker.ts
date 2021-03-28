@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { LatLon } from "../../../api/interfaces/LatLon";
+import { LngLat } from "../../../api/interfaces/LngLat";
 import { SimpleMarkerOptions } from "../interfaces/SimpleMarkerOptions";
 import { Marker } from "./Marker";
 
@@ -18,11 +18,11 @@ import { Marker } from "./Marker";
  * ```js
  * var defaultMarker = new mapillary.MarkerComponent.SimpleMarker(
  *     "id-1",
- *     { lat: 0, lon: 0, });
+ *     { lat: 0, lng: 0, });
  *
  * var interactiveMarker = new mapillary.MarkerComponent.SimpleMarker(
  *     "id-2",
- *     { lat: 0, lon: 0, },
+ *     { lat: 0, lng: 0, },
  *     {
  *         ballColor: "#00f",
  *         ballOpacity: 0.5,
@@ -44,8 +44,8 @@ export class SimpleMarker extends Marker {
     private _opacity: number;
     private _radius: number;
 
-    constructor(id: string, latLon: LatLon, options?: SimpleMarkerOptions) {
-        super(id, latLon);
+    constructor(id: string, lngLat: LngLat, options?: SimpleMarkerOptions) {
+        super(id, lngLat);
 
         options = !!options ? options : {};
         this._ballColor = options.ballColor != null ? options.ballColor : 0xff0000;

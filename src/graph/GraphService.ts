@@ -29,7 +29,7 @@ import { GraphMode } from "./GraphMode";
 import { Image } from "./Image";
 import { Sequence } from "./Sequence";
 
-import { LatLon } from "../api/interfaces/LatLon";
+import { LngLat } from "../api/interfaces/LngLat";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { DataAddedProviderEvent } from "../api/interfaces/DataAddedProviderEvent";
 
@@ -135,13 +135,13 @@ export class GraphService {
      * retrieved, {@link cacheImage$} needs to be called for caching
      * assets.
      *
-     * @param {LatLon} sw - South west corner of bounding box.
-     * @param {LatLon} ne - North east corner of bounding box.
+     * @param {LngLat} sw - South west corner of bounding box.
+     * @param {LngLat} ne - North east corner of bounding box.
      * @return {Observable<Array<Image>>} Observable emitting a single item,
      * the images of the bounding box, when they have all been retrieved.
      * @throws {Error} Propagates any IO image caching errors to the caller.
      */
-    public cacheBoundingBox$(sw: LatLon, ne: LatLon): Observable<Image[]> {
+    public cacheBoundingBox$(sw: LngLat, ne: LngLat): Observable<Image[]> {
         return this._graph$.pipe(
             first(),
             mergeMap(

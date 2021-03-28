@@ -76,7 +76,7 @@ describe("CustomRenderer.add", () => {
             navigator);
 
         const viewer = <any>{};
-        const referenceMock = { alt: 1, lat: 2, lon: 2 };
+        const referenceMock: LatLonAlt = { alt: 1, lat: 2, lng: 2 };
         const rendererId = "id";
 
         customRenderer.add(
@@ -117,7 +117,7 @@ describe("CustomRenderer.add", () => {
             navigator);
 
         const viewer = <any>{};
-        const referenceMock = { alt: 1, lat: 2, lon: 2 };
+        const referenceMock: LatLonAlt = { alt: 1, lat: 2, lng: 2 };
         const rendererId = "id";
 
         let invokeCount = 0;
@@ -155,7 +155,7 @@ describe("CustomRenderer.add", () => {
             navigator);
 
         const viewer = <any>{};
-        const referenceMock = { alt: 1, lat: 2, lon: 2 };
+        const referenceMock: LatLonAlt = { alt: 1, lat: 2, lng: 2 };
         const rendererId = "id";
 
         let invokeCount = 0;
@@ -196,7 +196,7 @@ describe("CustomRenderer.add", () => {
             navigator);
 
         const viewer = <any>{};
-        const referenceMock = { alt: 1, lat: 2, lon: 2 };
+        const referenceMock: LatLonAlt = { alt: 1, lat: 2, lng: 2 };
         const rendererId = "id";
 
         customRenderer.add(

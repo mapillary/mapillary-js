@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { LatLon } from "../../../api/interfaces/LatLon";
+import { LngLat } from "../../../api/interfaces/LngLat";
 import { CircleMarkerOptions } from "../interfaces/CircleMarkerOptions";
 import { Marker } from "./Marker";
 
@@ -18,11 +18,11 @@ import { Marker } from "./Marker";
  * ```js
  * var defaultMarker = new mapillary.MarkerComponent.CircleMarker(
  *     "id-1",
- *     { lat: 0, lon: 0, });
+ *     { lat: 0, lng: 0, });
  *
  * var configuredMarker = new mapillary.MarkerComponent.CircleMarker(
  *     "id-2",
- *     { lat: 0, lon: 0, },
+ *     { lat: 0, lng: 0, },
  *     {
  *         color: "#0Ff",
  *         opacity: 0.3,
@@ -37,8 +37,8 @@ export class CircleMarker extends Marker {
     private _opacity: number;
     private _radius: number;
 
-    constructor(id: string, latLon: LatLon, options?: CircleMarkerOptions) {
-        super(id, latLon);
+    constructor(id: string, lngLat: LngLat, options?: CircleMarkerOptions) {
+        super(id, lngLat);
 
         options = !!options ? options : {};
         this._color = options.color != null ? options.color : 0xffffff;

@@ -36,7 +36,7 @@ import { PotentialEdge } from "./edge/interfaces/PotentialEdge";
 
 import { APIWrapper } from "../api/APIWrapper";
 import { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
-import { LatLon } from "../api/interfaces/LatLon";
+import { LngLat } from "../api/interfaces/LngLat";
 import { GraphMapillaryError } from "../error/GraphMapillaryError";
 import { SpatialImagesContract } from "../api/contracts/SpatialImagesContract";
 import { ImagesContract } from "../api/contracts/ImagesContract";
@@ -71,7 +71,7 @@ type SequenceAccess = {
 
 export type NodeIndexItem = {
     lat: number;
-    lon: number;
+    lng: number;
     node: Image;
 };
 
@@ -308,12 +308,12 @@ export class Graph {
      *
      * @description The node assets are not cached.
      *
-     * @param {LatLon} sw - South west corner of bounding box.
-     * @param {LatLon} ne - North east corner of bounding box.
+     * @param {LngLat} sw - South west corner of bounding box.
+     * @param {LngLat} ne - North east corner of bounding box.
      * @returns {Observable<Array<Image>>} Observable emitting
      * the full nodes in the bounding box.
      */
-    public cacheBoundingBox$(sw: LatLon, ne: LatLon): Observable<Image[]> {
+    public cacheBoundingBox$(sw: LngLat, ne: LngLat): Observable<Image[]> {
         const cacheTiles$ = this._api.data.geometry.bboxToCellIds(sw, ne)
             .filter(
                 (h: string): boolean => {
@@ -337,10 +337,10 @@ export class Graph {
                 (): Observable<Image[]> => {
                     const nodes = <Image[]>this._nodeIndex
                         .search({
-                            maxX: ne.lat,
-                            maxY: ne.lon,
-                            minX: sw.lat,
-                            minY: sw.lon,
+                            maxX: ne.lng,
+                            maxY: ne.lat,
+                            minX: sw.lng,
+                            minY: sw.lat,
                         })
                         .map(
                             (item: NodeIndexItem): Image => {
@@ -568,7 +568,7 @@ export class Graph {
                             this._makeFull(node, item.node);
 
                             const cellId = this._api.data.geometry
-                                .latLonToCellId(node.originalLatLon);
+                                .lngLatToCellId(node.originalLngLat);
                             this._preStore(cellId, node);
                             this._setNode(node);
 
@@ -722,7 +722,7 @@ export class Graph {
                                         this._makeFull(node, item.node);
 
                                         const cellId = this._api.data.geometry
-                                            .latLonToCellId(node.originalLatLon);
+                                            .lngLatToCellId(node.originalLngLat);
                                         this._preStore(cellId, node);
                                         this._setNode(node);
                                     }
@@ -1183,18 +1183,24 @@ export class Graph {
         }
 
         if (key in this._requiredSpatialArea) {
-            return Object.keys(this._requiredSpatialArea[key].cacheNodes).length === 0;
+            return Object
+                .keys(this._requiredSpatialArea[key].cacheNodes)
+                .length === 0;
         }
 
-        let node: Image = this.getNode(key);
-        let bbox: [LatLon, LatLon] = this._graphCalculator.boundingBoxCorners(node.latLon, this._tileThreshold);
+        let node = this.getNode(key);
+        let bbox = this._graphCalculator
+            .boundingBoxCorners(
+                node.lngLat,
+                this._tileThreshold);
 
-        let spatialItems: NodeIndexItem[] = this._nodeIndex.search({
-            maxX: bbox[1].lat,
-            maxY: bbox[1].lon,
-            minX: bbox[0].lat,
-            minY: bbox[0].lon,
-        });
+        let spatialItems = <NodeIndexItem[]>this._nodeIndex
+            .search({
+                maxX: bbox[1].lng,
+                maxY: bbox[1].lat,
+                minX: bbox[0].lng,
+                minY: bbox[0].lat,
+            });
 
         let spatialNodes: SpatialArea = {
             all: {},
@@ -1243,7 +1249,7 @@ export class Graph {
             const node = this.getNode(key);
             const [sw, ne] = this._graphCalculator
                 .boundingBoxCorners(
-                    node.latLon,
+                    node.lngLat,
                     this._tileThreshold)
 
             nodeTiles.cache = this._api.data.geometry
@@ -1352,7 +1358,7 @@ export class Graph {
         for (const node of nodes) {
             this._nodes[node.id] = node;
 
-            const h: string = this._api.data.geometry.latLonToCellId(node.originalLatLon);
+            const h: string = this._api.data.geometry.lngLatToCellId(node.originalLngLat);
             this._preStore(h, node);
         }
 
@@ -1420,7 +1426,7 @@ export class Graph {
             const node = this._nodes[id];
             const [sw, ne] = calculator
                 .boundingBoxCorners(
-                    node.latLon,
+                    node.lngLat,
                     tileThreshold,
                 )
             const nodeCells = geometry.bboxToCellIds(sw, ne)
@@ -1690,8 +1696,8 @@ export class Graph {
                             delete preStored[core.id];
                             hCache.push(preStoredNode);
                             const preStoredNodeIndexItem: NodeIndexItem = {
-                                lat: preStoredNode.latLon.lat,
-                                lon: preStoredNode.latLon.lon,
+                                lat: preStoredNode.lngLat.lat,
+                                lng: preStoredNode.lngLat.lng,
                                 node: preStoredNode,
                             };
                             this._nodeIndex.insert(preStoredNodeIndexItem);
@@ -1704,8 +1710,8 @@ export class Graph {
                         const node = new Image(core);
                         hCache.push(node);
                         const nodeIndexItem: NodeIndexItem = {
-                            lat: node.latLon.lat,
-                            lon: node.latLon.lon,
+                            lat: node.lngLat.lat,
+                            lng: node.lngLat.lng,
                             node: node,
                         };
 
@@ -1888,8 +1894,8 @@ export class Graph {
                         const node = new Image(core);
                         cellNodes.push(node);
                         const nodeIndexItem: NodeIndexItem = {
-                            lat: node.latLon.lat,
-                            lon: node.latLon.lon,
+                            lat: node.lngLat.lat,
+                            lng: node.lngLat.lng,
                             node: node,
                         };
                         nodeIndex.insert(nodeIndexItem);

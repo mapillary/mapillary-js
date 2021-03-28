@@ -40,7 +40,7 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
     });
 
     it("should throw when image is not full", () => {
-        image = helper.createCoreImage("", { alt: 0, lat: 0, lon: 0 }, "");
+        image = helper.createCoreImage("", { alt: 0, lat: 0, lng: 0 }, "");
 
         expect(() => { edgeCalculator.computeSphericalEdges(image, []); }).toThrowError(Error);
     });

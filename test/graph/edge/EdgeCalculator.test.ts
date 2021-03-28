@@ -30,7 +30,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
     });
 
     it("should throw when image is not full", () => {
-        let image: Image = helper.createCoreImage("", { alt: 0, lat: 0, lon: 0 }, "");
+        let image: Image = helper.createCoreImage("", { alt: 0, lat: 0, lng: 0 }, "");
 
         expect(() => { edgeCalculator.getPotentialEdges(image, null, []); }).toThrowError(Error);
     });
@@ -40,12 +40,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, [0, -Math.PI / 2, 0], 2, "perspective", 0, 0);
 
         let enu: number[] = [10, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -59,12 +59,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let enu: number[] = [10, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -91,12 +91,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let sequenceKey: string = "skey";
         let edgeKey: string = "edgeKey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let enu: number[] = [10, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, null, [0, -Math.PI / 2, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -110,12 +110,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let enu: number[] = [3, -4, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -134,12 +134,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let enu: number[] = [5, 5, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, [0, -Math.PI / 2, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -158,12 +158,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let enu: number[] = [5, 5, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -182,12 +182,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let enu: number[] = [0, -10, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -206,12 +206,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let enu: number[] = [3, 4, 5];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -230,12 +230,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let enu: number[] = [-3, 4, -5];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -254,12 +254,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, createRotationVector(0));
 
         let enu: number[] = [1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, createRotationVector(Math.PI / 2));
 
         let potentialEdges: PotentialEdge[] =
@@ -278,12 +278,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, createRotationVector(0));
 
         let enu: number[] = [1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, createRotationVector(-Math.PI / 2));
 
         let potentialEdges: PotentialEdge[] =
@@ -302,12 +302,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, createRotationVector(Math.PI / 4));
 
         let enu: number[] = [1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, createRotationVector(-3 * Math.PI / 4));
 
         let potentialEdges: PotentialEdge[] =
@@ -326,12 +326,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, createRotationVector(Math.PI / 4));
 
         let enu: number[] = [1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, createRotationVector(Math.PI / 4, Math.PI / 4));
 
         let potentialEdges: PotentialEdge[] =
@@ -350,15 +350,15 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, createRotationVector(Math.PI / 4, 5 * Math.PI / 12));
 
         let enu: number[] = [1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
         let edgeLla: LatLonAlt = {
             alt: geodetic[2],
             lat: geodetic[0],
-            lon: geodetic[1],
+            lng: geodetic[1],
         };
         let edgeImage =
             helper.createSpatialImageEn(
@@ -383,12 +383,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, createRotationVector(Math.PI / 2, Math.PI / 6));
 
         let enu: number[] = [1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage =
             helper.createSpatialImageEn(
                 edgeKey,
@@ -417,12 +417,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let theta: number = spatial.relativeRotationAngle(r1, r2);
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, r1);
 
         let enu: number[] = [1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, r2);
 
         let potentialEdges: PotentialEdge[] =
@@ -444,12 +444,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let r1: number[] = [0, 0, 0];
         let r2: number[] = [0, 0, 0];
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, r1);
 
         let enu: number[] = [1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, r2);
 
         let potentialEdges: PotentialEdge[] =
@@ -471,12 +471,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let r1: number[] = [0, 0, 0];
         let r2: number[] = [0, 0, 0];
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, r1);
 
         let enu: number[] = [0, 1, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, r2);
 
         let potentialEdges: PotentialEdge[] =
@@ -498,12 +498,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let r1: number[] = [0, 0, 0];
         let r2: number[] = [0, 0, 0];
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, r1);
 
         let enu: number[] = [-1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, r2);
 
         let potentialEdges: PotentialEdge[] =
@@ -525,12 +525,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let r1: number[] = [0, 0, 0];
         let r2: number[] = [0, 0, 0];
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, r1);
 
         let enu: number[] = [0, -1, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, r2);
 
         let potentialEdges: PotentialEdge[] =
@@ -552,12 +552,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let r1: number[] = [0, 0, 0];
         let r2: number[] = [0, 0, 0];
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, r1);
 
         let enu: number[] = [1, 1, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, r2);
 
         let potentialEdges: PotentialEdge[] =
@@ -576,12 +576,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, createRotationVector(0));
 
         let enu: number[] = [1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, createRotationVector(0));
 
         let potentialEdges: PotentialEdge[] =
@@ -601,12 +601,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let sequenceKey: string = "skey";
         let edgeSequenceKey: string = "edgeSkey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, createRotationVector(0));
 
         let enu: number[] = [1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, edgeSequenceKey, createRotationVector(0));
 
         let potentialEdges: PotentialEdge[] =
@@ -627,12 +627,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let mergeCC: number = 45;
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, createRotationVector(0), mergeCC);
 
         let enu: number[] = [1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, createRotationVector(0), mergeCC);
 
         let potentialEdges: PotentialEdge[] =
@@ -654,12 +654,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let mergeCC1: number = 45;
         let mergeCC2: number = 22;
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, createRotationVector(0), mergeCC1);
 
         let enu: number[] = [1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, createRotationVector(0), mergeCC2);
 
         let potentialEdges: PotentialEdge[] =
@@ -678,12 +678,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, createRotationVector(0), null);
 
         let enu: number[] = [1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, createRotationVector(0), null);
 
         let potentialEdges: PotentialEdge[] =
@@ -702,12 +702,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, createRotationVector(0), 467);
 
         let enu: number[] = [1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, createRotationVector(0), null);
 
         let potentialEdges: PotentialEdge[] =
@@ -726,12 +726,12 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey: string = "edgeKey";
         let sequenceKey: string = "skey";
 
-        let lla: LatLonAlt = { alt: 0, lat: 0, lon: 0 };
+        let lla: LatLonAlt = { alt: 0, lat: 0, lng: 0 };
         let image: Image = helper.createSpatialImageEn(key, lla, sequenceKey, createRotationVector(0), 467);
 
         let enu: number[] = [1, 0, 0];
-        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lon, lla.alt);
-        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lon: geodetic[1] };
+        let geodetic: number[] = GeoCoords.enuToGeodetic(enu[0], enu[1], enu[2], lla.lat, lla.lng, lla.alt);
+        let edgeLla: LatLonAlt = { alt: geodetic[2], lat: geodetic[0], lng: geodetic[1] };
         let edgeImage: Image = helper.createSpatialImageEn(edgeKey, edgeLla, sequenceKey, createRotationVector(0), 435, "spherical");
 
         let potentialEdges: PotentialEdge[] =

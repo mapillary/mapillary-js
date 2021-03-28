@@ -1,7 +1,7 @@
-import { LatLon } from "../../api/interfaces/LatLon";
+import { LngLat } from "../../api/interfaces/LngLat";
 
 export interface Unprojection {
     basicPoint: number[];
-    latLon: LatLon;
+    lngLat: LngLat;
     pixelPoint: number[];
 }

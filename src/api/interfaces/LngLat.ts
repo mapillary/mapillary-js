@@ -1,10 +1,8 @@
 /**
  * Interface that represents a latitude and longitude coordinate,
  * measured in degrees. Coordinates are defined in the WGS84 datum.
- *
- * @interface LatLon
  */
-export interface LatLon {
+export interface LngLat {
     /**
      * Latitude, measured in degrees.
      */
@@ -13,5 +11,5 @@ export interface LatLon {
     /**
      * Longitude, measured in degrees.
      */
-    lon: number;
+    lng: number;
 }

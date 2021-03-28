@@ -25,7 +25,7 @@ import { Component } from "../Component";
 import { Image } from "../../graph/Image";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
-import { LatLon } from "../../api/interfaces/LatLon";
+import { LngLat } from "../../api/interfaces/LngLat";
 import { LatLonAlt } from "../../api/interfaces/LatLonAlt";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { GraphCalculator } from "../../graph/GraphCalculator";
@@ -370,18 +370,18 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                     return { visibleBBoxSize: Math.max(1, Math.min(200, configuration.visibleBBoxSize)) };
                 }));
 
-        const currentlatLon$ = this._navigator.stateService.currentImage$.pipe(
-            map((image: Image): LatLon => { return image.latLon; }),
+        const currentLngLat$ = this._navigator.stateService.currentImage$.pipe(
+            map((image: Image): LngLat => { return image.lngLat; }),
             publishReplay(1),
             refCount());
 
         const visibleBBox$ = observableCombineLatest(
             clampedConfiguration$,
-            currentlatLon$).pipe(
+            currentLngLat$).pipe(
                 map(
-                    ([configuration, latLon]: [MarkerConfiguration, LatLon]): [LatLon, LatLon] => {
+                    ([configuration, lngLat]: [MarkerConfiguration, LngLat]): [LngLat, LngLat] => {
                         return this._graphCalculator
-                            .boundingBoxCorners(latLon, configuration.visibleBBoxSize / 2);
+                            .boundingBoxCorners(lngLat, configuration.visibleBBoxSize / 2);
                     }),
                 publishReplay(1),
                 refCount());
@@ -392,7 +392,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                 this._markerSet.changed$),
             visibleBBox$).pipe(
                 map(
-                    ([set, bbox]: [MarkerSet, [LatLon, LatLon]]): Marker[] => {
+                    ([set, bbox]: [MarkerSet, [LngLat, LngLat]]): Marker[] => {
                         return set.search(bbox);
                     }));
 
@@ -418,11 +418,11 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                         } else {
                             const point3d =
                                 geodeticToEnu(
-                                    marker.latLon.lat,
-                                    marker.latLon.lon,
+                                    marker.lngLat.lat,
+                                    marker.lngLat.lng,
                                     reference.alt + alt,
                                     reference.lat,
-                                    reference.lon,
+                                    reference.lng,
                                     reference.alt);
 
                             markerScene.add(marker, point3d);
@@ -440,7 +440,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
 
         subs.push(geoInitiated$.pipe(
             switchMap(
-                (): Observable<[Marker[], [LatLon, LatLon], LatLonAlt, number]> => {
+                (): Observable<[Marker[], [LngLat, LngLat], LatLonAlt, number]> => {
                     return this._markerSet.updated$.pipe(
                         withLatestFrom(
                             visibleBBox$,
@@ -448,24 +448,24 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                             groundAltitude$));
                 }))
             .subscribe(
-                ([markers, [sw, ne], reference, alt]: [Marker[], [LatLon, LatLon], LatLonAlt, number]): void => {
+                ([markers, [sw, ne], reference, alt]: [Marker[], [LngLat, LngLat], LatLonAlt, number]): void => {
                     const markerScene: MarkerScene = this._markerScene;
 
                     for (const marker of markers) {
                         const exists: boolean = markerScene.has(marker.id);
-                        const visible: boolean = marker.latLon.lat > sw.lat &&
-                            marker.latLon.lat < ne.lat &&
-                            marker.latLon.lon > sw.lon &&
-                            marker.latLon.lon < ne.lon;
+                        const visible: boolean = marker.lngLat.lat > sw.lat &&
+                            marker.lngLat.lat < ne.lat &&
+                            marker.lngLat.lng > sw.lng &&
+                            marker.lngLat.lng < ne.lng;
 
                         if (visible) {
                             const point3d =
                                 geodeticToEnu(
-                                    marker.latLon.lat,
-                                    marker.latLon.lon,
+                                    marker.lngLat.lat,
+                                    marker.lngLat.lng,
                                     reference.alt + alt,
                                     reference.lat,
-                                    reference.lon,
+                                    reference.lng,
                                     reference.alt);
 
                             markerScene.add(marker, point3d);
@@ -485,11 +485,11 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                     for (const marker of markerScene.getAll()) {
                         const point3d =
                             geodeticToEnu(
-                                marker.latLon.lat,
-                                marker.latLon.lon,
+                                marker.lngLat.lat,
+                                marker.lngLat.lng,
                                 reference.alt + alt,
                                 reference.lat,
-                                reference.lon,
+                                reference.lng,
                                 reference.alt);
 
                         markerScene.update(marker.id, point3d);
@@ -500,28 +500,28 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
             skip(1),
             withLatestFrom(
                 this._navigator.stateService.reference$,
-                currentlatLon$))
+                currentLngLat$))
             .subscribe(
-                ([alt, reference, latLon]: [number, LatLonAlt, LatLon]): void => {
+                ([alt, reference, lngLat]: [number, LatLonAlt, LngLat]): void => {
                     const markerScene: MarkerScene = this._markerScene;
 
                     const position =
                         geodeticToEnu(
-                            latLon.lat,
-                            latLon.lon,
+                            lngLat.lat,
+                            lngLat.lng,
                             reference.alt + alt,
                             reference.lat,
-                            reference.lon,
+                            reference.lng,
                             reference.alt);
 
                     for (const marker of markerScene.getAll()) {
                         const point3d =
                             geodeticToEnu(
-                                marker.latLon.lat,
-                                marker.latLon.lon,
+                                marker.lngLat.lat,
+                                marker.lngLat.lng,
                                 reference.alt + alt,
                                 reference.lat,
-                                reference.lon,
+                                reference.lng,
                                 reference.alt);
 
                         const distanceX: number = point3d[0] - position[0];
@@ -722,14 +722,14 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
                             intersection.y,
                             intersection.z,
                             reference.lat,
-                            reference.lon,
+                            reference.lng,
                             reference.alt);
 
                     this._markerScene
                         .update(
                             marker.id,
                             intersection.toArray(),
-                            { lat: lat, lon: lon });
+                            { lat: lat, lng: lon });
 
                     this._markerSet.update(marker);
 

@@ -1,6 +1,6 @@
 import * as geohash from "latlon-geohash";
 import { GeohashGeometryProvider } from "../../src/api/GeohashGeometryProvider";
-import { LatLon } from "../../src/api/interfaces/LatLon";
+import { LngLat } from "../../src/api/interfaces/LngLat";
 import { MapillaryError } from "../../src/error/MapillaryError";
 import * as GeoCoords from "../../src/geo/GeoCoords";
 
@@ -11,7 +11,7 @@ describe("GeohashGeometryProvider.ctor", () => {
     });
 });
 
-describe("GeohashGeometryProvider.latLonToCellId", () => {
+describe("GeohashGeometryProvider.lngLatToCellId", () => {
     test("should call encoder correctly", () => {
         const mockEncode = spyOn(geohash, "encode").and.returnValue("0/0");
 
@@ -19,7 +19,7 @@ describe("GeohashGeometryProvider.latLonToCellId", () => {
         const geometry = new GeohashGeometryProvider(level);
         const lat = -1;
         const lon = 1;
-        geometry.latLonToCellId({ lat, lon });
+        geometry.lngLatToCellId({ lat, lng: lon });
 
         expect(mockEncode).toHaveBeenCalledTimes(1);
         expect(mockEncode).toHaveBeenCalledWith(lat, lon, level);
@@ -96,8 +96,8 @@ describe("GeohashGeometryProvider.bboxToCellIds", () => {
         const tileSize = 1;
         setupSpies(tileSize);
 
-        const sw: LatLon = { lat: -0.1, lon: -0.1 };
-        const ne: LatLon = { lat: 0.1, lon: 0.1 };
+        const sw: LngLat = { lat: -0.1, lng: -0.1 };
+        const ne: LngLat = { lat: 0.1, lng: 0.1 };
         const cellIds = geometry.bboxToCellIds(sw, ne);
 
         expect(cellIds.length).toBe(1);
@@ -109,8 +109,8 @@ describe("GeohashGeometryProvider.bboxToCellIds", () => {
         const tileSize = 1;
         setupSpies(tileSize);
 
-        const sw: LatLon = { lat: -0.6, lon: -0.6 };
-        const ne: LatLon = { lat: 0.6, lon: 0.6 };
+        const sw: LngLat = { lat: -0.6, lng: -0.6 };
+        const ne: LngLat = { lat: 0.6, lng: 0.6 };
         const cellIds = geometry.bboxToCellIds(sw, ne);
 
         expect(cellIds.length).toBe(9);
@@ -133,22 +133,22 @@ describe("GeohashGeometryProvider.bboxToCellIds", () => {
         expect(() => {
             geometry
                 .bboxToCellIds(
-                    { lat: 0, lon: 0 },
-                    { lat: -1, lon: 1 });
+                    { lat: 0, lng: 0 },
+                    { lat: -1, lng: 1 });
         }).toThrowError(MapillaryError);
 
         expect(() => {
             geometry
                 .bboxToCellIds(
-                    { lat: 0, lon: 0 },
-                    { lat: 1, lon: -1 });
+                    { lat: 0, lng: 0 },
+                    { lat: 1, lng: -1 });
         }).toThrowError(MapillaryError);
 
         expect(() => {
             geometry
                 .bboxToCellIds(
-                    { lat: 0, lon: 0 },
-                    { lat: -1, lon: -1 });
+                    { lat: 0, lng: 0 },
+                    { lat: -1, lng: -1 });
         }).toThrowError(MapillaryError);
     });
 
@@ -156,23 +156,23 @@ describe("GeohashGeometryProvider.bboxToCellIds", () => {
         it("should always be 8", () => {
             const geometry = new GeohashGeometryProvider();
 
-            const latLons: LatLon[] = [
-                { lat: 45, lon: 0 },
-                { lat: 0, lon: 45 },
-                { lat: -45, lon: 0 },
-                { lat: 0, lon: -45 },
-                { lat: 45, lon: 45 },
-                { lat: -45, lon: -45 },
-                { lat: 45, lon: -45 },
-                { lat: -45, lon: 45 },
-                { lat: -45, lon: 135 },
-                { lat: -45, lon: 180 },
-                { lat: 0, lon: 180 },
-                { lat: 45, lon: 180 },
+            const lngLats: LngLat[] = [
+                { lat: 45, lng: 0 },
+                { lat: 0, lng: 45 },
+                { lat: -45, lng: 0 },
+                { lat: 0, lng: -45 },
+                { lat: 45, lng: 45 },
+                { lat: -45, lng: -45 },
+                { lat: 45, lng: -45 },
+                { lat: -45, lng: 45 },
+                { lat: -45, lng: 135 },
+                { lat: -45, lng: 180 },
+                { lat: 0, lng: 180 },
+                { lat: 45, lng: 180 },
             ];
 
-            for (let latLon of latLons) {
-                const cellId = geometry.latLonToCellId(latLon);
+            for (let lngLat of lngLats) {
+                const cellId = geometry.lngLatToCellId(lngLat);
                 const adjacent = geometry.getAdjacent(cellId);
                 expect(adjacent.length).toBe(8);
             }

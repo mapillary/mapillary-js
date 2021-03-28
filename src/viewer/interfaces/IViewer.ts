@@ -1,4 +1,4 @@
-import { LatLon } from "../../api/interfaces/LatLon";
+import { LngLat } from "../../api/interfaces/LngLat";
 import { Component } from "../../component/Component";
 import { ComponentConfiguration }
     from "../../component/interfaces/ComponentConfiguration";
@@ -33,7 +33,7 @@ export interface IViewer {
     getContainer(): HTMLElement;
     getFieldOfView(): Promise<number>;
     getPointOfView(): Promise<PointOfView>;
-    getPosition(): Promise<LatLon>;
+    getPosition(): Promise<LngLat>;
     getZoom(): Promise<number>;
     hasCustomRenderer(rendererId: string): boolean;
     moveDir(direction: NavigationDirection): Promise<Image>;
@@ -44,7 +44,7 @@ export interface IViewer {
     on<T>(
         type: ViewerEventType,
         handler: (event: T) => void): void;
-    project(latLon: LatLon): Promise<number[]>;
+    project(lngLat: LngLat): Promise<number[]>;
     projectFromBasic(basicPoint: number[]): Promise<number[]>;
     remove(): void;
     removeCustomRenderer(rendererId: string): void;
@@ -57,6 +57,6 @@ export interface IViewer {
     setUserToken(userToken?: string): Promise<void>;
     setZoom(zoom: number): void;
     triggerRerender(): void;
-    unproject(pixelPoint: number[]): Promise<LatLon>;
+    unproject(pixelPoint: number[]): Promise<LngLat>;
     unprojectToBasic(pixelPoint: number[]): Promise<number[]>;
 }

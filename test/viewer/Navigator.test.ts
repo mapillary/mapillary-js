@@ -123,9 +123,9 @@ describe("Navigator.moveToKey$", () => {
         const sequenceKey: string = "sequenceId";
         spyOn(graphService, "cacheImage$").and.returnValue(observableOf<Image>(
             new Image({
-                computed_geometry: { lat: 0, lon: 0 },
+                computed_geometry: { lat: 0, lng: 0 },
                 id: key,
-                geometry: { lat: 0, lon: 0 },
+                geometry: { lat: 0, lng: 0 },
                 sequence: { id: sequenceKey },
             })));
 
@@ -230,9 +230,9 @@ describe("Navigator.moveToKey$", () => {
         const key: string = "key";
         const sequenceKey: string = "sequenceId";
         const image: Image = new Image({
-            computed_geometry: { lat: 0, lon: 0 },
+            computed_geometry: { lat: 0, lng: 0 },
             id: key,
-            geometry: { lat: 0, lon: 0 },
+            geometry: { lat: 0, lng: 0 },
             sequence: { id: sequenceKey },
         });
 
@@ -269,9 +269,9 @@ describe("Navigator.moveToKey$", () => {
         const sequenceKey: string = "sequenceId";
         const cacheImageSubject$: Subject<Image> = new Subject<Image>();
         const image: Image = new Image({
-            computed_geometry: { lat: 0, lon: 0 },
+            computed_geometry: { lat: 0, lng: 0 },
             id: key,
-            geometry: { lat: 0, lon: 0 },
+            geometry: { lat: 0, lng: 0 },
             sequence: { id: sequenceKey },
         });
 
@@ -312,9 +312,9 @@ describe("Navigator.moveToKey$", () => {
             const sequenceKey: string = "sequenceId";
             const cacheImageSubject$: Subject<Image> = new Subject<Image>();
             const image: Image = new Image({
-                computed_geometry: { lat: 0, lon: 0 },
+                computed_geometry: { lat: 0, lng: 0 },
                 id: key,
-                geometry: { lat: 0, lon: 0 },
+                geometry: { lat: 0, lng: 0 },
                 sequence: { id: sequenceKey },
             });
 
@@ -372,9 +372,9 @@ describe("Navigator.movedToKey$", () => {
         const sequenceKey: string = "sequenceId";
         spyOn(graphService, "cacheImage$").and.returnValue(observableOf<Image>(
             new Image({
-                computed_geometry: { lat: 0, lon: 0 },
+                computed_geometry: { lat: 0, lng: 0 },
                 id: key,
-                geometry: { lat: 0, lon: 0 },
+                geometry: { lat: 0, lng: 0 },
                 sequence: { id: sequenceKey },
             })));
 

@@ -29,7 +29,7 @@ import { AnimationFrame } from "./interfaces/AnimationFrame";
 import { EulerRotation } from "./interfaces/EulerRotation";
 import { IStateContext } from "./interfaces/IStateContext";
 
-import { LatLon } from "../api/interfaces/LatLon";
+import { LngLat } from "../api/interfaces/LngLat";
 import { Camera } from "../geo/Camera";
 import { Image } from "../graph/Image";
 import { Transform } from "../geo/Transform";
@@ -200,11 +200,11 @@ export class StateService {
                     return f.state.reference;
                 }),
             distinctUntilChanged(
-                (r1: LatLon, r2: LatLon): boolean => {
-                    return r1.lat === r2.lat && r1.lon === r2.lon;
+                (r1: LngLat, r2: LngLat): boolean => {
+                    return r1.lat === r2.lat && r1.lng === r2.lng;
                 },
-                (reference: LatLonAlt): LatLon => {
-                    return { lat: reference.lat, lon: reference.lon };
+                (reference: LatLonAlt): LngLat => {
+                    return { lat: reference.lat, lng: reference.lng };
                 }),
             publishReplay(1),
             refCount());

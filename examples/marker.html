@@ -68,8 +68,8 @@
             console.log("Average marker add time:", (totalAddTime / addTimes.length / batchSize).toFixed(4));
         };
 
-        // Create markers in a bounding box with center at latLon
-        const createRandomMarkers = function (start, count, latLon) {
+        // Create markers in a bounding box with center at lngLat
+        const createRandomMarkers = function (start, count, lngLat) {
             const getRandomUniform = function (min, max) {
                 return Math.random() * (max - min) + min;
             };
@@ -77,10 +77,10 @@
             const t0 = window.performance.now();
             const boxWidth = 0.1;
 
-            const minLat = latLon.lat - boxWidth / 2;
-            const maxLat = latLon.lat + boxWidth / 2;
-            const minLon = latLon.lon - boxWidth / 2;
-            const maxLon = latLon.lon + boxWidth / 2;
+            const minLat = lngLat.lat - boxWidth / 2;
+            const maxLat = lngLat.lat + boxWidth / 2;
+            const minLon = lngLat.lng - boxWidth / 2;
+            const maxLon = lngLat.lng + boxWidth / 2;
 
             const markers = [];
             for (let i = start; i < start + count; i++) {
@@ -110,7 +110,7 @@
             .then(
                 function (n) {
                     let intervalId = window.setInterval(function () {
-                        const markers = createRandomMarkers(markerCount, batchSize, n.latLon);
+                        const markers = createRandomMarkers(markerCount, batchSize, n.lngLat);
                         addMarkers(markers);
 
                         markerCount += batchSize;
