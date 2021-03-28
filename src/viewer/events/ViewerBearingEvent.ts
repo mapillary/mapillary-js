@@ -1,0 +1,18 @@
+import { ViewerEvent } from "./ViewerEvent";
+
+/**
+ * @event
+ */
+export interface ViewerBearingEvent extends ViewerEvent {
+    /**
+     * Bearing is measured in degrees
+     * clockwise with respect to north.
+     *
+     * @description Bearing is related to the computed
+     * compass angle ({@link Node.computedCompassAngle})
+     * from SfM, not the original EXIF compass angle.
+     */
+    bearing: number;
+
+    type: "bearing";
+}

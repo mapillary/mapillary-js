@@ -28,16 +28,14 @@ import { Node } from "../graph/Node";
 import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
 import { RenderCamera } from "../render/RenderCamera";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
-import { ViewerEvent } from "./events/ViewerEvent";
-import {
-    ViewerBearingEvent,
-    ViewerLoadingEvent,
-    ViewerNavigableEvent,
-    ViewerNavigationEdgeStatusEvent,
-    ViewerNodeEvent,
-    ViewerStateEvent,
-} from "./events/ViewerStateEvent";
+import { ViewerEventType } from "./events/ViewerEventType";
 import { IViewer } from "./interfaces/IViewer";
+import { ViewerNavigableEvent } from "./events/ViewerNavigableEvent";
+import { ViewerLoadingEvent } from "./events/ViewerLoadingEvent";
+import { ViewerNodeEvent } from "./events/ViewerNodeEvent";
+import { ViewerNavigationEdgeEvent } from "./events/ViewerNavigationEdgeEvent";
+import { ViewerStateEvent } from "./events/ViewerStateEvent";
+import { ViewerBearingEvent } from "./events/ViewerBearingEvent";
 
 type UnprojectionParams = [
     [
@@ -84,7 +82,7 @@ export class Observer {
         subs.push(this._navigable$
             .subscribe(
                 (navigable: boolean): void => {
-                    const type: ViewerEvent = "navigable";
+                    const type: ViewerEventType = "navigable";
                     const event: ViewerNavigableEvent = {
                         navigable,
                         target: this._viewer,
@@ -96,7 +94,7 @@ export class Observer {
         subs.push(this._navigator.loadingService.loading$
             .subscribe(
                 (loading: boolean): void => {
-                    const type: ViewerEvent = "loading";
+                    const type: ViewerEventType = "loading";
                     const event: ViewerLoadingEvent = {
                         loading,
                         target: this._viewer,
@@ -178,7 +176,7 @@ export class Observer {
 
         subs.push(this._navigator.stateService.currentNodeExternal$
             .subscribe((node: Node): void => {
-                const type: ViewerEvent = "node";
+                const type: ViewerEventType = "node";
                 const event: ViewerNodeEvent = {
                     node,
                     target: this._viewer,
@@ -194,8 +192,8 @@ export class Observer {
                 }))
             .subscribe(
                 (status: NavigationEdgeStatus): void => {
-                    const type: ViewerEvent = "sequenceedges";
-                    const event: ViewerNavigationEdgeStatusEvent = {
+                    const type: ViewerEventType = "sequenceedges";
+                    const event: ViewerNavigationEdgeEvent = {
                         status,
                         target: this._viewer,
                         type,
@@ -210,8 +208,8 @@ export class Observer {
                 }))
             .subscribe(
                 (status: NavigationEdgeStatus): void => {
-                    const type: ViewerEvent = "spatialedges";
-                    const event: ViewerNavigationEdgeStatusEvent = {
+                    const type: ViewerEventType = "spatialedges";
+                    const event: ViewerNavigationEdgeEvent = {
                         status,
                         target: this._viewer,
                         type,
@@ -230,7 +228,7 @@ export class Observer {
                 distinctUntilChanged())
             .subscribe(
                 (started: boolean) => {
-                    const type: ViewerEvent = started ? "movestart" : "moveend";
+                    const type: ViewerEventType = started ? "movestart" : "moveend";
                     const event: ViewerStateEvent = {
                         target: this._viewer,
                         type,
@@ -246,7 +244,7 @@ export class Observer {
                 }))
             .subscribe(
                 (bearing): void => {
-                    const type: ViewerEvent = "bearing";
+                    const type: ViewerEventType = "bearing";
                     const event: ViewerBearingEvent = {
                         bearing,
                         target: this._viewer,
@@ -330,7 +328,7 @@ export class Observer {
                 }))
             .subscribe(
                 (): void => {
-                    const type: ViewerEvent = "position";
+                    const type: ViewerEventType = "position";
                     const event: ViewerStateEvent = {
                         target: this._viewer,
                         type,
@@ -349,7 +347,7 @@ export class Observer {
                 }))
             .subscribe(
                 (): void => {
-                    const type: ViewerEvent = "pov";
+                    const type: ViewerEventType = "pov";
                     const event: ViewerStateEvent = {
                         target: this._viewer,
                         type,
@@ -367,7 +365,7 @@ export class Observer {
                 }))
             .subscribe(
                 (): void => {
-                    const type: ViewerEvent = "fov";
+                    const type: ViewerEventType = "fov";
                     const event: ViewerStateEvent = {
                         target: this._viewer,
                         type,
@@ -427,12 +425,12 @@ export class Observer {
     }
 
     private _mapMouseEvent$(
-        type: ViewerEvent,
+        type: ViewerEventType,
         mouseEvent$: Observable<MouseEvent>)
-        : Observable<[ViewerEvent, MouseEvent]> {
+        : Observable<[ViewerEventType, MouseEvent]> {
         return mouseEvent$.pipe(
             map(
-                (event: MouseEvent): [ViewerEvent, MouseEvent] => {
+                (event: MouseEvent): [ViewerEventType, MouseEvent] => {
                     return [type, event];
                 }));
     }

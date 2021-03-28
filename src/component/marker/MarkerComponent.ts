@@ -37,12 +37,13 @@ import { MarkerConfiguration } from "../interfaces/MarkerConfiguration";
 import { Marker } from "./marker/Marker";
 import { MarkerSet } from "./MarkerSet";
 import { MarkerScene } from "./MarkerScene";
-import { ComponentMarkerEvent } from "../events/ComponentStateEvent";
-import { ComponentEvent } from "../events/ComponentEvent";
+import { ComponentEventType } from "../events/ComponentEventType";
 import {
     enuToGeodetic,
     geodeticToEnu,
 } from "../../geo/GeoCoords";
+import { ComponentMarkerEvent } from "../events/ComponentMarkerEvent";
+import { ComponentEvent } from "../events/ComponentEvent";
 
 /**
  * @class MarkerComponent
@@ -121,6 +122,25 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
      */
     public add(markers: Marker[]): void {
         this._markerSet.add(markers);
+    }
+
+    public fire(
+        type:
+            | "markerdragend"
+            | "markerdragstart"
+            | "markerposition",
+        event: ComponentMarkerEvent)
+        : void;
+    /** @ignore */
+    public fire(
+        type: ComponentEventType,
+        event: ComponentEvent)
+        : void;
+    public fire<T>(
+        type: ComponentEventType,
+        event: T)
+        : void {
+        super.fire(type, event);
     }
 
     /**
@@ -215,21 +235,22 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
     }
 
     public off(
-        type: "markerdragend",
+        type:
+            | "markerdragend"
+            | "markerdragstart"
+            | "markerposition",
         handler: (event: ComponentMarkerEvent) => void)
         : void;
+    /** @ignore */
     public off(
-        type: "markerdragstart",
-        handler: (event: ComponentMarkerEvent) => void)
-        : void;
-    public off(
-        type: "markerposition",
-        handler: (event: ComponentMarkerEvent) => void)
+        type: ComponentEventType,
+        handler: (event: ComponentEvent) => void)
         : void;
     public off<T>(
-        type: ComponentEvent,
-        handler: (event: T) => void): void {
-        super.on(type, handler);
+        type: ComponentEventType,
+        handler: (event: T) => void)
+        : void {
+        super.off(type, handler);
     }
 
     /**
@@ -240,7 +261,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
      * ```js
      * // Initialize the viewer
      * var viewer = new mapillary.Viewer({ // viewer options });
-     * var component = viewer.getComponet('<component-name>');
+     * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('markerdragend', function() {
      *   console.log("A markerdragend event has occurred.");
@@ -259,7 +280,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
      * ```js
      * // Initialize the viewer
      * var viewer = new mapillary.Viewer({ // viewer options });
-     * var component = viewer.getComponet('<component-name>');
+     * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('markerdragstart', function() {
      *   console.log("A markerdragstart event has occurred.");
@@ -278,7 +299,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
      * ```js
      * // Initialize the viewer
      * var viewer = new mapillary.Viewer({ // viewer options });
-     * var component = viewer.getComponet('<component-name>');
+     * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('markerposition', function() {
      *   console.log("A markerposition event has occurred.");
@@ -290,8 +311,9 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
         handler: (event: ComponentMarkerEvent) => void)
         : void;
     public on<T>(
-        type: ComponentEvent,
-        handler: (event: T) => void): void {
+        type: ComponentEventType,
+        handler: (event: T) => void)
+        : void {
         super.on(type, handler);
     }
 
@@ -582,7 +604,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
             .subscribe(
                 ([previous, current]: [boolean, string][]): void => {
                     const dragging = current[0];
-                    const type: ComponentEvent =
+                    const type: ComponentEventType =
                         dragging ?
                             "markerdragstart" :
                             "markerdragend";
@@ -711,7 +733,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
 
                     this._markerSet.update(marker);
 
-                    const type: ComponentEvent = "markerposition";
+                    const type: ComponentEventType = "markerposition";
                     const markerEvent: ComponentMarkerEvent = {
                         marker,
                         target: this,

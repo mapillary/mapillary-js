@@ -9,8 +9,8 @@ import {
 
 import { EventEmitter } from "../../../util/EventEmitter";
 import { Geometry } from "../geometry/Geometry";
-import { TagEvent } from "./TagEvent";
-import { TagStateEvent } from "./TagStateEvent";
+import { TagEventType } from "./events/TagEventType";
+import { TagStateEvent } from "./events/TagStateEvent";
 
 /**
  * @class Tag
@@ -41,7 +41,7 @@ export abstract class Tag extends EventEmitter {
         this._notifyChanged$
             .subscribe(
                 (t: Tag): void => {
-                    const type: TagEvent = "tag";
+                    const type: TagEventType = "tag";
                     const event: TagStateEvent = {
                         target: this,
                         type,
@@ -52,7 +52,7 @@ export abstract class Tag extends EventEmitter {
         this._geometry.changed$
             .subscribe(
                 (g: Geometry): void => {
-                    const type: TagEvent = "geometry";
+                    const type: TagEventType = "geometry";
                     const event: TagStateEvent = {
                         target: this,
                         type,
@@ -100,22 +100,35 @@ export abstract class Tag extends EventEmitter {
             share());
     }
 
-    public off(
-        type: "geometry",
-        handler: (event: TagStateEvent) => void)
+    public fire(
+        type: "tag" | "geometry",
+        event: TagStateEvent)
         : void;
+    /** @ignore */
+    public fire(
+        type: TagEventType,
+        event: TagStateEvent): void;
+    public fire<T>(
+        type: TagEventType,
+        event: T)
+        : void {
+        super.fire(type, event);
+    }
+
     public off(
-        type: "tag",
+        type: "tag" | "geometry",
         handler: (event: TagStateEvent) => void)
         : void;
     /** @ignore */
     public off(
-        type: TagEvent,
-        handler: (event: TagStateEvent) => void): void;
+        type: TagEventType,
+        handler: (event: TagStateEvent) => void)
+        : void;
     public off<T>(
-        type: TagEvent,
-        handler: (event: T) => void): void {
-        super.on(type, handler);
+        type: TagEventType,
+        handler: (event: T) => void)
+        : void {
+        super.off(type, handler);
     }
 
     /**
@@ -154,11 +167,13 @@ export abstract class Tag extends EventEmitter {
         : void;
     /** @ignore */
     public on(
-        type: TagEvent,
-        handler: (event: TagStateEvent) => void): void;
+        type: TagEventType,
+        handler: (event: TagStateEvent) => void)
+        : void;
     public on<T>(
-        type: TagEvent,
-        handler: (event: T) => void): void {
+        type: TagEventType,
+        handler: (event: T) => void)
+        : void {
         super.on(type, handler);
     }
 }

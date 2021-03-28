@@ -2,7 +2,7 @@ import * as ComponentController from "../../src/viewer/ComponentController";
 import * as Container from "../../src/viewer/Container";
 import * as CustomRenderer from "../../src/viewer/CustomRenderer";
 import { RenderPass } from "../../src/viewer/enums/RenderPass";
-import { ViewerEvent } from "../../src/viewer/events/ViewerEvent";
+import { ViewerEventType } from "../../src/viewer/events/ViewerEventType";
 import * as Navigator from "../../src/viewer/Navigator";
 import * as Observer from "../../src/viewer/Observer";
 
@@ -85,7 +85,7 @@ describe("Viewer.remove", () => {
     it("should emit removed event", (done: Function) => {
         createMocks();
         const viewer = new Viewer({ apiClient: "", container: "" });
-        const remove: ViewerEvent = "remove";
+        const remove: ViewerEventType = "remove";
         viewer.on(
             remove,
             (event: { type: string }): void => {

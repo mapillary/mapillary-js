@@ -1,23 +1,29 @@
-import { skip, first, take } from "rxjs/operators";
+import {
+    skip,
+    first,
+    take,
+} from "rxjs/operators";
 import { Subject } from "rxjs";
 
 import { Node } from "../../src/graph/Node";
-
 import { ContainerMockCreator } from "../helper/ContainerMockCreator";
 import { NavigatorMockCreator } from "../helper/NavigatorMockCreator";
 import { NodeMockCreator } from "../helper/NodeMockCreator";
 import { MockCreator } from "../helper/MockCreator";
 import { ComponentService } from "../../src/component/ComponentService";
 import { CoverComponent } from "../../src/component/cover/CoverComponent";
-import { CoverConfiguration } from "../../src/component/interfaces/CoverConfiguration";
+import { CoverConfiguration }
+    from "../../src/component/interfaces/CoverConfiguration";
 import { Observer } from "../../src/viewer/Observer";
 import { EventEmitter } from "../../src/util/EventEmitter";
 import { ComponentController } from "../../src/viewer/ComponentController";
 import { Viewer } from "../../src/viewer/Viewer";
 import { Component } from "../../src/component/Component";
-import { ComponentConfiguration } from "../../src/component/interfaces/ComponentConfiguration";
+import { ComponentConfiguration }
+    from "../../src/component/interfaces/ComponentConfiguration";
 import { CoverState } from "../../src/component/cover/CoverState";
-import { ViewerNavigableEvent } from "../../src/viewer/events/ViewerStateEvent";
+import { ViewerNavigableEvent }
+    from "../../src/viewer/events/ViewerNavigableEvent";
 
 class CMock extends Component<ComponentConfiguration> {
     protected static _cn: string = "mock";

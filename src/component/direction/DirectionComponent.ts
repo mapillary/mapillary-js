@@ -1,12 +1,10 @@
 import * as vd from "virtual-dom";
-
 import {
     combineLatest as observableCombineLatest,
     of as observableOf,
     Observable,
     Subject,
 } from "rxjs";
-
 import {
     catchError,
     distinctUntilChanged,
@@ -19,23 +17,21 @@ import {
     withLatestFrom,
 } from "rxjs/operators";
 
-import { Component } from "../Component";
-
 import { Node } from "../../graph/Node";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
-import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
+import { NavigationEdgeStatus }
+    from "../../graph/interfaces/NavigationEdgeStatus";
 import { Sequence } from "../../graph/Sequence";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
 import { RenderCamera } from "../../render/RenderCamera";
+import { Component } from "../Component";
 import { DirectionConfiguration } from "../interfaces/DirectionConfiguration";
 import { DirectionDOMRenderer } from "./DirectionDOMRenderer";
-import { ComponentEvent } from "../events/ComponentEvent";
-import {
-    ComponentHoverEvent,
-    ComponentStateEvent,
-} from "../events/ComponentStateEvent";
+import { ComponentEventType } from "../events/ComponentEventType";
+import { ComponentHoverEvent } from "../events/ComponentHoverEvent";
+import { ComponentStateEvent } from "../events/ComponentStateEvent";
 
 /**
  * @class DirectionComponent
@@ -70,17 +66,32 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
         this._hoveredId$ = this._hoveredIdSubject$.pipe(share());
     }
 
+    public fire(
+        type: "hover",
+        event: ComponentHoverEvent)
+        : void;
+    /** @ignore */
+    public fire(
+        type: ComponentEventType,
+        event: ComponentStateEvent)
+        : void;
+    public fire<T>(
+        type: ComponentEventType,
+        event: T): void {
+        super.fire(type, event);
+    }
+
     public off(
         type: "hover",
         handler: (event: ComponentHoverEvent) => void)
         : void;
     /** @ignore */
     public off(
-        type: ComponentEvent,
+        type: ComponentEventType,
         handler: (event: ComponentStateEvent) => void)
         : void;
     public off<T>(
-        type: ComponentEvent,
+        type: ComponentEventType,
         handler: (event: T) => void): void {
         super.off(type, handler);
     }
@@ -93,7 +104,7 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
      * ```js
      * // Initialize the viewer
      * var viewer = new mapillary.Viewer({ // viewer options });
-     * var component = viewer.getComponet('<component-name>');
+     * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('hover', function() {
      *   console.log("A hover event has occurred.");
@@ -106,11 +117,11 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
         : void;
     /** @ignore */
     public on(
-        type: ComponentEvent,
+        type: ComponentEventType,
         handler: (event: ComponentStateEvent) => void)
         : void;
     public on<T>(
-        type: ComponentEvent,
+        type: ComponentEventType,
         handler: (event: T) => void): void {
         super.on(type, handler);
     }
@@ -202,7 +213,7 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
         subs.push(this._hoveredId$
             .subscribe(
                 (id: string): void => {
-                    const type: ComponentEvent = "hover";
+                    const type: ComponentEventType = "hover";
                     const event: ComponentHoverEvent = {
                         id,
                         target: this,

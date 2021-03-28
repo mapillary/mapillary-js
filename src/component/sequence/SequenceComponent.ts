@@ -44,11 +44,9 @@ import { SequenceConfiguration } from "../interfaces/SequenceConfiguration";
 import { SequenceDOMRenderer } from "./SequenceDOMRenderer";
 import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { Component } from "../Component";
-import { ComponentEvent } from "../events/ComponentEvent";
-import {
-    ComponentHoverEvent,
-    ComponentPlayEvent,
-} from "../events/ComponentStateEvent";
+import { ComponentEventType } from "../events/ComponentEventType";
+import { ComponentPlayEvent } from "../events/ComponentPlayEvent";
+import { ComponentHoverEvent } from "../events/ComponentHoverEvent";
 
 /**
  * @class SequenceComponent
@@ -88,7 +86,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
             withLatestFrom(this._configuration$))
             .subscribe(
                 ([playing, configuration]: [boolean, SequenceConfiguration]): void => {
-                    const type: ComponentEvent = "playing";
+                    const type: ComponentEventType = "playing";
                     const event: ComponentPlayEvent = {
                         playing,
                         target: this,
@@ -118,6 +116,21 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                 });
     }
 
+    public fire(
+        type: "hover",
+        event: ComponentHoverEvent)
+        : void;
+    public fire(
+        type: "playing",
+        event: ComponentPlayEvent)
+        : void;
+    public fire<T>(
+        type: ComponentEventType,
+        event: T)
+        : void {
+        super.fire(type, event);
+    }
+
     public off(
         type: "hover",
         handler: (event: ComponentHoverEvent) => void)
@@ -127,8 +140,9 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
         handler: (event: ComponentPlayEvent) => void)
         : void;
     public off<T>(
-        type: ComponentEvent,
-        handler: (event: T) => void): void {
+        type: ComponentEventType,
+        handler: (event: T) => void)
+        : void {
         super.off(type, handler);
     }
 
@@ -140,7 +154,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
      * ```js
      * // Initialize the viewer
      * var viewer = new mapillary.Viewer({ // viewer options });
-     * var component = viewer.getComponet('<component-name>');
+     * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('hover', function() {
      *   console.log("A hover event has occurred.");
@@ -159,7 +173,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
      * ```js
      * // Initialize the viewer
      * var viewer = new mapillary.Viewer({ // viewer options });
-     * var component = viewer.getComponet('<component-name>');
+     * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('playing', function() {
      *   console.log("A playing event has occurred.");
@@ -171,8 +185,9 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
         handler: (event: ComponentPlayEvent) => void)
         : void;
     public on<T>(
-        type: ComponentEvent,
-        handler: (event: T) => void): void {
+        type: ComponentEventType,
+        handler: (event: T) => void)
+        : void {
         super.on(type, handler);
     }
 
@@ -489,7 +504,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
         subs.push(this._hoveredId$
             .subscribe(
                 (id: string): void => {
-                    const type: ComponentEvent = "hover";
+                    const type: ComponentEventType = "hover";
                     const event: ComponentHoverEvent = {
                         id,
                         target: this,

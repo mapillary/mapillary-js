@@ -7,8 +7,8 @@ import { OutlineTagOptions } from "../interfaces/OutlineTagOptions";
 
 import { Tag } from "./Tag";
 import { TagDomain } from "./TagDomain";
-import { TagEvent } from "./TagEvent";
-import { TagStateEvent } from "./TagStateEvent";
+import { TagEventType } from "./events/TagEventType";
+import { TagStateEvent } from "./events/TagStateEvent";
 
 /**
  * @class OutlineTag
@@ -84,7 +84,7 @@ export class OutlineTag extends Tag {
         this._click$
             .subscribe(
                 (): void => {
-                    const type: TagEvent = "click";
+                    const type: TagEventType = "click";
                     const event: TagStateEvent = {
                         target: this,
                         type,
@@ -354,22 +354,36 @@ export class OutlineTag extends Tag {
         this._notifyChanged$.next(this);
     }
 
+    public fire(
+        type: TagStateEvent["type"],
+        event: TagStateEvent)
+        : void;
+    /** @ignore */
+    public fire(
+        type: TagEventType,
+        event: TagStateEvent)
+        : void;
+    public fire(
+        type: TagEventType,
+        event: TagStateEvent)
+        : void {
+        super.fire(type, event);
+    }
+
     public off(
-        type: "click",
+        type: TagStateEvent["type"],
+        handler: (event: TagStateEvent) => void)
+        : void;
+    /** @ignore */
+    public off(
+        type: TagEventType,
         handler: (event: TagStateEvent) => void)
         : void;
     public off(
-        type: "geometry",
+        type: TagEventType,
         handler: (event: TagStateEvent) => void)
-        : void;
-    public off(
-        type: "tag",
-        handler: (event: TagStateEvent) => void)
-        : void;
-    public off(
-        type: TagEvent,
-        handler: (event: TagStateEvent) => void): void {
-        super.on(type, handler);
+        : void {
+        super.off(type, handler);
     }
 
     /**
@@ -424,8 +438,9 @@ export class OutlineTag extends Tag {
         handler: (event: TagStateEvent) => void)
         : void;
     public on(
-        type: TagEvent,
-        handler: (event: TagStateEvent) => void): void {
+        type: TagEventType,
+        handler: (event: TagStateEvent) => void)
+        : void {
         super.on(type, handler);
     }
 

@@ -8,8 +8,10 @@ export { RectGeometry } from "../component/tag/geometry/RectGeometry";
 export { VertexGeometry } from "../component/tag/geometry/VertexGeometry";
 
 export { ExtremePointTag } from "../component/tag/tag/ExtremePointTag";
-export { ExtremePointTagOptions } from "../component/tag/interfaces/ExtremePointTagOptions";
-export { OutlineTagOptions } from "../component/tag/interfaces/OutlineTagOptions";
+export { ExtremePointTagOptions }
+    from "../component/tag/interfaces/ExtremePointTagOptions";
+export { OutlineTagOptions }
+    from "../component/tag/interfaces/OutlineTagOptions";
 export { SpotTagOptions } from "../component/tag/interfaces/SpotTagOptions";
 export { OutlineTag } from "../component/tag/tag/OutlineTag";
 export { SpotTag } from "../component/tag/tag/SpotTag";
@@ -18,5 +20,5 @@ export { TagDomain } from "../component/tag/tag/TagDomain";
 export { TagMode } from "../component/tag/TagMode";
 export { TagComponent } from "../component/tag/TagComponent";
 
-export { TagEvent } from "../component/tag/tag/TagEvent";
-export { TagStateEvent } from "../component/tag/tag/TagStateEvent";
+export { TagEventType } from "../component/tag/tag/events/TagEventType";
+export { TagStateEvent } from "../component/tag/tag/events/TagStateEvent";
