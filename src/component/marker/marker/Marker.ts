@@ -80,7 +80,8 @@ export abstract class Marker {
             return;
         }
 
-        this._geometry.position.z = (1 - alpha) * this._geometry.position.z + alpha * alt;
+        this._geometry.position.z =
+            (1 - alpha) * this._geometry.position.z + alpha * alt;
     }
 
     /** @ignore */

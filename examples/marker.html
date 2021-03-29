@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>MapillaryJS Markers</title>
+    <title>MapillaryJS Marker</title>
     <link rel="icon" href="data:,">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -79,16 +79,18 @@
 
             const minLat = lngLat.lat - boxWidth / 2;
             const maxLat = lngLat.lat + boxWidth / 2;
-            const minLon = lngLat.lng - boxWidth / 2;
-            const maxLon = lngLat.lng + boxWidth / 2;
+            const minLng = lngLat.lng - boxWidth / 2;
+            const maxLng = lngLat.lng + boxWidth / 2;
 
             const markers = [];
             for (let i = start; i < start + count; i++) {
                 const lat = getRandomUniform(minLat, maxLat);
-                const lon = getRandomUniform(minLon, maxLon);
+                const lng = getRandomUniform(minLng, maxLng);
 
                 const marker = new Marker.SimpleMarker(
-                    i.toString(), { lat: lat, lon: lon, }, { interactive: true });
+                    i.toString(),
+                    { lat: lat, lng: lng, },
+                    { interactive: true });
 
                 markers.push(marker);
             }

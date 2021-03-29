@@ -1,44 +1,61 @@
 import * as THREE from "three";
 
-import { Unprojection } from "./interfaces/Unprojection";
-
 import { LngLat } from "../api/interfaces/LngLat";
 import { Spatial } from "../geo/Spatial";
 import { Transform } from "../geo/Transform";
 import { ViewportCoords } from "../geo/ViewportCoords";
 import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { RenderCamera } from "../render/RenderCamera";
-import { enuToGeodetic, geodeticToEnu } from "../geo/GeoCoords";
+import {
+    enuToGeodetic,
+    geodeticToEnu,
+} from "../geo/GeoCoords";
+import { Unprojection } from "./interfaces/Unprojection";
 
 export class Projection {
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
 
     constructor(viewportCoords?: ViewportCoords, spatial?: Spatial) {
-        this._spatial = !!spatial ? spatial : new Spatial();
-        this._viewportCoords = !!viewportCoords ? viewportCoords : new ViewportCoords();
+        this._spatial = spatial ?? new Spatial();
+        this._viewportCoords = viewportCoords ?? new ViewportCoords();
     }
 
     public basicToCanvas(
         basicPoint: number[],
         container: HTMLElement,
         render: RenderCamera,
-        transform: Transform): number[] {
+        transform: Transform)
+        : number[] {
 
         return this._viewportCoords
-            .basicToCanvasSafe(basicPoint[0], basicPoint[1], container, transform, render.perspective);
+            .basicToCanvasSafe(
+                basicPoint[0],
+                basicPoint[1],
+                container,
+                transform,
+                render.perspective);
     }
 
     public canvasToBasic(
         canvasPoint: number[],
         container: HTMLElement,
         render: RenderCamera,
-        transform: Transform): number[] {
+        transform: Transform)
+        : number[] {
 
-        let basicPoint: number[] = this._viewportCoords
-            .canvasToBasic(canvasPoint[0], canvasPoint[1], container, transform, render.perspective);
+        let basicPoint = this._viewportCoords
+            .canvasToBasic(
+                canvasPoint[0],
+                canvasPoint[1],
+                container,
+                transform,
+                render.perspective);
 
-        if (basicPoint[0] < 0 || basicPoint[0] > 1 || basicPoint[1] < 0 || basicPoint[1] > 1) {
+        if (basicPoint[0] < 0 ||
+            basicPoint[0] > 1 ||
+            basicPoint[1] < 0 ||
+            basicPoint[1] > 1) {
             basicPoint = null;
         }
 
@@ -50,11 +67,18 @@ export class Projection {
         container: HTMLElement,
         render: RenderCamera,
         reference: LngLatAlt,
-        transform: Transform): Unprojection {
+        transform: Transform)
+        : Unprojection {
 
-        const pixelPoint: number[] = this._viewportCoords.canvasPosition(event, container);
+        const pixelPoint = this._viewportCoords
+            .canvasPosition(event, container);
 
-        return this.canvasToUnprojection(pixelPoint, container, render, reference, transform);
+        return this.canvasToUnprojection(
+            pixelPoint,
+            container,
+            render,
+            reference,
+            transform);
     }
 
     public canvasToUnprojection(
@@ -62,38 +86,55 @@ export class Projection {
         container: HTMLElement,
         render: RenderCamera,
         reference: LngLatAlt,
-        transform: Transform): Unprojection {
+        transform: Transform)
+        : Unprojection {
 
-        const canvasX: number = canvasPoint[0];
-        const canvasY: number = canvasPoint[1];
+        const canvasX = canvasPoint[0];
+        const canvasY = canvasPoint[1];
 
-        const [viewportX, viewportY]: number[] =
-            this._viewportCoords.canvasToViewport(canvasX, canvasY, container);
+        const [viewportX, viewportY] =
+            this._viewportCoords
+                .canvasToViewport(
+                    canvasX,
+                    canvasY,
+                    container);
 
-        const point3d: THREE.Vector3 = new THREE.Vector3(viewportX, viewportY, 1)
+        const point3d = new THREE.Vector3(viewportX, viewportY, 1)
             .unproject(render.perspective);
 
-        let basicPoint: number[] = transform.projectBasic(point3d.toArray());
-        if (basicPoint[0] < 0 || basicPoint[0] > 1 || basicPoint[1] < 0 || basicPoint[1] > 1) {
+        let basicPoint = transform
+            .projectBasic(point3d.toArray());
+
+        if (basicPoint[0] < 0 ||
+            basicPoint[0] > 1 ||
+            basicPoint[1] < 0 ||
+            basicPoint[1] > 1) {
             basicPoint = null;
         }
 
-        const direction3d: THREE.Vector3 = point3d.clone().sub(render.camera.position).normalize();
-        const dist: number = -2 / direction3d.z;
+        const direction3d = point3d
+            .clone()
+            .sub(render.camera.position)
+            .normalize();
+
+        const dist = -2 / direction3d.z;
 
         let lngLat: LngLat = null;
         if (dist > 0 && dist < 100 && !!basicPoint) {
-            const point: THREE.Vector3 = direction3d.clone().multiplyScalar(dist).add(render.camera.position);
-            const lngLatArray: number[] = enuToGeodetic(
+            const point = direction3d
+                .clone()
+                .multiplyScalar(dist)
+                .add(render.camera.position);
+
+            const [lng, lat] = enuToGeodetic(
                 point.x,
                 point.y,
                 point.z,
                 reference.lng,
                 reference.lat,
-                reference.alt)
-                .slice(0, 2);
+                reference.alt);
 
-            lngLat = { lat: lngLatArray[0], lng: lngLatArray[1] };
+            lngLat = { lat, lng };
         }
 
         const unprojection: Unprojection = {
@@ -106,8 +147,8 @@ export class Projection {
     }
 
     public cameraToLngLat(render: RenderCamera, reference: LngLatAlt): LngLat {
-        const position: THREE.Vector3 = render.camera.position;
-        const [lat, lng]: number[] = enuToGeodetic(
+        const position = render.camera.position;
+        const [lng, lat] = enuToGeodetic(
             position.x,
             position.y,
             position.z,
@@ -124,7 +165,7 @@ export class Projection {
         render: RenderCamera,
         reference: LngLatAlt): number[] {
 
-        const point3d: number[] = geodeticToEnu(
+        const point3d = geodeticToEnu(
             lngLat.lng,
             lngLat.lat,
             0,
@@ -132,19 +173,21 @@ export class Projection {
             reference.lat,
             reference.alt);
 
-        const canvas: number[] = this._viewportCoords.projectToCanvasSafe(
-            point3d,
-            container,
-            render.perspective);
+        const canvas = this._viewportCoords
+            .projectToCanvasSafe(
+                point3d,
+                container,
+                render.perspective);
 
         return canvas;
     }
 
     public distanceBetweenLngLats(lngLat1: LngLat, lngLat2: LngLat): number {
-        return this._spatial.distanceFromLngLat(
-            lngLat1.lng,
-            lngLat1.lat,
-            lngLat2.lng,
-            lngLat2.lat);
+        return this._spatial
+            .distanceFromLngLat(
+                lngLat1.lng,
+                lngLat1.lat,
+                lngLat2.lng,
+                lngLat2.lat);
     }
 }

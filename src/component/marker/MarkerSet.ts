@@ -5,9 +5,7 @@ import {
 import { LngLat } from "../../api/interfaces/LngLat";
 import { Marker } from "./marker/Marker";
 
-type MarkerIndexItem = {
-    lat: number;
-    lng: number;
+interface MarkerIndexItem extends LngLat {
     marker: Marker;
 };
 
