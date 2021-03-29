@@ -65,32 +65,47 @@
 
         mly.moveTo('6Zhtztzt67fWmdd4OYH44w').then(
             () => { /* noop */ },
-            (e) => { console.error(e); });
+            (error) => { console.error(error); });
 
 
         // Show original lngLat and lngLat (if computed exist it will differ) of current
         // viewer image on map. Show line linking the two points together
-        const mapimagePosition = {
-            line: L.polyline([[0, 0], [0, 0]], { color: '#0ff', weight: 1 }),
-            originalPos: L.circleMarker([0, 0], { radius: 7, color: '#0ff' }),
-            pos: L.circleMarker([0, 0], { radius: 7, color: '#00f' }),
+        const mapImagePosition = {
+            line: L.polyline(
+                [[0, 0], [0, 0]],
+                { color: '#0ff', weight: 1 }),
+            originalPos: L.circleMarker(
+                [0, 0],
+                { radius: 7, color: '#0ff' }),
+            pos: L.circleMarker(
+                [0, 0],
+                { radius: 7, color: '#00f' }),
         };
 
-        mly.on('image', (event) => {
-            const image = event.node;
-            const lngLat = [image.lngLat.lat, node.lngLat.lng];
-            const originalLngLat = [image.originalLngLat.lat, node.originalLngLat.lng];
+        mly.on('image', (viewerImageEvent) => {
+            const image = viewerImageEvent.image;
+            const mapLatLng = [
+                image.lngLat.lat,
+                image.lngLat.lng,
+            ];
+            const originalMapLatLng = [
+                image.originalLngLat.lat,
+                image.originalLngLat.lng,
+            ];
 
-            mapimagePosition.line.setLatLngs([originalLngLat, lngLat]);
-            mapimagePosition.originalPos.setLatLng(originalLngLat);
-            mapimagePosition.pos.setLatLng(lngLat);
+            mapImagePosition.line
+                .setLatLngs([originalMapLatLng, mapLatLng]);
+            mapImagePosition.originalPos
+                .setLatLng(originalMapLatLng);
+            mapImagePosition.pos
+                .setLatLng(mapLatLng);
 
-            map.setView(lngLat);
+            map.setView(mapLatLng);
 
-            if (!map.hasLayer(mapimagePosition.line)) {
-                mapimagePosition.line.addTo(map);
-                mapimagePosition.originalPos.addTo(map);
-                mapimagePosition.pos.addTo(map);
+            if (!map.hasLayer(mapImagePosition.line)) {
+                mapImagePosition.line.addTo(map);
+                mapImagePosition.originalPos.addTo(map);
+                mapImagePosition.pos.addTo(map);
             }
         });
 
@@ -108,10 +123,13 @@
             }
         }
 
-        const onMapMouseEvent = (e) => {
+        const onMapMouseEvent = (mapMouseEvent) => {
             mapHoverViewerMarker = new Marker.CircleMarker(
                 'map-hover-viewer-marker-id',
-                { lat: e.latlng.lat, lon: e.latlng.lng },
+                {
+                    lat: mapMouseEvent.latlng.lat,
+                    lng: mapMouseEvent.latlng.lng,
+                },
                 { color: '#0f0' });
 
             markerComponent.add([mapHoverViewerMarker]);
@@ -125,8 +143,12 @@
         // Show a flat circle marker in the viewer and a corresponding map marker when hovering the viewer
         const indicator = {
             id: 'indicator-id',
-            mapLine: L.polyline([[0, 0], [0, 0]], { color: '#0f0', weight: 1, id: 'indicator-id-line' }),
-            mapMarker: L.circleMarker([0, 0], { radius: 5, color: '#0f0', id: 'indicator-id-circle' }),
+            mapLine: L.polyline(
+                [[0, 0], [0, 0]],
+                { color: '#0f0', weight: 1, id: 'indicator-id-line' }),
+            mapMarker: L.circleMarker(
+                [0, 0],
+                { radius: 5, color: '#0f0', id: 'indicator-id-circle' }),
             viewerMarker: null,
             state: {
                 dragging: false,
@@ -156,66 +178,73 @@
         }
 
         const removeViewerIndicator = () => {
-            if (!!indicator.viewerMarker && markerComponent.has(indicator.viewerMarker.id)) {
+            if (!!indicator.viewerMarker &&
+                markerComponent.has(indicator.viewerMarker.id)) {
                 markerComponent.remove([indicator.viewerMarker.id]);
                 indicator.viewerMarker = null;
             }
         }
 
-        const setViewerIndicatorMarker = (lngLat) => {
+        const setViewerIndicatorMarker = (viewerLngLat) => {
             const viewerMarker = new Marker.CircleMarker(
                 indicator.id,
-                lngLat,
+                viewerLngLat,
                 { color: '#0f0' });
 
             markerComponent.add([viewerMarker]);
-
             indicator.viewerMarker = viewerMarker;
         }
 
-        const moveIndicatorMarker = (lngLat) => {
+        const moveIndicatorMarker = (viewerLngLat) => {
             if (indicator.state.dragging) { return; }
 
-            if (lngLat == null) {
+            if (viewerLngLat == null) {
                 removeMapIndicator();
                 removeViewerIndicator();
                 return;
             }
 
-            const posLatLng = mapimagePosition.pos.getLatLng();
-            const lineString = [
-                [posLatLng.lat, posLatLng.lng],
-                [lngLat.lat, lngLat.lng],
+            const mapPosLatLng = mapImagePosition.pos.getLatLng();
+            const mapLineString = [
+                [mapPosLatLng.lat, mapPosLatLng.lng],
+                [viewerLngLat.lat, viewerLngLat.lng],
                 [
-                    posLatLng.lat + 5 * (lngLat.lat - posLatLng.lat),
-                    posLatLng.lng + 5 * (lngLat.lng - posLatLng.lng),
+                    mapPosLatLng.lat
+                    + 5 * (viewerLngLat.lat - mapPosLatLng.lat),
+                    mapPosLatLng.lng
+                    + 5 * (viewerLngLat.lng - mapPosLatLng.lng),
                 ],
             ];
 
-            indicator.mapLine.setLatLngs(lineString);
-            indicator.mapMarker.setLatLng([lngLat.lat, lngLat.lng]);
+            indicator.mapLine
+                .setLatLngs(mapLineString);
+            indicator.mapMarker
+                .setLatLng([
+                    viewerLngLat.lat,
+                    viewerLngLat.lng,
+                ]);
 
-            setViewerIndicatorMarker({ lat: lngLat.lat, lng: lngLat.lng });
-
+            setViewerIndicatorMarker(viewerLngLat);
             addMapIndicator();
         }
 
-        const onViewerMouseEvent = (event) => {
-            indicator.state.lastPos = event.pixelPoint;
-            moveIndicatorMarker(event.lngLat);
+        const onViewerMouseEvent = (viewerMouseEvent) => {
+            indicator.state.lastPos = viewerMouseEvent.pixelPoint;
+            moveIndicatorMarker(viewerMouseEvent.lngLat);
         }
 
         mly.on('mouseup', onViewerMouseEvent);
         mly.on('mouseover', onViewerMouseEvent);
         mly.on('mousedown', onViewerMouseEvent);
 
-        mly.on('mousemove', (event) => {
+        mly.on('mousemove', (viewerMouseEvent) => {
             // Store last mouse position for later unprojection
-            indicator.state.lastPos = event.pixelPoint;
+            indicator.state.lastPos = viewerMouseEvent.pixelPoint;
 
-            if (indicator.state.moving || indicator.state.dragging) { return; }
+            if (indicator.state.moving ||
+                indicator.state.dragging) { return; }
 
-            moveIndicatorMarker(event.lngLat);
+            moveIndicatorMarker(viewerMouseEvent.lngLat);
         });
 
 
@@ -232,7 +261,9 @@
             if (!indicator.state.lastPos) { return; }
 
             // Unproject the last position and move indicator marker if lngLat exist
-            mly.unproject(indicator.state.lastPos).then(moveIndicatorMarker);
+            mly
+                .unproject(indicator.state.lastPos)
+                .then(moveIndicatorMarker);
         });
 
         markerComponent.on('markerdragstart', () => {
@@ -248,7 +279,9 @@
             if (!indicator.state.lastPos) { return; }
 
             // Unproject the last position and move indicator marker if lngLat exist
-            mly.unproject(indicator.state.lastPos).then(moveIndicatorMarker);
+            mly
+                .unproject(indicator.state.lastPos)
+                .then(moveIndicatorMarker);
         });
 
 
@@ -256,12 +289,12 @@
         let addedMarkerId = 0;
         const mapMarkers = {};
 
-        const addOrReplaceViewerMarker = (id, lngLat) => {
+        const addOrReplaceViewerMarker = (id, viewerLngLat) => {
             // Create an interactive marker to be able to drag it in viewer
             // and retrieve it with getMarkerIdAt method
             const marker = new Marker.SimpleMarker(
                 id,
-                lngLat,
+                viewerLngLat,
                 { ballColor: '#f00', color: '#f00', interactive: true });
 
             markerComponent.add([marker]);
@@ -273,7 +306,11 @@
                 mousedown: (event) => {
                     const onMouseMove = (e) => {
                         // Update both viewer marker and map marker on map marker drag
-                        addOrReplaceViewerMarker(mapMarker.options.id, { lat: e.latlng.lat, lon: e.latlng.lng });
+                        addOrReplaceViewerMarker(
+                            mapMarker.options.id, {
+                            lat: e.latlng.lat,
+                            lng: e.latlng.lng,
+                        });
                         mapMarker.setLatLng(e.latlng);
                     };
 
@@ -302,36 +339,46 @@
             });
         }
 
-        const createMarker = (lngLat) => {
+        const createMirroredMarkers = (viewerLngLat) => {
             const id = (addedMarkerId++).toString();
 
-            addOrReplaceViewerMarker(id, lngLat);
+            addOrReplaceViewerMarker(id, viewerLngLat);
 
             const mapMarker =
                 L.circleMarker(
-                    [lngLat.lat, lngLat.lng],
-                    { radius: 5, color: '#f00', draggable: 'true', id: id })
+                    [viewerLngLat.lat, viewerLngLat.lng],
+                    {
+                        radius: 5,
+                        color: '#f00',
+                        draggable: 'true',
+                        id: id,
+                    })
                     .addTo(map);
 
             mapMarkers[id] = mapMarker;
             handleMapMarkerDrag(mapMarker);
         }
 
-        mly.on('click', (e) => {
-            if (!e.lngLat) { return; }
+        mly.on('click', (viewerMouseEvent) => {
+            if (!viewerMouseEvent.lngLat) { return; }
 
-            markerComponent.getMarkerIdAt(e.pixelPoint).then((markerId) => {
-                // Only create a new marker if no interactive markers are hovered
-                if (markerId != null) { return; }
+            markerComponent
+                .getMarkerIdAt(viewerMouseEvent.pixelPoint)
+                .then((markerId) => {
+                    // Only create a new marker if no interactive markers are hovered
+                    if (markerId != null) { return; }
 
-                createMarker(e.lngLat);
-            });
+                    createMirroredMarkers(viewerMouseEvent.lngLat);
+                });
         });
 
-        const mapOnClick = (e) => {
-            if (!e.latlng) { return; }
+        const mapOnClick = (mapMouseEvent) => {
+            if (!mapMouseEvent.latlng) { return; }
 
-            createMarker({ lat: e.latlng.lat, lon: e.latlng.lng });
+            createMirroredMarkers({
+                lat: mapMouseEvent.latlng.lat,
+                lng: mapMouseEvent.latlng.lng,
+            });
         };
 
         map.on('click', mapOnClick);
@@ -339,13 +386,13 @@
 
         // Update map marker when lngLat changes for a
         // marker by dragging in the viewer.
-        markerComponent.on("markerposition", (e) => {
-            const mapMarker = mapMarkers[e.marker.id];
-            if (!mapMarker) {
-                return;
-            }
-
-            mapMarker.setLatLng([e.marker.lngLat.lat, e.marker.lngLat.lng]);
+        markerComponent.on("markerposition", (componentMarkerEvent) => {
+            const mapMarker = mapMarkers[componentMarkerEvent.marker.id];
+            if (!mapMarker) { return; }
+            mapMarker.setLatLng([
+                componentMarkerEvent.marker.lngLat.lat,
+                componentMarkerEvent.marker.lngLat.lng,
+            ]);
         });
     </script>
 </body>
