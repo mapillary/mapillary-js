@@ -8,7 +8,12 @@ export interface CameraShotContract {
     /**
      * Id of the camera for the shot.
      */
-    camera: string;
+    cameraId: string;
+
+    /**
+     * Image id the shot.
+     */
+    imageId: string;
 
     /**
      * Rotation vector in angle axis representation.

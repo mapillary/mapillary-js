@@ -6,4 +6,9 @@ import { CameraEnt } from "../ents/CameraEnt";
  *
  * @interface CameraContract
  */
-export interface CameraContract extends CameraEnt { }
+export interface CameraContract extends CameraEnt {
+    /**
+     * Id of the camera.
+     */
+    id: string;
+}

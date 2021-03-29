@@ -11,10 +11,10 @@ import { SpatialImageEnt } from "../ents/SpatialImageEnt";
 import { SequenceEnt } from "../ents/SequenceEnt";
 import { ClusterReconstructionContract } from "../contracts/ClusterReconstructionContract";
 import { LngLatAlt } from "../interfaces/LngLatAlt";
-import { CameraEnt } from "../ents/CameraEnt";
 import { FalcorClusterReconstructionContract } from "./FalcorContracts";
 import { isSpherical } from "../../geo/Geo";
 import { LngLat } from "../interfaces/LngLat";
+import { CameraShotContract } from "../contracts/CameraShotContract";
 
 function convertCameraType(falcorProjectionType: string): string {
     return falcorProjectionType === "equirectangular" ?
@@ -74,7 +74,7 @@ export class FalcorConverter {
 
     public clusterReconstruction(
         item: FalcorClusterReconstructionContract): ClusterReconstructionContract {
-        const cameras: { [cameraId: string]: CameraEnt } = {};
+        const cameras: ClusterReconstructionContract["cameras"] = {};
         for (const cameraId in item.cameras) {
             if (!item.cameras.hasOwnProperty(cameraId)) { continue; }
             const falcorCamera = item.cameras[cameraId];
@@ -87,6 +87,7 @@ export class FalcorConverter {
             cameras[cameraId] = {
                 camera_parameters: cameraParameters,
                 camera_type: cameraType,
+                id: cameraId,
             };
         }
 
@@ -98,7 +99,7 @@ export class FalcorConverter {
             lat: lla.latitude,
             lng: lla.longitude,
         };
-        const shots = item.shots;
+        const shots = this._shots(item.shots);
         return {
             cameras,
             id,
@@ -195,5 +196,24 @@ export class FalcorConverter {
             thumb,
             width,
         }
+    }
+
+    private _shots(
+        falcorShots: FalcorClusterReconstructionContract["shots"])
+        : ClusterReconstructionContract["shots"] {
+        const contracts: ClusterReconstructionContract["shots"] = {};
+        for (const imageId in falcorShots) {
+            if (!falcorShots.hasOwnProperty(imageId)) { continue; }
+            const falcorShot = falcorShots[imageId];
+            const shot: CameraShotContract = {
+                cameraId: falcorShot.camera,
+                imageId,
+                rotation: falcorShot.rotation,
+                translation: falcorShot.translation,
+            };
+            contracts[imageId] = shot;
+        }
+
+        return contracts;
     }
 }
