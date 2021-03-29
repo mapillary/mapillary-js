@@ -15,8 +15,9 @@ export { FalcorDataProviderOptions }
     from "../api/falcor/FalcorDataProviderOptions";
 
 // Event
-export { DataAddedProviderEvent }
-    from "../api/interfaces/DataAddedProviderEvent";
+export { ProviderCellEvent } from "../api/events/ProviderCellEvent";
+export { ProviderEvent } from "../api/events/ProviderEvent";
+export { ProviderEventType } from "../api/events/ProviderEventType";
 
 // Contract
 export { CameraContract } from "../api/contracts/CameraContract";
@@ -24,12 +25,13 @@ export { CameraShotContract } from "../api/contracts/CameraShotContract";
 export { ClusterReconstructionContract }
     from "../api/contracts/ClusterReconstructionContract";
 export { CoreImagesContract } from "../api/contracts/CoreImagesContract";
+export { EntContract } from "../api/contracts/EntContract";
 export { ImagesContract } from "../api/contracts/ImagesContract";
 export { ImageTilesContract } from "../api/contracts/ImageTilesContract";
-export { MeshContract } from "../api/contracts/MeshContract";
-export { PointContract } from "../api/contracts/PointContract";
 export { ImageTilesRequestContract }
     from "../api/contracts/ImageTilesRequestContract";
+export { MeshContract } from "../api/contracts/MeshContract";
+export { PointContract } from "../api/contracts/PointContract";
 export { SequenceContract } from "../api/contracts/SequenceContract";
 export { SpatialImagesContract } from "../api/contracts/SpatialImagesContract";
 

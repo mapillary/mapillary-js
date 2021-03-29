@@ -31,7 +31,7 @@ import { SpatialImagesContract }
 import { SequenceContract } from "../../src/api/contracts/SequenceContract";
 import { ImagesContract } from "../../src/api/contracts/ImagesContract";
 import { CoreImagesContract } from "../../src/api/contracts/CoreImagesContract";
-import { LngLat } from "../../src/export/APINamespace";
+import { LngLat } from "../../src/api/interfaces/LngLat";
 
 describe("Graph.ctor", () => {
     it("should create a graph", () => {
