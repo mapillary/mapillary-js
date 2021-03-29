@@ -31,7 +31,7 @@ import { Sequence } from "./Sequence";
 
 import { LngLat } from "../api/interfaces/LngLat";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
-import { DataAddedProviderEvent } from "../api/interfaces/DataAddedProviderEvent";
+import { ProviderCellEvent } from "../api/events/ProviderCellEvent";
 
 /**
  * @class GraphService
@@ -84,7 +84,7 @@ export class GraphService {
         this._sequenceSubscriptions = [];
         this._spatialSubscriptions = [];
 
-        graph.api.data.on("dataadded", this._onDataAdded);
+        graph.api.data.on("datacreate", this._onDataAdded);
     }
 
     /**
@@ -578,7 +578,7 @@ export class GraphService {
         }
     }
 
-    private _onDataAdded = (event: DataAddedProviderEvent): void => {
+    private _onDataAdded = (event: ProviderCellEvent): void => {
         this._graph$
             .pipe(
                 first(),

@@ -24,7 +24,8 @@ import { GraphService } from "../../src/graph/GraphService";
 import { NavigationEdgeStatus } from "../../src/graph/interfaces/NavigationEdgeStatus";
 import { Sequence } from "../../src/graph/Sequence";
 import { DataProvider } from "../helper/ProviderHelper";
-import { LngLat } from "../../src/export/APINamespace";
+import { LngLat } from "../../src/api/interfaces/LngLat";
+import { ProviderEventType } from "../../src/api/events/ProviderEventType";
 
 describe("GraphService.ctor", () => {
     it("should create a graph service", () => {
@@ -111,8 +112,8 @@ describe("GraphService.dataAdded$", () => {
                     done();
                 });
 
-        dataProvider.fire("dataadded", {
-            type: "dataadded",
+        dataProvider.fire("datacreate", {
+            type: "datacreate",
             target: dataProvider,
             cellIds: ["cellId"],
         })
@@ -145,8 +146,9 @@ describe("GraphService.dataAdded$", () => {
                     if (count === 2) { done(); }
                 });
 
-        dataProvider.fire("dataadded", {
-            type: "dataadded",
+        const type: ProviderEventType = "datacreate";
+        dataProvider.fire(type, {
+            type,
             target: dataProvider,
             cellIds: cellIds.slice(),
         })

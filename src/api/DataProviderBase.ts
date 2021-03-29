@@ -11,6 +11,9 @@ import { SequenceContract } from "./contracts/SequenceContract";
 import { ImageTilesContract } from "./contracts/ImageTilesContract";
 import { ImageTilesRequestContract }
     from "./contracts/ImageTilesRequestContract";
+import { ProviderEventType } from "./events/ProviderEventType";
+import { ProviderEvent } from "./events/ProviderEvent";
+import { ProviderCellEvent } from "./events/ProviderCellEvent";
 
 /**
  * @class DataProviderBase
@@ -18,7 +21,7 @@ import { ImageTilesRequestContract }
  * @classdesc Base class to extend if implementing a data provider
  * class.
  *
- * @fires IDataAddedEvent
+ * @fires datacreate
  *
  * @example
  * ```js
@@ -52,6 +55,49 @@ export abstract class DataProviderBase extends EventEmitter {
      */
     public get geometry(): GeometryProviderBase {
         return this._geometry;
+    }
+
+    /**
+     * Fire when data has been created in the data provider
+     * after initial load.
+     *
+     * @param type datacreate
+     * @param event Provider cell event
+     *
+     * @example
+     * ```js
+     * // Initialize the data provider
+     * class MyDataProvider extends mapillary.API.DataProviderBase {
+     *   // Class implementation
+     * }
+     * var provider = new MyDataProvider();
+     * // Create the event
+     * var cellIds = [ // Determine updated cells ];
+     * var target = provider;
+     * var type = "datacreate";
+     * var event = {
+     *   cellIds,
+     *   target,
+     *   type,
+     * };
+     * // Fire the event
+     * provider.fire(type, event);
+     * ```
+     */
+    public fire(
+        type: "datacreate",
+        event: ProviderCellEvent)
+        : void;
+    /** @ignore */
+    public fire(
+        type: ProviderEventType,
+        event: ProviderEvent)
+        : void;
+    public fire<T>(
+        type: ProviderEventType,
+        event: T)
+        : void {
+        super.fire(type, event);
     }
 
     /**
@@ -178,6 +224,56 @@ export abstract class DataProviderBase extends EventEmitter {
     public getSequence(
         sequenceId: string): Promise<SequenceContract> {
         return Promise.reject(new MapillaryError("Not implemented"));
+    }
+
+    public off(
+        type: ProviderCellEvent["type"],
+        handler: (event: ProviderCellEvent) => void)
+        : void;
+    /** @ignore */
+    public off(
+        type: ProviderEventType,
+        handler: (event: ProviderEvent) => void)
+        : void;
+    public off<T>(
+        type: ProviderEventType,
+        handler: (event: T) => void)
+        : void {
+        super.off(type, handler);
+    }
+
+    /**
+     * Fired when data has been created in the data provider
+     * after initial load.
+     *
+     * @event datacreate
+     * @example
+     * ```js
+     * // Initialize the data provider
+     * class MyDataProvider extends mapillary.API.DataProviderBase {
+     *   // implementation
+     * }
+     * var provider = new MyDataProvider();
+     * // Set an event listener
+     * provider.on("datacreate", function() {
+     *   console.log("A datacreate event has occurred.");
+     * });
+     * ```
+     */
+    public on(
+        type: "datacreate",
+        handler: (event: ProviderCellEvent) => void)
+        : void;
+    /** @ignore */
+    public on(
+        type: ProviderEventType,
+        handler: (event: ProviderEvent) => void)
+        : void;
+    public on<T>(
+        type: ProviderEventType,
+        handler: (event: T) => void)
+        : void {
+        super.on(type, handler);
     }
 
     /**
