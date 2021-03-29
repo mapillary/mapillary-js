@@ -23,7 +23,8 @@ export class GraphCalculator {
         lngLat: LngLat,
         threshold: number)
         : [LngLat, LngLat] {
-        let bl = enuToGeodetic(
+
+        const sw = enuToGeodetic(
             -threshold,
             -threshold,
             0,
@@ -31,7 +32,7 @@ export class GraphCalculator {
             lngLat.lat,
             0);
 
-        let tr = enuToGeodetic(
+        const ne = enuToGeodetic(
             threshold,
             threshold,
             0,
@@ -40,8 +41,8 @@ export class GraphCalculator {
             0);
 
         return [
-            { lat: bl[0], lng: bl[1] },
-            { lat: tr[0], lng: tr[1] },
+            { lat: sw[1], lng: sw[0] },
+            { lat: ne[1], lng: ne[0] },
         ];
     }
 
@@ -55,7 +56,9 @@ export class GraphCalculator {
      */
     public rotationFromCompass(
         compassAngle: number,
-        orientation: number): number[] {
+        orientation: number)
+        : number[] {
+
         let x = 0;
         let y = 0;
         let z = 0;
@@ -80,13 +83,23 @@ export class GraphCalculator {
                 break;
         }
 
-        let rz = new THREE.Matrix4().makeRotationZ(z);
-        let euler = new THREE.Euler(x, y, compassAngle * Math.PI / 180, "XYZ");
-        let re = new THREE.Matrix4().makeRotationFromEuler(euler);
+        const rz = new THREE.Matrix4()
+            .makeRotationZ(z);
+        const euler = new THREE.Euler(
+            x,
+            y,
+            compassAngle * Math.PI / 180,
+            "XYZ");
+        const re = new THREE.Matrix4()
+            .makeRotationFromEuler(euler);
 
-        let rotation = new THREE.Vector4()
-            .setAxisAngleFromRotationMatrix(re.multiply(rz));
+        const rotation = new THREE.Vector4()
+            .setAxisAngleFromRotationMatrix(
+                re.multiply(rz));
 
-        return rotation.multiplyScalar(rotation.w).toArray().slice(0, 3);
+        return rotation
+            .multiplyScalar(rotation.w)
+            .toArray()
+            .slice(0, 3);
     }
 }
