@@ -28,7 +28,7 @@ export interface ClusterReconstructionContract {
     reference: LngLatAlt;
 
     /**
-     * The shots of the reconstruction.
+     * The image shots of the reconstruction.
      */
     shots: { [imageId: string]: CameraShotContract };
 }
