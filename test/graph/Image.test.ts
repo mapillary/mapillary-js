@@ -143,24 +143,24 @@ describe("Image.merged", () => {
         expect(image.merged).toBe(false);
     });
 
-    it("should not be merged because merge version is zero", () => {
+    it("should not be merged because merge cc is null", () => {
         let coreImage: CoreImageEnt = helper.createCoreImageEnt();
         let image = new MImage(coreImage);
         let fillImage: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillImage.merge_version = 0;
+        fillImage.merge_cc = null;
 
         image.makeComplete(fillImage);
 
         expect(image.merged).toBe(false);
     });
 
-    it("should be merged because merge version present and larger than zero", () => {
+    it("should be merged because merge cc present", () => {
         let coreImage: CoreImageEnt = helper.createCoreImageEnt();
         let image = new MImage(coreImage);
         let fillImage: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillImage.merge_version = 7;
+        fillImage.merge_cc = 7;
 
         image.makeComplete(fillImage);
 

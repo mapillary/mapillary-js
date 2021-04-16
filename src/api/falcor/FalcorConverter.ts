@@ -91,7 +91,7 @@ export class FalcorConverter {
             };
         }
 
-        const id = item.key;
+        const id: string = null;
         const points = item.points;
         const lla = item.reference_lla;
         const reference: LngLatAlt = {
@@ -187,7 +187,6 @@ export class FalcorConverter {
             exif_orientation: exifOrientation,
             height,
             merge_cc: mergeCc,
-            merge_version: mergeVersion,
             mesh,
             id,
             owner,

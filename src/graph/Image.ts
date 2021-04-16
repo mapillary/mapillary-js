@@ -315,8 +315,7 @@ export class Image {
      */
     public get merged(): boolean {
         return this._spatial != null &&
-            this._spatial.merge_version != null &&
-            this._spatial.merge_version > 0;
+            this._spatial.merge_cc != null;
     }
 
     /**
@@ -330,15 +329,6 @@ export class Image {
      */
     public get mergeConnectedComponent(): number {
         return this._spatial.merge_cc;
-    }
-
-    /**
-     * Get mergeVersion.
-     *
-     * @returns {number} Version for which SfM was run and image was merged.
-     */
-    public get mergeVersion(): number {
-        return this._spatial.merge_version;
     }
 
     /**

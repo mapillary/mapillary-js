@@ -49,7 +49,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let nextKey: string = "nextKey";
         let sequenceKey: string = "skey";
 
-        let image: Image = helper.createSpatialImageEn(key, { alt: 0, lat: 0, lng: 0 }, sequenceKey, [0, 0, 0]);
+        let image: Image = helper.createCompleteImage(key, { alt: 0, lat: 0, lng: 0 }, sequenceKey, [0, 0, 0]);
         let sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [key, nextKey] });
 
         let sequenceEdges: NavigationEdge[] = edgeCalculator.computeSequenceEdges(image, sequence);
@@ -67,7 +67,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
         let prevKey: string = "prevKey";
         let sequenceKey: string = "skey";
 
-        let image: Image = helper.createSpatialImageEn(key, { alt: 0, lat: 0, lng: 0 }, sequenceKey, [0, 0, 0]);
+        let image: Image = helper.createCompleteImage(key, { alt: 0, lat: 0, lng: 0 }, sequenceKey, [0, 0, 0]);
         let sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [prevKey, key] });
 
         let sequenceEdges: NavigationEdge[] = edgeCalculator.computeSequenceEdges(image, sequence);
@@ -87,7 +87,7 @@ describe("EdgeCalculator.computeSequenceEdges", () => {
 
         let sequenceKey: string = "skey";
 
-        let image: Image = helper.createSpatialImageEn(key, { alt: 0, lat: 0, lng: 0 }, sequenceKey, [0, 0, 0]);
+        let image: Image = helper.createCompleteImage(key, { alt: 0, lat: 0, lng: 0 }, sequenceKey, [0, 0, 0]);
         let sequence: Sequence = new Sequence({ id: sequenceKey, image_ids: [prevKey, key, nextKey] });
 
         let sequenceEdges: NavigationEdge[] = edgeCalculator.computeSequenceEdges(image, sequence);

@@ -42,14 +42,13 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
                 [0, -Math.PI / 2, 0],
-                2,
+                null,
                 "perspective",
-                0,
                 0);
 
         let enu = [10, 0, 0];
@@ -69,7 +68,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -88,7 +87,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -111,7 +110,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -143,7 +142,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -166,7 +165,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 null,
@@ -185,7 +184,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -208,7 +207,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -232,7 +231,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -255,7 +254,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -279,7 +278,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -302,7 +301,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -326,7 +325,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -349,7 +348,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -374,7 +373,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -397,7 +396,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -421,7 +420,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -444,7 +443,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey, edgeLla, sequenceKey, [Math.PI / 2, 0, 0]);
 
         let potentialEdges: PotentialEdge[] =
@@ -465,7 +464,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key, lla, sequenceKey, createRotationVector(0));
 
         let enu = [1, 0, 0];
@@ -484,7 +483,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -509,7 +508,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key, lla, sequenceKey, createRotationVector(0));
 
         let enu = [1, 0, 0];
@@ -528,7 +527,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -553,7 +552,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key, lla, sequenceKey, createRotationVector(Math.PI / 4));
 
         let enu = [1, 0, 0];
@@ -572,7 +571,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -597,7 +596,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -620,7 +619,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -645,7 +644,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -668,7 +667,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage =
-            helper.createSpatialImageEn(
+            helper.createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -693,7 +692,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -716,7 +715,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage =
-            helper.createSpatialImageEn(
+            helper.createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -745,7 +744,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let theta: number = spatial.relativeRotationAngle(r1, r2);
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
-        let image = helper.createSpatialImageEn(key, lla, sequenceKey, r1);
+        let image = helper.createCompleteImage(key, lla, sequenceKey, r1);
 
         let enu = [1, 0, 0];
         let geodetic = GeoCoords
@@ -763,7 +762,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
             lng: geodetic[0],
         };
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -790,7 +789,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -813,7 +812,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -840,7 +839,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let r2 = [0, 0, 0];
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
-        let image = helper.createSpatialImageEn(key, lla, sequenceKey, r1);
+        let image = helper.createCompleteImage(key, lla, sequenceKey, r1);
 
         let enu = [0, 1, 0];
         let geodetic = GeoCoords
@@ -859,7 +858,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(edgeKey, edgeLla, sequenceKey, r2);
+            .createCompleteImage(edgeKey, edgeLla, sequenceKey, r2);
 
         let potentialEdges: PotentialEdge[] =
             edgeCalculator.getPotentialEdges(image, [edgeImage], []);
@@ -882,7 +881,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let r2 = [0, 0, 0];
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
-        let image = helper.createSpatialImageEn(key, lla, sequenceKey, r1);
+        let image = helper.createCompleteImage(key, lla, sequenceKey, r1);
 
         let enu = [-1, 0, 0];
         let geodetic = GeoCoords
@@ -901,7 +900,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -928,7 +927,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let r2 = [0, 0, 0];
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
-        let image = helper.createSpatialImageEn(key, lla, sequenceKey, r1);
+        let image = helper.createCompleteImage(key, lla, sequenceKey, r1);
 
         let enu = [0, -1, 0];
         let geodetic = GeoCoords
@@ -947,7 +946,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(edgeKey, edgeLla, sequenceKey, r2);
+            .createCompleteImage(edgeKey, edgeLla, sequenceKey, r2);
 
         let potentialEdges: PotentialEdge[] =
             edgeCalculator.getPotentialEdges(image, [edgeImage], []);
@@ -970,7 +969,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let r2 = [0, 0, 0];
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
-        let image = helper.createSpatialImageEn(key, lla, sequenceKey, r1);
+        let image = helper.createCompleteImage(key, lla, sequenceKey, r1);
 
         let enu = [1, 1, 0];
         let geodetic = GeoCoords
@@ -989,7 +988,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(edgeKey, edgeLla, sequenceKey, r2);
+            .createCompleteImage(edgeKey, edgeLla, sequenceKey, r2);
 
         let potentialEdges: PotentialEdge[] =
             edgeCalculator.getPotentialEdges(image, [edgeImage], []);
@@ -1010,7 +1009,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -1033,7 +1032,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -1058,7 +1057,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -1081,7 +1080,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 edgeSequenceKey,
@@ -1107,7 +1106,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -1131,7 +1130,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -1159,7 +1158,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -1183,7 +1182,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -1201,14 +1200,14 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdge.sameMergeCC).toBe(false);
     });
 
-    it("should be same merge cc when nonexistent", () => {
+    it("should be no potential if not merged", () => {
         let key = "key";
         let edgeKey = "edgeKey";
         let sequenceKey = "skey";
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -1232,7 +1231,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -1242,22 +1241,17 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdges: PotentialEdge[] =
             edgeCalculator.getPotentialEdges(image, [edgeImage], []);
 
-        expect(potentialEdges.length).toBe(1);
-
-        let potentialEdge: PotentialEdge = potentialEdges[0];
-
-        expect(potentialEdge.id).toBe(edgeKey);
-        expect(potentialEdge.sameMergeCC).toBe(true);
+        expect(potentialEdges.length).toBe(0);
     });
 
-    it("should not be same merge cc when one is nonexistent", () => {
+    it("should be no potential if potential not merged", () => {
         let key = "key";
         let edgeKey = "edgeKey";
         let sequenceKey = "skey";
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -1281,7 +1275,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
@@ -1291,12 +1285,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let potentialEdges: PotentialEdge[] =
             edgeCalculator.getPotentialEdges(image, [edgeImage], []);
 
-        expect(potentialEdges.length).toBe(1);
-
-        let potentialEdge: PotentialEdge = potentialEdges[0];
-
-        expect(potentialEdge.id).toBe(edgeKey);
-        expect(potentialEdge.sameMergeCC).toBe(false);
+        expect(potentialEdges.length).toBe(0);
     });
 
     it("should be spherical when camera type spherical", () => {
@@ -1306,7 +1295,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 key,
                 lla,
                 sequenceKey,
@@ -1330,7 +1319,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         };
 
         let edgeImage = helper
-            .createSpatialImageEn(
+            .createCompleteImage(
                 edgeKey,
                 edgeLla,
                 sequenceKey,
