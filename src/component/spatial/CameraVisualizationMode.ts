@@ -1,5 +1,6 @@
 export enum CameraVisualizationMode {
-    Default,
+    Hidden,
+    Homogeneous,
     Cluster,
     ConnectedComponent,
     Sequence,

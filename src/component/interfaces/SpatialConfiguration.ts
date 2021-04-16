@@ -36,16 +36,9 @@ export interface SpatialConfiguration extends ComponentConfiguration {
     cameraSize?: number;
 
     /**
-     * Specify if the cameras should be visible or not.
-     *
-     * @default false
-     */
-    camerasVisible?: boolean;
-
-    /**
      * Specify the camera visualization mode.
      *
-     * @default CameraVisualizationMode.Default
+     * @default CameraVisualizationMode.Homogeneous
      */
     cameraVisualizationMode?: CameraVisualizationMode;
 

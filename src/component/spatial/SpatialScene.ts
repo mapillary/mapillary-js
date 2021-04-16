@@ -829,7 +829,7 @@ class ImageCell {
             return this._sequences;
         }
         const cvm = CameraVisualizationMode;
-        const defaultId = cvm[cvm.Default]
+        const defaultId = cvm[cvm.Homogeneous]
         const cameras = <ColorIdCamerasMap>new Map();
         cameras.set(defaultId, <CameraFrameBase[]>this.cameras.children);
         return cameras;
@@ -846,7 +846,7 @@ class ImageCell {
             case cvm.Sequence:
                 return props.ids.sequenceId;
             default:
-                return cvm[cvm.Default];
+                return cvm[cvm.Homogeneous];
         }
     }
 
@@ -932,7 +932,7 @@ class SpatialAssets {
     constructor() {
         this._colors = new Map();
         const cvm = CameraVisualizationMode;
-        this._colors.set(cvm[cvm.Default], "#FFFFFF");
+        this._colors.set(cvm[cvm.Homogeneous], "#FFFFFF");
     }
 
     public getColor(id: string): string {
@@ -944,6 +944,10 @@ class SpatialAssets {
     private _randomColor(): string {
         return `hsl(${Math.floor(360 * Math.random())}, 100%, 50%)`;
     }
+}
+
+export function isModeVisible(mode: CameraVisualizationMode): boolean {
+    return mode !== CameraVisualizationMode.Hidden;
 }
 
 export class SpatialScene {
@@ -962,7 +966,6 @@ export class SpatialScene {
 
     private _cameraVisualizationMode: CameraVisualizationMode;
     private _cameraSize: number;
-    private _camerasVisible: boolean;
     private _pointSize: number;
     private _pointsVisible: boolean;
     private _positionMode: OriginalPositionMode;
@@ -1003,10 +1006,9 @@ export class SpatialScene {
         this._cameraVisualizationMode =
             !!configuration.cameraVisualizationMode ?
                 configuration.cameraVisualizationMode :
-                CameraVisualizationMode.Default;
+                CameraVisualizationMode.Homogeneous;
 
         this._cameraSize = configuration.cameraSize;
-        this._camerasVisible = configuration.camerasVisible;
         this._pointSize = configuration.pointSize;
         this._pointsVisible = configuration.pointsVisible;
         this._positionMode = configuration.originalPositionMode;
@@ -1086,7 +1088,8 @@ export class SpatialScene {
                 cellId,
                 this._scene,
                 this._intersection);
-            created.cameras.visible = this._camerasVisible;
+            created.cameras.visible =
+                isModeVisible(this._cameraVisualizationMode);
             created.applyPositionMode(this._positionMode);
             this._images[cellId] = created;
         }
@@ -1161,21 +1164,6 @@ export class SpatialScene {
 
         this._intersection.raycaster.near = this._getNear(cameraSize);
         this._cameraSize = cameraSize;
-        this._needsRender = true;
-    }
-
-    public setCameraVisibility(visible: boolean): void {
-        if (visible === this._camerasVisible) { return; }
-
-        for (const cellId in this._images) {
-            if (!this._images.hasOwnProperty(cellId)) {
-                continue;
-            }
-
-            this._images[cellId].cameras.visible = visible;
-        }
-
-        this._camerasVisible = visible;
         this._needsRender = true;
     }
 
@@ -1321,8 +1309,10 @@ export class SpatialScene {
     public setCameraVisualizationMode(mode: CameraVisualizationMode): void {
         if (mode === this._cameraVisualizationMode) { return; }
 
+        const visible = isModeVisible(mode);
         const assets = this._assets;
         for (const cell of Object.values(this._images)) {
+            cell.cameras.visible = visible;
             const cameraMap = cell.getCamerasByMode(mode);
             cameraMap.forEach(
                 (cameras, colorId) => {
@@ -1465,7 +1455,7 @@ export class SpatialScene {
         const nceMap = this._imageCellMap;
         if (key == null || !nceMap.has(key)) { return; }
         const cellId = nceMap.get(key);
-        color = mode === CameraVisualizationMode.Default ?
+        color = mode === CameraVisualizationMode.Homogeneous ?
             color : "#FFFFFF";
         this._images[cellId].applyCameraColor(key, color);
     }

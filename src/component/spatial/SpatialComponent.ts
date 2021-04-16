@@ -47,7 +47,7 @@ import { SpatialConfiguration }
     from "../interfaces/SpatialConfiguration";
 import { CameraVisualizationMode } from "./CameraVisualizationMode";
 import { OriginalPositionMode } from "./OriginalPositionMode";
-import { SpatialScene } from "./SpatialScene";
+import { isModeVisible, SpatialScene } from "./SpatialScene";
 import { SpatialCache } from "./SpatialCache";
 import { CameraType } from "../../geo/interfaces/CameraType";
 import { geodeticToEnu } from "../../geo/GeoCoords";
@@ -61,6 +61,12 @@ type Cell = {
 }
 
 type AdjancentParams = [boolean, boolean, number, Image];
+
+interface IntersectConfiguration {
+    size: number;
+    visible: boolean;
+    earth: boolean;
+}
 
 export class SpatialComponent extends Component<SpatialConfiguration> {
     public static componentName: string = "spatial";
@@ -277,7 +283,6 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                     return {
                         cameraSize: c.cameraSize,
                         cameraVisualizationMode: c.cameraVisualizationMode,
-                        camerasVisible: c.camerasVisible,
                         originalPositionMode: c.originalPositionMode,
                         pointSize: c.pointSize,
                         pointsVisible: c.pointsVisible,
@@ -288,7 +293,6 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 (c1: SpatialConfiguration, c2: SpatialConfiguration): boolean => {
                     return c1.cameraSize === c2.cameraSize &&
                         c1.cameraVisualizationMode === c2.cameraVisualizationMode &&
-                        c1.camerasVisible === c2.camerasVisible &&
                         c1.originalPositionMode === c2.originalPositionMode &&
                         c1.pointSize === c2.pointSize &&
                         c1.pointsVisible === c2.pointsVisible &&
@@ -297,7 +301,6 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             .subscribe(
                 (c: SpatialConfiguration): void => {
                     this._scene.setCameraSize(c.cameraSize);
-                    this._scene.setCameraVisibility(c.camerasVisible);
                     this._scene.setPointSize(c.pointSize);
                     this._scene.setPointVisibility(c.pointsVisible);
                     this._scene.setTileVisibility(c.tilesVisible);
@@ -347,19 +350,20 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
 
         const intersectChange$ = this._configuration$.pipe(
             map(
-                (c: SpatialConfiguration): SpatialConfiguration => {
+                (c: SpatialConfiguration): IntersectConfiguration => {
                     c.cameraSize = this._spatial.clamp(c.cameraSize, 0.01, 1);
                     return {
-                        cameraSize: c.cameraSize,
-                        camerasVisible: c.camerasVisible,
-                        earthControls: c.earthControls,
+                        size: c.cameraSize,
+                        visible:
+                            isModeVisible(c.cameraVisualizationMode),
+                        earth: c.earthControls,
                     }
                 }),
             distinctUntilChanged(
-                (c1: SpatialConfiguration, c2: SpatialConfiguration): boolean => {
-                    return c1.cameraSize === c2.cameraSize &&
-                        c1.camerasVisible === c2.camerasVisible &&
-                        c1.earthControls === c2.earthControls;
+                (c1: IntersectConfiguration, c2: IntersectConfiguration): boolean => {
+                    return c1.size === c2.size &&
+                        c1.visible === c2.visible &&
+                        c1.earth === c2.earth;
                 }));
 
         const mouseMove$ = this._container.mouseService.mouseMove$.pipe(
@@ -381,7 +385,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 switchMap(
                     ([playing, mouseHover]:
                         [boolean, IntersectEvent, boolean, FilterFunction])
-                        : Observable<[IntersectEvent, RenderCamera, SpatialConfiguration]> => {
+                        : Observable<[IntersectEvent, RenderCamera, IntersectConfiguration]> => {
                         return !playing && mouseHover.type === "mouseenter" ?
                             observableCombineLatest(
                                 observableConcat(
@@ -392,11 +396,11 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                             observableCombineLatest(
                                 observableOf(mouseHover),
                                 observableOf(null),
-                                observableOf({}));
+                                observableOf(null));
                     }))
             .subscribe(
                 ([event, render]
-                    : [IntersectEvent, RenderCamera, SpatialConfiguration]): void => {
+                    : [IntersectEvent, RenderCamera, IntersectConfiguration]): void => {
                     if (event.type !== "mousemove") {
                         this._scene.setHoveredImage(null);
                         return;
@@ -519,8 +523,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
     protected _getDefaultConfiguration(): SpatialConfiguration {
         return {
             cameraSize: 0.1,
-            cameraVisualizationMode: CameraVisualizationMode.Default,
-            camerasVisible: false,
+            cameraVisualizationMode: CameraVisualizationMode.Homogeneous,
             originalPositionMode: OriginalPositionMode.Hidden,
             pointSize: 0.1,
             pointsVisible: true,
