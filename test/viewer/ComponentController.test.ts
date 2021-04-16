@@ -37,18 +37,19 @@ class CMock extends Component<ComponentConfiguration> {
     }
 }
 
+class IC extends CMock { protected static _cn: string = "imagefallback"; }
+class NC extends CMock { protected static _cn: string = "navigationfallback"; }
+
 class AC extends CMock { protected static _cn: string = "attribution"; };
 class BaC extends CMock { protected static _cn: string = "background"; }
 class BeC extends CMock { protected static _cn: string = "bearing"; }
 class CC extends CMock { protected static _cn: string = "cache"; }
 class DiC extends CMock { protected static _cn: string = "direction"; }
 class DeC extends CMock { protected static _cn: string = "debug"; }
-class IC extends CMock { protected static _cn: string = "image"; }
 class IPC extends CMock { protected static _cn: string = "imagePlane"; }
 class KC extends CMock { protected static _cn: string = "keyboard"; }
 class MaC extends CMock { protected static _cn: string = "marker"; }
 class MoC extends CMock { protected static _cn: string = "mouse"; }
-class NC extends CMock { protected static _cn: string = "navigation"; }
 class PC extends CMock { protected static _cn: string = "popup"; }
 class RC extends CMock { protected static _cn: string = "route"; }
 class SeC extends CMock { protected static _cn: string = "sequence"; }

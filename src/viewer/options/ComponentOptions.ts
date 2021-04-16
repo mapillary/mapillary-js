@@ -4,12 +4,12 @@ import { DirectionConfiguration } from "../../component/interfaces/DirectionConf
 import { KeyboardConfiguration } from "../../component/interfaces/KeyboardConfiguration";
 import { MarkerConfiguration } from "../../component/interfaces/MarkerConfiguration";
 import { MouseConfiguration } from "../../component/interfaces/MouseConfiguration";
-import { NavigationConfiguration } from "../../component/interfaces/NavigationConfiguration";
 import { SequenceConfiguration } from "../../component/interfaces/SequenceConfiguration";
 import { SliderConfiguration } from "../../component/interfaces/SliderConfiguration";
 import { SpatialDataConfiguration } from "../../component/interfaces/SpatialDataConfiguration";
 import { TagConfiguration } from "../../component/interfaces/TagConfiguration";
 import { ZoomConfiguration } from "../../component/interfaces/ZoomConfiguration";
+import { FallbackOptions } from "./FallbackOptions";
 
 /**
  * Interface for the component options that can be provided to the viewer.
@@ -56,13 +56,12 @@ export interface ComponentOptions {
     direction?: boolean | DirectionConfiguration;
 
     /**
-     * Show static images without pan, zoom, or transitions.
+     * Enable fallback component options
+     * when the browser does not have WebGL support.
      *
-     * @description Fallback for `imagePlane` when WebGL is not supported.
-     *
-     * @default false
+     * @default undefined
      */
-    image?: boolean;
+    fallback?: FallbackOptions;
 
     /**
      * Show image planes in 3D.
@@ -99,15 +98,6 @@ export interface ComponentOptions {
      * @default true
      */
     mouse?: boolean | MouseConfiguration;
-
-    /**
-     * Show static navigation arrows in the corners.
-     *
-     * @description Fallback for `direction` and `sequence` when WebGL is not supported.
-     *
-     * @default false
-     */
-    navigation?: boolean | NavigationConfiguration;
 
     /**
      * Show HTML popups over images.

@@ -78,14 +78,14 @@ import { BearingComponent } from "./component/bearing/BearingComponent";
 import { CacheComponent } from "./component/cache/CacheComponent";
 import { CoverComponent } from "./component/cover/CoverComponent";
 import { DirectionComponent } from "./component/direction/DirectionComponent";
-import { ImageComponent } from "./component/image/ImageComponent";
+import { ImageFallbackComponent } from "./component/fallback/image/ImageFallbackComponent";
 import { ImagePlaneComponent }
     from "./component/imageplane/ImagePlaneComponent";
 import { KeyboardComponent } from "./component/keyboard/KeyboardComponent";
 import { MarkerComponent } from "./component/marker/MarkerComponent";
 import { MouseComponent } from "./component/mouse/MouseComponent";
-import { NavigationComponent }
-    from "./component/navigation/NavigationComponent";
+import { NavigationFallbackComponent }
+    from "./component/fallback/navigation/NavigationFallbackComponent";
 import { PopupComponent } from "./component/popup/PopupComponent";
 import { SequenceComponent } from "./component/sequence/SequenceComponent";
 import { SliderComponent } from "./component/slider/SliderComponent";
@@ -100,12 +100,12 @@ ComponentService.register(AttributionComponent);
 ComponentService.register(BearingComponent);
 ComponentService.register(CacheComponent);
 ComponentService.register(DirectionComponent);
-ComponentService.register(ImageComponent);
+ComponentService.register(ImageFallbackComponent);
 ComponentService.register(ImagePlaneComponent);
 ComponentService.register(KeyboardComponent);
 ComponentService.register(MarkerComponent);
 ComponentService.register(MouseComponent);
-ComponentService.register(NavigationComponent);
+ComponentService.register(NavigationFallbackComponent);
 ComponentService.register(PopupComponent);
 ComponentService.register(SequenceComponent);
 ComponentService.register(SliderComponent);
@@ -140,6 +140,7 @@ export { ViewerStateEvent } from "./viewer/events/ViewerStateEvent";
 
 // Viewer options
 export { ComponentOptions } from "./viewer/options/ComponentOptions";
+export { FallbackOptions } from "./viewer/options/FallbackOptions";
 export { UrlOptions } from "./viewer/options/UrlOptions";
 export { ViewerOptions } from "./viewer/options/ViewerOptions";
 

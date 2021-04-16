@@ -11,17 +11,17 @@ import {
     map,
 } from "rxjs/operators";
 
-import { Component } from "../Component";
-import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
+import { Component } from "../../Component";
+import { ComponentConfiguration } from "../../interfaces/ComponentConfiguration";
 
-import { Image } from "../../graph/Image";
-import { Container } from "../../viewer/Container";
-import { Navigator } from "../../viewer/Navigator";
-import { ViewportSize } from "../../render/interfaces/ViewportSize";
-import { DOM } from "../../util/DOM";
+import { Image } from "../../../graph/Image";
+import { Container } from "../../../viewer/Container";
+import { Navigator } from "../../../viewer/Navigator";
+import { ViewportSize } from "../../../render/interfaces/ViewportSize";
+import { DOM } from "../../../util/DOM";
 
-export class ImageComponent extends Component<ComponentConfiguration> {
-    public static componentName: string = "image";
+export class ImageFallbackComponent extends Component<ComponentConfiguration> {
+    public static componentName: string = "imagefallback";
 
     private _canvasId: string;
     private _dom: DOM;
