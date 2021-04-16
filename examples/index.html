@@ -123,7 +123,7 @@
             let sliderActive = false;
             addButton('Slider', () => {
                 if (sliderActive) {
-                    viewer.activateComponent('imagePlane');
+                    viewer.activateComponent('image');
                     viewer.activateComponent('direction');
                     viewer.activateComponent('sequence');
                     viewer.activateComponent('keyboard');
@@ -131,7 +131,7 @@
                     sliderActive = false;
                 } else {
                     viewer.activateComponent('slider');
-                    viewer.deactivateComponent('imagePlane');
+                    viewer.deactivateComponent('image');
                     viewer.deactivateComponent('direction');
                     viewer.deactivateComponent('sequence');
                     viewer.deactivateComponent('keyboard');

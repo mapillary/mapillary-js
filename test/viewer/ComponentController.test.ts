@@ -46,7 +46,7 @@ class BeC extends CMock { protected static _cn: string = "bearing"; }
 class CC extends CMock { protected static _cn: string = "cache"; }
 class DiC extends CMock { protected static _cn: string = "direction"; }
 class DeC extends CMock { protected static _cn: string = "debug"; }
-class IPC extends CMock { protected static _cn: string = "imagePlane"; }
+class IPC extends CMock { protected static _cn: string = "image"; }
 class KC extends CMock { protected static _cn: string = "keyboard"; }
 class MaC extends CMock { protected static _cn: string = "marker"; }
 class MoC extends CMock { protected static _cn: string = "mouse"; }
@@ -54,7 +54,7 @@ class PC extends CMock { protected static _cn: string = "popup"; }
 class RC extends CMock { protected static _cn: string = "route"; }
 class SeC extends CMock { protected static _cn: string = "sequence"; }
 class SlC extends CMock { protected static _cn: string = "slider"; }
-class SDC extends CMock { protected static _cn: string = "spatialData"; }
+class SDC extends CMock { protected static _cn: string = "spatial"; }
 class TC extends CMock { protected static _cn: string = "tag"; }
 class ZC extends CMock { protected static _cn: string = "zoom"; }
 

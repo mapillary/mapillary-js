@@ -7,8 +7,8 @@ import { isSpherical } from "../../geo/Geo";
 import { Transform } from "../../geo/Transform";
 import { FilterFunction } from "../../graph/FilterCreator";
 import { Image } from "../../graph/Image";
-import { SpatialDataConfiguration }
-    from "../interfaces/SpatialDataConfiguration";
+import { SpatialConfiguration }
+    from "../interfaces/SpatialConfiguration";
 import { CameraVisualizationMode } from "./CameraVisualizationMode";
 import { OriginalPositionMode } from "./OriginalPositionMode";
 
@@ -946,7 +946,7 @@ class SpatialAssets {
     }
 }
 
-export class SpatialDataScene {
+export class SpatialScene {
     private _scene: THREE.Scene;
     private _intersection: Intersection;
     private _assets: SpatialAssets;
@@ -982,7 +982,7 @@ export class SpatialDataScene {
     private _colors: { hover: string, select: string };
 
     constructor(
-        configuration: SpatialDataConfiguration,
+        configuration: SpatialConfiguration,
         scene?: THREE.Scene) {
         this._rayNearScale = 1.1;
         this._originalPointSize = 2;

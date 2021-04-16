@@ -32,7 +32,7 @@ import { Component } from "../Component";
 import { Image as ImageNode } from "../../graph/Image";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
-import { ImagePlaneGLRenderer } from "./ImagePlaneGLRenderer";
+import { ImageGLRenderer } from "./ImageGLRenderer";
 import { Spatial } from "../../geo/Spatial";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { RenderPass } from "../../render/RenderPass";
@@ -51,17 +51,17 @@ import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { Transform } from "../../geo/Transform";
 import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
 
-interface ImagePlaneGLRendererOperation {
-    (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer;
+interface ImageGLRendererOperation {
+    (renderer: ImageGLRenderer): ImageGLRenderer;
 }
 
 type PositionLookat = [THREE.Vector3, THREE.Vector3, number, number, number];
 
-export class ImagePlaneComponent extends Component<ComponentConfiguration> {
-    public static componentName: string = "imagePlane";
+export class ImageComponent extends Component<ComponentConfiguration> {
+    public static componentName: string = "image";
 
-    private _rendererOperation$: Subject<ImagePlaneGLRendererOperation>;
-    private _renderer$: Observable<ImagePlaneGLRenderer>;
+    private _rendererOperation$: Subject<ImageGLRendererOperation>;
+    private _renderer$: Observable<ImageGLRenderer>;
     private _rendererCreator$: Subject<void>;
     private _rendererDisposer$: Subject<void>;
 
@@ -74,43 +74,43 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
         this._imageTileLoader = new TileLoader(navigator.api);
         this._roiCalculator = new RegionOfInterestCalculator();
 
-        this._rendererOperation$ = new Subject<ImagePlaneGLRendererOperation>();
+        this._rendererOperation$ = new Subject<ImageGLRendererOperation>();
         this._rendererCreator$ = new Subject<void>();
         this._rendererDisposer$ = new Subject<void>();
 
         this._renderer$ = this._rendererOperation$.pipe(
             scan(
-                (renderer: ImagePlaneGLRenderer, operation: ImagePlaneGLRendererOperation): ImagePlaneGLRenderer => {
+                (renderer: ImageGLRenderer, operation: ImageGLRendererOperation): ImageGLRenderer => {
                     return operation(renderer);
                 },
                 null),
             filter(
-                (renderer: ImagePlaneGLRenderer): boolean => {
+                (renderer: ImageGLRenderer): boolean => {
                     return renderer != null;
                 }),
             distinctUntilChanged(
                 undefined,
-                (renderer: ImagePlaneGLRenderer): number => {
+                (renderer: ImageGLRenderer): number => {
                     return renderer.frameId;
                 }));
 
         this._rendererCreator$.pipe(
             map(
-                (): ImagePlaneGLRendererOperation => {
-                    return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
+                (): ImageGLRendererOperation => {
+                    return (renderer: ImageGLRenderer): ImageGLRenderer => {
                         if (renderer != null) {
                             throw new Error("Multiple image plane states can not be created at the same time");
                         }
 
-                        return new ImagePlaneGLRenderer();
+                        return new ImageGLRenderer();
                     };
                 }))
             .subscribe(this._rendererOperation$);
 
         this._rendererDisposer$.pipe(
             map(
-                (): ImagePlaneGLRendererOperation => {
-                    return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
+                (): ImageGLRendererOperation => {
+                    return (renderer: ImageGLRenderer): ImageGLRenderer => {
                         renderer.dispose();
 
                         return null;
@@ -123,7 +123,7 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
         const subs = this._subscriptions;
         subs.push(this._renderer$.pipe(
             map(
-                (renderer: ImagePlaneGLRenderer): GLRenderHash => {
+                (renderer: ImageGLRenderer): GLRenderHash => {
                     let renderHash: GLRenderHash = {
                         name: this._name,
                         renderer: {
@@ -144,8 +144,8 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
 
         subs.push(this._navigator.stateService.currentState$.pipe(
             map(
-                (frame: AnimationFrame): ImagePlaneGLRendererOperation => {
-                    return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
+                (frame: AnimationFrame): ImageGLRendererOperation => {
+                    return (renderer: ImageGLRenderer): ImageGLRenderer => {
                         renderer.updateFrame(frame);
 
                         return renderer;
@@ -187,8 +187,8 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
 
         subs.push(textureProvider$.pipe(
             map(
-                (provider: TextureProvider): ImagePlaneGLRendererOperation => {
-                    return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
+                (provider: TextureProvider): ImageGLRendererOperation => {
+                    return (renderer: ImageGLRenderer): ImageGLRenderer => {
                         renderer.setTextureProvider(provider.id, provider);
 
                         return renderer;
@@ -299,8 +299,8 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                     return panNodes.length === 0;
                 }),
             map(
-                (): ImagePlaneGLRendererOperation => {
-                    return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
+                (): ImageGLRendererOperation => {
+                    return (renderer: ImageGLRenderer): ImageGLRenderer => {
                         renderer.clearPeripheryPlanes();
 
                         return renderer;
@@ -329,8 +329,8 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
 
         subs.push(cachedPanNodes$.pipe(
             map(
-                ([n, t]: [ImageNode, Transform]): ImagePlaneGLRendererOperation => {
-                    return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
+                ([n, t]: [ImageNode, Transform]): ImageGLRendererOperation => {
+                    return (renderer: ImageGLRenderer): ImageGLRenderer => {
                         renderer.addPeripheryPlane(n, t);
 
                         return renderer;
@@ -348,8 +348,8 @@ export class ImagePlaneComponent extends Component<ComponentConfiguration> {
                             }));
                 }),
             map(
-                (n: ImageNode): ImagePlaneGLRendererOperation => {
-                    return (renderer: ImagePlaneGLRenderer): ImagePlaneGLRenderer => {
+                (n: ImageNode): ImageGLRendererOperation => {
+                    return (renderer: ImageGLRenderer): ImageGLRenderer => {
                         renderer.updateTextureImage(n.image, n);
 
                         return renderer;

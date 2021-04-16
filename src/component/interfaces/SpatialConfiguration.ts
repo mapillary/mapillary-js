@@ -1,18 +1,18 @@
 import { ComponentConfiguration } from "./ComponentConfiguration";
-import { CameraVisualizationMode } from "../spatialdata/CameraVisualizationMode";
-import { OriginalPositionMode } from "../spatialdata/OriginalPositionMode";
+import { CameraVisualizationMode } from "../spatial/CameraVisualizationMode";
+import { OriginalPositionMode } from "../spatial/OriginalPositionMode";
 
 /**
- * Interface for configuration of spatial data component.
+ * Interface for configuration of spatial component.
  *
  * @interface
  * @example
  * ```js
- * var mode = Mapilary.SpatialDataComponent.CameraVisualizationMode;
+ * var mode = Mapillary.SpatialComponent.CameraVisualizationMode;
  * var viewer = new mapillary.Viewer({
  *     ...
  *     component: {
- *         spatialData: {
+ *         spatial: {
  *             cameraSize: 0.5,
  *             camerasVisible: true,
  *             cameraVisualizationMode: mode.Cluster,
@@ -27,7 +27,7 @@ import { OriginalPositionMode } from "../spatialdata/OriginalPositionMode";
  * });
  * ```
  */
-export interface SpatialDataConfiguration extends ComponentConfiguration {
+export interface SpatialConfiguration extends ComponentConfiguration {
     /**
      * The camera size on the interval [0.01, 1].
      *

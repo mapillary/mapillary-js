@@ -1,4 +1,5 @@
-import { NavigationFallbackConfiguration } from "../../component/interfaces/NavigationFallbackConfiguration";
+import { NavigationFallbackConfiguration }
+    from "../../component/interfaces/NavigationFallbackConfiguration";
 
 /**
  * Interface for the fallback component options that can be
@@ -12,7 +13,7 @@ export interface FallbackOptions {
     /**
      * Show static images without pan, zoom, or transitions.
      *
-     * @description Fallback for `imagePlane` when WebGL is not supported.
+     * @description Fallback for `image` when WebGL is not supported.
      *
      * @default false
      */

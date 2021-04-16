@@ -82,7 +82,7 @@ import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
  * ```js
  * var viewer = new mapillary.Viewer({ ... });
  *
- * viewer.deactivateComponent("imagePlane");
+ * viewer.deactivateComponent("image");
  * viewer.deactivateComponent("direction");
  * viewer.deactivateComponent("sequence");
  *

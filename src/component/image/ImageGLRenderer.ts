@@ -10,7 +10,7 @@ import { MeshFactory } from "../util/MeshFactory";
 import { MeshScene } from "../util/MeshScene";
 import { ProjectorShaderMaterial } from "./interfaces/ProjectorShaderMaterial";
 
-export class ImagePlaneGLRenderer {
+export class ImageGLRenderer {
     private _factory: MeshFactory;
     private _scene: MeshScene;
 

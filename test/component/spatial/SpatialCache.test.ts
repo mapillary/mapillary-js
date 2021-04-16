@@ -4,18 +4,18 @@ import { Image } from "../../../src/graph/Image";
 import { FalcorDataProvider } from "../../../src/api/falcor/FalcorDataProvider";
 import { GeohashGeometryProvider } from "../../../src/api/GeohashGeometryProvider";
 import { ClusterReconstructionContract } from "../../../src/api/contracts/ClusterReconstructionContract";
-import { SpatialDataCache } from "../../../src/component/spatialdata/SpatialDataCache";
+import { SpatialCache } from "../../../src/component/spatial/SpatialCache";
 import { GraphService } from "../../../src/graph/GraphService";
 import { GraphServiceMockCreator } from "../../helper/GraphServiceMockCreator";
 import { ImageHelper } from "../../helper/ImageHelper";
 
 const cacheTile: (
     hash: string,
-    cache: SpatialDataCache,
+    cache: SpatialCache,
     graphService: GraphService,
     images: Image[]) => void = (
         hash: string,
-        cache: SpatialDataCache,
+        cache: SpatialCache,
         graphService: GraphService,
         images: Image[]): void => {
 
@@ -31,10 +31,10 @@ const cacheTile: (
         expect(cache.hasTile(hash)).toBe(true);
     };
 
-describe("SpatialDataCache.ctor", () => {
+describe("SpatialCache.ctor", () => {
     it("should be defined", () => {
-        const cache: SpatialDataCache =
-            new SpatialDataCache(
+        const cache: SpatialCache =
+            new SpatialCache(
                 new GraphServiceMockCreator().create(),
                 undefined);
 
@@ -42,7 +42,7 @@ describe("SpatialDataCache.ctor", () => {
     });
 });
 
-describe("SpatialDataCache.cacheTile$", () => {
+describe("SpatialCache.cacheTile$", () => {
     it("should call cache bounding box", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const cacheCell$: Subject<Image[]> = new Subject<Image[]>();
@@ -52,7 +52,7 @@ describe("SpatialDataCache.cacheTile$", () => {
         const geometryProvider = new GeohashGeometryProvider();
 
         const dataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
-        const cache: SpatialDataCache = new SpatialDataCache(
+        const cache: SpatialCache = new SpatialCache(
             graphService, dataProvider);
 
         const hash: string = "12345678";
@@ -70,7 +70,7 @@ describe("SpatialDataCache.cacheTile$", () => {
 
         const geometryProvider = new GeohashGeometryProvider();
         const dataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
-        const cache: SpatialDataCache = new SpatialDataCache(
+        const cache: SpatialCache = new SpatialCache(
             graphService, dataProvider);
 
         const hash: string = "00000000";
@@ -91,7 +91,7 @@ describe("SpatialDataCache.cacheTile$", () => {
         const geometryProvider = new GeohashGeometryProvider();
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" }, geometryProvider);
-        const cache: SpatialDataCache = new SpatialDataCache(
+        const cache: SpatialCache = new SpatialCache(
             graphService, dataProvider);
 
         const hash: string = "00000000";
@@ -120,7 +120,7 @@ describe("SpatialDataCache.cacheTile$", () => {
 
         const geometryProvider = new GeohashGeometryProvider();
         const dataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
-        const cache: SpatialDataCache = new SpatialDataCache(
+        const cache: SpatialCache = new SpatialCache(
             graphService, dataProvider);
 
         const hash: string = "00000000";
@@ -147,7 +147,7 @@ describe("SpatialDataCache.cacheTile$", () => {
     });
 });
 
-describe("SpatialDataCache.cacheReconstructions$", () => {
+describe("SpatialCache.cacheReconstructions$", () => {
     it("should cache a reconstruction", (done: Function) => {
         const image: Image = new ImageHelper().createImage();
         const hash: string = "00000000";
@@ -165,7 +165,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         spyOn(dataProvider, "getClusterReconstruction").and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cache: SpatialDataCache = new SpatialDataCache(graphService, dataProvider);
+        const cache: SpatialCache = new SpatialCache(graphService, dataProvider);
 
         cacheTile(hash, cache, graphService, [image]);
 
@@ -204,7 +204,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         spyOn(dataProvider, "getClusterReconstruction").and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cache: SpatialDataCache = new SpatialDataCache(graphService, dataProvider);
+        const cache: SpatialCache = new SpatialCache(graphService, dataProvider);
 
         cacheTile(hash, cache, graphService, [image]);
 
@@ -239,7 +239,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         clusterSpy.and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cache: SpatialDataCache = new SpatialDataCache(graphService, dataProvider);
+        const cache: SpatialCache = new SpatialCache(graphService, dataProvider);
 
         cacheTile(hash, cache, graphService, [image]);
 
@@ -274,7 +274,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
         clusterSpy.and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cache: SpatialDataCache = new SpatialDataCache(graphService, dataProvider);
+        const cache: SpatialCache = new SpatialCache(graphService, dataProvider);
 
         cacheTile(hash, cache, graphService, [image]);
 
@@ -315,7 +315,7 @@ describe("SpatialDataCache.cacheReconstructions$", () => {
     });
 });
 
-describe("SpatialDataCache.updateCell$", () => {
+describe("SpatialCache.updateCell$", () => {
     it("should throw if cell does not exist", () => {
         const graphService = new GraphServiceMockCreator().create();
         const cacheCell$ = new Subject<Image[]>();
@@ -327,7 +327,7 @@ describe("SpatialDataCache.updateCell$", () => {
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" },
             geometryProvider);
-        const cache: SpatialDataCache = new SpatialDataCache(
+        const cache: SpatialCache = new SpatialCache(
             graphService, dataProvider);
 
         const cellId = "1";
@@ -343,7 +343,7 @@ describe("SpatialDataCache.updateCell$", () => {
 
         const geometryProvider = new GeohashGeometryProvider();
         const dataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
-        const cache: SpatialDataCache = new SpatialDataCache(
+        const cache: SpatialCache = new SpatialCache(
             graphService, dataProvider);
 
         const cellId = "1";
@@ -376,7 +376,7 @@ describe("SpatialDataCache.updateCell$", () => {
 
         const geometryProvider = new GeohashGeometryProvider();
         const dataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
-        const cache: SpatialDataCache = new SpatialDataCache(
+        const cache: SpatialCache = new SpatialCache(
             graphService, dataProvider);
 
         const cellId = "1";
@@ -401,7 +401,7 @@ describe("SpatialDataCache.updateCell$", () => {
     });
 });
 
-describe("SpatialDataCache.updateReconstructions$", () => {
+describe("SpatialCache.updateReconstructions$", () => {
     const createCluster = (key: string): ClusterReconstructionContract => {
         return {
             cameras: {},
@@ -421,7 +421,7 @@ describe("SpatialDataCache.updateReconstructions$", () => {
                 new Promise<ClusterReconstructionContract>(() => { /* noop */ }));
 
         const graphService = new GraphServiceMockCreator().create();
-        const cache = new SpatialDataCache(graphService, dataProvider);
+        const cache = new SpatialCache(graphService, dataProvider);
 
         expect(() => cache.updateClusterReconstructions$("123")).toThrowError();
     });
@@ -444,7 +444,7 @@ describe("SpatialDataCache.updateReconstructions$", () => {
             .returnValue(promise);
 
         const graphService = new GraphServiceMockCreator().create();
-        const cache = new SpatialDataCache(graphService, dataProvider);
+        const cache = new SpatialCache(graphService, dataProvider);
 
         cacheTile(cellId, cache, graphService, [image]);
 
@@ -484,7 +484,7 @@ describe("SpatialDataCache.updateReconstructions$", () => {
             .returnValue(promise);
 
         const graphService = new GraphServiceMockCreator().create();
-        const cache = new SpatialDataCache(graphService, dataProvider);
+        const cache = new SpatialCache(graphService, dataProvider);
 
         cacheTile(cellId, cache, graphService, []);
 
