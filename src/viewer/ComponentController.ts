@@ -117,9 +117,10 @@ export class ComponentController {
     private _initializeComponents(): void {
         const options = this._options;
 
-        this._uFalse(options.image, "image");
+        this._uFalse(options.fallback?.image, "imagefallback");
+        this._uFalse(options.fallback?.navigation, "navigationfallback");
+
         this._uFalse(options.marker, "marker");
-        this._uFalse(options.navigation, "navigation");
         this._uFalse(options.popup, "popup");
         this._uFalse(options.slider, "slider");
         this._uFalse(options.spatialData, "spatialData");

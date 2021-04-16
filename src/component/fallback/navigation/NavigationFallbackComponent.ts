@@ -4,7 +4,6 @@ import {
     combineLatest as observableCombineLatest,
     of as observableOf,
     Observable,
-    Subscription,
 } from "rxjs";
 
 import {
@@ -12,28 +11,29 @@ import {
     switchMap,
 } from "rxjs/operators";
 
-import { Component } from "../Component";
-import { NavigationConfiguration } from "../interfaces/NavigationConfiguration";
+import { Component } from "../../Component";
+import { NavigationFallbackConfiguration } from "../../interfaces/NavigationFallbackConfiguration";
 
-import { AbortMapillaryError } from "../../error/AbortMapillaryError";
-import { Image } from "../../graph/Image";
-import { NavigationDirection } from "../../graph/edge/NavigationDirection";
-import { NavigationEdge } from "../../graph/edge/interfaces/NavigationEdge";
-import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
-import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
-import { Container } from "../../viewer/Container";
-import { Navigator } from "../../viewer/Navigator";
-import { isSpherical } from "../../geo/Geo";
+import { AbortMapillaryError } from "../../../error/AbortMapillaryError";
+import { Image } from "../../../graph/Image";
+import { NavigationDirection } from "../../../graph/edge/NavigationDirection";
+import { NavigationEdge } from "../../../graph/edge/interfaces/NavigationEdge";
+import { NavigationEdgeStatus } from "../../../graph/interfaces/NavigationEdgeStatus";
+import { VirtualNodeHash } from "../../../render/interfaces/VirtualNodeHash";
+import { Container } from "../../../viewer/Container";
+import { Navigator } from "../../../viewer/Navigator";
+import { isSpherical } from "../../../geo/Geo";
 
 /**
- * @class NavigationComponent
+ * @class NavigationFallbackComponent
  *
  * @classdesc Fallback navigation component for environments without WebGL support.
  *
  * Replaces the functionality in the Direction and Sequence components.
  */
-export class NavigationComponent extends Component<NavigationConfiguration> {
-    public static componentName: string = "navigation";
+export class NavigationFallbackComponent
+    extends Component<NavigationFallbackConfiguration> {
+    public static componentName: string = "navigationfallback";
 
     private _seqNames: { [dir: string]: string };
     private _spaTopNames: { [dir: string]: string };
@@ -63,7 +63,7 @@ export class NavigationComponent extends Component<NavigationConfiguration> {
             this._navigator.stateService.currentImage$,
             this._configuration$).pipe(
                 switchMap(
-                    ([image, configuration]: [Image, NavigationConfiguration]): Observable<NavigationDirection[]> => {
+                    ([image, configuration]: [Image, NavigationFallbackConfiguration]): Observable<NavigationDirection[]> => {
                         const sequenceEdges$: Observable<NavigationDirection[]> = configuration.sequence ?
                             image.sequenceEdges$.pipe(
                                 map(
@@ -117,7 +117,7 @@ export class NavigationComponent extends Component<NavigationConfiguration> {
         this._subscriptions.unsubscribe();
     }
 
-    protected _getDefaultConfiguration(): NavigationConfiguration {
+    protected _getDefaultConfiguration(): NavigationFallbackConfiguration {
         return { sequence: true, spatial: true };
     }
 

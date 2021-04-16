@@ -9,15 +9,18 @@ import { ComponentConfiguration } from "./ComponentConfiguration";
  * var viewer = new mapillary.Viewer({
  *     ...
  *     component: {
- *         navigation: {
- *             spatial: false,
+*          fallback: {
+ *             navigation: {
+ *                 spatial: false,
+ *             },
  *         },
  *     },
  *     ...
  * });
  * ```
  */
-export interface NavigationConfiguration extends ComponentConfiguration {
+export interface NavigationFallbackConfiguration
+    extends ComponentConfiguration {
     /**
      * Enable or disable the sequence arrows.
      *
