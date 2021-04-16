@@ -21,7 +21,6 @@ import {
     refCount,
     switchMap,
     take,
-    tap,
     withLatestFrom,
     filter,
 } from "rxjs/operators";
@@ -44,12 +43,12 @@ import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { State } from "../../state/State";
 import { PlayService } from "../../viewer/PlayService";
 import { Component } from "../Component";
-import { SpatialDataConfiguration }
-    from "../interfaces/SpatialDataConfiguration";
+import { SpatialConfiguration }
+    from "../interfaces/SpatialConfiguration";
 import { CameraVisualizationMode } from "./CameraVisualizationMode";
 import { OriginalPositionMode } from "./OriginalPositionMode";
-import { SpatialDataScene } from "./SpatialDataScene";
-import { SpatialDataCache } from "./SpatialDataCache";
+import { SpatialScene } from "./SpatialScene";
+import { SpatialCache } from "./SpatialCache";
 import { CameraType } from "../../geo/interfaces/CameraType";
 import { geodeticToEnu } from "../../geo/GeoCoords";
 import { LngLat } from "../../api/interfaces/LngLat";
@@ -63,11 +62,11 @@ type Cell = {
 
 type AdjancentParams = [boolean, boolean, number, Image];
 
-export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
-    public static componentName: string = "spatialData";
+export class SpatialComponent extends Component<SpatialConfiguration> {
+    public static componentName: string = "spatial";
 
-    private _cache: SpatialDataCache;
-    private _scene: SpatialDataScene;
+    private _cache: SpatialCache;
+    private _scene: SpatialScene;
     private _viewportCoords: ViewportCoords;
     private _spatial: Spatial;
 
@@ -75,10 +74,10 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
 
-        this._cache = new SpatialDataCache(
+        this._cache = new SpatialCache(
             navigator.graphService,
             navigator.api.data);
-        this._scene = new SpatialDataScene(this._getDefaultConfiguration());
+        this._scene = new SpatialScene(this._getDefaultConfiguration());
         this._viewportCoords = new ViewportCoords();
         this._spatial = new Spatial();
     }
@@ -91,7 +90,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
 
         subs.push(this._configuration$.pipe(
             map(
-                (configuration: SpatialDataConfiguration): boolean => {
+                (configuration: SpatialConfiguration): boolean => {
                     return configuration.earthControls;
                 }),
             distinctUntilChanged(),
@@ -272,7 +271,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
 
         subs.push(this._configuration$.pipe(
             map(
-                (c: SpatialDataConfiguration): SpatialDataConfiguration => {
+                (c: SpatialConfiguration): SpatialConfiguration => {
                     c.cameraSize = this._spatial.clamp(c.cameraSize, 0.01, 1);
                     c.pointSize = this._spatial.clamp(c.pointSize, 0.01, 1);
                     return {
@@ -286,7 +285,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                     }
                 }),
             distinctUntilChanged(
-                (c1: SpatialDataConfiguration, c2: SpatialDataConfiguration): boolean => {
+                (c1: SpatialConfiguration, c2: SpatialConfiguration): boolean => {
                     return c1.cameraSize === c2.cameraSize &&
                         c1.cameraVisualizationMode === c2.cameraVisualizationMode &&
                         c1.camerasVisible === c2.camerasVisible &&
@@ -296,7 +295,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                         c1.tilesVisible === c2.tilesVisible;
                 }))
             .subscribe(
-                (c: SpatialDataConfiguration): void => {
+                (c: SpatialConfiguration): void => {
                     this._scene.setCameraSize(c.cameraSize);
                     this._scene.setCameraVisibility(c.camerasVisible);
                     this._scene.setPointSize(c.pointSize);
@@ -348,7 +347,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
 
         const intersectChange$ = this._configuration$.pipe(
             map(
-                (c: SpatialDataConfiguration): SpatialDataConfiguration => {
+                (c: SpatialConfiguration): SpatialConfiguration => {
                     c.cameraSize = this._spatial.clamp(c.cameraSize, 0.01, 1);
                     return {
                         cameraSize: c.cameraSize,
@@ -357,7 +356,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                     }
                 }),
             distinctUntilChanged(
-                (c1: SpatialDataConfiguration, c2: SpatialDataConfiguration): boolean => {
+                (c1: SpatialConfiguration, c2: SpatialConfiguration): boolean => {
                     return c1.cameraSize === c2.cameraSize &&
                         c1.camerasVisible === c2.camerasVisible &&
                         c1.earthControls === c2.earthControls;
@@ -382,7 +381,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                 switchMap(
                     ([playing, mouseHover]:
                         [boolean, IntersectEvent, boolean, FilterFunction])
-                        : Observable<[IntersectEvent, RenderCamera, SpatialDataConfiguration]> => {
+                        : Observable<[IntersectEvent, RenderCamera, SpatialConfiguration]> => {
                         return !playing && mouseHover.type === "mouseenter" ?
                             observableCombineLatest(
                                 observableConcat(
@@ -397,7 +396,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                     }))
             .subscribe(
                 ([event, render]
-                    : [IntersectEvent, RenderCamera, SpatialDataConfiguration]): void => {
+                    : [IntersectEvent, RenderCamera, SpatialConfiguration]): void => {
                     if (event.type !== "mousemove") {
                         this._scene.setHoveredImage(null);
                         return;
@@ -517,7 +516,7 @@ export class SpatialDataComponent extends Component<SpatialDataConfiguration> {
                 });
     }
 
-    protected _getDefaultConfiguration(): SpatialDataConfiguration {
+    protected _getDefaultConfiguration(): SpatialConfiguration {
         return {
             cameraSize: 0.1,
             cameraVisualizationMode: CameraVisualizationMode.Default,

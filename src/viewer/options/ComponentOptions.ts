@@ -6,7 +6,7 @@ import { MarkerConfiguration } from "../../component/interfaces/MarkerConfigurat
 import { MouseConfiguration } from "../../component/interfaces/MouseConfiguration";
 import { SequenceConfiguration } from "../../component/interfaces/SequenceConfiguration";
 import { SliderConfiguration } from "../../component/interfaces/SliderConfiguration";
-import { SpatialDataConfiguration } from "../../component/interfaces/SpatialDataConfiguration";
+import { SpatialConfiguration } from "../../component/interfaces/SpatialConfiguration";
 import { TagConfiguration } from "../../component/interfaces/TagConfiguration";
 import { ZoomConfiguration } from "../../component/interfaces/ZoomConfiguration";
 import { FallbackOptions } from "./FallbackOptions";
@@ -70,7 +70,7 @@ export interface ComponentOptions {
      *
      * @default true
      */
-    imagePlane?: boolean;
+    image?: boolean;
 
     /**
      * Enable use of keyboard commands.
@@ -133,7 +133,7 @@ export interface ComponentOptions {
      *
      * @default false
      */
-    spatialData?: boolean | SpatialDataConfiguration;
+    spatial?: boolean | SpatialConfiguration;
 
     /**
      * Enable an interface for drawing 2D geometries on top of images.

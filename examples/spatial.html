@@ -29,18 +29,18 @@
 
     <script type="module">
         import {
-            SpatialDataComponent as Spatial,
+            SpatialComponent as Spatial,
             Viewer,
         } from './dist/mapillary.module.js';
 
         const viewer = new Viewer({
             apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
-            component: { cover: false, stats: false, spatialData: true },
+            component: { cover: false, stats: false, spatial: true },
             container: "mly",
             imageId: "zarcRdNFZwg3FkXNcsFeGw",
         });
 
-        const spatial = viewer.getComponent("spatialData");
+        const spatial = viewer.getComponent("spatial");
         const s = Object.assign(
             {},
             spatial.defaultConfiguration,
@@ -70,8 +70,8 @@
 
         function toggleImages() {
             s.imagesVisible = !s.imagesVisible;
-            if (s.imagesVisible) { viewer.activateComponent("imagePlane"); }
-            else { viewer.deactivateComponent("imagePlane"); }
+            if (s.imagesVisible) { viewer.activateComponent("image"); }
+            else { viewer.deactivateComponent("image"); }
         }
 
         function rotateCvm() {

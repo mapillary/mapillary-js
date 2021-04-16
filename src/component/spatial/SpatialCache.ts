@@ -27,7 +27,7 @@ type ClusterData = {
     url: string;
 }
 
-export class SpatialDataCache {
+export class SpatialCache {
     private _graphService: GraphService;
     private _data: DataProviderBase;
 

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { ProjectorShaderMaterial } from "../imageplane/interfaces/ProjectorShaderMaterial";
+import { ProjectorShaderMaterial } from "../image/interfaces/ProjectorShaderMaterial";
 
 export class MeshScene {
     private _planes: { [key: string]: THREE.Mesh };

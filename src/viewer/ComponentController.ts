@@ -123,14 +123,14 @@ export class ComponentController {
         this._uFalse(options.marker, "marker");
         this._uFalse(options.popup, "popup");
         this._uFalse(options.slider, "slider");
-        this._uFalse(options.spatialData, "spatialData");
+        this._uFalse(options.spatial, "spatial");
         this._uFalse(options.tag, "tag");
 
         this._uTrue(options.attribution, "attribution");
         this._uTrue(options.bearing, "bearing");
         this._uTrue(options.cache, "cache");
         this._uTrue(options.direction, "direction");
-        this._uTrue(options.imagePlane, "imagePlane");
+        this._uTrue(options.image, "image");
         this._uTrue(options.keyboard, "keyboard");
         this._uTrue(options.mouse, "mouse");
         this._uTrue(options.sequence, "sequence");

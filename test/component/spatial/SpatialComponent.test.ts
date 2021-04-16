@@ -1,13 +1,13 @@
 
-import { SpatialDataComponent } from "../../../src/component/spatialdata/SpatialDataComponent";
+import { SpatialComponent } from "../../../src/component/spatial/SpatialComponent";
 import { ContainerMockCreator } from "../../helper/ContainerMockCreator";
 import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
 
-describe("SpatialDataComponent.ctor", () => {
+describe("SpatialComponent.ctor", () => {
     it("should be defined", () => {
-        const component: SpatialDataComponent =
-            new SpatialDataComponent(
-                SpatialDataComponent.componentName,
+        const component: SpatialComponent =
+            new SpatialComponent(
+                SpatialComponent.componentName,
                 new ContainerMockCreator().create(),
                 new NavigatorMockCreator().create());
 
@@ -15,11 +15,11 @@ describe("SpatialDataComponent.ctor", () => {
     });
 });
 
-describe("SpatialDataComponent.deactivate", () => {
+describe("SpatialComponent.deactivate", () => {
     it("should deactivate properly", () => {
-        const component: SpatialDataComponent =
-            new SpatialDataComponent(
-                SpatialDataComponent.componentName,
+        const component: SpatialComponent =
+            new SpatialComponent(
+                SpatialComponent.componentName,
                 new ContainerMockCreator().create(),
                 new NavigatorMockCreator().create());
 

@@ -79,8 +79,8 @@ import { CacheComponent } from "./component/cache/CacheComponent";
 import { CoverComponent } from "./component/cover/CoverComponent";
 import { DirectionComponent } from "./component/direction/DirectionComponent";
 import { ImageFallbackComponent } from "./component/fallback/image/ImageFallbackComponent";
-import { ImagePlaneComponent }
-    from "./component/imageplane/ImagePlaneComponent";
+import { ImageComponent }
+    from "./component/image/ImageComponent";
 import { KeyboardComponent } from "./component/keyboard/KeyboardComponent";
 import { MarkerComponent } from "./component/marker/MarkerComponent";
 import { MouseComponent } from "./component/mouse/MouseComponent";
@@ -89,8 +89,8 @@ import { NavigationFallbackComponent }
 import { PopupComponent } from "./component/popup/PopupComponent";
 import { SequenceComponent } from "./component/sequence/SequenceComponent";
 import { SliderComponent } from "./component/slider/SliderComponent";
-import { SpatialDataComponent }
-    from "./component/spatialdata/SpatialDataComponent";
+import { SpatialComponent }
+    from "./component/spatial/SpatialComponent";
 import { TagComponent } from "./component/tag/TagComponent";
 import { ZoomComponent } from "./component/zoom/ZoomComponent";
 
@@ -101,7 +101,7 @@ ComponentService.register(BearingComponent);
 ComponentService.register(CacheComponent);
 ComponentService.register(DirectionComponent);
 ComponentService.register(ImageFallbackComponent);
-ComponentService.register(ImagePlaneComponent);
+ComponentService.register(ImageComponent);
 ComponentService.register(KeyboardComponent);
 ComponentService.register(MarkerComponent);
 ComponentService.register(MouseComponent);
@@ -109,7 +109,7 @@ ComponentService.register(NavigationFallbackComponent);
 ComponentService.register(PopupComponent);
 ComponentService.register(SequenceComponent);
 ComponentService.register(SliderComponent);
-ComponentService.register(SpatialDataComponent);
+ComponentService.register(SpatialComponent);
 ComponentService.register(TagComponent);
 ComponentService.register(ZoomComponent);
 
@@ -177,6 +177,6 @@ export * as MouseComponent from "./export/MouseNamespace";
 export * as PopupComponent from "./export/PopupNamespace";
 export * as SequenceComponent from "./export/SequenceNamespace";
 export * as SliderComponent from "./export/SliderNamespace";
-export * as SpatialDataComponent from "./export/SpatialDataNamespace";
+export * as SpatialComponent from "./export/SpatialNamespace";
 export * as TagComponent from "./export/TagNamespace";
 export * as ZoomComponent from "./export/ZoomNamespace";
