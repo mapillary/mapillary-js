@@ -1,4 +1,3 @@
-import { DataProviderBase } from "../DataProviderBase";
 import { ProviderEvent } from "./ProviderEvent";
 
 /**

@@ -10,5 +10,5 @@ export interface ComponentGeometryEvent extends ComponentEvent {
      */
     geometry: Geometry;
 
-    type: "geometrycreated";
+    type: "geometrycreate";
 }

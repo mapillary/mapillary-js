@@ -360,7 +360,7 @@ export class TagComponent extends Component<TagConfiguration> {
      *
      * @example
      * ```js
-     * tagComponent.on("geometrycreated", function(geometry) {
+     * tagComponent.on("geometrycreate", function(geometry) {
      *     console.log(geometry);
      * });
      *
@@ -399,7 +399,7 @@ export class TagComponent extends Component<TagConfiguration> {
     }
 
     public fire(
-        type: "geometrycreated",
+        type: "geometrycreate",
         event: ComponentGeometryEvent)
         : void;
     public fire(
@@ -531,7 +531,7 @@ export class TagComponent extends Component<TagConfiguration> {
     }
 
     public off(
-        type: "geometrycreated",
+        type: "geometrycreate",
         handler: (event: ComponentGeometryEvent) => void)
         : void;
     public off(
@@ -568,7 +568,7 @@ export class TagComponent extends Component<TagConfiguration> {
      * ```
      */
     public on(
-        type: "geometrycreated",
+        type: "geometrycreate",
         handler: (event: ComponentGeometryEvent) => void)
         : void;
     /**
@@ -720,7 +720,7 @@ export class TagComponent extends Component<TagConfiguration> {
         subs.push(handlerGeometryCreated$
             .subscribe(
                 (geometry: Geometry): void => {
-                    const type: ComponentEventType = "geometrycreated";
+                    const type: ComponentEventType = "geometrycreate";
                     const event: ComponentGeometryEvent = {
                         geometry,
                         target: this,

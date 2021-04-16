@@ -123,7 +123,7 @@
             return tag;
         }
 
-        tagComponent.on("geometrycreated", function (event) {
+        tagComponent.on("geometrycreate", function (event) {
             let tag;
             const geometry = event.geometry;
             if (geometry instanceof Tag.RectGeometry) {

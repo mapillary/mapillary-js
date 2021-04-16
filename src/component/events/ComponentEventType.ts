@@ -1,5 +1,5 @@
 export type ComponentEventType =
-    | "geometrycreated"
+    | "geometrycreate"
     | "hover"
     | "markerdragend"
     | "markerdragstart"
