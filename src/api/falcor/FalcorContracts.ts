@@ -34,7 +34,6 @@ export interface FalcorClusterReconstructionContract {
     cameras: { [cameraId: string]: FalcorCameraContract };
     points: { [pointId: string]: FalcorPointContract };
     reference_lla: FalcorReferenceLlaContract,
-    key: string;
     shots: { [imageKey: string]: FalcorCameraShotContract };
 }
 

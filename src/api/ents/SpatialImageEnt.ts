@@ -85,14 +85,6 @@ export interface SpatialImageEnt extends CameraEnt, IDEnt {
     merge_cc?: number;
 
     /**
-     * Version for which SfM was run and image was merged.
-     *
-     * @description Optional - no 3D interaction available
-     * if unset.
-     */
-    merge_version?: number;
-
-    /**
      * 3D mesh resource.
      */
     mesh: URLEnt;

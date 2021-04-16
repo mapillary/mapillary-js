@@ -40,15 +40,14 @@ export class EdgeCalculatorHelper {
         return new Image(coreImage);
     }
 
-    public createSpatialImageEn(
+    public createCompleteImage(
         key: string = "key",
         lngLatAlt: LngLatAlt = { alt: 0, lat: 0, lng: 0 },
         sequenceKey: string = "skey",
         r: number[] = [0, 0, 0],
         mergeCC: number = 2,
         cameraType: CameraType = "perspective",
-        capturedAt: number = 0,
-        mergeVersion: number = 1): Image {
+        capturedAt: number = 0): Image {
 
         let image: Image = this.createCoreImage(key, lngLatAlt, sequenceKey);
         let spatialImage: SpatialImageEnt = {
@@ -71,7 +70,6 @@ export class EdgeCalculatorHelper {
             height: 0,
             id: "key",
             merge_cc: mergeCC,
-            merge_version: mergeVersion,
             mesh: { id: "mesh-id", url: "mesh-url" },
             private: false,
             owner: { id: null },
@@ -93,7 +91,7 @@ export class EdgeCalculatorHelper {
             "spherical" :
             null;
 
-        return this.createSpatialImageEn(
+        return this.createCompleteImage(
             key,
             lngLatAlt,
             sequenceKey,
