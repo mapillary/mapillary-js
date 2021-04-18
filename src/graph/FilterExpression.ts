@@ -32,7 +32,7 @@ type FilterImage = Pick<
     | "exifOrientation"
     | "height"
     | "id"
-    | "mergeConnectedComponent"
+    | "mergeId"
     | "merged"
     | "ownerId"
     | "private"

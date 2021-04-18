@@ -1079,8 +1079,8 @@ export class SpatialScene {
                 image.clusterId : "default_cluster_id",
             sequenceId: !!image.sequenceId ?
                 image.sequenceId : "default_sequence_id",
-            ccId: !!image.mergeConnectedComponent ?
-                image.mergeConnectedComponent.toString() : "default_mergecc_id",
+            ccId: !!image.mergeId ?
+                image.mergeId.toString() : "default_mergecc_id",
         }
 
         if (!(cellId in this._images)) {

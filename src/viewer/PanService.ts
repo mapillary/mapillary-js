@@ -153,7 +153,7 @@ export class PanService {
                                             continue;
                                         }
 
-                                        if (image.mergeConnectedComponent !== current.mergeConnectedComponent) {
+                                        if (image.mergeId !== current.mergeId) {
                                             continue;
                                         }
 

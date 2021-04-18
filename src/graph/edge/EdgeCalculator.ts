@@ -130,7 +130,7 @@ export class EdgeCalculator {
                 potential.sequenceId === node.sequenceId;
 
             let sameMergeCC: boolean =
-                potential.mergeConnectedComponent === node.mergeConnectedComponent;
+                potential.mergeId === node.mergeId;
 
             let sameUser: boolean =
                 potential.creatorId === node.creatorId;

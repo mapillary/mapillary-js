@@ -412,7 +412,7 @@ export abstract class StateBase implements IStateBase {
         let previous: Image = this._previousImage;
 
         return !!current && !!previous &&
-            current.mergeConnectedComponent === previous.mergeConnectedComponent;
+            current.mergeId === previous.mergeId;
     }
 
     private _withinOriginalDistance(): boolean {
