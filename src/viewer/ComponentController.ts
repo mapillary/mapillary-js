@@ -23,6 +23,8 @@ import { CoverConfiguration }
     from "../component/interfaces/CoverConfiguration";
 import { Image } from "../graph/Image";
 import { CoverState } from "../component/cover/CoverState";
+import { FallbackComponentName } from "../component/fallback/FallbackComponentName";
+import { ComponentName } from "../component/ComponentName";
 
 export class ComponentController {
     private _container: Container;
@@ -90,7 +92,7 @@ export class ComponentController {
         return this._componentService.get<TComponent>(name);
     }
 
-    public activate(name: string): void {
+    public activate(name: ComponentName | FallbackComponentName): void {
         this._componentService.activate(name);
     }
 
@@ -98,7 +100,7 @@ export class ComponentController {
         this._coverComponent.configure({ state: CoverState.Visible });
     }
 
-    public deactivate(name: string): void {
+    public deactivate(name: ComponentName | FallbackComponentName): void {
         this._componentService.deactivate(name);
     }
 
@@ -209,7 +211,9 @@ export class ComponentController {
                 });
     }
 
-    private _uFalse<TConfiguration extends ComponentConfiguration>(option: boolean | TConfiguration, name: string): void {
+    private _uFalse<TConfiguration extends ComponentConfiguration>(
+        option: boolean | TConfiguration,
+        name: ComponentName | FallbackComponentName): void {
         if (option === undefined) {
             this._componentService.deactivate(name);
             return;
@@ -226,7 +230,9 @@ export class ComponentController {
         this._componentService.activate(name);
     }
 
-    private _uTrue<TConfiguration extends ComponentConfiguration>(option: boolean | TConfiguration, name: string): void {
+    private _uTrue<TConfiguration extends ComponentConfiguration>(
+        option: boolean | TConfiguration,
+        name: ComponentName | FallbackComponentName): void {
         if (option === undefined) {
             this._componentService.activate(name);
             return;

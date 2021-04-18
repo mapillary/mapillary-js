@@ -28,11 +28,15 @@ export { ComponentHoverEvent } from "../component/events/ComponentHoverEvent";
 export { ComponentGeometryEvent }
     from "../component/events/ComponentGeometryEvent";
 export { ComponentMarkerEvent } from "../component/events/ComponentMarkerEvent";
+export { ComponentName } from "../component/ComponentName";
+
 export { ComponentPlayEvent } from "../component/events/ComponentPlayEvent";
 export { ComponentSize } from "../component/util/ComponentSize";
 export { ComponentStateEvent } from "../component/events/ComponentStateEvent";
 export { ComponentTagModeEvent }
     from "../component/events/ComponentTagModeEvent";
+export { FallbackComponentName }
+    from "../component/fallback/FallbackComponentName";
 export { IComponent } from "../component/interfaces/IComponent";
 
 // Direction

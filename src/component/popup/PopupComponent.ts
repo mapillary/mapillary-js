@@ -23,6 +23,7 @@ import { DOM } from "../../util/DOM";
 import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { Component } from "../Component";
 import { Popup } from "./popup/Popup";
+import { ComponentName } from "../ComponentName";
 
 /**
  * @class PopupComponent
@@ -50,7 +51,7 @@ import { Popup } from "./popup/Popup";
  * ```
  */
 export class PopupComponent extends Component<ComponentConfiguration> {
-    public static componentName: string = "popup";
+    public static componentName: ComponentName = "popup";
 
     private _dom: DOM;
 

@@ -24,6 +24,7 @@ import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { ComponentSize } from "../util/ComponentSize";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
+import { ComponentName } from "../ComponentName";
 
 /**
  * @class ZoomComponent
@@ -39,7 +40,7 @@ import { Navigator } from "../../viewer/Navigator";
  * ```
  */
 export class ZoomComponent extends Component<ZoomConfiguration> {
-    public static componentName: string = "zoom";
+    public static componentName: ComponentName = "zoom";
 
     private _viewportCoords: ViewportCoords;
 

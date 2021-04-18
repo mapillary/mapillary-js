@@ -23,6 +23,7 @@ import { VirtualNodeHash } from "../../../render/interfaces/VirtualNodeHash";
 import { Container } from "../../../viewer/Container";
 import { Navigator } from "../../../viewer/Navigator";
 import { isSpherical } from "../../../geo/Geo";
+import { FallbackComponentName } from "../FallbackComponentName";
 
 /**
  * @class NavigationFallbackComponent
@@ -33,7 +34,7 @@ import { isSpherical } from "../../../geo/Geo";
  */
 export class NavigationFallbackComponent
     extends Component<NavigationFallbackConfiguration> {
-    public static componentName: string = "navigationfallback";
+    public static componentName: FallbackComponentName = "navigationfallback";
 
     private _seqNames: { [dir: string]: string };
     private _spaTopNames: { [dir: string]: string };

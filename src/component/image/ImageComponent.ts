@@ -50,6 +50,7 @@ import { TextureProvider } from "../../tile/TextureProvider";
 import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { Transform } from "../../geo/Transform";
 import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
+import { ComponentName } from "../ComponentName";
 
 interface ImageGLRendererOperation {
     (renderer: ImageGLRenderer): ImageGLRenderer;
@@ -58,7 +59,7 @@ interface ImageGLRendererOperation {
 type PositionLookat = [THREE.Vector3, THREE.Vector3, number, number, number];
 
 export class ImageComponent extends Component<ComponentConfiguration> {
-    public static componentName: string = "image";
+    public static componentName: ComponentName = "image";
 
     private _rendererOperation$: Subject<ImageGLRendererOperation>;
     private _renderer$: Observable<ImageGLRenderer>;

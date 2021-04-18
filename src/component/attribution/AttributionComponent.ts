@@ -12,9 +12,10 @@ import { Navigator } from "../../viewer/Navigator";
 
 import { Component } from "../Component";
 import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
+import { ComponentName } from "../ComponentName";
 
 export class AttributionComponent extends Component<ComponentConfiguration> {
-    public static componentName: string = "attribution";
+    public static componentName: ComponentName = "attribution";
 
     constructor(
         name: string,

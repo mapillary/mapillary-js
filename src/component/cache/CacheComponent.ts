@@ -34,11 +34,12 @@ import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { isSpherical } from "../../geo/Geo";
+import { ComponentName } from "../ComponentName";
 
 type EdgesDepth = [NavigationEdge[], number];
 
 export class CacheComponent extends Component<CacheConfiguration> {
-    public static componentName: string = "cache";
+    public static componentName: ComponentName = "cache";
 
     /** @ignore */
     constructor(name: string, container: Container, navigator: Navigator) {

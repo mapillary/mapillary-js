@@ -32,6 +32,7 @@ import { DirectionDOMRenderer } from "./DirectionDOMRenderer";
 import { ComponentEventType } from "../events/ComponentEventType";
 import { ComponentHoverEvent } from "../events/ComponentHoverEvent";
 import { ComponentStateEvent } from "../events/ComponentStateEvent";
+import { ComponentName } from "../ComponentName";
 
 /**
  * @class DirectionComponent
@@ -39,7 +40,7 @@ import { ComponentStateEvent } from "../events/ComponentStateEvent";
  */
 export class DirectionComponent extends Component<DirectionConfiguration> {
     /** @inheritdoc */
-    public static componentName: string = "direction";
+    public static componentName: ComponentName = "direction";
 
     private _renderer: DirectionDOMRenderer;
 

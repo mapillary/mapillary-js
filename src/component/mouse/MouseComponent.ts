@@ -9,6 +9,7 @@ import { DragPanHandler } from "./DragPanHandler";
 import { EarthControlHandler } from "./EarthControlHandler";
 import { ScrollZoomHandler } from "./ScrollZoomHandler";
 import { TouchZoomHandler } from "./TouchZoomHandler";
+import { ComponentName } from "../ComponentName";
 
 /**
  * @class MouseComponent
@@ -26,7 +27,7 @@ import { TouchZoomHandler } from "./TouchZoomHandler";
  */
 export class MouseComponent extends Component<MouseConfiguration> {
     /** @inheritdoc */
-    public static componentName: string = "mouse";
+    public static componentName: ComponentName = "mouse";
 
     private _bounceHandler: BounceHandler;
     private _dragPanHandler: DragPanHandler;
