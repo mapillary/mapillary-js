@@ -6,8 +6,8 @@ import { GeohashGeometryProvider } from "../GeohashGeometryProvider";
 import { FalcorModelCreator } from "./FalcorModelCreator";
 import { MapillaryError } from "../../error/MapillaryError";
 
-import { ClusterReconstructionContract }
-    from "../contracts/ClusterReconstructionContract";
+import { ClusterContract }
+    from "../contracts/ClusterContract";
 import { MeshContract } from "../contracts/MeshContract";
 import { CoreImagesContract } from "../contracts/CoreImagesContract";
 import { SpatialImagesContract } from "../contracts/SpatialImagesContract";
@@ -24,7 +24,7 @@ import { FalcorDataProviderOptions } from "./FalcorDataProviderOptions";
 import { FalcorDataProviderUrls } from "./FalcorDataProviderUrls";
 import { FalcorConverter } from "./FalcorConverter";
 import {
-    FalcorClusterReconstructionContract,
+    FalcorClusterContract,
     FalcorImageByKeyContract,
     FalcorImagesByHContract,
     FalcorSequenceByKeyContract,
@@ -139,20 +139,20 @@ export class FalcorDataProvider extends DataProviderBase {
     }
 
     /** @inheritdoc */
-    public getClusterReconstruction(
+    public getCluster(
         url: string,
-        abort?: Promise<void>): Promise<ClusterReconstructionContract> {
+        abort?: Promise<void>): Promise<ClusterContract> {
         return fetchArrayBuffer(url, abort)
             .then(
-                (buffer: ArrayBuffer): ClusterReconstructionContract => {
+                (buffer: ArrayBuffer): ClusterContract => {
                     const reconstructions =
-                        <FalcorClusterReconstructionContract[]>
+                        <FalcorClusterContract[]>
                         decompress(buffer);
                     if (reconstructions.length < 1) {
                         throw new MapillaryError("Cluster reconstruction is empty.");
                     }
                     const item = reconstructions[0];
-                    return this._convert.clusterReconstruction(item);
+                    return this._convert.cluster(item);
                 },
                 (reason: Error) => { throw reason; });
     }

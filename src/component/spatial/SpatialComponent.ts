@@ -28,8 +28,8 @@ import {
 import { Image } from "../../graph/Image";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
-import { ClusterReconstructionContract }
-    from "../../api/contracts/ClusterReconstructionContract";
+import { ClusterContract }
+    from "../../api/contracts/ClusterContract";
 import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
 import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
@@ -238,20 +238,20 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
 
         subs.push(tile$.pipe(
             concatMap(
-                (cell: Cell): Observable<[string, ClusterReconstructionContract]> => {
+                (cell: Cell): Observable<[string, ClusterContract]> => {
                     const cellId = cell.id;
-                    let reconstructions$: Observable<ClusterReconstructionContract>;
-                    if (this._cache.hasClusterReconstructions(cellId)) {
-                        reconstructions$ = observableFrom(this._cache.getClusterReconstructions(cellId));
-                    } else if (this._cache.isCachingClusterReconstructions(cellId)) {
-                        reconstructions$ = this._cache.cacheClusterReconstructions$(cellId).pipe(
+                    let reconstructions$: Observable<ClusterContract>;
+                    if (this._cache.hasClusters(cellId)) {
+                        reconstructions$ = observableFrom(this._cache.getClusters(cellId));
+                    } else if (this._cache.isCachingClusters(cellId)) {
+                        reconstructions$ = this._cache.cacheClusters$(cellId).pipe(
                             last(null, {}),
                             switchMap(
-                                (): Observable<ClusterReconstructionContract> => {
-                                    return observableFrom(this._cache.getClusterReconstructions(cellId));
+                                (): Observable<ClusterContract> => {
+                                    return observableFrom(this._cache.getClusters(cellId));
                                 }));
                     } else if (this._cache.hasTile(cellId)) {
-                        reconstructions$ = this._cache.cacheClusterReconstructions$(cellId);
+                        reconstructions$ = this._cache.cacheClusters$(cellId);
                     } else {
                         reconstructions$ = observableEmpty();
                     }
@@ -260,15 +260,15 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 }),
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([[cellId, reconstruction], reference]: [[string, ClusterReconstructionContract], LngLatAlt]): void => {
+                ([[cellId, reconstruction], reference]: [[string, ClusterContract], LngLatAlt]): void => {
                     if (this._scene
-                        .hasClusterReconstruction(
+                        .hasCluster(
                             reconstruction.id,
                             cellId)) {
                         return;
                     }
 
-                    this._scene.addClusterReconstruction(
+                    this._scene.addCluster(
                         reconstruction,
                         this._computeTranslation(
                             reconstruction,
@@ -470,20 +470,20 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
         subs.push(updatedCell$
             .pipe(
                 concatMap(
-                    ([cell]: [Cell, LngLatAlt]): Observable<[string, ClusterReconstructionContract]> => {
+                    ([cell]: [Cell, LngLatAlt]): Observable<[string, ClusterContract]> => {
                         const cellId = cell.id;
                         const cache = this._cache;
-                        let reconstructions$: Observable<ClusterReconstructionContract>;
-                        if (cache.hasClusterReconstructions(cellId)) {
+                        let reconstructions$: Observable<ClusterContract>;
+                        if (cache.hasClusters(cellId)) {
                             reconstructions$ =
-                                cache.updateClusterReconstructions$(cellId);
-                        } else if (cache.isCachingClusterReconstructions(cellId)) {
-                            reconstructions$ = this._cache.cacheClusterReconstructions$(cellId).pipe(
+                                cache.updateClusters$(cellId);
+                        } else if (cache.isCachingClusters(cellId)) {
+                            reconstructions$ = this._cache.cacheClusters$(cellId).pipe(
                                 last(null, {}),
                                 switchMap(
-                                    (): Observable<ClusterReconstructionContract> => {
+                                    (): Observable<ClusterContract> => {
                                         return observableFrom(
-                                            cache.updateClusterReconstructions$(cellId));
+                                            cache.updateClusters$(cellId));
                                     }));
                         } else {
                             reconstructions$ = observableEmpty();
@@ -495,12 +495,12 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                     }),
                 withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
-                ([[cellId, reconstruction], reference]: [[string, ClusterReconstructionContract], LngLatAlt]): void => {
-                    if (this._scene.hasClusterReconstruction(reconstruction.id, cellId)) {
+                ([[cellId, reconstruction], reference]: [[string, ClusterContract], LngLatAlt]): void => {
+                    if (this._scene.hasCluster(reconstruction.id, cellId)) {
                         return;
                     }
 
-                    this._scene.addClusterReconstruction(
+                    this._scene.addCluster(
                         reconstruction,
                         this._computeTranslation(reconstruction, reference),
                         cellId);
@@ -646,7 +646,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
     }
 
     private _computeTranslation(
-        reconstruction: ClusterReconstructionContract,
+        reconstruction: ClusterContract,
         reference: LngLatAlt)
         : number[] {
         return geodeticToEnu(

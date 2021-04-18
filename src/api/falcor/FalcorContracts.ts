@@ -30,7 +30,7 @@ export interface FalcorPointContract {
     coordinates: number[];
 }
 
-export interface FalcorClusterReconstructionContract {
+export interface FalcorClusterContract {
     cameras: { [cameraId: string]: FalcorCameraContract };
     points: { [pointId: string]: FalcorPointContract };
     reference_lla: FalcorReferenceLlaContract,

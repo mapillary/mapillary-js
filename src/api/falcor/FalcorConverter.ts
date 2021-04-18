@@ -9,12 +9,11 @@ import { CoreImageEnt } from "../ents/CoreImageEnt";
 import { IDEnt } from "../ents/IDEnt";
 import { SpatialImageEnt } from "../ents/SpatialImageEnt";
 import { SequenceEnt } from "../ents/SequenceEnt";
-import { ClusterReconstructionContract } from "../contracts/ClusterReconstructionContract";
+import { ClusterContract } from "../contracts/ClusterContract";
 import { LngLatAlt } from "../interfaces/LngLatAlt";
-import { FalcorClusterReconstructionContract } from "./FalcorContracts";
+import { FalcorClusterContract } from "./FalcorContracts";
 import { isSpherical } from "../../geo/Geo";
 import { LngLat } from "../interfaces/LngLat";
-import { CameraShotContract } from "../contracts/CameraShotContract";
 
 function convertCameraType(falcorProjectionType: string): string {
     return falcorProjectionType === "equirectangular" ?
@@ -72,25 +71,8 @@ export class FalcorConverter {
         ];
     }
 
-    public clusterReconstruction(
-        item: FalcorClusterReconstructionContract): ClusterReconstructionContract {
-        const cameras: ClusterReconstructionContract["cameras"] = {};
-        for (const cameraId in item.cameras) {
-            if (!item.cameras.hasOwnProperty(cameraId)) { continue; }
-            const falcorCamera = item.cameras[cameraId];
-            const cameraParameters = [
-                falcorCamera.focal,
-                falcorCamera.k1,
-                falcorCamera.k2,
-            ];
-            const cameraType = convertCameraType(falcorCamera.projection_type);
-            cameras[cameraId] = {
-                camera_parameters: cameraParameters,
-                camera_type: cameraType,
-                id: cameraId,
-            };
-        }
-
+    public cluster(
+        item: FalcorClusterContract): ClusterContract {
         const id: string = null;
         const points = item.points;
         const lla = item.reference_lla;
@@ -99,13 +81,10 @@ export class FalcorConverter {
             lat: lla.latitude,
             lng: lla.longitude,
         };
-        const shots = this._shots(item.shots);
         return {
-            cameras,
             id,
             points,
             reference,
-            shots,
         };
     }
 
@@ -145,7 +124,7 @@ export class FalcorConverter {
         const capturedAt = item.captured_at;
         const cluster = {
             id: item.cluster_key,
-            url: this._urls.clusterReconstruction(item.cluster_key),
+            url: this._urls.cluster(item.cluster_key),
         };
         const compassAngle = item.ca;
         const computedAltitude = item.calt;
@@ -153,7 +132,6 @@ export class FalcorConverter {
         const computedRotation = item.c_rotation;
         const height = item.height;
         const mergeCc = item.merge_cc;
-        const mergeVersion = item.merge_version;
         const owner = { id: item.organization_key };
         const exifOrientation = item.orientation;
         const priv = item.private;
@@ -195,24 +173,5 @@ export class FalcorConverter {
             thumb,
             width,
         }
-    }
-
-    private _shots(
-        falcorShots: FalcorClusterReconstructionContract["shots"])
-        : ClusterReconstructionContract["shots"] {
-        const contracts: ClusterReconstructionContract["shots"] = {};
-        for (const imageId in falcorShots) {
-            if (!falcorShots.hasOwnProperty(imageId)) { continue; }
-            const falcorShot = falcorShots[imageId];
-            const shot: CameraShotContract = {
-                cameraId: falcorShot.camera,
-                imageId,
-                rotation: falcorShot.rotation,
-                translation: falcorShot.translation,
-            };
-            contracts[imageId] = shot;
-        }
-
-        return contracts;
     }
 }
