@@ -76,7 +76,7 @@ export interface ICustomRenderer {
      * @param {LngLatAlt} reference - The viewer's current
      * reference position.
      */
-    onReferenceChanged(
+    onReference(
         viewer: IViewer,
         reference: LngLatAlt): void;
 
