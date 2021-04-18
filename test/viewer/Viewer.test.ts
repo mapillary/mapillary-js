@@ -108,7 +108,7 @@ describe("Viewer.addCustomRenderer", () => {
             id: "1",
             renderPass: RenderPass.Opaque,
             onAdd: () => { /* noop */ },
-            onReferenceChanged: () => { /* noop */ },
+            onReference: () => { /* noop */ },
             onRemove: () => { /* noop */ },
             render: () => { /* noop */ },
         });

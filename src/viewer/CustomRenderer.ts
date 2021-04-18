@@ -68,7 +68,7 @@ export class CustomRenderer {
             .pipe(skip(1))
             .subscribe(
                 (reference: LngLatAlt): void => {
-                    renderer.onReferenceChanged(viewer, reference);
+                    renderer.onReference(viewer, reference);
                 }));
     }
 

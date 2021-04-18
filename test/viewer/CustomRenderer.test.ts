@@ -54,7 +54,7 @@ describe("CustomRenderer.add", () => {
                 id,
                 renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
-                onReferenceChanged: () => { /* noop */ },
+                onReference: () => { /* noop */ },
                 onRemove: () => { /* noop */ },
                 render: () => { /* noop */ },
             },
@@ -90,7 +90,7 @@ describe("CustomRenderer.add", () => {
                     expect(customRenderer.has(rendererId)).toBe(true);
                     done();
                 },
-                onReferenceChanged: () => { /* noop */ },
+                onReference: () => { /* noop */ },
                 onRemove: () => { /* noop */ },
                 render: () => { /* noop */ },
             },
@@ -126,7 +126,7 @@ describe("CustomRenderer.add", () => {
                 id: rendererId,
                 renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
-                onReferenceChanged: () => { invokeCount++; },
+                onReference: () => { invokeCount++; },
                 onRemove: () => { /* noop */ },
                 render: () => { /* noop */ },
             },
@@ -164,7 +164,7 @@ describe("CustomRenderer.add", () => {
                 id: rendererId,
                 renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
-                onReferenceChanged: () => { invokeCount++; },
+                onReference: () => { invokeCount++; },
                 onRemove: () => { /* noop */ },
                 render: () => { /* noop */ },
             },
@@ -204,7 +204,7 @@ describe("CustomRenderer.add", () => {
                 id: rendererId,
                 renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
-                onReferenceChanged: () => { /* noop */ },
+                onReference: () => { /* noop */ },
                 onRemove: () => { /* noop */ },
                 render: (context, viewMatrix, projectionMatrix) => {
                     expect(context).toBe(contextMock);
@@ -267,7 +267,7 @@ describe("CustomRenderer.remove", () => {
                 id,
                 renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
-                onReferenceChanged: () => { /* noop */ },
+                onReference: () => { /* noop */ },
                 onRemove: () => { /* noop */ },
                 render: () => { /* noop */ },
             },
@@ -295,7 +295,7 @@ describe("CustomRenderer.remove", () => {
                 id: rendererId,
                 renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
-                onReferenceChanged: () => { /* noop */ },
+                onReference: () => { /* noop */ },
                 onRemove: (v, context) => {
                     expect(v).toBe(v);
                     expect(context).toBe(contextMock);
@@ -337,7 +337,7 @@ describe("CustomRenderer.dispose", () => {
                 id,
                 renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
-                onReferenceChanged: () => { /* noop */ },
+                onReference: () => { /* noop */ },
                 onRemove: () => { /* noop */ },
                 render: () => { /* noop */ },
             },
@@ -365,7 +365,7 @@ describe("CustomRenderer.dispose", () => {
                 id: rendererId,
                 renderPass: RenderPass.Opaque,
                 onAdd: () => { /* noop */ },
-                onReferenceChanged: () => { /* noop */ },
+                onReference: () => { /* noop */ },
                 onRemove: (v, context) => {
                     expect(v).toBe(v);
                     expect(context).toBe(contextMock);
