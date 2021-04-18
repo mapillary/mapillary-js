@@ -131,10 +131,8 @@ export { ProviderEvent } from "../api/events/ProviderEvent";
 export { ProviderEventType } from "../api/events/ProviderEventType";
 
 // Contract
-export { CameraContract } from "../api/contracts/CameraContract";
-export { CameraShotContract } from "../api/contracts/CameraShotContract";
-export { ClusterReconstructionContract }
-    from "../api/contracts/ClusterReconstructionContract";
+export { ClusterContract }
+    from "../api/contracts/ClusterContract";
 export { CoreImagesContract } from "../api/contracts/CoreImagesContract";
 export { EntContract } from "../api/contracts/EntContract";
 export { ImagesContract } from "../api/contracts/ImagesContract";

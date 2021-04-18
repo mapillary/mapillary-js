@@ -1,7 +1,7 @@
 import { MapillaryError } from "../error/MapillaryError";
 import { EventEmitter } from "../util/EventEmitter";
-import { ClusterReconstructionContract }
-    from "./contracts/ClusterReconstructionContract";
+import { ClusterContract }
+    from "./contracts/ClusterContract";
 import { MeshContract } from "./contracts/MeshContract";
 import { GeometryProviderBase } from "./GeometryProviderBase";
 import { CoreImagesContract } from "./contracts/CoreImagesContract";
@@ -120,13 +120,13 @@ export abstract class DataProviderBase extends EventEmitter {
      * to retrieve.
      * @param {Promise} [abort] - Optional promise for aborting
      * the request through rejection.
-     * @returns {Promise<ClusterReconstructionContract>} Promise to the
+     * @returns {Promise<ClusterContract>} Promise to the
      * cluster reconstruction.
      * @throws {Error} Rejects the promise on errors.
      */
-    public getClusterReconstruction(
+    public getCluster(
         url: string,
-        abort?: Promise<void>): Promise<ClusterReconstructionContract> {
+        abort?: Promise<void>): Promise<ClusterContract> {
         return Promise.reject(new MapillaryError("Not implemented"));
     }
 

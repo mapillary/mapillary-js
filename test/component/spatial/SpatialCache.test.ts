@@ -3,7 +3,7 @@ import { Subject } from "rxjs";
 import { Image } from "../../../src/graph/Image";
 import { FalcorDataProvider } from "../../../src/api/falcor/FalcorDataProvider";
 import { GeohashGeometryProvider } from "../../../src/api/GeohashGeometryProvider";
-import { ClusterReconstructionContract } from "../../../src/api/contracts/ClusterReconstructionContract";
+import { ClusterContract } from "../../../src/api/contracts/ClusterContract";
 import { SpatialCache } from "../../../src/component/spatial/SpatialCache";
 import { GraphService } from "../../../src/graph/GraphService";
 import { GraphServiceMockCreator } from "../../helper/GraphServiceMockCreator";
@@ -162,7 +162,7 @@ describe("SpatialCache.cacheReconstructions$", () => {
         const geometryProvider = new GeohashGeometryProvider();
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" }, geometryProvider);
-        spyOn(dataProvider, "getClusterReconstruction").and.returnValue(promise);
+        spyOn(dataProvider, "getCluster").and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const cache: SpatialCache = new SpatialCache(graphService, dataProvider);
@@ -170,16 +170,16 @@ describe("SpatialCache.cacheReconstructions$", () => {
         cacheTile(hash, cache, graphService, [image]);
 
         let emitCount: number = 0;
-        cache.cacheClusterReconstructions$(hash)
+        cache.cacheClusters$(hash)
             .subscribe(
-                (r: ClusterReconstructionContract): void => {
+                (r: ClusterContract): void => {
                     expect(r.id).toBe(image.clusterId);
                     emitCount++;
                 },
                 undefined,
                 (): void => {
                     expect(emitCount).toBe(1);
-                    expect(cache.hasClusterReconstructions(hash)).toBe(true);
+                    expect(cache.hasClusters(hash)).toBe(true);
                     done();
                 });
 
@@ -201,7 +201,7 @@ describe("SpatialCache.cacheReconstructions$", () => {
 
         const geometryProvider = new GeohashGeometryProvider();
         const dataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
-        spyOn(dataProvider, "getClusterReconstruction").and.returnValue(promise);
+        spyOn(dataProvider, "getCluster").and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const cache: SpatialCache = new SpatialCache(graphService, dataProvider);
@@ -209,7 +209,7 @@ describe("SpatialCache.cacheReconstructions$", () => {
         cacheTile(hash, cache, graphService, [image]);
 
         let emitCount: number = 0;
-        cache.cacheClusterReconstructions$(hash)
+        cache.cacheClusters$(hash)
             .subscribe(
                 (): void => {
                     emitCount++;
@@ -217,8 +217,8 @@ describe("SpatialCache.cacheReconstructions$", () => {
                 undefined,
                 (): void => {
                     expect(emitCount).toBe(0);
-                    expect(cache.hasClusterReconstructions(hash)).toBe(false);
-                    expect(cache.getClusterReconstructions(hash).length).toBe(0);
+                    expect(cache.hasClusters(hash)).toBe(false);
+                    expect(cache.getClusters(hash).length).toBe(0);
                     done();
                 });
 
@@ -235,7 +235,7 @@ describe("SpatialCache.cacheReconstructions$", () => {
 
         const geometryProvider = new GeohashGeometryProvider();
         const dataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
-        const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getClusterReconstruction");
+        const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getCluster");
         clusterSpy.and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
@@ -243,7 +243,7 @@ describe("SpatialCache.cacheReconstructions$", () => {
 
         cacheTile(hash, cache, graphService, [image]);
 
-        cache.cacheClusterReconstructions$(hash)
+        cache.cacheClusters$(hash)
             .subscribe();
 
         expect(clusterSpy.calls.count()).toBe(1);
@@ -263,14 +263,14 @@ describe("SpatialCache.cacheReconstructions$", () => {
 
         let resolver: Function;
         const promise: any = {
-            then: (resolve: (value: ClusterReconstructionContract) => void): void => {
+            then: (resolve: (value: ClusterContract) => void): void => {
                 resolver = resolve;
             },
         };
 
         const geometryProvider = new GeohashGeometryProvider();
         const dataProvider = new FalcorDataProvider({ clientToken: "cid" }, geometryProvider);
-        const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getClusterReconstruction");
+        const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getCluster");
         clusterSpy.and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
@@ -279,7 +279,7 @@ describe("SpatialCache.cacheReconstructions$", () => {
         cacheTile(hash, cache, graphService, [image]);
 
         let emitCount1: number = 0;
-        cache.cacheClusterReconstructions$(hash)
+        cache.cacheClusters$(hash)
             .subscribe(
                 (): void => {
                     emitCount1++;
@@ -288,7 +288,7 @@ describe("SpatialCache.cacheReconstructions$", () => {
         expect(clusterSpy.calls.count()).toBe(1);
 
         let emitCount2: number = 0;
-        cache.cacheClusterReconstructions$(hash)
+        cache.cacheClusters$(hash)
             .subscribe(
                 (): void => {
                     emitCount2++;
@@ -308,10 +308,10 @@ describe("SpatialCache.cacheReconstructions$", () => {
 
         expect(clusterSpy.calls.count()).toBe(1);
 
-        expect(cache.isCachingClusterReconstructions(hash)).toBe(false);
-        expect(cache.hasClusterReconstructions(hash)).toBe(true);
-        expect(cache.getClusterReconstructions(hash).length).toBe(1);
-        expect(cache.getClusterReconstructions(hash)[0].id).toBe(image.clusterId);
+        expect(cache.isCachingClusters(hash)).toBe(false);
+        expect(cache.hasClusters(hash)).toBe(true);
+        expect(cache.getClusters(hash).length).toBe(1);
+        expect(cache.getClusters(hash)[0].id).toBe(image.clusterId);
     });
 });
 
@@ -402,13 +402,11 @@ describe("SpatialCache.updateCell$", () => {
 });
 
 describe("SpatialCache.updateReconstructions$", () => {
-    const createCluster = (key: string): ClusterReconstructionContract => {
+    const createCluster = (key: string): ClusterContract => {
         return {
-            cameras: {},
             id: key,
             points: {},
             reference: { lat: 0, lng: 0, alt: 0 },
-            shots: {},
         }
     }
 
@@ -416,14 +414,14 @@ describe("SpatialCache.updateReconstructions$", () => {
         const geometryProvider = new GeohashGeometryProvider();
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" }, geometryProvider);
-        spyOn(dataProvider, "getClusterReconstruction").and
+        spyOn(dataProvider, "getCluster").and
             .returnValue(
-                new Promise<ClusterReconstructionContract>(() => { /* noop */ }));
+                new Promise<ClusterContract>(() => { /* noop */ }));
 
         const graphService = new GraphServiceMockCreator().create();
         const cache = new SpatialCache(graphService, dataProvider);
 
-        expect(() => cache.updateClusterReconstructions$("123")).toThrowError();
+        expect(() => cache.updateClusters$("123")).toThrowError();
     });
 
     it("should not request an existing reconstruction", done => {
@@ -432,7 +430,7 @@ describe("SpatialCache.updateReconstructions$", () => {
 
         let resolver: Function;
         const promise: any = {
-            then: (resolve: (value: ClusterReconstructionContract) => void): void => {
+            then: (resolve: (value: ClusterContract) => void): void => {
                 resolver = resolve;
             },
         };
@@ -440,7 +438,7 @@ describe("SpatialCache.updateReconstructions$", () => {
         const geometryProvider = new GeohashGeometryProvider();
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" }, geometryProvider);
-        const clusterSpy = spyOn(dataProvider, "getClusterReconstruction").and
+        const clusterSpy = spyOn(dataProvider, "getCluster").and
             .returnValue(promise);
 
         const graphService = new GraphServiceMockCreator().create();
@@ -448,20 +446,20 @@ describe("SpatialCache.updateReconstructions$", () => {
 
         cacheTile(cellId, cache, graphService, [image]);
 
-        cache.cacheClusterReconstructions$(cellId).subscribe();
+        cache.cacheClusters$(cellId).subscribe();
 
         const cluster = createCluster(image.clusterId);
         resolver(cluster);
 
-        expect(cache.hasClusterReconstructions(cellId)).toBe(true);
+        expect(cache.hasClusters(cellId)).toBe(true);
         expect(clusterSpy.calls.count()).toBe(1);
 
-        cache.updateClusterReconstructions$("123")
+        cache.updateClusters$("123")
             .subscribe(
                 undefined,
                 undefined,
                 () => {
-                    expect(cache.hasClusterReconstructions(cellId)).toBe(true);
+                    expect(cache.hasClusters(cellId)).toBe(true);
                     expect(clusterSpy.calls.count()).toBe(1);
                     done();
                 });
@@ -472,7 +470,7 @@ describe("SpatialCache.updateReconstructions$", () => {
 
         let resolver: Function;
         const promise: any = {
-            then: (resolve: (value: ClusterReconstructionContract) => void): void => {
+            then: (resolve: (value: ClusterContract) => void): void => {
                 resolver = resolve;
             },
         };
@@ -480,7 +478,7 @@ describe("SpatialCache.updateReconstructions$", () => {
         const geometryProvider = new GeohashGeometryProvider();
         const dataProvider = new FalcorDataProvider(
             { clientToken: "cid" }, geometryProvider);
-        const clusterSpy = spyOn(dataProvider, "getClusterReconstruction").and
+        const clusterSpy = spyOn(dataProvider, "getCluster").and
             .returnValue(promise);
 
         const graphService = new GraphServiceMockCreator().create();
@@ -490,10 +488,10 @@ describe("SpatialCache.updateReconstructions$", () => {
 
         expect(cache.getTile(cellId).length).toBe(0);
 
-        cache.cacheClusterReconstructions$(cellId).subscribe();
+        cache.cacheClusters$(cellId).subscribe();
 
-        expect(cache.hasClusterReconstructions(cellId)).toBe(true);
-        expect(cache.getClusterReconstructions(cellId).length).toBe(0);
+        expect(cache.hasClusters(cellId)).toBe(true);
+        expect(cache.getClusters(cellId).length).toBe(0);
         expect(clusterSpy.calls.count()).toBe(0);
 
         const cacheCell$ = new Subject<Image[]>();
@@ -508,13 +506,13 @@ describe("SpatialCache.updateReconstructions$", () => {
 
         expect(cache.getTile(cellId).length).toBe(1);
 
-        cache.updateClusterReconstructions$("123")
+        cache.updateClusters$("123")
             .subscribe(
                 undefined,
                 undefined,
                 () => {
-                    expect(cache.hasClusterReconstructions(cellId)).toBe(true);
-                    const cs = cache.getClusterReconstructions(cellId);
+                    expect(cache.hasClusters(cellId)).toBe(true);
+                    const cs = cache.getClusters(cellId);
                     expect(cs.length).toBe(1);
                     expect(cs[0].id).toBe(image.clusterId);
                     expect(clusterSpy.calls.count()).toBe(1);

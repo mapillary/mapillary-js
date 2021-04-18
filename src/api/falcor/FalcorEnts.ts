@@ -32,7 +32,6 @@ export interface FalcorSpatialImageEnt extends FalcorKeyEnt {
     ck2: number;
     height: number;
     merge_cc: number;
-    merge_version: number;
     organization_key: string;
     orientation: number;
     private: boolean;

@@ -1,7 +1,7 @@
 import * as pako from "pako";
 import * as falcor from "falcor";
 import { FalcorDataProvider } from "../../../src/api/falcor/FalcorDataProvider";
-import { ClusterReconstructionContract } from "../../../src/api/contracts/ClusterReconstructionContract";
+import { ClusterContract } from "../../../src/api/contracts/ClusterContract";
 import { FalcorModelCreator } from "../../../src/api/falcor/FalcorModelCreator";
 import { MapillaryError } from "../../../src/error/MapillaryError";
 import { SpatialImagesContract } from "../../../src/api/contracts/SpatialImagesContract";
@@ -753,16 +753,16 @@ describe("FalcorDataProvider.getImage", () => {
     });
 });
 
-describe("FalcorDataProvider.getClusterReconstruction", () => {
+describe("FalcorDataProvider.getCluster", () => {
     it("should return cluster reconstruction on successful load", (done: Function) => {
         const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
 
-        provider.getClusterReconstruction("url")
+        provider.getCluster("url")
             .then(
-                (r: ClusterReconstructionContract): void => {
+                (r: ClusterContract): void => {
                     expect(r.points).toEqual({});
                     expect(r.reference.alt).toBe(1);
                     expect(r.reference.lat).toBe(2);

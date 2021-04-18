@@ -1,18 +1,11 @@
-import { CameraContract } from "./CameraContract";
-import { CameraShotContract } from "./CameraShotContract";
 import { LngLatAlt } from "../interfaces/LngLatAlt";
 import { PointContract } from "./PointContract";
 
-export interface ClusterReconstructionContract {
+export interface ClusterContract {
     /**
-     * The unique id of the reconstruction.
+     * The unique id of the cluster.
      */
     id: string;
-
-    /**
-     * The cameras of the reconstruction.
-     */
-    cameras: { [cameraId: string]: CameraContract };
 
     /**
      * The points of the reconstruction.
@@ -26,9 +19,4 @@ export interface ClusterReconstructionContract {
      * frame.
      */
     reference: LngLatAlt;
-
-    /**
-     * The image shots of the reconstruction.
-     */
-    shots: { [imageId: string]: CameraShotContract };
 }

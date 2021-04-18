@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { PointContract } from "../../api/contracts/PointContract";
-import { ClusterReconstructionContract }
-    from "../../api/contracts/ClusterReconstructionContract";
+import { ClusterContract }
+    from "../../api/contracts/ClusterContract";
 import { MapillaryError } from "../../error/MapillaryError";
 import { isSpherical } from "../../geo/Geo";
 import { Transform } from "../../geo/Transform";
@@ -12,7 +12,7 @@ import { SpatialConfiguration }
 import { CameraVisualizationMode } from "./CameraVisualizationMode";
 import { OriginalPositionMode } from "./OriginalPositionMode";
 
-type ClusterReconstructions = {
+type Clusters = {
     [id: string]: {
         tiles: string[];
         points: THREE.Object3D;
@@ -433,7 +433,7 @@ class SphericalCameraFrame extends CameraFrameBase {
 class ClusterPoints extends THREE.Points {
     constructor(
         private readonly _originalSize: number,
-        reconstruction: ClusterReconstructionContract,
+        reconstruction: ClusterContract,
         translation: number[],
         scale: number) {
         super();
@@ -468,7 +468,7 @@ class ClusterPoints extends THREE.Points {
     }
 
     private _getArrays(
-        reconstruction: ClusterReconstructionContract,
+        reconstruction: ClusterContract,
         translation: number[])
         : [Float32Array, Float32Array] {
         const points = Object
@@ -960,7 +960,7 @@ export class SpatialScene {
     private _tileClusters: {
         [cellId: string]: { keys: string[]; };
     };
-    private _clusters: ClusterReconstructions;
+    private _clusters: Clusters;
     private _images: { [cellId: string]: ImageCell };
     private _tiles: { [cellId: string]: THREE.Object3D };
 
@@ -1024,12 +1024,12 @@ export class SpatialScene {
     public get needsRender(): boolean { return this._needsRender; }
     public get intersection(): Intersection { return this._intersection; }
 
-    public addClusterReconstruction(
-        reconstruction: ClusterReconstructionContract,
+    public addCluster(
+        reconstruction: ClusterContract,
         translation: number[],
         cellId: string): void {
 
-        if (this.hasClusterReconstruction(reconstruction.id, cellId)) {
+        if (this.hasCluster(reconstruction.id, cellId)) {
             return;
         }
 
@@ -1140,7 +1140,7 @@ export class SpatialScene {
         this._needsRender = true;
     }
 
-    public hasClusterReconstruction(key: string, cellId: string): boolean {
+    public hasCluster(key: string, cellId: string): boolean {
         return key in this._clusters &&
             this._clusters[key].tiles.indexOf(cellId) !== -1;
     }

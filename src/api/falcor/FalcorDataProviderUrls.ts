@@ -3,7 +3,7 @@ import { FalcorDataProviderOptions } from "./FalcorDataProviderOptions";
 export class FalcorDataProviderUrls {
     private _apiHost: string = "a.mapillary.com";
     private _clientToken: string;
-    private _clusterReconstructionHost: string =
+    private _clusterHost: string =
         "cluster-reconstructions.mapillary.com";
     private _imageHost: string = "images.mapillary.com";
     private _imageTileHost: string = "loris.mapillary.com";
@@ -24,7 +24,7 @@ export class FalcorDataProviderUrls {
         }
 
         if (!!options.reconstructionHost) {
-            this._clusterReconstructionHost = options.reconstructionHost;
+            this._clusterHost = options.reconstructionHost;
         }
 
         if (!!options.imageHost) {
@@ -60,8 +60,8 @@ export class FalcorDataProviderUrls {
         return this._imageTileHost;
     }
 
-    public clusterReconstruction(clusterId: string): string {
-        return `${this._scheme}://${this._clusterReconstructionHost}/${clusterId}/v1.0/aligned.jsonz`;
+    public cluster(clusterId: string): string {
+        return `${this._scheme}://${this._clusterHost}/${clusterId}/v1.0/aligned.jsonz`;
     }
 
     public imageTile(
