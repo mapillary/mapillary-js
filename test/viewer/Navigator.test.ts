@@ -450,7 +450,7 @@ describe("Navigator.setFilter$", () => {
                 stateService,
                 cacheService);
 
-        navigator.setFilter$(["==", "key", "value"])
+        navigator.setFilter$(["==", "id", "value"])
             .subscribe(
                 (): void => {
                     expect(clearImagesSpy.calls.count()).toBe(1);
@@ -459,7 +459,7 @@ describe("Navigator.setFilter$", () => {
                     expect(setFilterSpy.calls.first().args.length).toBe(1);
                     expect(setFilterSpy.calls.first().args[0].length).toBe(3);
                     expect(setFilterSpy.calls.first().args[0][0]).toBe("==");
-                    expect(setFilterSpy.calls.first().args[0][1]).toBe("key");
+                    expect(setFilterSpy.calls.first().args[0][1]).toBe("id");
                     expect(setFilterSpy.calls.first().args[0][2]).toBe("value");
 
                     done();
@@ -494,10 +494,10 @@ describe("Navigator.setFilter$", () => {
                 stateService,
                 cacheService);
 
-        navigator.setFilter$(["==", "key", "value"]).subscribe();
+        navigator.setFilter$(["==", "id", "id-value"]).subscribe();
 
         // trigger key requested
-        navigator.moveTo$("key").subscribe();
+        navigator.moveTo$("some-id").subscribe();
 
         expect(setFilterSpy.calls.count()).toBe(1);
     });
@@ -544,7 +544,7 @@ describe("Navigator.setFilter$", () => {
 
         navigator.moveTo$("moveToKey").subscribe(() => { /*noop*/ });
 
-        navigator.setFilter$(["==", "key", "value"])
+        navigator.setFilter$(["==", "id", "value"])
             .subscribe(
                 (): void => {
                     expect(setImagesSpy.calls.count()).toBe(0);
@@ -620,7 +620,7 @@ describe("Navigator.setFilter$", () => {
         cacheImageSubject1$.next(image0);
         cacheImageSubject1$.complete();
 
-        navigator.setFilter$(["==", "key", "value"])
+        navigator.setFilter$(["==", "id", "value"])
             .subscribe(
                 (): void => {
                     expect(setImagesSpy.calls.count()).toBe(1);

@@ -1,7 +1,6 @@
 import { Image } from "./Image";
 import {
     FilterExpression,
-    FilterOperation,
     FilterOperator,
     FilterValue,
 } from "./FilterExpression";
@@ -64,7 +63,7 @@ export class FilterCreator {
                             operator === "!in" ?
                                 this._compileNegation(
                                     this._compileInOp<FilterValue>(<string>filter[1], <FilterValue[]>filter.slice(2))) :
-                                operator === "all" ? this._compileLogicalOp(<FilterOperation[]>filter.slice(1), "&&") :
+                                operator === "all" ? this._compileLogicalOp(<FilterExpression[]>filter.slice(1), "&&") :
                                     "true";
 
         return "(" + operation + ")";
@@ -89,7 +88,7 @@ export class FilterCreator {
         return left + ".indexOf(" + right + ")!==-1";
     }
 
-    private _compileLogicalOp(filters: FilterOperation[], operator: string): string {
+    private _compileLogicalOp(filters: FilterExpression[], operator: string): string {
         const compile: (filter: FilterExpression) => string = this._compile.bind(this);
 
         return filters.map<string>(compile).join(operator);

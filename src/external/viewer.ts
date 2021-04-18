@@ -88,10 +88,16 @@ export { NavigationEdge } from "../graph/edge/interfaces/NavigationEdge";
 export { NavigationEdgeData } from "../graph/edge/interfaces/NavigationEdgeData";
 export { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
 export {
+    CombiningFilterExpression,
+    CombiningFilterOperator,
+    ComparisonFilterExpression,
+    ComparisonFilterOperator,
     FilterExpression,
-    FilterOperation,
+    FilterKey,
     FilterOperator,
     FilterValue,
+    SetMembershipFilterExpression,
+    SetMembershipFilterOperator,
 } from "../graph/FilterExpression";
 
 // Error
