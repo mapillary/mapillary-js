@@ -3,6 +3,7 @@ import { Image } from "../../src/graph/Image";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { FilterCreator, FilterFunction } from "../../src/graph/FilterCreator";
+import { SetMembershipFilterExpression } from "../../src/mapillary";
 
 /**
  * Implementation based on https://github.com/mapbox/feature-filter.
@@ -642,9 +643,9 @@ describe("FilterCreator.createFilter", () => {
         let creator: FilterCreator = new FilterCreator();
 
         let numbers: number[] = Array.apply(null, { length: 2000 }).map(Number.call, Number);
-        let filterDefinition: (string | number)[] = [].concat(["in", "capturedAt"]).concat(numbers);
+        let expression: SetMembershipFilterExpression = ["in", "capturedAt"]; expression.push(...numbers);
 
-        let filter: FilterFunction = creator.createFilter(filterDefinition);
+        let filter: FilterFunction = creator.createFilter(expression);
 
         let image1: Image = new Image(helper.createCoreImageEnt());
         let image2: Image = new Image(helper.createCoreImageEnt());
@@ -800,9 +801,9 @@ describe("FilterCreator.createFilter", () => {
         let creator: FilterCreator = new FilterCreator();
 
         let numbers: number[] = Array.apply(null, { length: 2000 }).map(Number.call, Number);
-        let filterDefinition: (string | number)[] = [].concat(["!in", "capturedAt"]).concat(numbers);
+        let expression: SetMembershipFilterExpression = ["!in", "capturedAt"]; expression.push(...numbers);
 
-        let filter: FilterFunction = creator.createFilter(filterDefinition);
+        let filter: FilterFunction = creator.createFilter(expression);
 
         let image1: Image = new Image(helper.createCoreImageEnt());
         let image2: Image = new Image(helper.createCoreImageEnt());
@@ -878,7 +879,7 @@ describe("FilterCreator.createFilter", () => {
         let filter2: FilterFunction = creator.createFilter(undefined);
         expect(filter2(image)).toBe(true);
 
-        let filter3: FilterFunction = creator.createFilter(["test"]);
+        let filter3: FilterFunction = creator.createFilter(["all"]);
         expect(filter3(image)).toBe(true);
     });
 });

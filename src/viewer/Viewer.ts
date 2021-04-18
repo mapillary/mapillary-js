@@ -1230,7 +1230,8 @@ export class Viewer extends EventEmitter implements IViewer {
      * `["all", f0, ..., fn]` logical `AND`: `f0 ∧ ... ∧ fn`
      *
      * A key must be a string that identifies a property name of a
-     * simple {@link Image} property. A value must be a string, number, or
+     * simple {@link Image} property, i.e. a key of the {@link FilterKey}
+     * type. A value must be a string, number, or
      * boolean. Strictly-typed comparisons are used. The values
      * `f0, ..., fn` of the combining filter must be filter expressions.
      *

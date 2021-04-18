@@ -1,16 +1,67 @@
-export type FilterExpression = (FilterOperator | string | FilterValue | FilterOperation)[];
+import { Image } from "./Image";
 
-export type FilterOperation = [FilterOperator, string, FilterValue];
+// Operator
+export type ComparisonFilterOperator =
+    | "=="
+    | "!="
+    | ">"
+    | ">="
+    | "<"
+    | "<=";
+
+export type SetMembershipFilterOperator =
+    | "in"
+    | "!in";
+
+export type CombiningFilterOperator =
+    | "all";
 
 export type FilterOperator =
-    "==" |
-    "!=" |
-    ">" |
-    ">=" |
-    "<" |
-    "<=" |
-    "in" |
-    "!in" |
-    "all";
+    | CombiningFilterOperator
+    | ComparisonFilterOperator
+    | SetMembershipFilterOperator;
 
+// Key
+type FilterImage = Pick<
+    Image,
+    | "cameraType"
+    | "capturedAt"
+    | "clusterId"
+    | "creatorId"
+    | "creatorUsername"
+    | "exifOrientation"
+    | "height"
+    | "id"
+    | "mergeConnectedComponent"
+    | "merged"
+    | "ownerId"
+    | "private"
+    | "qualityScore"
+    | "sequenceId"
+    | "width"
+>;
+
+export type FilterKey = keyof FilterImage;
+
+// Value
 export type FilterValue = boolean | number | string;
+
+// Operation
+export type ComparisonFilterExpression =
+    [ComparisonFilterOperator, FilterKey, FilterValue];
+
+export type SetMembershipFilterExpression =
+    [SetMembershipFilterOperator, FilterKey, ...FilterValue[]];
+
+export type CombiningFilterExpression = [
+    CombiningFilterOperator,
+    ...(
+        | ComparisonFilterExpression
+        | SetMembershipFilterExpression
+    )[]
+];
+
+export type FilterExpression =
+    | ComparisonFilterExpression
+    | SetMembershipFilterExpression
+    | CombiningFilterExpression;
