@@ -52,6 +52,7 @@ import { SpatialCache } from "./SpatialCache";
 import { CameraType } from "../../geo/interfaces/CameraType";
 import { geodeticToEnu } from "../../geo/GeoCoords";
 import { LngLat } from "../../api/interfaces/LngLat";
+import { ComponentName } from "../ComponentName";
 
 type IntersectEvent = MouseEvent | FocusEvent;
 
@@ -69,7 +70,7 @@ interface IntersectConfiguration {
 }
 
 export class SpatialComponent extends Component<SpatialConfiguration> {
-    public static componentName: string = "spatial";
+    public static componentName: ComponentName = "spatial";
 
     private _cache: SpatialCache;
     private _scene: SpatialScene;

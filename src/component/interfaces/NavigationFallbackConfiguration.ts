@@ -9,7 +9,7 @@ import { ComponentConfiguration } from "./ComponentConfiguration";
  * var viewer = new mapillary.Viewer({
  *     ...
  *     component: {
-*          fallback: {
+ *         fallback: {
  *             navigation: {
  *                 spatial: false,
  *             },

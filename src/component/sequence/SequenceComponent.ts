@@ -47,6 +47,7 @@ import { Component } from "../Component";
 import { ComponentEventType } from "../events/ComponentEventType";
 import { ComponentPlayEvent } from "../events/ComponentPlayEvent";
 import { ComponentHoverEvent } from "../events/ComponentHoverEvent";
+import { ComponentName } from "../ComponentName";
 
 /**
  * @class SequenceComponent
@@ -55,7 +56,7 @@ import { ComponentHoverEvent } from "../events/ComponentHoverEvent";
  */
 export class SequenceComponent extends Component<SequenceConfiguration> {
     /** @inheritdoc */
-    public static componentName: string = "sequence";
+    public static componentName: ComponentName = "sequence";
 
     private _sequenceDOMRenderer: SequenceDOMRenderer;
     private _scheduler: Scheduler;

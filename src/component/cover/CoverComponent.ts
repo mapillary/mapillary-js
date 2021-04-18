@@ -31,9 +31,10 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { ImagesContract } from "../../api/contracts/ImagesContract";
 import { CoverState } from "./CoverState";
+import { ComponentName } from "../ComponentName";
 
 export class CoverComponent extends Component<CoverConfiguration> {
-    public static componentName: string = "cover";
+    public static componentName: ComponentName = "cover";
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);

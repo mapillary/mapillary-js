@@ -33,6 +33,7 @@ import { ComponentSize } from "../util/ComponentSize";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { isSpherical } from "../../geo/Geo";
+import { ComponentName } from "../ComponentName";
 
 type ImageFov = [number, number];
 
@@ -61,7 +62,7 @@ interface ImageFovOperation {
  * ```
  */
 export class BearingComponent extends Component<BearingConfiguration> {
-    public static componentName: string = "bearing";
+    public static componentName: ComponentName = "bearing";
 
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;

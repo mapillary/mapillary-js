@@ -19,13 +19,15 @@ import { EventEmitter } from "../util/EventEmitter";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { IComponent } from "./interfaces/IComponent";
 import { ComponentEventType } from "./events/ComponentEventType";
+import { ComponentName } from "./ComponentName";
+import { FallbackComponentName } from "./fallback/FallbackComponentName";
 
 export abstract class Component
     <TConfiguration extends ComponentConfiguration>
     extends EventEmitter
     implements IComponent {
 
-    public static componentName: string = "not_worthy";
+    public static componentName: ComponentName | FallbackComponentName;
 
     protected _activated: boolean;
     protected _container: Container;

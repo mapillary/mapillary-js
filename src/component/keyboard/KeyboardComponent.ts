@@ -1,5 +1,3 @@
-import { Subscription } from "rxjs";
-
 import { Component } from "../Component";
 
 import { Container } from "../../viewer/Container";
@@ -11,6 +9,7 @@ import { KeySequenceNavigationHandler } from "./KeySequenceNavigationHandler";
 import { KeySpatialNavigationHandler } from "./KeySpatialNavigationHandler";
 import { KeyZoomHandler } from "./KeyZoomHandler";
 import { KeyPlayHandler } from "./KeyPlayHandler";
+import { ComponentName } from "../ComponentName";
 
 /**
  * @class KeyboardComponent
@@ -27,7 +26,7 @@ import { KeyPlayHandler } from "./KeyPlayHandler";
  * ```
  */
 export class KeyboardComponent extends Component<KeyboardConfiguration> {
-    public static componentName: string = "keyboard";
+    public static componentName: ComponentName = "keyboard";
 
     private _keyPlayHandler: KeyPlayHandler;
     private _keySequenceNavigationHandler: KeySequenceNavigationHandler;

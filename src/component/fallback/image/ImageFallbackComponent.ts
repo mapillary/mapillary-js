@@ -19,9 +19,10 @@ import { Container } from "../../../viewer/Container";
 import { Navigator } from "../../../viewer/Navigator";
 import { ViewportSize } from "../../../render/interfaces/ViewportSize";
 import { DOM } from "../../../util/DOM";
+import { FallbackComponentName } from "../FallbackComponentName";
 
 export class ImageFallbackComponent extends Component<ComponentConfiguration> {
-    public static componentName: string = "imagefallback";
+    public static componentName: FallbackComponentName = "imagefallback";
 
     private _canvasId: string;
     private _dom: DOM;

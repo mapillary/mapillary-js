@@ -25,16 +25,16 @@ TraversingState.register(UnitBezier);
  */
 import { ComponentService } from "./component/ComponentService";
 
-import { ImageFallbackComponent }
-    from "./component/fallback/image/ImageFallbackComponent";
-import { NavigationFallbackComponent }
-    from "./component/fallback/navigation/NavigationFallbackComponent";
+// Cover
+import { CoverComponent } from "./component/cover/CoverComponent";
 
+ComponentService.registerCover(CoverComponent);
+
+// Component
 import { AttributionComponent }
     from "./component/attribution/AttributionComponent";
 import { BearingComponent } from "./component/bearing/BearingComponent";
 import { CacheComponent } from "./component/cache/CacheComponent";
-import { CoverComponent } from "./component/cover/CoverComponent";
 import { DirectionComponent } from "./component/direction/DirectionComponent";
 import { ImageComponent }
     from "./component/image/ImageComponent";
@@ -48,11 +48,6 @@ import { SpatialComponent }
     from "./component/spatial/SpatialComponent";
 import { TagComponent } from "./component/tag/TagComponent";
 import { ZoomComponent } from "./component/zoom/ZoomComponent";
-
-ComponentService.registerCover(CoverComponent);
-
-ComponentService.register(ImageFallbackComponent);
-ComponentService.register(NavigationFallbackComponent);
 
 ComponentService.register(AttributionComponent);
 ComponentService.register(BearingComponent);
@@ -68,6 +63,15 @@ ComponentService.register(SliderComponent);
 ComponentService.register(SpatialComponent);
 ComponentService.register(TagComponent);
 ComponentService.register(ZoomComponent);
+
+// Fallback
+import { ImageFallbackComponent }
+    from "./component/fallback/image/ImageFallbackComponent";
+import { NavigationFallbackComponent }
+    from "./component/fallback/navigation/NavigationFallbackComponent";
+
+ComponentService.register(ImageFallbackComponent);
+ComponentService.register(NavigationFallbackComponent);
 
 /**
  * External exports

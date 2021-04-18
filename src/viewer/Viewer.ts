@@ -38,6 +38,9 @@ import { ViewerNavigationEdgeEvent }
     from "./events/ViewerNavigationEdgeEvent";
 import { ViewerImageEvent } from "./events/ViewerImageEvent";
 import { ViewerStateEvent } from "./events/ViewerStateEvent";
+import { ComponentName } from "../component/ComponentName";
+import { FallbackComponentName }
+    from "../component/fallback/FallbackComponentName";
 
 /**
  * @class Viewer
@@ -185,14 +188,16 @@ export class Viewer extends EventEmitter implements IViewer {
     /**
      * Activate a component.
      *
-     * @param {string} name - Name of the component which will become active.
+     * @param {ComponentName | FallbackComponentName} name - Name of
+     * the component which will become active.
      *
      * @example
      * ```js
      * viewer.activateComponent("marker");
      * ```
      */
-    public activateComponent(name: string): void {
+    public activateComponent(
+        name: ComponentName | FallbackComponentName): void {
         this._componentController.activate(name);
     }
 
@@ -228,14 +233,16 @@ export class Viewer extends EventEmitter implements IViewer {
     /**
      * Deactivate a component.
      *
-     * @param {string} name - Name of component which become inactive.
+     * @param {ComponentName | FallbackComponentName} name - Name
+     * of component which become inactive.
      *
      * @example
      * ```js
      * viewer.deactivateComponent("mouse");
      * ```
      */
-    public deactivateComponent(name: string): void {
+    public deactivateComponent(
+        name: ComponentName | FallbackComponentName): void {
         this._componentController.deactivate(name);
     }
 
@@ -383,7 +390,8 @@ export class Viewer extends EventEmitter implements IViewer {
      * var mouseComponent = viewer.getComponent("mouse");
      * ```
      */
-    public getComponent<TComponent extends Component<ComponentConfiguration>>(name: string): TComponent {
+    public getComponent<TComponent extends Component<ComponentConfiguration>>(
+        name: ComponentName | FallbackComponentName): TComponent {
         return this._componentController.get<TComponent>(name);
     }
 

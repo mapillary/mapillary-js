@@ -65,6 +65,7 @@ import { Transform } from "../../geo/Transform";
 import { SliderDOMRenderer } from "./SliderDOMRenderer";
 import { isSpherical } from "../../geo/Geo";
 import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
+import { ComponentName } from "../ComponentName";
 
 /**
  * @class SliderComponent
@@ -92,7 +93,7 @@ import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
  * ```
  */
 export class SliderComponent extends Component<SliderConfiguration> {
-    public static componentName: string = "slider";
+    public static componentName: ComponentName = "slider";
 
     private _viewportCoords: ViewportCoords;
     private _domRenderer: SliderDOMRenderer;

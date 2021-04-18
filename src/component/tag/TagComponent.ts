@@ -57,6 +57,7 @@ import { ComponentEventType } from "../events/ComponentEventType";
 import { ComponentTagModeEvent } from "../events/ComponentTagModeEvent";
 import { ComponentGeometryEvent } from "../events/ComponentGeometryEvent";
 import { ComponentStateEvent } from "../events/ComponentStateEvent";
+import { ComponentName } from "../ComponentName";
 
 /**
  * @class TagComponent
@@ -94,7 +95,7 @@ import { ComponentStateEvent } from "../events/ComponentStateEvent";
  */
 export class TagComponent extends Component<TagConfiguration> {
     /** @inheritdoc */
-    public static componentName: string = "tag";
+    public static componentName: ComponentName = "tag";
 
     private _tagDomRenderer: TagDOMRenderer;
     private _tagScene: TagScene;

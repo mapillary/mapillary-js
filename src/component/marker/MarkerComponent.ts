@@ -44,6 +44,7 @@ import {
 } from "../../geo/GeoCoords";
 import { ComponentMarkerEvent } from "../events/ComponentMarkerEvent";
 import { ComponentEvent } from "../events/ComponentEvent";
+import { ComponentName } from "../ComponentName";
 
 /**
  * @class MarkerComponent
@@ -78,7 +79,7 @@ import { ComponentEvent } from "../events/ComponentEvent";
  * ```
  */
 export class MarkerComponent extends Component<MarkerConfiguration> {
-    public static componentName: string = "marker";
+    public static componentName: ComponentName = "marker";
 
     private _graphCalculator: GraphCalculator;
     private _markerScene: MarkerScene;

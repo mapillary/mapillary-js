@@ -24,10 +24,13 @@ import { ComponentConfiguration }
 import { CoverState } from "../../src/component/cover/CoverState";
 import { ViewerNavigableEvent }
     from "../../src/viewer/events/ViewerNavigableEvent";
+import { ComponentName } from "../../src/component/ComponentName";
+import { FallbackComponentName }
+    from "../../src/component/fallback/FallbackComponentName";
 
 class CMock extends Component<ComponentConfiguration> {
-    protected static _cn: string = "mock";
-    public static get componentName(): string {
+    protected static _cn: ComponentName | FallbackComponentName;
+    public static get componentName(): ComponentName | FallbackComponentName {
         return this._cn;
     };
     protected _activate(): void { /*noop*/ }
@@ -37,44 +40,43 @@ class CMock extends Component<ComponentConfiguration> {
     }
 }
 
-class IC extends CMock { protected static _cn: string = "imagefallback"; }
-class NC extends CMock { protected static _cn: string = "navigationfallback"; }
+class IFC extends CMock {
+    protected static _cn: FallbackComponentName = "imagefallback";
+}
+class NFC extends CMock {
+    protected static _cn: FallbackComponentName = "navigationfallback";
+}
 
-class AC extends CMock { protected static _cn: string = "attribution"; };
-class BaC extends CMock { protected static _cn: string = "background"; }
-class BeC extends CMock { protected static _cn: string = "bearing"; }
-class CC extends CMock { protected static _cn: string = "cache"; }
-class DiC extends CMock { protected static _cn: string = "direction"; }
-class DeC extends CMock { protected static _cn: string = "debug"; }
-class IPC extends CMock { protected static _cn: string = "image"; }
-class KC extends CMock { protected static _cn: string = "keyboard"; }
-class MaC extends CMock { protected static _cn: string = "marker"; }
-class MoC extends CMock { protected static _cn: string = "mouse"; }
-class PC extends CMock { protected static _cn: string = "popup"; }
-class RC extends CMock { protected static _cn: string = "route"; }
-class SeC extends CMock { protected static _cn: string = "sequence"; }
-class SlC extends CMock { protected static _cn: string = "slider"; }
-class SDC extends CMock { protected static _cn: string = "spatial"; }
-class TC extends CMock { protected static _cn: string = "tag"; }
-class ZC extends CMock { protected static _cn: string = "zoom"; }
+ComponentService.register(IFC);
+ComponentService.register(NFC);
+
+class AC extends CMock { protected static _cn: ComponentName = "attribution"; };
+class BeC extends CMock { protected static _cn: ComponentName = "bearing"; }
+class CC extends CMock { protected static _cn: ComponentName = "cache"; }
+class DiC extends CMock { protected static _cn: ComponentName = "direction"; }
+class IC extends CMock { protected static _cn: ComponentName = "image"; }
+class KC extends CMock { protected static _cn: ComponentName = "keyboard"; }
+class MaC extends CMock { protected static _cn: ComponentName = "marker"; }
+class MoC extends CMock { protected static _cn: ComponentName = "mouse"; }
+class PC extends CMock { protected static _cn: ComponentName = "popup"; }
+class SeC extends CMock { protected static _cn: ComponentName = "sequence"; }
+class SlC extends CMock { protected static _cn: ComponentName = "slider"; }
+class SpC extends CMock { protected static _cn: ComponentName = "spatial"; }
+class TC extends CMock { protected static _cn: ComponentName = "tag"; }
+class ZC extends CMock { protected static _cn: ComponentName = "zoom"; }
 
 ComponentService.register(AC);
-ComponentService.register(BaC);
 ComponentService.register(BeC);
 ComponentService.register(CC);
 ComponentService.register(DiC);
-ComponentService.register(DeC);
 ComponentService.register(IC);
-ComponentService.register(IPC);
 ComponentService.register(KC);
 ComponentService.register(MaC);
 ComponentService.register(MoC);
-ComponentService.register(NC);
 ComponentService.register(PC);
-ComponentService.register(RC);
 ComponentService.register(SeC);
 ComponentService.register(SlC);
-ComponentService.register(SDC);
+ComponentService.register(SpC);
 ComponentService.register(TC);
 ComponentService.register(ZC);
 
