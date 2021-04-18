@@ -319,15 +319,15 @@ export class Image {
     }
 
     /**
-     * Get mergeConnectedComponent.
+     * Get mergeId.
      *
      * @description Will not be set if SfM has not yet been run on
      * image.
      *
-     * @returns {number} SfM connected component id to which
-     * image belongs.
+     * @returns {number} Id of connected component to which image
+     * belongs after the aligning merge.
      */
-    public get mergeConnectedComponent(): number {
+    public get mergeId(): number {
         return this._spatial.merge_cc;
     }
 
