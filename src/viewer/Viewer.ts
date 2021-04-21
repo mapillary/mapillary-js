@@ -41,6 +41,8 @@ import { ViewerStateEvent } from "./events/ViewerStateEvent";
 import { ComponentName } from "../component/ComponentName";
 import { FallbackComponentName }
     from "../component/fallback/FallbackComponentName";
+import { CameraControls } from "./enums/CameraControls";
+import { State } from "../state/State";
 
 /**
  * @class Viewer
@@ -304,7 +306,7 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * @example
      * ```js
-     * viewer.getBearing().then((b) => { console.log(b); });
+     * viewer.getBearing().then(b => { console.log(b); });
      * ```
      */
     public getBearing(): Promise<number> {
@@ -315,6 +317,42 @@ export class Viewer extends EventEmitter implements IViewer {
                     .subscribe(
                         (bearing: number): void => {
                             resolve(bearing);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        });
+            });
+    }
+
+    /**
+     * Get the viewer's camera control mode.
+     *
+     * @description The camera control mode determines
+     * how the camera is controlled when the viewer
+     * recieves pointer and keyboard input.
+     *
+     * @returns {CameraControls} controls - Camera control mode.
+     *
+     * @example
+     * ```js
+     * viewer.getCameraControls().then(c => { console.log(c); });
+     * ```
+     */
+    public getCameraControls(): Promise<CameraControls> {
+        return new Promise<number>(
+            (resolve: (value: number) => void, reject: (reason: Error) => void): void => {
+                this._navigator.stateService.state$.pipe(
+                    first())
+                    .subscribe(
+                        (state: State): void => {
+                            switch (state) {
+                                case State.Earth:
+                                    resolve(CameraControls.Earth);
+                                    break;
+                                default:
+                                    resolve(CameraControls.Street);
+                                    break;
+                            }
                         },
                         (error: Error): void => {
                             reject(error);
@@ -1158,6 +1196,44 @@ export class Viewer extends EventEmitter implements IViewer {
      */
     public resize(): void {
         this._container.renderService.resize$.next();
+    }
+
+    /**
+     * Set the viewer's camera control mode.
+     *
+     * @description The camera control mode determines
+     * how the camera is controlled when the viewer
+     * recieves pointer and keyboard input.
+     *
+     * Changing the camera control mode is not possible
+     * when the slider component is active and attempts
+     * to do so will be ignored.
+     *
+     * @param {CameraControls} controls - Camera control mode.
+     *
+     * @example
+     * ```js
+     * viewer.setCameraControls(mapillary.CameraControls.Street);
+     * ```
+     */
+    public setCameraControls(controls: CameraControls): void {
+        this._navigator.stateService.state$
+            .pipe(first())
+            .subscribe(
+                (s): void => {
+                    if (s === State.Earth &&
+                        controls === CameraControls.Street) {
+                        this._navigator.stateService.traverse();
+                    } else if (
+                        s === State.Traversing &&
+                        controls === CameraControls.Earth) {
+                        this._navigator.stateService.earth();
+                    } else {
+                        const to = CameraControls[controls];
+                        console.warn(
+                            `Unsupported camera control transition (${to})`);
+                    }
+                })
     }
 
     /**

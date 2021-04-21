@@ -14,9 +14,7 @@ import { OriginalPositionMode } from "../spatial/OriginalPositionMode";
  *     component: {
  *         spatial: {
  *             cameraSize: 0.5,
- *             camerasVisible: true,
  *             cameraVisualizationMode: mode.Cluster,
- *             earthControls: true,
  *             pointSize: 0.5,
  *             pointsVisible: false,
  *             positionsVisible: true,
@@ -41,17 +39,6 @@ export interface SpatialConfiguration extends ComponentConfiguration {
      * @default CameraVisualizationMode.Homogeneous
      */
     cameraVisualizationMode?: CameraVisualizationMode;
-
-    /**
-     * Specify if the camera should be controlled in earth
-     * mode.
-     *
-     * @description This is an experimental configuration property that
-     * may be removed in a future minor release.
-     *
-     * @default false
-     */
-    earthControls?: boolean;
 
     /**
      * Specify the original position visualization mode.

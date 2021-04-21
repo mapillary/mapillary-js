@@ -95,22 +95,6 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
         subs.push(this._navigator.stateService.reference$
             .subscribe((): void => { this._scene.uncache(); }));
 
-        subs.push(this._configuration$.pipe(
-            map(
-                (configuration: SpatialConfiguration): boolean => {
-                    return configuration.earthControls;
-                }),
-            distinctUntilChanged(),
-            withLatestFrom(this._navigator.stateService.state$))
-            .subscribe(
-                ([earth, state]: [boolean, State]): void => {
-                    if (earth && state !== State.Earth) {
-                        this._navigator.stateService.earth();
-                    } else if (!earth && state === State.Earth) {
-                        this._navigator.stateService.traverse();
-                    }
-                }));
-
         subs.push(this._navigator.graphService.filter$
             .subscribe(imageFilter => { this._scene.setFilter(imageFilter); }));
 
@@ -349,23 +333,25 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 }))
             .subscribe());
 
-        const intersectChange$ = this._configuration$.pipe(
-            map(
-                (c: SpatialConfiguration): IntersectConfiguration => {
-                    c.cameraSize = this._spatial.clamp(c.cameraSize, 0.01, 1);
-                    return {
-                        size: c.cameraSize,
-                        visible:
-                            isModeVisible(c.cameraVisualizationMode),
-                        earth: c.earthControls,
-                    }
-                }),
-            distinctUntilChanged(
-                (c1: IntersectConfiguration, c2: IntersectConfiguration): boolean => {
-                    return c1.size === c2.size &&
-                        c1.visible === c2.visible &&
-                        c1.earth === c2.earth;
-                }));
+        const intersectChange$ = observableCombineLatest(
+            this._configuration$,
+            earth$).pipe(
+                map(
+                    ([c, earth]: [SpatialConfiguration, boolean]): IntersectConfiguration => {
+                        c.cameraSize = this._spatial.clamp(c.cameraSize, 0.01, 1);
+                        return {
+                            size: c.cameraSize,
+                            visible:
+                                isModeVisible(c.cameraVisualizationMode),
+                            earth,
+                        }
+                    }),
+                distinctUntilChanged(
+                    (c1: IntersectConfiguration, c2: IntersectConfiguration): boolean => {
+                        return c1.size === c2.size &&
+                            c1.visible === c2.visible &&
+                            c1.earth === c2.earth;
+                    }));
 
         const mouseMove$ = this._container.mouseService.mouseMove$.pipe(
             publishReplay(1),
