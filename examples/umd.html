@@ -28,11 +28,13 @@
 
 <body>
     <script>
+        const { Viewer } = mapillary;
+
         const container = document.createElement('div');
-        container.className = 'viewer';
+        container.classList.add('viewer');
         document.body.append(container);
 
-        const viewer = new mapillary.Viewer({
+        const viewer = new Viewer({
             apiClient: 'QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh',
             component: { cover: false },
             container,

@@ -40,7 +40,8 @@
 
     <script type="module">
         import {
-            MarkerComponent as Marker,
+            CircleMarker,
+            SimpleMarker,
             Viewer,
         } from './dist/mapillary.module.js';
 
@@ -124,7 +125,7 @@
         }
 
         const onMapMouseEvent = (mapMouseEvent) => {
-            mapHoverViewerMarker = new Marker.CircleMarker(
+            mapHoverViewerMarker = new CircleMarker(
                 'map-hover-viewer-marker-id',
                 {
                     lat: mapMouseEvent.latlng.lat,
@@ -186,7 +187,7 @@
         }
 
         const setViewerIndicatorMarker = (viewerLngLat) => {
-            const viewerMarker = new Marker.CircleMarker(
+            const viewerMarker = new CircleMarker(
                 indicator.id,
                 viewerLngLat,
                 { color: '#0f0' });
@@ -292,7 +293,7 @@
         const addOrReplaceViewerMarker = (id, viewerLngLat) => {
             // Create an interactive marker to be able to drag it in viewer
             // and retrieve it with getMarkerIdAt method
-            const marker = new Marker.SimpleMarker(
+            const marker = new SimpleMarker(
                 id,
                 viewerLngLat,
                 { ballColor: '#f00', color: '#f00', interactive: true });

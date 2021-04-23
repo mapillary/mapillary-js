@@ -43,30 +43,28 @@
             Viewer,
         } from './dist/mapillary.module.js';
 
-        let viewer;
+        (function main() {
+            checkSupport();
 
-        checkSupport();
-        init();
-        addButtons();
-
-        function checkSupport() {
-            const sup = `isSupported: ${isSupported()}`;
-            const fSup = `isFallbackSupported: ${isFallbackSupported()}`;
-            console.log(`${sup}, ${fSup}`);
-        }
-
-        function init() {
             const container = document.createElement('div');
             container.className = 'viewer';
             document.body.append(container);
 
-            viewer = new Viewer({
+            const viewer = new Viewer({
                 apiClient: 'QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh',
                 component: { cover: false },
                 container,
                 imageId: 'zarcRdNFZwg3FkXNcsFeGw',
                 renderMode: RenderMode.Letterbox,
             });
+
+            addButtons(viewer);
+        })();
+
+        function checkSupport() {
+            const sup = `isSupported: ${isSupported()}`;
+            const fSup = `isFallbackSupported: ${isFallbackSupported()}`;
+            console.log(`${sup}, ${fSup}`);
         }
 
         function addButton(content, handler) {
@@ -76,7 +74,7 @@
             document.body.append(button);
         }
 
-        function addButtons() {
+        function addButtons(viewer) {
             addButton('Activate', () => viewer.deactivateCover());
             addButton('Deactivate', () => viewer.activateCover());
             addButton('Remove', () => viewer.remove());
