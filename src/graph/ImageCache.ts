@@ -346,7 +346,16 @@ export class ImageCache {
                         this._imageAborter = reject;
                     });
 
-                const url = spatial.thumb.url
+                const url = spatial.thumb.url;
+                if (!url) {
+                    const thumbId = spatial.thumb.id;
+                    const message =
+                        `Incorrect thumb URL for ${spatial.id} ` +
+                        `(${thumbId}, ${url})`;
+                    subscriber.error(new Error(message));
+                    return;
+                }
+
                 this._provider.getImageBuffer(url, abort)
                     .then(
                         (buffer: ArrayBuffer): void => {
@@ -358,8 +367,9 @@ export class ImageCache {
                             image.onload = () => {
                                 if (this._disposed) {
                                     window.URL.revokeObjectURL(image.src);
-                                    subscriber.error(new Error(`Image load was aborted (${url})`));
-
+                                    const message =
+                                        `Image load was aborted (${url})`;
+                                    subscriber.error(new Error(message));
                                     return;
                                 }
 
@@ -370,7 +380,9 @@ export class ImageCache {
                             image.onerror = () => {
                                 this._imageAborter = null;
 
-                                subscriber.error(new Error(`Failed to load image (${url})`));
+                                subscriber.error(
+                                    new Error(
+                                        `Failed to load image (${url})`));
                             };
 
                             const blob: Blob = new Blob([buffer]);
@@ -401,12 +413,24 @@ export class ImageCache {
                     return;
                 }
 
+                const url = spatial.mesh.url;
+                if (!url) {
+                    const meshId = spatial.mesh.id;
+                    const message =
+                        `Incorrect mesh URL for ${spatial.id} ` +
+                        `(${meshId}, ${url})`;
+                    console.warn(message);
+                    subscriber.next(this._createEmptyMesh());
+                    subscriber.complete();
+                    return;
+                }
+
                 const abort: Promise<void> = new Promise(
                     (_, reject): void => {
                         this._meshAborter = reject;
                     });
 
-                this._provider.getMesh(spatial.mesh.url, abort)
+                this._provider.getMesh(url, abort)
                     .then(
                         (mesh: MeshContract): void => {
                             this._meshAborter = null;
