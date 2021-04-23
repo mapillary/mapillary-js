@@ -15,11 +15,11 @@ import {
     first,
     map,
     mergeMap,
-    last,
     publishReplay,
     refCount,
     startWith,
     tap,
+    takeLast,
 } from "rxjs/operators";
 
 import { FilterFunction } from "./FilterCreator";
@@ -217,7 +217,7 @@ export class GraphService {
         image$.subscribe(
             undefined,
             (error: Error): void => {
-                console.error(`Failed to cache image (${id})`, error);
+                console.error(`Failed to cache image (${id}).`, error);
             });
 
         let initializeCacheSubscription: Subscription;
@@ -264,6 +264,10 @@ export class GraphService {
         }
 
         const graphSequence$: Observable<Graph> = firstGraph$.pipe(
+            catchError(
+                (): Observable<Graph> => {
+                    return observableEmpty();
+                }),
             mergeMap(
                 (graph: Graph): Observable<Graph> => {
                     if (graph.isCachingNodeSequence(id) || !graph.hasNodeSequence(id)) {
@@ -304,6 +308,10 @@ export class GraphService {
         if (this._graphMode === GraphMode.Spatial) {
             let spatialSubscription: Subscription;
             spatialSubscription = firstGraph$.pipe(
+                catchError(
+                    (): Observable<Graph> => {
+                        return observableEmpty();
+                    }),
                 expand(
                     (graph: Graph): Observable<Graph> => {
                         if (graph.hasTiles(id)) {
@@ -330,7 +338,7 @@ export class GraphService {
                                             }));
                                 }));
                     }),
-                last(),
+                takeLast(1),
                 mergeMap(
                     (graph: Graph): Observable<Graph> => {
                         if (graph.hasSpatialArea(id)) {
@@ -349,7 +357,7 @@ export class GraphService {
                                             }));
                                 }));
                     }),
-                last(),
+                takeLast(1),
                 mergeMap(
                     (graph: Graph): Observable<Graph> => {
                         return graph.hasNodeSequence(id) ?
@@ -373,7 +381,9 @@ export class GraphService {
                 .subscribe(
                     (): void => { return; },
                     (error: Error): void => {
-                        console.error(`Failed to cache spatial edges (${id}).`, error);
+                        const message =
+                            `Failed to cache spatial edges (${id}).`;
+                        console.error(message, error);
                     });
 
             if (!spatialSubscription.closed) {

@@ -54,6 +54,10 @@ export class Image {
      * @ignore
      */
     constructor(core: CoreImageEnt) {
+        if (!core) {
+            throw new Error(`Incorrect core image data ${core}`);
+        }
+
         this._cache = null;
         this._core = core;
         this._spatial = null;

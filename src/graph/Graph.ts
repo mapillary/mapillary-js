@@ -448,7 +448,7 @@ export class Graph {
                                 for (const item of items) {
                                     if (!item.node) {
                                         console.warn(
-                                            `Node is empty (${item.node})`);
+                                            `Image is empty (${item.node})`);
                                         continue;
                                     }
 
@@ -507,7 +507,7 @@ export class Graph {
                 (items: SpatialImagesContract): void => {
                     for (const item of items) {
                         if (!item.node) {
-                            console.warn(`Node is empty ${item.node_id}`);
+                            console.warn(`Image is empty ${item.node_id}`);
                         }
                         if (!node.complete) {
                             this._makeFull(node, item.node);
@@ -552,6 +552,11 @@ export class Graph {
             tap(
                 (items: ImagesContract): void => {
                     for (const item of items) {
+                        if (!item.node) {
+                            throw new GraphMapillaryError(
+                                `Image does not exist (${key}, ${item.node}).`);
+                        }
+
                         const id = item.node_id;
                         if (this.hasNode(id)) {
                             const node = this.getNode(key);
@@ -561,7 +566,7 @@ export class Graph {
                         } else {
                             if (item.node.sequence.id == null) {
                                 throw new GraphMapillaryError(
-                                    `Node has no sequence key (${key}).`);
+                                    `Image has no sequence key (${key}).`);
                             }
 
                             const node = new Image(item.node);
@@ -704,7 +709,7 @@ export class Graph {
                                 for (const item of items) {
                                     if (!item.node) {
                                         console.warn(
-                                            `Node empty (${item.node_id})`);
+                                            `Image empty (${item.node_id})`);
                                         continue;
                                     }
                                     const id = item.node_id;
@@ -765,7 +770,7 @@ export class Graph {
         }
 
         if (key in this._cachedSpatialEdges) {
-            throw new GraphMapillaryError(`Node already spatially cached (${key}).`);
+            throw new GraphMapillaryError(`Image already spatially cached (${key}).`);
         }
 
         if (!(key in this._requiredSpatialArea)) {
@@ -795,7 +800,7 @@ export class Graph {
                     (items: SpatialImagesContract): void => {
                         for (const item of items) {
                             if (!item.node) {
-                                console.warn(`Node is empty (${item.node_id})`)
+                                console.warn(`Image is empty (${item.node_id})`)
                                 continue;
                             }
 
@@ -1008,7 +1013,7 @@ export class Graph {
      */
     public initializeCache(key: string): void {
         if (key in this._cachedNodes) {
-            throw new GraphMapillaryError(`Node already in cache (${key}).`);
+            throw new GraphMapillaryError(`Image already in cache (${key}).`);
         }
 
         const node: Image = this.getNode(key);
@@ -1240,7 +1245,7 @@ export class Graph {
         }
 
         if (!this.hasNode(key)) {
-            throw new GraphMapillaryError(`Node does not exist in graph (${key}).`);
+            throw new GraphMapillaryError(`Image does not exist in graph (${key}).`);
         }
 
         let nodeTiles: NodeTiles = { cache: [], caching: [] };
@@ -1322,7 +1327,7 @@ export class Graph {
         const nodes: Image[] = [];
         for (const key of keepKeys) {
             if (!this.hasNode(key)) {
-                throw new Error(`Node does not exist ${key}`);
+                throw new Error(`Image does not exist ${key}`);
             }
 
             const node: Image = this.getNode(key);
@@ -1772,7 +1777,7 @@ export class Graph {
         let key: string = node.id;
 
         if (this.hasNode(key)) {
-            throw new GraphMapillaryError(`Node already exist (${key}).`);
+            throw new GraphMapillaryError(`Image already exist (${key}).`);
         }
 
         this._nodes[key] = node;
