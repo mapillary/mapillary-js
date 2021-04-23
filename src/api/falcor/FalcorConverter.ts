@@ -131,7 +131,7 @@ export class FalcorConverter {
         const computedCompassAngle = item.cca;
         const computedRotation = item.c_rotation;
         const height = item.height;
-        const mergeCc = item.merge_cc;
+        const mergeCc = item.merge_cc.toString();
         const owner = { id: item.organization_key };
         const exifOrientation = item.orientation;
         const priv = item.private;
@@ -164,7 +164,7 @@ export class FalcorConverter {
             creator,
             exif_orientation: exifOrientation,
             height,
-            merge_cc: mergeCc,
+            merge_id: mergeCc,
             mesh,
             id,
             owner,

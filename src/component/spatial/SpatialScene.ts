@@ -1079,13 +1079,10 @@ export class SpatialScene {
 
         const key = image.id;
         const idMap = {
-            clusterId: !!image.clusterId ?
-                image.clusterId : NO_CLUSTER_ID,
-            sequenceId: !!image.sequenceId ?
-                image.sequenceId : NO_SEQUENCE_ID,
-            ccId: image.mergeId == null ?
-                NO_MERGE_ID : image.mergeId.toString(),
-        }
+            clusterId: image.clusterId ?? NO_CLUSTER_ID,
+            sequenceId: image.sequenceId ?? NO_SEQUENCE_ID,
+            ccId: image.mergeId ?? NO_MERGE_ID,
+        };
 
         if (!(cellId in this._images)) {
             const created = new ImageCell(

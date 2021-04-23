@@ -82,7 +82,7 @@ export interface SpatialImageEnt extends CameraEnt, IDEnt {
      * @description Optional - no 3D interaction available
      * if unset.
      */
-    merge_cc?: number;
+    merge_id?: string;
 
     /**
      * 3D mesh resource.

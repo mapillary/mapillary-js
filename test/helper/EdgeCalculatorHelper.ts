@@ -45,7 +45,7 @@ export class EdgeCalculatorHelper {
         lngLatAlt: LngLatAlt = { alt: 0, lat: 0, lng: 0 },
         sequenceKey: string = "skey",
         r: number[] = [0, 0, 0],
-        mergeCC: number = 2,
+        mergeCC: string = "2",
         cameraType: CameraType = "perspective",
         capturedAt: number = 0): Image {
 
@@ -69,7 +69,7 @@ export class EdgeCalculatorHelper {
             exif_orientation: 0,
             height: 0,
             id: "key",
-            merge_cc: mergeCC,
+            merge_id: mergeCC,
             mesh: { id: "mesh-id", url: "mesh-url" },
             private: false,
             owner: { id: null },
@@ -96,7 +96,7 @@ export class EdgeCalculatorHelper {
             lngLatAlt,
             sequenceKey,
             [0, 0, 0],
-            2,
+            "2",
             cameraType,
             0);
     }

@@ -148,7 +148,7 @@ describe("Image.merged", () => {
         let image = new MImage(coreImage);
         let fillImage: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillImage.merge_cc = null;
+        fillImage.merge_id = null;
 
         image.makeComplete(fillImage);
 
@@ -160,7 +160,7 @@ describe("Image.merged", () => {
         let image = new MImage(coreImage);
         let fillImage: SpatialImageEnt = helper.createSpatialImageEnt();
 
-        fillImage.merge_cc = 7;
+        fillImage.merge_id = "7";
 
         image.makeComplete(fillImage);
 

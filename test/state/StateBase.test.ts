@@ -97,12 +97,12 @@ describe("StateBase.motionlessTransition", () => {
         const helper: ImageHelper = new ImageHelper();
 
         const imageEnt1: ImageEnt = helper.createImageEnt();
-        imageEnt1.merge_cc = 1;
+        imageEnt1.merge_id = "1";
         const image1: Image = new TestImage(imageEnt1);
         image1.makeComplete(imageEnt1);
 
         const imageEnt2: ImageEnt = helper.createImageEnt();
-        imageEnt2.merge_cc = 1;
+        imageEnt2.merge_id = "1";
         const image2: Image = new TestImage(imageEnt2);
         image2.makeComplete(imageEnt2);
 
@@ -120,12 +120,12 @@ describe("StateBase.motionlessTransition", () => {
         const helper: ImageHelper = new ImageHelper();
 
         const imageEnt1: ImageEnt = helper.createImageEnt();
-        imageEnt1.merge_cc = 1;
+        imageEnt1.merge_id = "1";
         const image1: Image = new TestImage(imageEnt1);
         image1.makeComplete(imageEnt1);
 
         const imageEnt2: ImageEnt = helper.createImageEnt();
-        imageEnt2.merge_cc = 1;
+        imageEnt2.merge_id = "1";
         const image2: Image = new TestImage(imageEnt2);
         image2.makeComplete(imageEnt2);
 

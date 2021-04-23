@@ -315,7 +315,7 @@ export class Image {
      */
     public get merged(): boolean {
         return this._spatial != null &&
-            this._spatial.merge_cc != null;
+            this._spatial.merge_id != null;
     }
 
     /**
@@ -324,11 +324,11 @@ export class Image {
      * @description Will not be set if SfM has not yet been run on
      * image.
      *
-     * @returns {number} Id of connected component to which image
+     * @returns {stirng} Id of connected component to which image
      * belongs after the aligning merge.
      */
-    public get mergeId(): number {
-        return this._spatial.merge_cc;
+    public get mergeId(): string {
+        return this._spatial.merge_id;
     }
 
     /**
