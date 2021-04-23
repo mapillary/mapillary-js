@@ -33,7 +33,7 @@
 
     <script type="module">
         import {
-            MarkerComponent as Marker,
+            SimpleMarker,
             Viewer,
         } from './dist/mapillary.module.js';
 
@@ -87,7 +87,7 @@
                 const lat = getRandomUniform(minLat, maxLat);
                 const lng = getRandomUniform(minLng, maxLng);
 
-                const marker = new Marker.SimpleMarker(
+                const marker = new SimpleMarker(
                     i.toString(),
                     { lat: lat, lng: lng, },
                     { interactive: true });

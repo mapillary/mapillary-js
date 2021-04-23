@@ -39,8 +39,13 @@
 
     <script type="module">
         import {
+            OutlineTag,
+            PointGeometry,
+            PolygonGeometry,
+            RectGeometry,
             RenderMode,
-            TagComponent as Tag,
+            SpotTag,
+            TagMode,
             Viewer,
         } from './dist/mapillary.module.js';
 
@@ -62,25 +67,25 @@
             tagComponent.changeMode(tagMode);
         }
 
-        let currentMode = Tag.TagMode.Default;
+        let currentMode = TagMode.Default;
         tagComponent.on("tagmode", function (event) {
             currentMode = event.mode;
         })
 
         document.addEventListener("keydown", function (keyEvent) {
-            if (keyEvent.key === "Control" && currentMode === Tag.TagMode.CreateRectDrag) {
-                createGeometry(Tag.TagMode.Default);
+            if (keyEvent.key === "Control" && currentMode === TagMode.CreateRectDrag) {
+                createGeometry(TagMode.Default);
             }
         });
 
         document.addEventListener("keyup", function (keyEvent) {
-            if (keyEvent.key === "Control" && currentMode === Tag.TagMode.Default) {
-                createGeometry(Tag.TagMode.CreateRectDrag);
+            if (keyEvent.key === "Control" && currentMode === TagMode.Default) {
+                createGeometry(TagMode.CreateRectDrag);
             }
         });
 
         function stopCreate() {
-            tagComponent.changeMode(Tag.TagMode.Default);
+            tagComponent.changeMode(TagMode.Default);
         }
 
         let createdTags = {};
@@ -101,7 +106,7 @@
                 textColor: 0x00FFFF,
             };
 
-            let tag = new Tag.OutlineTag(
+            let tag = new OutlineTag(
                 id, geometry, options);
             tag.on("geometrychanged", onTagGeometryChanged);
 
@@ -117,7 +122,7 @@
                 textColor: 0x00FFFF,
             };
 
-            let tag = new Tag.SpotTag(id, geometry, options);
+            let tag = new SpotTag(id, geometry, options);
             tag.on("geometrychanged", onTagGeometryChanged);
 
             return tag;
@@ -126,11 +131,11 @@
         tagComponent.on("geometrycreate", function (event) {
             let tag;
             const geometry = event.geometry;
-            if (geometry instanceof Tag.RectGeometry) {
+            if (geometry instanceof RectGeometry) {
                 tag = createOutlineTag(geometry, "Rectangle");
-            } else if (geometry instanceof Tag.PolygonGeometry) {
+            } else if (geometry instanceof PolygonGeometry) {
                 tag = createOutlineTag(geometry, "Polygon");
-            } else if (geometry instanceof Tag.PointGeometry) {
+            } else if (geometry instanceof PointGeometry) {
                 tag = createSpotTag(geometry);
             }
 
@@ -155,10 +160,10 @@
         }
 
         function addButtons() {
-            const point = Tag.TagMode.CreatePoint;
-            const polygon = Tag.TagMode.CreatePolygon;
-            const rectangle = Tag.TagMode.CreateRect;
-            const rectangleDrag = Tag.TagMode.CreateRectDrag;
+            const point = TagMode.CreatePoint;
+            const polygon = TagMode.CreatePolygon;
+            const rectangle = TagMode.CreateRect;
+            const rectangleDrag = TagMode.CreateRectDrag;
             addButton('Point', () => createGeometry(point));
             addButton('Polygon', () => createGeometry(polygon));
             addButton('Rectangle', () => createGeometry(rectangle));

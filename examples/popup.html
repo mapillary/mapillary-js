@@ -28,8 +28,9 @@
     <script type="module">
         import {
             Alignment,
-            PopupComponent as Popup,
-            TagComponent as Tag,
+            OutlineTag,
+            Popup,
+            RectGeometry,
             Viewer,
         } from './dist/mapillary.module.js';
 
@@ -44,7 +45,7 @@
                 float: Alignment.Top,
                 position: Alignment.Top,
             };
-            const popup = new Popup.Popup(popupOptions);
+            const popup = new Popup(popupOptions);
             const span = document.createElement('span');
             span.innerHTML = label;
             popup.setDOMContent(span);
@@ -68,10 +69,10 @@
                         const y0 = row / rows + paddingY;
                         const y1 = y0 + itemHeight - 2 * paddingY;
                         const rect = [x0, y0, x1, y1];
-                        const geometry = new Tag.RectGeometry(rect);
+                        const geometry = new RectGeometry(rect);
                         const id = `tag-id-${row}-${col}`;
                         const options = { editable: false };
-                        const tag = new Tag.OutlineTag(id, geometry, options);
+                        const tag = new OutlineTag(id, geometry, options);
                         tag.on('geometrychanged', onGeometryChanged);
                         const popup = createPopup(id);
                         popup.setBasicRect(rect);
