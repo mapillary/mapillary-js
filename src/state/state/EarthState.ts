@@ -3,54 +3,69 @@ import * as THREE from "three";
 import { StateBase } from "./StateBase";
 import { EulerRotation } from "../interfaces/EulerRotation";
 import { IStateBase } from "../interfaces/IStateBase";
-import { Camera } from "../../geo/Camera";
 
 export class EarthState extends StateBase {
     constructor(state: IStateBase) {
         super(state);
 
-        const viewingDirection: THREE.Vector3 = this._camera.lookat
+        const lookat = this._camera.lookat;
+        const position = this._camera.position;
+        const viewingDirection = lookat
             .clone()
-            .sub(this._camera.position)
+            .sub(position)
             .normalize();
 
-        this._camera.lookat.copy(this._camera.position);
-        this._camera.position.z = state.camera.position.z + 20;
-        this._camera.position.x = state.camera.position.x - 16 * viewingDirection.x;
-        this._camera.position.y = state.camera.position.y - 16 * viewingDirection.y;
+        lookat.copy(position);
+        lookat.z = -2;
+
+        position.x -= 16 * viewingDirection.x;
+        position.y -= 16 * viewingDirection.y;
+        position.z = position.z < lookat.z ?
+            position.z - 20 : position.z + 20;
+
         this._camera.up.set(0, 0, 1);
     }
 
     public dolly(delta: number): void {
-        const camera: Camera = this._camera;
-        const offset: THREE.Vector3 = new THREE.Vector3()
-            .copy(camera.position)
+        const camera = this._camera;
+        const offset = camera.position
+            .clone()
             .sub(camera.lookat);
 
-        const length: number = offset.length();
-        const scaled: number = length * Math.pow(2, -delta);
-        const clipped: number = Math.max(1, Math.min(scaled, 1000));
+        const length = offset.length();
+        const scaled = length * Math.pow(2, -delta);
+        const clipped = Math.max(1, Math.min(scaled, 1000));
 
         offset.normalize();
         offset.multiplyScalar(clipped);
 
-        camera.position.copy(camera.lookat).add(offset);
+        camera.position
+            .copy(camera.lookat)
+            .add(offset);
     }
 
     public orbit(rotation: EulerRotation): void {
-        const camera: Camera = this._camera;
-        const q: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(camera.up, new THREE.Vector3(0, 0, 1));
-        const qInverse: THREE.Quaternion = q.clone().invert();
+        const camera = this._camera;
+        const q = new THREE.Quaternion()
+            .setFromUnitVectors(
+                camera.up,
+                new THREE.Vector3(0, 0, 1));
+        const qInverse = q
+            .clone()
+            .invert();
 
-        const offset: THREE.Vector3 = new THREE.Vector3();
-        offset.copy(camera.position).sub(camera.lookat);
+        const offset = camera.position
+            .clone()
+            .sub(camera.lookat);
         offset.applyQuaternion(q);
-        const length: number = offset.length();
+        const length = offset.length();
 
-        let phi: number = Math.atan2(offset.y, offset.x);
+        let phi = Math.atan2(offset.y, offset.x);
         phi += rotation.phi;
 
-        let theta: number = Math.atan2(Math.sqrt(offset.x * offset.x + offset.y * offset.y), offset.z);
+        let theta = Math.atan2(
+            Math.sqrt(offset.x * offset.x + offset.y * offset.y),
+            offset.z);
         theta += rotation.theta;
         theta = Math.max(0.1, Math.min(Math.PI - 0.1, theta));
 
@@ -59,12 +74,17 @@ export class EarthState extends StateBase {
         offset.z = Math.cos(theta);
         offset.applyQuaternion(qInverse);
 
-        camera.position.copy(camera.lookat).add(offset.multiplyScalar(length));
+        camera.position
+            .copy(camera.lookat)
+            .add(offset.multiplyScalar(length));
     }
 
     public truck(direction: number[]): void {
-        this._camera.position.add(new THREE.Vector3().fromArray(direction));
-        this._camera.lookat.add(new THREE.Vector3().fromArray(direction));
+        const camera = this._camera;
+        camera.position
+            .add(new THREE.Vector3().fromArray(direction));
+        camera.lookat
+            .add(new THREE.Vector3().fromArray(direction));
     }
 
     public update(): void { /*noop*/ }

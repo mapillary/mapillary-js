@@ -4,6 +4,7 @@ import { TransitionMode } from "../TransitionMode";
 import { Image } from "../../graph/Image";
 
 export interface IStateContext extends IAnimationState {
+    custom(): void;
     earth(): void;
     traverse(): void;
     wait(): void;
@@ -17,6 +18,8 @@ export interface IStateContext extends IAnimationState {
     clearPrior(): void;
     cut(): void;
     set(images: Image[]): void;
+
+    setViewMatrix(matrix: number[]): void;
 
     rotate(delta: EulerRotation): void;
     rotateUnbounded(delta: EulerRotation): void;

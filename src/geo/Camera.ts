@@ -26,8 +26,8 @@ export class Camera {
             this._focal = this._getFocal(transform);
         } else {
             this._position = new THREE.Vector3(0, 0, 0);
-            this._lookat = new THREE.Vector3(0, 0, 1);
-            this._up = new THREE.Vector3(0, -1, 0);
+            this._lookat = new THREE.Vector3(1, 0, 0);
+            this._up = new THREE.Vector3(0, 0, 1);
             this._focal = 1;
         }
     }

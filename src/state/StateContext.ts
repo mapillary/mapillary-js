@@ -91,6 +91,10 @@ export class StateContext implements IStateContext {
         return this._state.motionless;
     }
 
+    public custom(): void {
+        this._transition(State.Custom);
+    }
+
     public earth(): void {
         this._transition(State.Earth);
     }
@@ -149,6 +153,10 @@ export class StateContext implements IStateContext {
 
     public set(images: Image[]): void {
         this._state.set(images);
+    }
+
+    public setViewMatrix(matrix: number[]): void {
+        this._state.setViewMatrix(matrix);
     }
 
     public rotate(delta: EulerRotation): void {

@@ -176,6 +176,8 @@ export abstract class StateBase implements IStateBase {
 
     public orbit(rotation: EulerRotation): void { /*noop*/ }
 
+    public setViewMatrix(matrix: number[]): void { /*noop*/ }
+
     public truck(direction: number[]): void { /*noop*/ }
 
     public append(images: Image[]): void {

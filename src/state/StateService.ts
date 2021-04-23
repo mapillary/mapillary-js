@@ -386,6 +386,13 @@ export class StateService {
         this._subscriptions.unsubscribe();
     }
 
+    public custom(): void {
+        this._inMotionOperation$.next(true);
+        this._invokeContextOperation((context: IStateContext) => {
+            context.custom();
+        });
+    }
+
     public earth(): void {
         this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.earth(); });
@@ -430,6 +437,11 @@ export class StateService {
 
     public setImages(images: Image[]): void {
         this._invokeContextOperation((context: IStateContext) => { context.set(images); });
+    }
+
+    public setViewMatrix(matrix: number[]): void {
+        this._inMotionOperation$.next(true);
+        this._invokeContextOperation((context: IStateContext) => { context.setViewMatrix(matrix); });
     }
 
     public rotate(delta: EulerRotation): void {
