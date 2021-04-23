@@ -1,5 +1,6 @@
 import { IStateBase } from "./interfaces/IStateBase";
 import { State } from "./State";
+import { CustomState } from "./state/CustomState";
 import { EarthState } from "./state/EarthState";
 import { InteractiveWaitingState } from "./state/InteractiveWaitingState";
 import { StateBase } from "./state/StateBase";
@@ -13,6 +14,7 @@ export class StateTransitionMatrix {
     private readonly _transitions: Map<string, string[]>;
 
     constructor() {
+        const custom = State[State.Custom];
         const earth = State[State.Earth];
         const traverse = State[State.Traversing];
         const wait = State[State.Waiting];
@@ -20,6 +22,7 @@ export class StateTransitionMatrix {
 
         this._creators = new Map();
         const creator = this._creators;
+        creator.set(custom, CustomState);
         creator.set(earth, EarthState);
         creator.set(traverse, TraversingState);
         creator.set(wait, WaitingState);
@@ -27,14 +30,17 @@ export class StateTransitionMatrix {
 
         this._transitions = new Map();
         const transitions = this._transitions;
-        transitions.set(earth, [traverse]);
-        transitions.set(traverse, [earth, wait, waitInteractively]);
+        transitions.set(custom, [earth, traverse]);
+        transitions.set(earth, [custom, traverse]);
+        transitions.set(traverse, [custom, earth, wait, waitInteractively]);
         transitions.set(wait, [traverse, waitInteractively]);
         transitions.set(waitInteractively, [traverse, wait]);
     }
 
     public getState(state: StateBase): State {
-        if (state instanceof EarthState) {
+        if (state instanceof CustomState) {
+            return State.Custom;
+        } else if (state instanceof EarthState) {
             return State.Earth;
         } else if (state instanceof TraversingState) {
             return State.Traversing;
@@ -47,8 +53,8 @@ export class StateTransitionMatrix {
     }
 
     public generate(state: State, options: IStateBase): StateBase {
-        const stateImplementation = this._creators.get(State[state]);
-        return new stateImplementation(options);
+        const concreteState = this._creators.get(State[state]);
+        return new concreteState(options);
     }
 
     public transition(state: StateBase, to: State): StateBase {

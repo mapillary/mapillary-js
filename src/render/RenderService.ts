@@ -34,6 +34,8 @@ export class RenderService {
     private _element: HTMLElement;
     private _currentFrame$: Observable<AnimationFrame>;
 
+    private _projectionMatrix$: Subject<number[]>;
+
     private _renderCameraOperation$: Subject<RenderCameraOperation>;
     private _renderCameraHolder$: Observable<RenderCamera>;
     private _renderCameraFrame$: Observable<RenderCamera>;
@@ -62,6 +64,7 @@ export class RenderService {
         renderMode = renderMode != null ? renderMode : RenderMode.Fill;
 
         this._resize$ = new Subject<void>();
+        this._projectionMatrix$ = new Subject<number[]>();
         this._renderCameraOperation$ =
             new Subject<RenderCameraOperation>();
 
@@ -159,6 +162,17 @@ export class RenderService {
                 }))
             .subscribe(this._renderCameraOperation$));
 
+        subs.push(this._projectionMatrix$.pipe(
+            map(
+                (projectionMatrix: number[]) => {
+                    return (rc: RenderCamera): RenderCamera => {
+                        rc.setProjectionMatrix(projectionMatrix);
+
+                        return rc;
+                    };
+                }))
+            .subscribe(this._renderCameraOperation$));
+
         subs.push(this._bearing$.subscribe(() => { /*noop*/ }));
         subs.push(this._renderCameraHolder$.subscribe(() => { /*noop*/ }));
         subs.push(this._size$.subscribe(() => { /*noop*/ }));
@@ -175,24 +189,28 @@ export class RenderService {
         return this._element;
     }
 
-    public get resize$(): Subject<void> {
-        return this._resize$;
+    public get projectionMatrix$(): Subject<number[]> {
+        return this._projectionMatrix$;
     }
 
-    public get size$(): Observable<ViewportSize> {
-        return this._size$;
-    }
-
-    public get renderMode$(): Subject<RenderMode> {
-        return this._renderMode$;
+    public get renderCamera$(): Observable<RenderCamera> {
+        return this._renderCamera$;
     }
 
     public get renderCameraFrame$(): Observable<RenderCamera> {
         return this._renderCameraFrame$;
     }
 
-    public get renderCamera$(): Observable<RenderCamera> {
-        return this._renderCamera$;
+    public get renderMode$(): Subject<RenderMode> {
+        return this._renderMode$;
+    }
+
+    public get resize$(): Subject<void> {
+        return this._resize$;
+    }
+
+    public get size$(): Observable<ViewportSize> {
+        return this._size$;
     }
 
     public dispose(): void {

@@ -5,26 +5,39 @@ import { FrameHelper } from "../helper/FrameHelper";
 
 describe("RenderCamera.ctor", () => {
     it("should be defined", () => {
-        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
         expect(renderCamera).toBeDefined();
     });
 
+    it("should initialize view matrix", () => {
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        const perspective = renderCamera.perspective;
+        const camera = renderCamera.camera;
+
+        expect(perspective.position.x).toBe(camera.position.x);
+        expect(perspective.position.y).toBe(camera.position.y);
+        expect(perspective.position.z).toBe(camera.position.z);
+        expect(perspective.up.x).toBe(camera.up.x);
+        expect(perspective.up.y).toBe(camera.up.y);
+        expect(perspective.up.z).toBe(camera.up.z);
+    });
+
     it("should be changed", () => {
-        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
         expect(renderCamera.changed).toBe(true);
     });
 
     it("should handle zero width and height", () => {
-        let renderCamera: RenderCamera = new RenderCamera(0, 0, RenderMode.Letterbox);
+        const renderCamera = new RenderCamera(0, 0, RenderMode.Letterbox);
 
         expect(renderCamera).toBeDefined();
         expect(renderCamera.perspective.aspect).toBe(0);
     });
 
     it("should handle zero height", () => {
-        let renderCamera: RenderCamera = new RenderCamera(1, 0, RenderMode.Letterbox);
+        const renderCamera = new RenderCamera(1, 0, RenderMode.Letterbox);
 
         expect(renderCamera).toBeDefined();
         expect(renderCamera.perspective.aspect).toBe(Number.POSITIVE_INFINITY);
@@ -33,7 +46,7 @@ describe("RenderCamera.ctor", () => {
 
 describe("RenderCamera.setSize", () => {
     it("should always be changed", () => {
-        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
         renderCamera.setSize({ width: 1, height: 1 });
 
@@ -41,7 +54,7 @@ describe("RenderCamera.setSize", () => {
     });
 
     it("should handle zero width and height", () => {
-        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
         renderCamera.setSize({ width: 0, height: 0 });
 
@@ -49,7 +62,7 @@ describe("RenderCamera.setSize", () => {
     });
 
     it("should handle zero height", () => {
-        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
         renderCamera.setSize({ width: 1, height: 0 });
 
@@ -59,7 +72,7 @@ describe("RenderCamera.setSize", () => {
 
 describe("RenderCamera.setRenderMode", () => {
     it("should always be changed", () => {
-        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
         renderCamera.setRenderMode(RenderMode.Fill);
 
@@ -86,7 +99,7 @@ describe("RenderCamera.setRenderMode", () => {
 
 describe("RenderCamera.setFrame", () => {
     it("should not be changed when not updated", () => {
-        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
         const frame: AnimationFrame = new FrameHelper().createFrame();
         renderCamera.setFrame(frame);
@@ -100,7 +113,7 @@ describe("RenderCamera.setFrame", () => {
     });
 
     it("should be changed when size has been updated", () => {
-        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
         renderCamera.setSize({ width: 1, height: 1 });
         renderCamera.setFrame(new FrameHelper().createFrame());
@@ -109,8 +122,7 @@ describe("RenderCamera.setFrame", () => {
     });
 
     it("should not be changed when multiple frame ids are set after size has been updated", () => {
-        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
-
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
         renderCamera.setSize({ width: 1, height: 1 });
 
         const frame: AnimationFrame = new FrameHelper().createFrame();
@@ -125,16 +137,15 @@ describe("RenderCamera.setFrame", () => {
 
 describe("RenderCamera.perspective.fov", () => {
     it("should be set initially", () => {
-        const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
 
         expect(renderCamera.perspective.fov).toBeDefined();
         expect(renderCamera.perspective.fov).toBeGreaterThan(0);
     });
 
     it("should be updated when setting frame", () => {
-        const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
-
-        const initialFov: number = renderCamera.perspective.fov;
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        const initialFov = renderCamera.perspective.fov;
 
         renderCamera.setFrame(new FrameHelper().createFrame());
 
@@ -142,11 +153,9 @@ describe("RenderCamera.perspective.fov", () => {
     });
 
     it("should increase when changing from fill to letterbox", () => {
-        const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
-
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Fill);
         renderCamera.setFrame(new FrameHelper().createFrame());
-
-        const fov: number = renderCamera.perspective.fov;
+        const fov = renderCamera.perspective.fov;
 
         renderCamera.setRenderMode(RenderMode.Letterbox);
 
@@ -154,11 +163,9 @@ describe("RenderCamera.perspective.fov", () => {
     });
 
     it("should decrease when increasing aspect", () => {
-        const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
-
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Fill);
         renderCamera.setFrame(new FrameHelper().createFrame());
-
-        const fov: number = renderCamera.perspective.fov;
+        const fov = renderCamera.perspective.fov;
 
         renderCamera.setSize({ width: 5, height: 1 });
 
@@ -166,13 +173,10 @@ describe("RenderCamera.perspective.fov", () => {
     });
 
     it("should be constant when decreasing aspect", () => {
-        const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
-
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Fill);
         renderCamera.setFrame(new FrameHelper().createFrame());
-
         renderCamera.setSize({ width: 0.5, height: 1 });
-
-        const fov: number = renderCamera.perspective.fov;
+        const fov = renderCamera.perspective.fov;
 
         renderCamera.setSize({ width: 0.1, height: 1 });
 
@@ -180,11 +184,9 @@ describe("RenderCamera.perspective.fov", () => {
     });
 
     it("should decrease when increasing zoom", () => {
-        const renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
-
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Fill);
         renderCamera.setFrame(new FrameHelper().createFrame());
-
-        const fov: number = renderCamera.perspective.fov;
+        const fov = renderCamera.perspective.fov;
 
         const frame: AnimationFrame = new FrameHelper().createFrame();
         frame.state.zoom = 1;

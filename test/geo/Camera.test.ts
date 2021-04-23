@@ -9,13 +9,13 @@ describe("Camera.ctor", () => {
         expect(camera.position.y).toBe(0);
         expect(camera.position.z).toBe(0);
 
-        expect(camera.lookat.x).toBe(0);
+        expect(camera.lookat.x).toBe(1);
         expect(camera.lookat.y).toBe(0);
-        expect(camera.lookat.z).toBe(1);
+        expect(camera.lookat.z).toBe(0);
 
         expect(camera.up.x).toBe(0);
-        expect(camera.up.y).toBe(-1);
-        expect(camera.up.z).toBe(0);
+        expect(camera.up.y).toBe(0);
+        expect(camera.up.z).toBe(1);
 
         expect(camera.focal).toBe(1);
     });

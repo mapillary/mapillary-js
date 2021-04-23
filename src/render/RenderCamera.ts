@@ -10,7 +10,6 @@ import { Spatial } from "../geo/Spatial";
 import { Transform } from "../geo/Transform";
 import { ViewportCoords } from "../geo/ViewportCoords";
 import { State } from "../state/State";
-import { IAnimationState } from "../state/interfaces/IAnimationState";
 import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { EulerRotation } from "../state/interfaces/EulerRotation";
 import { isSpherical } from "../geo/Geo";
@@ -23,6 +22,8 @@ export class RenderCamera {
     private _renderMode: RenderMode;
     private _zoom: number;
     private _frameId: number;
+
+    private _size: ViewportSize;
 
     private _camera: Camera;
     private _perspective: THREE.PerspectiveCamera;
@@ -48,11 +49,17 @@ export class RenderCamera {
 
     private _initialFov: number;
 
-    constructor(elementWidth: number, elementHeight: number, renderMode: RenderMode) {
+    constructor(
+        elementWidth: number,
+        elementHeight: number,
+        renderMode: RenderMode) {
+
         this._spatial = new Spatial();
         this._viewportCoords = new ViewportCoords();
 
-        this._initialFov = 50;
+        this._size = { width: elementWidth, height: elementHeight };
+
+        this._initialFov = 60;
 
         this._alpha = -1;
         this._renderMode = renderMode;
@@ -84,6 +91,10 @@ export class RenderCamera {
             this._computeAspect(elementWidth, elementHeight),
             0.16,
             10000);
+        this._perspective.position.copy(this._camera.position);
+        this._perspective.up.copy(this._camera.up);
+        this._perspective.lookAt(this._camera.lookat);
+        this._perspective.updateMatrixWorld(true);
 
         this._perspective.matrixAutoUpdate = false;
 
@@ -129,30 +140,34 @@ export class RenderCamera {
     public fovToZoom(fov: number): number {
         fov = Math.min(90, Math.max(0, fov));
 
-        const currentFov: number = this._computeCurrentFov(0);
-        const actualFov: number = this._alpha === 1 ?
+        const currentFov = this._computeCurrentFov(0);
+        const actualFov = this._alpha === 1 ?
             currentFov :
             this._interpolateFov(currentFov, this._computePreviousFov(0), this._alpha);
 
-        const y0: number = Math.tan(actualFov / 2 * Math.PI / 180);
-        const y1: number = Math.tan(fov / 2 * Math.PI / 180);
+        const y0 = Math.tan(actualFov / 2 * Math.PI / 180);
+        const y1 = Math.tan(fov / 2 * Math.PI / 180);
 
-        const zoom: number = Math.log(y0 / y1) / Math.log(2);
+        const zoom = Math.log(y0 / y1) / Math.log(2);
 
         return zoom;
     }
 
     public setFrame(frame: AnimationFrame): void {
-        const state: IAnimationState = frame.state;
+        const state = frame.state;
 
         if (state.state !== this._state) {
             this._state = state.state;
+            if (this._state !== State.Custom) {
+                this.setRenderMode(this._renderMode);
+                this.setSize(this._size);
+            }
 
             this._changed = true;
         }
 
-        const currentImageId: string = state.currentImage.id;
-        const previousImageId: string = !!state.previousImage ? state.previousImage.id : null;
+        const currentImageId = state.currentImage.id;
+        const previousImageId = !!state.previousImage ? state.previousImage.id : null;
 
         if (currentImageId !== this._currentImageId) {
             this._currentImageId = currentImageId;
@@ -171,7 +186,7 @@ export class RenderCamera {
             this._changed = true;
         }
 
-        const zoom: number = state.zoom;
+        const zoom = state.zoom;
 
         if (zoom !== this._zoom) {
             this._zoom = zoom;
@@ -184,19 +199,31 @@ export class RenderCamera {
             this._previousFov = this._computePreviousFov(this._zoom);
         }
 
-        const alpha: number = state.alpha;
+        const alpha = state.alpha;
 
         if (this._changed || alpha !== this._alpha) {
             this._alpha = alpha;
 
-            this._perspective.fov = this._state === State.Earth ?
-                60 :
-                this._interpolateFov(
-                    this._currentFov,
-                    this._previousFov,
-                    this._alpha);
+            switch (this._state) {
+                case State.Earth:
+                    this._perspective.fov = 60;
+                    this._changed = true;
+                    break;
+                case State.Custom:
+                    break;
+                default:
+                    this._perspective.fov =
+                        this._interpolateFov(
+                            this._currentFov,
+                            this._previousFov,
+                            this._alpha);
+                    this._changed = true;
+                    break;
+            }
 
-            this._changed = true;
+            if (this._state !== State.Custom) {
+                this._perspective.updateProjectionMatrix();
+            }
         }
 
         const camera: Camera = state.camera;
@@ -220,15 +247,25 @@ export class RenderCamera {
             this._changed = true;
         }
 
-        if (this._changed) {
-            this._perspective.updateProjectionMatrix();
-        }
-
         this._setFrameId(frame.id);
+    }
+
+    public setProjectionMatrix(matrix: number[]): void {
+        const projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+        this._perspective.projectionMatrix.copy(projectionMatrix);
+        this._perspective.projectionMatrixInverse
+            .copy(projectionMatrix)
+            .invert();
+
+        this._changed = true;
     }
 
     public setRenderMode(renderMode: RenderMode): void {
         this._renderMode = renderMode;
+
+        if (this._state === State.Custom) {
+            return;
+        }
 
         this._perspective.fov = this._computeFov();
         this._perspective.updateProjectionMatrix();
@@ -237,8 +274,13 @@ export class RenderCamera {
     }
 
     public setSize(size: ViewportSize): void {
-        this._perspective.aspect = this._computeAspect(size.width, size.height);
+        this._size = size;
 
+        if (this._state === State.Custom) {
+            return;
+        }
+
+        this._perspective.aspect = this._computeAspect(size.width, size.height);
         this._perspective.fov = this._computeFov();
         this._perspective.updateProjectionMatrix();
 
@@ -287,15 +329,18 @@ export class RenderCamera {
     }
 
     private _computeProjectedPoints(transform: Transform): number[][] {
-        const vertices: number[][] = [[0.5, 0], [1, 0]];
-        const directions: number[][] = [[0.5, 0], [0, 0.5]];
-        const pointsPerLine: number = 100;
+        const vertices = [[0.5, 0], [1, 0]];
+        const directions = [[0.5, 0], [0, 0.5]];
+        const pointsPerLine = 100;
 
         return Geo.computeProjectedPoints(transform, vertices, directions, pointsPerLine, this._viewportCoords);
     }
 
-    private _computeRequiredVerticalFov(projectedPoint: number[], zoom: number, aspect: number): number {
-        const maxY: number = Math.max(projectedPoint[0] / aspect, projectedPoint[1]);
+    private _computeRequiredVerticalFov(
+        projectedPoint: number[],
+        zoom: number,
+        aspect: number): number {
+        const maxY = Math.max(projectedPoint[0] / aspect, projectedPoint[1]);
 
         return this._yToFov(maxY, zoom);
     }
@@ -304,20 +349,25 @@ export class RenderCamera {
         let direction: THREE.Vector3 = camera.lookat.clone().sub(camera.position);
         let up: THREE.Vector3 = camera.up.clone();
 
-        let phi: number = this._spatial.azimuthal(direction.toArray(), up.toArray());
-        let theta: number = Math.PI / 2 - this._spatial.angleToPlane(direction.toArray(), [0, 0, 1]);
+        let phi = this._spatial.azimuthal(direction.toArray(), up.toArray());
+        let theta = Math.PI / 2 - this._spatial.angleToPlane(direction.toArray(), [0, 0, 1]);
 
         return { phi: phi, theta: theta };
     }
 
-    private _computeVerticalFov(projectedPoints: number[][], renderMode: RenderMode, zoom: number, aspect: number): number {
-        const fovs: number[] = projectedPoints
+    private _computeVerticalFov(
+        projectedPoints: number[][],
+        renderMode: RenderMode,
+        zoom: number,
+        aspect: number): number {
+
+        const fovs = projectedPoints
             .map(
                 (projectedPoint: number[]): number => {
                     return this._computeRequiredVerticalFov(projectedPoint, zoom, aspect);
                 });
 
-        const fov: number = renderMode === RenderMode.Fill ?
+        const fov = renderMode === RenderMode.Fill ?
             Math.min(...fovs) * 0.995 :
             Math.max(...fovs);
 

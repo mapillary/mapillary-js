@@ -2,22 +2,29 @@
  * Enumeration for camera controls.
  *
  * @description Specifies different modes for how the
- * camera is controlled through pointer and keyboard
- * input.
+ * camera is controlled through pointer, keyboard or
+ * other modes of input.
  *
  * @enum {number}
  * @readonly
  */
 export enum CameraControls {
     /**
-     * Control the camera in a first person view
-     * from the street level perspective.
+     * Control the camera with custom logic by
+     * attaching a custom camera controls
+     * implementation to the {@link Viewer}.
      */
-    Street,
+    Custom,
 
     /**
      * Control the camera from a birds perspective
      * to get an overview.
      */
     Earth,
+
+    /**
+     * Control the camera in a first person view
+     * from the street level perspective.
+     */
+    Street,
 }

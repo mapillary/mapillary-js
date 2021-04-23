@@ -57,6 +57,8 @@ export { isFallbackSupported, isSupported } from "../util/Support";
 export { Alignment } from "../viewer/enums/Alignment";
 export { CameraControls } from "../viewer/enums/CameraControls";
 export { IViewer } from "../viewer/interfaces/IViewer";
+export { ICustomCameraControls }
+    from "../viewer/interfaces/ICustomCameraControls";
 export { ICustomRenderer } from "../viewer/interfaces/ICustomRenderer";
 export { PointOfView } from "../viewer/interfaces/PointOfView";
 export { RenderMode } from "../render/RenderMode";

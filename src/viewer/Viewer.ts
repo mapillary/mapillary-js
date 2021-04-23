@@ -43,6 +43,8 @@ import { FallbackComponentName }
     from "../component/fallback/FallbackComponentName";
 import { CameraControls } from "./enums/CameraControls";
 import { State } from "../state/State";
+import { ICustomCameraControls } from "./interfaces/ICustomCameraControls";
+import { CustomCameraControls } from "./CustomCameraControls";
 
 /**
  * @class Viewer
@@ -77,6 +79,12 @@ export class Viewer extends EventEmitter implements IViewer {
      * Private navigator object which controls navigation.
      */
     private _navigator: Navigator;
+
+    /**
+     * Private custom camera controls object which handles
+     * custom control subscriptions.
+     */
+    private _customCameraControls: CustomCameraControls;
 
     /**
      * Private custom renderer object which controls WebGL custom
@@ -159,6 +167,11 @@ export class Viewer extends EventEmitter implements IViewer {
             new CustomRenderer(
                 this._container,
                 this._navigator);
+
+        this._customCameraControls =
+            new CustomCameraControls(
+                this._container,
+                this._navigator);
     }
 
     /**
@@ -222,6 +235,10 @@ export class Viewer extends EventEmitter implements IViewer {
         this._customRenderer.add(renderer, this);
     }
 
+    public attachCustomCameraControls(controls: ICustomCameraControls): void {
+        this._customCameraControls.attach(controls, this);
+    }
+
     /**
      * Deactivate the combined panning functionality.
      *
@@ -253,6 +270,10 @@ export class Viewer extends EventEmitter implements IViewer {
      */
     public deactivateCover(): void {
         this._componentController.deactivateCover();
+    }
+
+    public detachCustomCameraControls(): void {
+        this._customCameraControls.detach(this);
     }
 
     public fire(
@@ -339,25 +360,30 @@ export class Viewer extends EventEmitter implements IViewer {
      * ```
      */
     public getCameraControls(): Promise<CameraControls> {
-        return new Promise<number>(
-            (resolve: (value: number) => void, reject: (reason: Error) => void): void => {
-                this._navigator.stateService.state$.pipe(
-                    first())
-                    .subscribe(
-                        (state: State): void => {
-                            switch (state) {
-                                case State.Earth:
-                                    resolve(CameraControls.Earth);
-                                    break;
-                                default:
-                                    resolve(CameraControls.Street);
-                                    break;
-                            }
-                        },
-                        (error: Error): void => {
-                            reject(error);
-                        });
-            });
+        return new Promise<number>((
+            resolve: (value: CameraControls) => void,
+            reject: (reason: Error) => void)
+            : void => {
+            this._navigator.stateService.state$.pipe(
+                first())
+                .subscribe(
+                    (state: State): void => {
+                        switch (state) {
+                            case State.Custom:
+                                resolve(CameraControls.Custom);
+                                break;
+                            case State.Earth:
+                                resolve(CameraControls.Earth);
+                                break;
+                            default:
+                                resolve(CameraControls.Street);
+                                break;
+                        }
+                    },
+                    (error: Error): void => {
+                        reject(error);
+                    });
+        });
     }
 
     /**
@@ -1161,6 +1187,7 @@ export class Viewer extends EventEmitter implements IViewer {
      */
     public remove(): void {
         this._customRenderer.dispose(this);
+        this._customCameraControls.dispose(this);
         this._observer.dispose();
         this._componentController.remove();
         this._navigator.dispose();
@@ -1213,7 +1240,7 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * @example
      * ```js
-     * viewer.setCameraControls(mapillary.CameraControls.Street);
+     * viewer.setCameraControls(CameraControls.Street);
      * ```
      */
     public setCameraControls(controls: CameraControls): void {
@@ -1221,6 +1248,8 @@ export class Viewer extends EventEmitter implements IViewer {
             this._navigator.stateService.traverse();
         } else if (controls === CameraControls.Earth) {
             this._navigator.stateService.earth();
+        } else if (controls === CameraControls.Custom) {
+            this._navigator.stateService.custom();
         } else {
             const to = CameraControls[controls];
             console.warn(
