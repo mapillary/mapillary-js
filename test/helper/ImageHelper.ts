@@ -39,7 +39,7 @@ export class ImageHelper {
             exif_orientation: 0,
             height: 1,
             id: "id",
-            merge_cc: 0,
+            merge_id: "0",
             mesh: { id: "mesh-id", url: "mesh-url" },
             owner: { id: null },
             private: false,
@@ -69,7 +69,7 @@ export class ImageHelper {
             geometry: { lat: 0, lng: 0 },
             height: 1,
             id: this._imageId,
-            merge_cc: 1,
+            merge_id: "1",
             mesh: { id: "mesh-id", url: "mesh-url" },
             owner: { id: null },
             private: false,
@@ -96,7 +96,7 @@ export class ImageHelper {
         imageEnt.camera_parameters = undefined;
         imageEnt.camera_type = undefined;
         imageEnt.computed_geometry = undefined;
-        imageEnt.merge_cc = undefined;
+        imageEnt.merge_id = undefined;
 
         const image: Image = new Image(imageEnt);
         image.makeComplete(imageEnt);

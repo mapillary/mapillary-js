@@ -8,15 +8,15 @@ import { Image } from "../../../src/graph/Image";
 import { EdgeCalculatorHelper } from "../../helper/EdgeCalculatorHelper";
 
 describe("EdgeCalculator.getPotentialEdges", () => {
-    let precision: number = 7;
+    let precision = 7;
     let edgeCalculator: EdgeCalculator;
     let spatial: Spatial;
     let helper: EdgeCalculatorHelper;
 
     let createRotationVector: (azimuth: number, norm?: number) => number[] =
         (azimuth: number, norm: number = Math.PI / 2): number[] => {
-            let x: number = Math.cos(azimuth);
-            let y: number = Math.sin(azimuth);
+            let x = Math.cos(azimuth);
+            let y = Math.sin(azimuth);
 
             let r = [norm * x, norm * y, 0];
 
@@ -741,7 +741,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let r1 = [1 / 3, 2 / 3, -1 / 3];
         let r2 = [-2 / 3, -1 / 4, 1 / 6];
 
-        let theta: number = spatial.relativeRotationAngle(r1, r2);
+        let theta = spatial.relativeRotationAngle(r1, r2);
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper.createCompleteImage(key, lla, sequenceKey, r1);
@@ -1102,7 +1102,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey = "edgeKey";
         let sequenceKey = "skey";
 
-        let mergeCC: number = 45;
+        let mergeCC = "45";
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
@@ -1153,8 +1153,8 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         let edgeKey = "edgeKey";
         let sequenceKey = "skey";
 
-        let mergeCC1: number = 45;
-        let mergeCC2: number = 22;
+        let mergeCC1 = "45";
+        let mergeCC2 = "22";
 
         let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
         let image = helper
@@ -1256,7 +1256,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
                 lla,
                 sequenceKey,
                 createRotationVector(0),
-                467);
+                "467");
 
         let enu = [1, 0, 0];
         let geodetic = GeoCoords
@@ -1300,7 +1300,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
                 lla,
                 sequenceKey,
                 createRotationVector(0),
-                467);
+                "467");
 
         let enu = [1, 0, 0];
         let geodetic = GeoCoords
@@ -1324,7 +1324,7 @@ describe("EdgeCalculator.getPotentialEdges", () => {
                 edgeLla,
                 sequenceKey,
                 createRotationVector(0),
-                435,
+                "435",
                 "spherical");
 
         let potentialEdges: PotentialEdge[] =

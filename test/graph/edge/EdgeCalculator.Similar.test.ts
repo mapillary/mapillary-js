@@ -29,7 +29,7 @@ describe("EdgeCalculator.computeSimilarEdges", () => {
 
     let createImage: (capturedAt: number) => Image =
         (capturedAt: number): Image => {
-            return helper.createCompleteImage("key", { alt: 0, lat: 0, lng: 0 }, "skey", [0, 0, 0], 2, "perspective", capturedAt);
+            return helper.createCompleteImage("key", { alt: 0, lat: 0, lng: 0 }, "skey", [0, 0, 0], "2", "perspective", capturedAt);
         };
 
     beforeEach(() => {
