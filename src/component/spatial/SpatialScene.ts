@@ -950,6 +950,10 @@ export function isModeVisible(mode: CameraVisualizationMode): boolean {
     return mode !== CameraVisualizationMode.Hidden;
 }
 
+const NO_CLUSTER_ID = "NO_CLUSTER_ID";
+const NO_MERGE_ID = "NO_MERGE_ID";
+const NO_SEQUENCE_ID = "NO_SEQUENCE_ID";
+
 export class SpatialScene {
     private _scene: THREE.Scene;
     private _intersection: Intersection;
@@ -1076,11 +1080,11 @@ export class SpatialScene {
         const key = image.id;
         const idMap = {
             clusterId: !!image.clusterId ?
-                image.clusterId : "default_cluster_id",
+                image.clusterId : NO_CLUSTER_ID,
             sequenceId: !!image.sequenceId ?
-                image.sequenceId : "default_sequence_id",
-            ccId: !!image.mergeId ?
-                image.mergeId.toString() : "default_mergecc_id",
+                image.sequenceId : NO_SEQUENCE_ID,
+            ccId: image.mergeId == null ?
+                NO_MERGE_ID : image.mergeId.toString(),
         }
 
         if (!(cellId in this._images)) {
@@ -1140,9 +1144,9 @@ export class SpatialScene {
         this._needsRender = true;
     }
 
-    public hasCluster(key: string, cellId: string): boolean {
-        return key in this._clusters &&
-            this._clusters[key].tiles.indexOf(cellId) !== -1;
+    public hasCluster(clusterId: string, cellId: string): boolean {
+        return clusterId in this._clusters &&
+            this._clusters[clusterId].tiles.indexOf(cellId) !== -1;
     }
 
     public hasTile(cellId: string): boolean {
@@ -1189,7 +1193,9 @@ export class SpatialScene {
             if (!clusterVisibles.hasOwnProperty(clusterId)) { continue; }
             clusterVisibles[clusterId] &&= pointsVisible
             const visible = clusterVisibles[clusterId];
-            this._clusters[clusterId].points.visible = visible;
+            if (clusterId in this._clusters) {
+                this._clusters[clusterId].points.visible = visible;
+            }
         }
 
         this._needsRender = true;
@@ -1251,12 +1257,12 @@ export class SpatialScene {
             return;
         }
 
-        for (const key in this._clusters) {
-            if (!this._clusters.hasOwnProperty(key)) {
+        for (const clusterId in this._clusters) {
+            if (!this._clusters.hasOwnProperty(clusterId)) {
                 continue;
             }
 
-            this._clusters[key].points.visible = visible;
+            this._clusters[clusterId].points.visible = visible;
         }
 
         this._pointsVisible = visible;
@@ -1384,29 +1390,29 @@ export class SpatialScene {
     }
 
     private _disposePoints(cellId: string): void {
-        for (const key of this._tileClusters[cellId].keys) {
-            if (!(key in this._clusters)) {
+        for (const clusterId of this._tileClusters[cellId].keys) {
+            if (!(clusterId in this._clusters)) {
                 continue;
             }
 
-            const index: number = this._clusters[key].tiles.indexOf(cellId);
+            const index: number = this._clusters[clusterId].tiles.indexOf(cellId);
             if (index === -1) {
                 continue;
             }
 
-            this._clusters[key].tiles.splice(index, 1);
+            this._clusters[clusterId].tiles.splice(index, 1);
 
-            if (this._clusters[key].tiles.length > 0) {
+            if (this._clusters[clusterId].tiles.length > 0) {
                 continue;
             }
 
-            for (const points of this._clusters[key].points.children.slice()) {
+            for (const points of this._clusters[clusterId].points.children.slice()) {
                 (<ClusterPoints>points).dispose();
             }
 
-            this._scene.remove(this._clusters[key].points);
+            this._scene.remove(this._clusters[clusterId].points);
 
-            delete this._clusters[key];
+            delete this._clusters[clusterId];
         }
     }
 
