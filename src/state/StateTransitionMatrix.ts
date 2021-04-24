@@ -6,7 +6,7 @@ import { StateBase } from "./state/StateBase";
 import { TraversingState } from "./state/TraversingState";
 import { WaitingState } from "./state/WaitingState";
 
-type StateCreators = Map<string, new (state: StateBase) => StateBase>;
+type StateCreators = Map<string, new (state: IStateBase) => StateBase>;
 
 export class StateTransitionMatrix {
     private readonly _creators: StateCreators;
@@ -27,7 +27,7 @@ export class StateTransitionMatrix {
 
         this._transitions = new Map();
         const transitions = this._transitions;
-        transitions.set(earth, [traverse, wait, waitInteractively]);
+        transitions.set(earth, [traverse]);
         transitions.set(traverse, [earth, wait, waitInteractively]);
         transitions.set(wait, [traverse, waitInteractively]);
         transitions.set(waitInteractively, [traverse, wait]);
@@ -46,21 +46,24 @@ export class StateTransitionMatrix {
         throw new Error("Invalid state instance");
     }
 
-    public initialize(state: IStateBase): StateBase {
-        return new TraversingState(state);
+    public generate(state: State, options: IStateBase): StateBase {
+        const stateImplementation = this._creators.get(State[state]);
+        return new stateImplementation(options);
     }
 
     public transition(state: StateBase, to: State): StateBase {
+        if (!this.validate(state, to)) {
+            throw new Error("Invalid transition");
+        }
+        return this.generate(to, state);
+    }
+
+    public validate(state: StateBase, to: State): boolean {
         const source = State[this.getState(state)];
         const target = State[to];
         const transitions = this._transitions;
 
-        if (!transitions.has(source) ||
-            !transitions.get(source).includes(target)) {
-            throw new Error("Invalid transition");
-        }
-
-        const stateImplementation = this._creators.get(target);
-        return new stateImplementation(state);
+        return transitions.has(source) &&
+            transitions.get(source).includes(target);
     }
 }
