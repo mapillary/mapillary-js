@@ -35,6 +35,8 @@ import { NavigationDirection } from "../graph/edge/NavigationDirection";
 import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
 import { StateService } from "../state/StateService";
 import { AnimationFrame } from "../state/interfaces/AnimationFrame";
+import { State } from "../state/State";
+import { CameraControls } from "./enums/CameraControls";
 
 export class Navigator {
     private _api: APIWrapper;
@@ -77,26 +79,30 @@ export class Navigator {
             throw new Error(`Invalid type: 'apiClient' must be a String or an object instance extending the DataProvderBase class.`);
         }
 
-        this._graphService = graphService != null ?
-            graphService :
+        this._graphService = graphService ??
             new GraphService(new Graph(this.api));
 
-        this._loadingService = loadingService != null ? loadingService : new LoadingService();
         this._loadingName = "navigator";
+        this._loadingService = loadingService ??
+            new LoadingService();
 
-        this._stateService = stateService != null ? stateService : new StateService(options.transitionMode);
+        this._stateService = stateService ??
+            new StateService(
+                this._cameraControlsToState(
+                    options.cameraControls),
+                options.transitionMode);
 
-        this._cacheService = cacheService != null ?
-            cacheService :
+        this._cacheService = cacheService ??
             new CacheService(this._graphService, this._stateService);
 
-        this._playService = playService != null ?
-            playService :
+        this._playService = playService ??
             new PlayService(this._graphService, this._stateService);
 
-        this._panService = panService != null ?
-            panService :
-            new PanService(this._graphService, this._stateService, options.combinedPanning);
+        this._panService = panService ??
+            new PanService(
+                this._graphService,
+                this._stateService,
+                options.combinedPanning);
 
         this._idRequested$ = new BehaviorSubject<string>(null);
         this._movedToId$ = new BehaviorSubject<string>(null);
@@ -269,6 +275,15 @@ export class Navigator {
                                     return undefined;
                                 }));
                 }));
+    }
+
+    private _cameraControlsToState(cameraControls: CameraControls): State {
+        switch (cameraControls) {
+            case CameraControls.Earth:
+                return State.Earth;
+            default:
+                return State.Traversing;
+        }
     }
 
     private _cacheIds$(ids: string[]): Observable<Image> {

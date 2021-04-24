@@ -35,13 +35,13 @@
             Viewer,
         } from './dist/mapillary.module.js';
 
+        let cameraControls = CameraControls.Earth;
         const viewer = new Viewer({
             apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
+            cameraControls,
             component: { cover: false, spatial: true },
             container: "mly",
         });
-        let cameraControls = CameraControls.Earth;
-        viewer.setCameraControls(cameraControls);
         viewer
             .moveTo("zarcRdNFZwg3FkXNcsFeGw")
             .catch(error => console.error(error));

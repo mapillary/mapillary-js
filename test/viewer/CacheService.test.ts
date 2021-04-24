@@ -22,7 +22,7 @@ describe("CacheService.ctor", () => {
     it("should be defined when constructed", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
 
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
@@ -34,7 +34,7 @@ describe("CacheService.started", () => {
     it("should not be started", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
 
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
@@ -44,7 +44,7 @@ describe("CacheService.started", () => {
     it("should be started after calling start", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
 
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
@@ -56,7 +56,7 @@ describe("CacheService.started", () => {
     it("should not be started after calling stop", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
 
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
@@ -71,7 +71,7 @@ class TestStateService extends StateService {
     private _overridingCurrentState$: Subject<AnimationFrame>;
 
     constructor(currentState$: Subject<AnimationFrame>) {
-        super();
+        super(State.Traversing);
 
         this._overridingCurrentState$ = currentState$;
     }

@@ -74,7 +74,10 @@ export class StateService {
 
     private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
-    constructor(transitionMode?: TransitionMode) {
+    constructor(
+        initialState: State,
+        transitionMode?: TransitionMode) {
+
         const subs = this._subscriptions;
 
         this._start$ = new Subject<void>();
@@ -91,7 +94,7 @@ export class StateService {
                 (context: IStateContext, operation: IContextOperation): IStateContext => {
                     return operation(context);
                 },
-                new StateContext(transitionMode)),
+                new StateContext(initialState, transitionMode)),
             publishReplay(1),
             refCount());
 

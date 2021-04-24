@@ -4,6 +4,7 @@ import { UrlOptions } from "./UrlOptions";
 import { DataProviderBase } from "../../api/DataProviderBase";
 import { RenderMode } from "../../render/RenderMode";
 import { TransitionMode } from "../../state/TransitionMode";
+import { CameraControls } from "../enums/CameraControls";
 
 /**
  * Interface for the options that can be provided to the {@link Viewer}.
@@ -23,7 +24,16 @@ export interface ViewerOptions {
     apiClient: string | DataProviderBase;
 
     /**
+     * Value specifying the initial camera controls of
+     * the viewer.
+     *
+     * @default {CameraControls.Street}
+     */
+    cameraControls?: CameraControls;
+
+    /**
      * Value specifying if combined panning should be enabled.
+     *
      * @default true
      */
     combinedPanning?: boolean;
