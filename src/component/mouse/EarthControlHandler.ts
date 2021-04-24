@@ -2,7 +2,6 @@ import * as THREE from "three";
 
 import {
     empty as observableEmpty,
-    Subscription,
     Observable,
 } from "rxjs";
 
@@ -10,8 +9,9 @@ import {
     map,
     filter,
     withLatestFrom,
-    share,
     switchMap,
+    publishReplay,
+    refCount,
 } from "rxjs/operators";
 
 import { Transform } from "../../geo/Transform";
@@ -26,17 +26,13 @@ import { Component } from "../Component";
 import { MouseConfiguration } from "../interfaces/MouseConfiguration";
 import { HandlerBase } from "../util/HandlerBase";
 import { MouseOperator } from "../util/MouseOperator";
+import { SubscriptionHolder } from "../../util/SubscriptionHolder";
 
 
 export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
     private _viewportCoords: ViewportCoords;
     private _spatial: Spatial;
-
-    private _dollySubscription: Subscription;
-    private _ctrlOrbitSubscription: Subscription;
-    private _rightOrbitSubscription: Subscription;
-    private _preventDefaultSubscription: Subscription;
-    private _truckSubscription: Subscription;
+    private _subscriptions: SubscriptionHolder;
 
     /** @ignore */
     constructor(
@@ -49,17 +45,21 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
 
         this._spatial = spatial;
         this._viewportCoords = viewportCoords;
+        this._subscriptions = new SubscriptionHolder();
     }
 
     protected _enable(): void {
-        const earth$: Observable<boolean> = this._navigator.stateService.state$.pipe(
+        const earth$ = this._navigator.stateService.state$.pipe(
             map(
                 (state: State): boolean => {
                     return state === State.Earth;
                 }),
-            share());
+            publishReplay(1),
+            refCount());
 
-        this._preventDefaultSubscription = earth$.pipe(
+        const subs = this._subscriptions;
+
+        subs.push(earth$.pipe(
             switchMap(
                 (earth: boolean): Observable<MouseEvent> => {
                     return earth ?
@@ -69,9 +69,9 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
             .subscribe(
                 (event: WheelEvent): void => {
                     event.preventDefault();
-                });
+                }));
 
-        this._truckSubscription = earth$.pipe(
+        subs.push(earth$.pipe(
             switchMap(
                 (earth: boolean): Observable<[MouseEvent, MouseEvent]> => {
                     if (!earth) {
@@ -125,9 +125,9 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
             .subscribe(
                 (direction: number[]): void => {
                     this._navigator.stateService.truck(direction);
-                });
+                }));
 
-        this._ctrlOrbitSubscription = earth$.pipe(
+        subs.push(earth$.pipe(
             switchMap(
                 (earth: boolean): Observable<[MouseEvent, MouseEvent]> => {
                     if (!earth) {
@@ -147,9 +147,9 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
             .subscribe(
                 (rotation: EulerRotation): void => {
                     this._navigator.stateService.orbit(rotation);
-                });
+                }));
 
-        this._rightOrbitSubscription = earth$.pipe(
+        subs.push(earth$.pipe(
             switchMap(
                 (earth: boolean): Observable<[MouseEvent, MouseEvent]> => {
                     if (!earth) {
@@ -169,9 +169,9 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
             .subscribe(
                 (rotation: EulerRotation): void => {
                     this._navigator.stateService.orbit(rotation);
-                });
+                }));
 
-        this._dollySubscription = earth$.pipe(
+        subs.push(earth$.pipe(
             switchMap(
                 (earth: boolean): Observable<WheelEvent> => {
                     if (!earth) {
@@ -198,15 +198,11 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
             .subscribe(
                 (delta: number): void => {
                     this._navigator.stateService.dolly(delta);
-                });
+                }));
     }
 
     protected _disable(): void {
-        this._dollySubscription.unsubscribe();
-        this._ctrlOrbitSubscription.unsubscribe();
-        this._rightOrbitSubscription.unsubscribe();
-        this._preventDefaultSubscription.unsubscribe();
-        this._truckSubscription.unsubscribe();
+        this._subscriptions.unsubscribe();
     }
 
     protected _getConfiguration(): MouseConfiguration {

@@ -51,6 +51,7 @@ import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { Transform } from "../../geo/Transform";
 import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
 import { ComponentName } from "../ComponentName";
+import { State } from "../../state/State";
 
 interface ImageGLRendererOperation {
     (renderer: ImageGLRenderer): ImageGLRenderer;
@@ -379,61 +380,76 @@ export class ImageComponent extends Component<ComponentConfiguration> {
                         return trigger;
                     }));
 
-        subs.push(this._navigator.panService.panImages$.pipe(
-            switchMap(
-                (nts: [ImageNode, Transform, number][]):
-                    Observable<[RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]> => {
+        subs.push(this._navigator.stateService.state$
+            .pipe(
+                switchMap(
+                    state => {
+                        return state === State.Traversing ?
+                            this._navigator.panService.panImages$ :
+                            observableEmpty();
 
-                    return panTrigger$.pipe(
-                        withLatestFrom(
-                            this._container.renderService.renderCamera$,
-                            this._navigator.stateService.currentImage$,
-                            this._navigator.stateService.currentTransform$),
-                        mergeMap(
-                            ([, renderCamera, currentNode, currentTransform]: [boolean, RenderCamera, ImageNode, Transform]):
-                                Observable<[RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]> => {
-                                return observableOf(
-                                    [
-                                        renderCamera,
-                                        currentNode,
-                                        currentTransform,
-                                        nts,
-                                    ] as [RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]);
-                            }));
-                }),
-            switchMap(
-                ([camera, cn, ct, nts]: [RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]): Observable<ImageNode> => {
-                    const direction: THREE.Vector3 = camera.camera.lookat.clone().sub(camera.camera.position);
+                    }),
+                switchMap(
+                    (nts: [ImageNode, Transform, number][]):
+                        Observable<[RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]> => {
 
-                    const cd: THREE.Vector3 = new Spatial().viewingDirection(cn.rotation);
-                    const ca: number = cd.angleTo(direction);
-                    const closest: [number, string] = [ca, undefined];
-                    const basic: number[] = new ViewportCoords().viewportToBasic(0, 0, ct, camera.perspective);
+                        return panTrigger$.pipe(
+                            withLatestFrom(
+                                this._container.renderService.renderCamera$,
+                                this._navigator.stateService.currentImage$,
+                                this._navigator.stateService.currentTransform$),
+                            mergeMap(
+                                ([, renderCamera, currentNode, currentTransform]: [boolean, RenderCamera, ImageNode, Transform]):
+                                    Observable<[RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]> => {
+                                    return observableOf(
+                                        [
+                                            renderCamera,
+                                            currentNode,
+                                            currentTransform,
+                                            nts,
+                                        ] as [RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]);
+                                }));
+                    }),
+                switchMap(
+                    ([camera, cn, ct, nts]:
+                        [
+                            RenderCamera,
+                            ImageNode,
+                            Transform,
+                            [ImageNode, Transform, number][],
+                        ]): Observable<ImageNode> => {
 
-                    if (basic[0] >= 0 && basic[0] <= 1 && basic[1] >= 0 && basic[1] <= 1) {
-                        closest[0] = Number.NEGATIVE_INFINITY;
-                    }
+                        const direction: THREE.Vector3 = camera.camera.lookat.clone().sub(camera.camera.position);
 
-                    for (const [n] of nts) {
-                        const d: THREE.Vector3 = new Spatial().viewingDirection(n.rotation);
-                        const a: number = d.angleTo(direction);
+                        const cd: THREE.Vector3 = new Spatial().viewingDirection(cn.rotation);
+                        const ca: number = cd.angleTo(direction);
+                        const closest: [number, string] = [ca, undefined];
+                        const basic: number[] = new ViewportCoords().viewportToBasic(0, 0, ct, camera.perspective);
 
-                        if (a < closest[0]) {
-                            closest[0] = a;
-                            closest[1] = n.id;
+                        if (basic[0] >= 0 && basic[0] <= 1 && basic[1] >= 0 && basic[1] <= 1) {
+                            closest[0] = Number.NEGATIVE_INFINITY;
                         }
-                    }
 
-                    if (!closest[1]) {
-                        return observableEmpty();
-                    }
+                        for (const [n] of nts) {
+                            const d: THREE.Vector3 = new Spatial().viewingDirection(n.rotation);
+                            const a: number = d.angleTo(direction);
 
-                    return this._navigator.moveTo$(closest[1]).pipe(
-                        catchError(
-                            (): Observable<ImageNode> => {
-                                return observableEmpty();
-                            }));
-                }))
+                            if (a < closest[0]) {
+                                closest[0] = a;
+                                closest[1] = n.id;
+                            }
+                        }
+
+                        if (!closest[1]) {
+                            return observableEmpty();
+                        }
+
+                        return this._navigator.moveTo$(closest[1]).pipe(
+                            catchError(
+                                (): Observable<ImageNode> => {
+                                    return observableEmpty();
+                                }));
+                    }))
             .subscribe());
     }
 
