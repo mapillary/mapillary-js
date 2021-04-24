@@ -1217,23 +1217,15 @@ export class Viewer extends EventEmitter implements IViewer {
      * ```
      */
     public setCameraControls(controls: CameraControls): void {
-        this._navigator.stateService.state$
-            .pipe(first())
-            .subscribe(
-                (s): void => {
-                    if (s === State.Earth &&
-                        controls === CameraControls.Street) {
-                        this._navigator.stateService.traverse();
-                    } else if (
-                        s === State.Traversing &&
-                        controls === CameraControls.Earth) {
-                        this._navigator.stateService.earth();
-                    } else {
-                        const to = CameraControls[controls];
-                        console.warn(
-                            `Unsupported camera control transition (${to})`);
-                    }
-                })
+        if (controls === CameraControls.Street) {
+            this._navigator.stateService.traverse();
+        } else if (controls === CameraControls.Earth) {
+            this._navigator.stateService.earth();
+        } else {
+            const to = CameraControls[controls];
+            console.warn(
+                `Unsupported camera control transition (${to})`);
+        }
     }
 
     /**

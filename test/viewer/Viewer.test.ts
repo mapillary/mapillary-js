@@ -162,66 +162,30 @@ describe("Viewer.setCameraControls", () => {
         spyOn(console, "warn").and.stub();
     })
 
-    it("should set different state", () => {
+    it("should invoke state transition", () => {
         const mocks = createMocks();
         const viewer = new Viewer({ apiClient: "", container: "" });
 
         const earthSpy = (<jasmine.Spy>mocks.navigator.stateService.earth);
         const traverseSpy = (<jasmine.Spy>mocks.navigator.stateService.traverse);
 
-        const state$ = <Subject<State>>mocks.navigator.stateService.state$;
-
         viewer.setCameraControls(CameraControls.Earth);
-        state$.next(State.Traversing);
         expect(earthSpy.calls.count()).toBe(1);
         expect(traverseSpy.calls.count()).toBe(0);
 
         viewer.setCameraControls(CameraControls.Street);
-        state$.next(State.Earth);
         expect(earthSpy.calls.count()).toBe(1);
         expect(traverseSpy.calls.count()).toBe(1);
     });
 
-    it("should not set same state", () => {
+    it("should not invoke state transition", () => {
         const mocks = createMocks();
         const viewer = new Viewer({ apiClient: "", container: "" });
 
         const earthSpy = (<jasmine.Spy>mocks.navigator.stateService.earth);
         const traverseSpy = (<jasmine.Spy>mocks.navigator.stateService.traverse);
 
-        const state$ = <Subject<State>>mocks.navigator.stateService.state$;
-
-        viewer.setCameraControls(CameraControls.Earth);
-        state$.next(State.Earth);
-        expect(earthSpy.calls.count()).toBe(0);
-        expect(traverseSpy.calls.count()).toBe(0);
-
-        viewer.setCameraControls(CameraControls.Street);
-        state$.next(State.Traversing);
-        expect(earthSpy.calls.count()).toBe(0);
-        expect(traverseSpy.calls.count()).toBe(0);
-    });
-
-    it("should not change state when waiting", () => {
-        const mocks = createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
-
-        const earthSpy = (<jasmine.Spy>mocks.navigator.stateService.earth);
-        const traverseSpy = (<jasmine.Spy>mocks.navigator.stateService.traverse);
-
-        const state$ = <Subject<State>>mocks.navigator.stateService.state$;
-
-        viewer.setCameraControls(CameraControls.Earth);
-        state$.next(State.Waiting);
-        viewer.setCameraControls(CameraControls.Street);
-        state$.next(State.Waiting);
-        expect(earthSpy.calls.count()).toBe(0);
-        expect(traverseSpy.calls.count()).toBe(0);
-
-        viewer.setCameraControls(CameraControls.Earth);
-        state$.next(State.WaitingInteractively);
-        viewer.setCameraControls(CameraControls.Street);
-        state$.next(State.WaitingInteractively);
+        viewer.setCameraControls(<CameraControls>-1);
         expect(earthSpy.calls.count()).toBe(0);
         expect(traverseSpy.calls.count()).toBe(0);
     });

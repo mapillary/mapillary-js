@@ -556,7 +556,6 @@ export class StateService {
             .next(
                 (context: IStateContext): IStateContext => {
                     action(context);
-
                     return context;
                 });
     }

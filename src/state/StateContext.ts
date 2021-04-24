@@ -16,15 +16,17 @@ export class StateContext implements IStateContext {
 
     constructor(transitionMode?: TransitionMode) {
         this._transitions = new StateTransitionMatrix();
-        this._state = this._transitions.initialize({
-            alpha: 1,
-            camera: new Camera(),
-            currentIndex: -1,
-            reference: { alt: 0, lat: 0, lng: 0 },
-            trajectory: [],
-            transitionMode: transitionMode == null ? TransitionMode.Default : transitionMode,
-            zoom: 0,
-        });
+        this._state = this._transitions.generate(
+            State.Traversing,
+            {
+                alpha: 1,
+                camera: new Camera(),
+                currentIndex: -1,
+                reference: { alt: 0, lat: 0, lng: 0 },
+                trajectory: [],
+                transitionMode: transitionMode == null ? TransitionMode.Default : transitionMode,
+                zoom: 0,
+            });
     }
 
     public get state(): State {
@@ -208,6 +210,12 @@ export class StateContext implements IStateContext {
     }
 
     private _transition(to: State): void {
+        if (!this._transitions.validate(this._state, to)) {
+            const from = this._transitions.getState(this._state);
+            console.warn(
+                `Transition not valid (${State[from]} - ${State[to]})`);
+            return;
+        }
         const state = this._transitions.transition(this._state, to);
         this._state = state;
     }
