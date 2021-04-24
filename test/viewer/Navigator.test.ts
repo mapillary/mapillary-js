@@ -63,7 +63,7 @@ describe("Navigator.ctor", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientToken: clientId })));
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
         const navigator: Navigator =
@@ -85,7 +85,7 @@ describe("Navigator.moveToKey$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientToken: clientId })));
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
         const loadingSpy: jasmine.Spy = spyOn(loadingService, "startLoading").and.stub();
@@ -114,7 +114,7 @@ describe("Navigator.moveToKey$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientToken: clientId })));
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
 
         spyOn(loadingService, "startLoading").and.stub();
         const stopLoadingSpy: jasmine.Spy = spyOn(loadingService, "stopLoading").and.stub();
@@ -152,7 +152,7 @@ describe("Navigator.moveToKey$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientToken: clientId })));
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
         spyOn(loadingService, "startLoading").and.stub();
@@ -189,7 +189,7 @@ describe("Navigator.moveToKey$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientToken: clientId })));
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
         spyOn(loadingService, "startLoading").and.stub();
@@ -222,7 +222,7 @@ describe("Navigator.moveToKey$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientToken: clientId })));
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
 
         spyOn(loadingService, "startLoading").and.stub();
         spyOn(loadingService, "stopLoading").and.stub();
@@ -260,7 +260,7 @@ describe("Navigator.moveToKey$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientToken: clientId })));
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
 
         spyOn(loadingService, "startLoading").and.stub();
         spyOn(loadingService, "stopLoading").and.stub();
@@ -302,7 +302,7 @@ describe("Navigator.moveToKey$", () => {
             const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientToken: clientId })));
             const graphService: GraphService = new GraphService(new Graph(api));
             const loadingService: LoadingService = new LoadingService();
-            const stateService: StateService = new StateService();
+            const stateService: StateService = new StateService(State.Traversing);
             const cacheService: CacheService = new CacheService(graphService, stateService);
 
             spyOn(loadingService, "startLoading").and.stub();
@@ -362,7 +362,7 @@ describe("Navigator.movedToKey$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientToken: clientId })));
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
         spyOn(loadingService, "startLoading").and.stub();
@@ -409,7 +409,7 @@ class TestStateService extends StateService {
     private _overridingCurrentState$: Subject<AnimationFrame>;
 
     constructor(currentState$: Subject<AnimationFrame>) {
-        super();
+        super(State.Traversing);
 
         this._overridingCurrentState$ = currentState$;
     }
@@ -432,7 +432,7 @@ describe("Navigator.setFilter$", () => {
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
         const clearImagesSpy: jasmine.Spy = spyOn(stateService, "clearImages").and.stub();
@@ -475,7 +475,7 @@ describe("Navigator.setFilter$", () => {
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
         const setFilterSpy: jasmine.Spy = spyOn(graphService, "setFilter$");
@@ -508,7 +508,7 @@ describe("Navigator.setFilter$", () => {
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
         spyOn(loadingService, "startLoading").and.stub();
@@ -669,7 +669,7 @@ describe("Navigator.setToken$", () => {
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
         spyOn(cacheService, "start").and.stub();
@@ -811,7 +811,7 @@ describe("Navigator.setToken$", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientToken: clientId })));
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
         const cacheService: CacheService = new CacheService(graphService, stateService);
 
         spyOn(loadingService, "startLoading").and.stub();

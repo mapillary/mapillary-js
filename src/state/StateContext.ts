@@ -14,10 +14,12 @@ export class StateContext implements IStateContext {
     private _state: StateBase;
     private _transitions: StateTransitionMatrix;
 
-    constructor(transitionMode?: TransitionMode) {
+    constructor(
+        state: State,
+        transitionMode?: TransitionMode) {
         this._transitions = new StateTransitionMatrix();
         this._state = this._transitions.generate(
-            State.Traversing,
+            state,
             {
                 alpha: 1,
                 camera: new Camera(),

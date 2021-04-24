@@ -33,7 +33,7 @@ describe("PlayService.ctor", () => {
     it("should be defined when constructed", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
@@ -43,7 +43,7 @@ describe("PlayService.ctor", () => {
     it("should emit default values", (done: () => void) => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
@@ -67,7 +67,7 @@ describe("PlayService.playing", () => {
     it("should be playing after calling play", (done: () => void) => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
@@ -87,7 +87,7 @@ describe("PlayService.playing", () => {
     it("should not be playing after calling stop", (done: () => void) => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
@@ -123,7 +123,7 @@ describe("PlayService.speed$", () => {
     it("should emit when changing speed", (done: () => void) => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
@@ -142,7 +142,7 @@ describe("PlayService.speed$", () => {
     it("should not emit when setting current speed", () => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
@@ -175,7 +175,7 @@ describe("PlayService.speed$", () => {
     it("should clamp speed values to 0, 1 interval", (done: () => void) => {
         const api: APIWrapper = new APIWrapper(new FalcorDataProvider({ clientToken: "cid" }));
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService();
+        const stateService: StateService = new StateService(State.Traversing);
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
