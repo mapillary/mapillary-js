@@ -37,10 +37,14 @@
 
         const viewer = new Viewer({
             apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
-            component: { cover: false, stats: false, spatial: true },
+            component: { cover: false, spatial: true },
             container: "mly",
-            imageId: "zarcRdNFZwg3FkXNcsFeGw",
         });
+        let cameraControls = CameraControls.Earth;
+        viewer.setCameraControls(cameraControls);
+        viewer
+            .moveTo("zarcRdNFZwg3FkXNcsFeGw")
+            .catch(error => console.error(error));
 
         const spatial = viewer.getComponent("spatial");
         const s = Object.assign(
@@ -93,7 +97,6 @@
             camControlsRotation[street] = earth;
             camControlsRotation[earth] = street;
 
-            let cameraControls = CameraControls.Street;
             return function () {
                 cameraControls = camControlsRotation[cameraControls];
                 viewer.setCameraControls(cameraControls);
@@ -121,6 +124,13 @@
         window.document.addEventListener(
             "keydown",
             e => {
+                if (e.altKey ||
+                    e.ctrlKey ||
+                    e.metaKey ||
+                    e.shiftKey) {
+                    return;
+                }
+
                 let name = undefined;
                 switch (e.key) {
                     case 'e': name = 'earthControls'; break;
