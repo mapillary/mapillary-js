@@ -157,10 +157,9 @@ export class CustomCameraControls {
         this._navigator.stateService.state$
             .subscribe(state => {
                 if (state === State.Custom) {
-                    this._navigator.stateService.earth();
+                    this._controls.onDeactivate(viewer);
                 }
 
-                this._controls.onDeactivate(viewer);
                 this._controls.onDetach(viewer);
                 this._controls = null;
             });

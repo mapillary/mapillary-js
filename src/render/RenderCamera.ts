@@ -251,10 +251,9 @@ export class RenderCamera {
     }
 
     public setProjectionMatrix(matrix: number[]): void {
-        const projectionMatrix = new THREE.Matrix4().fromArray(matrix);
-        this._perspective.projectionMatrix.copy(projectionMatrix);
+        this._perspective.projectionMatrix.fromArray(matrix);
         this._perspective.projectionMatrixInverse
-            .copy(projectionMatrix)
+            .copy(this._perspective.projectionMatrix)
             .invert();
 
         this._changed = true;

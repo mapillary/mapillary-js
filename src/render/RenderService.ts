@@ -96,12 +96,11 @@ export class RenderService {
                 (rc: RenderCamera, operation: RenderCameraOperation): RenderCamera => {
                     return operation(rc);
                 },
-                !!renderCamera ?
-                    renderCamera :
-                    new RenderCamera(
-                        this._element.offsetWidth,
-                        this._element.offsetHeight,
-                        renderMode)),
+                renderCamera ??
+                new RenderCamera(
+                    this._element.offsetWidth,
+                    this._element.offsetHeight,
+                    renderMode)),
             publishReplay(1),
             refCount());
 

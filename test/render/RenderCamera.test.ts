@@ -1,3 +1,4 @@
+import { PerspectiveCamera } from "three";
 import { RenderCamera } from "../../src/render/RenderCamera";
 import { RenderMode } from "../../src/render/RenderMode";
 import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
@@ -193,5 +194,24 @@ describe("RenderCamera.perspective.fov", () => {
         renderCamera.setFrame(frame);
 
         expect(renderCamera.perspective.fov).toBeLessThan(fov);
+    });
+});
+
+describe("RenderCamera.setProjectionMatrix", () => {
+    it("should update perspective projection matrix", () => {
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Letterbox);
+
+        const initial = renderCamera.perspective.projectionMatrix.toArray();
+
+        const updated = new PerspectiveCamera(30, 3, 0.1, 1000)
+            .projectionMatrix
+            .toArray();
+
+        renderCamera.setProjectionMatrix(updated);
+
+        expect(renderCamera.perspective.projectionMatrix.toArray())
+            .not.toEqual(initial);
+        expect(renderCamera.perspective.projectionMatrix.toArray())
+            .toEqual(updated);
     });
 });

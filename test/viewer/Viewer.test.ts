@@ -1,7 +1,9 @@
 import { Subject } from "rxjs";
+import { ICustomCameraControls } from "../../src/mapillary";
 import { State } from "../../src/state/State";
 import * as ComponentController from "../../src/viewer/ComponentController";
 import * as Container from "../../src/viewer/Container";
+import * as CustomCameraControls from "../../src/viewer/CustomCameraControls";
 import * as CustomRenderer from "../../src/viewer/CustomRenderer";
 import { CameraControls } from "../../src/viewer/enums/CameraControls";
 import { RenderPass } from "../../src/viewer/enums/RenderPass";
@@ -30,6 +32,7 @@ describe("Viewer.ctor", () => {
 type Mocks = {
     container: Container.Container,
     controller: ComponentController.ComponentController,
+    customCameraControls: CustomCameraControls.CustomCameraControls,
     customRenderer: CustomRenderer.CustomRenderer,
     navigator: Navigator.Navigator,
     observer: Observer.Observer,
@@ -46,6 +49,8 @@ const createMocks = (): Mocks => {
         .create(
             ComponentController.ComponentController,
             "ComponentController");
+    const customCameraControls = mockCreator
+        .create(CustomCameraControls.CustomCameraControls, "CustomCameraControls");
     const customRenderer = mockCreator
         .create(CustomRenderer.CustomRenderer, "CustomRenderer");
 
@@ -56,10 +61,13 @@ const createMocks = (): Mocks => {
         .and.returnValue(controller);
     spyOn(CustomRenderer, "CustomRenderer")
         .and.returnValue(customRenderer);
+    spyOn(CustomCameraControls, "CustomCameraControls")
+        .and.returnValue(customCameraControls);
 
     return {
         container,
         controller,
+        customCameraControls,
         customRenderer,
         navigator,
         observer,
@@ -268,5 +276,39 @@ describe("Viewer.getCameraControls", () => {
                 })
 
         state$.next(State.WaitingInteractively);
+    });
+});
+
+describe("Viewer.attachCustomCameraControls", () => {
+    it("should invoke attach", () => {
+        const mocks = createMocks();
+        const viewer = new Viewer({ apiClient: "", container: "" });
+
+        const attachSpy = (<jasmine.Spy>mocks.customCameraControls.attach);
+        const detachSpy = (<jasmine.Spy>mocks.customCameraControls.detach);
+
+        const customCameraControls = <ICustomCameraControls>{};
+
+        viewer.attachCustomCameraControls(customCameraControls);
+        expect(attachSpy.calls.count()).toBe(1);
+        expect(attachSpy.calls.first().args[0]).toBe(customCameraControls);
+        expect(attachSpy.calls.first().args[1]).toBe(viewer);
+        expect(detachSpy.calls.count()).toBe(0);
+    });
+});
+
+describe("Viewer.detachCustomCameraControls", () => {
+    it("should invoke detach", () => {
+        const mocks = createMocks();
+        const viewer = new Viewer({ apiClient: "", container: "" });
+
+        const attachSpy = (<jasmine.Spy>mocks.customCameraControls.attach);
+        const detachSpy = (<jasmine.Spy>mocks.customCameraControls.detach);
+
+        viewer.detachCustomCameraControls();
+        expect(attachSpy.calls.count()).toBe(0);
+        expect(detachSpy.calls.count()).toBe(1);
+        expect(detachSpy.calls.first().args[0]).toBe(viewer);
+
     });
 });

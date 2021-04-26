@@ -1,6 +1,7 @@
 import { empty as observableEmpty, Subject } from "rxjs";
 
 import { skip, first, take, count } from "rxjs/operators";
+import { PerspectiveCamera } from "three";
 import { Camera } from "../../src/geo/Camera";
 import { ViewportSize } from "../../src/render/interfaces/ViewportSize";
 import { RenderCamera } from "../../src/render/RenderCamera";
@@ -464,5 +465,27 @@ describe("RenderService.bearing$", () => {
         frame.state.camera.lookat.set(1, 0, 0);
 
         frame$.next(frame);
+    });
+});
+
+describe("RenderService.projectionMatrix$", () => {
+    it("should set projection on render camera", () => {
+        const element = document.createElement("div");
+        const camera = new RenderCamera(1, 1, RenderMode.Letterbox);
+        const renderService =
+            new RenderService(
+                element,
+                observableEmpty(),
+                RenderMode.Letterbox,
+                camera);
+
+        const projectionMatrix = new PerspectiveCamera(30, 3, 0.1, 1000)
+            .projectionMatrix
+            .toArray();
+
+        renderService.projectionMatrix$.next(projectionMatrix);
+
+        expect(camera.perspective.projectionMatrix.toArray())
+            .toEqual(projectionMatrix);
     });
 });
