@@ -5,12 +5,12 @@ import { IViewer } from "./IViewer";
 /**
  * @interface
  *
- * Interface for custom renderers. This is a specification
- * for implementers to model: it is not an exported method
- * or class.
+ * @description Interface for custom renderers. This is a
+ * specification for implementers to model: it is not
+ * an exported method or class.
  *
- * Custom renderer allow a user to render directly into
- * the viewer's GL context using the viewer's camera.
+ * A custom renderer allows the API user to render directly
+ * into the viewer's GL context using the viewer's camera.
  *
  * Custom renderers must have a unique id. They must implement
  * render, onReferenceChanged, onAdd, and onRemove. They can
@@ -49,7 +49,7 @@ export interface ICustomRenderer {
      *
      * @description Calculate the topocentric positions
      * for scene objects using the provided reference and
-     * the {GeoCoords#geodeticToEnu} function.
+     * the {@link geodeticToEnu} function.
      *
      * @param {IViewer} viewer - The viewer this custom renderer
      * was just added to.
@@ -69,7 +69,7 @@ export interface ICustomRenderer {
      *
      * @description Calculate the updated topocentric positions
      * for scene objects using the provided reference and
-     * the {GeoCoords#geodeticToEnu} function.
+     * the {@link geodeticToEnu} function.
      *
      * @param {IViewer} viewer - The viewer this custom renderer
      * is added to.
@@ -82,7 +82,7 @@ export interface ICustomRenderer {
 
     /**
      * Method called when the renderer has been removed from the
-     * viewer with {Viewer#removeCustomRenderer}. This gives the
+     * viewer with {@link Viewer#removeCustomRenderer}. This gives the
      * renderer a chance to clean up gl resources and event
      * listeners.
      *
