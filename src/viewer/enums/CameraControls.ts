@@ -12,7 +12,7 @@ export enum CameraControls {
     /**
      * Control the camera with custom logic by
      * attaching a custom camera controls
-     * implementation to the {@link Viewer}.
+     * instance to the {@link Viewer}.
      */
     Custom,
 

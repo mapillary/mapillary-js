@@ -235,6 +235,32 @@ export class Viewer extends EventEmitter implements IViewer {
         this._customRenderer.add(renderer, this);
     }
 
+    /**
+     * Attach a custom camera controls for controlling viewer's
+     * camera pose and projection.
+     *
+     * @description Custom camera controls allow the API user
+     * to freely move the viewer's camera and define the camera
+     * projection used. These camera properties are used
+     * to render the viewer 3D scene directly into the
+     * viewer's GL context.
+     *
+     * Only a single custom camera controls instance can be
+     * attached to the viewer. A new custom camera controls
+     * instance can be attached after detaching a previous
+     * one.
+     *
+     * Set the viewer's camera controls to
+     * {@link CameraControls#Custom} to activate attached
+     * camera controls. If {@link CameraControls#Custom} when
+     * a custom camera controls instance is attached, it
+     * will be activated immediately.
+     *
+     * @param controls - The custom camera controls implementation.
+     *
+     * @throws {MapillaryError} When camera controls attached
+     * are already attached to the viewer.
+     */
     public attachCustomCameraControls(controls: ICustomCameraControls): void {
         this._customCameraControls.attach(controls, this);
     }
@@ -272,6 +298,18 @@ export class Viewer extends EventEmitter implements IViewer {
         this._componentController.deactivateCover();
     }
 
+    /**
+     * Detach a previously attached custom camera controls
+     * instance from the viewer.
+     *
+     * @description If no custom camera controls instance
+     * has previously been attached, calling this method
+     * has no effect.
+     *
+     * Already attached custom camera controls need to
+     * be detached before attaching another camera controls
+     * instance.
+     */
     public detachCustomCameraControls(): void {
         this._customCameraControls.detach(this);
     }
@@ -1211,10 +1249,18 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
-     * Detect the viewer's new width and height and resize it.
+     * Detect the viewer's new width and height and resize it
+     * manually.
      *
      * @description The components will also detect the viewer's
      * new size and resize their rendered elements if needed.
+     *
+     * When the {@link ViewerOptions#trackResize} option is
+     * set to true, the viewer will automatically resize
+     * when the browser window is resized. If any other
+     * custom behavior is preferred, the option should be set
+     * to false and the {@link Viewer#resize} method should
+     * be called on demand.
      *
      * @example
      * ```js

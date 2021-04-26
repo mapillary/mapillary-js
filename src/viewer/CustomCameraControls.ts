@@ -20,6 +20,7 @@ import { IViewer } from "./interfaces/IViewer";
 import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { State } from "../state/State";
 import { RenderCamera } from "../render/RenderCamera";
+import { MapillaryError } from "../error/MapillaryError";
 
 export class CustomCameraControls {
     private _controls: ICustomCameraControls;
@@ -34,13 +35,14 @@ export class CustomCameraControls {
 
     public attach(controls: ICustomCameraControls, viewer: IViewer): void {
         if (this._controls) {
-            throw new Error('Custom camera controls already attached');
+            throw new MapillaryError('Custom camera controls already attached');
         }
 
         const subs = this._subscriptions;
 
         subs.push(observableCombineLatest(
             [
+                // Include to ensure GL renderer has been initialized
                 this._container.glRenderer.webGLRenderer$,
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.reference$,
@@ -48,7 +50,7 @@ export class CustomCameraControls {
             ])
             .pipe(take(1))
             .subscribe(
-                ([gl, cam, ref, state]:
+                ([, cam, ref, state]:
                     [WebGLRenderer, RenderCamera, LngLatAlt, State]): void => {
                     const projectionMatrixCallback =
                         (projectionMatrix: number[]) => {
@@ -69,14 +71,14 @@ export class CustomCameraControls {
 
                     controls.onAttach(
                         viewer,
-                        gl.domElement,
-                        projectionMatrixCallback,
-                        viewMatrixCallback);
+                        viewMatrixCallback,
+                        projectionMatrixCallback);
 
                     if (state === State.Custom) {
                         controls.onActivate(
                             viewer,
                             cam.perspective.matrixWorldInverse.toArray(),
+                            cam.perspective.projectionMatrix.toArray(),
                             ref);
                     }
                 }));
@@ -107,6 +109,7 @@ export class CustomCameraControls {
                         controls.onActivate(
                             viewer,
                             cam.perspective.matrixWorldInverse.toArray(),
+                            cam.perspective.projectionMatrix.toArray(),
                             ref);
                     } else if (prev === State.Custom) {
                         controls.onDeactivate(viewer);
