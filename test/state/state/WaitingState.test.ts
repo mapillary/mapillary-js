@@ -1,14 +1,14 @@
 import * as THREE from "three";
 
-import { ImageHelper } from "../helper/ImageHelper";
+import { ImageHelper } from "../../helper/ImageHelper";
 
-import { Image } from "../../src/graph/Image";
-import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
-import { IStateBase } from "../../src/state/interfaces/IStateBase";
-import { WaitingState } from "../../src/state/state/WaitingState";
-import { Camera } from "../../src/geo/Camera";
-import { TransitionMode } from "../../src/state/TransitionMode";
-import { TransformHelper } from "../helper/TransformHelper";
+import { Image } from "../../../src/graph/Image";
+import { SpatialImageEnt } from "../../../src/api/ents/SpatialImageEnt";
+import { IStateBase } from "../../../src/state/interfaces/IStateBase";
+import { WaitingState } from "../../../src/state/state/WaitingState";
+import { Camera } from "../../../src/geo/Camera";
+import { TransitionMode } from "../../../src/state/TransitionMode";
+import { TransformHelper } from "../../helper/TransformHelper";
 
 const transformHelper = new TransformHelper();
 

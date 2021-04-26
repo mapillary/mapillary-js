@@ -84,7 +84,7 @@ describe("CustomRenderer.add", () => {
                 id: rendererId,
                 renderPass: RenderPass.Opaque,
                 onAdd: (v, reference, context) => {
-                    expect(v).toBe(v);
+                    expect(v).toBe(viewer);
                     expect(reference).toBe(referenceMock);
                     expect(context).toBe(contextMock);
                     expect(customRenderer.has(rendererId)).toBe(true);
