@@ -13,8 +13,6 @@ import {
     catchError,
     distinctUntilChanged,
     filter,
-    first,
-    debounceTime,
     map,
     mergeMap,
     pairwise,
@@ -22,7 +20,6 @@ import {
     refCount,
     scan,
     share,
-    skipWhile,
     startWith,
     switchMap,
     withLatestFrom,
@@ -52,12 +49,25 @@ import { Transform } from "../../geo/Transform";
 import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
 import { ComponentName } from "../ComponentName";
 import { State } from "../../state/State";
+import { Camera } from "three";
 
 interface ImageGLRendererOperation {
     (renderer: ImageGLRenderer): ImageGLRenderer;
 }
 
-type PositionLookat = [THREE.Vector3, THREE.Vector3, number, number, number];
+type PositionLookat = {
+    camera: RenderCamera,
+    height: number,
+    lookat: THREE.Vector3,
+    width: number,
+    zoom: number,
+};
+type TextureProviderInput = [AnimationFrame, THREE.WebGLRenderer];
+type RoiTrigger = [StalledCamera, ViewportSize, Transform];
+type StalledCamera = {
+    camera: RenderCamera,
+    stalled: boolean,
+};
 
 export class ImageComponent extends Component<ComponentConfiguration> {
     public static componentName: ComponentName = "image";
@@ -70,7 +80,11 @@ export class ImageComponent extends Component<ComponentConfiguration> {
     private _imageTileLoader: TileLoader;
     private _roiCalculator: RegionOfInterestCalculator;
 
-    constructor(name: string, container: Container, navigator: Navigator) {
+    constructor(
+        name: string,
+        container: Container,
+        navigator: Navigator) {
+
         super(name, container, navigator);
 
         this._imageTileLoader = new TileLoader(navigator.api);
@@ -123,10 +137,11 @@ export class ImageComponent extends Component<ComponentConfiguration> {
 
     protected _activate(): void {
         const subs = this._subscriptions;
+
         subs.push(this._renderer$.pipe(
             map(
                 (renderer: ImageGLRenderer): GLRenderHash => {
-                    let renderHash: GLRenderHash = {
+                    const renderHash: GLRenderHash = {
                         name: this._name,
                         renderer: {
                             frameId: renderer.frameId,
@@ -164,14 +179,13 @@ export class ImageComponent extends Component<ComponentConfiguration> {
                         return frame.state.currentImage.id;
                     }),
                 withLatestFrom(
-                    this._container.glRenderer.webGLRenderer$,
-                    this._container.renderService.size$),
+                    this._container.glRenderer.webGLRenderer$),
                 map(
-                    ([frame, renderer, size]: [AnimationFrame, THREE.WebGLRenderer, ViewportSize]): TextureProvider => {
-                        let state = frame.state;
-                        let currentNode = state.currentImage;
-                        let currentTransform = state.currentTransform;
-                        let tileSize = 1024;
+                    ([frame, renderer]: TextureProviderInput)
+                        : TextureProvider => {
+                        const state = frame.state;
+                        const currentNode = state.currentImage;
+                        const currentTransform = state.currentTransform;
 
                         return new TextureProvider(
                             currentNode.id,
@@ -202,67 +216,91 @@ export class ImageComponent extends Component<ComponentConfiguration> {
             pairwise())
             .subscribe(
                 (pair: [TextureProvider, TextureProvider]): void => {
-                    let previous: TextureProvider = pair[0];
+                    const previous = pair[0];
                     previous.abort();
                 }));
 
-        const roiTrigger$ = observableCombineLatest(
-            this._container.renderService.renderCameraFrame$,
-            this._container.renderService.size$.pipe(debounceTime(250))).pipe(
-                filter(() => ViewerConfiguration.imageTiling),
-                map(
-                    ([camera, size]: [RenderCamera, ViewportSize]): PositionLookat => {
-                        return [
-                            camera.camera.position.clone(),
-                            camera.camera.lookat.clone(),
-                            camera.zoom.valueOf(),
-                            size.height.valueOf(),
-                            size.width.valueOf()];
-                    }),
-                pairwise(),
-                skipWhile(
-                    (pls: [PositionLookat, PositionLookat]): boolean => {
-                        return pls[1][2] - pls[0][2] < 0 || pls[1][2] === 0;
-                    }),
-                map(
-                    (pls: [PositionLookat, PositionLookat]): boolean => {
-                        let samePosition: boolean = pls[0][0].equals(pls[1][0]);
-                        let sameLookat: boolean = pls[0][1].equals(pls[1][1]);
-                        let sameZoom: boolean = pls[0][2] === pls[1][2];
-                        let sameHeight: boolean = pls[0][3] === pls[1][3];
-                        let sameWidth: boolean = pls[0][4] === pls[1][4];
+        const roiTrigger$ = ViewerConfiguration.imageTiling ?
+            observableCombineLatest(
+                this._navigator.stateService.state$,
+                this._navigator.stateService.inTranslation$)
+                .pipe(
+                    switchMap(
+                        ([state, inTranslation]: [State, boolean]) => {
+                            const streetState =
+                                state === State.Traversing ||
+                                state === State.Waiting ||
+                                state === State.WaitingInteractively;
+                            const active = streetState && !inTranslation;
+                            return active ?
+                                this._container.renderService.renderCameraFrame$ :
+                                observableEmpty();
+                        }),
+                    map(
+                        (camera: RenderCamera): PositionLookat => {
+                            return {
+                                camera,
+                                height: camera.size.height.valueOf(),
+                                lookat: camera.camera.lookat.clone(),
+                                width: camera.size.width.valueOf(),
+                                zoom: camera.zoom.valueOf(),
+                            };
+                        }),
+                    pairwise(),
+                    map(
+                        ([pl0, pl1]: [PositionLookat, PositionLookat])
+                            : StalledCamera => {
+                            const stalled =
+                                pl0.width === pl1.width &&
+                                pl0.height === pl1.height &&
+                                pl0.zoom === pl1.zoom &&
+                                pl0.lookat.equals(pl1.lookat);
 
-                        return samePosition && sameLookat && sameZoom && sameHeight && sameWidth;
-                    }),
-                distinctUntilChanged(),
-                filter(
-                    (stalled: boolean): boolean => {
-                        return stalled;
-                    }),
-                switchMap(
-                    (): Observable<RenderCamera> => {
-                        return this._container.renderService.renderCameraFrame$.pipe(
-                            first());
-                    }),
-                withLatestFrom(
-                    this._container.renderService.size$,
-                    this._navigator.stateService.currentTransform$));
+                            return { camera: pl1.camera, stalled };
+                        }),
+                    distinctUntilChanged(
+                        (x, y): boolean => {
+                            return x.stalled === y.stalled;
+                        }),
+                    filter(
+                        (camera: StalledCamera): boolean => {
+                            return camera.stalled;
+                        }),
+                    withLatestFrom(
+                        this._container.renderService.size$,
+                        this._navigator.stateService.currentTransform$)) :
+            observableEmpty();
 
         subs.push(textureProvider$.pipe(
             switchMap(
-                (provider: TextureProvider): Observable<[TileRegionOfInterest, TextureProvider]> => {
+                (provider: TextureProvider):
+                    Observable<[TileRegionOfInterest, TextureProvider]> => {
                     return roiTrigger$.pipe(
                         map(
-                            ([camera, size, transform]: [RenderCamera, ViewportSize, Transform]):
-                                [TileRegionOfInterest, TextureProvider] => {
-                                const basic: number[] = new ViewportCoords().viewportToBasic(0, 0, transform, camera.perspective);
+                            ([stalled, size, transform]: RoiTrigger)
+                                : [TileRegionOfInterest, TextureProvider] => {
 
-                                if (basic[0] < 0 || basic[1] < 0 || basic[0] > 1 || basic[1] > 1) {
+                                const camera = stalled.camera;
+                                const basic = new ViewportCoords()
+                                    .viewportToBasic(
+                                        0,
+                                        0,
+                                        transform,
+                                        camera.perspective);
+
+                                if (basic[0] < 0 ||
+                                    basic[1] < 0 ||
+                                    basic[0] > 1 ||
+                                    basic[1] > 1) {
                                     return undefined;
                                 }
 
                                 return [
-                                    this._roiCalculator.computeRegionOfInterest(camera, size, transform),
+                                    this._roiCalculator
+                                        .computeRegionOfInterest(
+                                            camera,
+                                            size,
+                                            transform),
                                     provider,
                                 ];
                             }),
@@ -276,10 +314,8 @@ export class ImageComponent extends Component<ComponentConfiguration> {
                     return !args[1].disposed;
                 }))
             .subscribe(
-                (args: [TileRegionOfInterest, TextureProvider]): void => {
-                    let roi: TileRegionOfInterest = args[0];
-                    let provider: TextureProvider = args[1];
-
+                ([roi, provider]: [TileRegionOfInterest, TextureProvider])
+                    : void => {
                     provider.setRegionOfInterest(roi);
                 }));
 
@@ -419,20 +455,20 @@ export class ImageComponent extends Component<ComponentConfiguration> {
                             [ImageNode, Transform, number][],
                         ]): Observable<ImageNode> => {
 
-                        const direction: THREE.Vector3 = camera.camera.lookat.clone().sub(camera.camera.position);
+                        const direction = camera.camera.lookat.clone().sub(camera.camera.position);
 
-                        const cd: THREE.Vector3 = new Spatial().viewingDirection(cn.rotation);
-                        const ca: number = cd.angleTo(direction);
+                        const cd = new Spatial().viewingDirection(cn.rotation);
+                        const ca = cd.angleTo(direction);
                         const closest: [number, string] = [ca, undefined];
-                        const basic: number[] = new ViewportCoords().viewportToBasic(0, 0, ct, camera.perspective);
+                        const basic = new ViewportCoords().viewportToBasic(0, 0, ct, camera.perspective);
 
                         if (basic[0] >= 0 && basic[0] <= 1 && basic[1] >= 0 && basic[1] <= 1) {
                             closest[0] = Number.NEGATIVE_INFINITY;
                         }
 
                         for (const [n] of nts) {
-                            const d: THREE.Vector3 = new Spatial().viewingDirection(n.rotation);
-                            const a: number = d.angleTo(direction);
+                            const d = new Spatial().viewingDirection(n.rotation);
+                            const a = d.angleTo(direction);
 
                             if (a < closest[0]) {
                                 closest[0] = a;

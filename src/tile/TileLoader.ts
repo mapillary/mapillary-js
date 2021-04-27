@@ -17,7 +17,7 @@ import { ImageTileEnt } from "../api/ents/ImageTileEnt";
  * @classdesc Represents a loader of image tiles.
  */
 export class TileLoader {
-    private _urls$: Map<number, Observable<ImageTileEnt[]>>;
+    private _urls$: Map<string, Observable<ImageTileEnt[]>>;
 
     /**
      * Create a new image image tile loader instance.
@@ -87,8 +87,9 @@ export class TileLoader {
         level: number)
         : Observable<ImageTileEnt[]> {
 
-        if (this._urls$.has(level)) {
-            return this._urls$.get(level);
+        const uniqueId = this._inventId(imageId, level);
+        if (this._urls$.has(uniqueId)) {
+            return this._urls$.get(uniqueId);
         }
 
         const request = { imageId, z: level };
@@ -98,13 +99,17 @@ export class TileLoader {
                 map(contract => contract.node),
                 finalize(
                     () => {
-                        this._urls$.delete(level);
+                        this._urls$.delete(uniqueId);
                     }),
                 publish(),
                 refCount());
 
-        this._urls$.set(level, urls$);
+        this._urls$.set(uniqueId, urls$);
 
         return urls$;
+    }
+
+    private _inventId(imageId: string, level: number): string {
+        return `${imageId}-${level}`;
     }
 }
