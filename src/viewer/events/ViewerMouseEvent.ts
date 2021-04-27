@@ -27,6 +27,10 @@ export interface ViewerMouseEvent extends ViewerEvent {
      * the border of a image. In that case the basic coordinates will be
      * `null`.
      *
+     * The basic point is only provided when the
+     * {@link CameraControls.Street} mode is active. For all other camera
+     * control modes, the basic point will be `null`.
+     *
      * Basic coordinates are 2D coordinates on the [0, 1] interval
      * and has the origin point, (0, 0), at the top left corner and the
      * maximum value, (1, 1), at the bottom right corner of the original
