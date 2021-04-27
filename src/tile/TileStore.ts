@@ -55,6 +55,7 @@ export class TileStore {
                 image => window.URL.revokeObjectURL(image.src));
         this._tiles.clear();
         this._urls.clear();
+        this._urlLevels.clear();
     }
 
     /**

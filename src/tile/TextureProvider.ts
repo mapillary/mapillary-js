@@ -341,7 +341,9 @@ export class TextureProvider {
                 .getURLs$(this._imageId, level)
                 .pipe(
                     tap(ents => {
-                        this._store.addURLs(level, ents)
+                        if (!this._store.hasURLLevel(level)) {
+                            this._store.addURLs(level, ents);
+                        }
                     }));
 
         const subscription = urls$.subscribe(

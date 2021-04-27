@@ -2,7 +2,12 @@ import {
     Observable,
     Subscriber,
 } from "rxjs";
-import { map } from "rxjs/operators";
+import {
+    finalize,
+    map,
+    publish,
+    refCount,
+} from "rxjs/operators";
 import { APIWrapper } from "../api/APIWrapper";
 import { ImageTileEnt } from "../api/ents/ImageTileEnt";
 
@@ -12,12 +17,16 @@ import { ImageTileEnt } from "../api/ents/ImageTileEnt";
  * @classdesc Represents a loader of image tiles.
  */
 export class TileLoader {
+    private _urls$: Map<number, Observable<ImageTileEnt[]>>;
+
     /**
      * Create a new image image tile loader instance.
      *
      * @param {APIWrapper} _api - API wrapper.
      */
-    constructor(private readonly _api: APIWrapper) { }
+    constructor(private readonly _api: APIWrapper) {
+        this._urls$ = new Map();
+    }
 
     /**
      * Retrieve an image tile.
@@ -77,9 +86,25 @@ export class TileLoader {
         imageId: string,
         level: number)
         : Observable<ImageTileEnt[]> {
+
+        if (this._urls$.has(level)) {
+            return this._urls$.get(level);
+        }
+
         const request = { imageId, z: level };
-        return this._api
-            .getImageTiles(request)
-            .pipe(map(contract => contract.node));
+        const urls$ = this._api
+            .getImageTiles$(request)
+            .pipe(
+                map(contract => contract.node),
+                finalize(
+                    () => {
+                        this._urls$.delete(level);
+                    }),
+                publish(),
+                refCount());
+
+        this._urls$.set(level, urls$);
+
+        return urls$;
     }
 }
