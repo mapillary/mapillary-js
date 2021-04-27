@@ -34,7 +34,7 @@ export class EarthState extends StateBase {
 
         const length = offset.length();
         const scaled = length * Math.pow(2, -delta);
-        const clipped = Math.max(1, Math.min(scaled, 1000));
+        const clipped = Math.max(1, Math.min(scaled, 4000));
 
         offset.normalize();
         offset.multiplyScalar(clipped);

@@ -1,111 +1,66 @@
-import { LineBasicMaterial } from "three";
 import { Transform } from "../../../geo/Transform";
 import { CameraFrameBase } from "./CameraFrameBase";
-import { CameraFrameLine } from "./CameraFrameLine";
-import { CameraFrameLineSegments } from "./CameraFrameLineSegments";
 
 export class PerspectiveCameraFrame extends CameraFrameBase {
-    private readonly _horizontalFrameSamples: number;
-    private readonly _verticalFrameSamples: number;
-
-    constructor(
-        originalSize: number,
+    protected _makePositions(
+        size: number,
         transform: Transform,
-        scale: number,
-        color: string) {
-        super(originalSize);
-
-        this._horizontalFrameSamples = 8;
-        this._verticalFrameSamples = 6;
-
-        const origin = transform.unprojectBasic([0, 0], 0, true);
-        const frame = this._createFrame(transform, scale, origin, color);
-        const diagonals = this._createDiagonals(transform, scale, origin, color);
-
-        this._updateMatrixWorld(frame);
-        this._updateMatrixWorld(diagonals);
-
-        this.add(frame, diagonals);
+        origin: number[]): number[] {
+        const samples = 8;
+        const positions: number[] = [];
+        positions.push(...this._makeDiags(size, transform, origin));
+        positions.push(...this._makeFrame(size, samples, transform, origin));
+        return positions;
     }
 
-    private _calculateRelativeDiagonals(
+    private _makeDiags(
+        size: number,
         transform: Transform,
         origin: number[])
-        : number[][] {
-        const depth = this._originalSize;
-        const [topLeft, topRight, bottomRight, bottomLeft] =
-            this._makeRelative(
-                [
-                    transform.unprojectBasic([0, 0], depth, true),
-                    transform.unprojectBasic([1, 0], depth, true),
-                    transform.unprojectBasic([1, 1], depth, true),
-                    transform.unprojectBasic([0, 1], depth, true),
-                ],
-                origin);
+        : number[] {
+
+        const depth = size;
+        const [originX, originY, originZ] = origin;
 
         const cameraCenter = [0, 0, 0];
-        const vertices: number[][] = [
-            cameraCenter, topLeft,
-            cameraCenter, topRight,
-            cameraCenter, bottomRight,
-            cameraCenter, bottomLeft,
-        ];
-
-        return vertices;
+        const positions: number[] = [];
+        for (const vertex2d of [[0, 0], [1, 0], [1, 1], [0, 1]]) {
+            const corner = transform.unprojectBasic(vertex2d, depth, true);
+            corner[0] -= originX;
+            corner[1] -= originY;
+            corner[2] -= originZ;
+            positions.push(
+                ...cameraCenter,
+                ...corner);
+        }
+        return positions;
     }
 
-    private _calculateRelativeFrame(
+    private _makeFrame(
+        size: number,
+        samples: number,
         transform: Transform,
         origin: number[])
-        : number[][] {
+        : number[] {
+
         const vertices2d: number[][] = [];
-        const vertical = this._verticalFrameSamples;
-        const horizontal = this._horizontalFrameSamples;
-        const cameraSize = this._originalSize;
+        vertices2d.push(...this._subsample([0, 1], [0, 0], samples));
+        vertices2d.push(...this._subsample([0, 0], [1, 0], samples));
+        vertices2d.push(...this._subsample([1, 0], [1, 1], samples));
 
-        vertices2d.push(...this._subsample([0, 1], [0, 0], vertical));
-        vertices2d.push(...this._subsample([0, 0], [1, 0], horizontal));
-        vertices2d.push(...this._subsample([1, 0], [1, 1], vertical));
-
-        const vertices3d = vertices2d
-            .map(
-                (basic: number[]): number[] => {
-                    return transform.unprojectBasic(basic, cameraSize, true);
-                });
-
-        return this._makeRelative(vertices3d, origin);
-    }
-
-    private _createDiagonals(
-        transform: Transform,
-        scale: number,
-        origin: number[],
-        color: string)
-        : CameraFrameLineSegments {
-        const positions = this._calculateRelativeDiagonals(transform, origin);
-        const geometry = this._createBufferGeometry(positions);
-        const material = new LineBasicMaterial({
-            vertexColors: true,
-            fog: false,
-        });
-        const diagonals = new CameraFrameLineSegments(
-            geometry,
-            material,
-            origin,
-            positions);
-        this._updatePositionAttribute(diagonals, scale);
-        this._updateColorAttribute(diagonals, color);
-        return diagonals;
-    }
-
-    private _createFrame(
-        transform: Transform,
-        scale: number,
-        origin: number[],
-        color: string)
-        : CameraFrameLine {
-        const positions = this._calculateRelativeFrame(transform, origin);
-        return this._createCameraFrame(origin, positions, scale, color);
+        const depth = size;
+        const [originX, originY, originZ] = origin;
+        const positions: number[] = [];
+        for (const vertex2d of vertices2d) {
+            const position =
+                transform.unprojectBasic(
+                    vertex2d, depth, true);
+            position[0] -= originX;
+            position[1] -= originY;
+            position[2] -= originZ;
+            positions.push(...position);
+        }
+        return positions;
     }
 
     private _interpolate(a: number, b: number, alpha: number): number {
@@ -122,16 +77,16 @@ export class PerspectiveCameraFrame extends CameraFrameBase {
         }
 
         const samples: number[][] = [];
-
-        for (let i: number = 0; i <= subsamples + 1; i++) {
+        samples.push(p1);
+        for (let i = 0; i <= subsamples + 1; i++) {
             const p: number[] = [];
-
-            for (let j: number = 0; j < 3; j++) {
+            for (let j = 0; j < 3; j++) {
                 p.push(this._interpolate(p1[j], p2[j], i / (subsamples + 1)));
             }
-
+            samples.push(p);
             samples.push(p);
         }
+        samples.push(p1);
 
         return samples;
     }

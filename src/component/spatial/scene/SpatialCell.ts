@@ -1,8 +1,10 @@
 import {
+    BufferGeometry,
+    LineBasicMaterial,
     Object3D,
     Scene,
 } from "three";
-import { CameraFrameBase } from "./CameraFrameBase";
+import { CameraFrameBase, CameraFrameParameters } from "./CameraFrameBase";
 import { PositionLine } from "./PositionLine";
 import { SpatialIntersection } from "./SpatialIntersection";
 import { Image } from "../../../graph/Image";
@@ -56,6 +58,8 @@ export class SpatialCell {
         }
     };
 
+    private _frameMaterial: LineBasicMaterial;
+
     constructor(
         public readonly id: string,
         private _scene: Scene,
@@ -72,6 +76,11 @@ export class SpatialCell {
         this._sequences = new Map();
         this._props = {};
         this.clusterVisibles = {};
+
+        this._frameMaterial = new LineBasicMaterial({
+            fog: false,
+            vertexColors: true,
+        });
 
         this._scene.add(
             this.cameras,
@@ -181,20 +190,26 @@ export class SpatialCell {
 
     public visualize(props: ImageVisualizationProps): void {
         const id = props.id;
-        const scale = props.scale;
-        const maxSize = props.maxSize;
-        const color = props.color;
         const visible = props.visible;
         const transform = props.transform;
+        const cameraParameters: CameraFrameParameters = {
+            color: props.color,
+            geometry: new BufferGeometry(),
+            material: this._frameMaterial,
+            scale: props.scale,
+            size: props.maxSize,
+            transform,
+        };
         const camera = isSpherical(transform.cameraType) ?
-            new SphericalCameraFrame(maxSize, transform, scale, color) :
-            new PerspectiveCameraFrame(maxSize, transform, scale, color);
+            new SphericalCameraFrame(cameraParameters) :
+            new PerspectiveCameraFrame(cameraParameters);
+
         const interactiveLayer = this._intersection.interactiveLayer;
         this._setCameraVisibility(camera, visible, interactiveLayer);
         this.cameras.add(camera);
         this._cameraFrames[id] = camera;
         const intersection = this._intersection;
-        for (const child of camera.children) { intersection.add(child, id); }
+        intersection.add(camera, id);
 
         const ids = this._props[id].ids;
         this.clusterVisibles[ids.clusterId] ||= visible;
@@ -216,9 +231,7 @@ export class SpatialCell {
         const cameras = this.cameras;
         for (const camera of cameras.children.slice()) {
             (<CameraFrameBase>camera).dispose();
-            for (const child of camera.children) {
-                intersection.remove(child);
-            }
+            intersection.remove(camera);
             cameras.remove(camera);
         }
         this._scene.remove(this.cameras);
@@ -240,13 +253,9 @@ export class SpatialCell {
 
         camera.visible = visible;
         if (visible) {
-            for (const child of camera.children) {
-                child.layers.enable(layer);
-            }
+            camera.layers.enable(layer);
         } else {
-            for (const child of camera.children) {
-                child.layers.disable(layer);
-            }
+            camera.layers.disable(layer);
         }
     }
 };
