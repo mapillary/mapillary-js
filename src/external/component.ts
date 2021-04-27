@@ -92,9 +92,9 @@ export { SliderComponent } from "../component/slider/SliderComponent";
 
 // Spatial
 export { CameraVisualizationMode }
-    from "../component/spatial/CameraVisualizationMode";
+    from "../component/spatial/enums/CameraVisualizationMode";
 export { OriginalPositionMode }
-    from "../component/spatial/OriginalPositionMode";
+    from "../component/spatial/enums/OriginalPositionMode";
 export { SpatialComponent }
     from "../component/spatial/SpatialComponent";
 export { SpatialConfiguration }
