@@ -36,6 +36,7 @@ import { ViewerImageEvent } from "./events/ViewerImageEvent";
 import { ViewerNavigationEdgeEvent } from "./events/ViewerNavigationEdgeEvent";
 import { ViewerStateEvent } from "./events/ViewerStateEvent";
 import { ViewerBearingEvent } from "./events/ViewerBearingEvent";
+import { State } from "../state/State";
 
 type UnprojectionParams = [
     [
@@ -45,6 +46,7 @@ type UnprojectionParams = [
     RenderCamera,
     LngLatAlt,
     Transform,
+    State,
 ]
 
 export class Observer {
@@ -294,9 +296,10 @@ export class Observer {
                 withLatestFrom(
                     this._container.renderService.renderCamera$,
                     this._navigator.stateService.reference$,
-                    this._navigator.stateService.currentTransform$),
+                    this._navigator.stateService.currentTransform$,
+                    this._navigator.stateService.state$),
                 map(
-                    ([[type, event], render, reference, transform]
+                    ([[type, event], render, reference, transform, state]
                         : UnprojectionParams)
                         : ViewerMouseEvent => {
                         const unprojection: Unprojection =
@@ -307,8 +310,11 @@ export class Observer {
                                 reference,
                                 transform);
 
+                        const basicPoint = state === State.Traversing ?
+                            unprojection.basicPoint : null;
+
                         return {
-                            basicPoint: unprojection.basicPoint,
+                            basicPoint,
                             lngLat: unprojection.lngLat,
                             originalEvent: event,
                             pixelPoint: unprojection.pixelPoint,
