@@ -79,6 +79,7 @@ export class SpatialScene {
         this._imageCellMap = new Map();
 
         this._scene = !!scene ? scene : new Scene();
+        this._scene.autoUpdate = false;
         this._intersection = new SpatialIntersection();
         this._assets = new SpatialAssets();
 

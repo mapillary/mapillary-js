@@ -1,131 +1,101 @@
 import { Transform } from "../../../geo/Transform";
 import { CameraFrameBase } from "./CameraFrameBase";
-import { CameraFrameLine } from "./CameraFrameLine";
 
 export class SphericalCameraFrame extends CameraFrameBase {
-    private readonly _latVertices: number;
-    private readonly _lngVertices: number;
-
-    constructor(
-        originalSize: number,
+    protected _makePositions(
+        size: number,
         transform: Transform,
-        scale: number,
-        color: string) {
-        super(originalSize);
+        origin: number[]): number[] {
 
-        this._latVertices = 10;
-        this._lngVertices = 6;
-
-        const latV = this._latVertices;
-        const lngV = this._lngVertices;
-        const origin = transform.unprojectBasic([0, 0], 0, true);
-        const axis =
-            this._createAxis(transform, scale, origin, color);
-        const lat =
-            this._createLat(0.5, latV, transform, scale, origin, color);
-        const lng1 =
-            this._createLng(0, lngV, transform, scale, origin, color);
-        const lng2 =
-            this._createLng(0.25, lngV, transform, scale, origin, color);
-        const lng3 =
-            this._createLng(0.5, lngV, transform, scale, origin, color);
-        const lng4 =
-            this._createLng(0.75, lngV, transform, scale, origin, color);
-
-        this._updateMatrixWorld(axis);
-        this._updateMatrixWorld(lat);
-        this._updateMatrixWorld(lng1);
-        this._updateMatrixWorld(lng2);
-        this._updateMatrixWorld(lng3);
-        this._updateMatrixWorld(lng4);
-
-        this.add(axis, lat, lng1, lng2, lng3, lng4);
+        const vs = 10;
+        const positions: number[] = [];
+        positions.push(...this._makeAxis(size, transform, origin));
+        positions.push(...this._makeLat(0.5, vs, size, transform, origin));
+        for (const lat of [0, 0.25, 0.5, 0.75]) {
+            positions
+                .push(...this._makeLng(lat, vs, size, transform, origin));
+        }
+        return positions;
     }
 
-    private _calculateRelativeAxis(
+    private _makeAxis(
+        size: number,
         transform: Transform,
         origin: number[])
-        : number[][] {
-        const depth = this._originalSize;
-        const north: number[] = transform.unprojectBasic([0.5, 0], depth * 1.1);
-        const south: number[] = transform.unprojectBasic([0.5, 1], depth * 0.8);
-
-        return this._makeRelative([north, south], origin);
+        : number[] {
+        const south = transform.unprojectBasic([0.5, 1], 0.8 * size);
+        const north = transform.unprojectBasic([0.5, 0], 1.2 * size);
+        return [
+            south[0] - origin[0],
+            south[1] - origin[1],
+            south[2] - origin[2],
+            north[0] - origin[0],
+            north[1] - origin[1],
+            north[2] - origin[2],
+        ];
     }
 
-    private _calculateRelativeLatitude(
+    private _makeLat(
         basicY: number,
         numVertices: number,
+        size: number,
         transform: Transform,
         origin: number[])
-        : number[][] {
+        : number[] {
 
-        const depth = 0.8 * this._originalSize;
-        const positions: number[][] = [];
+        const dist = 0.8 * size;
+        const [originX, originY, originZ] = origin;
+        const positions: number[] = [];
+        const first = transform.unprojectBasic([0, basicY], dist);
+        first[0] -= originX;
+        first[1] -= originY;
+        first[2] -= originZ;
+        positions.push(...first);
 
-        for (let i: number = 0; i <= numVertices; i++) {
-            const position: number[] =
+        for (let i = 1; i <= numVertices; i++) {
+            const position =
                 transform.unprojectBasic(
-                    [i / numVertices, basicY], depth);
-            positions.push(position);
+                    [i / numVertices, basicY], dist);
+            position[0] -= originX;
+            position[1] -= originY;
+            position[2] -= originZ;
+            positions.push(
+                ...position,
+                ...position);
         }
-
-        return this._makeRelative(positions, origin);
+        positions.push(...first);
+        return positions;
     }
 
-    private _calculateRelativeLng(
+    private _makeLng(
         basicX: number,
         numVertices: number,
+        size: number,
         transform: Transform,
         origin: number[])
-        : number[][] {
-        const scaledDepth = 0.8 * this._originalSize;
-        const positions: number[][] = [];
+        : number[] {
 
-        for (let i: number = 0; i <= numVertices; i++) {
-            const position: number[] =
+        const dist = 0.8 * size;
+        const [originX, originY, originZ] = origin;
+        const positions: number[] = [];
+        const first = transform.unprojectBasic([basicX, 0], dist);
+        first[0] -= originX;
+        first[1] -= originY;
+        first[2] -= originZ;
+        positions.push(...first);
+
+        for (let i = 0; i <= numVertices; i++) {
+            const position =
                 transform.unprojectBasic(
-                    [basicX, i / numVertices], scaledDepth);
-
-            positions.push(position);
+                    [basicX, i / numVertices], dist);
+            position[0] -= originX;
+            position[1] -= originY;
+            position[2] -= originZ;
+            positions.push(
+                ...position,
+                ...position);
         }
-
-        return this._makeRelative(positions, origin);
-    }
-
-    private _createAxis(
-        transform: Transform,
-        scale: number,
-        origin: number[],
-        color: string)
-        : CameraFrameLine {
-        const positions = this._calculateRelativeAxis(transform, origin);
-        return this._createCameraFrame(origin, positions, scale, color);
-    }
-
-    private _createLat(
-        basicY: number,
-        numVertices: number,
-        transform: Transform,
-        scale: number,
-        origin: number[],
-        color: string)
-        : CameraFrameLine {
-        const positions = this._calculateRelativeLatitude(
-            basicY, numVertices, transform, origin);
-        return this._createCameraFrame(origin, positions, scale, color);
-    }
-
-    private _createLng(
-        basicX: number,
-        numVertices: number,
-        transform: Transform,
-        scale: number,
-        origin: number[],
-        color: string)
-        : CameraFrameLine {
-        const positions = this._calculateRelativeLng(
-            basicX, numVertices, transform, origin);
-        return this._createCameraFrame(origin, positions, scale, color);
+        positions.push(...first);
+        return positions;
     }
 }
