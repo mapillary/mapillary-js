@@ -45,8 +45,8 @@ import { PlayService } from "../../viewer/PlayService";
 import { Component } from "../Component";
 import { SpatialConfiguration }
     from "../interfaces/SpatialConfiguration";
-import { CameraVisualizationMode } from "./CameraVisualizationMode";
-import { OriginalPositionMode } from "./OriginalPositionMode";
+import { CameraVisualizationMode } from "./enums/CameraVisualizationMode";
+import { OriginalPositionMode } from "./enums/OriginalPositionMode";
 import { isModeVisible, SpatialScene } from "./SpatialScene";
 import { SpatialCache } from "./SpatialCache";
 import { CameraType } from "../../geo/interfaces/CameraType";

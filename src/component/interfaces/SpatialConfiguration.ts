@@ -1,6 +1,6 @@
 import { ComponentConfiguration } from "./ComponentConfiguration";
-import { CameraVisualizationMode } from "../spatial/CameraVisualizationMode";
-import { OriginalPositionMode } from "../spatial/OriginalPositionMode";
+import { CameraVisualizationMode } from "../spatial/enums/CameraVisualizationMode";
+import { OriginalPositionMode } from "../spatial/enums/OriginalPositionMode";
 
 /**
  * Interface for configuration of spatial component.
