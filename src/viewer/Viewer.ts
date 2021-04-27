@@ -31,7 +31,7 @@ import { CustomRenderer } from "./CustomRenderer";
 import { IViewer } from "./interfaces/IViewer";
 import { ViewerBearingEvent } from "./events/ViewerBearingEvent";
 import { ViewerEventType } from "./events/ViewerEventType";
-import { ViewerLoadingEvent } from "./events/ViewerLoadingEvent";
+import { ViewerDataLoadingEvent } from "./events/ViewerDataLoadingEvent";
 import { ViewerMouseEvent } from "./events/ViewerMouseEvent";
 import { ViewerNavigableEvent } from "./events/ViewerNavigableEvent";
 import { ViewerNavigationEdgeEvent }
@@ -45,6 +45,7 @@ import { CameraControls } from "./enums/CameraControls";
 import { State } from "../state/State";
 import { ICustomCameraControls } from "./interfaces/ICustomCameraControls";
 import { CustomCameraControls } from "./CustomCameraControls";
+import { ViewerLoadEvent } from "./events/ViewerLoadEvent";
 
 /**
  * @class Viewer
@@ -319,8 +320,8 @@ export class Viewer extends EventEmitter implements IViewer {
         event: ViewerBearingEvent)
         : void;
     public fire(
-        type: ViewerLoadingEvent["type"],
-        event: ViewerLoadingEvent)
+        type: ViewerDataLoadingEvent["type"],
+        event: ViewerDataLoadingEvent)
         : void;
     public fire(
         type: ViewerNavigableEvent["type"],
@@ -709,8 +710,8 @@ export class Viewer extends EventEmitter implements IViewer {
         handler: (event: ViewerBearingEvent) => void)
         : void;
     public off(
-        type: ViewerLoadingEvent["type"],
-        handler: (event: ViewerLoadingEvent) => void)
+        type: ViewerDataLoadingEvent["type"],
+        handler: (event: ViewerDataLoadingEvent) => void)
         : void;
     public off(
         type: ViewerNavigableEvent["type"],
@@ -796,6 +797,24 @@ export class Viewer extends EventEmitter implements IViewer {
         handler: (event: ViewerMouseEvent) => void)
         : void;
     /**
+     * Fired when the viewer is loading data.
+     *
+     * @event loading
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new mapillary.Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("dataloading", function() {
+     *   console.log("A loading event has occurred.");
+     * });
+     * ```
+     */
+    public on(
+        type: "dataloading",
+        handler: (event: ViewerDataLoadingEvent) => void)
+        : void;
+    /**
      * Fired when a pointing device (usually a mouse) is clicked twice at
      * the same point in the viewer.
      *
@@ -833,22 +852,27 @@ export class Viewer extends EventEmitter implements IViewer {
         handler: (event: ViewerStateEvent) => void)
         : void;
     /**
-     * Fired when the viewer is loading data.
+     * Fired immediately after all necessary resources
+     * have been downloaded and the first visually complete
+     * rendering of the viewer has occurred.
      *
-     * @event loading
+     * This event is only fired for viewer configurations where
+     * the WebGL context is created, i.e. not when using the
+     * fallback functionality only.
+     *
+     * @event load
+     * @example
      * @example
      * ```js
-     * // Initialize the viewer
-     * var viewer = new mapillary.Viewer({ // viewer options });
      * // Set an event listener
-     * viewer.on("loading", function() {
-     *   console.log("A loading event has occurred.");
+     * viewer.on('load', function(e) {
+     *   console.log('A load event has occured');
      * });
      * ```
      */
     public on(
-        type: "loading",
-        handler: (event: ViewerLoadingEvent) => void)
+        type: "load",
+        handler: (event: ViewerLoadEvent) => void)
         : void;
     /**
      * Fired when a pointing device (usually a mouse) is pressed
