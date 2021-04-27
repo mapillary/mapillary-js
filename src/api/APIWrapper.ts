@@ -31,7 +31,7 @@ export class APIWrapper {
         return this._wrap$(this._data.getImages(imageIds));
     }
 
-    public getImageTiles(
+    public getImageTiles$(
         tiles: ImageTilesRequestContract)
         : Observable<ImageTilesContract> {
         return this._wrap$(this._data.getImageTiles(tiles));
