@@ -57,6 +57,7 @@
                 imageId: 'zarcRdNFZwg3FkXNcsFeGw',
                 renderMode: RenderMode.Letterbox,
             });
+            viewer.on('load', event => console.log(event.type));
 
             addButtons(viewer);
         })();

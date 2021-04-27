@@ -31,12 +31,13 @@ import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { ViewerEventType } from "./events/ViewerEventType";
 import { IViewer } from "./interfaces/IViewer";
 import { ViewerNavigableEvent } from "./events/ViewerNavigableEvent";
-import { ViewerLoadingEvent } from "./events/ViewerLoadingEvent";
+import { ViewerDataLoadingEvent } from "./events/ViewerDataLoadingEvent";
 import { ViewerImageEvent } from "./events/ViewerImageEvent";
 import { ViewerNavigationEdgeEvent } from "./events/ViewerNavigationEdgeEvent";
 import { ViewerStateEvent } from "./events/ViewerStateEvent";
 import { ViewerBearingEvent } from "./events/ViewerBearingEvent";
 import { State } from "../state/State";
+import { ViewerLoadEvent } from "./events/ViewerLoadEvent";
 
 type UnprojectionParams = [
     [
@@ -79,7 +80,7 @@ export class Observer {
 
         const subs = this._subscriptions;
 
-        // navigable and loading should always emit,
+        // load, navigable, dataloading should always emit,
         // also when cover is activated.
         subs.push(this._navigable$
             .subscribe(
@@ -96,9 +97,21 @@ export class Observer {
         subs.push(this._navigator.loadingService.loading$
             .subscribe(
                 (loading: boolean): void => {
-                    const type: ViewerEventType = "loading";
-                    const event: ViewerLoadingEvent = {
+                    const type: ViewerEventType = "dataloading";
+                    const event: ViewerDataLoadingEvent = {
                         loading,
+                        target: this._viewer,
+                        type,
+                    }
+                    this._viewer.fire(type, event);
+                }));
+
+        subs.push(this._container.glRenderer.opaqueRender$
+            .pipe(first())
+            .subscribe(
+                (): void => {
+                    const type: ViewerEventType = "load";
+                    const event: ViewerLoadEvent = {
                         target: this._viewer,
                         type,
                     }

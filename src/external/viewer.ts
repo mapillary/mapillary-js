@@ -30,7 +30,8 @@
  * Basic image coordinates
  *
  * Basic image coordinates represents points in the original image adjusted for
- * orientation. They range from 0 to 1 on both axes. The origin is in the top left
+ * orientation. They range from 0 to 1 on both axes. The origin
+ * is in the top left
  * corner of the image and the axes are directed
  * according to the following for all image types.
  *
@@ -71,7 +72,8 @@ export { ViewerBearingEvent } from "../viewer/events/ViewerBearingEvent";
 export { ViewerEvent } from "../viewer/events/ViewerEvent";
 export { ViewerEventType } from "../viewer/events/ViewerEventType";
 export { ViewerImageEvent } from "../viewer/events/ViewerImageEvent";
-export { ViewerLoadingEvent } from "../viewer/events/ViewerLoadingEvent";
+export { ViewerDataLoadingEvent }
+    from "../viewer/events/ViewerDataLoadingEvent";
 export { ViewerMouseEvent } from "../viewer/events/ViewerMouseEvent";
 export { ViewerNavigableEvent } from "../viewer/events/ViewerNavigableEvent";
 export { ViewerNavigationEdgeEvent }
@@ -88,7 +90,8 @@ export { ViewerOptions } from "../viewer/options/ViewerOptions";
 export { Image } from "../graph/Image";
 export { NavigationDirection } from "../graph/edge/NavigationDirection";
 export { NavigationEdge } from "../graph/edge/interfaces/NavigationEdge";
-export { NavigationEdgeData } from "../graph/edge/interfaces/NavigationEdgeData";
+export { NavigationEdgeData }
+    from "../graph/edge/interfaces/NavigationEdgeData";
 export { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
 export {
     CombiningFilterExpression,

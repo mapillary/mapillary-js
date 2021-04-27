@@ -5,7 +5,7 @@ import { NavigatorMockCreator } from "../helper/NavigatorMockCreator";
 import { EventEmitter } from "../../src/util/EventEmitter";
 import { Observer } from "../../src/viewer/Observer";
 import { Viewer } from "../../src/viewer/Viewer";
-import { ViewerLoadingEvent } from "../../src/viewer/events/ViewerLoadingEvent";
+import { ViewerDataLoadingEvent } from "../../src/viewer/events/ViewerDataLoadingEvent";
 
 describe("Observer.ctor", () => {
     it("should be defined", () => {
@@ -21,7 +21,7 @@ describe("Observer.ctor", () => {
     });
 });
 
-describe("Observer.loading", () => {
+describe("Observer.dataloading", () => {
     it("should emit loading when not started", (done: Function) => {
         const viewer = <Viewer>new EventEmitter();
         const navigatorMock = new NavigatorMockCreator().create();
@@ -34,8 +34,8 @@ describe("Observer.loading", () => {
         expect(observer).toBeDefined();
 
         viewer.on(
-            "loading",
-            (event: ViewerLoadingEvent) => {
+            "dataloading",
+            (event: ViewerDataLoadingEvent) => {
                 expect(event.loading).toBe(true);
                 done();
             });
@@ -54,8 +54,8 @@ describe("Observer.loading", () => {
                 new ContainerMockCreator().create());
 
         viewer.on(
-            "loading",
-            (event: ViewerLoadingEvent) => {
+            "dataloading",
+            (event: ViewerDataLoadingEvent) => {
                 expect(event.loading).toBe(true);
                 done();
             });
@@ -76,8 +76,8 @@ describe("Observer.loading", () => {
                 new ContainerMockCreator().create());
 
         viewer.on(
-            "loading",
-            (event: ViewerLoadingEvent) => {
+            "dataloading",
+            (event: ViewerDataLoadingEvent) => {
                 expect(event.loading).toBe(true);
                 done();
             });
