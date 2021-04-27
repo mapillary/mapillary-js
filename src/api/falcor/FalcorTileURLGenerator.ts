@@ -94,7 +94,7 @@ export class FalcorTileURLGenerator {
             { max: maxLevel, z: request.z });
 
         const coordsStr = `${pixels.x},${pixels.y},${pixels.w},${pixels.h}`;
-        const sizeStr = `${TILE_SIZE},${TILE_SIZE}`;
+        const sizeStr = `!${TILE_SIZE},${TILE_SIZE}`;
         return this._urls
             .imageTile(
                 request.imageId,

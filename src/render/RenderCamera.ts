@@ -133,6 +133,10 @@ export class RenderCamera {
         return this._zoom;
     }
 
+    public get size(): ViewportSize {
+        return this._size;
+    }
+
     public getTilt(): number {
         return 90 - this._spatial.radToDeg(this._rotation.theta);
     }
