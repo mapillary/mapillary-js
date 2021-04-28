@@ -16,11 +16,14 @@ export class SpatialIntersection {
     private readonly _lineThreshold: number;
     private readonly _largeLineThreshold: number;
 
-    constructor(raycaster?: Raycaster) {
+    constructor(
+        octree?: SpatialOctree,
+        raycaster?: Raycaster) {
+
         this._objects = [];
         this._objectImageMap = new Map();
-        this._octree = new SpatialOctree();
-        this._raycaster = !!raycaster ? raycaster : new Raycaster();
+        this._octree = octree ?? new SpatialOctree();
+        this._raycaster = raycaster ?? new Raycaster();
 
         this._interactiveLayer = 1;
         this._raycaster = !!raycaster ?
@@ -39,6 +42,7 @@ export class SpatialIntersection {
     }
 
     get interactiveLayer(): number { return this._interactiveLayer; }
+    get octree(): SpatialOctree { return this._octree; }
     get raycaster(): Raycaster { return this._raycaster; }
 
     public add(
