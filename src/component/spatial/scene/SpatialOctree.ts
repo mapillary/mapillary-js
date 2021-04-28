@@ -1,23 +1,30 @@
 import { Box3, Object3D, Ray, Vector3 } from "three";
+import { levelToRootBoundingBox } from "./SpatialOctreeMath";
 import { SpatialOctreeNode } from "./SpatialOctreeNode";
-
-const ROOT_SIZE = 2 ** 14; // 16384 meters
-const LEAF_LEVEL = 8; // 64 meters
-
-export function isLeaf(node: SpatialOctreeNode): boolean {
-    return node.level === LEAF_LEVEL;
-}
 
 export class SpatialOctree {
     private _index: Map<string, SpatialOctreeNode>;
     private _root: SpatialOctreeNode;
 
-    constructor() {
+    constructor(
+        public readonly levels: number,
+        public readonly leafLevel: number) {
+        if (leafLevel >= levels) {
+            throw new Error()
+        }
         this._index = new Map();
-        this._root = this._makeRoot(ROOT_SIZE);
+        this._root = this._makeRoot();
+    }
+
+    public get root(): SpatialOctreeNode {
+        return this._root;
     }
 
     public add(object: Object3D): void {
+        if (!this.root.boundingBox.containsPoint(object.position)) {
+            console.warn(`Object outside bounding box ${object.uuid}`);
+            return;
+        }
         const leaf = this._root.add(object);
         this._index.set(object.uuid, leaf);
     }
@@ -42,7 +49,8 @@ export class SpatialOctree {
     }
 
     public reset(): void {
-        this._root = this._makeRoot(ROOT_SIZE);
+        this._root = this._makeRoot();
+        this._index.clear();
     }
 
     public remove(object: Object3D): void {
@@ -55,11 +63,12 @@ export class SpatialOctree {
         this._index.delete(object.uuid);
     }
 
-    private _makeRoot(size: number): SpatialOctreeNode {
-        const half = size / 2;
-        const min = new Vector3(-half, -half, -half);
-        const max = new Vector3(half, half, half);
-        const bbox = new Box3(min, max);
-        return new SpatialOctreeNode(0, bbox);
+    private _makeRoot(): SpatialOctreeNode {
+        const level = this.levels - 1;
+        const bbox = levelToRootBoundingBox(level);
+        const box = new Box3(
+            new Vector3().fromArray(bbox.min),
+            new Vector3().fromArray(bbox.max));
+        return new SpatialOctreeNode(level, this.leafLevel, box);
     }
 }
