@@ -5,6 +5,7 @@ import {
     Vector2,
 } from "three";
 import { SpatialOctree } from "./SpatialOctree";
+import { OCTREE_LEAF_LEVEL, OCTREE_LEVELS } from "./SpatialOctreeMath";
 
 export class SpatialIntersection {
     private readonly _interactiveLayer: number;
@@ -22,7 +23,9 @@ export class SpatialIntersection {
 
         this._objects = [];
         this._objectImageMap = new Map();
-        this._octree = octree ?? new SpatialOctree();
+        this._octree = octree ?? new SpatialOctree(
+            OCTREE_LEVELS,
+            OCTREE_LEAF_LEVEL);
         this._raycaster = raycaster ?? new Raycaster();
 
         this._interactiveLayer = 1;

@@ -1,5 +1,5 @@
 import { Box3, Object3D, Ray, Vector3 } from "three";
-import { isLeaf } from "./SpatialOctree";
+import { isLeafLevel } from "./SpatialOctreeMath";
 
 export class SpatialOctreeNode {
     public readonly children: SpatialOctreeNode[];
@@ -7,10 +7,14 @@ export class SpatialOctreeNode {
 
     constructor(
         public readonly level: number,
+        public readonly leafLevel: number,
         public readonly boundingBox: Box3,
         public parent?: SpatialOctreeNode) {
         this.children = [];
         this.items = [];
+        if (parent) {
+            parent.children.push(this);
+        }
     }
 
     public get isEmpty(): boolean {
@@ -22,7 +26,7 @@ export class SpatialOctreeNode {
         if (!self.boundingBox.containsPoint(object.position)) {
             throw new Error(`Item not contained in node`);
         }
-        if (isLeaf(self)) {
+        if (isLeafLevel(self.level, self.leafLevel)) {
             self.items.push(object);
             return this;
         }
@@ -34,10 +38,10 @@ export class SpatialOctreeNode {
         for (const boundingBox of self._generateBoundingBoxes()) {
             if (boundingBox.containsPoint(object.position)) {
                 const child = new SpatialOctreeNode(
-                    self.level + 1,
+                    self.level - 1,
+                    self.leafLevel,
                     boundingBox,
                     self);
-                this.children.push(child);
                 return child.add(object);
             }
         }
@@ -53,7 +57,7 @@ export class SpatialOctreeNode {
         if (!ray.intersectBox(this.boundingBox, target)) {
             return;
         }
-        if (isLeaf(this)) {
+        if (isLeafLevel(this.level, this.leafLevel)) {
             nodes.push(this);
             return;
         }
@@ -65,7 +69,7 @@ export class SpatialOctreeNode {
     public remove(object: Object3D): void {
         const index = this.items.indexOf(object);
         if (index < 0) {
-            console.warn(`Item does not exist ${object.uuid}`);
+            throw new Error(`Item does not exist ${object.uuid}`);
         }
         this.items.splice(index, 1);
     }
