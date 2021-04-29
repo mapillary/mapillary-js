@@ -89,6 +89,57 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
         this._spatial = new Spatial();
     }
 
+    /**
+     * Returns the image id of the camera frame closest to the current
+     * render camera position at the specified point.
+     *
+     * @description Notice that the pixelPoint argument requires x, y
+     * coordinates from pixel space.
+     *
+     * With this function, you can use the coordinates provided by mouse
+     * events to get information out of the spatial component.
+     *
+     * If no camera frame exist at the pixel
+     * point, `null` will be returned.
+     *
+     * @param {Array<number>} pixelPoint - Pixel coordinates on
+     * the viewer element.
+     * @returns {string} Image id of the camera frame closest to
+     * the camera. If no camera frame is intersected at the
+     * pixel point, `null` will be returned.
+     *
+     * @example
+     * ```js
+     * spatialComponent.getFrameIdAt([100, 125])
+     *     .then((markerId) => { console.log(markerId); });
+     * ```
+     */
+    public getFrameIdAt(pixelPoint: number[]): Promise<string> {
+        return new Promise<string>((resolve: (value: string) => void, reject: (reason: Error) => void): void => {
+            this._container.renderService.renderCamera$.pipe(
+                first(),
+                map(
+                    (render: RenderCamera): string => {
+                        const viewport = this._viewportCoords
+                            .canvasToViewport(
+                                pixelPoint[0],
+                                pixelPoint[1],
+                                this._container.container);
+
+                        const id = this._scene.intersection
+                            .intersectObjects(viewport, render.perspective);
+                        return id;
+                    }))
+                .subscribe(
+                    (id: string): void => {
+                        resolve(id);
+                    },
+                    (error: Error): void => {
+                        reject(error);
+                    });
+        });
+    }
+
     protected _activate(): void {
         const subs = this._subscriptions;
 
