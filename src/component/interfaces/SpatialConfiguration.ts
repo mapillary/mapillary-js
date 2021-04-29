@@ -18,7 +18,7 @@ import { OriginalPositionMode } from "../spatial/enums/OriginalPositionMode";
  *             pointSize: 0.5,
  *             pointsVisible: false,
  *             positionsVisible: true,
- *             tilesVisible: true,
+ *             cellsVisible: true,
  *         },
  *     },
  *     ...
@@ -39,6 +39,16 @@ export interface SpatialConfiguration extends ComponentConfiguration {
      * @default CameraVisualizationMode.Homogeneous
      */
     cameraVisualizationMode?: CameraVisualizationMode;
+
+    /**
+     * Cell grid depth from the cell of the currently
+     * selected camera.
+     *
+     * @description Max value is 3. Value will be clamped
+     * to the interval [1, 3].
+     * @default 1
+     */
+    cellGridDepth?: number;
 
     /**
      * Specify the original position visualization mode.
@@ -65,9 +75,9 @@ export interface SpatialConfiguration extends ComponentConfiguration {
     pointsVisible?: boolean;
 
     /**
-     * Specify if the currently rendered tiles should be indicted on the ground.
+     * Specify if the currently rendered cells should be indicted on the ground.
      *
      * @default false
      */
-    tilesVisible?: boolean;
+    cellsVisible?: boolean;
 }

@@ -15,7 +15,7 @@ import { SpatialConfiguration }
 import { CameraVisualizationMode } from "./enums/CameraVisualizationMode";
 import { OriginalPositionMode } from "./enums/OriginalPositionMode";
 import { ClusterPoints } from "./scene/ClusterPoints";
-import { TileLine } from "./scene/TileLine";
+import { CellLine } from "./scene/CellLine";
 import { SpatialIntersection } from "./scene/SpatialIntersection";
 import { SpatialCell } from "./scene/SpatialCell";
 import { SpatialAssets } from "./scene/SpatialAssets";
@@ -26,7 +26,7 @@ const NO_SEQUENCE_ID = "NO_SEQUENCE_ID";
 
 type Clusters = {
     [id: string]: {
-        tiles: string[];
+        cellIds: string[];
         points: Object3D;
     };
 }
@@ -42,19 +42,19 @@ export class SpatialScene {
 
     private _needsRender: boolean;
 
-    private _tileClusters: {
+    private _cellClusters: {
         [cellId: string]: { keys: string[]; };
     };
     private _clusters: Clusters;
     private _images: { [cellId: string]: SpatialCell };
-    private _tiles: { [cellId: string]: Object3D };
+    private _cells: { [cellId: string]: Object3D };
 
     private _cameraVisualizationMode: CameraVisualizationMode;
     private _cameraSize: number;
     private _pointSize: number;
     private _pointsVisible: boolean;
     private _positionMode: OriginalPositionMode;
-    private _tilesVisible: boolean;
+    private _cellsVisible: boolean;
 
     private readonly _rayNearScale: number;
     private readonly _originalPointSize: number;
@@ -85,8 +85,8 @@ export class SpatialScene {
 
         this._needsRender = false;
         this._images = {};
-        this._tiles = {};
-        this._tileClusters = {};
+        this._cells = {};
+        this._cellClusters = {};
         this._clusters = {};
 
         this._cameraVisualizationMode =
@@ -98,7 +98,7 @@ export class SpatialScene {
         this._pointSize = configuration.pointSize;
         this._pointsVisible = configuration.pointsVisible;
         this._positionMode = configuration.originalPositionMode;
-        this._tilesVisible = configuration.tilesVisible;
+        this._cellsVisible = configuration.cellsVisible;
 
         this._hoveredImage = null;
         this._selectedImage = null;
@@ -126,7 +126,7 @@ export class SpatialScene {
         if (!(clusterId in this._clusters)) {
             this._clusters[clusterId] = {
                 points: new Object3D(),
-                tiles: [],
+                cellIds: [],
             };
 
             const visible = this._getClusterVisible(clusterId);
@@ -143,14 +143,14 @@ export class SpatialScene {
                 this._clusters[clusterId].points);
         }
 
-        if (this._clusters[clusterId].tiles.indexOf(cellId) === -1) {
-            this._clusters[clusterId].tiles.push(cellId);
+        if (this._clusters[clusterId].cellIds.indexOf(cellId) === -1) {
+            this._clusters[clusterId].cellIds.push(cellId);
         }
-        if (!(cellId in this._tileClusters)) {
-            this._tileClusters[cellId] = { keys: [] };
+        if (!(cellId in this._cellClusters)) {
+            this._cellClusters[cellId] = { keys: [] };
         }
-        if (this._tileClusters[cellId].keys.indexOf(clusterId) === -1) {
-            this._tileClusters[cellId].keys.push(clusterId);
+        if (this._cellClusters[cellId].keys.indexOf(clusterId) === -1) {
+            this._cellClusters[cellId].keys.push(clusterId);
         }
 
         this._needsRender = true;
@@ -212,27 +212,27 @@ export class SpatialScene {
         this._needsRender = true;
     }
 
-    public addTile(vertices: number[][], cellId: string): void {
-        if (this.hasTile(cellId)) {
+    public addCell(vertices: number[][], cellId: string): void {
+        if (this.hasCell(cellId)) {
             return;
         }
 
-        const tile = new TileLine(vertices);
-        this._tiles[cellId] = new Object3D();
-        this._tiles[cellId].visible = this._tilesVisible;
-        this._tiles[cellId].add(tile);
-        this._scene.add(this._tiles[cellId]);
+        const cell = new CellLine(vertices);
+        this._cells[cellId] = new Object3D();
+        this._cells[cellId].visible = this._cellsVisible;
+        this._cells[cellId].add(cell);
+        this._scene.add(this._cells[cellId]);
 
         this._needsRender = true;
     }
 
     public hasCluster(clusterId: string, cellId: string): boolean {
         return clusterId in this._clusters &&
-            this._clusters[clusterId].tiles.indexOf(cellId) !== -1;
+            this._clusters[clusterId].cellIds.indexOf(cellId) !== -1;
     }
 
-    public hasTile(cellId: string): boolean {
-        return cellId in this._tiles;
+    public hasCell(cellId: string): boolean {
+        return cellId in this._cells;
     }
 
     public hasImage(key: string, cellId: string): boolean {
@@ -377,20 +377,20 @@ export class SpatialScene {
         this._selectedImage = key;
     }
 
-    public setTileVisibility(visible: boolean): void {
-        if (visible === this._tilesVisible) {
+    public setCellVisibility(visible: boolean): void {
+        if (visible === this._cellsVisible) {
             return;
         }
 
-        for (const cellId in this._tiles) {
-            if (!this._tiles.hasOwnProperty(cellId)) {
+        for (const cellId in this._cells) {
+            if (!this._cells.hasOwnProperty(cellId)) {
                 continue;
             }
 
-            this._tiles[cellId].visible = visible;
+            this._cells[cellId].visible = visible;
         }
 
-        this._tilesVisible = visible;
+        this._cellsVisible = visible;
         this._needsRender = true;
     }
 
@@ -426,7 +426,7 @@ export class SpatialScene {
     }
 
     public uncache(keepCellIds?: string[]): void {
-        for (const cellId of Object.keys(this._tileClusters)) {
+        for (const cellId of Object.keys(this._cellClusters)) {
             if (!!keepCellIds && keepCellIds.indexOf(cellId) !== -1) {
                 continue;
             }
@@ -448,12 +448,12 @@ export class SpatialScene {
             delete this._images[cellId];
         }
 
-        for (const cellId of Object.keys(this._tiles)) {
+        for (const cellId of Object.keys(this._cells)) {
             if (!!keepCellIds && keepCellIds.indexOf(cellId) !== -1) {
                 continue;
             }
 
-            this._disposeTile(cellId);
+            this._disposeCell(cellId);
         }
 
         this._needsRender = true;
@@ -471,19 +471,19 @@ export class SpatialScene {
     }
 
     private _disposePoints(cellId: string): void {
-        for (const clusterId of this._tileClusters[cellId].keys) {
+        for (const clusterId of this._cellClusters[cellId].keys) {
             if (!(clusterId in this._clusters)) {
                 continue;
             }
 
-            const index: number = this._clusters[clusterId].tiles.indexOf(cellId);
+            const index: number = this._clusters[clusterId].cellIds.indexOf(cellId);
             if (index === -1) {
                 continue;
             }
 
-            this._clusters[clusterId].tiles.splice(index, 1);
+            this._clusters[clusterId].cellIds.splice(index, 1);
 
-            if (this._clusters[clusterId].tiles.length > 0) {
+            if (this._clusters[clusterId].cellIds.length > 0) {
                 continue;
             }
 
@@ -500,20 +500,20 @@ export class SpatialScene {
     private _disposeReconstruction(cellId: string): void {
         this._disposePoints(cellId);
 
-        delete this._tileClusters[cellId];
+        delete this._cellClusters[cellId];
     }
 
-    private _disposeTile(cellId: string): void {
-        const tile: Object3D = this._tiles[cellId];
+    private _disposeCell(cellId: string): void {
+        const cell = this._cells[cellId];
 
-        for (const line of tile.children.slice()) {
-            (<TileLine>line).dispose();
-            tile.remove(line);
+        for (const line of cell.children.slice()) {
+            (<CellLine>line).dispose();
+            cell.remove(line);
         }
 
-        this._scene.remove(tile);
+        this._scene.remove(cell);
 
-        delete this._tiles[cellId];
+        delete this._cells[cellId];
     }
 
     private _getNear(cameraSize: number): number {
