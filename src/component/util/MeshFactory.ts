@@ -451,7 +451,9 @@ export class MeshFactory {
     private _getFlatImageSphereGeo(transform: Transform): THREE.BufferGeometry {
         const geometry =
             new THREE.SphereGeometry(this._imageSphereRadius, 20, 40);
-        const t = transform.srtInverse;
+        const t = transform.rt
+            .clone()
+            .invert();
         geometry.applyMatrix4(t);
         return geometry;
     }
