@@ -5,7 +5,7 @@ import {
     Scene,
 } from "three";
 import { CameraFrameBase, CameraFrameParameters } from "./CameraFrameBase";
-import { PositionLine } from "./PositionLine";
+import { PositionLine, PositionLineParameters } from "./PositionLine";
 import { SpatialIntersection } from "./SpatialIntersection";
 import { Image } from "../../../graph/Image";
 import { Transform } from "../../../geo/Transform";
@@ -59,6 +59,7 @@ export class SpatialCell {
     };
 
     private _frameMaterial: LineBasicMaterial;
+    private _positionMaterial: LineBasicMaterial;
 
     constructor(
         public readonly id: string,
@@ -80,6 +81,10 @@ export class SpatialCell {
         this._frameMaterial = new LineBasicMaterial({
             fog: false,
             vertexColors: true,
+        });
+        this._positionMaterial = new LineBasicMaterial({
+            fog: false,
+            color: 0xff0000,
         });
 
         this._scene.add(
@@ -217,13 +222,17 @@ export class SpatialCell {
         this._clusters.get(ids.clusterId).push(camera);
         this._sequences.get(ids.sequenceId).push(camera);
 
-        const positionLine = new PositionLine(
+        const positionParameters: PositionLineParameters = {
+            geometry: new BufferGeometry(),
+            material: this._positionMaterial,
+            mode: props.positionMode,
+            originalOrigin: props.originalPosition,
             transform,
-            props.originalPosition,
-            props.positionMode);
-        positionLine.visible = visible;
-        this._positions.add(positionLine);
-        this._positionLines[id] = positionLine;
+        };
+        const position = new PositionLine(positionParameters);
+        position.visible = visible;
+        this._positions.add(position);
+        this._positionLines[id] = position;
     }
 
     private _disposeCameras(): void {

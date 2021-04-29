@@ -37,8 +37,8 @@ export class SpatialIntersection {
                 1,
                 10000);
 
-        this._lineThreshold = 0.1;
-        this._largeLineThreshold = 0.4;
+        this._lineThreshold = 0.3;
+        this._largeLineThreshold = 0.6;
 
         this._raycaster.params.Line.threshold = this._lineThreshold;
         this._raycaster.layers.set(this._interactiveLayer);
