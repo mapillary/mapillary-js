@@ -132,11 +132,12 @@ export class SpatialScene {
             const visible = this._getClusterVisible(clusterId);
             this._clusters[clusterId].points.visible = visible;
             this._clusters[clusterId].points.add(
-                new ClusterPoints(
-                    this._originalPointSize,
-                    reconstruction,
+                new ClusterPoints({
+                    cluster: reconstruction,
+                    originalSize: this._originalPointSize,
+                    scale: this._pointSize,
                     translation,
-                    this._pointSize));
+                }));
 
             this._scene.add(
                 this._clusters[clusterId].points);

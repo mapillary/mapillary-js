@@ -1,5 +1,4 @@
 import {
-    BufferGeometry,
     LineBasicMaterial,
     Object3D,
     Scene,
@@ -199,7 +198,6 @@ export class SpatialCell {
         const transform = props.transform;
         const cameraParameters: CameraFrameParameters = {
             color: props.color,
-            geometry: new BufferGeometry(),
             material: this._frameMaterial,
             scale: props.scale,
             size: props.maxSize,
@@ -223,7 +221,6 @@ export class SpatialCell {
         this._sequences.get(ids.sequenceId).push(camera);
 
         const positionParameters: PositionLineParameters = {
-            geometry: new BufferGeometry(),
             material: this._positionMaterial,
             mode: props.positionMode,
             originalOrigin: props.originalPosition,

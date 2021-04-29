@@ -78,7 +78,7 @@ export class PerspectiveCameraFrame extends CameraFrameBase {
 
         const samples: number[][] = [];
         samples.push(p1);
-        for (let i = 0; i <= subsamples + 1; i++) {
+        for (let i = 0; i <= subsamples; i++) {
             const p: number[] = [];
             for (let j = 0; j < 3; j++) {
                 p.push(this._interpolate(p1[j], p2[j], i / (subsamples + 1)));
@@ -86,7 +86,7 @@ export class PerspectiveCameraFrame extends CameraFrameBase {
             samples.push(p);
             samples.push(p);
         }
-        samples.push(p1);
+        samples.push(p2);
 
         return samples;
     }
