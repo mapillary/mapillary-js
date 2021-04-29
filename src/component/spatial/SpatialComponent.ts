@@ -61,7 +61,7 @@ type Cell = {
     images: Image[];
 }
 
-type AdjancentParams = [boolean, boolean, number, Image];
+type AdjancentParams = [boolean, boolean, number, number, Image];
 
 interface IntersectConfiguration {
     size: number;
@@ -144,7 +144,9 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
         const subs = this._subscriptions;
 
         subs.push(this._navigator.stateService.reference$
-            .subscribe((): void => { this._scene.uncache(); }));
+            .subscribe((): void => {
+                this._scene.uncache();
+            }));
 
         subs.push(this._navigator.graphService.filter$
             .subscribe(imageFilter => { this._scene.setFilter(imageFilter); }));
@@ -170,6 +172,14 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 distinctUntilChanged(),
                 publishReplay(1),
                 refCount());
+
+        const cellGridDepth$ = this._configuration$
+            .pipe(
+                map(
+                    (c: SpatialConfiguration): number => {
+                        return this._spatial.clamp(c.cellGridDepth, 1, 3);
+                    }),
+                distinctUntilChanged());
 
         const sequencePlay$: Observable<boolean> = observableCombineLatest(
             this._navigator.playService.playing$,
@@ -200,18 +210,24 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             earth$,
             sequencePlay$,
             bearing$,
+            cellGridDepth$,
             this._navigator.stateService.currentImage$)
             .pipe(
                 distinctUntilChanged((
-                    [e1, s1, d1, n1]: AdjancentParams,
-                    [e2, s2, d2, n2]: AdjancentParams)
+                    [e1, s1, b1, d1, i1]: AdjancentParams,
+                    [e2, s2, b2, d2, i2]: AdjancentParams)
                     : boolean => {
-                    if (e1 !== e2) { return false; }
-                    if (e1) { return n1.id === n2.id && s1 === s2; }
-                    return n1.id === n2.id && s1 === s2 && d1 === d2;
+                    if (e1 !== e2) {
+                        return false;
+                    }
+                    const isd = i1.id === i2.id && s1 === s2 && d1 === d2
+                    if (e1) {
+                        return isd;
+                    }
+                    return isd && b1 === b2;
                 }),
                 concatMap(
-                    ([earth, sequencePlay, bearing, image]
+                    ([earth, sequencePlay, bearing, depth, image]
                         : AdjancentParams)
                         : Observable<string[]> => {
                         if (earth) {
@@ -219,7 +235,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                                 .lngLatToCellId(image.lngLat);
                             const cells = sequencePlay ?
                                 [cellId] :
-                                this._adjacentComponent(cellId, 1)
+                                this._adjacentComponent(cellId, depth)
                             return observableOf(cells);
                         }
 
@@ -233,15 +249,15 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 publish<string[]>(),
                 refCount());
 
-        const tile$: Observable<Cell> = cellIds$.pipe(
+        const cell$: Observable<Cell> = cellIds$.pipe(
             switchMap(
                 (cellIds: string[]): Observable<Cell> => {
                     return observableFrom(cellIds).pipe(
                         mergeMap(
                             (cellId: string): Observable<Cell> => {
-                                const t$ = this._cache.hasTile(cellId) ?
-                                    observableOf(this._cache.getTile(cellId)) :
-                                    this._cache.cacheTile$(cellId);
+                                const t$ = this._cache.hasCell(cellId) ?
+                                    observableOf(this._cache.getCell(cellId)) :
+                                    this._cache.cacheCell$(cellId);
 
                                 return t$.pipe(
                                     map((images: Image[]) => ({ id: cellId, images })));
@@ -251,27 +267,27 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             publish(),
             refCount());
 
-        subs.push(tile$.pipe(
+        subs.push(cell$.pipe(
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
                 ([cell, reference]: [Cell, LngLatAlt]): void => {
-                    if (this._scene.hasTile(cell.id)) {
+                    if (this._scene.hasCell(cell.id)) {
                         return;
                     }
 
-                    this._scene.addTile(
-                        this._computeTileBBox(cell.id, reference),
+                    this._scene.addCell(
+                        this._cellToTopocentric(cell.id, reference),
                         cell.id);
                 }));
 
-        subs.push(tile$.pipe(
+        subs.push(cell$.pipe(
             withLatestFrom(this._navigator.stateService.reference$))
             .subscribe(
                 ([cell, reference]: [Cell, LngLatAlt]): void => {
                     this._addSceneImages(cell, reference);
                 }));
 
-        subs.push(tile$.pipe(
+        subs.push(cell$.pipe(
             concatMap(
                 (cell: Cell): Observable<[string, ClusterContract]> => {
                     const cellId = cell.id;
@@ -285,7 +301,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                                 (): Observable<ClusterContract> => {
                                     return observableFrom(this._cache.getClusters(cellId));
                                 }));
-                    } else if (this._cache.hasTile(cellId)) {
+                    } else if (this._cache.hasCell(cellId)) {
                         reconstructions$ = this._cache.cacheClusters$(cellId);
                     } else {
                         reconstructions$ = observableEmpty();
@@ -322,7 +338,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                         originalPositionMode: c.originalPositionMode,
                         pointSize: c.pointSize,
                         pointsVisible: c.pointsVisible,
-                        tilesVisible: c.tilesVisible,
+                        cellsVisible: c.cellsVisible,
                     }
                 }),
             distinctUntilChanged(
@@ -332,24 +348,24 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                         c1.originalPositionMode === c2.originalPositionMode &&
                         c1.pointSize === c2.pointSize &&
                         c1.pointsVisible === c2.pointsVisible &&
-                        c1.tilesVisible === c2.tilesVisible;
+                        c1.cellsVisible === c2.cellsVisible;
                 }))
             .subscribe(
                 (c: SpatialConfiguration): void => {
                     this._scene.setCameraSize(c.cameraSize);
                     this._scene.setPointSize(c.pointSize);
                     this._scene.setPointVisibility(c.pointsVisible);
-                    this._scene.setTileVisibility(c.tilesVisible);
+                    this._scene.setCellVisibility(c.cellsVisible);
                     const cvm = c.cameraVisualizationMode;
                     this._scene.setCameraVisualizationMode(cvm);
                     const opm = c.originalPositionMode;
                     this._scene.setPositionMode(opm);
                 }));
 
-        subs.push(cellId$
+        subs.push(observableCombineLatest(cellId$, cellGridDepth$)
             .subscribe(
-                (cellId: string): void => {
-                    const keepCells = this._adjacentComponent(cellId, 1);
+                ([cellId, depth]: [string, number]): void => {
+                    const keepCells = this._adjacentComponent(cellId, depth);
                     this._scene.uncache(keepCells);
                     this._cache.uncache(keepCells);
                 }));
@@ -484,7 +500,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             .pipe(
                 filter(
                     (cellId: string) => {
-                        return this._cache.hasTile(cellId);
+                        return this._cache.hasCell(cellId);
                     }),
                 mergeMap(
                     (cellId: string): Observable<[Cell, LngLatAlt]> => {
@@ -562,10 +578,11 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
         return {
             cameraSize: 0.1,
             cameraVisualizationMode: CameraVisualizationMode.Homogeneous,
+            cellGridDepth: 1,
             originalPositionMode: OriginalPositionMode.Hidden,
             pointSize: 0.1,
             pointsVisible: true,
-            tilesVisible: false,
+            cellsVisible: false,
         };
     }
 
@@ -597,7 +614,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
         maxDepth: number)
         : void {
 
-        if (currentDepth === maxDepth) { return; }
+        if (currentDepth >= maxDepth) { return; }
 
         const adjacent: string[] = [];
         for (const cellId of current) {
@@ -664,7 +681,10 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             reference.alt);
     }
 
-    private _computeTileBBox(cellId: string, reference: LngLatAlt): number[][] {
+    private _cellToTopocentric(
+        cellId: string,
+        reference: LngLatAlt): number[][] {
+
         const vertices =
             this._navigator.api.data.geometry
                 .getVertices(cellId)

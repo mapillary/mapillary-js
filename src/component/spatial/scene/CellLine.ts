@@ -4,7 +4,7 @@ import {
     LineBasicMaterial,
 } from "three";
 
-export class TileLine extends Line {
+export class CellLine extends Line {
     public readonly material: LineBasicMaterial;
 
     constructor(vertices: number[][]) {

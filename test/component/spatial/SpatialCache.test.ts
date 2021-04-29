@@ -23,12 +23,12 @@ const cacheTile: (
         const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell$);
 
-        cache.cacheTile$(hash)
+        cache.cacheCell$(hash)
             .subscribe();
 
         cacheCell$.next(images);
 
-        expect(cache.hasTile(hash)).toBe(true);
+        expect(cache.hasCell(hash)).toBe(true);
     };
 
 describe("SpatialCache.ctor", () => {
@@ -56,7 +56,7 @@ describe("SpatialCache.cacheTile$", () => {
             graphService, dataProvider);
 
         const hash: string = "12345678";
-        cache.cacheTile$(hash);
+        cache.cacheCell$(hash);
 
         expect(cacheCellSpy.calls.count()).toBe(1);
         expect(cacheCellSpy.calls.first().args[0]).toBe(hash);
@@ -75,11 +75,11 @@ describe("SpatialCache.cacheTile$", () => {
 
         const hash: string = "00000000";
 
-        expect(cache.isCachingTile(hash)).toBe(false);
+        expect(cache.isCachingCell(hash)).toBe(false);
 
-        cache.cacheTile$(hash);
+        cache.cacheCell$(hash);
 
-        expect(cache.isCachingTile(hash)).toBe(true);
+        expect(cache.isCachingCell(hash)).toBe(true);
     });
 
     it("should cache tile", () => {
@@ -96,18 +96,18 @@ describe("SpatialCache.cacheTile$", () => {
 
         const hash: string = "00000000";
 
-        expect(cache.hasTile(hash)).toBe(false);
+        expect(cache.hasCell(hash)).toBe(false);
 
-        cache.cacheTile$(hash)
+        cache.cacheCell$(hash)
             .subscribe();
 
         const image: Image = new ImageHelper().createImage();
         cacheCell$.next([image]);
 
-        expect(cache.isCachingTile(hash)).toBe(false);
-        expect(cache.hasTile(hash)).toBe(true);
-        expect(cache.getTile(hash).length).toBe(1);
-        expect(cache.getTile(hash)[0].id).toBe(image.id);
+        expect(cache.isCachingCell(hash)).toBe(false);
+        expect(cache.hasCell(hash)).toBe(true);
+        expect(cache.getCell(hash).length).toBe(1);
+        expect(cache.getCell(hash)[0].id).toBe(image.id);
     });
 
     it("should catch error", (done: Function) => {
@@ -125,16 +125,16 @@ describe("SpatialCache.cacheTile$", () => {
 
         const hash: string = "00000000";
 
-        cache.cacheTile$(hash)
+        cache.cacheCell$(hash)
             .subscribe();
 
         cacheCell$.error(new Error());
 
-        expect(cache.isCachingTile(hash)).toBe(false);
-        expect(cache.hasTile(hash)).toBe(false);
+        expect(cache.isCachingCell(hash)).toBe(false);
+        expect(cache.hasCell(hash)).toBe(false);
 
         let tileEmitCount: number = 0;
-        cache.cacheTile$(hash)
+        cache.cacheCell$(hash)
             .subscribe(
                 (): void => {
                     tileEmitCount++;
@@ -347,13 +347,13 @@ describe("SpatialCache.updateCell$", () => {
             graphService, dataProvider);
 
         const cellId = "1";
-        cache.cacheTile$(cellId).subscribe();
+        cache.cacheCell$(cellId).subscribe();
 
         const image = new ImageHelper().createImage();
         cacheCell1$.next([image]);
         cacheCell1$.complete();
 
-        expect(cache.hasTile(cellId)).toBe(true);
+        expect(cache.hasCell(cellId)).toBe(true);
 
         const cacheCell2$: Subject<Image[]> = new Subject<Image[]>();
         cacheCellSpy.and.returnValue(cacheCell2$);
@@ -362,10 +362,10 @@ describe("SpatialCache.updateCell$", () => {
 
         cacheCell2$.next([image]);
 
-        expect(cache.hasTile(cellId)).toBe(true);
+        expect(cache.hasCell(cellId)).toBe(true);
         expect(cacheCellSpy.calls.count()).toBe(2);
-        expect(cache.getTile(cellId).length).toBe(1);
-        expect(cache.getTile(cellId)[0].id).toBe(image.id);
+        expect(cache.getCell(cellId).length).toBe(1);
+        expect(cache.getCell(cellId)[0].id).toBe(image.id);
     });
 
     it("should add new images to cell", () => {
@@ -380,13 +380,13 @@ describe("SpatialCache.updateCell$", () => {
             graphService, dataProvider);
 
         const cellId = "1";
-        cache.cacheTile$(cellId).subscribe();
+        cache.cacheCell$(cellId).subscribe();
 
         cacheCell1$.next([]);
         cacheCell1$.complete();
 
-        expect(cache.hasTile(cellId)).toBe(true);
-        expect(cache.getTile(cellId).length).toBe(0);
+        expect(cache.hasCell(cellId)).toBe(true);
+        expect(cache.getCell(cellId).length).toBe(0);
 
         const cacheCell2$: Subject<Image[]> = new Subject<Image[]>();
         cacheCellSpy.and.returnValue(cacheCell2$);
@@ -396,8 +396,8 @@ describe("SpatialCache.updateCell$", () => {
         const image = new ImageHelper().createImage();
         cacheCell2$.next([image]);
 
-        expect(cache.getTile(cellId).length).toBe(1);
-        expect(cache.getTile(cellId)[0].id).toBe(image.id);
+        expect(cache.getCell(cellId).length).toBe(1);
+        expect(cache.getCell(cellId)[0].id).toBe(image.id);
     });
 });
 
@@ -486,7 +486,7 @@ describe("SpatialCache.updateReconstructions$", () => {
 
         cacheTile(cellId, cache, graphService, []);
 
-        expect(cache.getTile(cellId).length).toBe(0);
+        expect(cache.getCell(cellId).length).toBe(0);
 
         cache.cacheClusters$(cellId).subscribe();
 
@@ -504,7 +504,7 @@ describe("SpatialCache.updateReconstructions$", () => {
         const image = new ImageHelper().createImage();
         cacheCell$.next([image]);
 
-        expect(cache.getTile(cellId).length).toBe(1);
+        expect(cache.getCell(cellId).length).toBe(1);
 
         cache.updateClusters$("123")
             .subscribe(
