@@ -42,11 +42,19 @@
             component: { cover: false, spatial: true },
             container: "mly",
         });
+
         viewer
             .moveTo("zarcRdNFZwg3FkXNcsFeGw")
             .catch(error => console.error(error));
 
         const spatial = viewer.getComponent("spatial");
+        viewer.on(
+            'click',
+            event => {
+                spatial.getFrameIdAt(event.pixelPoint)
+                    .then(id => console.log('Clicked frame:', id));
+            });
+
         const s = Object.assign(
             {},
             spatial.defaultConfiguration,
