@@ -1,79 +1,77 @@
 import {
     BufferAttribute,
-    BufferGeometry,
     Points,
     PointsMaterial,
 } from "three";
 import { ClusterContract } from "../../../api/contracts/ClusterContract";
-import { PointContract } from "../../../api/contracts/PointContract";
+
+export interface ClusterPointsParameters {
+    cluster: ClusterContract;
+    originalSize: number;
+    scale: number;
+    translation: number[];
+}
 
 export class ClusterPoints extends Points {
-    constructor(
-        private readonly _originalSize: number,
-        reconstruction: ClusterContract,
-        translation: number[],
-        scale: number) {
+    public readonly material: PointsMaterial;
+
+    private readonly _originalSize: number;
+
+    constructor(parameters: ClusterPointsParameters) {
         super();
 
-        const [positions, colors] =
-            this._getArrays(reconstruction, translation);
+        this._originalSize = parameters.originalSize;
+        const cluster = parameters.cluster;
+        const scale = parameters.scale;
+        const translation = parameters.translation;
 
-        const geometry = new BufferGeometry();
-        geometry.setAttribute(
-            "position", new BufferAttribute(positions, 3));
-        geometry.setAttribute(
-            "color", new BufferAttribute(colors, 3));
+        this._makeAttributes(cluster);
+        this.material.size = scale * this._originalSize;
+        this.material.vertexColors = true;
+        this.material.needsUpdate = true;
 
-        const material = new PointsMaterial({
-            size: scale * this._originalSize,
-            vertexColors: true,
-        });
-
-        this.geometry = geometry;
-        this.material = material;
+        this.matrixAutoUpdate = false;
+        this.position.fromArray(translation);
+        this.updateMatrix();
+        this.updateMatrixWorld(false);
     }
 
     public dispose(): void {
         this.geometry.dispose();
-        (<PointsMaterial>this.material).dispose();
+        this.material.dispose();
     }
 
     public resize(scale: number): void {
-        const material = <PointsMaterial>this.material;
-        material.size = scale * this._originalSize;
-        material.needsUpdate = true;
+        this.material.size = scale * this._originalSize;
+        this.material.needsUpdate = true;
     }
 
-    private _getArrays(
-        reconstruction: ClusterContract,
-        translation: number[])
-        : [Float32Array, Float32Array] {
-        const points = Object
-            .keys(reconstruction.points)
-            .map(
-                (key: string): PointContract => {
-                    return reconstruction.points[key];
-                });
+    private _makeAttributes(cluster: ClusterContract): void {
+        const positions: number[] = [];
+        const colors: number[] = [];
+        const normalize = 1 / 255;
 
-        const numPoints = points.length;
-        const positions = new Float32Array(numPoints * 3);
-        const colors = new Float32Array(numPoints * 3);
-        const [translationX, translationY, translationZ] = translation;
+        const points = cluster.points;
+        for (const pointId in points) {
+            if (!points.hasOwnProperty(pointId)) {
+                continue;
+            }
 
-        for (let i = 0; i < numPoints; i++) {
-            const index = 3 * i;
+            const point = points[pointId]
+            positions.push(...point.coordinates)
 
-            const [coordsX, coordsY, coordsZ] = points[i].coordinates;
-            positions[index + 0] = coordsX + translationX;
-            positions[index + 1] = coordsY + translationY;
-            positions[index + 2] = coordsZ + translationZ;
-
-            const color = points[i].color;
-            colors[index + 0] = color[0] / 255.0;
-            colors[index + 1] = color[1] / 255.0;
-            colors[index + 2] = color[2] / 255.0;
+            const color = point.color;
+            colors.push(normalize * color[0]);
+            colors.push(normalize * color[1]);
+            colors.push(normalize * color[2]);
         }
 
-        return [positions, colors];
+        const geometry = this.geometry;
+        geometry.setAttribute(
+            "position",
+            new BufferAttribute(new Float32Array(positions), 3));
+        geometry.setAttribute(
+            "color",
+            new BufferAttribute(new Float32Array(colors), 3));
     }
 }
