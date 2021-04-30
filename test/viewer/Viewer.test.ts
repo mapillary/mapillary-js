@@ -174,14 +174,22 @@ describe("Viewer.setCameraControls", () => {
         const mocks = createMocks();
         const viewer = new Viewer({ apiClient: "", container: "" });
 
+        const customSpy = (<jasmine.Spy>mocks.navigator.stateService.custom);
         const earthSpy = (<jasmine.Spy>mocks.navigator.stateService.earth);
         const traverseSpy = (<jasmine.Spy>mocks.navigator.stateService.traverse);
 
+        viewer.setCameraControls(CameraControls.Custom);
+        expect(customSpy.calls.count()).toBe(1);
+        expect(earthSpy.calls.count()).toBe(0);
+        expect(traverseSpy.calls.count()).toBe(0);
+
         viewer.setCameraControls(CameraControls.Earth);
+        expect(customSpy.calls.count()).toBe(1);
         expect(earthSpy.calls.count()).toBe(1);
         expect(traverseSpy.calls.count()).toBe(0);
 
         viewer.setCameraControls(CameraControls.Street);
+        expect(customSpy.calls.count()).toBe(1);
         expect(earthSpy.calls.count()).toBe(1);
         expect(traverseSpy.calls.count()).toBe(1);
     });

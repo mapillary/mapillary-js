@@ -46,6 +46,7 @@ import { State } from "../state/State";
 import { ICustomCameraControls } from "./interfaces/ICustomCameraControls";
 import { CustomCameraControls } from "./CustomCameraControls";
 import { ViewerLoadEvent } from "./events/ViewerLoadEvent";
+import { cameraControlsToState } from "./Modes";
 
 /**
  * @class Viewer
@@ -1314,16 +1315,16 @@ export class Viewer extends EventEmitter implements IViewer {
      * ```
      */
     public setCameraControls(controls: CameraControls): void {
-        if (controls === CameraControls.Street) {
+        const state = cameraControlsToState(controls);
+        if (state === State.Traversing) {
             this._navigator.stateService.traverse();
-        } else if (controls === CameraControls.Earth) {
+        } else if (state === State.Earth) {
             this._navigator.stateService.earth();
-        } else if (controls === CameraControls.Custom) {
+        } else if (state === State.Custom) {
             this._navigator.stateService.custom();
         } else {
-            const to = CameraControls[controls];
             console.warn(
-                `Unsupported camera control transition (${to})`);
+                `Unsupported camera control transition (${controls})`);
         }
     }
 

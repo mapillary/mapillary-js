@@ -35,7 +35,7 @@ import { NavigationDirection } from "../graph/edge/NavigationDirection";
 import { NavigationEdgeStatus } from "../graph/interfaces/NavigationEdgeStatus";
 import { StateService } from "../state/StateService";
 import { AnimationFrame } from "../state/interfaces/AnimationFrame";
-import { State } from "../state/State";
+import { cameraControlsToState } from "./Modes";
 import { CameraControls } from "./enums/CameraControls";
 
 export class Navigator {
@@ -86,10 +86,10 @@ export class Navigator {
         this._loadingService = loadingService ??
             new LoadingService();
 
+        const cameraControls = options.cameraControls ?? CameraControls.Street;
         this._stateService = stateService ??
             new StateService(
-                this._cameraControlsToState(
-                    options.cameraControls),
+                cameraControlsToState(cameraControls),
                 options.transitionMode);
 
         this._cacheService = cacheService ??
@@ -275,15 +275,6 @@ export class Navigator {
                                     return undefined;
                                 }));
                 }));
-    }
-
-    private _cameraControlsToState(cameraControls: CameraControls): State {
-        switch (cameraControls) {
-            case CameraControls.Earth:
-                return State.Earth;
-            default:
-                return State.Traversing;
-        }
     }
 
     private _cacheIds$(ids: string[]): Observable<Image> {
