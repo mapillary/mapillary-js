@@ -40,19 +40,20 @@ import { RenderPass } from "../../render/RenderPass";
 import { GLRenderHash } from "../../render/interfaces/IGLRenderHash";
 import { RenderCamera } from "../../render/RenderCamera";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
-import { State } from "../../state/State";
 import { PlayService } from "../../viewer/PlayService";
 import { Component } from "../Component";
 import { SpatialConfiguration }
     from "../interfaces/SpatialConfiguration";
 import { CameraVisualizationMode } from "./enums/CameraVisualizationMode";
 import { OriginalPositionMode } from "./enums/OriginalPositionMode";
-import { isModeVisible, SpatialScene } from "./SpatialScene";
+import { SpatialScene } from "./SpatialScene";
 import { SpatialCache } from "./SpatialCache";
 import { CameraType } from "../../geo/interfaces/CameraType";
 import { geodeticToEnu } from "../../geo/GeoCoords";
 import { LngLat } from "../../api/interfaces/LngLat";
 import { ComponentName } from "../ComponentName";
+import { isModeVisible, isOverviewState } from "./Modes";
+import { State } from "../../state/State";
 
 type IntersectEvent = MouseEvent | FocusEvent;
 
@@ -66,7 +67,7 @@ type AdjancentParams = [boolean, boolean, number, number, Image];
 interface IntersectConfiguration {
     size: number;
     visible: boolean;
-    earth: boolean;
+    state: State;
 }
 
 export class SpatialComponent extends Component<SpatialConfiguration> {
@@ -192,45 +193,42 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 publishReplay(1),
                 refCount());
 
-        const earth$ = this._navigator.stateService.state$.pipe(
-            map(
-                (state: State): boolean => {
-                    return state === State.Earth;
-                }),
+        const isOverview$ = this._navigator.stateService.state$.pipe(
+            map(isOverviewState),
             distinctUntilChanged(),
             publishReplay(1),
             refCount());
 
-        subs.push(earth$.subscribe(
-            (earth: boolean): void => {
-                this._scene.setNavigationState(earth);
+        subs.push(isOverview$.subscribe(
+            (isOverview: boolean): void => {
+                this._scene.setNavigationState(isOverview);
             }));
 
         const cellIds$ = observableCombineLatest(
-            earth$,
+            isOverview$,
             sequencePlay$,
             bearing$,
             cellGridDepth$,
             this._navigator.stateService.currentImage$)
             .pipe(
                 distinctUntilChanged((
-                    [e1, s1, b1, d1, i1]: AdjancentParams,
-                    [e2, s2, b2, d2, i2]: AdjancentParams)
+                    [o1, s1, b1, d1, i1]: AdjancentParams,
+                    [o2, s2, b2, d2, i2]: AdjancentParams)
                     : boolean => {
-                    if (e1 !== e2) {
+                    if (o1 !== o2) {
                         return false;
                     }
                     const isd = i1.id === i2.id && s1 === s2 && d1 === d2
-                    if (e1) {
+                    if (o1) {
                         return isd;
                     }
                     return isd && b1 === b2;
                 }),
                 concatMap(
-                    ([earth, sequencePlay, bearing, depth, image]
+                    ([isOverview, sequencePlay, bearing, depth, image]
                         : AdjancentParams)
                         : Observable<string[]> => {
-                        if (earth) {
+                        if (isOverview) {
                             const cellId = this._navigator.api.data.geometry
                                 .lngLatToCellId(image.originalLngLat);
                             const cells = sequencePlay ?
@@ -335,20 +333,21 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                     return {
                         cameraSize: c.cameraSize,
                         cameraVisualizationMode: c.cameraVisualizationMode,
+                        cellsVisible: c.cellsVisible,
                         originalPositionMode: c.originalPositionMode,
                         pointSize: c.pointSize,
                         pointsVisible: c.pointsVisible,
-                        cellsVisible: c.cellsVisible,
                     }
                 }),
             distinctUntilChanged(
-                (c1: SpatialConfiguration, c2: SpatialConfiguration): boolean => {
+                (c1: SpatialConfiguration, c2: SpatialConfiguration)
+                    : boolean => {
                     return c1.cameraSize === c2.cameraSize &&
                         c1.cameraVisualizationMode === c2.cameraVisualizationMode &&
+                        c1.cellsVisible === c2.cellsVisible &&
                         c1.originalPositionMode === c2.originalPositionMode &&
                         c1.pointSize === c2.pointSize &&
-                        c1.pointsVisible === c2.pointsVisible &&
-                        c1.cellsVisible === c2.cellsVisible;
+                        c1.pointsVisible === c2.pointsVisible;
                 }))
             .subscribe(
                 (c: SpatialConfiguration): void => {
@@ -380,9 +379,10 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             withLatestFrom(this._container.renderService.renderCamera$),
             switchMap(
                 ([event, render]: [MouseEvent, RenderCamera]): Observable<Image> => {
-                    const element: HTMLElement = this._container.container;
-                    const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
-                    const viewport: number[] = this._viewportCoords.canvasToViewport(
+                    const element = this._container.container;
+                    const [canvasX, canvasY] = this._viewportCoords
+                        .canvasPosition(event, element);
+                    const viewport = this._viewportCoords.canvasToViewport(
                         canvasX,
                         canvasY,
                         element);
@@ -402,22 +402,25 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
 
         const intersectChange$ = observableCombineLatest(
             this._configuration$,
-            earth$).pipe(
+            this._navigator.stateService.state$).pipe(
                 map(
-                    ([c, earth]: [SpatialConfiguration, boolean]): IntersectConfiguration => {
-                        c.cameraSize = this._spatial.clamp(c.cameraSize, 0.01, 1);
+                    ([c, state]: [SpatialConfiguration, State])
+                        : IntersectConfiguration => {
+                        c.cameraSize = this._spatial.clamp(
+                            c.cameraSize,
+                            0.01,
+                            1);
                         return {
                             size: c.cameraSize,
-                            visible:
-                                isModeVisible(c.cameraVisualizationMode),
-                            earth,
+                            visible: isModeVisible(c.cameraVisualizationMode),
+                            state,
                         }
                     }),
                 distinctUntilChanged(
                     (c1: IntersectConfiguration, c2: IntersectConfiguration): boolean => {
                         return c1.size === c2.size &&
                             c1.visible === c2.visible &&
-                            c1.earth === c2.earth;
+                            c1.state === c2.state;
                     }));
 
         const mouseMove$ = this._container.mouseService.mouseMove$.pipe(
@@ -434,8 +437,9 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
         subs.push(observableCombineLatest(
             this._navigator.playService.playing$,
             mouseHover$,
-            earth$,
-            this._navigator.graphService.filter$).pipe(
+            isOverview$,
+            this._navigator.graphService.filter$)
+            .pipe(
                 switchMap(
                     ([playing, mouseHover]:
                         [boolean, IntersectEvent, boolean, FilterFunction])
@@ -564,14 +568,6 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
         this._subscriptions.unsubscribe();
         this._cache.uncache();
         this._scene.uncache();
-        this._navigator.stateService.state$.pipe(
-            first())
-            .subscribe(
-                (state: State): void => {
-                    if (state === State.Earth) {
-                        this._navigator.stateService.traverse();
-                    }
-                });
     }
 
     protected _getDefaultConfiguration(): SpatialConfiguration {
@@ -716,12 +712,12 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
     }
 
     private _createTransform(image: Image, reference: LngLatAlt): Transform {
-        const translation: number[] = Geo.computeTranslation(
+        const translation = Geo.computeTranslation(
             { alt: image.computedAltitude, lat: image.lngLat.lat, lng: image.lngLat.lng },
             image.rotation,
             reference);
 
-        const transform: Transform = new Transform(
+        const transform = new Transform(
             image.exifOrientation,
             image.width,
             image.height,

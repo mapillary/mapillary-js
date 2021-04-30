@@ -3,12 +3,12 @@ import {
     levelToRootBoundingBox,
     levelToSize,
     OCTREE_LEAF_LEVEL,
-    OCTREE_LEVELS,
+    OCTREE_ROOT_LEVEL,
 } from "../../../../src/component/spatial/scene/SpatialOctreeMath";
 
 describe("SpatialOctreeMath", () => {
     test("should specify default levels values", () => {
-        expect(OCTREE_LEVELS).toBe(15);
+        expect(OCTREE_ROOT_LEVEL).toBe(14);
         expect(OCTREE_LEAF_LEVEL).toBe(6);
     });
 

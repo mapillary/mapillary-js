@@ -7,9 +7,9 @@ export class SpatialOctree {
     private _root: SpatialOctreeNode;
 
     constructor(
-        public readonly levels: number,
+        public readonly rootLevel: number,
         public readonly leafLevel: number) {
-        if (leafLevel >= levels) {
+        if (leafLevel > rootLevel) {
             throw new Error()
         }
         this._index = new Map();
@@ -64,7 +64,7 @@ export class SpatialOctree {
     }
 
     private _makeRoot(): SpatialOctreeNode {
-        const level = this.levels - 1;
+        const level = this.rootLevel;
         const bbox = levelToRootBoundingBox(level);
         const box = new Box3(
             new Vector3().fromArray(bbox.min),

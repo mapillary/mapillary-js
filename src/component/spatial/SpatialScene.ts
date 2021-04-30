@@ -19,6 +19,7 @@ import { CellLine } from "./scene/CellLine";
 import { SpatialIntersection } from "./scene/SpatialIntersection";
 import { SpatialCell } from "./scene/SpatialCell";
 import { SpatialAssets } from "./scene/SpatialAssets";
+import { isModeVisible } from "./Modes";
 
 const NO_CLUSTER_ID = "NO_CLUSTER_ID";
 const NO_MERGE_ID = "NO_MERGE_ID";
@@ -29,10 +30,6 @@ type Clusters = {
         cellIds: string[];
         points: Object3D;
     };
-}
-
-export function isModeVisible(mode: CameraVisualizationMode): boolean {
-    return mode !== CameraVisualizationMode.Hidden;
 }
 
 export class SpatialScene {
@@ -310,8 +307,8 @@ export class SpatialScene {
         this._hoveredImage = key;
     }
 
-    public setNavigationState(isEarth: boolean): void {
-        this._intersection.resetIntersectionThreshold(isEarth);
+    public setNavigationState(isOverview: boolean): void {
+        this._intersection.resetIntersectionThreshold(isOverview);
     }
 
     public setPointSize(pointSize: number): void {
