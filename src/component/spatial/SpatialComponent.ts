@@ -167,7 +167,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 map(
                     (image: Image): string => {
                         return this._navigator.api.data.geometry
-                            .lngLatToCellId(image.lngLat);
+                            .lngLatToCellId(image.originalLngLat);
                     }),
                 distinctUntilChanged(),
                 publishReplay(1),
@@ -232,7 +232,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                         : Observable<string[]> => {
                         if (earth) {
                             const cellId = this._navigator.api.data.geometry
-                                .lngLatToCellId(image.lngLat);
+                                .lngLatToCellId(image.originalLngLat);
                             const cells = sequencePlay ?
                                 [cellId] :
                                 this._adjacentComponent(cellId, depth)
@@ -644,7 +644,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
         : string[] {
         const spatial = this._spatial;
         const geometry = this._navigator.api.data.geometry;
-        const cell = geometry.lngLatToCellId(image.lngLat);
+        const cell = geometry.lngLatToCellId(image.originalLngLat);
         const cells = [cell];
         const threshold = fov / 2;
         const adjacent = geometry.getAdjacent(cell);
