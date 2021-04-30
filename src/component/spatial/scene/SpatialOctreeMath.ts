@@ -1,4 +1,5 @@
-export const OCTREE_LEVELS = 15; // 16384 meters
+// Level 0: 1 x 1 x 1 meter cubes
+export const OCTREE_ROOT_LEVEL = 14; // 16384 meters
 export const OCTREE_LEAF_LEVEL = 6; // 64 meters
 
 export function isLeafLevel(level: number, leafLevel: number): boolean {

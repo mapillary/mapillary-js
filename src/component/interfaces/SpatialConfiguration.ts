@@ -8,17 +8,16 @@ import { OriginalPositionMode } from "../spatial/enums/OriginalPositionMode";
  * @interface
  * @example
  * ```js
- * var mode = Mapillary.SpatialComponent.CameraVisualizationMode;
- * var viewer = new mapillary.Viewer({
+ * var viewer = new Viewer({
  *     ...
  *     component: {
  *         spatial: {
  *             cameraSize: 0.5,
- *             cameraVisualizationMode: mode.Cluster,
+ *             cameraVisualizationMode: CameraVisualizationMode.Cluster,
+ *             cellsVisible: true,
+ *             originalPositionMode: OriginalPositionMode.Altitude,
  *             pointSize: 0.5,
  *             pointsVisible: false,
- *             positionsVisible: true,
- *             cellsVisible: true,
  *         },
  *     },
  *     ...
@@ -39,6 +38,14 @@ export interface SpatialConfiguration extends ComponentConfiguration {
      * @default CameraVisualizationMode.Homogeneous
      */
     cameraVisualizationMode?: CameraVisualizationMode;
+
+    /**
+     * Specify if the currently rendered cells should be visualize on
+     * an approximated ground plane.
+     *
+     * @default false
+     */
+    cellsVisible?: boolean;
 
     /**
      * Cell grid depth from the cell of the currently
@@ -73,11 +80,4 @@ export interface SpatialConfiguration extends ComponentConfiguration {
      * @default true
      */
     pointsVisible?: boolean;
-
-    /**
-     * Specify if the currently rendered cells should be indicted on the ground.
-     *
-     * @default false
-     */
-    cellsVisible?: boolean;
 }

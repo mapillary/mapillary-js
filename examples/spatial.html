@@ -99,10 +99,12 @@
         }();
 
         const rotateCc = function () {
+            const custom = CameraControls.Custom;
             const earth = CameraControls.Earth;
             const street = CameraControls.Street;
             const camControlsRotation = {};
-            camControlsRotation[street] = earth;
+            camControlsRotation[street] = custom;
+            camControlsRotation[custom] = earth;
             camControlsRotation[earth] = street;
 
             return function () {

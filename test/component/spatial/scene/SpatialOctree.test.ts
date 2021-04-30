@@ -4,10 +4,10 @@ import { SpatialOctree } from "../../../../src/component/spatial/scene/SpatialOc
 
 describe("SpatialOctree.ctor", () => {
     test("should be defined", () => {
-        const octree = new SpatialOctree(2, 0);
+        const octree = new SpatialOctree(1, 0);
 
         expect(octree).toBeDefined();
-        expect(octree.levels).toBe(2);
+        expect(octree.rootLevel).toBe(1);
         expect(octree.leafLevel).toBe(0);
         expect(octree.root).toBeDefined();
         expect(octree.root.level).toBe(1);
@@ -17,7 +17,7 @@ describe("SpatialOctree.ctor", () => {
 
 describe("SpatialOctree.add", () => {
     test("should have object", () => {
-        const octree = new SpatialOctree(2, 0);
+        const octree = new SpatialOctree(1, 0);
         const object = new Object3D();
         object.position.set(1, 1, 1);
         expect(octree.has(object)).toBe(false);
@@ -28,7 +28,7 @@ describe("SpatialOctree.add", () => {
     test("should not add object outside bouding box", () => {
         spyOn(console, "warn").and.stub();
 
-        const octree = new SpatialOctree(1, 0);
+        const octree = new SpatialOctree(0, 0);
         const object = new Object3D();
         object.position.set(10, 10, 10);
         octree.add(object);
@@ -38,7 +38,7 @@ describe("SpatialOctree.add", () => {
 
 describe("SpatialOctree.remove", () => {
     test("should not have object", () => {
-        const octree = new SpatialOctree(2, 0);
+        const octree = new SpatialOctree(1, 0);
         const object = new Object3D();
         object.position.set(1, 1, 1);
         octree.add(object);
@@ -49,7 +49,7 @@ describe("SpatialOctree.remove", () => {
 
 describe("SpatialOctree.reset", () => {
     test("should not have object", () => {
-        const octree = new SpatialOctree(2, 0);
+        const octree = new SpatialOctree(1, 0);
         const object = new Object3D();
         object.position.set(1, 1, 1);
         octree.add(object);
@@ -60,7 +60,7 @@ describe("SpatialOctree.reset", () => {
 
 describe("SpatialOctree.intersect", () => {
     test("should intersect object", () => {
-        const octree = new SpatialOctree(2, 0);
+        const octree = new SpatialOctree(1, 0);
         const object = new Mesh(
             new SphereBufferGeometry(1, 10, 10),
             new Material());
@@ -78,7 +78,7 @@ describe("SpatialOctree.intersect", () => {
     });
 
     test("should not intersect object", () => {
-        const octree = new SpatialOctree(2, 0);
+        const octree = new SpatialOctree(1, 0);
         const object = new Mesh(
             new SphereBufferGeometry(1, 10, 10),
             new Material());
