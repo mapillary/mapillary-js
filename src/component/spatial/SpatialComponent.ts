@@ -444,7 +444,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                     ([playing, mouseHover]:
                         [boolean, IntersectEvent, boolean, FilterFunction])
                         : Observable<[IntersectEvent, RenderCamera, IntersectConfiguration]> => {
-                        return !playing && mouseHover.type === "mouseenter" ?
+                        return !playing && mouseHover.type === "pointerenter" ?
                             observableCombineLatest(
                                 observableConcat(
                                     mouseMove$.pipe(take(1)),
@@ -459,7 +459,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             .subscribe(
                 ([event, render]
                     : [IntersectEvent, RenderCamera, IntersectConfiguration]): void => {
-                    if (event.type !== "mousemove") {
+                    if (event.type !== "pointermove") {
                         this._scene.setHoveredImage(null);
                         return;
                     }

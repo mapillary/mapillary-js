@@ -88,7 +88,7 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
 
                     const properties: vd.createProperties = {
                         onclick: click,
-                        onmousedown: interact,
+                        onpointerdown: interact,
                         style: { transform: transform },
                     };
 
@@ -120,7 +120,7 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
                 };
 
                 const properties: vd.createProperties = {
-                    onmousedown: interact,
+                    onpointerdown: interact,
                     style: {
                         color: this._colorToCss(this._tag.textColor),
                         transform: transform,
@@ -155,7 +155,7 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
                 const transform: string = `translate(-50%, -50%) translate(${centroidCanvasX}px,${centroidCanvasY}px)`;
 
                 const properties: vd.createProperties = {
-                    onmousedown: interact,
+                    onpointerdown: interact,
                     style: { background: lineColor, transform: transform },
                 };
 
@@ -195,7 +195,7 @@ export class OutlineRenderTag extends OutlineRenderTagBase<OutlineTag> {
             const transform: string = `translate(-50%, -50%) translate(${vertexCanvasX}px,${vertexCanvasY}px)`;
 
             const properties: vd.createProperties = {
-                onmousedown: interact,
+                onpointerdown: interact,
                 style: { background: lineColor, transform: transform, cursor: cursor },
             };
 
