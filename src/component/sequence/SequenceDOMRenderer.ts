@@ -214,8 +214,8 @@ export class SequenceDOMRenderer {
             onchange: onPosition,
             oninput: onPosition,
             onkeydown: onKeyDown,
-            onmousedown: onStart,
-            onmousemove: onMove,
+            onpointerdown: onStart,
+            onpointermove: onMove,
             ontouchmove: onMove,
             ontouchstart: onStart,
             style: {
@@ -275,8 +275,8 @@ export class SequenceDOMRenderer {
                 onchange: onSpeed,
                 oninput: onSpeed,
                 onkeydown: onKeyDown,
-                onmousedown: onStart,
-                onmousemove: onMove,
+                onpointerdown: onStart,
+                onpointermove: onMove,
                 ontouchmove: onMove,
                 ontouchstart: onStart,
                 style: {
@@ -450,8 +450,8 @@ export class SequenceDOMRenderer {
                             });
                 } :
                 null,
-            onmouseenter: (): void => { this._mouseEnterDirection$.next(NavigationDirection.Next); },
-            onmouseleave: (): void => { this._mouseLeaveDirection$.next(NavigationDirection.Next); },
+            onpointerenter: (): void => { this._mouseEnterDirection$.next(NavigationDirection.Next); },
+            onpointerleave: (): void => { this._mouseLeaveDirection$.next(NavigationDirection.Next); },
         };
 
         const borderRadius: number = Math.round(8 / this._stepperDefaultWidth * containerWidth);
@@ -468,8 +468,8 @@ export class SequenceDOMRenderer {
                             });
                 } :
                 null,
-            onmouseenter: (): void => { this._mouseEnterDirection$.next(NavigationDirection.Prev); },
-            onmouseleave: (): void => { this._mouseLeaveDirection$.next(NavigationDirection.Prev); },
+            onpointerenter: (): void => { this._mouseEnterDirection$.next(NavigationDirection.Prev); },
+            onpointerleave: (): void => { this._mouseLeaveDirection$.next(NavigationDirection.Prev); },
             style: {
                 "border-bottom-left-radius": `${borderRadius}px`,
                 "border-top-left-radius": `${borderRadius}px`,

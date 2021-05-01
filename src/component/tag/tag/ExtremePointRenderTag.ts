@@ -76,7 +76,7 @@ export class ExtremePointRenderTag extends OutlineRenderTagBase<ExtremePointTag>
             const transform: string = `translate(-50%, -50%) translate(${vertexCanvasX}px,${vertexCanvasY}px)`;
 
             const properties: vd.createProperties = {
-                onmousedown: interact,
+                onpointerdown: interact,
                 style: { background: lineColor, transform: transform, cursor: cursor },
             };
 

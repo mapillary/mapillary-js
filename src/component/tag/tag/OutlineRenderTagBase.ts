@@ -166,7 +166,7 @@ export abstract class OutlineRenderTagBase<T extends Tag> extends RenderTag<T> {
             attribute.set(positions);
             attribute.needsUpdate = true;
         } else {
-            geometry.removeAttribute("position");
+            geometry.deleteAttribute("position");
             geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
         }
 

@@ -5,9 +5,9 @@ export class EventHelper {
 
     public static createMouseEvent(
         eventType: string,
-        params: MouseEventInit,
+        params: PointerEventInit,
         target?: EventTarget): MouseEvent {
-        return new MouseEvent(
+        const event = new MouseEvent(
             eventType,
             {
                 bubbles: params.bubbles !== undefined ?
@@ -28,6 +28,10 @@ export class EventHelper {
                 relatedTarget: !!target ?
                     target : document.createElement("div"),
             });
+
+        // Workaround for pointer event not existing in JSDom
+        (<any>event).pointerType = params.pointerType ?? "mouse";
+        return event;
     }
 
     public static createTouchEvent(eventType: string, shiftKey?: boolean): TouchEvent {

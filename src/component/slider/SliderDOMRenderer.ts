@@ -158,8 +158,8 @@ export class SliderDOMRenderer {
                 onchange: onChange,
                 oninput: onChange,
                 onkeydown: onKeyDown,
-                onmousedown: onStart,
-                onmousemove: onMove,
+                onpointerdown: onStart,
+                onpointermove: onMove,
                 ontouchmove: onMove,
                 ontouchstart: onStart,
                 style: {

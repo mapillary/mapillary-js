@@ -48,7 +48,7 @@ export class SpotRenderTag extends RenderTag<SpotTag> {
                     const sprite: vd.VNode = atlas.getDOMSprite(tag.icon, Alignment.Bottom);
                     const iconTransform: string = `translate(${canvasX}px,${canvasY + 8}px)`;
                     const properties: vd.createProperties = {
-                        onmousedown: interactNone,
+                        onpointerdown: interactNone,
                         style: {
                             pointerEvents: "all",
                             transform: iconTransform,
@@ -60,7 +60,7 @@ export class SpotRenderTag extends RenderTag<SpotTag> {
             } else if (tag.text != null) {
                 const textTransform: string = `translate(-50%,0%) translate(${canvasX}px,${canvasY + 8}px)`;
                 const properties: vd.createProperties = {
-                    onmousedown: interactNone,
+                    onpointerdown: interactNone,
                     style: {
                         color: this._colorToCss(tag.textColor),
                         transform: textTransform,
@@ -77,7 +77,7 @@ export class SpotRenderTag extends RenderTag<SpotTag> {
 
             if (tag.editable) {
                 let interactorProperties: vd.createProperties = {
-                    onmousedown: interact,
+                    onpointerdown: interact,
                     style: {
                         background: background,
                         transform: transform,
