@@ -75,6 +75,14 @@ export class FalcorConverter {
         item: FalcorClusterContract): ClusterContract {
         const id: string = null;
         const points = item.points;
+        const normalize = 1 / 255;
+        for (const point of Object.values(points)) {
+            const color = point.color;
+            color[0] *= normalize;
+            color[1] *= normalize;
+            color[2] *= normalize;
+        }
+
         const lla = item.reference_lla;
         const reference: LngLatAlt = {
             alt: lla.altitude,

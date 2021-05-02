@@ -5,7 +5,8 @@
  */
 export interface PointContract {
     /**
-     * RGB color vector of the point.
+     * RGB color vector of the point, normalized to floats
+     * on the interval [0, 1];
      */
     color: number[];
 
