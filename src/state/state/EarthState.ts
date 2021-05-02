@@ -21,7 +21,7 @@ export class EarthState extends StateBase {
         position.x -= 16 * viewingDirection.x;
         position.y -= 16 * viewingDirection.y;
         position.z = position.z < lookat.z ?
-            position.z - 20 : position.z + 20;
+            lookat.z + 20 : position.z + 20;
 
         this._camera.up.set(0, 0, 1);
     }
@@ -67,7 +67,12 @@ export class EarthState extends StateBase {
             Math.sqrt(offset.x * offset.x + offset.y * offset.y),
             offset.z);
         theta += rotation.theta;
-        theta = Math.max(0.1, Math.min(Math.PI - 0.1, theta));
+        const threshold = Math.PI / 36;
+        theta = Math.max(
+            threshold,
+            Math.min(
+                Math.PI / 2 - threshold,
+                theta));
 
         offset.x = Math.sin(theta) * Math.cos(phi);
         offset.y = Math.sin(theta) * Math.sin(phi);
