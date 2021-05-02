@@ -248,6 +248,7 @@ export class TextureProvider {
         const virtualHeight = 1 / roi.pixelHeight;
         const level = clampedImageLevel(
             { h: virtualHeight, w: virtualWidth },
+            TILE_MIN_REQUEST_LEVEL,
             this._level.max);
 
         if (level !== this._level.z) {
@@ -260,8 +261,6 @@ export class TextureProvider {
                     this._renderedLevel.add(id);
                 });
         }
-
-        if (level < TILE_MIN_REQUEST_LEVEL) { return; }
 
         if (this._render == null) { this._initRender(); }
 

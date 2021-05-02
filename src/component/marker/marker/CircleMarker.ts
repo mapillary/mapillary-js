@@ -24,7 +24,7 @@ import { Marker } from "./Marker";
  *     "id-2",
  *     { lat: 0, lng: 0, },
  *     {
- *         color: "#0Ff",
+ *         color: "#0ff",
  *         opacity: 0.3,
  *         radius: 0.7,
  *     });

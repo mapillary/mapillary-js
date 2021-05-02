@@ -187,34 +187,39 @@ describe("baseImageLevel", () => {
 
 describe("clampedImageLevel", () => {
     it("should be 0", () => {
-        let clamped = clampedImageLevel({ w: 1, h: 1 }, 0);
+        let clamped = clampedImageLevel({ w: 1, h: 1 }, 0, 0);
         expect(clamped).toBeCloseTo(0, NUM_DIGITS);
 
-        clamped = clampedImageLevel({ w: 1, h: 1 }, 1);
+        clamped = clampedImageLevel({ w: 1, h: 1 }, 0, 1);
         expect(clamped).toBeCloseTo(0, NUM_DIGITS);
 
-        clamped = clampedImageLevel({ w: 1, h: 1 }, Number.POSITIVE_INFINITY);
+        clamped = clampedImageLevel(
+            { w: 1, h: 1 }, 0, Number.POSITIVE_INFINITY);
         expect(clamped).toBeCloseTo(0, NUM_DIGITS);
     });
 
     it("should be 2", () => {
-        let clamped = clampedImageLevel({ w: 4, h: 1 }, 2);
+        let clamped = clampedImageLevel({ w: 4, h: 1 }, 0, 2);
         expect(clamped).toBeCloseTo(2, NUM_DIGITS);
 
-        clamped = clampedImageLevel({ w: 4, h: 1 }, 3);
+        clamped = clampedImageLevel({ w: 4, h: 1 }, 0, 3);
         expect(clamped).toBeCloseTo(2, NUM_DIGITS);
 
-        clamped = clampedImageLevel({ w: 4, h: 1 }, Number.POSITIVE_INFINITY);
+        clamped = clampedImageLevel(
+            { w: 4, h: 1 }, 0, Number.POSITIVE_INFINITY);
         expect(clamped).toBeCloseTo(2, NUM_DIGITS);
 
-        clamped = clampedImageLevel({ w: 1024, h: 1 }, 2);
+        clamped = clampedImageLevel({ w: 1024, h: 1 }, 0, 2);
         expect(clamped).toBeCloseTo(2, NUM_DIGITS);
 
-        clamped = clampedImageLevel({ w: 1, h: 1024 }, 2);
+        clamped = clampedImageLevel({ w: 1, h: 1024 }, 0, 2);
         expect(clamped).toBeCloseTo(2, NUM_DIGITS);
 
-        clamped = clampedImageLevel({ w: 4000, h: 2000 }, 2);
+        clamped = clampedImageLevel({ w: 4000, h: 2000 }, 0, 2);
         expect(clamped).toBeCloseTo(2, NUM_DIGITS);
+
+        clamped = clampedImageLevel({ w: 1, h: 1 }, 5, 10);
+        expect(clamped).toBeCloseTo(5, NUM_DIGITS);
     });
 });
 

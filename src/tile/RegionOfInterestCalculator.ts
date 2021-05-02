@@ -29,36 +29,45 @@ export class RegionOfInterestCalculator {
         renderCamera: RenderCamera,
         size: ViewportSize,
         transform: Transform): TileRegionOfInterest {
-        let viewportBoundaryPoints: number[][] = this._viewportBoundaryPoints(4);
-        let bbox: TileBoundingBox = this._viewportPointsBoundingBox(viewportBoundaryPoints, renderCamera, transform);
+
+        const viewportBoundaryPoints = this._viewportBoundaryPoints(4);
+        const bbox = this._viewportPointsBoundingBox(
+            viewportBoundaryPoints,
+            renderCamera,
+            transform);
+
         this._clipBoundingBox(bbox);
 
-        const viewportPixelWidth: number = 2 / size.width;
-        const viewportPixelHeight: number = 2 / size.height;
-        let centralViewportPixel: number[][] = [
+        const viewportPixelWidth = 2 / size.width;
+        const viewportPixelHeight = 2 / size.height;
+        const centralViewportPixel = [
             [-0.5 * viewportPixelWidth, 0.5 * viewportPixelHeight],
             [0.5 * viewportPixelWidth, 0.5 * viewportPixelHeight],
             [0.5 * viewportPixelWidth, -0.5 * viewportPixelHeight],
             [-0.5 * viewportPixelWidth, -0.5 * viewportPixelHeight],
         ];
-
-        let cpbox: TileBoundingBox = this._viewportPointsBoundingBox(centralViewportPixel, renderCamera, transform);
+        const cpbox =
+            this._viewportPointsBoundingBox(
+                centralViewportPixel,
+                renderCamera,
+                transform);
+        const inverted = cpbox.minX < cpbox.maxX;
 
         return {
             bbox: bbox,
             pixelHeight: cpbox.maxY - cpbox.minY,
-            pixelWidth: cpbox.maxX - cpbox.minX + (cpbox.minX < cpbox.maxX ? 0 : 1),
+            pixelWidth: cpbox.maxX - cpbox.minX + (inverted ? 0 : 1),
         };
     }
 
     private _viewportBoundaryPoints(pointsPerSide: number): number[][] {
-        let points: number[][] = [];
-        let os: number[][] = [[-1, 1], [1, 1], [1, -1], [-1, -1]];
-        let ds: number[][] = [[2, 0], [0, -2], [-2, 0], [0, 2]];
-        for (let side: number = 0; side < 4; ++side) {
-            let o: number[] = os[side];
-            let d: number[] = ds[side];
-            for (let i: number = 0; i < pointsPerSide; ++i) {
+        const points: number[][] = [];
+        const os = [[-1, 1], [1, 1], [1, -1], [-1, -1]];
+        const ds = [[2, 0], [0, -2], [-2, 0], [0, 2]];
+        for (let side = 0; side < 4; ++side) {
+            const o = os[side];
+            const d = ds[side];
+            for (let i = 0; i < pointsPerSide; ++i) {
                 points.push([o[0] + d[0] * i / pointsPerSide,
                 o[1] + d[1] * i / pointsPerSide]);
             }
@@ -66,8 +75,12 @@ export class RegionOfInterestCalculator {
         return points;
     }
 
-    private _viewportPointsBoundingBox(viewportPoints: number[][], renderCamera: RenderCamera, transform: Transform): TileBoundingBox {
-        let basicPoints: number[][] = viewportPoints
+    private _viewportPointsBoundingBox(
+        viewportPoints: number[][],
+        renderCamera: RenderCamera,
+        transform: Transform): TileBoundingBox {
+
+        const basicPoints = viewportPoints
             .map(
                 (point: number[]): number[] => {
                     return this._viewportCoords
@@ -86,14 +99,14 @@ export class RegionOfInterestCalculator {
     }
 
     private _boundingBox(points: number[][]): TileBoundingBox {
-        let bbox: TileBoundingBox = {
+        const bbox: TileBoundingBox = {
             maxX: Number.NEGATIVE_INFINITY,
             maxY: Number.NEGATIVE_INFINITY,
             minX: Number.POSITIVE_INFINITY,
             minY: Number.POSITIVE_INFINITY,
         };
 
-        for (let i: number = 0; i < points.length; ++i) {
+        for (let i = 0; i < points.length; ++i) {
             bbox.minX = Math.min(bbox.minX, points[i][0]);
             bbox.maxX = Math.max(bbox.maxX, points[i][0]);
             bbox.minY = Math.min(bbox.minY, points[i][1]);
@@ -104,16 +117,16 @@ export class RegionOfInterestCalculator {
     }
 
     private _boundingBoxSpherical(points: number[][]): TileBoundingBox {
-        let xs: number[] = [];
-        let ys: number[] = [];
-        for (let i: number = 0; i < points.length; ++i) {
+        const xs: number[] = [];
+        const ys: number[] = [];
+        for (let i = 0; i < points.length; ++i) {
             xs.push(points[i][0]);
             ys.push(points[i][1]);
         }
         xs.sort((a, b) => { return this._sign(a - b); });
         ys.sort((a, b) => { return this._sign(a - b); });
 
-        let intervalX: number[] = this._intervalSpherical(xs);
+        const intervalX = this._intervalSpherical(xs);
 
         return {
             maxX: intervalX[1],
@@ -129,16 +142,16 @@ export class RegionOfInterestCalculator {
      * x is equivalent to x + 1.
      */
     private _intervalSpherical(xs: number[]): number[] {
-        let maxdx: number = 0;
-        let maxi: number = -1;
-        for (let i: number = 0; i < xs.length - 1; ++i) {
-            let dx: number = xs[i + 1] - xs[i];
+        let maxdx = 0;
+        let maxi = -1;
+        for (let i = 0; i < xs.length - 1; ++i) {
+            const dx = xs[i + 1] - xs[i];
             if (dx > maxdx) {
                 maxdx = dx;
                 maxi = i;
             }
         }
-        let loopdx: number = xs[0] + 1 - xs[xs.length - 1];
+        const loopdx = xs[0] + 1 - xs[xs.length - 1];
         if (loopdx > maxdx) {
             return [xs[0], xs[xs.length - 1]];
         } else {
