@@ -1,25 +1,25 @@
 import {
     combineLatest as observableCombineLatest,
     empty as observableEmpty,
+    Subject,
 } from "rxjs";
 import {
+    distinctUntilChanged,
     first,
+    map,
     pairwise,
     skip,
+    startWith,
     switchMap,
-    take,
     withLatestFrom,
 } from "rxjs/operators";
-import { WebGLRenderer } from "three";
 
 import { ICustomCameraControls } from "./interfaces/ICustomCameraControls";
 import { Navigator } from "./Navigator";
 import { Container } from "./Container";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { IViewer } from "./interfaces/IViewer";
-import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { State } from "../state/State";
-import { RenderCamera } from "../render/RenderCamera";
 import { MapillaryError } from "../error/MapillaryError";
 
 export class CustomCameraControls {
@@ -38,57 +38,47 @@ export class CustomCameraControls {
             throw new MapillaryError('Custom camera controls already attached');
         }
 
+        const attach$ = new Subject<void>();
+        const active$ = attach$
+            .pipe(
+                switchMap(
+                    () => {
+                        return this._navigator.stateService.state$;
+                    }),
+                map(
+                    (state: State): boolean => {
+                        return state === State.Custom;
+                    }),
+                distinctUntilChanged());
+
         const subs = this._subscriptions;
-
-        subs.push(observableCombineLatest(
-            [
-                // Include to ensure GL renderer has been initialized
-                this._container.glRenderer.webGLRenderer$,
-                this._container.renderService.renderCamera$,
-                this._navigator.stateService.reference$,
-                this._navigator.stateService.state$,
-            ])
-            .pipe(take(1))
+        subs.push(active$
+            .pipe(
+                startWith(false),
+                pairwise(),
+                withLatestFrom(
+                    this._navigator.stateService.reference$,
+                    this._container.renderService.renderCamera$))
             .subscribe(
-                ([, cam, ref, state]:
-                    [WebGLRenderer, RenderCamera, LngLatAlt, State]): void => {
-                    const projectionMatrixCallback =
-                        (projectionMatrix: number[]) => {
-                            if (!this._controls ||
-                                controls !== this._controls) {
-                                return;
-                            }
-                            this._updateProjectionMatrix(projectionMatrix);
-                        };
-                    const viewMatrixCallback =
-                        (viewMatrix: number[]) => {
-                            if (!this._controls ||
-                                controls !== this._controls) {
-                                return;
-                            }
-                            this._updateViewMatrix(viewMatrix);
-                        };
-
-                    controls.onAttach(
-                        viewer,
-                        viewMatrixCallback,
-                        projectionMatrixCallback);
-
-                    if (state === State.Custom) {
+                ([[deactivate, activate], ref, cam]) => {
+                    if (activate) {
                         controls.onActivate(
                             viewer,
                             cam.perspective.matrixWorldInverse.toArray(),
                             cam.perspective.projectionMatrix.toArray(),
                             ref);
+                    } else if (deactivate) {
+                        controls.onDeactivate(viewer);
                     }
                 }));
 
-        subs.push(this._navigator.stateService.state$
+        subs.push(active$
             .pipe(
                 switchMap(
-                    state => {
-                        return state === State.Custom ?
-                            this._navigator.stateService.currentState$ :
+                    active => {
+                        return active ?
+                            this._navigator.stateService.currentState$
+                                .pipe(skip(1)) :
                             observableEmpty();
 
                     }))
@@ -97,30 +87,11 @@ export class CustomCameraControls {
                     controls.onAnimationFrame(viewer, frame.id);
                 }));
 
-        subs.push(this._navigator.stateService.state$
-            .pipe(
-                pairwise(),
-                withLatestFrom(
-                    this._navigator.stateService.reference$,
-                    this._container.renderService.renderCamera$))
-            .subscribe(
-                ([[prev, curr], ref, cam]) => {
-                    if (curr === State.Custom) {
-                        controls.onActivate(
-                            viewer,
-                            cam.perspective.matrixWorldInverse.toArray(),
-                            cam.perspective.projectionMatrix.toArray(),
-                            ref);
-                    } else if (prev === State.Custom) {
-                        controls.onDeactivate(viewer);
-                    }
-                }));
-
-        subs.push(this._navigator.stateService.state$
+        subs.push(active$
             .pipe(
                 switchMap(
-                    state => {
-                        return state === State.Custom ?
+                    active => {
+                        return active ?
                             this._navigator.stateService.reference$
                                 .pipe(skip(1)) :
                             observableEmpty();
@@ -128,17 +99,56 @@ export class CustomCameraControls {
                     }))
             .subscribe(ref => controls.onReference(viewer, ref)));
 
-        subs.push(this._navigator.stateService.state$
+        subs.push(active$
             .pipe(
                 switchMap(
-                    state => {
-                        return state === State.Custom ?
+                    active => {
+                        return active ?
                             this._container.renderService.size$
                                 .pipe(skip(1)) :
                             observableEmpty();
 
                     }))
             .subscribe(() => controls.onResize(viewer)));
+
+        subs.push(
+            observableCombineLatest(
+                [
+                    // Include to ensure GL renderer has been initialized
+                    this._container.glRenderer.webGLRenderer$,
+                    this._container.renderService.renderCamera$,
+                    this._navigator.stateService.reference$,
+                    this._navigator.stateService.state$,
+                ])
+                .pipe(first())
+                .subscribe(
+                    (): void => {
+                        const projectionMatrixCallback =
+                            (projectionMatrix: number[]) => {
+                                if (!this._controls ||
+                                    controls !== this._controls) {
+                                    return;
+                                }
+                                this._updateProjectionMatrix(projectionMatrix);
+                            };
+                        const viewMatrixCallback =
+                            (viewMatrix: number[]) => {
+                                if (!this._controls ||
+                                    controls !== this._controls) {
+                                    return;
+                                }
+                                this._updateViewMatrix(viewMatrix);
+                            };
+
+                        controls.onAttach(
+                            viewer,
+                            viewMatrixCallback,
+                            projectionMatrixCallback);
+
+                        attach$.next();
+                        attach$.complete();
+                    }));
+
 
         this._controls = controls;
     }
