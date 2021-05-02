@@ -49,7 +49,6 @@ export class ClusterPoints extends Points {
     private _makeAttributes(cluster: ClusterContract): void {
         const positions: number[] = [];
         const colors: number[] = [];
-        const normalize = 1 / 255;
 
         const points = cluster.points;
         for (const pointId in points) {
@@ -61,9 +60,9 @@ export class ClusterPoints extends Points {
             positions.push(...point.coordinates)
 
             const color = point.color;
-            colors.push(normalize * color[0]);
-            colors.push(normalize * color[1]);
-            colors.push(normalize * color[2]);
+            colors.push(color[0]);
+            colors.push(color[1]);
+            colors.push(color[2]);
         }
 
         const geometry = this.geometry;
