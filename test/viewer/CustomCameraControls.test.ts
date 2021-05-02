@@ -17,11 +17,25 @@ import { RenderMode } from "../../src/render/RenderMode";
 import { CustomCameraControls } from "../../src/viewer/CustomCameraControls";
 import { State } from "../../src/state/State";
 import { ViewportSize } from "../../src/render/interfaces/ViewportSize";
+import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
 
 global.WebGL2RenderingContext = <any>jest.fn();
 
+type WebGLMocks = {
+    context: WebGL2RenderingContext;
+    renderer: WebGLRenderer;
+}
+
+function createWebGLMocks(): WebGLMocks {
+    const renderer = <WebGLRenderer><unknown>new RendererMock();
+    const context = new MockCreator()
+        .create(WebGL2RenderingContext, "WebGL2RenderingContext");
+    spyOn(renderer, "getContext").and.returnValue(context);
+    return { context, renderer };
+}
+
 describe("CustomCameraControls.ctor", () => {
-    it("should be definded", () => {
+    test("should be definded", () => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
@@ -36,7 +50,7 @@ describe("CustomCameraControls.ctor", () => {
 });
 
 describe("CustomRenderer.attach", () => {
-    it("should invoke onAttach after gl intialization", done => {
+    test("should invoke onAttach after gl intialization", done => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
@@ -72,12 +86,9 @@ describe("CustomRenderer.attach", () => {
             },
             viewer);
 
-        const rendererMock = <WebGLRenderer><unknown>new RendererMock();
-        const contextMock = new MockCreator()
-            .create(WebGL2RenderingContext, "WebGL2RenderingContext");
-        spyOn(rendererMock, "getContext").and.returnValue(contextMock);
+        const webGLMocks = createWebGLMocks();
         (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
-            .next(rendererMock);
+            .next(webGLMocks.renderer);
 
         (<Subject<LngLatAlt>>navigator.stateService.reference$)
             .next(referenceMock);
@@ -89,7 +100,7 @@ describe("CustomRenderer.attach", () => {
             .next(new RenderCamera(1, 1, RenderMode.Fill));
     });
 
-    it("should invoke onActivate if custom state is set", done => {
+    test("should invoke onActivate if custom state is set", done => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
@@ -100,7 +111,7 @@ describe("CustomRenderer.attach", () => {
             navigator);
 
         const viewer = <any>{};
-        const referenceMock: LngLatAlt = { alt: 1, lat: 2, lng: 3 };
+        const reference: LngLatAlt = { alt: 1, lat: 2, lng: 3 };
         const camera = new RenderCamera(1, 1, RenderMode.Fill);
 
         controls.attach(
@@ -112,7 +123,7 @@ describe("CustomRenderer.attach", () => {
                     expect(pm).toEqual(
                         camera.perspective.projectionMatrix.toArray());
                     expect(pm).not.toEqual(vm);
-                    expect(ref).toBe(referenceMock);
+                    expect(ref).toBe(reference);
                     done();
                 },
                 onAnimationFrame: () => { /* noop*/ },
@@ -128,24 +139,25 @@ describe("CustomRenderer.attach", () => {
             },
             viewer);
 
-        const rendererMock = <WebGLRenderer><unknown>new RendererMock();
-        const contextMock = new MockCreator()
-            .create(WebGL2RenderingContext, "WebGL2RenderingContext");
-        spyOn(rendererMock, "getContext").and.returnValue(contextMock);
+        const webGLMocks = createWebGLMocks();
         (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
-            .next(rendererMock);
+            .next(webGLMocks.renderer);
 
         (<Subject<LngLatAlt>>navigator.stateService.reference$)
-            .next(referenceMock);
+            .next(reference);
 
         (<Subject<State>>navigator.stateService.state$)
             .next(State.Custom);
 
         (<Subject<RenderCamera>>container.renderService.renderCamera$)
             .next(camera);
+
+        // Replay
+        (<Subject<State>>navigator.stateService.state$)
+            .next(State.Custom);
     });
 
-    it("should invoke onReference after skipping replayed reference", done => {
+    test("should invoke onReference after skipping replay", done => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
@@ -158,6 +170,7 @@ describe("CustomRenderer.attach", () => {
         const viewer = <any>{};
         const initialReference: LngLatAlt = { alt: 1, lat: 2, lng: 3 };
         const changedReference: LngLatAlt = { alt: 4, lat: 4, lng: 6 };
+        const camera = new RenderCamera(1, 1, RenderMode.Fill);
 
         controls.attach(
             {
@@ -181,17 +194,29 @@ describe("CustomRenderer.attach", () => {
             },
             viewer);
 
+        // Attach
+        const webGLMocks = createWebGLMocks();
+        (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
+            .next(webGLMocks.renderer);
         (<Subject<State>>navigator.stateService.state$)
             .next(State.Custom);
-
+        (<Subject<RenderCamera>>container.renderService.renderCamera$)
+            .next(camera);
         (<Subject<LngLatAlt>>navigator.stateService.reference$)
             .next(initialReference);
 
+        // Replay
+        (<Subject<State>>navigator.stateService.state$)
+            .next(State.Custom);
+        (<Subject<LngLatAlt>>navigator.stateService.reference$)
+            .next(initialReference);
+
+        // Change
         (<Subject<LngLatAlt>>navigator.stateService.reference$)
             .next(changedReference);
     });
 
-    it("should invoke onResize after skipping replayed size", done => {
+    test("should invoke onResize after skipping replay", done => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
@@ -202,8 +227,11 @@ describe("CustomRenderer.attach", () => {
             navigator);
 
         const viewer = <any>{};
+        const reference: LngLatAlt = { alt: 1, lat: 2, lng: 3 };
+        const camera = new RenderCamera(1, 1, RenderMode.Fill);
         const initialSize: ViewportSize = { height: 1, width: 2 };
         const changedSize: ViewportSize = { height: 3, width: 4 };
+
 
         controls.attach(
             {
@@ -216,7 +244,7 @@ describe("CustomRenderer.attach", () => {
                 onDetach: () => {
                     fail();
                 },
-                onReference: (v, ref) => { /* noop */ },
+                onReference: () => { /* noop */ },
                 onResize: (v) => {
                     expect(v).toBe(viewer);
                     done();
@@ -224,17 +252,87 @@ describe("CustomRenderer.attach", () => {
             },
             viewer);
 
+        // Attach
+        const webGLMocks = createWebGLMocks();
+        (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
+            .next(webGLMocks.renderer);
         (<Subject<State>>navigator.stateService.state$)
             .next(State.Custom);
+        (<Subject<RenderCamera>>container.renderService.renderCamera$)
+            .next(camera);
+        (<Subject<LngLatAlt>>navigator.stateService.reference$)
+            .next(reference);
 
+        // Replay
+        (<Subject<State>>navigator.stateService.state$)
+            .next(State.Custom);
         (<Subject<ViewportSize>>container.renderService.size$)
             .next(initialSize);
 
+        // Change
         (<Subject<ViewportSize>>container.renderService.size$)
             .next(changedSize);
     });
 
-    it("should invoke onActivate when custom state is set", done => {
+    test("should invoke onAnimationFrame after skipping replay", done => {
+        const navigator = new NavigatorMockCreator().create();
+        const container = new ContainerMockCreator().create();
+        spyOn(Navigator, "Navigator").and.returnValue(navigator);
+        spyOn(Container, "Container").and.returnValue(container);
+
+        const controls = new CustomCameraControls(
+            container,
+            navigator);
+
+        const viewer = <any>{};
+        const reference: LngLatAlt = { alt: 1, lat: 2, lng: 3 };
+        const camera = new RenderCamera(1, 1, RenderMode.Fill);
+        const initialFrame: AnimationFrame = { id: 1, fps: 120, state: null };
+        const changedFrame: AnimationFrame = { id: 2, fps: 120, state: null };
+
+        controls.attach(
+            {
+                onActivate: () => { /* noop*/ },
+                onAnimationFrame: (v, frameId) => {
+                    expect(v).toBe(viewer);
+                    expect(frameId).toBe(changedFrame.id);
+                    done();
+                },
+                onAttach: () => { /* noop*/ },
+                onDeactivate: () => {
+                    fail();
+                },
+                onDetach: () => {
+                    fail();
+                },
+                onReference: () => { /* noop */ },
+                onResize: (v) => { /* noop */ },
+            },
+            viewer);
+
+        // Attach
+        const webGLMocks = createWebGLMocks();
+        (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
+            .next(webGLMocks.renderer);
+        (<Subject<State>>navigator.stateService.state$)
+            .next(State.Custom);
+        (<Subject<RenderCamera>>container.renderService.renderCamera$)
+            .next(camera);
+        (<Subject<LngLatAlt>>navigator.stateService.reference$)
+            .next(reference);
+
+        // Replay
+        (<Subject<State>>navigator.stateService.state$)
+            .next(State.Custom);
+        (<Subject<AnimationFrame>>navigator.stateService.currentState$)
+            .next(initialFrame);
+
+        // Change
+        (<Subject<AnimationFrame>>navigator.stateService.currentState$)
+            .next(changedFrame);
+    });
+
+    test("should invoke onActivate when custom state is set", done => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
@@ -275,33 +373,27 @@ describe("CustomRenderer.attach", () => {
             },
             viewer);
 
-        const rendererMock = <WebGLRenderer><unknown>new RendererMock();
-        const contextMock = new MockCreator()
-            .create(WebGL2RenderingContext, "WebGL2RenderingContext");
-        spyOn(rendererMock, "getContext").and.returnValue(contextMock);
+        // Attach
+        const webGLMocks = createWebGLMocks();
         (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
-            .next(rendererMock);
-
+            .next(webGLMocks.renderer);
         (<Subject<LngLatAlt>>navigator.stateService.reference$)
             .next(initialReference);
-
         (<Subject<RenderCamera>>container.renderService.renderCamera$)
             .next(initialCamera);
-
         (<Subject<State>>navigator.stateService.state$)
             .next(State.Earth);
 
+        // Replay
         (<Subject<LngLatAlt>>navigator.stateService.reference$)
             .next(changedReference);
-
         (<Subject<RenderCamera>>container.renderService.renderCamera$)
             .next(changedCamera);
-
         (<Subject<State>>navigator.stateService.state$)
             .next(State.Custom);
     });
 
-    it("should invoke onDeactivate when non custom state is set", done => {
+    test("should invoke onDeactivate when non custom state is set", done => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
@@ -332,27 +424,31 @@ describe("CustomRenderer.attach", () => {
             },
             viewer);
 
-        const rendererMock = <WebGLRenderer><unknown>new RendererMock();
-        const contextMock = new MockCreator()
-            .create(WebGL2RenderingContext, "WebGL2RenderingContext");
-        spyOn(rendererMock, "getContext").and.returnValue(contextMock);
+        // Attach
+        const webGLMocks = createWebGLMocks();
         (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
-            .next(rendererMock);
-
+            .next(webGLMocks.renderer);
         (<Subject<LngLatAlt>>navigator.stateService.reference$)
             .next(reference);
-
         (<Subject<RenderCamera>>container.renderService.renderCamera$)
             .next(camera);
-
         (<Subject<State>>navigator.stateService.state$)
             .next(State.Custom);
 
+        // Replay
+        (<Subject<LngLatAlt>>navigator.stateService.reference$)
+            .next(reference);
+        (<Subject<RenderCamera>>container.renderService.renderCamera$)
+            .next(camera);
+        (<Subject<State>>navigator.stateService.state$)
+            .next(State.Custom);
+
+        // Emit
         (<Subject<State>>navigator.stateService.state$)
             .next(State.Earth);
     });
 
-    it("should callback view matrix in custom state", done => {
+    test("should callback view matrix in custom state", done => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
@@ -414,7 +510,7 @@ describe("CustomRenderer.attach", () => {
             .next(new RenderCamera(1, 1, RenderMode.Fill));
     });
 
-    it("should callback projection matrix in custom state", done => {
+    test("should callback projection matrix in custom state", done => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
@@ -473,7 +569,7 @@ describe("CustomRenderer.attach", () => {
             .next(new RenderCamera(1, 1, RenderMode.Fill));
     });
 
-    it("should not callback in non custom state", done => {
+    test("should not callback in non custom state", done => {
         spyOn(console, "warn").and.stub();
 
         const navigator = new NavigatorMockCreator().create();
@@ -543,7 +639,7 @@ describe("CustomRenderer.attach", () => {
 });
 
 describe("CustomRenderer.detach", () => {
-    it("should invoke onDetach when detatching", done => {
+    test("should invoke onDetach when detatching", done => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
@@ -588,7 +684,7 @@ describe("CustomRenderer.detach", () => {
             .next(State.Earth);
     });
 
-    it("should invoke onDeactive when detatching if in custom state", done => {
+    test("should invoke onDeactive when detatching if in custom state", done => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
