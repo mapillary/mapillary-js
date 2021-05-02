@@ -44,9 +44,10 @@ export function baseImageLevel(size: TileImageSize): number {
 
 export function clampedImageLevel(
     size: TileImageSize,
+    min: number,
     max: number)
     : number {
-    return Math.max(0, Math.min(max, baseImageLevel(size)));
+    return Math.max(min, Math.min(max, baseImageLevel(size)));
 }
 
 export function sizeToLevelColumnsRows(

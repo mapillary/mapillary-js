@@ -130,7 +130,7 @@ describe("TextureProvider.setRegionOfInterest", () => {
         expect(getImageCI.args[0]).toBe(ent.url);
     });
 
-    test("should not request when lower than min request level", () => {
+    test("should clamp when lower than min request level", () => {
         const width = 2 * TILE_SIZE;
         const height = 2 * TILE_SIZE;
 
@@ -156,8 +156,11 @@ describe("TextureProvider.setRegionOfInterest", () => {
 
         textureProvider.setRegionOfInterest(roi);
 
-        expect(getURLsSpy.calls.count()).toBe(0);
-        expect(getImageSpy.calls.count()).toBe(0);
+        expect(getURLsSpy.calls.count()).toBe(1);
+        const getURLsCI = getURLsSpy.calls.first();
+        expect(getURLsCI.args.length).toBe(2);
+        expect(getURLsCI.args[0]).toBe(imageId);
+        expect(getURLsCI.args[1]).toBe(TILE_MIN_REQUEST_LEVEL);
     });
 
     test("should request multiple tiles in x direction", () => {
