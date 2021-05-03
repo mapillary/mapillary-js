@@ -26,7 +26,7 @@ import { State } from "../../src/state/State";
 import { StateService } from "../../src/state/StateService";
 import { CacheService } from "../../src/viewer/CacheService";
 import { LoadingService } from "../../src/viewer/LoadingService";
-import { AbortMapillaryError } from "../../src/error/AbortMapillaryError";
+import { CancelMapillaryError } from "../../src/error/CancelMapillaryError";
 import { NavigationDirection } from "../../src/graph/edge/NavigationDirection";
 
 const createState: () => IAnimationState = (): IAnimationState => {
@@ -210,7 +210,7 @@ describe("Navigator.moveToKey$", () => {
                 undefined,
                 (e: Error): void => {
                     expect(e).toBeDefined();
-                    expect(e instanceof AbortMapillaryError);
+                    expect(e instanceof CancelMapillaryError);
                     done();
                 });
 
@@ -834,7 +834,7 @@ describe("Navigator.setToken$", () => {
                 undefined,
                 (e: Error): void => {
                     expect(e).toBeDefined();
-                    expect(e instanceof AbortMapillaryError);
+                    expect(e instanceof CancelMapillaryError);
                     done();
                 });
 
@@ -866,7 +866,7 @@ describe("Navigator.setToken$", () => {
                 undefined,
                 (e: Error): void => {
                     expect(e).toBeDefined();
-                    expect(e instanceof AbortMapillaryError);
+                    expect(e instanceof CancelMapillaryError);
                     done();
                 });
 

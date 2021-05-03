@@ -18,7 +18,7 @@ import {
 
 import { DataProviderBase } from "../../api/DataProviderBase";
 import { ClusterContract } from "../../api/contracts/ClusterContract";
-import { AbortMapillaryError } from "../../error/AbortMapillaryError";
+import { CancelMapillaryError } from "../../error/CancelMapillaryError";
 import { GraphService } from "../../graph/GraphService";
 import { Image } from "../../graph/Image";
 
@@ -331,7 +331,7 @@ export class SpatialCache {
                         .pipe(
                             catchError(
                                 (error: Error): Observable<ClusterContract> => {
-                                    if (error instanceof AbortMapillaryError) {
+                                    if (error instanceof CancelMapillaryError) {
                                         return observableEmpty();
                                     }
 

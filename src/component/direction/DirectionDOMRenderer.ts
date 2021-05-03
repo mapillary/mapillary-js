@@ -1,5 +1,5 @@
 import * as vd from "virtual-dom";
-import { AbortMapillaryError } from "../../error/AbortMapillaryError";
+import { CancelMapillaryError } from "../../error/CancelMapillaryError";
 
 import { Spatial } from "../../geo/Spatial";
 import { Image } from "../../graph/Image";
@@ -380,7 +380,7 @@ export class DirectionDOMRenderer {
                     .subscribe(
                         undefined,
                         (error: Error): void => {
-                            if (!(error instanceof AbortMapillaryError)) {
+                            if (!(error instanceof CancelMapillaryError)) {
                                 console.error(error);
                             }
                         });
@@ -410,7 +410,7 @@ export class DirectionDOMRenderer {
                     .subscribe(
                         undefined,
                         (error: Error): void => {
-                            if (!(error instanceof AbortMapillaryError)) {
+                            if (!(error instanceof CancelMapillaryError)) {
                                 console.error(error);
                             }
                         });
@@ -438,7 +438,7 @@ export class DirectionDOMRenderer {
                     .subscribe(
                         undefined,
                         (error: Error): void => {
-                            if (!(error instanceof AbortMapillaryError)) {
+                            if (!(error instanceof CancelMapillaryError)) {
                                 console.error(error);
                             }
                         });

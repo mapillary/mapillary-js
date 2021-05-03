@@ -26,7 +26,7 @@ import { ViewerOptions } from "./options/ViewerOptions";
 import { APIWrapper } from "../api/APIWrapper";
 import { DataProviderBase } from "../api/DataProviderBase";
 import { FalcorDataProvider } from "../api/falcor/FalcorDataProvider";
-import { AbortMapillaryError } from "../error/AbortMapillaryError";
+import { CancelMapillaryError } from "../error/CancelMapillaryError";
 import { FilterExpression } from "../graph/FilterExpression";
 import { Graph } from "../graph/Graph";
 import { GraphService } from "../graph/GraphService";
@@ -301,7 +301,7 @@ export class Navigator {
 
         if (this._request$ != null) {
             if (!(this._request$.isStopped || this._request$.hasError)) {
-                this._request$.error(new AbortMapillaryError(`Request aborted by a subsequent request ${reason}.`));
+                this._request$.error(new CancelMapillaryError(`Request aborted by a subsequent request ${reason}.`));
             }
 
             this._request$ = null;
