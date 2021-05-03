@@ -3,7 +3,7 @@ import { Image } from "../../src/graph/Image";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { FilterCreator, FilterFunction } from "../../src/graph/FilterCreator";
-import { SetMembershipFilterExpression } from "../../src/mapillary";
+import { SetMembershipFilterExpression } from "../../src/graph/FilterExpression";
 
 /**
  * Implementation based on https://github.com/mapbox/feature-filter.

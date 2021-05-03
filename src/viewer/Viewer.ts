@@ -645,7 +645,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * or the edges has not yet been cached.
      * @throws {Error} Propagates any IO errors to the caller.
      * @throws {Error} When viewer is not navigable.
-     * @throws  {@link AbortMapillaryError} When a subsequent move request is made
+     * @throws  {@link CancelMapillaryError} When a subsequent move request is made
      * before the move dir call has completed.
      *
      * @example
@@ -679,7 +679,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * @returns {Promise<Image>} Promise to the image that was navigated to.
      * @throws {Error} Propagates any IO errors to the caller.
      * @throws {Error} When viewer is not navigable.
-     * @throws {@link AbortMapillaryError} When a subsequent
+     * @throws {@link CancelMapillaryError} When a subsequent
      * move request is made before the move to id call has completed.
      *
      * @example
@@ -1491,7 +1491,7 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * Calling setUserToken aborts all outstanding move requests.
      * The promises of those move requests will be rejected with a
-     * {@link AbortMapillaryError} the rejections need to be caught.
+     * {@link CancelMapillaryError} the rejections need to be caught.
      *
      * Calling setUserToken also resets the complete viewer cache
      * so it should not be called repeatedly.
