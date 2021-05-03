@@ -23,7 +23,7 @@ import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { EulerRotation } from "../../state/interfaces/EulerRotation";
 import { Camera } from "../../geo/Camera";
 import { NavigationDirection } from "../../graph/edge/NavigationDirection";
-import { AbortMapillaryError } from "../../error/AbortMapillaryError";
+import { CancelMapillaryError } from "../../error/CancelMapillaryError";
 import { isSpherical } from "../../geo/Geo";
 
 
@@ -163,7 +163,7 @@ export class KeySpatialNavigationHandler extends HandlerBase<KeyboardConfigurati
             .subscribe(
                 undefined,
                 (error: Error): void => {
-                    if (!(error instanceof AbortMapillaryError)) {
+                    if (!(error instanceof CancelMapillaryError)) {
                         console.error(error);
                     }
                 });

@@ -8,7 +8,7 @@ import {
 } from "rxjs";
 import { filter } from "rxjs/operators";
 
-import { AbortMapillaryError } from "../../error/AbortMapillaryError";
+import { CancelMapillaryError } from "../../error/CancelMapillaryError";
 import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatus";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
@@ -444,7 +444,7 @@ export class SequenceDOMRenderer {
                         .subscribe(
                             undefined,
                             (error: Error): void => {
-                                if (!(error instanceof AbortMapillaryError)) {
+                                if (!(error instanceof CancelMapillaryError)) {
                                     console.error(error);
                                 }
                             });
@@ -462,7 +462,7 @@ export class SequenceDOMRenderer {
                         .subscribe(
                             undefined,
                             (error: Error): void => {
-                                if (!(error instanceof AbortMapillaryError)) {
+                                if (!(error instanceof CancelMapillaryError)) {
                                     console.error(error);
                                 }
                             });

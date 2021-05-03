@@ -14,7 +14,7 @@ import {
 import { Component } from "../../Component";
 import { NavigationFallbackConfiguration } from "../../interfaces/NavigationFallbackConfiguration";
 
-import { AbortMapillaryError } from "../../../error/AbortMapillaryError";
+import { CancelMapillaryError } from "../../../error/CancelMapillaryError";
 import { Image } from "../../../graph/Image";
 import { NavigationDirection } from "../../../graph/edge/NavigationDirection";
 import { NavigationEdge } from "../../../graph/edge/interfaces/NavigationEdge";
@@ -150,7 +150,7 @@ export class NavigationFallbackComponent
                         .subscribe(
                             undefined,
                             (error: Error): void => {
-                                if (!(error instanceof AbortMapillaryError)) {
+                                if (!(error instanceof CancelMapillaryError)) {
                                     console.error(error);
                                 }
                             });

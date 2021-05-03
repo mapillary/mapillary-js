@@ -12,7 +12,7 @@ import { NavigationEdgeStatus } from "../../graph/interfaces/NavigationEdgeStatu
 import { KeyboardConfiguration } from "../interfaces/KeyboardConfiguration";
 import { HandlerBase } from "../util/HandlerBase";
 import { NavigationDirection } from "../../graph/edge/NavigationDirection";
-import { AbortMapillaryError } from "../../error/AbortMapillaryError";
+import { CancelMapillaryError } from "../../error/CancelMapillaryError";
 
 /**
  * The `KeySequenceNavigationHandler` allows the user to navigate through a sequence using the
@@ -69,7 +69,7 @@ export class KeySequenceNavigationHandler extends HandlerBase<KeyboardConfigurat
                                 .subscribe(
                                     undefined,
                                     (error: Error): void => {
-                                        if (!(error instanceof AbortMapillaryError)) {
+                                        if (!(error instanceof CancelMapillaryError)) {
                                             console.error(error);
                                         }
                                     });
