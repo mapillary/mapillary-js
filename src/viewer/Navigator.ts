@@ -93,7 +93,10 @@ export class Navigator {
                 options.transitionMode);
 
         this._cacheService = cacheService ??
-            new CacheService(this._graphService, this._stateService);
+            new CacheService(
+                this._graphService,
+                this._stateService,
+                this._api);
 
         this._playService = playService ??
             new PlayService(this._graphService, this._stateService);

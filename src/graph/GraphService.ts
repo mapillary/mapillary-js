@@ -560,6 +560,7 @@ export class GraphService {
      * related to those images.
      *
      * @param {Array<string>} keepIds - Ids of images to keep in graph.
+     * @param {Array<string>} keepCellIds - Ids of cells to keep in graph.
      * @param {string} keepSequenceId - Optional id of sequence
      * for which the belonging images should not be disposed or
      * removed from the graph. These images may still be uncached if
@@ -567,12 +568,17 @@ export class GraphService {
      * @return {Observable<Graph>} Observable emitting a single item,
      * the graph, when the graph has been uncached.
      */
-    public uncache$(keepIds: string[], keepSequenceId?: string): Observable<void> {
+    public uncache$(
+        keepIds: string[],
+        keepCellIds: string[],
+        keepSequenceId?: string)
+        : Observable<void> {
+
         return this._graph$.pipe(
             first(),
             tap(
                 (graph: Graph): void => {
-                    graph.uncache(keepIds, keepSequenceId);
+                    graph.uncache(keepIds, keepCellIds, keepSequenceId);
                 }),
             map(
                 (): void => {
