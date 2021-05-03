@@ -54,6 +54,7 @@ import { LngLat } from "../../api/interfaces/LngLat";
 import { ComponentName } from "../ComponentName";
 import { isModeVisible, isOverviewState } from "./Modes";
 import { State } from "../../state/State";
+import { connectedComponent } from "../../api/CellMath";
 
 type IntersectEvent = MouseEvent | FocusEvent;
 
@@ -112,7 +113,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
      * @example
      * ```js
      * spatialComponent.getFrameIdAt([100, 125])
-     *     .then((markerId) => { console.log(markerId); });
+     *     .then((imageId) => { console.log(imageId); });
      * ```
      */
     public getFrameIdAt(pixelPoint: number[]): Promise<string> {
@@ -142,6 +143,8 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
     }
 
     protected _activate(): void {
+        this._navigator.cacheService.configure({ cellDepth: 3 })
+
         const subs = this._subscriptions;
 
         subs.push(this._navigator.stateService.reference$
@@ -180,9 +183,11 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                     (c: SpatialConfiguration): number => {
                         return this._spatial.clamp(c.cellGridDepth, 1, 3);
                     }),
-                distinctUntilChanged());
+                distinctUntilChanged(),
+                publishReplay(1),
+                refCount());
 
-        const sequencePlay$: Observable<boolean> = observableCombineLatest(
+        const sequencePlay$ = observableCombineLatest(
             this._navigator.playService.playing$,
             this._navigator.playService.speed$).pipe(
                 map(
@@ -194,7 +199,10 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 refCount());
 
         const isOverview$ = this._navigator.stateService.state$.pipe(
-            map(isOverviewState),
+            map(
+                (state: State): boolean => {
+                    return isOverviewState(state);
+                }),
             distinctUntilChanged(),
             publishReplay(1),
             refCount());
@@ -204,7 +212,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 this._scene.setNavigationState(isOverview);
             }));
 
-        const cellIds$ = observableCombineLatest(
+        const cell$ = observableCombineLatest(
             isOverview$,
             sequencePlay$,
             bearing$,
@@ -229,11 +237,12 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                         : AdjancentParams)
                         : Observable<string[]> => {
                         if (isOverview) {
-                            const cellId = this._navigator.api.data.geometry
+                            const geometry = this._navigator.api.data.geometry;
+                            const cellId = geometry
                                 .lngLatToCellId(image.originalLngLat);
                             const cells = sequencePlay ?
                                 [cellId] :
-                                this._adjacentComponent(cellId, depth)
+                                connectedComponent(cellId, depth, geometry);
                             return observableOf(cells);
                         }
 
@@ -244,26 +253,21 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                                 bearing,
                                 fov));
                     }),
-                publish<string[]>(),
-                refCount());
+                switchMap(
+                    (cellIds: string[]): Observable<Cell> => {
+                        return observableFrom(cellIds).pipe(
+                            mergeMap(
+                                (cellId: string): Observable<Cell> => {
+                                    const t$ = this._cache.hasCell(cellId) ?
+                                        observableOf(
+                                            this._cache.getCell(cellId)) :
+                                        this._cache.cacheCell$(cellId);
 
-        const cell$: Observable<Cell> = cellIds$.pipe(
-            switchMap(
-                (cellIds: string[]): Observable<Cell> => {
-                    return observableFrom(cellIds).pipe(
-                        mergeMap(
-                            (cellId: string): Observable<Cell> => {
-                                const t$ = this._cache.hasCell(cellId) ?
-                                    observableOf(this._cache.getCell(cellId)) :
-                                    this._cache.cacheCell$(cellId);
-
-                                return t$.pipe(
-                                    map((images: Image[]) => ({ id: cellId, images })));
-                            },
-                            6));
-                }),
-            publish(),
-            refCount());
+                                    return t$.pipe(
+                                        map((images: Image[]) => ({ id: cellId, images })));
+                                },
+                                6));
+                    }));
 
         subs.push(cell$.pipe(
             withLatestFrom(this._navigator.stateService.reference$))
@@ -364,7 +368,10 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
         subs.push(observableCombineLatest(cellId$, cellGridDepth$)
             .subscribe(
                 ([cellId, depth]: [string, number]): void => {
-                    const keepCells = this._adjacentComponent(cellId, depth);
+                    const keepCells = connectedComponent(
+                        cellId,
+                        depth,
+                        this._navigator.api.data.geometry);
                     this._scene.uncache(keepCells);
                     this._cache.uncache(keepCells);
                 }));
@@ -567,7 +574,8 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
     protected _deactivate(): void {
         this._subscriptions.unsubscribe();
         this._cache.uncache();
-        this._scene.uncache();
+        this._scene.deactivate();
+        this._navigator.cacheService.configure();
     }
 
     protected _getDefaultConfiguration(): SpatialConfiguration {
@@ -594,43 +602,6 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 this._computeOriginalPosition(image, reference),
                 cellId);
         }
-    }
-
-    private _adjacentComponent(cellId: string, depth: number): string[] {
-        const cells = new Set<string>();
-        cells.add(cellId);
-        this._adjacentComponentRecursive(cells, [cellId], 0, depth);
-        return Array.from(cells);
-    }
-
-    private _adjacentComponentRecursive(
-        cells: Set<string>,
-        current: string[],
-        currentDepth: number,
-        maxDepth: number)
-        : void {
-
-        if (currentDepth >= maxDepth) { return; }
-
-        const adjacent: string[] = [];
-        for (const cellId of current) {
-            const aCells =
-                this._navigator.api.data.geometry.getAdjacent(cellId);
-            adjacent.push(...aCells);
-        }
-
-        const newCells: string[] = [];
-        for (const a of adjacent) {
-            if (cells.has(a)) { continue; }
-            cells.add(a);
-            newCells.push(a);
-        }
-
-        this._adjacentComponentRecursive(
-            cells,
-            newCells,
-            currentDepth + 1,
-            maxDepth);
     }
 
     private _cellsInFov(

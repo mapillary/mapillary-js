@@ -230,7 +230,7 @@ export class Graph {
 
         this._changed$ = new Subject<Graph>();
 
-        this._filterCreator = filterCreator != null ? filterCreator : new FilterCreator();
+        this._filterCreator = filterCreator ?? new FilterCreator();
         this._filter = this._filterCreator.createFilter(undefined);
         this._filterSubject$ = new Subject<FilterFunction>();
         this._filter$ =
@@ -242,20 +242,17 @@ export class Graph {
         this._filterSubscription = this._filter$.subscribe(() => { /*noop*/ });
 
         this._defaultAlt = 2;
-        this._edgeCalculator = edgeCalculator != null ? edgeCalculator : new EdgeCalculator();
-        this._graphCalculator = graphCalculator != null ? graphCalculator : new GraphCalculator();
-        this._configuration = configuration != null ?
-            configuration :
-            {
-                maxSequences: 50,
-                maxUnusedImages: 100,
-                maxUnusedPreStoredImages: 30,
-                maxUnusedTiles: 20,
-            };
+        this._edgeCalculator = edgeCalculator ?? new EdgeCalculator();
+        this._graphCalculator = graphCalculator ?? new GraphCalculator();
+        this._configuration = configuration ?? {
+            maxSequences: 50,
+            maxUnusedImages: 100,
+            maxUnusedPreStoredImages: 30,
+            maxUnusedTiles: 20,
+        };
 
         this._nodes = {};
-        this._nodeIndex = nodeIndex != null ?
-            nodeIndex : new Graph._spatialIndex(16);
+        this._nodeIndex = nodeIndex ?? new Graph._spatialIndex(16);
         this._nodeIndexTiles = {};
         this._nodeToTile = {};
 
@@ -1402,13 +1399,23 @@ export class Graph {
      * @param {Array<string>} keepIds - Ids of nodes to keep in
      * graph unrelated to last access. Tiles related to those keys
      * will also be kept in graph.
+     * @param {Array<string>} keepCellIds - Ids of cells to keep in
+     * graph unrelated to last access. The nodes of the cells may
+     * still be uncached if not specified in the keep ids param
+     * but are guaranteed to not be disposed.
      * @param {string} keepSequenceId - Optional id of sequence
      * for which the belonging nodes should not be disposed or
      * removed from the graph. These nodes may still be uncached if
-     * not specified in keep keys param.
+     * not specified in keep ids param but are guaranteed to not
+     * be disposed.
      */
-    public uncache(keepIds: string[], keepSequenceId?: string): void {
-        let idsInUse: { [id: string]: boolean } = {};
+    public uncache(
+        keepIds: string[],
+        keepCellIds: string[],
+        keepSequenceId?: string)
+        : void {
+
+        const idsInUse: { [id: string]: boolean } = {};
 
         this._addNewKeys(idsInUse, this._cachingFull$);
         this._addNewKeys(idsInUse, this._cachingFill$);
@@ -1424,7 +1431,7 @@ export class Graph {
         const tileThreshold = this._tileThreshold;
         const calculator = this._graphCalculator;
         const geometry = this._api.data.geometry;
-        const keepCells: { [h: string]: boolean } = {};
+        const keepCells = new Set<string>(keepCellIds);
         for (let id in idsInUse) {
             if (!idsInUse.hasOwnProperty(id)) { continue; }
 
@@ -1434,11 +1441,11 @@ export class Graph {
                     node.lngLat,
                     tileThreshold,
                 )
-            const nodeCells = geometry.bboxToCellIds(sw, ne)
+            const nodeCellIds = geometry.bboxToCellIds(sw, ne)
 
-            for (const nodeCell of nodeCells) {
-                if (!(nodeCell in keepCells)) {
-                    keepCells[nodeCell] = true;
+            for (const nodeCellId of nodeCellIds) {
+                if (!keepCells.has(nodeCellId)) {
+                    keepCells.add(nodeCellId);
                 }
             }
         }
@@ -1446,7 +1453,7 @@ export class Graph {
         const potentialCells: [string, TileAccess][] = [];
         for (let cellId in this._cachedTiles) {
             if (!this._cachedTiles.hasOwnProperty(cellId) ||
-                cellId in keepCells) {
+                keepCells.has(cellId)) {
                 continue;
             }
             potentialCells.push([cellId, this._cachedTiles[cellId]]);

@@ -1043,12 +1043,14 @@ describe("GraphService.uncache$", () => {
 
         const graphService: GraphService = new GraphService(graph);
 
-        graphService.uncache$(["nKey"], "sKey").subscribe(() => { /*noop*/ });
+        graphService.uncache$(["nKey"], ["cKey"], "sKey").subscribe(() => { /*noop*/ });
 
         expect(uncacheSpy.calls.count()).toBe(1);
-        expect(uncacheSpy.calls.first().args.length).toBe(2);
+        expect(uncacheSpy.calls.first().args.length).toBe(3);
         expect(uncacheSpy.calls.first().args[0].length).toBe(1);
         expect(uncacheSpy.calls.first().args[0][0]).toBe("nKey");
-        expect(uncacheSpy.calls.first().args[1]).toBe("sKey");
+        expect(uncacheSpy.calls.first().args[1].length).toBe(1);
+        expect(uncacheSpy.calls.first().args[1][0]).toBe("cKey");
+        expect(uncacheSpy.calls.first().args[2]).toBe("sKey");
     });
 });

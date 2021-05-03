@@ -64,7 +64,7 @@ describe("Navigator.ctor", () => {
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
-        const cacheService: CacheService = new CacheService(graphService, stateService);
+        const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         const navigator: Navigator =
             new Navigator(
@@ -86,7 +86,7 @@ describe("Navigator.moveToKey$", () => {
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
-        const cacheService: CacheService = new CacheService(graphService, stateService);
+        const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         const loadingSpy: jasmine.Spy = spyOn(loadingService, "startLoading").and.stub();
 
@@ -153,7 +153,7 @@ describe("Navigator.moveToKey$", () => {
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
-        const cacheService: CacheService = new CacheService(graphService, stateService);
+        const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         spyOn(loadingService, "startLoading").and.stub();
         const stopLoadingSpy: jasmine.Spy = spyOn(loadingService, "stopLoading").and.stub();
@@ -190,7 +190,7 @@ describe("Navigator.moveToKey$", () => {
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
-        const cacheService: CacheService = new CacheService(graphService, stateService);
+        const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         spyOn(loadingService, "startLoading").and.stub();
         spyOn(loadingService, "stopLoading").and.stub();
@@ -303,7 +303,7 @@ describe("Navigator.moveToKey$", () => {
             const graphService: GraphService = new GraphService(new Graph(api));
             const loadingService: LoadingService = new LoadingService();
             const stateService: StateService = new StateService(State.Traversing);
-            const cacheService: CacheService = new CacheService(graphService, stateService);
+            const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
             spyOn(loadingService, "startLoading").and.stub();
             spyOn(loadingService, "stopLoading").and.stub();
@@ -363,7 +363,7 @@ describe("Navigator.movedToKey$", () => {
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
-        const cacheService: CacheService = new CacheService(graphService, stateService);
+        const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         spyOn(loadingService, "startLoading").and.stub();
         spyOn(loadingService, "stopLoading").and.stub();
@@ -433,7 +433,7 @@ describe("Navigator.setFilter$", () => {
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
-        const cacheService: CacheService = new CacheService(graphService, stateService);
+        const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         const clearImagesSpy: jasmine.Spy = spyOn(stateService, "clearImages").and.stub();
 
@@ -476,7 +476,7 @@ describe("Navigator.setFilter$", () => {
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
-        const cacheService: CacheService = new CacheService(graphService, stateService);
+        const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         const setFilterSpy: jasmine.Spy = spyOn(graphService, "setFilter$");
         setFilterSpy.and.returnValue(new Subject<Graph>());
@@ -509,7 +509,7 @@ describe("Navigator.setFilter$", () => {
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
-        const cacheService: CacheService = new CacheService(graphService, stateService);
+        const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         spyOn(loadingService, "startLoading").and.stub();
         const setImagesSpy: jasmine.Spy = spyOn(stateService, "setImages").and.stub();
@@ -574,7 +574,7 @@ describe("Navigator.setFilter$", () => {
 
         const currentStateSubject$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const stateService: TestStateService = new TestStateService(currentStateSubject$);
-        const cacheService: CacheService = new CacheService(graphService, stateService);
+        const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         spyOn(cacheService, "start").and.stub();
 
@@ -670,7 +670,7 @@ describe("Navigator.setToken$", () => {
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
-        const cacheService: CacheService = new CacheService(graphService, stateService);
+        const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         spyOn(cacheService, "start").and.stub();
 
@@ -718,7 +718,7 @@ describe("Navigator.setToken$", () => {
 
         const currentStateSubject$: Subject<AnimationFrame> = new Subject<AnimationFrame>();
         const stateService: TestStateService = new TestStateService(currentStateSubject$);
-        const cacheService: CacheService = new CacheService(graphService, stateService);
+        const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         spyOn(cacheService, "start").and.stub();
 
@@ -812,7 +812,7 @@ describe("Navigator.setToken$", () => {
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
-        const cacheService: CacheService = new CacheService(graphService, stateService);
+        const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         spyOn(loadingService, "startLoading").and.stub();
         spyOn(loadingService, "stopLoading").and.stub();
@@ -847,7 +847,7 @@ describe("Navigator.setToken$", () => {
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateServiceMockCreator().create();
-        const cacheService: CacheService = new CacheService(graphService, stateService);
+        const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         spyOn(loadingService, "startLoading").and.stub();
         spyOn(loadingService, "stopLoading").and.stub();

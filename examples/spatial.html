@@ -36,10 +36,11 @@
         } from './dist/mapillary.module.js';
 
         let cameraControls = CameraControls.Earth;
+        let spatialActive = true;
         const viewer = new Viewer({
             apiClient: "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
             cameraControls,
-            component: { cover: false, spatial: true },
+            component: { cover: false, spatial: spatialActive },
             container: "mly",
         });
 
@@ -146,6 +147,7 @@
                     case 'p': name = 'pointsVisible'; break;
                     case 't': name = 'cellsVisible'; break;
                     case 'i': toggleImages(); break;
+                    case 'l': toggleSpatial(); break;
                     case 'c': rotateCvm(); break;
                     case 'o': rotatePm(); break;
                     case 'r': rotateCc(); break;
@@ -165,6 +167,12 @@
             if (s.imagesVisible) { viewer.activateComponent("image"); }
             else { viewer.deactivateComponent("image"); }
         }
+
+        function toggleSpatial() {
+            spatialActive = !spatialActive;
+            if (spatialActive) { viewer.activateComponent("spatial"); }
+            else { viewer.deactivateComponent("spatial"); }
+        };
 
         function toggleBooleanSetting(name) {
             s[name] = !s[name];

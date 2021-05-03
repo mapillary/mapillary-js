@@ -1030,7 +1030,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
 
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(graph.hasSequenceNodes(sequenceId)).toBe(false);
     });
@@ -1086,7 +1086,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
 
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(graph.hasSequenceNodes(sequenceId)).toBe(false);
     });
@@ -1140,7 +1140,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
 
-        graph.uncache([], sequenceId);
+        graph.uncache([], [], sequenceId);
 
         expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
     });
@@ -1194,7 +1194,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
 
-        graph.uncache([fullNode.id]);
+        graph.uncache([fullNode.id], []);
 
         expect(graph.hasSequenceNodes(sequenceId)).toBe(true);
     });
@@ -1273,7 +1273,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(1);
@@ -1355,7 +1355,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([], sequenceId);
+        graph.uncache([], [], sequenceId);
 
         expect(nodeUncacheSpy.calls.count()).toBe(1);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
@@ -2799,7 +2799,7 @@ describe("Graph.uncache", () => {
         const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(1);
@@ -2847,7 +2847,7 @@ describe("Graph.uncache", () => {
         const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([], fullNode.sequence.id);
+        graph.uncache([], [], fullNode.sequence.id);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
@@ -2895,7 +2895,7 @@ describe("Graph.uncache", () => {
         const node = graph.getNode(fullNode.id);
         const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(nodeDisposeSpy.calls.count()).toBe(1);
 
@@ -2943,7 +2943,7 @@ describe("Graph.uncache", () => {
         const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([fullNode.id]);
+        graph.uncache([fullNode.id], []);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
@@ -2992,7 +2992,7 @@ describe("Graph.uncache", () => {
         const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
@@ -3073,7 +3073,7 @@ describe("Graph.uncache", () => {
 
         graph.hasNode(node2.id);
 
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(nodeDisposeSpy1.calls.count()).toBe(1);
         expect(nodeDisposeSpy2.calls.count()).toBe(0);
@@ -3141,7 +3141,7 @@ describe("Graph.uncache", () => {
         const node = graph.getNode(fullNode.id);
         const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
 
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(nodeUncacheSpy.calls.count()).toBe(1);
 
@@ -3208,7 +3208,7 @@ describe("Graph.uncache", () => {
         const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
@@ -3276,7 +3276,7 @@ describe("Graph.uncache", () => {
         const nodeUncacheSpy = spyOn(node, "uncache");
         nodeUncacheSpy.and.stub();
 
-        graph.uncache([node.id]);
+        graph.uncache([node.id], []);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
 
@@ -3337,7 +3337,7 @@ describe("Graph.uncache", () => {
         const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
@@ -3438,7 +3438,7 @@ describe("Graph.uncache", () => {
 
         graph.hasNode(node2.id);
 
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(nodeUncacheSpy1.calls.count()).toBe(1);
         expect(graph.hasNode(node1.id)).toBe(true);
@@ -3481,7 +3481,7 @@ describe("Graph.uncache", () => {
         const sequenceDisposeSpy = spyOn(sequence, "dispose");
         sequenceDisposeSpy.and.stub();
 
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(sequenceDisposeSpy.calls.count()).toBe(1);
 
@@ -3520,7 +3520,7 @@ describe("Graph.uncache", () => {
         const sequenceDisposeSpy = spyOn(sequence, "dispose");
         sequenceDisposeSpy.and.stub();
 
-        graph.uncache([], sequenceId);
+        graph.uncache([], [], sequenceId);
 
         expect(sequenceDisposeSpy.calls.count()).toBe(0);
 
@@ -3560,7 +3560,7 @@ describe("Graph.uncache", () => {
         const sequenceDisposeSpy = spyOn(sequence, "dispose");
         sequenceDisposeSpy.and.stub();
 
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(sequenceDisposeSpy.calls.count()).toBe(0);
 
@@ -3623,7 +3623,7 @@ describe("Graph.uncache", () => {
         }
 
         graph.getSequence(sequenceId2);
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(sequenceDisposeSpy1.calls.count()).toBe(1);
         expect(graph.hasSequence(sequence1.id)).toBe(false);
@@ -3690,7 +3690,7 @@ describe("Graph.uncache", () => {
         const nodeDisposeSpy = spyOn(node, "dispose");
         nodeDisposeSpy.and.stub();
 
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(nodeDisposeSpy.calls.count()).toBe(1);
 
@@ -3756,7 +3756,7 @@ describe("Graph.uncache", () => {
         const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
         const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
 
-        graph.uncache([], fullNode.sequence.id);
+        graph.uncache([], [], fullNode.sequence.id);
 
         expect(nodeDisposeSpy.calls.count()).toBe(0);
         expect(nodeUncacheSpy.calls.count()).toBe(1);
@@ -3821,7 +3821,7 @@ describe("Graph.uncache", () => {
         const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([]);
+        graph.uncache([], []);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
@@ -3887,7 +3887,7 @@ describe("Graph.uncache", () => {
         const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
 
-        graph.uncache([node.id]);
+        graph.uncache([node.id], []);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);

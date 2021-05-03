@@ -57,8 +57,8 @@ export class SpatialScene {
     private readonly _originalPointSize: number;
     private readonly _originalCameraSize: number;
 
-    private _hoveredImage: string;
-    private _selectedImage: string;
+    private _hoveredId: string;
+    private _selectedId: string;
 
     private _filter: FilterFunction;
 
@@ -97,8 +97,8 @@ export class SpatialScene {
         this._positionMode = configuration.originalPositionMode;
         this._cellsVisible = configuration.cellsVisible;
 
-        this._hoveredImage = null;
-        this._selectedImage = null;
+        this._hoveredId = null;
+        this._selectedId = null;
         this._colors = { hover: "#FF0000", select: "#FF8000" };
 
         this._filter = () => true;
@@ -159,7 +159,7 @@ export class SpatialScene {
         originalPosition: number[],
         cellId: string): void {
 
-        const key = image.id;
+        const imageId = image.id;
         const idMap = {
             clusterId: image.clusterId ?? NO_CLUSTER_ID,
             sequenceId: image.sequenceId ?? NO_SEQUENCE_ID,
@@ -178,14 +178,14 @@ export class SpatialScene {
         }
 
         const cell = this._images[cellId];
-        if (cell.hasImage(key)) { return; }
+        if (cell.hasImage(imageId)) { return; }
         cell.addImage({ idMap, image: image });
 
-        const colorId = cell.getColorId(key, this._cameraVisualizationMode);
+        const colorId = cell.getColorId(imageId, this._cameraVisualizationMode);
         const color = this._assets.getColor(colorId);
         const visible = this._filter(image);
         cell.visualize({
-            id: image.id,
+            id: imageId,
             color,
             positionMode: this._positionMode,
             scale: this._cameraSize,
@@ -195,10 +195,10 @@ export class SpatialScene {
             originalPosition
         });
 
-        this._imageCellMap.set(key, cellId);
-        if (key === this._selectedImage) {
+        this._imageCellMap.set(imageId, cellId);
+        if (imageId === this._selectedId) {
             this._highlight(
-                key,
+                imageId,
                 this._colors.select,
                 this._cameraVisualizationMode);
         }
@@ -223,6 +223,14 @@ export class SpatialScene {
         this._needsRender = true;
     }
 
+    public deactivate(): void {
+        this._filter = () => true;
+        this._selectedId = null;
+        this._hoveredId = null;
+
+        this.uncache();
+    }
+
     public hasCluster(clusterId: string, cellId: string): boolean {
         return clusterId in this._clusters &&
             this._clusters[clusterId].cellIds.indexOf(cellId) !== -1;
@@ -232,9 +240,9 @@ export class SpatialScene {
         return cellId in this._cells;
     }
 
-    public hasImage(key: string, cellId: string): boolean {
+    public hasImage(imageId: string, cellId: string): boolean {
         return cellId in this._images &&
-            this._images[cellId].hasImage(key);
+            this._images[cellId].hasImage(imageId);
     }
 
     public setCameraSize(cameraSize: number): void {
@@ -280,31 +288,31 @@ export class SpatialScene {
         this._needsRender = true;
     }
 
-    public setHoveredImage(key: string | null): void {
-        if (key != null && !this._imageCellMap.has(key)) {
-            throw new MapillaryError(`Image does not exist: ${key}`);
+    public setHoveredImage(imageId: string | null): void {
+        if (imageId != null && !this._imageCellMap.has(imageId)) {
+            throw new MapillaryError(`Image does not exist: ${imageId}`);
         }
 
-        if (this._hoveredImage === key) { return; }
+        if (this._hoveredId === imageId) { return; }
         this._needsRender = true;
 
-        if (this._hoveredImage != null) {
-            if (this._hoveredImage === this._selectedImage) {
+        if (this._hoveredId != null) {
+            if (this._hoveredId === this._selectedId) {
                 this._highlight(
-                    this._hoveredImage,
+                    this._hoveredId,
                     this._colors.select,
                     this._cameraVisualizationMode);
             } else {
-                this._resetCameraColor(this._hoveredImage);
+                this._resetCameraColor(this._hoveredId);
             }
         }
 
         this._highlight(
-            key,
+            imageId,
             this._colors.hover,
             this._cameraVisualizationMode);
 
-        this._hoveredImage = key;
+        this._hoveredId = imageId;
     }
 
     public setNavigationState(isOverview: boolean): void {
@@ -358,20 +366,20 @@ export class SpatialScene {
         this._needsRender = true;
     }
 
-    public setSelectedImage(key: string | null): void {
-        if (this._selectedImage === key) { return; }
+    public setSelectedImage(id: string | null): void {
+        if (this._selectedId === id) { return; }
         this._needsRender = true;
 
-        if (this._selectedImage != null) {
-            this._resetCameraColor(this._selectedImage);
+        if (this._selectedId != null) {
+            this._resetCameraColor(this._selectedId);
         }
 
         this._highlight(
-            key,
+            id,
             this._colors.select,
             this._cameraVisualizationMode);
 
-        this._selectedImage = key;
+        this._selectedId = id;
     }
 
     public setCellVisibility(visible: boolean): void {
@@ -408,8 +416,8 @@ export class SpatialScene {
                 });
         }
 
-        this._highlight(this._hoveredImage, this._colors.hover, mode);
-        this._highlight(this._selectedImage, this._colors.select, mode);
+        this._highlight(this._hoveredId, this._colors.hover, mode);
+        this._highlight(this._selectedId, this._colors.select, mode);
 
         this._cameraVisualizationMode = mode;
         this._needsRender = true;
@@ -521,26 +529,26 @@ export class SpatialScene {
         return Math.max(1, near);
     }
 
-    private _resetCameraColor(key: string): void {
+    private _resetCameraColor(imageId: string): void {
         const nceMap = this._imageCellMap;
-        if (key == null || !nceMap.has(key)) { return; }
+        if (imageId == null || !nceMap.has(imageId)) { return; }
 
-        const cellId = nceMap.get(key);
+        const cellId = nceMap.get(imageId);
         const cell = this._images[cellId];
-        const colorId = cell.getColorId(key, this._cameraVisualizationMode);
+        const colorId = cell.getColorId(imageId, this._cameraVisualizationMode);
         const color = this._assets.getColor(colorId);
-        cell.applyCameraColor(key, color);
+        cell.applyCameraColor(imageId, color);
     }
 
     private _highlight(
-        key: string,
+        imageId: string,
         color: string,
         mode: CameraVisualizationMode): void {
         const nceMap = this._imageCellMap;
-        if (key == null || !nceMap.has(key)) { return; }
-        const cellId = nceMap.get(key);
+        if (imageId == null || !nceMap.has(imageId)) { return; }
+        const cellId = nceMap.get(imageId);
         color = mode === CameraVisualizationMode.Homogeneous ?
             color : "#FFFFFF";
-        this._images[cellId].applyCameraColor(key, color);
+        this._images[cellId].applyCameraColor(imageId, color);
     }
 }
