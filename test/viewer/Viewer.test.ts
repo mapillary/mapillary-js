@@ -1,5 +1,4 @@
 import { Subject } from "rxjs";
-import { ICustomCameraControls } from "../../src/mapillary";
 import { State } from "../../src/state/State";
 import * as ComponentController from "../../src/viewer/ComponentController";
 import * as Container from "../../src/viewer/Container";
@@ -8,6 +7,7 @@ import * as CustomRenderer from "../../src/viewer/CustomRenderer";
 import { CameraControls } from "../../src/viewer/enums/CameraControls";
 import { RenderPass } from "../../src/viewer/enums/RenderPass";
 import { ViewerEventType } from "../../src/viewer/events/ViewerEventType";
+import { ICustomCameraControls } from "../../src/viewer/interfaces/ICustomCameraControls";
 import * as Navigator from "../../src/viewer/Navigator";
 import * as Observer from "../../src/viewer/Observer";
 

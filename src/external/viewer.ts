@@ -107,7 +107,7 @@ export {
 } from "../graph/FilterExpression";
 
 // Error
-export { CancelMapillaryError as AbortMapillaryError } from "../error/CancelMapillaryError";
+export { CancelMapillaryError } from "../error/CancelMapillaryError";
 export { ArgumentMapillaryError } from "../error/ArgumentMapillaryError";
 export { GraphMapillaryError } from "../error/GraphMapillaryError";
 export { MapillaryError } from "../error/MapillaryError";

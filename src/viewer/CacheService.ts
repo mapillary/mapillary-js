@@ -25,8 +25,8 @@ import { StateService } from "../state/StateService";
 import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { connectedComponent } from "../api/CellMath";
-import { LngLat } from "../external/api";
 import { APIWrapper } from "../api/APIWrapper";
+import { LngLat } from "../api/interfaces/LngLat";
 
 export interface CacheServiceConfiguration {
     cellDepth: number;

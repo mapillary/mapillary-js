@@ -1,6 +1,7 @@
 import { Subject } from "rxjs";
 import { APIWrapper } from "../../src/api/APIWrapper";
-import { ImageTileEnt, ImageTilesContract } from "../../src/mapillary";
+import { ImageTilesContract } from "../../src/api/contracts/ImageTilesContract";
+import { ImageTileEnt } from "../../src/api/ents/ImageTileEnt";
 import { TileLoader } from "../../src/tile/TileLoader";
 import { DataProvider } from "../helper/ProviderHelper";
 
