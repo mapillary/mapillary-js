@@ -23,12 +23,9 @@ export interface SpatialImageEnt extends CameraEnt, IDEnt {
     atomic_scale?: number;
 
     /**
-     * Rotation vector in angle axis representation.
-     *
-     * @description Optional - no 3D interaction available
-     * if unset.
+     * Timestamp when the image was captured.
      */
-    computed_rotation?: number[];
+    captured_at: number;
 
     /**
      * Original EXIF compass angle, measured in degrees.
@@ -44,17 +41,20 @@ export interface SpatialImageEnt extends CameraEnt, IDEnt {
     computed_altitude?: number;
 
     /**
-     * Timestamp when the image was captured.
-     */
-    captured_at: number;
-
-    /**
      * SfM computed compass angle, measured in degrees.
      *
      * @description Optional - no 3D interaction available
      * if unset.
      */
     computed_compass_angle?: number;
+
+    /**
+     * Rotation vector in angle axis representation.
+     *
+     * @description Optional - no 3D interaction available
+     * if unset.
+     */
+    computed_rotation?: number[];
 
     /**
      * Cluster reconstruction to which the image belongs.

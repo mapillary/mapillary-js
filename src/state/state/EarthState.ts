@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import { Quaternion, Vector3 } from "three";
 
 import { StateBase } from "./StateBase";
 import { EulerRotation } from "../interfaces/EulerRotation";
@@ -8,21 +8,46 @@ export class EarthState extends StateBase {
     constructor(state: IStateBase) {
         super(state);
 
-        const lookat = this._camera.lookat;
-        const position = this._camera.position;
-        const viewingDirection = lookat
+        const eye = this._camera.position.clone()
+        const forward = this._camera.lookat
             .clone()
-            .sub(position)
+            .sub(eye)
             .normalize();
+        const xy = Math.sqrt(forward.x * forward.x + forward.y * forward.y);
+        const angle = Math.atan2(forward.z, xy);
 
-        lookat.copy(position);
-        lookat.z = -2;
+        const lookat = new Vector3()
+        if (angle > -Math.PI / 45) {
+            lookat.copy(eye);
+            eye.add(new Vector3(forward.x, forward.y, 0)
+                .multiplyScalar(-50));
+            eye.z = 30;
+        } else {
+            // Target a point on invented ground and keep forward direction
+            const l0 = eye.clone();
+            const n = new Vector3(0, 0, 1);
+            const p0 = new Vector3(0, 0, -2);
+            const d = new Vector3().subVectors(p0, l0).dot(n) / forward.dot(n);
+            const maxDistance = 10000;
+            const intersection = l0
+                .clone()
+                .add(
+                    forward.
+                        clone()
+                        .multiplyScalar(Math.min(maxDistance, d)));
+            lookat.copy(intersection);
 
-        position.x -= 16 * viewingDirection.x;
-        position.y -= 16 * viewingDirection.y;
-        position.z = position.z < lookat.z ?
-            lookat.z + 20 : position.z + 20;
+            const t = eye
+                .clone()
+                .sub(intersection)
+                .normalize();
+            eye.copy(
+                intersection.add(
+                    t.multiplyScalar(Math.max(50, t.length()))));
+        }
 
+        this._camera.position.copy(eye);
+        this._camera.lookat.copy(lookat);
         this._camera.up.set(0, 0, 1);
     }
 
@@ -46,10 +71,10 @@ export class EarthState extends StateBase {
 
     public orbit(rotation: EulerRotation): void {
         const camera = this._camera;
-        const q = new THREE.Quaternion()
+        const q = new Quaternion()
             .setFromUnitVectors(
                 camera.up,
-                new THREE.Vector3(0, 0, 1));
+                new Vector3(0, 0, 1));
         const qInverse = q
             .clone()
             .invert();
@@ -87,9 +112,9 @@ export class EarthState extends StateBase {
     public truck(direction: number[]): void {
         const camera = this._camera;
         camera.position
-            .add(new THREE.Vector3().fromArray(direction));
+            .add(new Vector3().fromArray(direction));
         camera.lookat
-            .add(new THREE.Vector3().fromArray(direction));
+            .add(new Vector3().fromArray(direction));
     }
 
     public update(): void { /*noop*/ }

@@ -660,7 +660,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                         return geodeticToEnu(
                             vertex.lng,
                             vertex.lat,
-                            0,
+                            -2,
                             reference.lng,
                             reference.lat,
                             reference.alt);
