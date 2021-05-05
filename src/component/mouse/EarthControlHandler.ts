@@ -89,18 +89,17 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
                 this._navigator.stateService.currentTransform$),
             map(
                 ([[previous, current], render, transform]: [[MouseEvent, MouseEvent], RenderCamera, Transform]): number[] => {
-                    const planeNormal: number[] = [0, 0, 1];
-                    const planePoint: number[] = transform.unprojectBasic([0.5, 0.5], 0);
-                    planePoint[2] -= 2;
+                    const planeNormal = [0, 0, 1];
+                    const planePoint = [0, 0, -2];
 
-                    const currentIntersection: THREE.Vector3 = this._planeIntersection(
+                    const currentIntersection = this._planeIntersection(
                         current,
                         planeNormal,
                         planePoint,
                         render.perspective,
                         this._container.container);
 
-                    const previousIntersection: THREE.Vector3 = this._planeIntersection(
+                    const previousIntersection = this._planeIntersection(
                         previous,
                         planeNormal,
                         planePoint,
@@ -111,7 +110,7 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
                         return null;
                     }
 
-                    const direction: number[] = new THREE.Vector3()
+                    const direction = new THREE.Vector3()
                         .subVectors(currentIntersection, previousIntersection)
                         .multiplyScalar(-1)
                         .toArray();
@@ -183,7 +182,7 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
                 }),
             map(
                 (event: WheelEvent): number => {
-                    let delta: number = event.deltaY;
+                    let delta = event.deltaY;
 
                     if (event.deltaMode === 1) {
                         delta = 40 * delta;
@@ -191,7 +190,7 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
                         delta = 800 * delta;
                     }
 
-                    const canvasSize: number[] = this._viewportCoords.containerToCanvas(this._container.container);
+                    const canvasSize = this._viewportCoords.containerToCanvas(this._container.container);
 
                     return -delta / canvasSize[1];
                 }))
@@ -210,7 +209,7 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
     }
 
     private _eventToViewport(event: MouseEvent, element: HTMLElement): number[] {
-        const previousCanvas: number[] = this._viewportCoords.canvasPosition(event, element);
+        const previousCanvas = this._viewportCoords.canvasPosition(event, element);
 
         return this._viewportCoords.canvasToViewport(previousCanvas[0], previousCanvas[1], element);
     }
@@ -222,8 +221,8 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
         const [previousX, previousY]: number[] =
             this._eventToViewport(previous, this._container.container);
 
-        const phi: number = (previousX - currentX) * Math.PI;
-        const theta: number = (currentY - previousY) * Math.PI / 2;
+        const phi = (previousX - currentX) * Math.PI;
+        const theta = (currentY - previousY) * Math.PI / 2;
 
         return { phi: phi, theta: theta };
     }
@@ -235,7 +234,7 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
         camera: THREE.Camera,
         element: HTMLElement): THREE.Vector3 {
 
-        const [canvasX, canvasY]: number[] = this._viewportCoords.canvasPosition(event, element);
+        const [canvasX, canvasY] = this._viewportCoords.canvasPosition(event, element);
         const direction: THREE.Vector3 =
             this._viewportCoords
                 .unprojectFromCanvas(
@@ -250,13 +249,13 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
             return null;
         }
 
-        const l0: THREE.Vector3 = camera.position.clone();
-        const n: THREE.Vector3 = new THREE.Vector3().fromArray(planeNormal);
-        const p0: THREE.Vector3 = new THREE.Vector3().fromArray(planePoint);
+        const l0 = camera.position.clone();
+        const n = new THREE.Vector3().fromArray(planeNormal);
+        const p0 = new THREE.Vector3().fromArray(planePoint);
 
-        const d: number = new THREE.Vector3().subVectors(p0, l0).dot(n) / direction.clone().dot(n);
+        const d = new THREE.Vector3().subVectors(p0, l0).dot(n) / direction.clone().dot(n);
 
-        const intersection: THREE.Vector3 = new THREE.Vector3().addVectors(l0, direction.multiplyScalar(d));
+        const intersection = new THREE.Vector3().addVectors(l0, direction.multiplyScalar(d));
 
         if (this._viewportCoords.worldToCamera(intersection.toArray(), camera)[2] > 0) {
             return null;
