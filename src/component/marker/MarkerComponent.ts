@@ -73,7 +73,7 @@ import { ComponentName } from "../ComponentName";
  *
  * @example
  * ```js
- * var viewer = new mapillary.Viewer({ component: { marker: true }, ... });
+ * var viewer = new Viewer({ component: { marker: true }, ... });
  *
  * var markerComponent = viewer.getComponent("marker");
  * ```
@@ -261,7 +261,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
      * @example
      * ```js
      * // Initialize the viewer
-     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var viewer = new Viewer({ // viewer options });
      * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('markerdragend', function() {
@@ -280,7 +280,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
      * @example
      * ```js
      * // Initialize the viewer
-     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var viewer = new Viewer({ // viewer options });
      * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('markerdragstart', function() {
@@ -299,7 +299,7 @@ export class MarkerComponent extends Component<MarkerConfiguration> {
      * @example
      * ```js
      * // Initialize the viewer
-     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var viewer = new Viewer({ // viewer options });
      * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('markerposition', function() {

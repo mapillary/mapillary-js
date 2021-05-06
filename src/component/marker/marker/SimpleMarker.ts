@@ -16,11 +16,11 @@ import { Marker } from "./Marker";
  *
  * @example
  * ```js
- * var defaultMarker = new mapillary.MarkerComponent.SimpleMarker(
+ * var defaultMarker = new SimpleMarker(
  *     "id-1",
  *     { lat: 0, lng: 0, });
  *
- * var interactiveMarker = new mapillary.MarkerComponent.SimpleMarker(
+ * var interactiveMarker = new SimpleMarker(
  *     "id-2",
  *     { lat: 0, lng: 0, },
  *     {

@@ -137,7 +137,7 @@ export abstract class Tag extends EventEmitter {
      * @event geometry
      * @example
      * ```js
-     * var tag = new mapillary.TagComponent.OutlineTag({ // tag options });
+     * var tag = new OutlineTag({ // tag options });
      * // Set an event listener
      * tag.on('geometry', function() {
      *   console.log("A geometry event has occurred.");
@@ -154,7 +154,7 @@ export abstract class Tag extends EventEmitter {
      * @event tag
      * @example
      * ```js
-     * var tag = new mapillary.TagComponent.OutlineTag({ // tag options });
+     * var tag = new OutlineTag({ // tag options });
      * // Set an event listener
      * tag.on('tag', function() {
      *   console.log("A tag event has occurred.");

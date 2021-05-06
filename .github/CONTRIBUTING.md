@@ -58,7 +58,7 @@ The easiest way to try your changes is to run `yarn start` and open the debug pa
 
 However it can be handy to try your build of MapillaryJS in a real project. First, run `yarn build`. This will produce pre-built bundles in the `dist` folder.
 
-If you want to try your changes in your existing project, you may copy `dist/mapillary.js`, `dist/mapillary.js.map`, and `dist/mapillary.min.css` into your app and use them instead of the stable version.
+If you want to try your changes in your existing project, you may use `yarn link` or copy the `dist` folder into your app and use them instead of the stable version.
 
 ## Commit conventions
 

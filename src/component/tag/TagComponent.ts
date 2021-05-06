@@ -88,7 +88,7 @@ import { ComponentName } from "../ComponentName";
  *
  * @example
  * ```js
- * var viewer = new mapillary.Viewer({ component: { tag: true } }, ...);
+ * var viewer = new Viewer({ component: { tag: true } }, ...);
  *
  * var tagComponent = viewer.getComponent("tag");
  * ```
@@ -357,7 +357,7 @@ export class TagComponent extends Component<TagConfiguration> {
      * at the time of the method call is used as one of the vertices
      * defining the rectangle.
      *
-     * @fires TagComponent.geometrycreated
+     * @fires geometrycreate
      *
      * @example
      * ```js
@@ -392,7 +392,7 @@ export class TagComponent extends Component<TagConfiguration> {
      *
      * @example
      * ```js
-     * tagComponent.changeMode(mapillary.TagComponent.TagMode.CreateRect);
+     * tagComponent.changeMode(TagMode.CreateRect);
      * ```
      */
     public changeMode(mode: TagMode): void {
@@ -560,7 +560,7 @@ export class TagComponent extends Component<TagConfiguration> {
      * @example
      * ```js
      * // Initialize the viewer
-     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var viewer = new Viewer({ // viewer options });
      * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('geometrycreated', function() {
@@ -582,7 +582,7 @@ export class TagComponent extends Component<TagConfiguration> {
      * @example
      * ```js
      * // Initialize the viewer
-     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var viewer = new Viewer({ // viewer options });
      * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('tagcreateend', function() {
@@ -604,7 +604,7 @@ export class TagComponent extends Component<TagConfiguration> {
      * @example
      * ```js
      * // Initialize the viewer
-     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var viewer = new Viewer({ // viewer options });
      * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('tagcreatestart', function() {
@@ -623,7 +623,7 @@ export class TagComponent extends Component<TagConfiguration> {
      * @example
      * ```js
      * // Initialize the viewer
-     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var viewer = new Viewer({ // viewer options });
      * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('tagmode', function() {
@@ -642,7 +642,7 @@ export class TagComponent extends Component<TagConfiguration> {
      * @example
      * ```js
      * // Initialize the viewer
-     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var viewer = new Viewer({ // viewer options });
      * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('tags', function() {

@@ -10,12 +10,12 @@ import { LngLat } from "./interfaces/LngLat";
  *
  * @example
  * ```js
- * class MyDataProvider extends mapillary.API.DataProviderBase {
+ * class MyDataProvider extends DataProviderBase {
  *      ...
  * }
  *
- * const s2GeometryProvider = new mapillary.API.S2GeometryProvider();
- * const myDataProvider = new MyDataProvider(s2GeometryProvider);
+ * const geometryProvider = new S2GeometryProvider();
+ * const dataProvider = new MyDataProvider(geometryProvider);
  * ```
  */
 export class S2GeometryProvider extends GeometryProviderBase {

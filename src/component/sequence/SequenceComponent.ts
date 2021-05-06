@@ -154,7 +154,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
      * @example
      * ```js
      * // Initialize the viewer
-     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var viewer = new Viewer({ // viewer options });
      * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('hover', function() {
@@ -173,7 +173,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
      * @example
      * ```js
      * // Initialize the viewer
-     * var viewer = new mapillary.Viewer({ // viewer options });
+     * var viewer = new Viewer({ // viewer options });
      * var component = viewer.getComponent('<component-name>');
      * // Set an event listener
      * component.on('playing', function() {

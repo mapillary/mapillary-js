@@ -81,7 +81,7 @@ import { ComponentName } from "../ComponentName";
  *
  * @example
  * ```js
- * var viewer = new mapillary.Viewer({ ... });
+ * var viewer = new Viewer({ ... });
  *
  * viewer.deactivateComponent("image");
  * viewer.deactivateComponent("direction");

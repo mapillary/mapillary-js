@@ -9,7 +9,7 @@ import { Geometry } from "./Geometry";
  * @example
  * ```js
  * var basicPoint = [0.5, 0.7];
- * var pointGeometry = new mapillary.TagComponent.PointGeometry(basicPoint);
+ * var pointGeometry = new PointGeometry(basicPoint);
  * ```
  */
 export class PointGeometry extends Geometry {

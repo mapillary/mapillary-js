@@ -9,7 +9,7 @@ import { TagEventType } from "./TagEventType";
  *
  * @example
  * ```js
- * var tag = new mapillary.TagComponent.OutlineTag({ // tag options });
+ * var tag = new OutlineTag({ // tag options });
  * // Set an event listener
  * tag.on('tag', function() {
  *   console.log("A tag event has occurred.");

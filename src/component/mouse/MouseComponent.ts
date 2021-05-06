@@ -20,7 +20,7 @@ import { ComponentName } from "../ComponentName";
  *
  * @example
  * ```js
- * var viewer = new mapillary.Viewer({ ... });
+ * var viewer = new Viewer({ ... });
  *
  * var mouseComponent = viewer.getComponent("mouse");
  * ```
