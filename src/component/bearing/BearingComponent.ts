@@ -56,9 +56,9 @@ interface ImageFovOperation {
  *
  * @example
  * ```js
- * var viewer = new mapillary.Viewer({ ... });
+ * var viewer = new Viewer({ ... });
  * var bearingComponent = viewer.getComponent("bearing");
- * bearingComponent.configure({ size: mapillary.ComponentSize.Small });
+ * bearingComponent.configure({ size: ComponentSize.Small });
  * ```
  */
 export class BearingComponent extends Component<BearingConfiguration> {

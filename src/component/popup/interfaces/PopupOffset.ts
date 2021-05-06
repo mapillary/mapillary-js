@@ -20,7 +20,7 @@
  *     topRight: [10, -10],
  * }
  *
- * var popup = new mapillary.PopupComponent.Popup({ offset: offset });
+ * var popup = new Popup({ offset: offset });
  * ```
  */
 export interface PopupOffset {

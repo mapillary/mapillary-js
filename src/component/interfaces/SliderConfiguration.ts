@@ -59,7 +59,7 @@ export interface SliderConfigurationIds {
  *
  * @interface
  * ```js
- * var viewer = new mapillary.Viewer({
+ * var viewer = new Viewer({
  *     ...
  *     component: {
  *         slider: {

@@ -13,7 +13,7 @@ import { LngLat } from "./interfaces/LngLat";
  *
  * @example
  * ```js
- * class MyGeometryProvider extends mapillary.API.GeometryProviderBase {
+ * class MyGeometryProvider extends GeometryProviderBase {
  *      ...
  * }
  * ```

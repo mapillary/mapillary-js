@@ -11,7 +11,7 @@ import { isSpherical } from "../../../geo/Geo";
  * @example
  * ```js
  * var basicRect = [0.5, 0.3, 0.7, 0.4];
- * var rectGeometry = new mapillary.TagComponent.RectGeometry(basicRect);
+ * var rectGeometry = new RectGeometry(basicRect);
  * ```
  */
 export class RectGeometry extends VertexGeometry {

@@ -33,10 +33,10 @@ import { ComponentName } from "../ComponentName";
  *
  * @example
  * ```js
- * var viewer = new mapillary.Viewer({ ... });
+ * var viewer = new Viewer({ ... });
  *
  * var zoomComponent = viewer.getComponent("zoom");
- * zoomComponent.configure({ size: mapillary.ComponentSize.Small });
+ * zoomComponent.configure({ size: ComponentSize.Small });
  * ```
  */
 export class ZoomComponent extends Component<ZoomConfiguration> {

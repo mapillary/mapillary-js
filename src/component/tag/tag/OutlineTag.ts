@@ -17,8 +17,8 @@ import { TagStateEvent } from "./events/TagStateEvent";
  *
  * @example
  * ```js
- * var geometry = new mapillary.TagComponent.RectGeometry([0.3, 0.3, 0.5, 0.4]);
- * var tag = new mapillary.TagComponent.OutlineTag(
+ * var geometry = new RectGeometry([0.3, 0.3, 0.5, 0.4]);
+ * var tag = new OutlineTag(
  *     "id-1",
  *     geometry
  *     { editable: true, lineColor: 0xff0000 });
@@ -392,7 +392,7 @@ export class OutlineTag extends Tag {
      * @event click
      * @example
      * ```js
-     * var tag = new mapillary.TagComponent.OutlineTag({ // tag options });
+     * var tag = new OutlineTag({ // tag options });
      * // Set an event listener
      * tag.on('click', function() {
      *   console.log("A click event has occurred.");
@@ -409,7 +409,7 @@ export class OutlineTag extends Tag {
      * @event geometry
      * @example
      * ```js
-     * var tag = new mapillary.TagComponent.OutlineTag({ // tag options });
+     * var tag = new OutlineTag({ // tag options });
      * // Set an event listener
      * tag.on('geometry', function() {
      *   console.log("A geometry event has occurred.");
@@ -426,7 +426,7 @@ export class OutlineTag extends Tag {
      * @event tag
      * @example
      * ```js
-     * var tag = new mapillary.TagComponent.OutlineTag({ // tag options });
+     * var tag = new OutlineTag({ // tag options });
      * // Set an event listener
      * tag.on('tag', function() {
      *   console.log("A tag event has occurred.");

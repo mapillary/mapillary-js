@@ -11,7 +11,7 @@ import { isSpherical } from "../../../geo/Geo";
  * @example
  * ```js
  * var points = [[0.5, 0.3], [0.7, 0.3], [0.6, 0.5]];
- * var pointsGeometry = new mapillary.TagComponent.PointsGeometry(points);
+ * var pointsGeometry = new PointsGeometry(points);
  * ```
  */
 export class PointsGeometry extends Geometry {

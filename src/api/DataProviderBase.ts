@@ -25,9 +25,9 @@ import { ProviderCellEvent } from "./events/ProviderCellEvent";
  *
  * @example
  * ```js
- * class MyDataProvider extends mapillary.API.DataProviderBase {
+ * class MyDataProvider extends DataProviderBase {
  *      constructor() {
- *          super(new mapillary.API.S2GeometryProvider());
+ *          super(new S2GeometryProvider());
  *      }
  *      ...
  * }
@@ -67,7 +67,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * @example
      * ```js
      * // Initialize the data provider
-     * class MyDataProvider extends mapillary.API.DataProviderBase {
+     * class MyDataProvider extends DataProviderBase {
      *   // Class implementation
      * }
      * var provider = new MyDataProvider();
@@ -116,7 +116,7 @@ export abstract class DataProviderBase extends EventEmitter {
     /**
      * Get a cluster reconstruction.
      *
-     * @param {string} url - URL for the cluster reconstructino
+     * @param {string} url - URL for the cluster reconstruction
      * to retrieve.
      * @param {Promise} [abort] - Optional promise for aborting
      * the request through rejection.
@@ -250,7 +250,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * @example
      * ```js
      * // Initialize the data provider
-     * class MyDataProvider extends mapillary.API.DataProviderBase {
+     * class MyDataProvider extends DataProviderBase {
      *   // implementation
      * }
      * var provider = new MyDataProvider();

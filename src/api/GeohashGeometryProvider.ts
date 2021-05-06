@@ -11,12 +11,12 @@ import { LngLat } from "./interfaces/LngLat";
  *
  * @example
  * ```
- * class MyDataProvider extends mapillary.API.DataProviderBase {
+ * class MyDataProvider extends DataProviderBase {
  *      ...
  * }
  *
- * const geohashGeometryProvider = new mapillary.API.GeohashGeometryProvider();
- * const myDataProvider = new MyDataProvider(geohashGeometryProvider);
+ * const geometryProvider = new GeohashGeometryProvider();
+ * const dataProvider = new MyDataProvider(geohashGeometryProvider);
  * ```
  */
 export class GeohashGeometryProvider extends GeometryProviderBase {

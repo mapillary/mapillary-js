@@ -45,7 +45,7 @@ import { ComponentName } from "../ComponentName";
  *
  * @example
  * ```js
- * var viewer = new mapillary.Viewer({ component: { popup: true }, ... });
+ * var viewer = new Viewer({ component: { popup: true }, ... });
  *
  * var popupComponent = viewer.getComponent("popup");
  * ```
