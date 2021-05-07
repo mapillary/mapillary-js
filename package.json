@@ -79,7 +79,7 @@
   },
   "scripts": {
     "build": "yarn build-styles && yarn build-src",
-    "build-docs": "typedoc --options ./config/typedoc.json",
+    "build-doc": "typedoc --options ./doc/typedoc.json",
     "build-src": "yarn compile && yarn bundle",
     "build-styles": "cat styles/*.css | postcss --config ./config -o dist/mapillary.css",
     "bundle": "rollup -c",
@@ -87,7 +87,7 @@
     "clean": "yarn clean-build && yarn clean-dist && yarn clean-docs",
     "clean-build": "rm -rf build",
     "clean-dist": "rm -rf dist && mkdir dist",
-    "clean-docs": "rm -rf docs/build",
+    "clean-docs": "rm -rf docs",
     "compile": "tsc -p tsconfig.json",
     "compile-incremental": "tsc --incremental -p tsconfig.json",
     "compile-test": "tsc -p ./config/tsconfig.test.json",
@@ -97,7 +97,7 @@
     "lint-test": "tslint -c ./config/tslint.json -p tsconfig.json \"test/**/*.ts\"",
     "prepare": "yarn clean && yarn lint && yarn build",
     "serve": "node server.js",
-    "serve-docs": "python3 -m http.server",
+    "serve-doc": "python3 -m http.server",
     "start": "yarn start-init && concurrently --kill-others-on-fail -n 'compile,bundle,serve' 'yarn compile-watch' 'yarn bundle-watch' 'yarn serve'",
     "start-init": "yarn clean-build && yarn clean-dist && yarn build-styles && yarn compile-incremental",
     "test": "yarn clean-build && yarn compile-test && jest"
