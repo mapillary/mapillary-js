@@ -23,4 +23,4 @@ jobs:
       run: yarn test
 
     - name: Build documentation
-      run: yarn build-docs
+      run: yarn build-doc

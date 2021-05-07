@@ -1,12 +1,12 @@
 # IDE
-.idea/
-.vagrant/
-.vscode/
+.idea
+.vagrant
+.vscode
 vagrant.*
 Vagrantfile
 
 # Package
-node_modules/
+node_modules
 yarn-error.log
 yarn-debug.log
 
@@ -17,4 +17,4 @@ yarn-debug.log
 # Artifacts
 build/
 dist/
-docs/build/
+docs/

@@ -10,8 +10,8 @@
   "hideGenerator": true,
   "includeVersion": true,
   "name": "MapillaryJS",
-  "out": "./docs/build/",
-  "readme": "./docs/landing.md",
-  "theme": "./docs/theme/",
+  "out": "./docs/api/",
+  "readme": "./doc/api/landing.md",
+  "theme": "./doc/api/theme/",
   "tsconfig": "./tsconfig.json"
 }

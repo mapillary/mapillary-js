@@ -5,7 +5,7 @@ Thanks in advance for contributing to MapillaryJS. Please follow the conventions
 Facebook has adopted the [Contributor Covenant](https://www.contributor-covenant.org/) as its Code of Conduct, and we expect project participants to adhere to it. Please read [the full text](.CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
 
 ## Contribution Prerequisites
-- You have [Node](https://nodejs.org) installed at v14.16.0+ and [Yarn](https://classic.yarnpkg.com) at v1.2.0+.
+- You have [Node](https://nodejs.org) installed at v16.1.0+ and [Yarn](https://classic.yarnpkg.com) at v1.2.0+.
 - You are familiar with [Git](https://git-scm.com/).
 
 ## Sending a Pull Request
@@ -50,7 +50,9 @@ After cloning MapillaryJS, run `yarn` to fetch its dependencies. Then, you can r
 - `yarn test` runs the complete test suite.
 - `yarn test-watch` runs an interactive test watcher.
 - `yarn build` creates a `dist` folder with the package.
-- `yarn build-docs` builds the documentation in the `docs/build` folder.
+- `yarn build-doc` builds the API reference in the `docs/api` folder.
+- `yarn start` starts a development server and rebuilds on source file changes.
+- `yarn clean` removes the build output.
 
 We recommend running `yarn test` to make sure you don’t introduce any regressions as you work on your change.
 
