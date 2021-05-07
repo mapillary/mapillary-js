@@ -4,15 +4,20 @@
 
 # MapillaryJS
 
-MapillaryJS is an interactive, customizable, and extendable street imagery and 3D reconstruction visualization platform for the web. It takes 3D reconstruction data and images and renders them using JavaScript and WebGL.
+MapillaryJS is an interactive, customizable street imagery and semantic mapping visualization platform for the web. It takes texture, semantic 2D, and spatial 3D data and renders it using JavaScript and WebGL. It can be extended with custom data loaders, renderers, and camera controls.
 
-[<img width="49%" alt="San Francisco on Mapillary.com" src="https://user-images.githubusercontent.com/2492302/40781267-834ef7d4-64db-11e8-8c4c-3e83f17ff7c8.png">](https://www.mapillary.com/app/?focus=photo&pKey=VKf9Ay98ubkclhS2cCEWDg) [<img width="49%" alt="Frigilana on Mapillary.com" src="https://user-images.githubusercontent.com/2492302/40781605-ccfbb5c4-64dc-11e8-9b89-02beb73449ec.png">](https://www.mapillary.com/app/?focus=photo&pKey=FjsftlSr2Vqigl8P2zpOAw)
+<a href="https://www.mapillary.com">
+<img width="100%" alt="Mapillary" src="https://user-images.githubusercontent.com/2492302/117429732-9dbe1e80-af27-11eb-9531-47ae4df50c65.png">
+</a>
 
 ## Installation and usage
 
-### ES6 via [Yarn](https://classic.yarnpkg.com) (or [npm](https://docs.npmjs.com/about-npm))
+To get started with data from the [Mapillary](https://www.mapillary.com) platform, you need an [app token](). When [extending MapillaryJS]() to render your own data, no app token is needed.
 
-Install the package.
+<details open>
+  <summary><b><code>ES6 bundler</code></b></summary>
+
+Install the package via [Yarn](https://classic.yarnpkg.com) (or [npm](https://docs.npmjs.com/about-npm)).
 
 ```sh
 yarn install mapillary-js
@@ -26,18 +31,49 @@ Use a CSS loader or include the CSS file in the `<head>` of your HTML file.
 
 Include the following code in your JavaScript file.
 
-```ts
+```js
 import { Viewer } from "mapillary-js";
 
 const viewer = new Viewer({
-    apiClient: '<your client ID>',
+    apiClient: '<your app token>',
     container: '<your HTML element ID>',
     imageId: '<your image ID for initializing the viewer>',
 });
+```
+</details>
 
+<details>
+  <summary><b><code>TypeScript</code></b></summary>
+
+Install the package via [Yarn](https://classic.yarnpkg.com) (or [npm](https://docs.npmjs.com/about-npm)).
+
+```sh
+yarn install mapillary-js
 ```
 
-### CDN
+Use a CSS loader or include the CSS file in the `<head>` of your HTML file.
+
+```html
+<link href='https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.css' rel='stylesheet' />
+```
+
+Include the following code in your TypeScript file.
+
+```ts
+import { Viewer, ViewerOptions } from "mapillary-js";
+
+const options: ViewerOptions = {
+    apiClient: '<your app token>',
+    container: '<your HTML element ID>',
+    imageId: '<your image ID for initializing the viewer>',
+};
+const viewer = new Viewer(options);
+```
+</details>
+
+<details>
+  <summary><b><code>CDN</code></b></summary>
+
 
 Include the JavaScript and CSS files in the `<head>` of your HTML file.
 
@@ -46,18 +82,18 @@ Include the JavaScript and CSS files in the `<head>` of your HTML file.
 <link href='https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.css' rel='stylesheet' />
 ```
 
-The global namespace for MapillaryJS is `mapillary`:
+The global [UMD](https://github.com/umdjs/umd) namespace for MapillaryJS is `mapillary`. Include the following code in your JavaScript file.
 
 ```js
 var { Viewer } = mapillary;
 
 var viewer = new Viewer({
-    apiClient: '<your client ID>',
+    apiClient: '<your app token>',
     container: '<your HTML element ID>',
     imageId: '<your image ID for initializing the viewer>',
 });
-
 ```
+</details>
 
 ## Documentation
 
