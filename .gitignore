@@ -5,16 +5,17 @@
 vagrant.*
 Vagrantfile
 
-# Package
-node_modules
-yarn-error.log
-yarn-debug.log
+# Dependencies
+/node_modules
 
-# Filetypes
+# Misc
 *.DS_STORE
 *.tgz
 
+yarn-error.log*
+yarn-debug.log*
+
 # Artifacts
-build/
-dist/
-docs/
+/build
+/dist
+/docs

@@ -1,0 +1,4 @@
+---
+id: theory
+title: Theory
+---
