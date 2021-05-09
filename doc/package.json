@@ -8,9 +8,11 @@
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
     "build": "docusaurus build",
+    "build-api": "typedoc --entryDocument index.md --out api",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
-    "clear": "docusaurus clear",
+    "clear": "docusaurus clear && yarn clear-api",
+    "clear-api": "rm -rf api",
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
@@ -32,6 +34,7 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.13.10",
+    "docusaurus-plugin-typedoc": "^0.14.1",
     "eslint": "^7.20.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^6.15.0",
@@ -41,7 +44,10 @@
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^4.2.0",
     "prettier": "^2.2.1",
-    "stylelint": "^13.2.1"
+    "stylelint": "^13.2.1",
+    "stylelint-copyright": "^2.0.0-alpha.69",
+    "typedoc": "^0.20.36",
+    "typedoc-plugin-markdown": "^3.8.0"
   },
   "browserslist": {
     "production": [

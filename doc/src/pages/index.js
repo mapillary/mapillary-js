@@ -21,7 +21,9 @@ const features = [
     imageUrl: 'img/mjs.png',
     description: (
       <>
-        MapillaryJS is a street imagery and semantic mapping visualization platform on the web. You can integrate MapillaryJS into your website with just a few lines of code.
+        MapillaryJS is a street imagery and semantic mapping visualization
+        platform on the web. You can integrate MapillaryJS into your website
+        with just a few lines of code.
       </>
     ),
   },
@@ -30,7 +32,10 @@ const features = [
     imageUrl: 'img/semantic.png',
     description: (
       <>
-        MapillaryJS takes spatial, sematic, and texture data and renders it using JavaScript and WebGL. You can interact with the undistorted virtual 3D world and navigate the imagery from the street level or a bird&apos;s eye view.
+        MapillaryJS takes spatial, sematic, and texture data and renders it
+        using JavaScript and WebGL. You can interact with the undistorted
+        virtual 3D world and navigate the imagery from the street level or a
+        bird&apos;s eye view.
       </>
     ),
   },
@@ -39,7 +44,9 @@ const features = [
     imageUrl: 'img/dropoff.png',
     description: (
       <>
-        Use the MapillaryJS Extension API to extend, customize, and augment the MapillaryJS experience with your own data providers, semantic meshes, 3D models, camera controls, and interactivity.
+        Use the MapillaryJS Extension API to extend, customize, and augment the
+        MapillaryJS experience with your own data providers, semantic meshes, 3D
+        models, camera controls, and interactivity.
       </>
     ),
   },

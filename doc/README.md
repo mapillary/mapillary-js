@@ -3,6 +3,7 @@
 This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
 
 ## Development Workflow
+
 After cloning MapillaryJS, run `yarn install` in this directory to fetch the documentation dependencies. Then, you can run several commands:
 
 - `yarn start` starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.

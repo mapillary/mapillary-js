@@ -5,10 +5,12 @@ Thanks in advance for contributing to MapillaryJS. Please follow the conventions
 Facebook has adopted the [Contributor Covenant](https://www.contributor-covenant.org/) as its Code of Conduct, and we expect project participants to adhere to it. Please read [the full text](.CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
 
 ## Contribution Prerequisites
+
 - You have [Node](https://nodejs.org) installed at v16.1.0+ and [Yarn](https://classic.yarnpkg.com) at v1.2.0+.
 - You are familiar with [Git](https://git-scm.com/).
 
 ## Sending a Pull Request
+
 We will review your pull request and either merge it, request changes to it, or close it with an explanation. We’ll do our best to provide updates and feedback throughout the process.
 
 **Before submitting a pull request**, please make sure the following is done:
@@ -21,11 +23,13 @@ We will review your pull request and either merge it, request changes to it, or 
 6. If you haven’t already, complete the CLA.
 
 ## Contributor License Agreement (CLA)
+
 In order to accept your pull request, we need you to submit a CLA. You only need to do this once, so if you’ve done this for another Facebook open source project, you’re good to go. If you are submitting a pull request for the first time, just let us know that you have completed the CLA and we can cross-check with your GitHub username.
 
 [Complete your CLA here.](https://code.facebook.com/cla)
 
 ## Develop with Docker
+
 1. Install [Docker](https://www.docker.com/).
 2. Clone the repository.
 3. Build the mapillary-js image:
@@ -44,13 +48,13 @@ docker run -v "$(pwd)":/source/mapillary-js -p 8000:8000 --name mapillary-js-con
 5. [Stop](https://docs.docker.com/engine/reference/commandline/stop/), [start](https://docs.docker.com/engine/reference/commandline/start/), and [attach](https://docs.docker.com/engine/reference/commandline/exec/) to the container.
 
 ## Development Workflow
+
 After cloning MapillaryJS, run `yarn` to fetch its dependencies. Then, you can run several commands:
 
 - `yarn lint` checks the code style.
 - `yarn test` runs the complete test suite.
 - `yarn test-watch` runs an interactive test watcher.
 - `yarn build` creates a `dist` folder with the package.
-- `yarn build-doc` builds the API reference in the `docs/api` folder.
 - `yarn start` starts a development server and rebuilds on source file changes.
 - `yarn clean` removes the build output.
 
@@ -61,6 +65,14 @@ The easiest way to try your changes is to run `yarn start` and open the debug pa
 However it can be handy to try your build of MapillaryJS in a real project. First, run `yarn build`. This will produce pre-built bundles in the `dist` folder.
 
 If you want to try your changes in your existing project, you may use `yarn link` or copy the `dist` folder into your app and use them instead of the stable version.
+
+## Documentation workflow
+
+- `yarn --cwd doc build-api` builds the API reference in the `doc/api` folder.
+- `yarn --cwd doc build` generates static documentation content in the `doc/build` folder.
+- `yarn --cwd doc serve` starts a local development server and serves the static build output.
+- `yarn --cwd doc start` starts a local development server, opens up a browser window, and rebuilds on file changes.
+- `yarn --cwd doc clear` removes the doc build output.
 
 ## Commit conventions
 

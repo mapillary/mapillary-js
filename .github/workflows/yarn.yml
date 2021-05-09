@@ -6,21 +6,32 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v1
-      with:
-        node-version: '14.x'
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.x"
 
-    - name: Install dependencies
-      run: yarn --frozen-lockfile
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
 
-    - name: Build
-      run: yarn prepare
+      - name: Build
+        run: yarn prepare
 
-    - name: Test
-      run: yarn test
+      - name: Test
+        run: yarn test
 
-    - name: Build documentation
-      run: yarn build-doc
+      - name: Install documentation dependencies
+        run: yarn --cwd doc install
+
+      - name: Lint documentation
+        run: yarn --cwd doc ci
+
+      - name: Build API reference
+        run: |
+          yarn --cwd doc build-api && \
+          yarn --cwd doc clear-api
+
+      - name: Build documentation
+        run: yarn --cwd doc build

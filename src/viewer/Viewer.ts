@@ -427,12 +427,12 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
-     * Returns the viewer's <canvas> element.
+     * Returns the viewer's canvas element.
      *
      * @description This is the element onto which the viewer renders
      * the WebGL content.
      *
-     * @returns {HTMLCanvasElement} The viewer's <canvas> element, or
+     * @returns {HTMLCanvasElement} The viewer's canvas element, or
      * null or not initialized.
      */
     public getCanvas(): HTMLCanvasElement {
@@ -440,13 +440,13 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
-     * Returns the HTML element containing the viewer's <canvas> element.
+     * Returns the HTML element containing the viewer's canvas element.
      *
      * @description This is the element to which event bindings for viewer
      * interactivity (such as panning and zooming) are attached.
      *
      * @returns {HTMLDivElement} The container for the viewer's
-     * <canvas> element.
+     * canvas element.
      */
     public getCanvasContainer(): HTMLDivElement {
         return this._container.canvasContainer;
@@ -1258,7 +1258,7 @@ export class Viewer extends EventEmitter implements IViewer {
         const event: ViewerStateEvent = {
             target: this,
             type,
-        }
+        };
         this.fire(type, event);
     }
 

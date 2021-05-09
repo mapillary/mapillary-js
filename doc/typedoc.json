@@ -1,8 +1,8 @@
 {
   "entryPoints": [
-    "./src/external/api.ts",
-    "./src/external/component.ts",
-    "./src/external/viewer.ts"
+    "../src/external/api.ts",
+    "../src/external/component.ts",
+    "../src/external/viewer.ts"
   ],
   "excludeExternals": true,
   "excludePrivate": true,
@@ -10,8 +10,7 @@
   "hideGenerator": true,
   "includeVersion": true,
   "name": "MapillaryJS",
-  "out": "./docs/api/",
-  "readme": "./doc/api/landing.md",
-  "theme": "./doc/api/theme/",
-  "tsconfig": "./tsconfig.json"
+  "out": "../api",
+  "readme": "none",
+  "tsconfig": "../tsconfig.json"
 }
