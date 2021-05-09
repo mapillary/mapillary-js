@@ -8,7 +8,6 @@
  */
 
 const OFF = 0;
-const WARNING = 1;
 const ERROR = 2;
 
 module.exports = {
@@ -35,7 +34,6 @@ module.exports = {
     'header/header': [
       ERROR,
       'block',
-
       [
         '*',
         ' * Copyright (c) Facebook, Inc. and its affiliates.',

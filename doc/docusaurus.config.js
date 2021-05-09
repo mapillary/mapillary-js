@@ -7,6 +7,8 @@
  * @format
  */
 
+const path = require('path');
+
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'MapillaryJS',
@@ -134,8 +136,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl:
-            'https://github.com/mapillary/mapillary-js/edit/main/doc',
+          editUrl: 'https://github.com/mapillary/mapillary-js/edit/main/doc',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -150,9 +151,36 @@ module.exports = {
         id: 'examples',
         path: 'examples',
         routeBasePath: 'examples',
-        sidebarPath: require.resolve('./examplesSidebars.js'),
-        editUrl:
-            'https://github.com/mapillary/mapillary-js/edit/main/doc',
+        sidebarPath: require.resolve('./examples.sidebars.js'),
+        editUrl: 'https://github.com/mapillary/mapillary-js/edit/main/doc',
+      },
+    ],
+    [
+      'docusaurus-plugin-typedoc',
+      {
+        sidebar: {sidebarFile: null},
+      },
+    ],
+    [
+      path.resolve(__dirname, 'plugin-overwrite-slug'),
+      {
+        basePath: 'api',
+        files: [
+          {
+            path: 'index.md',
+            slug: '/',
+          },
+        ],
+      },
+    ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'api',
+        path: 'api',
+        routeBasePath: 'api',
+        sidebarPath: require.resolve('./api.sidebars.js'),
+        editUrl: 'https://github.com/mapillary/mapillary-js/edit/main/doc',
       },
     ],
   ],

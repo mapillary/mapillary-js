@@ -26,10 +26,10 @@ import { ProviderCellEvent } from "./events/ProviderCellEvent";
  * @example
  * ```js
  * class MyDataProvider extends DataProviderBase {
- *      constructor() {
- *          super(new S2GeometryProvider());
- *      }
- *      ...
+ *   constructor() {
+ *     super(new S2GeometryProvider());
+ *   }
+ *   ...
  * }
  * ```
  */
@@ -106,7 +106,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * @param {string} cellId - The id of the geometry cell.
      * @returns {Promise<CoreImagesContract>} Promise to
      * the core images of the requested geometry cell id.
-     * @throws {Error} Rejects the promise on errors.
+     * @throws {@link Error} Rejects the promise on errors.
      */
     public getCoreImages(
         cellId: string): Promise<CoreImagesContract> {
@@ -184,6 +184,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * @throws {Error} Rejects the promise on errors.
      *
      * @example
+     * ```js
      * var singleTile = { imageId: 'image-id', x: 0, y: 0, z: 12 };
      * provider.getImageTiles(singleTile)
      *   .then((response) => console.log(response));
@@ -191,6 +192,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * var tileLevel = { imageId: 'image-id', z: 12 };
      * provider.getImageTiles(tileLevel)
      *   .then((response) => console.log(response));
+     * ```
      */
     public getImageTiles(
         tiles: ImageTilesRequestContract): Promise<ImageTilesContract> {
