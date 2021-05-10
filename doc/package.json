@@ -11,7 +11,7 @@
     "build-api": "typedoc --entryDocument index.md --out api",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
-    "clear": "docusaurus clear && yarn clear-api",
+    "clear": "yarn clear-api && docusaurus clear",
     "clear-api": "rm -rf api",
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",

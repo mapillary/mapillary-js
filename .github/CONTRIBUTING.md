@@ -49,14 +49,14 @@ docker run -v "$(pwd)":/source/mapillary-js -p 8000:8000 --name mapillary-js-con
 
 ## Development Workflow
 
-After cloning MapillaryJS, run `yarn` to fetch its dependencies. Then, you can run several commands:
+After cloning MapillaryJS, run `yarn install` to fetch its dependencies. Then, you can run several commands:
 
 - `yarn lint` checks the code style.
 - `yarn test` runs the complete test suite.
 - `yarn test-watch` runs an interactive test watcher.
 - `yarn build` creates a `dist` folder with the package.
 - `yarn start` starts a development server and rebuilds on source file changes.
-- `yarn clean` removes the build output.
+- `yarn clear` removes the build output.
 
 We recommend running `yarn test` to make sure you don’t introduce any regressions as you work on your change.
 
@@ -68,7 +68,10 @@ If you want to try your changes in your existing project, you may use `yarn link
 
 ## Documentation workflow
 
-- `yarn --cwd doc build-api` builds the API reference in the `doc/api` folder.
+After cloning MapillaryJS, run `yarn --cwd doc install` to fetch the documentation website generation dependencies. Then, you can run several commands:
+
+- `yarn --cwd doc ci` checks the code style.
+- `yarn --cwd doc build-api` builds the API reference in the `doc/api` folder spearately. Running this command is not needed for building the static documentation.
 - `yarn --cwd doc build` generates static documentation content in the `doc/build` folder.
 - `yarn --cwd doc serve` starts a local development server and serves the static build output.
 - `yarn --cwd doc start` starts a local development server, opens up a browser window, and rebuilds on file changes.

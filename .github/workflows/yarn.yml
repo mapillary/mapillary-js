@@ -11,21 +11,24 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: "14.x"
+          node-version: "15.x"
 
       - name: Install dependencies
-        run: yarn --frozen-lockfile
+        run: yarn install --frozen-lockfile --ignore-scripts
+
+      - name: Lint
+        run: yarn lint
 
       - name: Build
-        run: yarn prepare
+        run: yarn build
 
       - name: Test
         run: yarn test
 
-      - name: Install documentation dependencies
+      - name: Install doc dependencies
         run: yarn --cwd doc install
 
-      - name: Lint documentation
+      - name: Lint doc
         run: yarn --cwd doc ci
 
       - name: Build API reference
@@ -33,5 +36,5 @@ jobs:
           yarn --cwd doc build-api && \
           yarn --cwd doc clear-api
 
-      - name: Build documentation
+      - name: Build doc
         run: yarn --cwd doc build
