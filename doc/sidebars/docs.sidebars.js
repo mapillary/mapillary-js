@@ -9,7 +9,7 @@
 
 module.exports = {
   docs: {
-    Introduction: ['start'],
+    Introduction: ['intro/start', 'intro/try', 'intro/glossary'],
     Guides: ['guides'],
     Extend: ['extend'],
     Theory: ['theory'],
