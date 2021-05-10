@@ -18,7 +18,7 @@ import styles from './styles.module.css';
 const features = [
   {
     title: 'Visualization Platform',
-    imageUrl: 'img/mjs.png',
+    imageUrl: 'img/hero/mjs.png',
     description: (
       <>
         MapillaryJS is a street imagery and semantic mapping visualization
@@ -29,7 +29,7 @@ const features = [
   },
   {
     title: 'Spatial Interactivity',
-    imageUrl: 'img/semantic.png',
+    imageUrl: 'img/hero/semantic.png',
     description: (
       <>
         MapillaryJS takes spatial, sematic, and texture data and renders it
@@ -41,7 +41,7 @@ const features = [
   },
   {
     title: 'Extend and Augment',
-    imageUrl: 'img/dropoff.png',
+    imageUrl: 'img/hero/dropoff.png',
     description: (
       <>
         Use the MapillaryJS Extension API to extend, customize, and augment the
@@ -76,6 +76,11 @@ export default function Home() {
       description="Description will go into a meta tag in <head />">
       <header className={clsx('hero hero--primary', styles.heroBanner)}>
         <div className="container">
+          <img
+            className={clsx(styles.heroBannerLogo, 'margin-vert--md')}
+            alt="Mapillary logo"
+            src={useBaseUrl('img/logo_black.svg')}
+          />
           <h1 className="hero__title">{siteConfig.title}</h1>
           <p className="hero__subtitle">{siteConfig.tagline}</p>
           <div className={styles.buttons}>
