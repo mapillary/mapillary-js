@@ -19,6 +19,11 @@
   overflow: hidden;
 }
 
+.heroBannerLogo {
+  max-width: 150px;
+  max-height: 150px;
+}
+
 @media screen and (max-width: 966px) {
   .heroBanner {
     padding: 2rem;

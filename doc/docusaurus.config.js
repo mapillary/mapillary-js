@@ -25,7 +25,7 @@ module.exports = {
       title: 'MapillaryJS',
       logo: {
         alt: 'MapillaryJS',
-        src: 'img/logo.svg',
+        src: 'img/logo_green.svg',
       },
       items: [
         {
@@ -41,7 +41,6 @@ module.exports = {
           position: 'right',
         },
         {
-          docsPluginId: 'examples',
           to: 'examples',
           activeBasePath: 'examples',
           label: 'Examples',
@@ -135,7 +134,7 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
+          sidebarPath: require.resolve('./sidebars/docs.sidebars.js'),
           editUrl: 'https://github.com/mapillary/mapillary-js/edit/main/doc',
         },
         theme: {
@@ -151,7 +150,7 @@ module.exports = {
         id: 'examples',
         path: 'examples',
         routeBasePath: 'examples',
-        sidebarPath: require.resolve('./examples.sidebars.js'),
+        sidebarPath: require.resolve('./sidebars/examples.sidebars.js'),
         editUrl: 'https://github.com/mapillary/mapillary-js/edit/main/doc',
       },
     ],
@@ -162,7 +161,7 @@ module.exports = {
       },
     ],
     [
-      path.resolve(__dirname, 'plugin-overwrite-slug'),
+      path.resolve(__dirname, 'plugins/plugin-overwrite-slug'),
       {
         basePath: 'api',
         files: [
@@ -179,7 +178,7 @@ module.exports = {
         id: 'api',
         path: 'api',
         routeBasePath: 'api',
-        sidebarPath: require.resolve('./api.sidebars.js'),
+        sidebarPath: require.resolve('./sidebars/api.sidebars.js'),
         editUrl: 'https://github.com/mapillary/mapillary-js/edit/main/doc',
       },
     ],
