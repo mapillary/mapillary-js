@@ -20,13 +20,16 @@ To get started using data from the [Mapillary](https://www.mapillary.com) platfo
 Install the package via [Yarn](https://classic.yarnpkg.com) (or [npm](https://docs.npmjs.com/about-npm)).
 
 ```sh
-yarn install mapillary-js
+yarn add mapillary-js
 ```
 
 Use a CSS loader or include the CSS file in the `<head>` of your HTML file.
 
 ```html
-<link href='https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.css' rel='stylesheet' />
+<link
+  href="https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.css"
+  rel="stylesheet"
+/>
 ```
 
 Include the following code in your JavaScript file.
@@ -35,11 +38,12 @@ Include the following code in your JavaScript file.
 import { Viewer } from "mapillary-js";
 
 const viewer = new Viewer({
-    apiClient: '<your app token>',
-    container: '<your HTML element ID>',
-    imageId: '<your image ID for initializing the viewer>',
+  apiClient: "<your app token>",
+  container: "<your HTML element ID>",
+  imageId: "<your image ID for initializing the viewer>",
 });
 ```
+
 </details>
 
 <details>
@@ -48,13 +52,16 @@ const viewer = new Viewer({
 Install the package via [Yarn](https://classic.yarnpkg.com) (or [npm](https://docs.npmjs.com/about-npm)).
 
 ```sh
-yarn install mapillary-js
+yarn add mapillary-js
 ```
 
 Use a CSS loader or include the CSS file in the `<head>` of your HTML file.
 
 ```html
-<link href='https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.css' rel='stylesheet' />
+<link
+  href="https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.css"
+  rel="stylesheet"
+/>
 ```
 
 Include the following code in your TypeScript file.
@@ -63,23 +70,26 @@ Include the following code in your TypeScript file.
 import { Viewer, ViewerOptions } from "mapillary-js";
 
 const options: ViewerOptions = {
-    apiClient: '<your app token>',
-    container: '<your HTML element ID>',
-    imageId: '<your image ID for initializing the viewer>',
+  apiClient: "<your app token>",
+  container: "<your HTML element ID>",
+  imageId: "<your image ID for initializing the viewer>",
 };
 const viewer = new Viewer(options);
 ```
+
 </details>
 
 <details>
   <summary><b><code>CDN</code></b></summary>
 
-
 Include the JavaScript and CSS files in the `<head>` of your HTML file.
 
 ```html
-<script src='https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.js'></script>
-<link href='https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.css' rel='stylesheet' />
+<script src="https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.js"></script>
+<link
+  href="https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.css"
+  rel="stylesheet"
+/>
 ```
 
 The global [UMD](https://github.com/umdjs/umd) namespace for MapillaryJS is `mapillary`. Include the following code in your JavaScript file.
@@ -88,11 +98,12 @@ The global [UMD](https://github.com/umdjs/umd) namespace for MapillaryJS is `map
 var { Viewer } = mapillary;
 
 var viewer = new Viewer({
-    apiClient: '<your app token>',
-    container: '<your HTML element ID>',
-    imageId: '<your image ID for initializing the viewer>',
+  apiClient: "<your app token>",
+  container: "<your HTML element ID>",
+  imageId: "<your image ID for initializing the viewer>",
 });
 ```
+
 </details>
 
 ## Documentation
