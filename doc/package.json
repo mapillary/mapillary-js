@@ -7,8 +7,10 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
+    "start-docs": "docusaurus start --config docusaurus.docs.config.js",
     "build": "docusaurus build",
     "build-api": "typedoc --entryDocument index.md --out api",
+    "build-docs": "docusaurus build  --config docusaurus.docs.config.js",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "yarn clear-api && docusaurus clear",
