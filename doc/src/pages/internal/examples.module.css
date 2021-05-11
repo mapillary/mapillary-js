@@ -7,6 +7,7 @@
  * @format
  */
 
-module.exports = {
-  examples: [],
-};
+.mapillaryViewer {
+  height: calc(100vh - 60px);
+  width: 100%;
+}

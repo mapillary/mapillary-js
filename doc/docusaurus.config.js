@@ -8,19 +8,11 @@
  */
 
 const path = require('path');
-const config = require('./docusaurus.docs.config.js');
+const docsConfig = require('./docusaurus.docs.config.js');
 
-config.plugins = [
-  [
-    '@docusaurus/plugin-content-docs',
-    {
-      id: 'examples',
-      path: 'examples',
-      routeBasePath: 'examples',
-      sidebarPath: require.resolve('./sidebars/examples.sidebars.js'),
-      editUrl: 'https://github.com/mapillary/mapillary-js/edit/main/doc',
-    },
-  ],
+const config = {...docsConfig};
+config.plugins = config.plugins.slice();
+config.plugins.push(
   [
     'docusaurus-plugin-typedoc',
     {
@@ -49,7 +41,7 @@ config.plugins = [
       editUrl: 'https://github.com/mapillary/mapillary-js/edit/main/doc',
     },
   ],
-];
+);
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = config;
