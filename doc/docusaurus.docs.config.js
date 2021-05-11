@@ -18,6 +18,21 @@ module.exports = {
   favicon: 'img/favicon.png',
   organizationName: 'mapillary',
   projectName: 'mapillary-js',
+  presets: [
+    [
+      '@docusaurus/preset-classic',
+      {
+        docs: {
+          sidebarPath: require.resolve('./sidebars/docs.sidebars.js'),
+          editUrl: 'https://github.com/mapillary/mapillary-js/edit/main/doc',
+        },
+        theme: {
+          customCss: require.resolve('./src/css/custom.css'),
+        },
+      },
+    ],
+  ],
+  themes: ['@docusaurus/theme-live-codeblock'],
   themeConfig: {
     navbar: {
       title: 'MapillaryJS',
@@ -126,18 +141,4 @@ module.exports = {
       copyright: `Copyright © ${new Date().getFullYear()} Facebook, Inc. Built with Docusaurus.`,
     },
   },
-  presets: [
-    [
-      '@docusaurus/preset-classic',
-      {
-        docs: {
-          sidebarPath: require.resolve('./sidebars/docs.sidebars.js'),
-          editUrl: 'https://github.com/mapillary/mapillary-js/edit/main/doc',
-        },
-        theme: {
-          customCss: require.resolve('./src/css/custom.css'),
-        },
-      },
-    ],
-  ],
 };
