@@ -12,7 +12,7 @@ MapillaryJS is an interactive, customizable street imagery and semantic mapping 
 
 ## Installation and usage
 
-To get started using data from the [Mapillary](https://www.mapillary.com) platform, you need an [app token](). When [extending MapillaryJS]() to render your own data, no app token is needed.
+To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need an [app token](). When [extending MapillaryJS]() to render your own data, no app token is needed.
 
 <details open>
   <summary><b><code>ES6 bundler</code></b></summary>

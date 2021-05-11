@@ -26,10 +26,12 @@
   "dependencies": {
     "@docusaurus/core": "2.0.0-alpha.75",
     "@docusaurus/preset-classic": "2.0.0-alpha.75",
+    "@docusaurus/theme-live-codeblock": "^2.0.0-alpha.75",
     "@mdx-js/react": "^1.6.21",
     "@svgr/webpack": "^5.5.0",
     "clsx": "^1.1.1",
     "file-loader": "^6.2.0",
+    "mapillary-js": "^4.0.0-beta.5",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "url-loader": "^4.1.1"
