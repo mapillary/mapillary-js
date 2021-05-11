@@ -32,6 +32,18 @@ module.exports = {
       },
     ],
   ],
+  plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'examples',
+        path: 'examples',
+        routeBasePath: 'examples',
+        sidebarPath: require.resolve('./sidebars/examples.sidebars.js'),
+        editUrl: 'https://github.com/mapillary/mapillary-js/edit/main/doc',
+      },
+    ],
+  ],
   themes: ['@docusaurus/theme-live-codeblock'],
   themeConfig: {
     navbar: {
