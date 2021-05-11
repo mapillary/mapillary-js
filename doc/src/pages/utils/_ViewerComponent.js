@@ -9,8 +9,7 @@
 
 import React from 'react';
 
-import '../../../../node_modules/mapillary-js/dist/mapillary.css';
-import styles from '../examples.module.css';
+import styles from './viewer.module.css';
 
 export default class ViewerComponent extends React.Component {
   constructor(props) {

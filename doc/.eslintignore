@@ -1,0 +1,7 @@
+# Dependencies
+node_modules
+
+# Generated files
+.docusaurus
+api
+build

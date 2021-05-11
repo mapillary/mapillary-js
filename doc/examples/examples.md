@@ -6,7 +6,7 @@ slug: /
 
 ## Viewer
 
-| Example                        | Description                                |
+| Name                           | Description                                |
 | ------------------------------ | ------------------------------------------ |
 | [No Cover](/examples/no-cover) | Load immediately without showing the cover |
 
@@ -14,24 +14,16 @@ slug: /
 
 ### Interaction
 
-| Example  | Description                                            |
+| Name     | Description                                            |
 | -------- | ------------------------------------------------------ |
 | Pointer  | Activate and deactivate mouse, pen, and touch handlers |
 | Keyboard | Activate and deactivate keyboard handlers              |
 
-### Marker
-
-### Popup
-
-### Tag
-
-### Spatial
-
 ## Extension
 
-| Example           | Description                                  |
-| ----------------- | -------------------------------------------- |
-| Data Provider     | Provider serving procedurally generated data |
-| WebGL Renderer    |                                              |
-| Three.js Renderer |                                              |
-| Camera Controls   |                                              |
+| API | Name | Description |
+| --- | --- | --- |
+| Data Provider | Procedural Provider | Serve procedurally generated data |
+| Custom Render | WebGL Renderer | Use WebGL to render custom content |
+| Custom Render | Three.js Renderer | Use Three.js to render custom content |
+| Custom Camera Controls | Orbit Controls | Use Three.js to attach orbit controls |

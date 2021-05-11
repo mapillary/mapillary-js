@@ -12,7 +12,7 @@ MapillaryJS is an interactive, customizable street imagery and semantic mapping 
 
 ## Installation and usage
 
-To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need an [app token](). When [extending MapillaryJS]() to render your own data, no app token is needed.
+To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need an app token. When extending MapillaryJS to render your own data, no app token is needed.
 
 <details open>
   <summary><b><code>ES6 bundler</code></b></summary>
@@ -108,16 +108,16 @@ var viewer = new Viewer({
 
 ## Documentation
 
-- [Getting started with MapillaryJS]()
-- [Developing extensions]()
-- [Examples]()
+- Getting started with MapillaryJS
+- Developing extensions
+- Examples
 - [API reference](https://mapillary.github.io/mapillary-js)
 - [Migration guide](./MIGRATING.md)
 - [Contributor documentation](./.github/CONTRIBUTING.md)
 
 ## Code of Conduct
 
-Facebook has adopted the [Contributor Covenant](https://www.contributor-covenant.org/) as its [Code of Conduct](https://code.facebook.com/codeofconduc), and we expect project participants to adhere to it. Please read [the full text](./.github/CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
+Facebook has adopted the [Contributor Covenant](https://www.contributor-covenant.org/) as its [Code of Conduct](https://code.facebook.com/codeofconduct), and we expect project participants to adhere to it. Please read [the full text](./.github/CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
 
 ## License
 
