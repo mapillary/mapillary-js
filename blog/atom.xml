@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://mapillary.github.io/blog</id>
+    <title>MapillaryJS Blog</title>
+    <updated>2015-10-25T23:29:00.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://mapillary.github.io/blog"/>
+    <subtitle>MapillaryJS Blog</subtitle>
+    <icon>https://mapillary.github.io/img/favicon.png</icon>
+</feed>
