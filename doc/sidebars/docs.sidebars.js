@@ -13,6 +13,6 @@ module.exports = {
     Guides: ['guides'],
     Extend: ['extend'],
     Theory: ['theory'],
-    Migration: ['migration'],
+    Migration: ['migration/v4', 'migration/v3', 'migration/v2'],
   },
 };
