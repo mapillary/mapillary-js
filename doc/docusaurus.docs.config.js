@@ -110,7 +110,7 @@ module.exports = {
             },
             {
               label: 'Migration',
-              to: 'docs/migration',
+              to: 'docs/migration/v4',
             },
           ],
         },

@@ -24,9 +24,9 @@
     "prettier:diff": "prettier --config .prettierrc --list-different \"**/*.{js,jsx,ts,tsx,md,mdx}\""
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-alpha.75",
-    "@docusaurus/preset-classic": "2.0.0-alpha.75",
-    "@docusaurus/theme-live-codeblock": "^2.0.0-alpha.75",
+    "@docusaurus/core": "^2.0.0-beta.0",
+    "@docusaurus/preset-classic": "^2.0.0-beta.0",
+    "@docusaurus/theme-live-codeblock": "^2.0.0-beta.0",
     "@mdx-js/react": "^1.6.21",
     "@svgr/webpack": "^5.5.0",
     "clsx": "^1.1.1",
@@ -37,9 +37,9 @@
     "url-loader": "^4.1.1"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.13.10",
+    "@babel/eslint-parser": "^7.14.2",
     "docusaurus-plugin-typedoc": "^0.14.1",
-    "eslint": "^7.20.0",
+    "eslint": "^7.26.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-header": "^3.0.0",
@@ -47,11 +47,11 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "prettier": "^2.2.1",
+    "prettier": "^2.3.0",
     "stylelint": "^13.2.1",
     "stylelint-copyright": "^2.0.0-alpha.69",
     "typedoc": "^0.20.36",
-    "typedoc-plugin-markdown": "^3.8.0"
+    "typedoc-plugin-markdown": "^3.8.1"
   },
   "browserslist": {
     "production": [
