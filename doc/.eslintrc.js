@@ -56,5 +56,13 @@ module.exports = {
     'react-hooks/rules-of-hooks': ERROR,
     'react/prop-types': OFF, // PropTypes aren't used much these days.
     'no-console': ['error', {allow: ['warn', 'error']}],
+    'no-underscore-dangle': ['error', {allowAfterThis: true}],
+    'no-plusplus': ['error', {allowForLoopAfterthoughts: true}],
+    'no-restricted-syntax': [
+      'error',
+      'ForInStatement',
+      'LabeledStatement',
+      'WithStatement',
+    ],
   },
 };

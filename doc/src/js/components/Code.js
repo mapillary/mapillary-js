@@ -14,7 +14,7 @@ import styles from './code.module.css';
 
 export function Code(props) {
   const {title} = props;
-  const name = title.replace(' ', '-');
+  const name = title.replaceAll(' ', '-');
   return (
     <a
       className={styles.codeButton}
