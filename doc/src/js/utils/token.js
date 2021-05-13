@@ -7,9 +7,4 @@
  * @format
  */
 
-module.exports = {
-  plugins: ['stylelint-copyright'],
-  rules: {
-    'docusaurus/copyright-header': true,
-  },
-};
+export const appToken = 'QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh';

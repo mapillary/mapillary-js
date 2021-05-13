@@ -9,8 +9,8 @@
 
 import React from 'react';
 import Layout from '@theme/Layout';
-import ViewerComponent from '../utils/_ViewerComponent';
-import {dispose, init} from '../../js/no-cover';
+import {ViewerComponent} from '../../js/components/ViewerComponent';
+import {dispose, init} from '../../js/examples/no-cover';
 
 export default function Example() {
   return (

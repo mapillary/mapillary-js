@@ -18,7 +18,7 @@ const logger = (req, res, next) => {
     const format = `${color}%s${clearColor}`;
     const message =
       `[${new Date().toISOString()}] ${req.method} ` +
-      `${req.path} ${res.statusCode}`;
+      `${req.originalUrl} ${res.statusCode}`;
     console.log(format, message);
   });
   next();
@@ -28,8 +28,8 @@ const importer = (req, res, next) => {
   if (!req.path.endsWith(".js")) {
     res.sendStatus(404);
   } else {
-    const file = path.join(pathname("doc/src/js"), req.path.split("/").pop());
-    console.log(file);
+    const relativePath = req.path.split("/").slice(-2).join("/");
+    const file = path.join(pathname("doc/src/js"), relativePath);
     fs.readFile(file, "utf-8", (err, data) => {
       if (err) {
         res.sendStatus(404);
@@ -48,10 +48,10 @@ const importer = (req, res, next) => {
 
 const app = express();
 app.use(logger);
-app.use("/doc", importer);
+app.use("/doc-src", importer);
 app.use("/dist", express.static(pathname("dist")));
-app.use("/", express.static(pathname("examples")));
-app.get("/examples", (_, res) => res.redirect("/"));
+app.use("/doc", express.static(pathname("examples/doc")));
+app.use("/", express.static(pathname("examples/debug")));
 
 app.listen(PORT, () => {
   const message =

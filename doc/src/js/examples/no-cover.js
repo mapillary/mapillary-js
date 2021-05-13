@@ -12,9 +12,9 @@ import {Viewer} from 'mapillary-js';
 let viewer;
 
 export function init(opts) {
-  const {container} = opts;
+  const {appToken, container} = opts;
   const options = {
-    apiClient: 'QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh',
+    apiClient: appToken,
     component: {cover: false},
     container,
   };

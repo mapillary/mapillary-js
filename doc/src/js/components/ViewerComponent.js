@@ -8,10 +8,11 @@
  */
 
 import React from 'react';
+import {appToken} from '../utils/token';
 
 import styles from './viewer.module.css';
 
-export default class ViewerComponent extends React.Component {
+export class ViewerComponent extends React.Component {
   constructor(props) {
     super(props);
     this.containerRef = React.createRef();
@@ -19,7 +20,10 @@ export default class ViewerComponent extends React.Component {
 
   componentDidMount() {
     const {init} = this.props;
-    init({container: this.containerRef.current});
+    init({
+      appToken,
+      container: this.containerRef.current,
+    });
   }
 
   componentWillUnmount() {

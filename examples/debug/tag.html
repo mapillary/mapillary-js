@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>MapillaryJS Tag</title>
+        <link rel="icon" href="data:," />
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no"
+        />
+
+        <link rel="stylesheet" href="/dist/mapillary.css" />
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+            }
+
+            #mly {
+                width: 100%;
+                height: calc(100% - 32px);
+            }
+
+            button {
+                margin-top: 4px;
+                margin-left: 6px;
+                height: 24px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="mly"></div>
+
+        <script type="module">
+            import {
+                OutlineTag,
+                PointGeometry,
+                PolygonGeometry,
+                RectGeometry,
+                RenderMode,
+                SpotTag,
+                TagMode,
+                Viewer,
+            } from "/dist/mapillary.module.js";
+            import { appToken } from "/doc-src/utils/token.js";
+
+            let viewer = new Viewer({
+                apiClient: appToken,
+                component: { cover: false, tag: true },
+                container: "mly",
+                imageId: "zarcRdNFZwg3FkXNcsFeGw",
+                renderMode: RenderMode.Letterbox,
+            });
+
+            function deactivate() {
+                viewer.deactivateComponent("tag");
+            }
+
+            function activate() {
+                viewer.activateComponent("tag");
+            }
+
+            let tagComponent = viewer.getComponent("tag");
+
+            function createGeometry(tagMode) {
+                tagComponent.changeMode(tagMode);
+            }
+
+            let currentMode = TagMode.Default;
+            tagComponent.on("tagmode", function (event) {
+                currentMode = event.mode;
+            });
+
+            document.addEventListener("keydown", function (keyEvent) {
+                if (
+                    keyEvent.key === "Control" &&
+                    currentMode === TagMode.CreateRectDrag
+                ) {
+                    createGeometry(TagMode.Default);
+                }
+            });
+
+            document.addEventListener("keyup", function (keyEvent) {
+                if (
+                    keyEvent.key === "Control" &&
+                    currentMode === TagMode.Default
+                ) {
+                    createGeometry(TagMode.CreateRectDrag);
+                }
+            });
+
+            function stopCreate() {
+                tagComponent.changeMode(TagMode.Default);
+            }
+
+            let createdTags = {};
+
+            function onTagGeometryChanged(tag) {
+                return;
+            }
+
+            let createdIndex = 0;
+
+            function createOutlineTag(geometry, text) {
+                let id = "created" + createdIndex++;
+                let options = {
+                    editable: true,
+                    fillColor: 0x00ffff,
+                    fillOpacity: 0.2,
+                    lineColor: 0x00ffff,
+                    lineWidth: 1,
+                    text: text,
+                    textColor: 0x00ffff,
+                };
+
+                let tag = new OutlineTag(id, geometry, options);
+                tag.on("geometrychanged", onTagGeometryChanged);
+
+                return tag;
+            }
+
+            function createSpotTag(geometry) {
+                let id = "created" + createdIndex++;
+                let options = {
+                    editable: true,
+                    color: 0x00ffff,
+                    text: "Point",
+                    textColor: 0x00ffff,
+                };
+
+                let tag = new SpotTag(id, geometry, options);
+                tag.on("geometrychanged", onTagGeometryChanged);
+
+                return tag;
+            }
+
+            tagComponent.on("geometrycreate", function (event) {
+                let tag;
+                const geometry = event.geometry;
+                if (geometry instanceof RectGeometry) {
+                    tag = createOutlineTag(geometry, "Rectangle");
+                } else if (geometry instanceof PolygonGeometry) {
+                    tag = createOutlineTag(geometry, "Polygon");
+                } else if (geometry instanceof PointGeometry) {
+                    tag = createSpotTag(geometry);
+                }
+
+                createdTags[tag.id] = tag;
+                tagComponent.add([tag]);
+            });
+
+            viewer.on("image", function () {
+                createdTags = {};
+                tagComponent.removeAll();
+            });
+
+            addButtons();
+
+            function addButton(content, handler) {
+                const button = document.createElement("button");
+                button.textContent = content;
+                button.addEventListener("click", handler);
+                document.body.append(button);
+            }
+
+            function addButtons() {
+                const point = TagMode.CreatePoint;
+                const polygon = TagMode.CreatePolygon;
+                const rectangle = TagMode.CreateRect;
+                const rectangleDrag = TagMode.CreateRectDrag;
+                addButton("Point", () => createGeometry(point));
+                addButton("Polygon", () => createGeometry(polygon));
+                addButton("Rectangle", () => createGeometry(rectangle));
+                addButton("Drag", () => createGeometry(rectangleDrag));
+                addButton("Stop", () => stopCreate());
+                addButton("Activate", () => activate());
+                addButton("Deactivate", () => deactivate());
+            }
+        </script>
+    </body>
+</html>
