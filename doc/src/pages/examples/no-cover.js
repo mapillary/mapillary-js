@@ -9,13 +9,16 @@
 
 import React from 'react';
 import Layout from '@theme/Layout';
+import {Code} from '../../js/components/Code';
 import {ViewerComponent} from '../../js/components/ViewerComponent';
 import {dispose, init} from '../../js/examples/no-cover';
 
 export default function Example() {
+  const title = 'No Cover';
   return (
-    <Layout title="No Cover" noFooter="true">
+    <Layout title={title} noFooter="true">
       <ViewerComponent init={init} dispose={dispose} />
+      <Code title={title.toLowerCase()} />
     </Layout>
   );
 }
