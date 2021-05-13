@@ -11,7 +11,7 @@ module.exports = {
   docs: {
     Introduction: ['intro/start', 'intro/try', 'intro/glossary'],
     Guides: ['guides'],
-    Extend: ['extend'],
+    Extension: ['extension'],
     Theory: ['theory'],
     Migration: ['migration/v4', 'migration/v3', 'migration/v2'],
   },

@@ -93,8 +93,8 @@ module.exports = {
               to: 'docs/guides',
             },
             {
-              label: 'Extend',
-              to: 'docs/extend',
+              label: 'Extension',
+              to: 'docs/extension',
             },
             {
               label: 'API Reference',

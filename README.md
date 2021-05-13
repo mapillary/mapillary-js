@@ -4,7 +4,7 @@
 
 # MapillaryJS
 
-MapillaryJS is an interactive, customizable street imagery and semantic mapping visualization platform on the web. It takes spatial, semantic, and texture data and renders it using JavaScript and WebGL. It can be extended with custom data providers, 3D model rendering, camera controls, and interactivity.
+MapillaryJS is an interactive, customizable street imagery and semantic mapping visualization platform on the web. It takes spatial, semantic, and texture data and renders it using JavaScript and WebGL. It can be augmented and extended with custom rendering, animation, camera controls, interactivity, and data providers.
 
 <a href="https://www.mapillary.com">
 <img width="100%" alt="Mapillary" src="https://user-images.githubusercontent.com/2492302/117429732-9dbe1e80-af27-11eb-9531-47ae4df50c65.png">
@@ -12,7 +12,7 @@ MapillaryJS is an interactive, customizable street imagery and semantic mapping 
 
 ## Installation and usage
 
-To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need an app token. When extending MapillaryJS to render your own data, no app token is needed.
+To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need an app token. When [providing Mapillary JS with your own data](https://mapillary.github.io/mapillary-js/docs/extension), no app token is needed.
 
 <details open>
   <summary><b><code>ES6 bundler</code></b></summary>
@@ -108,11 +108,11 @@ var viewer = new Viewer({
 
 ## Documentation
 
-- [Getting started with MapillaryJS](ttps://mapillary.github.io/mapillary-js/docs)
-- Developing extensions
-- [Examples](ttps://mapillary.github.io/mapillary-js/examples)
+- [Getting started with MapillaryJS](https://mapillary.github.io/mapillary-js/docs)
+- [Developing extensions](https://mapillary.github.io/mapillary-js/docs/extension)
+- [Examples](https://mapillary.github.io/mapillary-js/examples)
 - [API reference](https://mapillary.github.io/mapillary-js/api)
-- [Migration guide](https://mapillary.github.io/mapillary-js/docs/migrating)
+- [Migration guide](https://mapillary.github.io/mapillary-js/docs/migration/v4)
 - [Contributor documentation](./.github/CONTRIBUTING.md)
 
 ## Code of Conduct
