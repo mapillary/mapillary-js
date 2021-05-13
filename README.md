@@ -92,16 +92,24 @@ Include the JavaScript and CSS files in the `<head>` of your HTML file.
 />
 ```
 
-The global [UMD](https://github.com/umdjs/umd) namespace for MapillaryJS is `mapillary`. Include the following code in your JavaScript file.
+Add a container to the `<body>` of your HTML file.
+
+```html
+<div id="mly" style="width: 400px; height: 300px;"></div>
+```
+
+The global [UMD](https://github.com/umdjs/umd) name for MapillaryJS is `mapillary`. Include the following script in the `<body>` of your HTML file.
 
 ```js
+<script>
 var { Viewer } = mapillary;
 
 var viewer = new Viewer({
   apiClient: "<your app token>",
-  container: "<your HTML element ID>",
+  container: "mly",
   imageId: "<your image ID for initializing the viewer>",
 });
+</script>
 ```
 
 </details>

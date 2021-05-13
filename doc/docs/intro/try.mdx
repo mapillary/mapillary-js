@@ -24,7 +24,7 @@ For this guide, we will use the following tools.
 - You have [Node](https://nodejs.org) installed at `version >= v12.3.0`.
 - You have [Yarn](https://classic.yarnpkg.com) installed at `version >= v1.22.0`.
 
-To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need an app token. When [extending MapillaryJS](/docs/extend) to render your own data, no app token is needed.
+To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need an app token. When [extending MapillaryJS](/docs/extension) to render your own data, no app token is needed.
 
 Once you have setup the prerequisites, you can try MapillaryJS in your own website.
 
@@ -132,18 +132,18 @@ Add a container to the `<body>` of your HTML file.
 <div id="mly" style="width: 400px; height: 300px;"></div>
 ```
 
-The global [UMD](https://github.com/umdjs/umd) name for MapillaryJS is `mapillary`. Include the following code in the `<body>` of your HTML file.
+The global [UMD](https://github.com/umdjs/umd) name for MapillaryJS is `mapillary`. Include the following script in the `<body>` of your HTML file.
 
 ```html
 <script>
-var { Viewer } = mapillary;
+  var {Viewer} = mapillary;
 
-var viewer = new Viewer({
-  apiClient: '<your app token>',
-  container: 'mly', // the ID of our container defined in the HTML body
-  imageId: '<your image ID for initializing the viewer>',
-});
-<script>
+  var viewer = new Viewer({
+    apiClient: '<your app token>',
+    container: 'mly', // the ID of our container defined in the HTML body
+    imageId: '<your image ID for initializing the viewer>',
+  });
+</script>
 ```
 
 ## That's It!
