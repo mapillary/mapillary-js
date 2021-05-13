@@ -8,14 +8,17 @@
  */
 
 import React from 'react';
-import {Viewer} from 'mapillary-js';
+import * as mapillary from 'mapillary-js';
+
+import {appToken} from '../../js/utils/token';
 import '../../../node_modules/mapillary-js/dist/mapillary.css';
 
 // Add react-live imports you need here
 const ReactLiveScope = {
+  appToken,
+  ...mapillary,
   React,
   ...React,
-  Viewer,
 };
 
 export default ReactLiveScope;

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>No Cover</title>
+        <title>MapillaryJS UMD</title>
         <link rel="icon" href="data:," />
         <meta charset="utf-8" />
         <meta
@@ -9,7 +9,8 @@
             content="width=device-width, initial-scale=1.0, user-scalable=no"
         />
 
-        <link rel="stylesheet" href="/dist/mapillary.css" />
+        <link rel="stylesheet" href="../../dist/mapillary.css" />
+        <script src="../../dist/mapillary.js"></script>
 
         <style>
             body {
@@ -27,14 +28,20 @@
     </head>
 
     <body>
-        <script type="module">
-            import { init } from "/doc/no-cover.js";
+        <script>
+            const { Viewer } = mapillary;
 
             const container = document.createElement("div");
-            container.className = "viewer";
-            document.body.appendChild(container);
+            container.classList.add("viewer");
+            document.body.append(container);
 
-            init({ container });
+            const viewer = new Viewer({
+                apiClient:
+                    "QjI1NnU0aG5FZFZISE56U3R5aWN4ZzpkYzg0NzE3MDA0YTRhZjlh",
+                component: { cover: false },
+                container,
+                imageId: "zarcRdNFZwg3FkXNcsFeGw",
+            });
         </script>
     </body>
 </html>

@@ -93,6 +93,7 @@
     "lint-test": "tslint -c ./config/tslint.json -p tsconfig.json \"test/**/*.ts\"",
     "prepare": "yarn clear && yarn lint && yarn build",
     "serve": "node server.js",
+    "serve-umd": "python3 -m http.server",
     "start": "yarn start-init && concurrently --kill-others-on-fail -n 'compile,bundle,serve' 'yarn compile-watch' 'yarn bundle-watch' 'yarn serve'",
     "start-init": "yarn clear-build && yarn clear-dist && yarn build-styles && yarn compile-incremental",
     "test": "yarn clear-build && yarn compile-test && jest"
