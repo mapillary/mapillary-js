@@ -21,9 +21,9 @@ slug: /
 
 ## Extension
 
-| API | Name | Description |
+| Name | API | Description |
 | --- | --- | --- |
-| Data Provider | Procedural Provider | Serve procedurally generated data |
-| Custom Render | WebGL Renderer | Use WebGL to render custom content |
-| Custom Render | Three.js Renderer | Use Three.js to render custom content |
-| Custom Camera Controls | Orbit Controls | Use Three.js to attach orbit controls |
+| [Procedural Data Provider](/examples/procedural-data-provider) | Data Provider | Serve procedurally generated data |
+| WebGL Renderer | Custom Render | Use WebGL to render custom content |
+| Three.js Renderer | Custom Render | Use Three.js to render custom content |
+| Orbit Controls | Custom Camera Controls | Use Three.js to attach orbit controls |
