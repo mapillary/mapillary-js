@@ -24,7 +24,7 @@ For this guide, we will use the following tools.
 - You have [Node](https://nodejs.org) installed at `version >= v12.3.0`.
 - You have [Yarn](https://classic.yarnpkg.com) installed at `version >= v1.22.0`.
 
-To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need an app token. When [extending MapillaryJS](/docs/extension/extend) to render your own data, no app token is needed.
+To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need an app token. When [extending MapillaryJS](/docs/extension/extend) to provide your own data, no app token is needed.
 
 Once you have setup the prerequisites, you can try MapillaryJS in your own website.
 
@@ -200,6 +200,12 @@ function renderMapillary(props) {
   );
 }
 ```
+
+## Recap
+
+- Install MapillaryJS with Yarn or npm, or use a CDN
+- Use a CSS loader or include the CSS file in the `<head>` of your HTML file
+- Import the Viewer class and create a new Viewer instance with your options
 
 ## Next steps
 
