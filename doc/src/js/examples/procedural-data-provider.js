@@ -13,7 +13,7 @@ import {
   DataProviderBase,
   S2GeometryProvider,
   Viewer,
-} from 'mapillary-js';
+} from '../../../dist/mapillary.module';
 
 const ASPECT_FISHEYE = 3 / 2;
 const ASPECT_PERSPECTIVE = 4 / 3;

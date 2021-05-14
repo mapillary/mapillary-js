@@ -7,7 +7,7 @@
  * @format
  */
 
-import {Viewer} from 'mapillary-js';
+import {Viewer} from '../../../dist/mapillary.module';
 
 let viewer;
 

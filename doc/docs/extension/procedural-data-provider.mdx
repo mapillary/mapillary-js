@@ -3,7 +3,7 @@ id: procedural-data-provider
 title: Procedural Data Provider
 ---
 
-The data provider API can be used to provide MapillaryJS with any data that can be converted into the MapillaryJS [ent format](/api/modules/api#interfaces). The data can come from anywhere, e.g. [service APIs](https://www.mapillary.com/developer/api-documentation/), [JSON files](https://github.com/mapillary/OpenSfM/blob/6585f0561e7c9d4907eadc7bc2fb9dbdad8a2945/viewer/src/provider/OpensfmDataProvider.js#L66-L99), or even be generated on the fly in the browser. In this guide we will do procedural data generation for simplicity.
+You can use the data provider API to provide data in the MapillaryJS [ent format](/api/modules/api#interfaces). The data can come from anywhere, e.g. [service APIs](https://www.mapillary.com/developer/api-documentation/), [JSON files](https://github.com/mapillary/OpenSfM/blob/6585f0561e7c9d4907eadc7bc2fb9dbdad8a2945/viewer/src/provider/OpensfmDataProvider.js#L66-L99), or even be generated on the fly in the browser. In this guide we will do procedural data generation for simplicity.
 
 :::note
 
@@ -13,8 +13,8 @@ Only the most important concepts of data providers are explained in this guide. 
 
 :::info You will learn
 
-- How to convert your data to [MapillaryJS compatible contracts and ents](/api/modules/api#interfaces)
-- How to extend the [DataProviderBase class](/api/classes/api.dataproviderbase)
+- How to convert your data to compatible [MapillaryJS contracts and ents](/api/modules/api#interfaces)
+- How to create your own provider by extending the [DataProviderBase](/api/classes/api.dataproviderbase) class
 - How to make the [Viewer](/api/classes/viewer.viewer-1) use your data provider to load data
 
 :::
@@ -59,7 +59,7 @@ function Image(props) {
 
 :::note
 
-If your data does not contain any images, you can generate a general image buffer consisting of a single pixel and provide that to MapillaryJS. See the [OpenSfM visualization tool](https://github.com/mapillary/OpenSfM/blob/6585f0561e7c9d4907eadc7bc2fb9dbdad8a2945/viewer/src/provider/OpensfmDataProvider.js#L328-L338) for a data provider using that as a fallback strategy.
+If your data does not contain any images, you can generate image buffers consisting of a single pixel and provide them to MapillaryJS. See the [OpenSfM visualization tool](https://github.com/mapillary/OpenSfM/blob/6585f0561e7c9d4907eadc7bc2fb9dbdad8a2945/viewer/src/provider/OpensfmDataProvider.js#L328-L338) for a data provider using that as a fallback strategy.
 
 :::
 
@@ -95,7 +95,7 @@ Internally, MapillaryJS operates in a [local topocentric East, North, Up (ENU)](
 
 If your data is transformed into another coordinate system, you need to apply the inverse of that transform to the [angle-axis representation](https://en.wikipedia.org/wiki/Axis%E2%80%93angle_representation) for each camera capture.
 
-In our procedural provider we want all cameras to look north, so we use the `[Math.PI / 2, 0, 0]` angle-axis rotation.
+In our procedural provider we want all cameras to look to north, so we use the `[Math.PI / 2, 0, 0]` angle-axis rotation for the camera to world reference frame transform.
 
 ### Computed vs Original
 
@@ -103,7 +103,7 @@ When running a Structure from Motion algorithm, EXIF GPS positions and other met
 
 ### Merge ID
 
-The merge ID informs MapillaryJS what camera captures should be treated as a connected component and therefore have smooth transitions between them.
+The merge ID informs MapillaryJS what camera captures should be treated as a connected component and therefore have smooth transitions between them. In our example, we give all cameras the same merge ID.
 
 ### Mesh, Thumb and Cluster
 
@@ -113,9 +113,9 @@ All the nested object used by MapillaryJS to request additional data are [URLEnt
 const thumb = {id: '<my-thumb-id', url: '<my-thumb-url>'};
 ```
 
-When requesting the data from the provider, MapillaryJS will only provide the URL and the provider needs to act based on that. MapillaryJS expects JSON objects and array buffers to be returned from the data provider and exposes the [decompress](/api/modules/api#decompress), [fetchArrayBuffer](/api/modules/api#fetcharraybuffer), and [readMeshPbf](/api/modules/api#readmeshpbf) functions for convenience.
+When requesting the data from the provider, MapillaryJS will only provide the URL as parameter and the provider needs to act based on that. MapillaryJS expects JSON objects and array buffers to be returned from the data provider and exposes the [decompress](/api/modules/api#decompress), [fetchArrayBuffer](/api/modules/api#fetcharraybuffer), and [readMeshPbf](/api/modules/api#readmeshpbf) functions for convenience.
 
-Meshes are provider per camera capture with coordinates in the camera reference frame.
+Meshes are provided per camera capture with coordinates in the camera reference frame.
 
 ### Conversion
 
@@ -319,3 +319,9 @@ Now you know how to provide MapillaryJS with your own data by:
 - Extending the `DataProviderBase` class and implementing its abstract methods
 - Convert your data to the MapillaryJS ent format
 - Attach your custom data provider to the MapillaryJS viewer
+
+:::info
+
+If you want to build a data provider fetching files from a server, you can use the [OpenSfM data provider](https://github.com/mapillary/OpenSfM/blob/6585f0561e7c9d4907eadc7bc2fb9dbdad8a2945/viewer/src/provider/OpensfmDataProvider.js) as inspiration.
+
+:::

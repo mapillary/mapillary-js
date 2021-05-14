@@ -19,14 +19,16 @@ jobs:
       - name: Lint
         run: yarn lint
 
-      - name: Build
-        run: yarn build
-
       - name: Test
         run: yarn test
 
+      - name: Build
+        run: yarn build
+
       - name: Install doc dependencies
-        run: yarn --cwd doc install
+        run: |
+          yarn --cwd doc install && \
+          yarn --cwd doc copy-dist
 
       - name: Lint doc
         run: yarn --cwd doc ci

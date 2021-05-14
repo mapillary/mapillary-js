@@ -76,7 +76,7 @@ export class Navigator {
         } else if (options.apiClient instanceof DataProviderBase) {
             this._api = new APIWrapper(options.apiClient);
         } else {
-            throw new Error(`Invalid type: 'apiClient' must be a String or an object instance extending the DataProvderBase class.`);
+            throw new Error(`Invalid type: 'apiClient' must be a String or an object instance extending the DataProviderBase class.`);
         }
 
         this._graphService = graphService ??

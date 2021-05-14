@@ -10,7 +10,7 @@ This page is an overview of the MapillaryJS documentation and related resources.
 
 ### Try MapillaryJS
 
-Our [guide to trying MapillaryJS](/docs/intro/try) will take you through the installation and give you a taste of MapillaryJS by adding it to a simple HTML page.
+Our [guide to trying MapillaryJS](/docs/intro/try) will take you through the installation and give a first experience of using MapillaryJS by adding it to a simple HTML page.
 
 :::note
 
@@ -28,11 +28,11 @@ Once you’re comfortable with the main concepts and played with MapillaryJS a l
 
 ### API Reference
 
-This documentation section is useful when you want to learn more details about a particular MapillaryJS API. For example, the [Viewer class API reference](/api/modules/viewer) can provide you with details on how to filter the navigation edges, listen to mouse events, etc.
+The [API reference](/api) is useful when you want to learn more details about a particular MapillaryJS API.
 
 ### Examples
 
-This [examples section](/examples) gives you a deep dive into the details of using the MapillaryJS APIs through live code examples.
+The [examples section](/examples) gives you a deep dive into the details of using the MapillaryJS APIs through code examples.
 
 ## Essentials
 
@@ -46,35 +46,35 @@ Street imagery is simply images captured anywhere on earth at street-level, i.e 
 
 #### Semantic Mapping
 
-[Semantics](https://en.wikipedia.org/wiki/Semantics) is the study of meaning or truth. In the field of computer vision, [semantic segmentation](https://en.wikipedia.org/wiki/Image_segmentation#Groups_of_image_segmentation) is an approach detecting, for every pixel, the class to which an object belongs.
+[Semantics](https://en.wikipedia.org/wiki/Semantics) is the study of meaning or truth. In the field of computer vision, [semantic segmentation](https://en.wikipedia.org/wiki/Image_segmentation#Groups_of_image_segmentation) is an example for detecting, for every pixel, the class to which an object belongs.
 
 [Mapping](https://en.wikipedia.org/wiki/Cartography) is the practice of making or using maps.
 
-MapillaryJS provides methods to visualize the underlying data used to create semantic 3D maps through its spatial rendering capabilities. This is useful for understanding the structure of semantic mapping algorithm artifacts.
+MapillaryJS provides methods to visualize the underlying data used to create semantic 3D maps through its spatial rendering capabilities. This is useful for understanding the structure of semantic mapping algorithm output.
 
 #### Visualization Platform
 
 The aim of MapillaryJS is to provide the following characteristics:
 
 - Core capabilities
-  - This set of capabilities should be small and work really well
-    - Interactivity - Smooth street level and map camera navigation, panning, zooming
-    - Navigation graph construction - S2 cell based graph creation
-    - Image tiling - On demand, full resolution image rendering
-    - Undistortion - Textures and camera frames should be undistorted in the virtual 3D world
-    - Spatial rendering - Point clouds, camera frames, GPS positions
+  - A small set of capabilities that work really well.
+    - Interactivity - Smooth street level and map camera navigation, panning, zooming.
+    - Navigation graph construction - S2 cell based graph creation.
+    - Image tiling - On demand, full resolution image rendering.
+    - Undistortion - Textures and camera frames should be undistorted in the virtual 3D world.
+    - Spatial rendering - Point clouds, camera frames, GPS positions.
 - Stability
-  - The functionality provided by the platform should be deterministic
-  - Unit test coverage should be high to avoid regressions
+  - The functionality provided by the platform should be deterministic.
+  - Unit test coverage should be high to avoid regressions.
 - Great performance
-  - All the core capabilities should provide outstanding performance
+  - All the core capabilities should provide outstanding performance.
 - Easy to understand APIs
-  - While the MapillaryJS APIs should provide great power to the developers building upon MapillaryJS, they should also be coherent and simple to use
+  - While the MapillaryJS APIs should provide great power to the developers building upon MapillaryJS, they should also be coherent and simple to use.
 - Extendability
   - The core capabilities of MapillaryJS should function really well, but many applications require specific functionality and customization. Therefore MapillaryJS needs to provide powerful extension APIs for developers to build upon.
-    - Load any data format
-    - Render any 3D content, e.g. by using Three.js
-    - Customize and build application specific interactivity
+    - Load any data format.
+    - Render any 3D content, e.g. by using Three.js.
+    - Customize and build application specific interactivity.
 
 By providing the above characteristics, MapillaryJS can be a visualization platform in the browser for spatial and mapping developers to build upon and extend.
 

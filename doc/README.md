@@ -6,6 +6,7 @@ This website is built using [Docusaurus 2](https://docusaurus.io/), a modern sta
 
 After cloning MapillaryJS, run `yarn install` in this directory to fetch the documentation dependencies. Then, you can run several commands:
 
+- `yarn build-dist` builds the `mapillary-js` library into the `dist` directory. This step is required for building the docs.
 - `yarn start-docs` starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server. It omits the API and examples sections for faster iteration.
 - `yarn build` generates static content into the `build` directory and can be served using any static contents hosting service.
 - `yarn serve` serves the static content in the `build` directory.

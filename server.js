@@ -37,7 +37,7 @@ const importer = (req, res, next) => {
         res.type("application/javascript");
         res.send(
           data.replace(
-            " from 'mapillary-js';",
+            " from '../../../dist/mapillary.module';",
             " from '/dist/mapillary.module.js';"
           )
         );
