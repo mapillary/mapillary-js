@@ -11,8 +11,60 @@ module.exports = {
   docs: {
     Introduction: ['intro/start', 'intro/try', 'intro/glossary'],
     Guides: ['guides'],
-    Extension: ['extension'],
-    Theory: ['theory'],
+    Extension: [
+      {
+        type: 'doc',
+        id: 'extension/extend',
+        label: 'Extend',
+      },
+      {
+        type: 'category',
+        label: 'Data Provider API',
+        collapsed: false,
+        items: [
+          {
+            type: 'doc',
+            id: 'extension/procedural-data-provider',
+            label: 'Procedural',
+          },
+          {
+            type: 'doc',
+            id: 'extension/geometry-provider',
+            label: 'Geometry',
+          },
+        ],
+      },
+      {
+        type: 'category',
+        label: 'Custom Render API',
+        collapsed: false,
+        items: [
+          {
+            type: 'doc',
+            id: 'extension/webgl-custom-renderer',
+            label: 'WebGL',
+          },
+          {
+            type: 'doc',
+            id: 'extension/three-custom-renderer',
+            label: 'Three.js',
+          },
+        ],
+      },
+      {
+        type: 'category',
+        label: 'Camera Controls API',
+        collapsed: false,
+        items: [
+          {
+            type: 'doc',
+            id: 'extension/trackball-controls',
+            label: 'Trackball',
+          },
+        ],
+      },
+    ],
+    Theory: ['theory/theory', 'theory/geo'],
     Migration: ['migration/v4', 'migration/v3', 'migration/v2'],
   },
 };

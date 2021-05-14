@@ -1,4 +1,0 @@
----
-id: extension
-title: Extension
----
