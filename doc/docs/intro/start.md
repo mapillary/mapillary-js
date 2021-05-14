@@ -24,7 +24,7 @@ Our [guide to main concepts](/docs/guides) is the best place to start to learn c
 
 ### Extend and Augment
 
-Once you’re comfortable with the main concepts and played with MapillaryJS a little bit, you might be interested in more advanced topics. The [guide to extending MapillaryJS](/docs/extension) will introduce you to the powerful extension APIs which lets you extend and augment the MapillaryJS experience. You can load and visualize your own data format, render your own 3D models onto the MapillaryJS canvas, and define your own interactivity.
+Once you’re comfortable with the main concepts and played with MapillaryJS a little bit, you might be interested in more advanced topics. The [guide to extending MapillaryJS](/docs/extension/extend) will introduce you to the powerful extension APIs which lets you extend and augment the MapillaryJS experience. You can load and visualize your own data format, render your own 3D models onto the MapillaryJS canvas, and define your own interactivity.
 
 ### API Reference
 

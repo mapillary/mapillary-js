@@ -94,7 +94,7 @@ module.exports = {
             },
             {
               label: 'Extension',
-              to: 'docs/extension',
+              to: 'docs/extension/extend',
             },
             {
               label: 'API Reference',
@@ -106,7 +106,7 @@ module.exports = {
             },
             {
               label: 'Theory',
-              to: 'docs/theory',
+              to: 'docs/theory/theory',
             },
             {
               label: 'Migration',

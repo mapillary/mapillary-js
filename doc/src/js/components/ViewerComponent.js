@@ -32,6 +32,13 @@ export class ViewerComponent extends React.Component {
   }
 
   render() {
-    return <div ref={this.containerRef} className={styles.mapillaryViewer} />;
+    const {style} = this.props;
+    return (
+      <div
+        ref={this.containerRef}
+        className={styles.mapillaryViewer}
+        style={style ?? {}}
+      />
+    );
   }
 }

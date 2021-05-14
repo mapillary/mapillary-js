@@ -156,20 +156,22 @@ function generateClusters(options) {
   };
 }
 
-function generateImageBuffer(options) {
+export function generateImageBuffer(options) {
   const {tilesY, tilesX, tileSize} = options;
+  const w = tileSize;
+  const h = tileSize;
   const canvas = document.createElement('canvas');
-  canvas.width = tileSize * tilesX;
-  canvas.height = tileSize * tilesY;
+  canvas.width = w * tilesX;
+  canvas.height = h * tilesY;
   const ctx = canvas.getContext('2d');
 
   for (let y = tilesY - 1; y >= 0; y--) {
     for (let x = 0; x < tilesX; x++) {
-      ctx.fillStyle = `rgb(
-        ${Math.floor((255 * x) / (tilesX - 1))},
-        ${Math.floor((255 * (tilesY - 1 - y)) / (tilesY - 1))},
-        0)`;
-      ctx.fillRect(tileSize * x, tileSize * y, tileSize, tileSize);
+      const r = Math.floor((255 * x) / (tilesX - 1));
+      const g = Math.floor((255 * (tilesY - 1 - y)) / (tilesY - 1));
+      const b = 0;
+      ctx.fillStyle = `rgb(${r} ${g} ${b})`;
+      ctx.fillRect(w * x, h * y, w, h);
     }
   }
 
@@ -195,7 +197,7 @@ function getImageBuffer(options) {
   });
 }
 
-class ProceduralDataProvider extends DataProviderBase {
+export class ProceduralDataProvider extends DataProviderBase {
   constructor() {
     super(new S2GeometryProvider());
 
@@ -279,5 +281,7 @@ export function init(opts) {
 }
 
 export function dispose() {
-  viewer.remove();
+  if (viewer) {
+    viewer.remove();
+  }
 }
