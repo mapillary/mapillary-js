@@ -77,9 +77,8 @@ export function init(opts) {
 
     const imageId = '6ZcXjb82YuNEtPNA3fqBzA';
     viewer.moveTo(imageId).catch((error) => console.error(error));
-
-    container.appendChild(message);
   }
+  container.appendChild(message);
 }
 
 export function dispose() {

@@ -42,7 +42,11 @@ export abstract class GeometryProviderBase {
     }
 
     /**
-     * Get the adjacent cells
+     * Get the cell ids of all adjacent cells.
+     *
+     * @description In the case of approximately rectangular cells
+     * this is typically the eight orthogonally and diagonally adjacent
+     * cells.
      *
      * @param {string} cellId - Id of cell.
      * @returns {Array<string>} Array of cell ids. No specific

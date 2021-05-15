@@ -198,8 +198,8 @@ function getImageBuffer(options) {
 }
 
 export class ProceduralDataProvider extends DataProviderBase {
-  constructor() {
-    super(new S2GeometryProvider());
+  constructor(geometry) {
+    super(geometry ?? new S2GeometryProvider());
 
     this.tileSize = 10;
     this.tilesY = 10;
