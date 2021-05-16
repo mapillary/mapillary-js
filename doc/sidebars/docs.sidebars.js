@@ -64,7 +64,24 @@ module.exports = {
         ],
       },
     ],
-    Theory: ['theory/theory', 'theory/geo'],
+    Theory: [
+      'theory/theory',
+      {
+        type: 'doc',
+        id: 'theory/coordinates',
+        label: 'Coordinates',
+      },
+      {
+        type: 'doc',
+        id: 'theory/navigation-graph',
+        label: 'Navigation',
+      },
+      {
+        type: 'doc',
+        id: 'theory/polygon-triangulation',
+        label: 'Triangulation',
+      },
+    ],
     Migration: ['migration/v4', 'migration/v3', 'migration/v2'],
   },
 };

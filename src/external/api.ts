@@ -3,7 +3,7 @@
  *
  * @description
  *
- * Classes and interfaces for extending Mapillary JS with
+ * Classes and interfaces for extending MapillaryJS with
  * data providers to convert and load any data format.
  */
 

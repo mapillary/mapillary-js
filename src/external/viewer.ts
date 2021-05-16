@@ -3,52 +3,7 @@
  *
  * @description
  *
- * MapillaryJS
- *
- * Interactive, customizable street imagery viewer in
- * the browser, powered by WebGL.
- *
- * MapillaryJS works with a few different coordinate systems.
- *
- * Container pixel coordinates
- *
- * Pixel coordinates are coordinates on the viewer container. The origin is
- * in the top left corner of the container. The axes are
- * directed according to the following for a viewer container with a width
- * of 640 pixels and height of 480 pixels.
- *
- * ```js
- * (0,0)                          (640, 0)
- *      +------------------------>
- *      |
- *      |
- *      |
- *      v                        +
- * (0, 480)                       (640, 480)
- * ```
- *
- * Basic image coordinates
- *
- * Basic image coordinates represents points in the original image adjusted for
- * orientation. They range from 0 to 1 on both axes. The origin
- * is in the top left
- * corner of the image and the axes are directed
- * according to the following for all image types.
- *
- * ```js
- * (0,0)                          (1, 0)
- *      +------------------------>
- *      |
- *      |
- *      |
- *      v                        +
- * (0, 1)                         (1, 1)
- * ```
- *
- * For every camera viewing direction it is possible to convert between these
- * two coordinate systems for the current image. The image can be panned and
- * zoomed independently of the size of the viewer container resulting in
- * different conversion results for different viewing directions.
+ * Main classes and interfaces for interacting with MapillaryJS.
  */
 
 // Support
