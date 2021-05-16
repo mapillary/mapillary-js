@@ -4,9 +4,15 @@ title: Examples
 slug: /
 ---
 
+## Support
+
+| Example                      | Description                               |
+| ---------------------------- | ----------------------------------------- |
+| [Support](/examples/support) | Check it the browser supports MapillaryJS |
+
 ## Viewer
 
-| Name                           | Description                                |
+| Examples                       | Description                                |
 | ------------------------------ | ------------------------------------------ |
 | [No Cover](/examples/no-cover) | Load immediately without showing the cover |
 
@@ -14,14 +20,14 @@ slug: /
 
 ### Interaction
 
-| Name     | Description                                            |
+| Example  | Description                                            |
 | -------- | ------------------------------------------------------ |
 | Pointer  | Activate and deactivate mouse, pen, and touch handlers |
 | Keyboard | Activate and deactivate keyboard handlers              |
 
 ## Extension
 
-| Name | API | Description |
+| Example | API | Description |
 | --- | --- | --- |
 | [Procedural Data Provider](/examples/procedural-data-provider) | Data Provider | Serve procedurally generated data |
 | WebGL Renderer | Custom Render | Use WebGL to render custom content |

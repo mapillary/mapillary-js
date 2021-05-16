@@ -25,5 +25,7 @@ export function init(opts) {
 }
 
 export function dispose() {
-  viewer.remove();
+  if (viewer) {
+    viewer.remove();
+  }
 }
