@@ -8,13 +8,13 @@
  */
 
 import React from 'react';
-import * as mapillary from '../../../dist/mapillary.module';
+import * as mapillary from '../../../mods/mapillary-js/dist/mapillary.module';
 
 import {appToken} from '../../js/utils/token';
 import {ViewerComponent} from '../../js/components/ViewerComponent';
 import * as procedural from '../../js/examples/procedural-data-provider';
 
-import '../../../dist/mapillary.css';
+import '../../../mods/mapillary-js/dist/mapillary.css';
 
 // Add react-live imports you need here
 const ReactLiveScope = {

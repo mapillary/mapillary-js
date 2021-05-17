@@ -34,13 +34,17 @@ const importer = (req, res, next) => {
       if (err) {
         res.sendStatus(404);
       } else {
+        const mapillary = / from (\"|\').*\/mapillary.module(\"|\');/;
+        data = data.replace(mapillary, " from '/dist/mapillary.module.js';");
+
+        const mods = /(?!.*mapillary)(.*)(\sfrom\s\'.*\/mods\/)(.*)(';)/;
+        function replacer(match, p1, _, p3, __) {
+          return [p1, " from '/mods/", p3, ".js';"].join("");
+        }
+        data = data.replace(mods, replacer);
+
         res.type("application/javascript");
-        res.send(
-          data.replace(
-            " from '../../../dist/mapillary.module';",
-            " from '/dist/mapillary.module.js';"
-          )
-        );
+        res.send(data);
       }
     });
   }
@@ -51,6 +55,7 @@ app.use(logger);
 app.use("/doc-src", importer);
 app.use("/dist", express.static(pathname("dist")));
 app.use("/doc", express.static(pathname("examples/doc")));
+app.use("/mods", express.static(pathname("node_modules")));
 app.use("/", express.static(pathname("examples/debug")));
 
 app.listen(PORT, () => {

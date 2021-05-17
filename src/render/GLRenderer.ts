@@ -242,6 +242,8 @@ export class GLRenderer {
                         renderOpaque(perspectiveCamera, renderer);
                     }
 
+                    renderer.resetState();
+
                     this._opaqueRender$.next();
                 });
 
