@@ -15,7 +15,6 @@ import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
 import { FrameHelper } from "../helper/FrameHelper";
 import { RendererMock } from "../helper/WebGLRenderer";
 
-
 class RenderServiceMock extends RenderService {
     private _sizeMock$: Subject<ViewportSize> = new Subject<ViewportSize>();
     private _renderModeMock$: Subject<RenderMode> = new Subject<RenderMode>();
@@ -316,13 +315,13 @@ describe("GLRenderer.renderer", () => {
 
         glRenderer.render$.next(createGLRenderHash(frame.id, true));
 
-        expect((<jasmine.Spy>renderer.resetState).calls.count()).toBe(1);
+        expect((<jasmine.Spy>renderer.resetState).calls.count()).toBe(2);
         expect((<jasmine.Spy>renderer.clear).calls.count()).toBe(1);
         expect((<jasmine.Spy>renderer.setClearColor).calls.count()).toBe(1);
 
         glRenderer.triggerRerender();
 
-        expect((<jasmine.Spy>renderer.resetState).calls.count()).toBe(1);
+        expect((<jasmine.Spy>renderer.resetState).calls.count()).toBe(2);
         expect((<jasmine.Spy>renderer.clear).calls.count()).toBe(1);
         expect((<jasmine.Spy>renderer.setClearColor).calls.count()).toBe(1);
     });
@@ -348,18 +347,18 @@ describe("GLRenderer.renderer", () => {
 
         glRenderer.render$.next(createGLRenderHash(frame.id, true));
 
-        expect((<jasmine.Spy>renderer.resetState).calls.count()).toBe(1);
+        expect((<jasmine.Spy>renderer.resetState).calls.count()).toBe(2);
         expect((<jasmine.Spy>renderer.clear).calls.count()).toBe(1);
         expect((<jasmine.Spy>renderer.setClearColor).calls.count()).toBe(1);
 
         glRenderer.triggerRerender();
 
         frame.id = 2;
-        renderCamera.setFrame(frame)
+        renderCamera.setFrame(frame);
         renderServiceMock.renderCameraFrame$.next(renderCamera);
         glRenderer.render$.next(createGLRenderHash(frame.id, false));
 
-        expect((<jasmine.Spy>renderer.resetState).calls.count()).toBe(2);
+        expect((<jasmine.Spy>renderer.resetState).calls.count()).toBe(4);
         expect((<jasmine.Spy>renderer.clear).calls.count()).toBe(2);
         expect((<jasmine.Spy>renderer.setClearColor).calls.count()).toBe(2);
     });
@@ -385,23 +384,23 @@ describe("GLRenderer.renderer", () => {
 
         glRenderer.render$.next(createGLRenderHash(frame.id, true));
 
-        expect((<jasmine.Spy>renderer.resetState).calls.count()).toBe(1);
+        expect((<jasmine.Spy>renderer.resetState).calls.count()).toBe(2);
         expect((<jasmine.Spy>renderer.clear).calls.count()).toBe(1);
         expect((<jasmine.Spy>renderer.setClearColor).calls.count()).toBe(1);
 
         glRenderer.triggerRerender();
 
         frame.id = 2;
-        renderCamera.setFrame(frame)
+        renderCamera.setFrame(frame);
         renderServiceMock.renderCameraFrame$.next(renderCamera);
         glRenderer.render$.next(createGLRenderHash(frame.id, false));
 
         frame.id = 3;
-        renderCamera.setFrame(frame)
+        renderCamera.setFrame(frame);
         renderServiceMock.renderCameraFrame$.next(renderCamera);
         glRenderer.render$.next(createGLRenderHash(frame.id, false));
 
-        expect((<jasmine.Spy>renderer.resetState).calls.count()).toBe(2);
+        expect((<jasmine.Spy>renderer.resetState).calls.count()).toBe(4);
         expect((<jasmine.Spy>renderer.clear).calls.count()).toBe(2);
         expect((<jasmine.Spy>renderer.setClearColor).calls.count()).toBe(2);
     });
@@ -428,14 +427,14 @@ describe("GLRenderer.renderer", () => {
         glRenderer.opaqueRender$.subscribe(
             () => {
                 expect((<jasmine.Spy>renderer.resetState)
-                    .calls.count()).toBe(1);
+                    .calls.count()).toBe(2);
                 expect((<jasmine.Spy>renderer.clear)
                     .calls.count()).toBe(1);
                 expect((<jasmine.Spy>renderer.setClearColor)
                     .calls.count()).toBe(1);
 
                 done();
-            })
+            });
 
         glRenderer.render$.next(createGLRenderHash(frame.id, true));
     });

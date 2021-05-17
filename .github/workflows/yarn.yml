@@ -28,7 +28,7 @@ jobs:
       - name: Install doc dependencies
         run: |
           yarn --cwd doc install && \
-          yarn --cwd doc copy-dist
+          yarn --cwd doc copy-mods
 
       - name: Lint doc
         run: yarn --cwd doc ci

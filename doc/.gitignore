@@ -8,7 +8,7 @@
 .docusaurus
 .cache-loader
 /api
-/dist
+/mods
 
 # Misc
 .DS_Store

@@ -12,7 +12,7 @@ module.exports = {
   title: 'MapillaryJS',
   tagline: 'Interactive, extendable street imagery visualization platform',
   url: 'https://mapillary.github.io',
-  baseUrl: '/',
+  baseUrl: '/mapillary-js/',
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.png',

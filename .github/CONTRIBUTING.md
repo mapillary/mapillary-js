@@ -68,14 +68,7 @@ If you want to try your changes in your existing project, you may use `yarn link
 
 ## Documentation workflow
 
-After cloning MapillaryJS, run `yarn --cwd doc install` to fetch the documentation website generation dependencies. Then, you can run several commands:
-
-- `yarn --cwd doc ci` checks the code style.
-- `yarn --cwd doc build-api` builds the API reference in the `doc/api` folder spearately. Running this command is not needed for building the static documentation.
-- `yarn --cwd doc build` generates static documentation content in the `doc/build` folder.
-- `yarn --cwd doc serve` starts a local development server and serves the static build output.
-- `yarn --cwd doc start-docs` starts a local development, opens up a browser window, and rebuilds on file changes. It omits the API and examples sections for faster iteration.
-- `yarn --cwd doc clear` removes the doc build output.
+See the [documentation README](../doc/README.md).
 
 ## Commit conventions
 

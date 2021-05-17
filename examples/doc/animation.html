@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Animation</title>
+        <link rel="icon" href="data:," />
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no"
+        />
+
+        <link rel="stylesheet" href="/dist/mapillary.css" />
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            html,
+            body,
+            .viewer {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <script type="module">
+            import { appToken } from "/doc-src/utils/token.js";
+            import { init } from "/doc-src/examples/animation.js";
+
+            const container = document.createElement("div");
+            container.className = "viewer";
+            document.body.appendChild(container);
+
+            init({ appToken, container });
+        </script>
+    </body>
+</html>
