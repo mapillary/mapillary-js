@@ -5,17 +5,11 @@ title: Procedural Data Provider
 
 You can use the data provider API to provide data in the MapillaryJS [ent format](/api/modules/api#interfaces). The data can come from anywhere, e.g. [service APIs](https://www.mapillary.com/developer/api-documentation/), [JSON files](https://github.com/mapillary/OpenSfM/blob/6585f0561e7c9d4907eadc7bc2fb9dbdad8a2945/viewer/src/provider/OpensfmDataProvider.js#L66-L99), or even be generated on the fly in the browser. In this guide we will do procedural data generation for simplicity.
 
-:::note
-
-Only the most important concepts of data providers are explained in this guide. Code details are omitted for brevity. You can study the full code in the [Procedural Data Provider example](/examples/procedural-data-provider).
-
-:::
-
 :::info You will learn
 
-- How to convert your data to compatible [MapillaryJS contracts and ents](/api/modules/api#interfaces)
-- How to create your own provider by extending the [DataProviderBase](/api/classes/api.dataproviderbase) class
-- How to make the [Viewer](/api/classes/viewer.viewer-1) use your data provider to load data
+- How to convert your data to compatible MapillaryJS contracts and ents
+- How to create your own provider by extending the `DataProviderBase` class
+- How to make the `Viewer` use your data provider to load data
 
 :::
 
@@ -264,7 +258,7 @@ class ProceduralDataProvider extends DataProviderBase {
 
 ## Attaching the Provider
 
-Now that we have implemented our procedural data provider, we just need to attach it to the Viewer through the Viewer.[apiClient](/api/interfaces/viewer.vieweroptions#apiclient) option. Lastly, we need to move to one of the image ids in our generated data to initialize the Viewer.
+Now that we have implemented our procedural data provider, we just need to attach it to the [Viewer](/api/classes/viewer.viewer-1) through the Viewer.[apiClient](/api/interfaces/viewer.vieweroptions#apiclient) option. Lastly, we need to move to one of the image ids in our generated data to initialize the Viewer.
 
 :::tip
 
@@ -315,6 +309,8 @@ Now you know how to provide MapillaryJS with your own data by:
 - Attach your custom data provider to the MapillaryJS viewer
 
 :::info
+
+You can view the complete example code in the [Procedural Data Provider example](/examples/procedural-data-provider).
 
 If you want to build a data provider fetching files from a server, you can use the [OpenSfM data provider](https://github.com/mapillary/OpenSfM/blob/6585f0561e7c9d4907eadc7bc2fb9dbdad8a2945/viewer/src/provider/OpensfmDataProvider.js) as inspiration.
 

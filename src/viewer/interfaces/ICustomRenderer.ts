@@ -16,8 +16,8 @@ import { IViewer } from "./IViewer";
  * render, onReferenceChanged, onAdd, and onRemove. They can
  * trigger rendering using {Viewer#triggerRerender}.
  *
- * The viewer uses a metric topocentric [local east, north, up
- * coordinate system]{@link https://en.wikipedia.org/wiki/Local_tangent_plane_coordinates}.
+ * The viewer uses a metric topocentric
+ * [local east, north, up coordinate system](https://en.wikipedia.org/wiki/Local_tangent_plane_coordinates).
  *
  * Custom renderers can calculate the topocentric positions
  * of their objects using the reference parameter of the
@@ -34,7 +34,7 @@ export interface ICustomRenderer {
     id: string;
 
     /**
-     * The custom renderers's render pass.
+     * The custom renderer's render pass.
      *
      * @description The ICustomRenderer#render method
      * will be called during this render pass.
@@ -96,13 +96,13 @@ export interface ICustomRenderer {
         context: WebGLRenderingContext | WebGL2RenderingContext): void;
 
     /**
-     * Called during a render frame allowing the renderer to draw
+     * Called during an animation frame allowing the renderer to draw
      * into the GL context. The layer cannot make assumptions
      * about the current GL state.
      *
-     * @description Refer to [this MDN Web
-     * Doc]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_model_view_projection}
-     * for an introduction to the view and projection matrices.
+     * @description Take a look at the
+     * [WebGL model view projection article](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_model_view_projection)
+     * on MDN for an introduction to the view and projection matrices.
      *
      * @param {WebGLRenderingContext | WebGL2RenderingContext} context -
      * The viewer's gl context.

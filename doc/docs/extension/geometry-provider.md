@@ -7,14 +7,14 @@ MapillaryJS needs a scalable way to index camera captures when determining adjac
 
 :::info You will learn
 
-- How to create your own geometry provider by extending the [GeometryProviderBase](/api/classes/api.geometryproviderbase) class
+- How to create your own geometry provider by extending the `GeometryProviderBase` class
 - How to make MapillaryJS use your geometry provider to load adjacent data
 
 :::
 
 ## Implementing the Provider
 
-The `GeometryProviderBase` class has four abstract methods that you need to implement.
+The [GeometryProviderBase](/api/classes/api.geometryproviderbase) class has four abstract methods that you need to implement.
 
 ```js
 class MyGeometryProvider extends GeometryProviderBase {

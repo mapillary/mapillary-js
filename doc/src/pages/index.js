@@ -28,11 +28,11 @@ const features = [
     ),
   },
   {
-    title: 'Spatial Interactivity',
+    title: 'Interact and Navigate',
     imageUrl: 'img/hero/semantic.png',
     description: (
       <>
-        MapillaryJS takes spatial, sematic, and texture data and renders it
+        MapillaryJS takes spatial, semantic, and texture data and renders it
         using JavaScript and WebGL. You can interact with the undistorted
         virtual 3D world and navigate the imagery from the street level or a
         bird&apos;s eye view.
@@ -44,9 +44,9 @@ const features = [
     imageUrl: 'img/hero/dropoff.png',
     description: (
       <>
-        Use the MapillaryJS Extension API to extend, customize, and augment the
-        MapillaryJS experience with your own data providers, semantic meshes, 3D
-        models, camera controls, and interactivity.
+        Use the MapillaryJS Extension API to extend and augment the MapillaryJS
+        experience with your own data providers, semantic meshes, 3D models,
+        animation, camera controls, and interactivity.
       </>
     ),
   },

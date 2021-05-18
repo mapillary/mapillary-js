@@ -9,7 +9,7 @@ MapillaryJS is a street imagery and semantic mapping visualization platform on t
 - [Custom Render API](/api/interfaces/viewer.icustomrenderer)
 - [Custom Camera Control API](/api/interfaces/viewer.icustomcameracontrols)
 
-By the end of this section, you will be able to use these APIs to customize, extend, and augment the MapillaryJS experience with your own data, semantic meshes, 3D models, camera controls, and interactivity.
+By the end of this section, you will be able to use these APIs to extend and augment the MapillaryJS experience with your own data, semantic meshes, 3D models, camera controls, and interactivity.
 
 :::info You will learn
 
