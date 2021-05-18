@@ -17,6 +17,7 @@ By the end of this section, you will be able to use these APIs to customize, ext
 - [How to write a geometry provider optimized for your geo shapes and queries](/docs/extension/geometry-provider)
 - [How to render 3D objects using WebGL](/docs/extension/webgl-custom-renderer)
 - [How to render 3D objects using Three.js](/docs/extension/three-custom-renderer)
-- [How to attach camera controls leveraging Three.js](/docs/extension/trackball-controls)
+- [How to create animations](/docs/extension/animation)
+- [How to attach camera controls leveraging Three.js](/docs/extension/fly-controls)
 
 :::

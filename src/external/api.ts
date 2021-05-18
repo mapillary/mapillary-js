@@ -1,10 +1,8 @@
 /**
  * @module api
  *
- * @description
- *
- * Classes and interfaces for extending MapillaryJS with
- * data providers to convert and load any data format.
+ * @description Extension interfaces and methods for extending
+ * MapillaryJS.
  */
 
 // Geo

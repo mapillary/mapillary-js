@@ -14,6 +14,7 @@ import {
 import {
   BoxGeometry,
   Camera,
+  Clock,
   Mesh,
   MeshBasicMaterial,
   Scene,
@@ -34,8 +35,9 @@ function makePosition(geoPosition, reference) {
 
 class ThreeCubeRenderer {
   constructor() {
-    this.id = 'three-cube-renderer';
+    this.id = 'cube-animation-renderer';
 
+    this.clock = new Clock();
     this.cubeGeoPosition = {
       alt: 1,
       lat: -25.28268614514251,
@@ -88,8 +90,6 @@ class ThreeCubeRenderer {
     this.sphere = sphere;
     this.renderer = renderer;
     this.viewer = viewer;
-
-    this.then = 0;
   }
 
   onReferenceChanged(viewer, reference) {
@@ -105,14 +105,12 @@ class ThreeCubeRenderer {
   }
 
   render(context, viewMatrix, projectionMatrix) {
-    const {camera, scene, sphere, renderer, then, viewer} = this;
+    const {camera, clock, scene, sphere, renderer, viewer} = this;
 
-    const now = 1e-3 * window.performance.now();
-    const deltaTime = now - then;
-    this.then = now;
+    const delta = clock.getDelta();
 
-    sphere.rotateZ(deltaTime);
-    sphere.rotateY(0.7 * deltaTime);
+    sphere.rotateZ(delta);
+    sphere.rotateY(0.7 * delta);
 
     camera.matrix.fromArray(viewMatrix).invert();
     camera.updateMatrixWorld(true);

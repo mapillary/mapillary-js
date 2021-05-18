@@ -11,10 +11,10 @@ import React from 'react';
 import Layout from '@theme/Layout';
 import {Code} from '../../js/components/Code';
 import {ViewerComponent} from '../../js/components/ViewerComponent';
-import {dispose, init} from '../../js/examples/three-renderer';
+import {dispose, init} from '../../js/examples/fly-controls';
 
 export default function Example() {
-  const title = 'Three Renderer';
+  const title = 'Fly Controls';
   return (
     <Layout title={title} noFooter="true">
       <ViewerComponent init={init} dispose={dispose} />
