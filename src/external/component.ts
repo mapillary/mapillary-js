@@ -1,11 +1,7 @@
 /**
  * @module component
  *
- * @description
- *
- * Component API
- *
- * Configuration options and component classes.
+ * @description Component interfaces and options.
  */
 
 // Bearing

@@ -34,14 +34,14 @@ const importer = (req, res, next) => {
       if (err) {
         res.sendStatus(404);
       } else {
-        const mapillary = / from (\"|\').*\/mapillary.module(\"|\');/;
+        const mapillary = / from \'.*\/mapillary.module\';/;
         data = data.replace(mapillary, " from '/dist/mapillary.module.js';");
 
-        const mods = /(?!.*mapillary)(.*)(\sfrom\s\'.*\/mods\/)(.*)(';)/;
+        const mods = /(?!.*mapillary)(.*)(\sfrom\s\'.*\/mods\/)(.*)(';)/g;
         function replacer(match, p1, _, p3, __) {
           return [p1, " from '/mods/", p3, ".js';"].join("");
         }
-        data = data.replace(mods, replacer);
+        data = data.replaceAll(mods, replacer);
 
         res.type("application/javascript");
         res.send(data);

@@ -49,6 +49,7 @@ module.exports = {
             id: 'extension/three-custom-renderer',
             label: 'Three.js',
           },
+          'extension/animation',
         ],
       },
       {
@@ -58,8 +59,8 @@ module.exports = {
         items: [
           {
             type: 'doc',
-            id: 'extension/trackball-controls',
-            label: 'Trackball',
+            id: 'extension/fly-controls',
+            label: 'Fly Controls',
           },
         ],
       },
