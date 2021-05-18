@@ -13,6 +13,7 @@ import * as mapillary from '../../../mods/mapillary-js/dist/mapillary.module';
 import {appToken} from '../../js/utils/token';
 import {ViewerComponent} from '../../js/components/ViewerComponent';
 import * as procedural from '../../js/examples/procedural-data-provider';
+import * as webglrenderer from '../../js/examples/webgl-renderer';
 
 import '../../../mods/mapillary-js/dist/mapillary.css';
 
@@ -20,6 +21,7 @@ import '../../../mods/mapillary-js/dist/mapillary.css';
 const ReactLiveScope = {
   appToken,
   procedural,
+  webglrenderer,
   ...mapillary,
   ViewerComponent,
   React,

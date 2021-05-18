@@ -9,6 +9,7 @@
 
 import {
   geodeticToEnu,
+  RenderPass,
   Viewer,
 } from '../../../mods/mapillary-js/dist/mapillary.module';
 import {
@@ -21,7 +22,7 @@ import {
 } from '../../../mods/three/build/three.module';
 
 function makePosition(geoPosition, reference) {
-  const position = geodeticToEnu(
+  const enuPosition = geodeticToEnu(
     geoPosition.lng,
     geoPosition.lat,
     geoPosition.alt,
@@ -29,13 +30,13 @@ function makePosition(geoPosition, reference) {
     reference.lat,
     reference.alt,
   );
-  return position;
+  return enuPosition;
 }
 
 class ThreeCubeRenderer {
   constructor() {
     this.id = 'three-cube-renderer';
-
+    this.renderPass = RenderPass.Opaque;
     this.cubeGeoPosition = {
       alt: 1,
       lat: -25.28268614514251,
@@ -89,7 +90,7 @@ class ThreeCubeRenderer {
     this.renderer = renderer;
   }
 
-  onReferenceChanged(viewer, reference) {
+  onReference(viewer, reference) {
     const {cubeGeoPosition, sphere} = this;
     const position = makePosition(cubeGeoPosition, reference);
     sphere.position.fromArray(position);

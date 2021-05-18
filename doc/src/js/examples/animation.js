@@ -9,6 +9,7 @@
 
 import {
   geodeticToEnu,
+  RenderPass,
   Viewer,
 } from '../../../mods/mapillary-js/dist/mapillary.module';
 import {
@@ -33,10 +34,10 @@ function makePosition(geoPosition, reference) {
   return position;
 }
 
-class ThreeCubeRenderer {
+class RotatingCubeRenderer {
   constructor() {
-    this.id = 'cube-animation-renderer';
-
+    this.id = 'rotating-cube-renderer';
+    this.renderPass = RenderPass.Opaque;
     this.clock = new Clock();
     this.cubeGeoPosition = {
       alt: 1,
@@ -92,7 +93,7 @@ class ThreeCubeRenderer {
     this.viewer = viewer;
   }
 
-  onReferenceChanged(viewer, reference) {
+  onReference(viewer, reference) {
     const {cubeGeoPosition, sphere} = this;
     const position = makePosition(cubeGeoPosition, reference);
     sphere.position.fromArray(position);
@@ -134,7 +135,7 @@ export function init(opts) {
   };
 
   viewer = new Viewer(options);
-  viewer.addCustomRenderer(new ThreeCubeRenderer());
+  viewer.addCustomRenderer(new RotatingCubeRenderer());
 
   viewer
     .moveTo('H_g2NFQvEXdGGyTjY27FMA')

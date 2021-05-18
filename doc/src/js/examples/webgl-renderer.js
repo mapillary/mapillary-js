@@ -9,30 +9,37 @@
 
 import {
   geodeticToEnu,
+  RenderPass,
   Viewer,
 } from '../../../mods/mapillary-js/dist/mapillary.module';
 
 function initBuffers(gl) {
-  const positionBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
   const positions = [
-    -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0,
-    -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0, -1.0,
-    -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0,
-    -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0,
-    1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0,
-    -1.0, 1.0, -1.0,
+    // Front
+    ...[-1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0],
+    // Back
+    ...[-1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0],
+    // Top
+    ...[-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0],
+    // Bottom
+    ...[-1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0],
+    // Right
+    ...[1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0],
+    // Left
+    ...[-1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0],
   ];
 
+  const positionBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
   const faceColors = [
-    [1.0, 1.0, 1.0, 1.0],
-    [1.0, 0.0, 0.0, 1.0],
-    [0.0, 1.0, 0.0, 1.0],
-    [0.0, 0.0, 1.0, 1.0],
-    [1.0, 1.0, 0.0, 1.0],
-    [1.0, 0.0, 1.0, 1.0],
+    [1.0, 1.0, 1.0, 1.0], // Front
+    [1.0, 0.0, 0.0, 1.0], // Back
+    [0.0, 1.0, 0.0, 1.0], // Top
+    [0.0, 0.0, 1.0, 1.0], // Bottom
+    [1.0, 1.0, 0.0, 1.0], // Right
+    [1.0, 0.0, 1.0, 1.0], // Left
   ];
 
   let colors = [];
@@ -40,19 +47,27 @@ function initBuffers(gl) {
     const c = faceColors[j];
     colors = colors.concat(c, c, c, c);
   }
-
   const colorBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 
-  const indexBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-
   const indices = [
-    0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14,
-    15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23,
+    // Front
+    0, 1, 2, 0, 2, 3,
+    // Back
+    4, 5, 6, 4, 6, 7,
+    // Top
+    8, 9, 10, 8, 10, 11,
+    // Bottom
+    12, 13, 14, 12, 14, 15,
+    // Right
+    16, 17, 18, 16, 18, 19,
+    // Left
+    20, 21, 22, 20, 22, 23,
   ];
 
+  const indexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
   gl.bufferData(
     gl.ELEMENT_ARRAY_BUFFER,
     new Uint16Array(indices),
@@ -97,13 +112,13 @@ function initShaderProgram(gl, vsSource, fsSource) {
   return {fragmentShader, shaderProgram, vertexShader};
 }
 
-export function makeTranslation(v) {
+function makeTranslation(v) {
   const [x, y, z] = v;
   return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, x, y, z, 1];
 }
 
 function makeModelMatrix(geoPosition, reference) {
-  const position = geodeticToEnu(
+  const enuPosition = geodeticToEnu(
     geoPosition.lng,
     geoPosition.lat,
     geoPosition.alt,
@@ -111,61 +126,55 @@ function makeModelMatrix(geoPosition, reference) {
     reference.lat,
     reference.alt,
   );
-  const modelMatrix = makeTranslation(position);
+  const modelMatrix = makeTranslation(enuPosition);
   return modelMatrix;
 }
 
-class WebGLCubeRenderer {
-  constructor() {
-    this.id = 'webgl-cube-renderer';
+const vertexShaderSource = `
+  attribute vec4 aVertexPosition;
+  attribute vec4 aVertexColor;
 
-    this.modelMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-    this.cubeGeoPosition = {
-      alt: 1,
-      lat: -25.28268614514251,
-      lng: -57.630922858385,
-    };
+  uniform mat4 uModelMatrix;
+  uniform mat4 uViewMatrix;
+  uniform mat4 uProjectionMatrix;
+
+  varying lowp vec4 vColor;
+
+  void main(void) {
+    gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * aVertexPosition;
+    vColor = aVertexColor;
+  }
+`;
+
+const fragmentShaderSource = `
+  varying lowp vec4 vColor;
+
+  void main(void) {
+    gl_FragColor = vColor;
+  }
+`;
+
+export class WebGLCubeRenderer {
+  constructor(cube) {
+    this.id = 'webgl-cube-renderer';
+    this.renderPass = RenderPass.Opaque;
+    this.cube = cube;
   }
 
   onAdd(viewer, reference, context) {
-    const {cubeGeoPosition} = this;
-    this.modelMatrix = makeModelMatrix(cubeGeoPosition, reference);
-
-    const vsSource = `
-      attribute vec4 aVertexPosition;
-      attribute vec4 aVertexColor;
-
-      uniform mat4 uModelMatrix;
-      uniform mat4 uViewMatrix;
-      uniform mat4 uProjectionMatrix;
-
-      varying lowp vec4 vColor;
-
-      void main(void) {
-        gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * aVertexPosition;
-        vColor = aVertexColor;
-      }
-    `;
-
-    const fsSource = `
-      varying lowp vec4 vColor;
-
-      void main(void) {
-        gl_FragColor = vColor;
-      }
-    `;
+    this.cube.modelMatrix = makeModelMatrix(this.cube.geoPosition, reference);
 
     const gl = context;
     const {fragmentShader, shaderProgram, vertexShader} = initShaderProgram(
       gl,
-      vsSource,
-      fsSource,
+      vertexShaderSource,
+      fragmentShaderSource,
     );
 
+    this.buffers = initBuffers(gl);
     this.fragmentShader = fragmentShader;
     this.vertexShader = vertexShader;
     this.shaderProgram = shaderProgram;
-    this.buffers = initBuffers(gl);
     this.programInfo = {
       program: shaderProgram,
       attribLocations: {
@@ -183,9 +192,8 @@ class WebGLCubeRenderer {
     };
   }
 
-  onReferenceChanged(viewer, reference) {
-    const {cubeGeoPosition} = this;
-    this.modelMatrix = makeModelMatrix(cubeGeoPosition, reference);
+  onReference(viewer, reference) {
+    this.cube.modelMatrix = makeModelMatrix(this.cube.geoPosition, reference);
   }
 
   onRemove(viewer, context) {
@@ -204,7 +212,8 @@ class WebGLCubeRenderer {
 
   render(context, viewMatrix, projectionMatrix) {
     const gl = context;
-    const {buffers, modelMatrix, programInfo} = this;
+    const {buffers, programInfo} = this;
+    const {modelMatrix} = this.cube;
 
     {
       const numComponents = 3;
@@ -278,9 +287,18 @@ export function init(opts) {
     component: {cover: false},
     container,
   };
-
   viewer = new Viewer(options);
-  viewer.addCustomRenderer(new WebGLCubeRenderer());
+
+  const cube = {
+    geoPosition: {
+      alt: 1,
+      lat: -25.28268614514251,
+      lng: -57.630922858385,
+    },
+    modelMatrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+  };
+  const cubeRenderer = new WebGLCubeRenderer(cube);
+  viewer.addCustomRenderer(cubeRenderer);
 
   viewer
     .moveTo('H_g2NFQvEXdGGyTjY27FMA')

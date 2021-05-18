@@ -74,7 +74,7 @@ The aim of MapillaryJS is to provide the following characteristics:
   - The core capabilities of MapillaryJS should function really well, but many applications require specific functionality and customization. Therefore MapillaryJS needs to provide powerful extension APIs for developers to build upon.
     - Load any data format.
     - Render any 3D content, e.g. by using Three.js.
-    - Customize and build application specific interactivity.
+    - Build application specific interactivity.
 
 By providing the above characteristics, MapillaryJS can be a visualization platform in the browser for spatial and mapping developers to build upon and extend.
 
