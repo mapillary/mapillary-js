@@ -3,7 +3,7 @@ id: extend
 title: Extend MapillaryJS
 ---
 
-MapillaryJS is a street imagery and semantic mapping visualization platform on the web. It is build from smaller units and some of them can be overridden by custom implementations. to enable this, MapillaryJS exposes a set of growing Extension APIs.
+MapillaryJS is a street imagery and semantic mapping visualization platform on the web. It is built from smaller units and some of them can be overridden by custom implementations. To make this possible, MapillaryJS exposes a set of extension APIs.
 
 - [Data Provider API](/api/classes/api.dataproviderbase)
 - [Custom Render API](/api/interfaces/viewer.icustomrenderer)
@@ -21,3 +21,7 @@ By the end of this section, you will be able to use these APIs to extend and aug
 - [How to attach camera controls leveraging Three.js](/docs/extension/fly-controls)
 
 :::
+
+## Custom Rendering
+
+The custom render guides focus on rendering specific custom objects onto the MapillaryJS street imagery. It is worth noting that anything you can render with WebGL or Three.js in another context, you can also render inside the MapillaryJS. The inverse is also true, if you render some object in MapillaryJS, you can reuse that object in a WebGL or Three.js application somewhere else. To summarize, your 3D objects are reusable.

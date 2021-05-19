@@ -9,11 +9,13 @@
 
 import React from 'react';
 import * as mapillary from '../../../mods/mapillary-js/dist/mapillary.module';
+import * as three from '../../../mods/three/build/three.module';
 
 import {appToken} from '../../js/utils/token';
 import {ViewerComponent} from '../../js/components/ViewerComponent';
 import * as procedural from '../../js/examples/procedural-data-provider';
 import * as webglrenderer from '../../js/examples/webgl-renderer';
+import * as threerenderer from '../../js/examples/three-renderer';
 
 import '../../../mods/mapillary-js/dist/mapillary.css';
 
@@ -22,7 +24,9 @@ const ReactLiveScope = {
   appToken,
   procedural,
   webglrenderer,
+  threerenderer,
   ...mapillary,
+  three,
   ViewerComponent,
   React,
   ...React,

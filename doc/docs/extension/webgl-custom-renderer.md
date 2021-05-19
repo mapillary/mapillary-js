@@ -8,7 +8,7 @@ MapillaryJS comes with a core set of visualization features. If you want augment
 :::info You will learn
 
 - How to use WebGL to render 3D objects directly into the MapillaryJS rendering context
-- How to implement the `Custom Renderer Interface`
+- How to implement the `ICustomRenderer` interface using the WebGL API
 - How to add your renderer to the `Viewer`
 
 :::
@@ -104,7 +104,7 @@ Let us go through it member by member.
 
 ### `constructor`
 
-We can use the constructor to assing static properties of our renderer. Every custom renderer needs to have a unique ID and specify its render pass (currently the only supported render pass is `Opaque`). These properties will not change so the constructor is a good place to assign them. Our cube will also be static so we assign it here as well.
+We can use the constructor to assign static properties of our renderer. Every custom renderer needs to have a unique ID and specify its render pass (currently the only supported render pass is `Opaque`). These properties will not change so the constructor is a good place to assign them. Our cube will also be static so we assign it here as well.
 
 ```js
 class WebGLCubeRenderer {
@@ -189,7 +189,7 @@ class WebGLCubeRenderer {
 
 ### `onReference`
 
-While we will only operate in a small area around the cube with our renderer, MapillaryJS operates on global earth scale. For different reasons, e.g. to ensure numeric stability by keeping topocentric coordinates sufficiently small, MapillaryJS will sometimes update its internal reference geo coordinate used to convert coordinates from geodetic to local topocentric reference. Whenever it updates the reference, it will notify our renderer by calling the ICustomRenderer.[onReference](/api/interfaces/viewer.icustomrenderer#onreference) method so that we can act accordingly and recalculate our translation and assign a new `modelMatrix` our cube. This does not mean the the cube moves relative to the street imagery, but instead that the earth sphere that MapillaryJS operates on has been rotated and that we need to adjust everything that we want to render accordingly.
+While we will only operate in a small area around the cube with our renderer, MapillaryJS operates on global earth scale. For different reasons, e.g. to ensure numeric stability by keeping topocentric coordinates sufficiently small, MapillaryJS will sometimes update its internal reference geo coordinate used to convert coordinates from geodetic to local topocentric reference. Whenever it updates the reference, it will notify our renderer by calling the ICustomRenderer.[onReference](/api/interfaces/viewer.icustomrenderer#onreference) method so that we can act accordingly and recalculate our translation and assign a new `modelMatrix` our cube. This does not mean the the cube moves relative to the street imagery. Instead, the earth sphere that MapillaryJS operates on has been rotated and we need to adjust everything we want to render accordingly.
 
 ```js
 class WebGLCubeRenderer {
@@ -339,7 +339,7 @@ function render(props) {
 
 ## Recap
 
-- To add your own 3D objects to MapillaryJS, implement the `ICustomRenderer` interface
+- To add your 3D objects to MapillaryJS, implement the `ICustomRenderer` interface
 - Make sure your objects have a geo position (or a position relative to a geo reference)
 - Use the MapillaryJS geo reference parameter to translate your objects to local topocentric coordinates
 - Add your custom renderer to the `Viewer` to render directly into the MapillaryJS rendering context
