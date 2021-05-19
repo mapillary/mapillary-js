@@ -207,7 +207,7 @@ Now that we have implemented our custom cube renderer, we just need to add it to
 
 :::tip
 
-Try changing box geometry size and cube face colors.
+Try changing the cube's geometry and face colors.
 
 :::
 
@@ -260,9 +260,7 @@ function render(props) {
     const cubeRenderer = new threerenderer.ThreeCubeRenderer(cube);
     viewer.addCustomRenderer(cubeRenderer);
 
-    viewer
-      .moveTo('H_g2NFQvEXdGGyTjY27FMA')
-      .catch((error) => console.error(error));
+    viewer.moveTo('H_g2NFQvEXdGGyTjY27FMA').catch(mapillaryErrorHandler);
   }
 
   function dispose() {
@@ -287,7 +285,7 @@ function render(props) {
 
 :::info
 
-You can view the complete example code in the [Three.js Renderer example](/examples/three-renderer).
+You can view the complete code in the [Three.js Renderer](/examples/three-renderer) example.
 
 For more examples of custom renderers using Three.js, you can take a look at the [OpenSfM axes and earth grid renderers](https://github.com/mapillary/OpenSfM/tree/398fe61fd970c7fa80b10b56606643408fa3dd7e/viewer/src/renderer).
 

@@ -90,7 +90,7 @@ function render(props) {
       container,
     };
     viewer = new Viewer(options);
-    viewer.moveTo('image|fisheye|0').catch((error) => console.error(error));
+    viewer.moveTo('image|fisheye|0').catch(mapillaryErrorHandler);
   }
 
   function dispose() {

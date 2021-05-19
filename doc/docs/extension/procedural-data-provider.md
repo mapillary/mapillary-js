@@ -20,6 +20,7 @@ MapillaryJS depends on images being provided for each camera capture in the data
 ```jsx live
 function Image(props) {
   const [src, setSrc] = useState('');
+  const urlRef = useRef('');
 
   const aspect = 2;
   const tileSize = 10;
@@ -30,20 +31,34 @@ function Image(props) {
   const width = scale * tileSize * tilesX;
   const height = scale * tileSize * tilesY;
 
-  useEffect(async () => {
-    const buffer = await procedural.generateImageBuffer({
-      tileSize,
-      tilesX: aspect * tilesY,
-      tilesY,
-    });
+  useEffect(() => {
+    let didCancel = false;
 
-    const blob = new Blob([buffer]);
-    const objectURL = window.URL.createObjectURL(blob);
+    async function createURL() {
+      const buffer = await procedural.generateImageBuffer({
+        tileSize,
+        tilesX: aspect * tilesY,
+        tilesY,
+      });
 
-    setSrc(objectURL);
+      if (didCancel) {
+        return;
+      }
+
+      const blob = new Blob([buffer]);
+      const objectURL = window.URL.createObjectURL(blob);
+      setSrc(objectURL);
+      urlRef.current = objectURL;
+    }
+
+    createURL();
 
     return function cleanup() {
-      window.URL.revokeObjectURL(blob);
+      didCancel = true;
+      const objectURL = urlRef.current;
+      if (objectURL) {
+        window.URL.revokeObjectURL(objectURL);
+      }
     };
   }, []);
 
@@ -143,6 +158,8 @@ When debugging your data provider, it is a good idea to call the methods directl
 
 :::
 
+### `constructor`
+
 We populate the generated data in the constructor. Here we also generate geometry cells mapping a geo cell to an array of images.
 
 ```js
@@ -157,6 +174,8 @@ class ProceduralDataProvider extends DataProviderBase {
   }
 ```
 
+### `getCluster`
+
 We do not generate any point clouds for this example so we return empty clusters.
 
 ```js
@@ -170,6 +189,8 @@ class ProceduralDataProvider extends DataProviderBase {
 
 For this example, we return the complete image contract because we already have the generated data. For bandwidth, latency, and performance reasons in production, it is recommended to only request the [CoreImageEnt](/api/interfaces/api.coreimageent) properties from the service.
 
+### `getCoreImages`
+
 ```js
 class ProceduralDataProvider extends DataProviderBase {
   // ...
@@ -182,6 +203,8 @@ class ProceduralDataProvider extends DataProviderBase {
 
 We generate our mango image buffer on the fly.
 
+### `getImageBuffer`
+
 ```js
 class ProceduralDataProvider extends DataProviderBase {
   // ...
@@ -190,6 +213,8 @@ class ProceduralDataProvider extends DataProviderBase {
   }
 }
 ```
+
+### `getImages`
 
 If an image has been generated, we return it as a node contract.
 
@@ -206,6 +231,8 @@ class ProceduralDataProvider extends DataProviderBase {
 }
 ```
 
+### `getImageTiles`
+
 We will deactivate the image tiling functionality with a viewer option so we do not need to implement this method (we can omit this code completely).
 
 ```js
@@ -217,6 +244,8 @@ class ProceduralDataProvider extends DataProviderBase {
 }
 ```
 
+### `getMesh`
+
 We do not generate any triangles for this example so we return empty meshes.
 
 ```js
@@ -227,6 +256,8 @@ class ProceduralDataProvider extends DataProviderBase {
   }
 }
 ```
+
+### `getSequence`
 
 If a sequence has been generated, we return it.
 
@@ -244,6 +275,8 @@ class ProceduralDataProvider extends DataProviderBase {
   }
 }
 ```
+
+### `getSpatialImages`
 
 We reuse the previously implemented `getImages` method.
 
@@ -285,7 +318,7 @@ function render(props) {
       imageTiling: false,
     };
     viewer = new Viewer(options);
-    viewer.moveTo('image|fisheye|0').catch((error) => console.error(error));
+    viewer.moveTo('image|fisheye|0').catch(mapillaryErrorHandler);
   }
 
   function dispose() {
@@ -310,7 +343,7 @@ Now you know how to provide MapillaryJS with your own data by:
 
 :::info
 
-You can view the complete example code in the [Procedural Data Provider example](/examples/procedural-data-provider).
+You can view the complete code in the [Procedural Data Provider](/examples/procedural-data-provider) example.
 
 If you want to build a data provider fetching files from a server, you can use the [OpenSfM data provider](https://github.com/mapillary/OpenSfM/blob/6585f0561e7c9d4907eadc7bc2fb9dbdad8a2945/viewer/src/provider/OpensfmDataProvider.js) as inspiration.
 

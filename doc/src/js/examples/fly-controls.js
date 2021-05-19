@@ -20,8 +20,6 @@ import {
 } from '../../../mods/three/build/three.module';
 import {FlyControls} from '../../../mods/three/examples/jsm/controls/FlyControls';
 
-const FOV = 90;
-
 function calcAspect(element) {
   const width = element.offsetWidth;
   const height = element.offsetHeight;
@@ -29,61 +27,73 @@ function calcAspect(element) {
 }
 
 export class FlyCameraControls {
-  constructor() {
-    this._controls = null;
-    this._reference = null;
-    this._projectionMatrixCallback = null;
-    this._viewMatrixCallback = null;
-    this._clock = null;
+  constructor(options) {
+    this.fov = options.fov;
+    this.movementSpeed = options.movementSpeed;
+    this.rollSpeed = options.rollSpeed;
   }
 
   onActivate(viewer, viewMatrix, projectionMatrix, reference) {
-    this._reference = reference;
+    this.reference = reference;
+
+    const {fov, movementSpeed, rollSpeed} = this;
 
     const container = viewer.getContainer();
     const aspect = calcAspect(container);
-    const camera = new PerspectiveCamera(FOV, aspect, 0.1, 10000);
+    const camera = new PerspectiveCamera(fov, aspect, 0.1, 10000);
     camera.rotateX(Math.PI / 2);
 
-    const controls = new FlyControls(camera, container);
-    controls.movementSpeed = 30;
-    controls.rollSpeed = 0.25;
-    this._controls = controls;
+    this.controls = new FlyControls(camera, container);
+    this.controls.movementSpeed = movementSpeed;
+    this.controls.rollSpeed = rollSpeed;
 
     const viewMatrixInverse = new Matrix4().fromArray(viewMatrix).invert();
     const me = viewMatrixInverse.elements;
     const translation = [me[12], me[13], me[14]];
-    controls.object.position.fromArray(translation);
+    this.controls.object.position.fromArray(translation);
 
-    this._clock = new Clock();
+    this.onControlsChange = () => {
+      this.controls.object.updateMatrixWorld(true);
+      this.viewMatrixCallback(
+        this.controls.object.matrixWorldInverse.toArray(),
+      );
+    };
+    this.controls.addEventListener('change', this.onControlsChange);
 
-    this._updateViewMatrix();
-    this._updateProjectionMatrix();
+    this.clock = new Clock();
+    const delta = this.clock.getDelta();
+    this.controls.update(delta);
+
+    this.updateProjectionMatrix();
   }
 
   onAnimationFrame(_viewer, _frameId) {
-    this._updateViewMatrix();
+    const delta = this.clock.getDelta();
+    this.controls.update(delta);
   }
 
   onAttach(viewer, viewMatrixCallback, projectionMatrixCallback) {
-    this._viewMatrixCallback = viewMatrixCallback;
-    this._projectionMatrixCallback = projectionMatrixCallback;
+    this.viewMatrixCallback = viewMatrixCallback;
+    this.projectionMatrixCallback = projectionMatrixCallback;
   }
 
   onDeactivate(_viewer) {
-    this._controls.dispose();
-    this._controls = null;
+    if (this.controls) {
+      this.controls.removeEventListener('change', this.onControlsChange);
+      this.controls.dispose();
+      this.controls = null;
+    }
   }
 
   onDetach(_viewer) {
-    this._projectionMatrixCallback = null;
-    this._viewMatrixCallback = null;
+    this.projectionMatrixCallback = null;
+    this.viewMatrixCallback = null;
   }
 
   onReference(viewer, reference) {
-    const oldReference = this._reference;
+    const oldReference = this.reference;
 
-    const enu = this._controls.object.position;
+    const enu = this.controls.object.position;
     const [lng, lat, alt] = enuToGeodetic(
       enu.x,
       enu.y,
@@ -101,30 +111,21 @@ export class FlyCameraControls {
       reference.alt,
     );
 
-    this._controls.object.position.set(e, n, u);
-    this._controls.object.updateMatrixWorld(true);
+    this.controls.object.position.set(e, n, u);
+    this.controls.object.updateMatrixWorld(true);
 
-    this._reference = reference;
+    this.reference = reference;
   }
 
   onResize(_viewer) {
-    this._updateProjectionMatrix();
+    this.updateProjectionMatrix();
   }
 
-  _updateProjectionMatrix() {
-    const camera = this._controls.object;
-    camera.aspect = calcAspect(this._controls.domElement);
+  updateProjectionMatrix() {
+    const camera = this.controls.object;
+    camera.aspect = calcAspect(this.controls.domElement);
     camera.updateProjectionMatrix();
-    this._projectionMatrixCallback(camera.projectionMatrix.toArray());
-  }
-
-  _updateViewMatrix() {
-    const delta = this._clock.getDelta();
-    this._controls.update(delta);
-    this._controls.object.updateMatrixWorld(true);
-    this._viewMatrixCallback(
-      this._controls.object.matrixWorldInverse.toArray(),
-    );
+    this.projectionMatrixCallback(camera.projectionMatrix.toArray());
   }
 }
 
@@ -135,16 +136,24 @@ export function init(opts) {
   const options = {
     apiClient: appToken,
     cameraControls: CameraControls.Custom,
-    component: {cover: false, spatial: {cellsVisible: true}},
+    component: {
+      cover: false,
+      direction: false,
+      spatial: {cameraSize: 0.8, cellsVisible: true, pointSize: 0.2},
+    },
     container,
   };
-
   viewer = new Viewer(options);
-  viewer.attachCustomCameraControls(new FlyCameraControls());
 
-  viewer
-    .moveTo('ie9ktAVyhibDCD_V0m6apQ')
-    .catch((error) => console.error(error));
+  const flyOptions = {
+    fov: 90,
+    movementSpeed: 30,
+    rollSpeed: 0.25,
+  };
+  const flyControls = new FlyCameraControls(flyOptions);
+  viewer.attachCustomCameraControls(flyControls);
+
+  viewer.moveTo('lKiLKEpwHq6zs1kTywTbY6').catch((error) => console.warn(error));
 }
 
 export function dispose() {

@@ -19,7 +19,7 @@ module.exports = {
       },
       {
         type: 'category',
-        label: 'Data Provider API',
+        label: 'Data Provider',
         collapsed: false,
         items: [
           {
@@ -36,7 +36,7 @@ module.exports = {
       },
       {
         type: 'category',
-        label: 'Custom Render API',
+        label: 'Custom Render',
         collapsed: false,
         items: [
           {
@@ -54,7 +54,7 @@ module.exports = {
       },
       {
         type: 'category',
-        label: 'Camera Controls API',
+        label: 'Camera Controls',
         collapsed: false,
         items: [
           {

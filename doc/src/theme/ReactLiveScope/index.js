@@ -12,18 +12,23 @@ import * as mapillary from '../../../mods/mapillary-js/dist/mapillary.module';
 import * as three from '../../../mods/three/build/three.module';
 
 import {appToken} from '../../js/utils/token';
+import {mapillaryErrorHandler} from '../../js/utils/error';
 import {ViewerComponent} from '../../js/components/ViewerComponent';
-import * as procedural from '../../js/examples/procedural-data-provider';
-import * as webglrenderer from '../../js/examples/webgl-renderer';
-import * as threerenderer from '../../js/examples/three-renderer';
+
 import * as animation from '../../js/examples/animation';
+import * as flycontrols from '../../js/examples/fly-controls';
+import * as procedural from '../../js/examples/procedural-data-provider';
+import * as threerenderer from '../../js/examples/three-renderer';
+import * as webglrenderer from '../../js/examples/webgl-renderer';
 
 import '../../../mods/mapillary-js/dist/mapillary.css';
 
 // Add react-live imports you need here
 const ReactLiveScope = {
   appToken,
+  mapillaryErrorHandler,
   animation,
+  flycontrols,
   procedural,
   webglrenderer,
   threerenderer,

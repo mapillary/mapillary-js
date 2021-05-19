@@ -119,9 +119,7 @@ function render(props) {
     const cubeRenderer = new animation.RotatingCubeRenderer(cube);
     viewer.addCustomRenderer(cubeRenderer);
 
-    viewer
-      .moveTo('H_g2NFQvEXdGGyTjY27FMA')
-      .catch((error) => console.error(error));
+    viewer.moveTo('H_g2NFQvEXdGGyTjY27FMA').catch(mapillaryErrorHandler);
   }
 
   function dispose() {
@@ -144,6 +142,6 @@ function render(props) {
 
 :::info
 
-You can view the complete example code in the [Animation example](/examples/animation).
+You can view the complete code in the [Animation](/examples/animation) example.
 
 :::
