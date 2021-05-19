@@ -16,12 +16,14 @@ import {ViewerComponent} from '../../js/components/ViewerComponent';
 import * as procedural from '../../js/examples/procedural-data-provider';
 import * as webglrenderer from '../../js/examples/webgl-renderer';
 import * as threerenderer from '../../js/examples/three-renderer';
+import * as animation from '../../js/examples/animation';
 
 import '../../../mods/mapillary-js/dist/mapillary.css';
 
 // Add react-live imports you need here
 const ReactLiveScope = {
   appToken,
+  animation,
   procedural,
   webglrenderer,
   threerenderer,

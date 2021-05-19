@@ -104,7 +104,7 @@ Let us go through it member by member.
 
 ### `constructor`
 
-We can use the constructor to assign static properties of our renderer. Every custom renderer needs to have a unique ID and specify its render pass (currently the only supported render pass is `Opaque`). These properties will not change so the constructor is a good place to assign them. Our cube will also be static so we assign it here as well.
+We can use the constructor to assign readonly properties of our renderer. Every custom renderer needs to have a unique ID and specify its render pass (currently the only supported render pass is `Opaque`). These properties will not change so the constructor is a good place to assign them. Our cube will also be readonly so we assign it here as well.
 
 ```js
 class WebGLCubeRenderer {
@@ -278,7 +278,7 @@ Your custom renderer cannot make assumptions about the current WebGL state. If y
 
 ### Additional Functionality
 
-In our custom renderer we only have a single static cube that is always visible. Maybe you want to add and remove objects dynamically, change object positions, or change object appearance during the lifespan of the renderer and application. To do that, you can add additional methods and functionality to your renderer class directly or in helpers.
+In our custom renderer we only have a single fixed cube that is always visible. Maybe you want to add and remove objects dynamically, change object positions, or change object appearance during the lifespan of the renderer and application. To do that, you can add additional methods and functionality to your renderer class directly or in helpers.
 
 :::note
 
