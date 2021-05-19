@@ -34,84 +34,77 @@ function makePosition(geoPosition, reference) {
   return position;
 }
 
-class RotatingCubeRenderer {
-  constructor() {
+export function makeCubeMesh() {
+  const geometry = new BoxGeometry(2, 2, 2);
+  const materials = [
+    new MeshBasicMaterial({
+      color: 0xffff00,
+    }),
+    new MeshBasicMaterial({
+      color: 0xff00ff,
+    }),
+    new MeshBasicMaterial({
+      color: 0x00ff00,
+    }),
+    new MeshBasicMaterial({
+      color: 0x0000ff,
+    }),
+    new MeshBasicMaterial({
+      color: 0xffffff,
+    }),
+    new MeshBasicMaterial({
+      color: 0xff0000,
+    }),
+  ];
+  return new Mesh(geometry, materials);
+}
+
+export class RotatingCubeRenderer {
+  constructor(cube) {
     this.id = 'rotating-cube-renderer';
     this.renderPass = RenderPass.Opaque;
     this.clock = new Clock();
-    this.cubeGeoPosition = {
-      alt: 1,
-      lat: -25.28268614514251,
-      lng: -57.630922858385,
-    };
+    this.cube = cube;
   }
 
   onAdd(viewer, reference, context) {
-    const {cubeGeoPosition} = this;
-    const position = makePosition(cubeGeoPosition, reference);
+    this.viewer = viewer;
+
+    const position = makePosition(this.cube.geoPosition, reference);
+    this.cube.mesh.position.fromArray(position);
 
     const canvas = viewer.getCanvas();
-    const renderer = new WebGLRenderer({
+    this.renderer = new WebGLRenderer({
       canvas,
       context,
     });
-    renderer.autoClear = false;
+    this.renderer.autoClear = false;
 
-    const scene = new Scene();
-    const camera = new Camera();
-    camera.matrixAutoUpdate = false;
+    this.camera = new Camera();
+    this.camera.matrixAutoUpdate = false;
 
-    const geometry = new BoxGeometry(2, 2, 2);
-    const materials = [
-      new MeshBasicMaterial({
-        color: 0xffff00,
-      }),
-      new MeshBasicMaterial({
-        color: 0xff00ff,
-      }),
-      new MeshBasicMaterial({
-        color: 0x00ff00,
-      }),
-      new MeshBasicMaterial({
-        color: 0x0000ff,
-      }),
-      new MeshBasicMaterial({
-        color: 0xffffff,
-      }),
-      new MeshBasicMaterial({
-        color: 0xff0000,
-      }),
-    ];
-    const sphere = new Mesh(geometry, materials);
-    sphere.position.fromArray(position);
-    scene.add(sphere);
-
-    this.camera = camera;
-    this.scene = scene;
-    this.sphere = sphere;
-    this.renderer = renderer;
-    this.viewer = viewer;
+    this.scene = new Scene();
+    this.scene.add(this.cube.mesh);
   }
 
   onReference(viewer, reference) {
-    const {cubeGeoPosition, sphere} = this;
-    const position = makePosition(cubeGeoPosition, reference);
-    sphere.position.fromArray(position);
+    const position = makePosition(this.cube.geoPosition, reference);
+    this.cube.mesh.position.fromArray(position);
   }
 
   onRemove(_viewer, _context) {
-    this.sphere.geometry.dispose();
-    this.sphere.material.forEach((m) => m.dispose());
+    this.cube.mesh.geometry.dispose();
+    this.cube.mesh.material.forEach((m) => m.dispose());
     this.renderer.dispose();
   }
 
   render(context, viewMatrix, projectionMatrix) {
-    const {camera, clock, scene, sphere, renderer, viewer} = this;
+    const {camera, clock, scene, cube, renderer, viewer} = this;
 
     const delta = clock.getDelta();
-
-    sphere.rotateZ(delta);
-    sphere.rotateY(0.7 * delta);
+    const {rotationSpeed} = cube;
+    cube.mesh.rotateZ(rotationSpeed * delta);
+    cube.mesh.rotateY(0.7 * rotationSpeed * delta);
 
     camera.matrix.fromArray(viewMatrix).invert();
     camera.updateMatrixWorld(true);
@@ -133,9 +126,19 @@ export function init(opts) {
     component: {cover: false},
     container,
   };
-
   viewer = new Viewer(options);
-  viewer.addCustomRenderer(new RotatingCubeRenderer());
+
+  const cube = {
+    geoPosition: {
+      alt: 1,
+      lat: -25.28268614514251,
+      lng: -57.630922858385,
+    },
+    mesh: makeCubeMesh(),
+    rotationSpeed: 1,
+  };
+  const cubeRenderer = new RotatingCubeRenderer(cube);
+  viewer.addCustomRenderer(cubeRenderer);
 
   viewer
     .moveTo('H_g2NFQvEXdGGyTjY27FMA')
