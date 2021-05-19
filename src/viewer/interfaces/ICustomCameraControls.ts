@@ -19,7 +19,7 @@ import { IViewer } from "./IViewer";
  * onDetach, onReference, and onResize methods.
  *
  * Custom camera controls trigger rerendering
- * automatically when the camera properties or projection
+ * automatically when the camera pose or projection
  * is changed through the projectionMatrix and
  * viewMatrix callbacks.
  *
@@ -37,10 +37,10 @@ import { IViewer } from "./IViewer";
  */
 export interface ICustomCameraControls {
     /**
-     * Method called when the camera controls has been
+     * Method called when the camera controls have been
      * activated and is responsible for moving the
      * viewer's camera and defining its projection. This
-     * nethod gives the camera controls a chance to initialize
+     * method gives the camera controls a chance to initialize
      * resources, perform any transitions, and determine
      * initial state.
      *
@@ -75,7 +75,7 @@ export interface ICustomCameraControls {
      *
      * @desdcription Custom camera controls can choose to
      * make updates on each animation frame or only based on
-     * user input. Invoking updates on each camera frame is
+     * user input. Invoking updates on each animation frame is
      * more resource intensive.
      *
      * @param {IViewer} viewer - The viewer this custom
@@ -88,7 +88,7 @@ export interface ICustomCameraControls {
         frameId: number): void;
 
     /**
-     * Method called when the camera controls has been
+     * Method called when the camera controls have been
      * attached to the viewer with {@link Viewer#attachCameraControls}.
      * This gives the camera controls a chance to initialize
      * resources.
@@ -98,7 +98,7 @@ export interface ICustomCameraControls {
      * viewer's camera.
      *
      * Invoking the matrix callbacks has no effect if the
-     * custom camera controls has not been activated.
+     * custom camera controls have not been activated.
      *
      * @param {IViewer} viewer - The viewer this custom
      * camera controls instance was just added to.
@@ -110,7 +110,7 @@ export interface ICustomCameraControls {
     ): void;
 
     /**
-     * Method called when the camera controls has been deactivated.
+     * Method called when the camera controls have been deactivated.
      * This gives the camera controls a chance to clean up resources
      * and event listeners.
      *
@@ -120,7 +120,7 @@ export interface ICustomCameraControls {
     onDeactivate(viewer: IViewer): void;
 
     /**
-     * Method called when the camera controls has been detached from
+     * Method called when the camera controls have been detached from
      * the viewer by calling {@link Viewer#detachCameraControls}.
      * This gives the camera controls a chance to clean up resources
      * and event listeners.

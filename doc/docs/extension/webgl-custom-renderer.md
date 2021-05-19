@@ -3,7 +3,7 @@ id: webgl-custom-renderer
 title: WebGL Renderer
 ---
 
-MapillaryJS comes with a core set of visualization features. If you want augment the MapillaryJS experience you can extend it by rendering your own 3D objects. There are mulitple ways to do this, in this guide we will WebGL.
+MapillaryJS comes with a core set of visualization features. If you want augment the MapillaryJS experience you can extend it by rendering your own 3D objects. There are mulitple ways to do this, in this guide we will use the WebGL API.
 
 :::info You will learn
 
@@ -292,7 +292,7 @@ Now that we have implemented our custom cube renderer, we just need to add it to
 
 :::tip
 
-Try changing cube geo position, for example the altitude, to see how it affects where it is placed in relation to the imagery.
+Try changing the cube's geo position, for example the altitude, to see how it affects where it is placed in relation to the imagery.
 
 :::
 
@@ -320,9 +320,7 @@ function render(props) {
     const cubeRenderer = new webglrenderer.WebGLCubeRenderer(cube);
     viewer.addCustomRenderer(cubeRenderer);
 
-    viewer
-      .moveTo('H_g2NFQvEXdGGyTjY27FMA')
-      .catch((error) => console.error(error));
+    viewer.moveTo('H_g2NFQvEXdGGyTjY27FMA').catch(mapillaryErrorHandler);
   }
 
   function dispose() {
@@ -346,6 +344,6 @@ function render(props) {
 
 :::info
 
-You can view the complete example code in the [WebGL Renderer example](/examples/webgl-renderer).
+You can view the complete code in the [WebGL Renderer](/examples/webgl-renderer) example.
 
 :::
