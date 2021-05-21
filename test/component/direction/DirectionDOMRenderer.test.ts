@@ -79,7 +79,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         expect(renderer.needsRender).toBe(true);
 
         let navigator: Navigator = new Navigator({
-            apiClient: "clientid", container: "containerid",
+            container: "containerid",
         });
 
         renderer.render(navigator);
@@ -150,7 +150,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         expect(renderer.needsRender).toBe(true);
 
         let navigator: Navigator = new Navigator({
-            apiClient: "clientid", container: "containerid",
+            container: "containerid",
         });
 
         renderer.render(navigator);
@@ -184,7 +184,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         expect(renderer.needsRender).toBe(true);
 
         let navigator: Navigator = new Navigator({
-            apiClient: "clientid", container: "containerid",
+            container: "containerid",
         });
 
         renderer.render(navigator);
@@ -214,7 +214,7 @@ describe("DirectionDOMRenderer.needsRender", () => {
         expect(renderer.needsRender).toBe(true);
 
         let navigator: Navigator = new Navigator({
-            apiClient: "clientid", container: "containerid",
+            container: "containerid",
         });
 
         renderer.render(navigator);

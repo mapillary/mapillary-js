@@ -23,7 +23,7 @@ describe("Viewer.ctor", () => {
         spyOn(Observer, "Observer").and.stub();
         spyOn(ComponentController, "ComponentController").and.stub();
 
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
 
         expect(viewer).toBeDefined();
     });
@@ -36,7 +36,7 @@ type Mocks = {
     customRenderer: CustomRenderer.CustomRenderer,
     navigator: Navigator.Navigator,
     observer: Observer.Observer,
-}
+};
 
 const createMocks = (): Mocks => {
     const navigator = new NavigatorMockCreator().create();
@@ -72,12 +72,12 @@ const createMocks = (): Mocks => {
         navigator,
         observer,
     };
-}
+};
 
 describe("Viewer.remove", () => {
     it("should dispose internals", () => {
         const mocks = createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
 
         viewer.remove();
 
@@ -95,11 +95,11 @@ describe("Viewer.remove", () => {
 
     it("should emit removed event", (done: Function) => {
         createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
         const remove: ViewerEventType = "remove";
         viewer.on(
             remove,
-            (event: { type: string }): void => {
+            (event: { type: string; }): void => {
                 expect(event).toBeDefined();
                 expect(event.type).toBe(remove);
 
@@ -113,7 +113,7 @@ describe("Viewer.remove", () => {
 describe("Viewer.addCustomRenderer", () => {
     it("should call custom renderer", () => {
         const mocks = createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
 
         viewer.addCustomRenderer({
             id: "1",
@@ -132,7 +132,7 @@ describe("Viewer.addCustomRenderer", () => {
 describe("Viewer.hasCustomRenderer", () => {
     it("should call custom renderer", () => {
         const mocks = createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
 
         viewer.hasCustomRenderer("1");
 
@@ -144,7 +144,7 @@ describe("Viewer.hasCustomRenderer", () => {
 describe("Viewer.removeCustomRenderer", () => {
     it("should call custom renderer", () => {
         const mocks = createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
 
         viewer.removeCustomRenderer("1");
 
@@ -156,7 +156,7 @@ describe("Viewer.removeCustomRenderer", () => {
 describe("Viewer.triggerRerender", () => {
     it("should call gl renderer", () => {
         const mocks = createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
 
         viewer.triggerRerender();
 
@@ -168,11 +168,11 @@ describe("Viewer.triggerRerender", () => {
 describe("Viewer.setCameraControls", () => {
     beforeEach(() => {
         spyOn(console, "warn").and.stub();
-    })
+    });
 
     it("should invoke state transition", () => {
         const mocks = createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
 
         const customSpy = (<jasmine.Spy>mocks.navigator.stateService.custom);
         const earthSpy = (<jasmine.Spy>mocks.navigator.stateService.earth);
@@ -196,7 +196,7 @@ describe("Viewer.setCameraControls", () => {
 
     it("should not invoke state transition", () => {
         const mocks = createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
 
         const earthSpy = (<jasmine.Spy>mocks.navigator.stateService.earth);
         const traverseSpy = (<jasmine.Spy>mocks.navigator.stateService.traverse);
@@ -210,21 +210,21 @@ describe("Viewer.setCameraControls", () => {
 describe("Viewer.getCameraControls", () => {
     beforeEach(() => {
         spyOn(console, "warn").and.stub();
-    })
+    });
 
     it("should subscribe state", done => {
         const mocks = createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
 
         const state$ = <Subject<State>>mocks.navigator.stateService.state$;
         viewer.getCameraControls()
-            .then(() => { done(); })
+            .then(() => { done(); });
         state$.next(State.Earth);
     });
 
     it("should convert to earth controls", done => {
         const mocks = createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
 
         const state$ = <Subject<State>>mocks.navigator.stateService.state$;
 
@@ -233,14 +233,14 @@ describe("Viewer.getCameraControls", () => {
                 controls => {
                     expect(controls).toBe(CameraControls.Earth);
                     done();
-                })
+                });
 
         state$.next(State.Earth);
     });
 
     it("should convert traversing to street controls", done => {
         const mocks = createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
 
         const state$ = <Subject<State>>mocks.navigator.stateService.state$;
 
@@ -249,14 +249,14 @@ describe("Viewer.getCameraControls", () => {
                 controls => {
                     expect(controls).toBe(CameraControls.Street);
                     done();
-                })
+                });
 
         state$.next(State.Traversing);
     });
 
     it("should convert waiting to street controls", done => {
         const mocks = createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
 
         const state$ = <Subject<State>>mocks.navigator.stateService.state$;
 
@@ -265,14 +265,14 @@ describe("Viewer.getCameraControls", () => {
                 controls => {
                     expect(controls).toBe(CameraControls.Street);
                     done();
-                })
+                });
 
         state$.next(State.Waiting);
     });
 
     it("should convert waiting interactively to street controls", done => {
         const mocks = createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
 
         const state$ = <Subject<State>>mocks.navigator.stateService.state$;
 
@@ -281,7 +281,7 @@ describe("Viewer.getCameraControls", () => {
                 controls => {
                     expect(controls).toBe(CameraControls.Street);
                     done();
-                })
+                });
 
         state$.next(State.WaitingInteractively);
     });
@@ -290,7 +290,7 @@ describe("Viewer.getCameraControls", () => {
 describe("Viewer.attachCustomCameraControls", () => {
     it("should invoke attach", () => {
         const mocks = createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
 
         const attachSpy = (<jasmine.Spy>mocks.customCameraControls.attach);
         const detachSpy = (<jasmine.Spy>mocks.customCameraControls.detach);
@@ -308,7 +308,7 @@ describe("Viewer.attachCustomCameraControls", () => {
 describe("Viewer.detachCustomCameraControls", () => {
     it("should invoke detach", () => {
         const mocks = createMocks();
-        const viewer = new Viewer({ apiClient: "", container: "" });
+        const viewer = new Viewer({ container: "" });
 
         const attachSpy = (<jasmine.Spy>mocks.customCameraControls.attach);
         const detachSpy = (<jasmine.Spy>mocks.customCameraControls.detach);

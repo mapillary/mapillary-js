@@ -279,12 +279,13 @@ export abstract class DataProviderBase extends EventEmitter {
     }
 
     /**
-     * Set a user token for authenticated API requests of
+     * Set an access token for authenticated API requests of
      * protected resources.
      *
-     * @param {string} [userToken] userToken - User bearer token.
+     * @param {string} [accessToken] accessToken - User access
+     * token or client access token.
      */
-    public setUserToken(userToken?: string): void {
+    public setAccessToken(accessToken?: string): void {
         throw new MapillaryError("Not implemented");
     }
 }

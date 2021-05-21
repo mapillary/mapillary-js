@@ -65,12 +65,12 @@ function checkSupport() {
 let viewer;
 
 export function init(opts) {
-  const {container, appToken} = opts;
+  const {container, accessToken} = opts;
   const {component, message} = checkSupport();
 
   if (component) {
     viewer = new Viewer({
-      apiClient: appToken,
+      apiClient: accessToken,
       component,
       container,
     });

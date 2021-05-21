@@ -132,9 +132,9 @@ export class FlyCameraControls {
 let viewer;
 
 export function init(opts) {
-  const {appToken, container} = opts;
+  const {accessToken, container} = opts;
   const options = {
-    apiClient: appToken,
+    apiClient: accessToken,
     cameraControls: CameraControls.Custom,
     component: {
       cover: false,

@@ -252,11 +252,11 @@ describe("APIWrappersequenceByKey$", () => {
 describe("APIWrappersetToken", () => {
     test("should call provider correctly", () => {
         const provider = new DataProvider();
-        const providerSpy: jasmine.Spy = spyOn(provider, "setUserToken");
+        const providerSpy: jasmine.Spy = spyOn(provider, "setAccessToken");
 
         const api: APIWrapper = new APIWrapper(provider);
 
-        api.setUserToken("token");
+        api.setAccessToken("token");
 
         expect(providerSpy.calls.count()).toBe(1);
         expect(providerSpy.calls.first().args[0]).toBe("token");

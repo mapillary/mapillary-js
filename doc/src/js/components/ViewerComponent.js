@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import {appToken} from '../utils/token';
+import {accessToken} from '../utils/token';
 
 import styles from './viewer.module.css';
 
@@ -21,7 +21,7 @@ export class ViewerComponent extends React.Component {
   componentDidMount() {
     const {init} = this.props;
     init({
-      appToken,
+      accessToken,
       container: this.containerRef.current,
     });
   }

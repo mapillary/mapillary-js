@@ -46,8 +46,8 @@ export class APIWrapper {
         return this._wrap$(this._data.getSpatialImages(imageIds));
     }
 
-    public setUserToken(userToken?: string): void {
-        this._data.setUserToken(userToken);
+    public setAccessToken(accessToken?: string): void {
+        this._data.setAccessToken(accessToken);
     }
 
     private _wrap$<T>(promise: Promise<T>): Observable<T> {

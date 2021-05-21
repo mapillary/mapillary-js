@@ -24,7 +24,7 @@ For this guide, the following is required.
 - You have [Node](https://nodejs.org) installed at `version >= v12.3.0`.
 - You have [Yarn](https://classic.yarnpkg.com) installed at `version >= v1.22.0`.
 
-To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need an app token. When [extending MapillaryJS](/docs/extension/extend) to provide your own data, no app token is needed.
+To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need an access token. When [extending MapillaryJS](/docs/extension/extend) to provide your own data, no access token is needed.
 
 Once you have setup the prerequisites, you can try MapillaryJS in your own website.
 
@@ -86,7 +86,7 @@ container.style.height = '300px';
 document.body.appendChild(container);
 
 const options: ViewerOptions = {
-  apiClient: '<your app token>',
+  apiClient: '<your access token>',
   container,
   imageId: '<your image ID for initializing the viewer>',
 };
@@ -105,7 +105,7 @@ container.style.height = '300px';
 document.body.appendChild(container);
 
 const viewer = new Viewer({
-  apiClient: '<your app token>',
+  apiClient: '<your access token>',
   container,
   imageId: '<your image ID for initializing the viewer>',
 });
@@ -139,7 +139,7 @@ The global [UMD](https://github.com/umdjs/umd) name for MapillaryJS is `mapillar
   var {Viewer} = mapillary;
 
   var viewer = new Viewer({
-    apiClient: '<your app token>',
+    apiClient: '<your access token>',
     container: 'mly', // the ID of our container defined in the HTML body
     imageId: '<your image ID for initializing the viewer>',
   });
@@ -174,7 +174,7 @@ function renderMapillary(props) {
 
     componentDidMount() {
       this.viewer = new Viewer({
-        apiClient: this.props.appToken,
+        apiClient: this.props.accessToken,
         container: this.containerRef.current,
         imageId: this.props.imageId,
       });
@@ -193,7 +193,7 @@ function renderMapillary(props) {
 
   return (
     <ViewerComponent
-      appToken={appToken}
+      accessToken={accessToken}
       imageId={'ie9ktAVyhibDCD_V0m6apQ'}
       style={{width: '100%', height: '300px'}}
     />

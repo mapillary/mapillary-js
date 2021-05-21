@@ -291,7 +291,7 @@ class ProceduralDataProvider extends DataProviderBase {
 
 ## Attaching the Provider
 
-Now that we have implemented our procedural data provider, we just need to attach it to the [Viewer](/api/classes/viewer.viewer-1) through the Viewer.[apiClient](/api/interfaces/viewer.vieweroptions#apiclient) option. Lastly, we need to move to one of the image ids in our generated data to initialize the Viewer.
+Now that we have implemented our procedural data provider, we just need to attach it to the [Viewer](/api/classes/viewer.viewer-1) through the ViewerOptions.[dataProvider](/api/interfaces/viewer.vieweroptions#dataprovider) option. Lastly, we need to move to one of the image ids in our generated data to initialize the Viewer.
 
 :::tip
 
@@ -306,9 +306,9 @@ function render(props) {
   function init(opts) {
     const {container} = opts;
 
-    const provider = new procedural.ProceduralDataProvider();
+    const dataProvider = new procedural.ProceduralDataProvider();
     const options = {
-      apiClient: provider,
+      dataProvider,
       cameraControls: CameraControls.Earth,
       component: {
         cover: false,

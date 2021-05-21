@@ -2,7 +2,7 @@ import { FalcorDataProviderOptions } from "./FalcorDataProviderOptions";
 
 export class FalcorDataProviderUrls {
     private _apiHost: string = "a.mapillary.com";
-    private _clientToken: string;
+    private _clientId: string;
     private _clusterHost: string =
         "cluster-reconstructions.mapillary.com";
     private _imageHost: string = "images.mapillary.com";
@@ -17,7 +17,7 @@ export class FalcorDataProviderUrls {
      * @param {FalcorDataProviderOptions} options - Options struct.
      */
     constructor(options: FalcorDataProviderOptions) {
-        this._clientToken = options.clientToken;
+        this._clientId = options.clientId;
 
         if (!!options.apiHost) {
             this._apiHost = options.apiHost;
@@ -45,7 +45,7 @@ export class FalcorDataProviderUrls {
     }
 
     public get falcorModel(): string {
-        return `${this._scheme}://${this._apiHost}/v3/model.json?client_id=${this._clientToken}`;
+        return `${this._scheme}://${this._apiHost}/v3/model.json?client_id=${this._clientId}`;
     }
 
     public get origin(): string {

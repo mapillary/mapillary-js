@@ -54,7 +54,7 @@ export interface IViewer {
     setFilter(filter: FilterExpression): Promise<void>;
     setRenderMode(renderMode: RenderMode): void;
     setTransitionMode(transitionMode: TransitionMode): void;
-    setUserToken(userToken?: string): Promise<void>;
+    setAccessToken(accessToken?: string): Promise<void>;
     setZoom(zoom: number): void;
     triggerRerender(): void;
     unproject(pixelPoint: number[]): Promise<LngLat>;

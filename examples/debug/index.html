@@ -44,7 +44,7 @@
                 RenderMode,
                 Viewer,
             } from "/dist/mapillary.module.js";
-            import { appToken } from "/doc-src/utils/token.js";
+            import { accessToken } from "/doc-src/utils/token.js";
 
             (function main() {
                 checkSupport();
@@ -54,7 +54,7 @@
                 document.body.append(container);
 
                 const viewer = new Viewer({
-                    apiClient: appToken,
+                    apiClient: accessToken,
                     component: { cover: false },
                     container,
                     imageId: "zarcRdNFZwg3FkXNcsFeGw",
