@@ -256,11 +256,11 @@ function render(props) {
   let viewer;
 
   function init(opts) {
-    const {appToken, container} = opts;
+    const {accessToken, container} = opts;
 
     const cameraControls = CameraControls.Custom;
     const options = {
-      apiClient: appToken,
+      apiClient: accessToken,
       cameraControls,
       component: {
         cover: false,

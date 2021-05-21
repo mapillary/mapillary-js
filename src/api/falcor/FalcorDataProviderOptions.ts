@@ -17,9 +17,9 @@ export interface FalcorDataProviderOptions {
     apiHost?: string;
 
     /**
-     * Client token for API requests.
+     * Client ID for API requests.
      */
-    clientToken: string;
+    clientId: string;
 
     /**
      * Cluster reconstruction host.
@@ -78,5 +78,5 @@ export interface FalcorDataProviderOptions {
      * Optional OAuth user token for API requests of
      * protected resources.
      */
-    userToken?: string;
+    userAccessToken?: string;
 }

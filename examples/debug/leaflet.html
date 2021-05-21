@@ -49,7 +49,7 @@
                 SimpleMarker,
                 Viewer,
             } from "/dist/mapillary.module.js";
-            import { appToken } from "/doc-src/utils/token.js";
+            import { accessToken } from "/doc-src/utils/token.js";
 
             // Setup map
             const map = L.map("map").setView(
@@ -68,7 +68,7 @@
 
             // Setup viewer
             const mly = new Viewer({
-                apiClient: appToken,
+                apiClient: accessToken,
                 component: {
                     marker: { visibleBBoxSize: 100 },
                     mouse: { doubleClickZoom: false },

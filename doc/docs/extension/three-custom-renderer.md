@@ -241,9 +241,9 @@ function render(props) {
   let viewer;
 
   function init(opts) {
-    const {appToken, container} = opts;
+    const {accessToken, container} = opts;
     const options = {
-      apiClient: appToken,
+      apiClient: accessToken,
       component: {cover: false},
       container,
     };

@@ -13,15 +13,12 @@ import { CameraControls } from "../enums/CameraControls";
  */
 export interface ViewerOptions {
     /**
-     * A data provider class instance for API and static
-     * resource requests or a `Mapillary API ClientID`
-     * client token string. A client id be obtained from
-     * https://www.mapillary.com/app/settings/developers.
+     * A `Mapillary API ClientID` client token string. A
+     * client id be obtained from https://www.mapillary.com/app/settings/developers.
      *
-     * @description A data provider instance must extend
-     * the data provider base class.
+     * @ignore
      */
-    apiClient: string | DataProviderBase;
+    apiClient?: string;
 
     /**
      * Value specifying the initial camera controls of
@@ -51,6 +48,19 @@ export interface ViewerOptions {
     container: string | HTMLElement;
 
     /**
+     * Optional data provider class instance for API and static
+     * resource requests.
+     *
+     * @description The data provider will override the
+     * default MapillaryJS data provider and take responsibility
+     * for all IO requests.
+     *
+     * A data provider instance must extend
+     * the data provider base class.
+     */
+    dataProvider?: DataProviderBase;
+
+    /**
      * Optional `image-id` to start from. The id
      * can be any Mapillary image. If a id is provided the viewer is
      * bound to that id until it has been fully loaded. If null is provided
@@ -71,7 +81,7 @@ export interface ViewerOptions {
      *
      * @default true
      */
-    imageTiling?: boolean
+    imageTiling?: boolean;
 
     /**
      * The render mode in the viewer.
@@ -105,8 +115,11 @@ export interface ViewerOptions {
     url?: UrlOptions;
 
     /**
-     * Optional user bearer token for API requests of
+     * Optional access token for API requests of
      * protected resources.
+     *
+     * @description Can be a user access token or
+     * a client access token.
      */
-    userToken?: string;
+    accessToken?: string;
 }

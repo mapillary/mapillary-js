@@ -28,14 +28,14 @@
 
     <body>
         <script type="module">
-            import { appToken } from "/doc-src/utils/token.js";
+            import { accessToken } from "/doc-src/utils/token.js";
             import { init } from "/doc-src/examples/no-cover.js";
 
             const container = document.createElement("div");
             container.className = "viewer";
             document.body.appendChild(container);
 
-            init({ appToken, container });
+            init({ accessToken, container });
         </script>
     </body>
 </html>

@@ -35,10 +35,10 @@
 
         <script type="module">
             import { SimpleMarker, Viewer } from "/dist/mapillary.module.js";
-            import { appToken } from "/doc-src/utils/token.js";
+            import { accessToken } from "/doc-src/utils/token.js";
 
             const mly = new Viewer({
-                apiClient: appToken,
+                apiClient: accessToken,
                 component: { cover: false, marker: true },
                 container: "mly",
             });

@@ -4,7 +4,6 @@ import { ViewerOptions } from "../../src/viewer/options/ViewerOptions";
 describe("Urls.setOptions", () => {
     it("should set all option properties", () => {
         const options: ViewerOptions = {
-            apiClient: "api-client",
             container: "container-id",
             imageTiling: false,
             url: {

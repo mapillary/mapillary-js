@@ -78,9 +78,9 @@ function render(props) {
     const {container} = opts;
 
     const geometry = new S2GeometryProvider(19);
-    const provider = new procedural.ProceduralDataProvider(geometry);
+    const dataProvider = new procedural.ProceduralDataProvider(geometry);
     const options = {
-      apiClient: provider,
+      dataProvider,
       cameraControls: CameraControls.Earth,
       component: {
         cover: false,

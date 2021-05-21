@@ -182,7 +182,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * @description The navigable state indicates if the viewer supports
      * moving, i.e. calling the {@link moveTo} and {@link moveDir}
      * methods or changing the authentication state,
-     * i.e. calling {@link setUserToken}. The viewer will not be in a navigable
+     * i.e. calling {@link setAccessToken}. The viewer will not be in a navigable
      * state if the cover is activated and the viewer has been supplied a id.
      * When the cover is deactivated or the viewer is activated without being
      * supplied a id it will be navigable.
@@ -1469,21 +1469,24 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
-     * Set a user bearer token for authenticated API requests of
-     * protected resources.
+     * Set an access token for authenticated API requests of protected
+     * resources.
+     *
+     * The token may be a user access token or a client access token.
      *
      * @description When the supplied user token is null or undefined,
      * any previously set user bearer token will be cleared and the
      * viewer will make unauthenticated requests.
      *
-     * Calling setUserToken aborts all outstanding move requests.
+     * Calling setAccessToken aborts all outstanding move requests.
      * The promises of those move requests will be rejected with a
      * {@link CancelMapillaryError} the rejections need to be caught.
      *
-     * Calling setUserToken also resets the complete viewer cache
+     * Calling setAccessToken also resets the complete viewer cache
      * so it should not be called repeatedly.
      *
-     * @param {string} [userToken] userToken - User bearer token.
+     * @param {string} [accessToken] accessToken - User access token
+     * or client access token.
      * @returns {Promise<void>} Promise that resolves after token
      * is set.
      *
@@ -1491,18 +1494,18 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * @example
      * ```js
-     * viewer.setUserToken("<my user token>")
+     * viewer.setAccessToken("<my access token>")
      *     .then(() => { console.log("user token set"); });
      * ```
      */
-    public setUserToken(userToken?: string): Promise<void> {
-        const setUserToken$: Observable<void> = this.isNavigable ?
-            this._navigator.setUserToken$(userToken) :
-            observableThrowError(new Error("Calling setUserToken is not supported when viewer is not navigable."));
+    public setAccessToken(accessToken?: string): Promise<void> {
+        const setAccessToken$: Observable<void> = this.isNavigable ?
+            this._navigator.setAccessToken$(accessToken) :
+            observableThrowError(new Error("Calling setAccessToken is not supported when viewer is not navigable."));
 
         return new Promise<void>(
             (resolve: (value: void) => void, reject: (reason: Error) => void): void => {
-                setUserToken$
+                setAccessToken$
                     .subscribe(
                         (): void => {
                             resolve(undefined);

@@ -11,7 +11,7 @@ import { CoreImagesContract } from "../../../src/api/contracts/CoreImagesContrac
 
 describe("FalcorDataProvider.ctor", () => {
     it("should create a data provider", () => {
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
 
         expect(provider).toBeDefined();
     });
@@ -34,7 +34,7 @@ describe("FalcorDataProvider.getFillImages", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
@@ -71,7 +71,7 @@ describe("FalcorDataProvider.getFillImages", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
@@ -106,7 +106,7 @@ describe("FalcorDataProvider.getFillImages", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
@@ -146,7 +146,7 @@ describe("FalcorDataProvider.getFillImages", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
@@ -189,7 +189,7 @@ describe("FalcorDataProvider.getFullImages", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
@@ -226,7 +226,7 @@ describe("FalcorDataProvider.getFullImages", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
@@ -239,7 +239,7 @@ describe("FalcorDataProvider.getFullImages", () => {
                     expect(err instanceof Error).toBe(true);
 
                     done();
-                })
+                });
     });
 
     it("should invalidate model correctly when error is thrown", (done: Function) => {
@@ -261,7 +261,7 @@ describe("FalcorDataProvider.getFullImages", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
@@ -301,7 +301,7 @@ describe("FalcorDataProvider.getCoreImages", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
@@ -341,7 +341,7 @@ describe("FalcorDataProvider.getCoreImages", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
@@ -379,7 +379,7 @@ describe("FalcorDataProvider.getCoreImages", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
@@ -416,7 +416,7 @@ describe("FalcorDataProvider.getSequences", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
@@ -456,7 +456,7 @@ describe("FalcorDataProvider.getSequences", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
@@ -499,7 +499,7 @@ describe("FalcorDataProvider.getSequences", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
@@ -534,7 +534,7 @@ describe("FalcorDataProvider.getSequences", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
@@ -570,7 +570,7 @@ describe("FalcorDataProvider.getSequences", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
@@ -600,11 +600,11 @@ describe("FalcorDataProvider.setToken", () => {
         creatorSpy.and.returnValue(model);
 
         const provider: FalcorDataProvider = new FalcorDataProvider({
-            clientToken: "cid",
+            clientId: "cid",
             creator: creator,
         });
 
-        provider.setUserToken("token");
+        provider.setAccessToken("token");
 
         expect(modelSpy.calls.count()).toBe(1);
 
@@ -640,7 +640,7 @@ describe("FalcorDataProvider.getImage", () => {
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         const abort: Promise<void> = new Promise((_, __): void => { /*noop*/ });
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
@@ -667,7 +667,7 @@ describe("FalcorDataProvider.getImage", () => {
                 aborter = reject;
             });
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
 
         provider.getImageBuffer("url", abort)
             .then(
@@ -687,7 +687,7 @@ describe("FalcorDataProvider.getImage", () => {
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         const abort: Promise<void> = new Promise((_, __): void => { /*noop*/ });
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
@@ -711,7 +711,7 @@ describe("FalcorDataProvider.getImage", () => {
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         const abort: Promise<void> = new Promise((_, __): void => { /*noop*/ });
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
@@ -735,7 +735,7 @@ describe("FalcorDataProvider.getImage", () => {
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
         const abort: Promise<void> = new Promise((_, __): void => { /*noop*/ });
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
 
         const response: ArrayBuffer = new ArrayBuffer(1024);
 
@@ -758,7 +758,7 @@ describe("FalcorDataProvider.getCluster", () => {
         const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
         spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
 
-        const provider: FalcorDataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const provider: FalcorDataProvider = new FalcorDataProvider({ clientId: "cid" });
 
         provider.getCluster("url")
             .then(

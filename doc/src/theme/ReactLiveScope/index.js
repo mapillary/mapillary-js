@@ -11,7 +11,7 @@ import React from 'react';
 import * as mapillary from '../../../mods/mapillary-js/dist/mapillary.module';
 import * as three from '../../../mods/three/build/three.module';
 
-import {appToken} from '../../js/utils/token';
+import {accessToken} from '../../js/utils/token';
 import {mapillaryErrorHandler} from '../../js/utils/error';
 import {ViewerComponent} from '../../js/components/ViewerComponent';
 
@@ -25,7 +25,7 @@ import '../../../mods/mapillary-js/dist/mapillary.css';
 
 // Add react-live imports you need here
 const ReactLiveScope = {
-  appToken,
+  accessToken,
   mapillaryErrorHandler,
   animation,
   flycontrols,

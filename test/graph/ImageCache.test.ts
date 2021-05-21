@@ -223,7 +223,7 @@ describe("ImageCache.cacheImage$", () => {
             },
         };
 
-        const dataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const dataProvider = new FalcorDataProvider({ clientId: "cid" });
         spyOn(dataProvider, "getImageBuffer").and.returnValue(promise);
 
         const imageMock: HTMLImageElement = new Image();
@@ -257,7 +257,7 @@ describe("ImageCache.cacheImage$", () => {
             },
         };
 
-        const dataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const dataProvider = new FalcorDataProvider({ clientId: "cid" });
         spyOn(dataProvider, "getImageBuffer").and.returnValue(promise);
 
         const imageMock: HTMLImageElement = new Image();
@@ -287,7 +287,7 @@ describe("ImageCache.cacheImage$", () => {
             },
         };
 
-        const dataProvider = new FalcorDataProvider({ clientToken: "cid" });
+        const dataProvider = new FalcorDataProvider({ clientId: "cid" });
         spyOn(dataProvider, "getImageBuffer").and.returnValue(promise);
 
         const imageMock: HTMLImageElement = new Image();

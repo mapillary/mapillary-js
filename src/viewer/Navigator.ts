@@ -66,17 +66,19 @@ export class Navigator {
         playService?: PlayService,
         panService?: PanService) {
 
-        if (!!api) {
+        if (api) {
             this._api = api;
-        } else if (typeof options.apiClient === 'string') {
-            this._api = new APIWrapper(new FalcorDataProvider({
-                clientToken: options.apiClient,
-                userToken: options.userToken,
-            }));
-        } else if (options.apiClient instanceof DataProviderBase) {
-            this._api = new APIWrapper(options.apiClient);
+        } else if (options.dataProvider) {
+            if (options.dataProvider instanceof DataProviderBase) {
+                this._api = new APIWrapper(options.dataProvider);
+            } else {
+                throw new Error("Incorrect type: 'dataProvider' must extend the DataProviderBase class.");
+            }
         } else {
-            throw new Error(`Invalid type: 'apiClient' must be a String or an object instance extending the DataProviderBase class.`);
+            this._api = new APIWrapper(new FalcorDataProvider({
+                clientId: options.apiClient,
+                userAccessToken: options.accessToken,
+            }));
         }
 
         this._graphService = graphService ??
@@ -248,7 +250,7 @@ export class Navigator {
                 }));
     }
 
-    public setUserToken$(userToken?: string): Observable<void> {
+    public setAccessToken$(accessToken?: string): Observable<void> {
         this._abortRequest("to set user token");
 
         this._stateService.clearImages();
@@ -257,7 +259,7 @@ export class Navigator {
             first(),
             tap(
                 (): void => {
-                    this._api.setUserToken(userToken);
+                    this._api.setAccessToken(accessToken);
                 }),
             mergeMap(
                 (id: string): Observable<void> => {

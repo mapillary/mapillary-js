@@ -265,9 +265,9 @@ let viewer;
 export function init(opts) {
   const {container} = opts;
 
-  const provider = new ProceduralDataProvider();
+  const dataProvider = new ProceduralDataProvider();
   const options = {
-    apiClient: provider,
+    dataProvider,
     cameraControls: CameraControls.Earth,
     component: {
       cover: false,

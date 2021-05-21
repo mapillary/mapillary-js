@@ -84,7 +84,7 @@ export class FalcorDataProvider extends DataProviderBase {
         this._modelCreator = options.creator != null ?
             options.creator : new FalcorModelCreator();
         this._model = this._modelCreator.createModel(
-            this._urls.falcorModel, options.userToken);
+            this._urls.falcorModel, options.userAccessToken);
 
         this._pageCount = 999;
 
@@ -127,7 +127,7 @@ export class FalcorDataProvider extends DataProviderBase {
                             const core = !!item ?
                                 this._convert.core(item) :
                                 null;
-                            ents.push(core)
+                            ents.push(core);
                         }
                     }
                     return { cell_id: cellId, images: ents };
@@ -242,7 +242,7 @@ export class FalcorDataProvider extends DataProviderBase {
         return new Promise((resolve, reject) => {
             try { resolve(this._tileURL.generate(tiles)); }
             catch (error) { reject(error); }
-        })
+        });
     }
 
     /** @inheritdoc */
@@ -286,11 +286,11 @@ export class FalcorDataProvider extends DataProviderBase {
     }
 
     /** @inheritdoc */
-    public setUserToken(userToken?: string): void {
+    public setAccessToken(accessToken?: string): void {
         this._model.invalidate([]);
         this._model = null;
         this._model = this._modelCreator.createModel(
-            this._urls.falcorModel, userToken);
+            this._urls.falcorModel, accessToken);
     }
 
     private _invalidateGet(path: APIPath, paths: string[]): void {
