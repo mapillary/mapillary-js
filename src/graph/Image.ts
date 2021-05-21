@@ -223,7 +223,10 @@ export class Image {
     }
 
     /**
-     * Get userId.
+     * Get creatorId.
+     *
+     * @description Note that the creator ID will not be set when using
+     * the Mapillary API.
      *
      * @returns {string} Globally unique id of the user who uploaded
      * the image.
@@ -234,6 +237,9 @@ export class Image {
 
     /**
      * Get creatorUsername.
+     *
+     * @description Note that the creator username will not be set when
+     * using the Mapillary API.
      *
      * @returns {string} Username of the creator who uploaded
      * the image.
