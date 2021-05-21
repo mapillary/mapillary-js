@@ -2,7 +2,7 @@ import { ViewerEvent } from "./ViewerEvent";
 import { Image } from "../../graph/Image";
 
 /**
- * @event
+ * Interface for viewer image events.
  */
 export interface ViewerImageEvent extends ViewerEvent {
     /**

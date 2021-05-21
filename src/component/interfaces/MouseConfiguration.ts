@@ -10,7 +10,6 @@ import { ComponentConfiguration } from "./ComponentConfiguration";
  *     ...
  *     component: {
  *         mouse: {
- *             doubleClickZoom: false,
  *             dragPan: false,
  *             scrollZoom: false,
  *             touchZoom: false,

@@ -88,17 +88,17 @@ export class RectGeometry extends VertexGeometry {
      *
      * @param {number} [index] - The index of the vertex to use as anchor.
      *
-     * @throws {Error} If anchor indexing has already been initialized.
-     * @throws {Error} If index is not valid (0 to 3).
+     * @throws {GeometryTagError} If anchor indexing has already been initialized.
+     * @throws {GeometryTagError} If index is not valid (0 to 3).
      * @ignore
      */
     public initializeAnchorIndexing(index?: number): void {
         if (this._anchorIndex !== undefined) {
-            throw new Error("Anchor indexing is already initialized.");
+            throw new GeometryTagError("Anchor indexing is already initialized.");
         }
 
         if (index < 0 || index > 3) {
-            throw new Error(`Invalid anchor index: ${index}.`);
+            throw new GeometryTagError(`Invalid anchor index: ${index}.`);
         }
 
         this._anchorIndex = index === undefined ? 0 : index;
@@ -121,12 +121,12 @@ export class RectGeometry extends VertexGeometry {
      * @param {Array<number>} opposite - The new value of the vertex opposite to the anchor.
      * @param {Transform} transform - The transform of the image related to the rectangle.
      *
-     * @throws {Error} When anchor indexing has not been initialized.
+     * @throws {GeometryTagError} When anchor indexing has not been initialized.
      * @ignore
      */
     public setOppositeVertex2d(opposite: number[], transform: Transform): void {
         if (this._anchorIndex === undefined) {
-            throw new Error("Anchor indexing needs to be initialized.");
+            throw new GeometryTagError("Anchor indexing needs to be initialized.");
         }
 
         const changed: number[] = [

@@ -3,7 +3,7 @@ import { NavigationEdgeStatus }
 import { ViewerEvent } from "./ViewerEvent";
 
 /**
- * @event
+ * Interface for navigation edge viewer events.
  */
 export interface ViewerNavigationEdgeEvent extends ViewerEvent {
     /**

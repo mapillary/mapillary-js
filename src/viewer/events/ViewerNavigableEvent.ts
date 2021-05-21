@@ -1,7 +1,7 @@
 import { ViewerEvent } from "./ViewerEvent";
 
 /**
- * @event
+ * Interface for navigable viewer events.
  */
 export interface ViewerNavigableEvent extends ViewerEvent {
     /**

@@ -2,7 +2,7 @@ import { IComponent } from "../interfaces/IComponent";
 import { ComponentEventType } from "./ComponentEventType";
 
 /**
- * @event
+ * Interface for general component events.
  */
 export interface ComponentEvent {
     /**

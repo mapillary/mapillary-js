@@ -1,3 +1,6 @@
+/**
+ * @event
+ */
 export type TagEventType =
     | "click"
     | "geometry"

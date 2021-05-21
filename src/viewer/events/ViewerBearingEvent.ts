@@ -1,7 +1,7 @@
 import { ViewerEvent } from "./ViewerEvent";
 
 /**
- * @event
+ * Interface for bearing viewer events.
  */
 export interface ViewerBearingEvent extends ViewerEvent {
     /**

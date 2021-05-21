@@ -2,7 +2,7 @@ import { IViewer } from "../interfaces/IViewer";
 import { ViewerEventType } from "./ViewerEventType";
 
 /**
- * @event
+ * Interface for general viewer events.
  */
 export interface ViewerEvent {
     /**

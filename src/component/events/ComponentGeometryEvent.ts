@@ -2,7 +2,7 @@ import { Geometry } from "../tag/geometry/Geometry";
 import { ComponentEvent } from "./ComponentEvent";
 
 /**
- * @event
+ * Interface for component geometry events.
  */
 export interface ComponentGeometryEvent extends ComponentEvent {
     /**

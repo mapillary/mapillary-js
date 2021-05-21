@@ -2,17 +2,14 @@ import { LngLat } from "../../api/interfaces/LngLat";
 import { ViewerEvent } from "./ViewerEvent";
 
 /**
- * @event
- *
- * `ViewerMouseEvent` is the event for mouse-related
- * viewer events.
+ * Interface for mouse-related viewer events.
  *
  * @example
  * ```js
  * // The `click` event is an example of a `ViewerMouseEvent`.
  * // Set up an event listener on the viewer.
  * viewer.on('click', function(e) {
- *   // The event object (e) contains information like the
+ *   // The event object contains information like the
  *   // coordinates of the point in the viewer that was clicked.
  *   console.log('A click event has occurred at ' + e.lngLat);
  * });

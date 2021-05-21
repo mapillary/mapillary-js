@@ -238,25 +238,29 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
-     * Attach a custom camera controls for controlling viewer's
+     * Attach custom camera controls to control the viewer's
      * camera pose and projection.
      *
      * @description Custom camera controls allow the API user
-     * to freely move the viewer's camera and define the camera
-     * projection used. These camera properties are used
+     * to move the viewer's camera freely and define the camera
+     * projection. These camera properties are used
      * to render the viewer 3D scene directly into the
      * viewer's GL context.
      *
-     * Only a single custom camera controls instance can be
-     * attached to the viewer. A new custom camera controls
+     * Only a single custom camera control instance can be
+     * attached to the viewer. A new custom camera control
      * instance can be attached after detaching a previous
      * one.
      *
      * Set the viewer's camera controls to
-     * {@link CameraControls#Custom} to activate attached
-     * camera controls. If {@link CameraControls#Custom} when
-     * a custom camera controls instance is attached, it
-     * will be activated immediately.
+     * {@link CameraControls.Custom} to activate attached
+     * camera controls. If {@link CameraControls.Custom}
+     * has already been set when a custom camera control
+     * instance is attached, it will be activated immediately.
+     *
+     * Set the viewer's camera controls to any other
+     * {@link CameraControls} mode to deactivate the
+     * custom camera controls.
      *
      * @param controls - The custom camera controls implementation.
      *
@@ -301,16 +305,16 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
-     * Detach a previously attached custom camera controls
+     * Detach a previously attached custom camera control
      * instance from the viewer.
      *
-     * @description If no custom camera controls instance
+     * @description If no custom camera control instance
      * has previously been attached, calling this method
      * has no effect.
      *
      * Already attached custom camera controls need to
-     * be detached before attaching another camera controls
-     * instance.
+     * be detached before attaching another custom camera
+     * control instance.
      */
     public detachCustomCameraControls(): void {
         this._customCameraControls.detach(this);
@@ -639,10 +643,10 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * @param {NavigationDirection} direction - Direction in which which to move.
      * @returns {Promise<Image>} Promise to the image that was navigated to.
-     * @throws {Error} If the current image does not have the edge direction
+     * @throws If the current image does not have the edge direction
      * or the edges has not yet been cached.
-     * @throws {Error} Propagates any IO errors to the caller.
-     * @throws {Error} When viewer is not navigable.
+     * @throws Propagates any IO errors to the caller.
+     * @throws When viewer is not navigable.
      * @throws {@link CancelMapillaryError} When a subsequent move request
      * is made before the move dir call has completed.
      *
@@ -675,8 +679,8 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * @param {string} imageId - Id of the image to move to.
      * @returns {Promise<Image>} Promise to the image that was navigated to.
-     * @throws {Error} Propagates any IO errors to the caller.
-     * @throws {Error} When viewer is not navigable.
+     * @throws Propagates any IO errors to the caller.
+     * @throws When viewer is not navigable.
      * @throws {@link CancelMapillaryError} When a subsequent
      * move request is made before the move to id call has completed.
      *
@@ -1239,7 +1243,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * ensure that it no longer consumes browser resources. Afterwards,
      * you must not call any other methods on the viewer.
      *
-     * @fires Viewer#removed
+     * @fires remove
      *
      * @example
      * ```js
@@ -1278,11 +1282,11 @@ export class Viewer extends EventEmitter implements IViewer {
      * @description The components will also detect the viewer's
      * new size and resize their rendered elements if needed.
      *
-     * When the {@link ViewerOptions#trackResize} option is
+     * When the {@link ViewerOptions.trackResize} option is
      * set to true, the viewer will automatically resize
      * when the browser window is resized. If any other
      * custom behavior is preferred, the option should be set
-     * to false and the {@link Viewer#resize} method should
+     * to false and the {@link Viewer.resize} method should
      * be called on demand.
      *
      * @example
@@ -1485,12 +1489,12 @@ export class Viewer extends EventEmitter implements IViewer {
      * Calling setAccessToken also resets the complete viewer cache
      * so it should not be called repeatedly.
      *
-     * @param {string} [accessToken] accessToken - User access token
-     * or client access token.
+     * @param {string} [accessToken] accessToken - Optional user
+     * access token or client access token.
      * @returns {Promise<void>} Promise that resolves after token
      * is set.
      *
-     * @throws {Error} When viewer is not navigable.
+     * @throws When viewer is not navigable.
      *
      * @example
      * ```js

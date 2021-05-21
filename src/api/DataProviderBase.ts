@@ -101,12 +101,12 @@ export abstract class DataProviderBase extends EventEmitter {
     }
 
     /**
-     * Get core properties for images in a geometry cell.
+     * Get core images in a geometry cell.
      *
      * @param {string} cellId - The id of the geometry cell.
      * @returns {Promise<CoreImagesContract>} Promise to
      * the core images of the requested geometry cell id.
-     * @throws {@link Error} Rejects the promise on errors.
+     * @throws Rejects the promise on errors.
      */
     public getCoreImages(
         cellId: string): Promise<CoreImagesContract> {
@@ -122,7 +122,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * the request through rejection.
      * @returns {Promise<ClusterContract>} Promise to the
      * cluster reconstruction.
-     * @throws {Error} Rejects the promise on errors.
+     * @throws Rejects the promise on errors.
      */
     public getCluster(
         url: string,
@@ -131,13 +131,13 @@ export abstract class DataProviderBase extends EventEmitter {
     }
 
     /**
-     * Get fill properties for images.
+     * Get spatial images.
      *
      * @param {Array<string>} imageIds - The ids for the
      * images to retrieve.
      * @returns {Promise<SpatialImagesContract>} Promise to
      * the spatial images of the requested image ids.
-     * @throws {Error} Rejects the promise on errors.
+     * @throws Rejects the promise on errors.
      */
     public getSpatialImages(
         imageIds: string[]): Promise<SpatialImagesContract> {
@@ -145,13 +145,13 @@ export abstract class DataProviderBase extends EventEmitter {
     }
 
     /**
-     * Get all properties for images.
+     * Get complete images.
      *
      * @param {Array<string>} imageIds - The ids for the
      * images to retrieve.
      * @returns {Promise<ImagesContract>} Promise to the images of the
      * requested image ids.
-     * @throws {Error} Rejects the promise on errors.
+     * @throws Rejects the promise on errors.
      */
     public getImages(
         imageIds: string[]): Promise<ImagesContract> {
@@ -166,7 +166,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * the request through rejection.
      * @returns {Promise<ArrayBuffer>} Promise to the array
      * buffer containing the image.
-     * @throws {Error} Rejects the promise on errors.
+     * @throws Rejects the promise on errors.
      */
     public getImageBuffer(
         url: string,
@@ -175,22 +175,18 @@ export abstract class DataProviderBase extends EventEmitter {
     }
 
     /**
-     * Get image tiles urls for a single tile or
-     * a tile level.
+     * Get image tiles urls for a tile level.
      *
      * @param {ImageTilesRequestContract} tiles - Tiles to request
      * @returns {Promise<ImageTilesContract>} Promise to the
      * image tiles response contract
-     * @throws {Error} Rejects the promise on errors.
+     *
+     * @throws Rejects the promise on errors.
      *
      * @example
      * ```js
-     * var singleTile = { imageId: 'image-id', x: 0, y: 0, z: 12 };
-     * provider.getImageTiles(singleTile)
-     *   .then((response) => console.log(response));
-     *
-     * var tileLevel = { imageId: 'image-id', z: 12 };
-     * provider.getImageTiles(tileLevel)
+     * var tileRequest = { imageId: 'image-id', z: 12 };
+     * provider.getImageTiles(tileRequest)
      *   .then((response) => console.log(response));
      * ```
      */
@@ -206,7 +202,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * @param {Promise<void>} [abort] - Optional promise for aborting
      * the request through rejection.
      * @returns {Promise<MeshContract>} Promise to the mesh.
-     * @throws {Error} Rejects the promise on errors.
+     * @throws Rejects the promise on errors.
      */
     public getMesh(
         url: string,
@@ -221,7 +217,7 @@ export abstract class DataProviderBase extends EventEmitter {
      * sequence to retrieve.
      * @returns {Promise} Promise to the sequences of the
      * requested image ids.
-     * @throws {Error} Rejects the promise on errors.
+     * @throws Rejects the promise on errors.
      */
     public getSequence(
         sequenceId: string): Promise<SequenceContract> {

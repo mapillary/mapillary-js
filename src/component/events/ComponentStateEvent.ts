@@ -6,10 +6,7 @@ import { ComponentEvent } from "./ComponentEvent";
 import { ComponentEventType } from "./ComponentEventType";
 
 /**
- * @event
- *
- * `ComponentStateEvent` is the event for component
- * state changes.
+ * Interface for component state events.
  *
  * @example
  * ```js

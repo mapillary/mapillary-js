@@ -2,7 +2,7 @@ import { Marker } from "../marker/marker/Marker";
 import { ComponentEvent } from "./ComponentEvent";
 
 /**
- * @event
+ * Interface for component marker events.
  */
 export interface ComponentMarkerEvent extends ComponentEvent {
     /**
