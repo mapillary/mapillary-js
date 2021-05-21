@@ -1,8 +1,8 @@
 /**
  * @module api
  *
- * @description Extension interfaces and methods for extending
- * MapillaryJS.
+ * @description Interfaces and methods for extending
+ * MapillaryJS with custom data.
  */
 
 // Geo
@@ -62,14 +62,3 @@ export { URLEnt } from "../api/ents/URLEnt";
 // Type
 export { LngLat } from "../api/interfaces/LngLat";
 export { LngLatAlt } from "../api/interfaces/LngLatAlt";
-
-// Tile
-export * as TileMath from '../tile/TileMath';
-export {
-    TileCoords2D,
-    TileCoords3D,
-    TileImageSize,
-    TileLevel,
-    TileLevelColumnRows,
-    TilePixelCoords2D,
-} from '../tile/interfaces/TileTypes';

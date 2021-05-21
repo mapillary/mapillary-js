@@ -4,9 +4,7 @@ import { IDEnt } from "./IDEnt";
 import { CreatorEnt } from "./CreatorEnt";
 
 /**
- * Interface that describes the raw spatial image properties.
- *
- * @interface SpatialImageEnt
+ * Ent representing spatial image properties.
  */
 export interface SpatialImageEnt extends CameraEnt, IDEnt {
     /**

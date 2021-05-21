@@ -1,11 +1,11 @@
 /**
- * Interface that describes an entity with a unique id.
+ * Ent representing an entity with a unique ID.
  *
  * @interface IDEnt
  */
 export interface IDEnt {
     /**
-     * Unique id.
+     * Unique ID.
      */
     id: string;
 }

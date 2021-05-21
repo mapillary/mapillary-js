@@ -2,9 +2,7 @@ import { IDEnt } from "./IDEnt";
 import { LngLat } from "../interfaces/LngLat";
 
 /**
- * Interface that describes the raw core image properties.
- *
- * @interface CoreImageEnt
+ * Ent representing core image properties.
  */
 export interface CoreImageEnt extends IDEnt {
     /**

@@ -1,7 +1,5 @@
 /**
- * Interface that represents camera properties.
- *
- * @interface CameraEnt
+ * Ent representing camera properties.
  */
 export interface CameraEnt {
     /**
