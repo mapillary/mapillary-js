@@ -14,6 +14,11 @@ import { ImageTileEnt } from "../ents/ImageTileEnt";
 import { SpatialImageEnt } from "../ents/SpatialImageEnt";
 import { FalcorDataProviderUrls } from "./FalcorDataProviderUrls";
 
+interface VirtualRequest extends ImageTilesRequestContract {
+    x: number;
+    y: number;
+}
+
 export class FalcorTileURLGenerator {
     private readonly _sizes: Map<string, TileImageSize>;
 
@@ -45,34 +50,24 @@ export class FalcorTileURLGenerator {
                 `(max ${maxLevel} for ${imageId})`);
         }
         const node: ImageTileEnt[] = [];
-        if (typeof request.x === "number" &&
-            typeof request.y === "number") {
-            const url = this._generate(request, maxLevel);
-            node.push({
-                url,
-                x: request.x,
-                y: request.y,
-                z: request.z,
-            });
-        } else {
-            const level = { max: maxLevel, z: request.z };
-            const coords = sizeToLevelColumnsRows(size, level);
-            for (let y = 0; y < coords.rows; ++y) {
-                for (let x = 0; x < coords.columns; ++x) {
-                    const virtualRequest = {
-                        imageId: request.imageId,
-                        x,
-                        y,
-                        z: request.z,
-                    };
-                    const url = this._generate(virtualRequest, maxLevel);
-                    node.push({
-                        url,
-                        x,
-                        y,
-                        z: request.z,
-                    });
-                }
+
+        const level = { max: maxLevel, z: request.z };
+        const coords = sizeToLevelColumnsRows(size, level);
+        for (let y = 0; y < coords.rows; ++y) {
+            for (let x = 0; x < coords.columns; ++x) {
+                const virtualRequest: VirtualRequest = {
+                    imageId: request.imageId,
+                    x,
+                    y,
+                    z: request.z,
+                };
+                const url = this._generate(virtualRequest, maxLevel);
+                node.push({
+                    url,
+                    x,
+                    y,
+                    z: request.z,
+                });
             }
         }
 
@@ -84,7 +79,7 @@ export class FalcorTileURLGenerator {
     }
 
     private _generate(
-        request: ImageTilesRequestContract,
+        request: VirtualRequest,
         maxLevel: number)
         : string {
 

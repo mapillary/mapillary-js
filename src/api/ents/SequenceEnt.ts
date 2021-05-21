@@ -1,7 +1,7 @@
 import { IDEnt } from "./IDEnt";
 
 /**
- * Interface that describes the raw image sequence properties.
+ * Ent representing sequence properties.
  *
  * @interface SequenceEnt
  */

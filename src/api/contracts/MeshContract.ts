@@ -1,7 +1,5 @@
 /**
- * Interface that describes SfM triangulated meshes.
- *
- * @interface MeshContract
+ * Contract describing triangulated meshes.
  */
 export interface MeshContract {
     /**

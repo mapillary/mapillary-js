@@ -1,7 +1,5 @@
 /**
- * Interface that represents a reconstruction point.
- *
- * @interface PointContract
+ * Contract describing a reconstruction point.
  */
 export interface PointContract {
     /**

@@ -1,13 +1,11 @@
 import { IDEnt } from "./IDEnt";
 
 /**
- * Interface that describes the raw image creator properties.
- *
- * @interface CreatorEnt
+ * Ent representing image creator properties.
  */
 export interface CreatorEnt extends IDEnt {
     /**
-     * The username of the user.
+     * The username of the creator.
      */
     username: string;
 }
