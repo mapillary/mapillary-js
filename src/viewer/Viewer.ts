@@ -1413,28 +1413,17 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * Commonly used filter properties (see the {@link Image} class
      * documentation for a full list of properties that can be used
-     * in a filter) and common use cases:
-     *
-     * ```js
-     * cameraType     // Show only spherical or not
-     * ownerId        // Show images from one or several owners
-     * sequenceId     // Show images from one or several sequences
-     * creatorId      // Show images from one or several creators
-     * capturedAt     // Show images from a certain time interval
-     * ```
+     * in a filter) are shown the the example code.
      *
      * @param {FilterExpression} filter - The filter expression.
      * @returns {Promise<void>} Promise that resolves after filter is applied.
      *
      * @example
      * ```js
-     * viewer.setFilter(["==", "sequenceId", "<my-sequence-id>"]);
-     *
-     * // Other examples
-     * // viewer.setFilter(["==", "ownerId", "<my-owner-id>"]);
-     * // viewer.setFilter(["in", "creatorId", "<my-creator-id-#1>", "<my-creator-id-#2>"]);
-     * // viewer.setFilter(["==", "cameraType", "spherical"]);
-     * // viewer.setFilter([">=", "capturedAt", <my-time-stamp>]);
+     * // Examples
+     * viewer.setFilter(["==", "cameraType", "spherical"]);
+     * viewer.setFilter([">=", "capturedAt", <my-time-stamp>]);
+     * viewer.setFilter(["in", "sequenceId", "<sequence-id-1>", "<sequence-id-2>"]);
      * ```
      */
     public setFilter(filter: FilterExpression): Promise<void> {

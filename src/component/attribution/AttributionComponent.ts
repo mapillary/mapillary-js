@@ -7,8 +7,6 @@ import { Image } from "../../graph/Image";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
 import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
-import { Container } from "../../viewer/Container";
-import { Navigator } from "../../viewer/Navigator";
 
 import { Component } from "../Component";
 import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
@@ -17,29 +15,25 @@ import { ComponentName } from "../ComponentName";
 export class AttributionComponent extends Component<ComponentConfiguration> {
     public static componentName: ComponentName = "attribution";
 
-    constructor(
-        name: string,
-        container: Container,
-        navigator: Navigator) {
-        super(name, container, navigator);
-    }
-
     protected _activate(): void {
-        this._subscriptions.push(observableCombineLatest(
-            this._navigator.stateService.currentImage$,
-            this._container.renderService.size$).pipe(
-                map(
-                    ([image, size]: [Image, ViewportSize]): VirtualNodeHash => {
-                        return {
-                            name: this._name,
-                            vNode: this._getAttributionVNode(
-                                image.creatorUsername,
-                                image.id,
-                                image.capturedAt,
-                                size.width),
-                        };
-                    }))
-            .subscribe(this._container.domRenderer.render$));
+        this._subscriptions.push(
+            observableCombineLatest(
+                this._navigator.stateService.currentImage$,
+                this._container.renderService.size$).pipe(
+                    map(
+                        ([image, size]: [Image, ViewportSize]): VirtualNodeHash => {
+                            const attribution =
+                                this._makeAttribution(
+                                    image.creatorUsername,
+                                    image.id,
+                                    image.capturedAt,
+                                    size.width);
+                            return {
+                                name: this._name,
+                                vNode: attribution,
+                            };
+                        }))
+                .subscribe(this._container.domRenderer.render$));
     }
 
     protected _deactivate(): void {
@@ -50,51 +44,16 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
         return {};
     }
 
-    private _getAttributionVNode(
-        username: string,
-        id: string,
+    private _makeAttribution(
+        creatorUsername: string,
+        imageId: string,
         capturedAt: number,
-        width: number)
+        viewportWidth: number)
         : vd.VNode {
-        const compact = width <= 640;
+        const compact = viewportWidth <= 640;
 
-        const mapillaryIcon = vd.h(
-            "div.AttributionMapillaryLogo",
-            []);
-        const mapillaryLink = vd.h(
-            "a.AttributionIconContainer",
-            { href: ViewerConfiguration.explore, target: "_blank" },
-            [mapillaryIcon]);
-
-        const imageBy = compact ?
-            `${username}` : `image by ${username}`;
-        const imageByContent = vd.h(
-            "div.AttributionUsername",
-            { textContent: imageBy },
-            []);
-
-        const date = new Date(capturedAt)
-            .toDateString()
-            .split(" ");
-        const formatted = (date.length > 3 ?
-            compact ?
-                [date[3]] :
-                [date[1], date[2] + ",", date[3]] :
-            date).join(" ");
-
-        const dateContent = vd.h(
-            "div.AttributionDate",
-            { textContent: formatted },
-            []);
-
-        const imageLink =
-            vd.h(
-                "a.mapillary-attribution-image-container",
-                {
-                    href: ViewerConfiguration.exploreImage(id),
-                    target: "_blank",
-                },
-                [imageByContent, dateContent]);
+        const date = this._makeDate(capturedAt, compact);
+        const by = this._makeBy(creatorUsername, imageId, compact);
 
         const compactClass = compact ?
             ".mapillary-attribution-compact" : "";
@@ -102,6 +61,102 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
         return vd.h(
             "div.mapillary-attribution-container" + compactClass,
             {},
-            [mapillaryLink, imageLink]);
+            [...by, date]);
+    }
+
+    private _makeBy(
+        creatorUsername: string,
+        imageId: string,
+        compact: boolean): vd.VNode[] {
+
+        const icon = vd.h(
+            "div.mapillary-attribution-logo",
+            []);
+        return creatorUsername ?
+            this._makeCreatorBy(icon, creatorUsername, imageId, compact) :
+            this._makeGeneralBy(icon, imageId, compact);
+    }
+
+    private _makeCreatorBy(
+        icon: vd.VNode,
+        creatorUsername: string,
+        imageId: string,
+        compact: boolean): vd.VNode[] {
+        const mapillary = vd.h(
+            "a.mapillary-attribution-icon-container",
+            { href: ViewerConfiguration.explore, rel: "noreferrer", target: "_blank" },
+            [icon]);
+
+        const content = compact ?
+            `${creatorUsername}` : `image by ${creatorUsername}`;
+        const imageBy = vd.h(
+            "div.mapillary-attribution-username",
+            { textContent: content },
+            []);
+
+        const image = vd.h(
+            "a.mapillary-attribution-image-container",
+            {
+                href: ViewerConfiguration.exploreImage(imageId),
+                rel: "noreferrer",
+                target: "_blank",
+            },
+            [imageBy]);
+
+        return [mapillary, image];
+    }
+
+    private _makeGeneralBy(
+        icon: vd.VNode,
+        imageId: string,
+        compact: boolean): vd.VNode[] {
+
+        const imagesBy = vd.h(
+            "div.mapillary-attribution-username",
+            { textContent: 'images by' },
+            []);
+
+        const mapillary = vd.h(
+            "div.mapillary-attribution-icon-container",
+            {},
+            [icon]);
+
+        const contributors = vd.h(
+            "div.mapillary-attribution-username",
+            { textContent: 'contributors' },
+            []);
+
+        const children = [mapillary, contributors];
+        if (!compact) {
+            children.unshift(imagesBy);
+        }
+
+        const image = vd.h(
+            "a.mapillary-attribution-image-container",
+            {
+                href: ViewerConfiguration.exploreImage(imageId),
+                rel: "noreferrer",
+                target: "_blank",
+            },
+            children);
+
+        return [image];
+    }
+
+    private _makeDate(capturedAt: number, compact: boolean): vd.VNode {
+        const date = new Date(capturedAt)
+            .toDateString()
+            .split(" ");
+
+        const formatted = (date.length > 3 ?
+            compact ?
+                [date[3]] :
+                [date[1], date[2] + ",", date[3]] :
+            date).join(" ");
+
+        return vd.h(
+            "div.mapillary-attribution-date",
+            { textContent: formatted },
+            []);
     }
 }
