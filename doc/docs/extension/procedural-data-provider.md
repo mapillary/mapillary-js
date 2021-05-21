@@ -13,6 +13,25 @@ You can use the data provider API to provide data in the MapillaryJS [ent format
 
 :::
 
+## Overview
+
+We will soon go into the details of our data provider, but first we will get an overview of the data provider concept. The data provider overview below explains how the data provider API works, step by step.
+
+![Data Provider Overview](/img/extension/data-provider-design.png)
+
+_Data provider overview_
+
+The data provider API works like this:
+
+1. We start at the bottom with our own data format. We want to use it in MapillaryJS.
+2. We determine a way of serving our data to the provider. This could be through a web service, through file IO dialogs, or any other way that suites our use case. In our procedural data provider, we will generate the data on the fly in the browser.
+3. To consume the data we write our own data provider class which is responsible for data loading and conversion to the MapillaryJS ent format.
+4. When creating the MapillaryJS viewer, we supply our provider instance as an option.
+5. The default data provider is overridden and our own provider is used instead.
+6. When MapillaryJS makes requests, our provider will make all the decisions about how to retrieve the data and how to convert it.
+
+Now, let's dig a bit deeper.
+
 ## Image Generation
 
 MapillaryJS depends on images being provided for each camera capture in the data. Therefore we begin by generating images to have a foundation. We will provide images of mango colored grids because of their nice visualization properies.
