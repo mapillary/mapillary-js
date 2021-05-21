@@ -61,7 +61,7 @@ export class SpotTag extends Tag {
      * Set color property.
      * @param {number}
      *
-     * @fires Tag#changed
+     * @fires changed
      */
     public set color(value: number) {
         this._color = value;
@@ -80,7 +80,7 @@ export class SpotTag extends Tag {
      * Set editable property.
      * @param {boolean}
      *
-     * @fires Tag#changed
+     * @fires changed
      */
     public set editable(value: boolean) {
         this._editable = value;
@@ -99,7 +99,7 @@ export class SpotTag extends Tag {
      * Set icon property.
      * @param {string}
      *
-     * @fires Tag#changed
+     * @fires changed
      */
     public set icon(value: string) {
         this._icon = value;
@@ -118,7 +118,7 @@ export class SpotTag extends Tag {
      * Set text property.
      * @param {string}
      *
-     * @fires Tag#changed
+     * @fires changed
      */
     public set text(value: string) {
         this._text = value;
@@ -137,7 +137,7 @@ export class SpotTag extends Tag {
      * Set text color property.
      * @param {number}
      *
-     * @fires Tag#changed
+     * @fires changed
      */
     public set textColor(value: number) {
         this._textColor = value;
@@ -152,7 +152,7 @@ export class SpotTag extends Tag {
      *
      * @param {SpotTagOptions} options - Spot tag options
      *
-     * @fires {Tag#changed}
+     * @fires changed
      */
     public setOptions(options: SpotTagOptions): void {
         this._color = options.color == null ? this._color : options.color;

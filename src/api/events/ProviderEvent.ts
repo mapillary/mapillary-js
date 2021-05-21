@@ -2,7 +2,7 @@ import { DataProviderBase } from "../DataProviderBase";
 import { ProviderEventType } from "./ProviderEventType";
 
 /**
- * @event
+ * Interface for general provider events.
  */
 export interface ProviderEvent {
     /**

@@ -210,7 +210,8 @@ export class Popup {
      * Sets the popup's content to the HTML provided as a string.
      *
      * @description This method does not perform HTML filtering or sanitization,
-     * and must be used only with trusted content. Consider Popup#setText if the
+     * and must be used only with trusted content. Consider
+     * {@link Popup.setText} if the
      * content is an untrusted text string.
      *
      * @param {string} html - A string representing HTML content for the popup.
@@ -400,7 +401,7 @@ export class Popup {
             const width: number = this._container.offsetWidth;
             const height: number = this._container.offsetHeight;
 
-            const floatOffsets: { [key: string]: number[] } = {
+            const floatOffsets: { [key: string]: number[]; } = {
                 "bottom": [0, height / 2],
                 "bottom-left": [-width / 2, height / 2],
                 "bottom-right": [width / 2, height / 2],

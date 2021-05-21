@@ -1,3 +1,6 @@
+/**
+ * @event
+ */
 export type ViewerEventType =
     | "bearing"
     | "click"

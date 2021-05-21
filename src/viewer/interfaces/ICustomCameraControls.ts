@@ -23,9 +23,9 @@ import { IViewer } from "./IViewer";
  * is changed through the projectionMatrix and
  * viewMatrix callbacks.
  *
- * See the [MDN WebGL model view projection documentation]
- * {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_model_view_projection}
- * for an introduction to view and projection matrices.
+ * See the
+ * [model view projection article]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_model_view_projection}
+ * on MDN for an introduction to view and projection matrices.
  *
  * Custom camera controls can choose to make updates on
  * each animation frame or only based on user input.
@@ -44,7 +44,7 @@ export interface ICustomCameraControls {
      * resources, perform any transitions, and determine
      * initial state.
      *
-     * @description Use the {@link Viewer#getContainer} method
+     * @description Use the {@link Viewer.getContainer} method
      * to get the container for determining the viewer size
      * and aspect as well as for attaching event handlers.
      *
@@ -89,11 +89,15 @@ export interface ICustomCameraControls {
 
     /**
      * Method called when the camera controls have been
-     * attached to the viewer with {@link Viewer#attachCameraControls}.
+     * attached to the viewer.
      * This gives the camera controls a chance to initialize
      * resources.
      *
-     * @description Use the matrix callback functions
+     * @description Camera controls are attached to the
+     * viewer with the  with {@link Viewer.attachCustomCameraControls}
+     * method.
+     *
+     * Use the matrix callback functions
      * to modify the camera pose and projection of the
      * viewer's camera.
      *
@@ -121,9 +125,12 @@ export interface ICustomCameraControls {
 
     /**
      * Method called when the camera controls have been detached from
-     * the viewer by calling {@link Viewer#detachCameraControls}.
-     * This gives the camera controls a chance to clean up resources
-     * and event listeners.
+     * the viewer. This gives the camera controls a chance to clean
+     * up resources and event listeners.
+     *
+     * @description Camera controls are attached to the
+     * viewer with the  with {@link Viewer.detachCustomCameraControls}
+     * method.
      *
      * @param {IViewer} viewer - The viewer this custom camera
      * controls instance was just detached from.

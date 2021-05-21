@@ -2,10 +2,7 @@ import { Tag } from "../Tag";
 import { TagEventType } from "./TagEventType";
 
 /**
- * @event
- *
- * `TagStateEvent` is the event type for tag
- * state changes.
+ * Interface for tag state events.
  *
  * @example
  * ```js

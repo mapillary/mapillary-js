@@ -1,7 +1,7 @@
 import { ViewerEvent } from "./ViewerEvent";
 
 /**
- * @event
+ * Interface for viewer load events.
  *
  * @description Fired immediately after all necessary resources
  * have been downloaded and the first visually complete

@@ -2,7 +2,7 @@ import { TagMode } from "../tag/TagMode";
 import { ComponentEvent } from "./ComponentEvent";
 
 /**
- * @event
+ * Interface for component tag mode events.
  */
 export interface ComponentTagModeEvent extends ComponentEvent {
     /**

@@ -49,9 +49,9 @@ type NodeTiles = {
 };
 
 type SpatialArea = {
-    all: { [key: string]: Image };
+    all: { [key: string]: Image; };
     cacheKeys: string[];
-    cacheNodes: { [key: string]: Image };
+    cacheNodes: { [key: string]: Image; };
 };
 
 type NodeAccess = {
@@ -88,57 +88,57 @@ export class Graph {
     /**
      * Nodes that have initialized cache with a timestamp of last access.
      */
-    private _cachedNodes: { [key: string]: NodeAccess };
+    private _cachedNodes: { [key: string]: NodeAccess; };
 
     /**
      * Nodes for which the required tiles are cached.
      */
-    private _cachedNodeTiles: { [key: string]: boolean };
+    private _cachedNodeTiles: { [key: string]: boolean; };
 
     /**
      * Sequences for which the nodes are cached.
      */
-    private _cachedSequenceNodes: { [sequenceKey: string]: boolean };
+    private _cachedSequenceNodes: { [sequenceKey: string]: boolean; };
 
     /**
      * Nodes for which the spatial edges are cached.
      */
-    private _cachedSpatialEdges: { [key: string]: Image };
+    private _cachedSpatialEdges: { [key: string]: Image; };
 
     /**
      * Cached tiles with a timestamp of last access.
      */
-    private _cachedTiles: { [h: string]: TileAccess };
+    private _cachedTiles: { [h: string]: TileAccess; };
 
     /**
      * Nodes for which fill properties are being retreived.
      */
-    private _cachingFill$: { [key: string]: Observable<Graph> };
+    private _cachingFill$: { [key: string]: Observable<Graph>; };
 
     /**
      * Nodes for which full properties are being retrieved.
      */
-    private _cachingFull$: { [key: string]: Observable<Graph> };
+    private _cachingFull$: { [key: string]: Observable<Graph>; };
 
     /**
      * Sequences for which the nodes are being retrieved.
      */
-    private _cachingSequenceNodes$: { [sequenceKey: string]: Observable<Graph> };
+    private _cachingSequenceNodes$: { [sequenceKey: string]: Observable<Graph>; };
 
     /**
      * Sequences that are being retrieved.
      */
-    private _cachingSequences$: { [sequenceKey: string]: Observable<Graph> };
+    private _cachingSequences$: { [sequenceKey: string]: Observable<Graph>; };
 
     /**
      * Nodes for which the spatial area fill properties are being retrieved.
      */
-    private _cachingSpatialArea$: { [key: string]: Observable<Graph>[] };
+    private _cachingSpatialArea$: { [key: string]: Observable<Graph>[]; };
 
     /**
      * Tiles that are being retrieved.
      */
-    private _cachingTiles$: { [h: string]: Observable<Graph> };
+    private _cachingTiles$: { [h: string]: Observable<Graph>; };
 
     private _changed$: Subject<Graph>;
 
@@ -156,7 +156,7 @@ export class Graph {
     /**
      * All nodes in the graph.
      */
-    private _nodes: { [key: string]: Image };
+    private _nodes: { [key: string]: Image; };
 
     /**
      * Contains all nodes in the graph. Used for fast spatial lookups.
@@ -166,32 +166,32 @@ export class Graph {
     /**
      * All node index items sorted in tiles for easy uncache.
      */
-    private _nodeIndexTiles: { [h: string]: NodeIndexItem[] };
+    private _nodeIndexTiles: { [h: string]: NodeIndexItem[]; };
 
     /**
      * Node to tile dictionary for easy tile access updates.
      */
-    private _nodeToTile: { [key: string]: string };
+    private _nodeToTile: { [key: string]: string; };
 
     /**
      * Nodes retrieved before tiles, stored on tile level.
      */
-    private _preStored: { [h: string]: { [key: string]: Image } };
+    private _preStored: { [h: string]: { [key: string]: Image; }; };
 
     /**
      * Tiles required for a node to retrive spatial area.
      */
-    private _requiredNodeTiles: { [key: string]: NodeTiles };
+    private _requiredNodeTiles: { [key: string]: NodeTiles; };
 
     /**
      * Other nodes required for node to calculate spatial edges.
      */
-    private _requiredSpatialArea: { [key: string]: SpatialArea };
+    private _requiredSpatialArea: { [key: string]: SpatialArea; };
 
     /**
      * All sequences in graph with a timestamp of last access.
      */
-    private _sequences: { [skey: string]: SequenceAccess };
+    private _sequences: { [skey: string]: SequenceAccess; };
 
     private _tileThreshold: number;
 
@@ -797,7 +797,7 @@ export class Graph {
                     (items: SpatialImagesContract): void => {
                         for (const item of items) {
                             if (!item.node) {
-                                console.warn(`Image is empty (${item.node_id})`)
+                                console.warn(`Image is empty (${item.node_id})`);
                                 continue;
                             }
 
@@ -878,7 +878,7 @@ export class Graph {
             fallbackKeys.push(nextKey);
         }
 
-        let allSpatialNodes: { [key: string]: Image } = this._requiredSpatialArea[key].all;
+        let allSpatialNodes: { [key: string]: Image; } = this._requiredSpatialArea[key].all;
         let potentialNodes: Image[] = [];
         let filter: FilterFunction = this._filter;
         for (let spatialNodeKey in allSpatialNodes) {
@@ -1252,7 +1252,7 @@ export class Graph {
             const [sw, ne] = this._graphCalculator
                 .boundingBoxCorners(
                     node.lngLat,
-                    this._tileThreshold)
+                    this._tileThreshold);
 
             nodeTiles.cache = this._api.data.geometry
                 .bboxToCellIds(sw, ne)
@@ -1376,7 +1376,7 @@ export class Graph {
     /**
      * Set the spatial node filter.
      *
-     * @emits FilterFunction The filter function to the Graph#filter$
+     * @emits FilterFunction The filter function to the {@link Graph.filter$}
      * observable.
      *
      * @param {FilterExpression} filter - Filter expression to be applied
@@ -1415,7 +1415,7 @@ export class Graph {
         keepSequenceId?: string)
         : void {
 
-        const idsInUse: { [id: string]: boolean } = {};
+        const idsInUse: { [id: string]: boolean; } = {};
 
         this._addNewKeys(idsInUse, this._cachingFull$);
         this._addNewKeys(idsInUse, this._cachingFill$);
@@ -1440,8 +1440,8 @@ export class Graph {
                 .boundingBoxCorners(
                     node.lngLat,
                     tileThreshold,
-                )
-            const nodeCellIds = geometry.bboxToCellIds(sw, ne)
+                );
+            const nodeCellIds = geometry.bboxToCellIds(sw, ne);
 
             for (const nodeCellId of nodeCellIds) {
                 if (!keepCells.has(nodeCellId)) {
@@ -1623,7 +1623,7 @@ export class Graph {
         this._filterSubscription.unsubscribe();
     }
 
-    private _addNewKeys<T>(keys: { [key: string]: boolean }, dict: { [key: string]: T }): void {
+    private _addNewKeys<T>(keys: { [key: string]: boolean; }, dict: { [key: string]: T; }): void {
         for (let key in dict) {
             if (!dict.hasOwnProperty(key) || !this.hasNode(key)) {
                 continue;
@@ -1769,8 +1769,8 @@ export class Graph {
         this._preStored[h][node.id] = node;
     }
 
-    private _removeFromPreStore(h: string): { [key: string]: Image } {
-        let preStored: { [key: string]: Image } = null;
+    private _removeFromPreStore(h: string): { [key: string]: Image; } {
+        let preStored: { [key: string]: Image; } = null;
 
         if (h in this._preStored) {
             preStored = this._preStored[h];
@@ -1831,7 +1831,7 @@ export class Graph {
     }
 
     private _uncachePreStored(preStored: [string, string][]): void {
-        let hs: { [h: string]: boolean } = {};
+        let hs: { [h: string]: boolean; } = {};
         for (let [key, h] of preStored) {
             if (key in this._nodes) {
                 delete this._nodes[key];
@@ -1920,7 +1920,7 @@ export class Graph {
             catchError(
                 (error: Error): Observable<string> => {
                     console.error(error);
-                    return observableEmpty()
+                    return observableEmpty();
                 }));
     }
 }

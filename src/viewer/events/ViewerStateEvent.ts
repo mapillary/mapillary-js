@@ -1,9 +1,7 @@
 import { ViewerEvent } from "./ViewerEvent";
 
 /**
- * @event
- *
- * `ViewerStateEvent` is the event for viewer state changes.
+ * Interface for viewer state events.
  *
  * @example
  * ```js

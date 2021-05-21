@@ -1,7 +1,7 @@
 import { ViewerEvent } from "./ViewerEvent";
 
 /**
- * @event
+ * Interface for viewer data loading events.
  *
  * @description Fired when any viewer data (image, mesh, metadata, etc)
  * begins loading or changing asyncronously as a result of viewer

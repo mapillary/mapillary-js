@@ -66,7 +66,7 @@ export class ExtremePointTag extends Tag {
      * Set editable property.
      * @param {boolean}
      *
-     * @fires Tag#changed
+     * @fires changed
      */
     public set editable(value: boolean) {
         this._editable = value;
@@ -85,7 +85,7 @@ export class ExtremePointTag extends Tag {
      * Set fill color property.
      * @param {number}
      *
-     * @fires Tag#changed
+     * @fires changed
      */
     public set fillColor(value: number) {
         this._fillColor = value;
@@ -104,7 +104,7 @@ export class ExtremePointTag extends Tag {
      * Set fill opacity property.
      * @param {number}
      *
-     * @fires Tag#changed
+     * @fires changed
      */
     public set fillOpacity(value: number) {
         this._fillOpacity = value;
@@ -129,7 +129,7 @@ export class ExtremePointTag extends Tag {
      * Set indicate vertices property.
      * @param {boolean}
      *
-     * @fires Tag#changed
+     * @fires changed
      */
     public set indicateVertices(value: boolean) {
         this._indicateVertices = value;
@@ -148,7 +148,7 @@ export class ExtremePointTag extends Tag {
      * Set line color property.
      * @param {number}
      *
-     * @fires Tag#changed
+     * @fires changed
      */
     public set lineColor(value: number) {
         this._lineColor = value;
@@ -167,7 +167,7 @@ export class ExtremePointTag extends Tag {
      * Set line opacity property.
      * @param {number}
      *
-     * @fires Tag#changed
+     * @fires changed
      */
     public set lineOpacity(value: number) {
         this._lineOpacity = value;
@@ -186,7 +186,7 @@ export class ExtremePointTag extends Tag {
      * Set line width property.
      * @param {number}
      *
-     * @fires Tag#changed
+     * @fires changed
      */
     public set lineWidth(value: number) {
         this._lineWidth = value;
@@ -201,7 +201,7 @@ export class ExtremePointTag extends Tag {
      *
      * @param {ExtremePointTagOptions} options - Extreme point tag options
      *
-     * @fires {Tag#changed}
+     * @fires changed
      */
     public setOptions(options: ExtremePointTagOptions): void {
         this._editable = options.editable == null ? this._editable : options.editable;

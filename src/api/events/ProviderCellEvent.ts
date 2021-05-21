@@ -1,7 +1,8 @@
 import { ProviderEvent } from "./ProviderEvent";
 
 /**
- * @event
+ *
+ * Interface for data provider cell events.
  */
 export interface ProviderCellEvent extends ProviderEvent {
     /**

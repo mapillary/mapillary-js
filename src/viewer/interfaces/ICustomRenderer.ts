@@ -14,17 +14,17 @@ import { IViewer } from "./IViewer";
  *
  * Custom renderers must have a unique id. They must implement
  * render, onReferenceChanged, onAdd, and onRemove. They can
- * trigger rendering using {Viewer#triggerRerender}.
+ * trigger rendering using {@link Viewer.triggerRerender}.
  *
  * The viewer uses a metric topocentric
  * [local east, north, up coordinate system](https://en.wikipedia.org/wiki/Local_tangent_plane_coordinates).
  *
  * Custom renderers can calculate the topocentric positions
  * of their objects using the reference parameter of the
- * renderer interface methods and the {GeoCoords#geodeticToEnu}
+ * renderer interface methods and the {@link geodeticToEnu}
  * method.
  *
- * @description During a render pass, custom renderers
+ * During a render pass, custom renderers
  * are called in the order they were added.
  */
 export interface ICustomRenderer {
@@ -36,18 +36,21 @@ export interface ICustomRenderer {
     /**
      * The custom renderer's render pass.
      *
-     * @description The ICustomRenderer#render method
+     * @description The {@link ICustomRenderer.render} method
      * will be called during this render pass.
      */
     renderPass: RenderPass;
 
     /**
      * Method called when the renderer has been added to the
-     * viewer with {Viewer#addCustomRenderer}. This gives the
+     * viewer. This gives the
      * renderer a chance to initialize gl resources and
      * register event listeners.
      *
-     * @description Calculate the topocentric positions
+     * @description Custom renderers are added with the
+     * with {@link Viewer.addCustomRenderer} method.
+     *
+     * Calculate the topocentric positions
      * for scene objects using the provided reference and
      * the {@link geodeticToEnu} function.
      *
@@ -82,9 +85,12 @@ export interface ICustomRenderer {
 
     /**
      * Method called when the renderer has been removed from the
-     * viewer with {@link Viewer#removeCustomRenderer}. This gives the
+     * viewer. This gives the
      * renderer a chance to clean up gl resources and event
      * listeners.
+     *
+     * @description Custom renderers are remove with the
+     * {@link Viewer.removeCustomRenderer} method.
      *
      * @param {IViewer} viewer - The viewer this custom renderer
      * was just removed from.

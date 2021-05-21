@@ -1,7 +1,7 @@
 import { ComponentEvent } from "./ComponentEvent";
 
 /**
- * @event
+ * Interface for component play events.
  */
 export interface ComponentPlayEvent extends ComponentEvent {
     /**

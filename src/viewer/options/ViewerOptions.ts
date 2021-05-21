@@ -29,7 +29,7 @@ export interface ViewerOptions {
     cameraControls?: CameraControls;
 
     /**
-     * Value specifying if combined panning should be enabled.
+     * Value specifying if combined panning should be activated.
      *
      * @default true
      */
@@ -41,8 +41,8 @@ export interface ViewerOptions {
     component?: ComponentOptions;
 
     /**
-     * The HTML element in which
-     * MapillaryJS will render the viewer, or the element's string `id`. The
+     * The HTML element in which MapillaryJS will render the
+     * viewer, or the element's string `id`. The
      * specified element must have no children.
      */
     container: string | HTMLElement;
@@ -53,7 +53,7 @@ export interface ViewerOptions {
      *
      * @description The data provider will override the
      * default MapillaryJS data provider and take responsibility
-     * for all IO requests.
+     * for all IO handling.
      *
      * A data provider instance must extend
      * the data provider base class.
@@ -66,7 +66,7 @@ export interface ViewerOptions {
      * bound to that id until it has been fully loaded. If null is provided
      * no image is loaded at viewer initialization and the viewer is not
      * bound to any particular id. Any image can then be navigated to
-     * with e.g. `viewer.moveToId("<my-image-id>")`.
+     * with e.g. `viewer.moveTo("<my-image-id>")`.
      */
     imageId?: string;
 
@@ -74,7 +74,7 @@ export interface ViewerOptions {
      * Value indicating if the viewer should fetch high resolution
      * image tiles.
      *
-     * @description Can be used when extending `mapillary-js` with
+     * @description Can be used when extending MapillaryJS with
      * a custom data provider. If no image tiling server exists
      * the image tiling can be inactivated to avoid error
      * messages about non-existing tiles in the console.
@@ -85,12 +85,13 @@ export interface ViewerOptions {
 
     /**
      * The render mode in the viewer.
+     *
      * @default {RenderMode.Fill}
      */
     renderMode?: RenderMode;
 
     /**
-     * A base URL for retrieving a png sprite image and json metadata file.
+     * A base URL for retrieving a PNG sprite image and json metadata file.
      * File name extensions will be automatically appended.
      */
     sprite?: string;
@@ -105,6 +106,7 @@ export interface ViewerOptions {
 
     /**
      * The transtion mode in the viewer.
+     *
      * @default {TransitionMode.Default}
      */
     transitionMode?: TransitionMode;

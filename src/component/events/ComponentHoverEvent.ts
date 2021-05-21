@@ -1,7 +1,7 @@
 import { ComponentEvent } from "./ComponentEvent";
 
 /**
- * @event
+ * Interface for component hover events.
  */
 export interface ComponentHoverEvent extends ComponentEvent {
     /**

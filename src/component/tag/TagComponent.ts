@@ -388,7 +388,7 @@ export class TagComponent extends Component<TagConfiguration> {
      *
      * @param {TagMode} mode - New tag mode.
      *
-     * @fires TagComponent#modechanged
+     * @fires tagmode
      *
      * @example
      * ```js
