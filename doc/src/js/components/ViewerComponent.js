@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import {accessToken} from '../utils/token';
+import {accessToken} from '../../../.access-token/token';
 
 import styles from './viewer.module.css';
 

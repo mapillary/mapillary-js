@@ -11,7 +11,7 @@ import React from 'react';
 import * as mapillary from '../../../mods/mapillary-js/dist/mapillary.module';
 import * as three from '../../../mods/three/build/three.module';
 
-import {accessToken} from '../../js/utils/token';
+import {accessToken} from '../../../.access-token/token';
 import {mapillaryErrorHandler} from '../../js/utils/error';
 import {ViewerComponent} from '../../js/components/ViewerComponent';
 

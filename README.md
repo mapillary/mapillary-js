@@ -10,7 +10,7 @@ MapillaryJS is an interactive street imagery and semantic mapping visualization 
 <img width="100%" alt="Mapillary" src="https://user-images.githubusercontent.com/2492302/117429732-9dbe1e80-af27-11eb-9531-47ae4df50c65.png">
 </a>
 
-## Installation and usage
+## Installation and Usage
 
 To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need an access token. When [providing your own data](https://mapillary.github.io/mapillary-js/docs/extension/extend), no access token is needed.
 
@@ -116,12 +116,12 @@ var viewer = new Viewer({
 
 ## Documentation
 
-- [Getting started with MapillaryJS](https://mapillary.github.io/mapillary-js/docs)
-- [Developing extensions](https://mapillary.github.io/mapillary-js/docs/extension/extend)
+- [Getting Started with MapillaryJS](https://mapillary.github.io/mapillary-js/docs)
+- [Developing Extensions](https://mapillary.github.io/mapillary-js/docs/extension/extend)
 - [Examples](https://mapillary.github.io/mapillary-js/examples)
-- [API reference](https://mapillary.github.io/mapillary-js/api)
-- [Migration guide](https://mapillary.github.io/mapillary-js/docs/migration/v4)
-- [Contributor documentation](./.github/CONTRIBUTING.md)
+- [API Reference](https://mapillary.github.io/mapillary-js/api)
+- [Migration Guide](https://mapillary.github.io/mapillary-js/docs/migration/v4)
+- [Contribution Guidelines](./.github/CONTRIBUTING.md)
 
 ## Code of Conduct
 

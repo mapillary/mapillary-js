@@ -84,7 +84,7 @@ The [glossary](/docs/intro/glossary) contains an overview of the most common ter
 
 ## Staying Informed
 
-You can find a changelog for every release in the [CHANGELOG.md](https://github.com/mapillary/mapillary-js/blob/main/CHANGELOG.md) file in the MapillaryJS repository, as well as on the [Releases](https://github.com/mapillary/mapillary-js/releases) page.
+You can find a changelog for every release in the MapillaryJS repository [CHANGELOG](https://github.com/mapillary/mapillary-js/blob/main/CHANGELOG.md), as well as on the [Releases](https://github.com/mapillary/mapillary-js/releases) page.
 
 ## Something Missing?
 

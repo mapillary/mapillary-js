@@ -28,8 +28,7 @@ const importer = (req, res, next) => {
   if (!req.path.endsWith(".js")) {
     res.sendStatus(404);
   } else {
-    const relativePath = req.path.split("/").slice(-2).join("/");
-    const file = path.join(pathname("doc/src/js"), relativePath);
+    const file = path.join(pathname("doc"), req.path);
     fs.readFile(file, "utf-8", (err, data) => {
       if (err) {
         res.sendStatus(404);
