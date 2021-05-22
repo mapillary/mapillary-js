@@ -2,6 +2,7 @@
 node_modules
 
 # Generated files
+.access-token
 .docusaurus
 api
 build

@@ -5,8 +5,9 @@
 /build
 
 # Generated files
-.docusaurus
+.access-token
 .cache-loader
+.docusaurus
 /api
 /mods
 

@@ -1,3 +1,5 @@
+# How to Contribute
+
 Thanks in advance for contributing to MapillaryJS. Please follow the conventions below when submitting an issue or pull request.
 
 ## [Code of Conduct](https://code.facebook.com/codeofconduct)
@@ -16,17 +18,49 @@ We will review your pull request and either merge it, request changes to it, or 
 **Before submitting a pull request**, please make sure the following is done:
 
 1. Fork [the repository](https://github.com/mapillary/mapillary-js) and create your branch from `main`.
-2. Run `yarn install` in the repository root.
+2. Follow the [development workflow](#development-workflow) to setup your environment.
 3. If you’ve fixed a bug or added code that should be tested, add tests!
-4. Ensure the test suite passes (`yarn test`).
-5. Make sure your code lints (`yarn lint`).
-6. If you haven’t already, complete the CLA.
+4. Ensure the test suite passes (`yarn test`) and that your code lints (`yarn lint`).
+5. If you haven’t already, complete the CLA.
 
-## Contributor License Agreement (CLA)
+### Contributor License Agreement (CLA)
 
 In order to accept your pull request, we need you to submit a CLA. You only need to do this once, so if you’ve done this for another Facebook open source project, you’re good to go. If you are submitting a pull request for the first time, just let us know that you have completed the CLA and we can cross-check with your GitHub username.
 
 [Complete your CLA here.](https://code.facebook.com/cla)
+
+## Development Workflow
+
+After cloning MapillaryJS, run `yarn install` to fetch its dependencies.
+
+If you want to use data from the Mapillary platform during development, you need to [register an application](https://www.mapillary.com/dashboard/developers) to get a client access token.
+
+Setup your MapillaryJS development environment with the following command:
+
+```zsh
+ACCESS_TOKEN=<YOUR_CLIENT_ACCESS_TOKEN> yarn setup
+```
+
+Then, you can run several commands:
+
+- `yarn lint` checks the code style.
+- `yarn test` runs the complete test suite.
+- `yarn test-watch` runs an interactive test watcher.
+- `yarn build` creates a `dist` folder with the package.
+- `yarn start` starts a development server and rebuilds on source file changes.
+- `yarn clear` removes the build output.
+
+We recommend running `yarn test` to make sure you don’t introduce any regressions as you work on your change.
+
+The easiest way to try your changes is to run `yarn start` and open the debug page at [http://localhost:3000](http://localhost:3000).
+
+However it can be handy to try your build of MapillaryJS in a real project. First, run `yarn build`. This will produce pre-built bundles in the `dist` folder.
+
+If you want to try your changes in your existing project, you may use `yarn link` or copy the `dist` folder into your app and use them instead of the stable version.
+
+## Documentation Workflow
+
+See the [documentation README](../doc/README.md).
 
 ## Develop with Docker
 
@@ -47,30 +81,7 @@ docker run -v "$(pwd)":/source/mapillary-js -p 8000:8000 --name mapillary-js-con
 
 5. [Stop](https://docs.docker.com/engine/reference/commandline/stop/), [start](https://docs.docker.com/engine/reference/commandline/start/), and [attach](https://docs.docker.com/engine/reference/commandline/exec/) to the container.
 
-## Development Workflow
-
-After cloning MapillaryJS, run `yarn install` to fetch its dependencies. Then, you can run several commands:
-
-- `yarn lint` checks the code style.
-- `yarn test` runs the complete test suite.
-- `yarn test-watch` runs an interactive test watcher.
-- `yarn build` creates a `dist` folder with the package.
-- `yarn start` starts a development server and rebuilds on source file changes.
-- `yarn clear` removes the build output.
-
-We recommend running `yarn test` to make sure you don’t introduce any regressions as you work on your change.
-
-The easiest way to try your changes is to run `yarn start` and open the debug page at [http://localhost:3000](http://localhost:3000).
-
-However it can be handy to try your build of MapillaryJS in a real project. First, run `yarn build`. This will produce pre-built bundles in the `dist` folder.
-
-If you want to try your changes in your existing project, you may use `yarn link` or copy the `dist` folder into your app and use them instead of the stable version.
-
-## Documentation workflow
-
-See the [documentation README](../doc/README.md).
-
-## Commit conventions
+## Commit Conventions
 
 We use the standardized commit messages according to [Conventional Commits](https://conventionalcommits.org/) with the additional types in the Angular convention.
 
