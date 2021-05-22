@@ -55,10 +55,12 @@ export { CircleMarker } from "../component/marker/marker/CircleMarker";
 export { CircleMarkerOptions }
     from "../component/marker/interfaces/CircleMarkerOptions";
 export { Marker } from "../component/marker/marker/Marker";
+export { MarkerComponent } from "../component/marker/MarkerComponent";
+export { MarkerConfiguration }
+    from "../component/interfaces/MarkerConfiguration";
 export { SimpleMarker } from "../component/marker/marker/SimpleMarker";
 export { SimpleMarkerOptions }
     from "../component/marker/interfaces/SimpleMarkerOptions";
-export { MarkerComponent } from "../component/marker/MarkerComponent";
 
 // Mouse
 export { MouseConfiguration } from "../component/interfaces/MouseConfiguration";
@@ -116,6 +118,7 @@ export { OutlineTag } from "../component/tag/tag/OutlineTag";
 export { SpotTag } from "../component/tag/tag/SpotTag";
 export { Tag } from "../component/tag/tag/Tag";
 
+export { TagConfiguration } from "../component/interfaces/TagConfiguration";
 export { TagDomain } from "../component/tag/tag/TagDomain";
 export { TagMode } from "../component/tag/TagMode";
 export { TagComponent } from "../component/tag/TagComponent";

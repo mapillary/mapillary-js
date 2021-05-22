@@ -46,9 +46,9 @@ Street imagery is simply images captured anywhere on earth at street-level, i.e 
 
 #### Semantic Mapping
 
-[Semantics](https://en.wikipedia.org/wiki/Semantics) is the study of meaning or truth. In the field of computer vision, [semantic segmentation](https://en.wikipedia.org/wiki/Image_segmentation#Groups_of_image_segmentation) is an example for detecting, for every pixel, the class to which an object belongs.
-
 [Mapping](https://en.wikipedia.org/wiki/Cartography) is the practice of making or using maps.
+
+[Semantics](https://en.wikipedia.org/wiki/Semantics) is the study of meaning, reference or truth. In our case, it is about understanding the meaning of each part of the map.
 
 MapillaryJS provides methods to visualize the underlying data used to create semantic 3D maps through its spatial rendering capabilities. This is useful for understanding the structure of semantic mapping algorithm output.
 

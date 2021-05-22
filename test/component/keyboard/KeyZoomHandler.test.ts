@@ -33,12 +33,12 @@ class TestComponent extends Component<TestConfiguration> {
 
 describe("KeyZoomHandler.ctor", () => {
     it("should be defined", () => {
-        const containerMock: Container = new ContainerMockCreator().create();
-        const navigatorMock: Navigator = new NavigatorMockCreator().create();
-        const viewportCoordsMock: ViewportCoords =
+        const containerMock = new ContainerMockCreator().create();
+        const navigatorMock = new NavigatorMockCreator().create();
+        const viewportCoordsMock =
             new MockCreator().create(ViewportCoords, "ViewportCoords");
 
-        const handler: KeyZoomHandler = new KeyZoomHandler(
+        const handler = new KeyZoomHandler(
             new TestComponent("test", containerMock, navigatorMock),
             containerMock,
             navigatorMock,
@@ -50,13 +50,13 @@ describe("KeyZoomHandler.ctor", () => {
 
 describe("KeyZoomHandler.disable", () => {
     it("should disable correctly", () => {
-        const containerMock: Container = new ContainerMockCreator().create();
-        const navigatorMock: Navigator = new NavigatorMockCreator().create();
-        const viewportCoordsMock: ViewportCoords =
+        const containerMock = new ContainerMockCreator().create();
+        const navigatorMock = new NavigatorMockCreator().create();
+        const viewportCoordsMock =
             new MockCreator().create(ViewportCoords, "ViewportCoords");
 
-        const testComponent: TestComponent = new TestComponent("test", containerMock, navigatorMock);
-        const handler: KeyZoomHandler = new KeyZoomHandler(
+        const testComponent = new TestComponent("test", containerMock, navigatorMock);
+        const handler = new KeyZoomHandler(
             testComponent,
             containerMock,
             navigatorMock,
@@ -75,13 +75,13 @@ describe("KeyZoomHandler.disable", () => {
 
 describe("KeyZoomHandler.enable", () => {
     it("should not prevent default if modifier key is pressed", () => {
-        const containerMock: Container = new ContainerMockCreator().create();
-        const navigatorMock: Navigator = new NavigatorMockCreator().create();
-        const viewportCoordsMock: ViewportCoords =
+        const containerMock = new ContainerMockCreator().create();
+        const navigatorMock = new NavigatorMockCreator().create();
+        const viewportCoordsMock =
             new MockCreator().create(ViewportCoords, "ViewportCoords");
 
-        const testComponent: TestComponent = new TestComponent("test", containerMock, navigatorMock);
-        const handler: KeyZoomHandler = new KeyZoomHandler(
+        const testComponent = new TestComponent("test", containerMock, navigatorMock);
+        const handler = new KeyZoomHandler(
             testComponent,
             containerMock,
             navigatorMock,
@@ -95,43 +95,38 @@ describe("KeyZoomHandler.enable", () => {
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
             .next(new RenderCamera(1, 1, RenderMode.Fill));
 
-        const transform: Transform = new TransformHelper().createTransform();
+        const transform = new TransformHelper().createTransform();
         spyOn(transform, "projectBasic").and.returnValue([1, 1]);
         (<Subject<Transform>>navigatorMock.stateService.currentTransform$)
             .next(transform);
 
-        let keyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+", ctrlKey: true });
-        const preventDefaultSpyCtrl: jasmine.Spy = spyOn(keyboardEvent, "preventDefault").and.stub();
+        let keyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+", ctrlKey: true });
+        const preventDefaultSpyCtrl = spyOn(keyboardEvent, "preventDefault").and.stub();
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
         expect(preventDefaultSpyCtrl.calls.count()).toBe(0);
 
         keyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+", altKey: true });
-        const preventDefaultSpyAlt: jasmine.Spy = spyOn(keyboardEvent, "preventDefault").and.stub();
+        const preventDefaultSpyAlt = spyOn(keyboardEvent, "preventDefault").and.stub();
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
         expect(preventDefaultSpyAlt.calls.count()).toBe(0);
 
-        keyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+", shiftKey: true });
-        const preventDefaultSpyShift: jasmine.Spy = spyOn(keyboardEvent, "preventDefault").and.stub();
-        (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
-        expect(preventDefaultSpyShift.calls.count()).toBe(0);
-
         keyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+", metaKey: true });
-        const preventDefaultSpyMeta: jasmine.Spy = spyOn(keyboardEvent, "preventDefault").and.stub();
+        const preventDefaultSpyMeta = spyOn(keyboardEvent, "preventDefault").and.stub();
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
         expect(preventDefaultSpyMeta.calls.count()).toBe(0);
 
-        const zoomInSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
+        const zoomInSpy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
         expect(zoomInSpy.calls.count()).toBe(0);
     });
 
-    it("should prevent default if no modifier key is pressed", () => {
-        const containerMock: Container = new ContainerMockCreator().create();
-        const navigatorMock: Navigator = new NavigatorMockCreator().create();
-        const viewportCoordsMock: ViewportCoords =
+    it("should prevent default if shift key is pressed", () => {
+        const containerMock = new ContainerMockCreator().create();
+        const navigatorMock = new NavigatorMockCreator().create();
+        const viewportCoordsMock =
             new MockCreator().create(ViewportCoords, "ViewportCoords");
 
-        const testComponent: TestComponent = new TestComponent("test", containerMock, navigatorMock);
-        const handler: KeyZoomHandler = new KeyZoomHandler(
+        const testComponent = new TestComponent("test", containerMock, navigatorMock);
+        const handler = new KeyZoomHandler(
             testComponent,
             containerMock,
             navigatorMock,
@@ -145,25 +140,63 @@ describe("KeyZoomHandler.enable", () => {
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
             .next(new RenderCamera(1, 1, RenderMode.Fill));
 
-        const transform: Transform = new TransformHelper().createTransform();
+        const transform = new TransformHelper().createTransform();
         spyOn(transform, "projectBasic").and.returnValue([1, 1]);
         (<Subject<Transform>>navigatorMock.stateService.currentTransform$)
             .next(transform);
 
-        const keyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+" });
-        const preventDefaultSpy: jasmine.Spy = spyOn(keyboardEvent, "preventDefault").and.stub();
+        const keyboardEvent = EventHelper
+            .createKeyboardEvent("keydown", { key: "+", shiftKey: true });
+        const preventDefaultSpyShift =
+            spyOn(keyboardEvent, "preventDefault").and.stub();
+        (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$)
+            .next(keyboardEvent);
+        expect(preventDefaultSpyShift.calls.count()).toBe(1);
+
+        const zoomInSpy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
+        expect(zoomInSpy.calls.count()).toBe(1);
+    });
+
+    it("should prevent default if no modifier key is pressed", () => {
+        const containerMock = new ContainerMockCreator().create();
+        const navigatorMock = new NavigatorMockCreator().create();
+        const viewportCoordsMock =
+            new MockCreator().create(ViewportCoords, "ViewportCoords");
+
+        const testComponent = new TestComponent("test", containerMock, navigatorMock);
+        const handler = new KeyZoomHandler(
+            testComponent,
+            containerMock,
+            navigatorMock,
+            viewportCoordsMock);
+
+        testComponent.activate();
+        handler.enable();
+
+        (<jasmine.Spy>viewportCoordsMock.unprojectFromViewport).and.returnValue(new THREE.Vector3());
+
+        (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
+            .next(new RenderCamera(1, 1, RenderMode.Fill));
+
+        const transform = new TransformHelper().createTransform();
+        spyOn(transform, "projectBasic").and.returnValue([1, 1]);
+        (<Subject<Transform>>navigatorMock.stateService.currentTransform$)
+            .next(transform);
+
+        const keyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+" });
+        const preventDefaultSpy = spyOn(keyboardEvent, "preventDefault").and.stub();
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
         expect(preventDefaultSpy.calls.count()).toBe(1);
     });
 
     it("should zoom in if `+` is pressed", () => {
-        const containerMock: Container = new ContainerMockCreator().create();
-        const navigatorMock: Navigator = new NavigatorMockCreator().create();
-        const viewportCoordsMock: ViewportCoords =
+        const containerMock = new ContainerMockCreator().create();
+        const navigatorMock = new NavigatorMockCreator().create();
+        const viewportCoordsMock =
             new MockCreator().create(ViewportCoords, "ViewportCoords");
 
-        const testComponent: TestComponent = new TestComponent("test", containerMock, navigatorMock);
-        const handler: KeyZoomHandler = new KeyZoomHandler(
+        const testComponent = new TestComponent("test", containerMock, navigatorMock);
+        const handler = new KeyZoomHandler(
             testComponent,
             containerMock,
             navigatorMock,
@@ -177,27 +210,27 @@ describe("KeyZoomHandler.enable", () => {
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
             .next(new RenderCamera(1, 1, RenderMode.Fill));
 
-        const transform: Transform = new TransformHelper().createTransform();
+        const transform = new TransformHelper().createTransform();
         spyOn(transform, "projectBasic").and.returnValue([1, 1]);
         (<Subject<Transform>>navigatorMock.stateService.currentTransform$)
             .next(transform);
 
-        const keyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+" });
+        const keyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+" });
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
 
-        const zoomInSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
+        const zoomInSpy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
         expect(zoomInSpy.calls.count()).toBe(1);
         expect(zoomInSpy.calls.first().args[0]).toBe(1);
     });
 
     it("should zoom out if `-` is pressed", () => {
-        const containerMock: Container = new ContainerMockCreator().create();
-        const navigatorMock: Navigator = new NavigatorMockCreator().create();
-        const viewportCoordsMock: ViewportCoords =
+        const containerMock = new ContainerMockCreator().create();
+        const navigatorMock = new NavigatorMockCreator().create();
+        const viewportCoordsMock =
             new MockCreator().create(ViewportCoords, "ViewportCoords");
 
-        const testComponent: TestComponent = new TestComponent("test", containerMock, navigatorMock);
-        const handler: KeyZoomHandler = new KeyZoomHandler(
+        const testComponent = new TestComponent("test", containerMock, navigatorMock);
+        const handler = new KeyZoomHandler(
             testComponent,
             containerMock,
             navigatorMock,
@@ -211,15 +244,15 @@ describe("KeyZoomHandler.enable", () => {
         (<Subject<RenderCamera>>containerMock.renderService.renderCamera$)
             .next(new RenderCamera(1, 1, RenderMode.Fill));
 
-        const transform: Transform = new TransformHelper().createTransform();
+        const transform = new TransformHelper().createTransform();
         spyOn(transform, "projectBasic").and.returnValue([1, 1]);
         (<Subject<Transform>>navigatorMock.stateService.currentTransform$)
             .next(transform);
 
-        const keyboardEvent: KeyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "-" });
+        const keyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "-" });
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
 
-        const zoomInSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
+        const zoomInSpy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
         expect(zoomInSpy.calls.count()).toBe(1);
         expect(zoomInSpy.calls.first().args[0]).toBe(-1);
     });
