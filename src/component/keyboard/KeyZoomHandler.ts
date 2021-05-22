@@ -50,7 +50,7 @@ export class KeyZoomHandler extends HandlerBase<KeyboardConfiguration> {
                 this._navigator.stateService.currentTransform$))
             .subscribe(
                 ([event, render, transform]: [KeyboardEvent, RenderCamera, Transform]): void => {
-                    if (event.altKey || event.shiftKey || event.ctrlKey || event.metaKey) {
+                    if (event.altKey || event.ctrlKey || event.metaKey) {
                         return;
                     }
 
