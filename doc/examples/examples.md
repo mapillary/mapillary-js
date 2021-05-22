@@ -12,18 +12,16 @@ slug: /
 
 ## Viewer
 
-| Examples                       | Description                                |
-| ------------------------------ | ------------------------------------------ |
-| Initialization                 |                                            |
-| [No Cover](/examples/no-cover) | Load immediately without showing the cover |
-| Navigable or not               |                                            |
-| Viewer options                 |                                            |
-| Filtering                      |                                            |
-| Moving programatically         |                                            |
-| Events                         |                                            |
-| Center, zoom, and bearing      |                                            |
-| Image LngLat explained         |                                            |
-| Map synchronization            |                                            |
+| Examples | Description |
+| --- | --- |
+| [Initialization](/examples/viewer-initialization) | Activate the `Viewer` in different ways and check if it is [navigable](/api/classes/viewer.viewer-1#isnavigable) |
+| Viewer options |  |
+| Filtering |  |
+| Moving programatically |  |
+| Events |  |
+| Center, zoom, and bearing |  |
+| Image LngLat explained |  |
+| Map synchronization |  |
 
 ## Component
 
