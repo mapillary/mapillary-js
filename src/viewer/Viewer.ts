@@ -1151,11 +1151,10 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
-     * Project an LngLat representing geographicalcoordinates to
-     * canvas pixel coordinates.
+     * Project geodetic coordinates to canvas pixel coordinates.
      *
-     * @description The geographical coordinates may not always correspond to pixel
-     * coordinates, e.g. if the geographical coordinates have a position behind the
+     * @description The geodetic coordinates may not always correspond to pixel
+     * coordinates, e.g. if the geodetic coordinates have a position behind the
      * viewer camera. In the case of no correspondence the returned value will
      * be `null`.
      *
@@ -1163,7 +1162,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * longitude-latitude is more than 1000 meters `null` will be returned.
      *
      * The projection is performed from the ground plane, i.e.
-     * the altitude with respect to the ground plane for the geographical
+     * the altitude with respect to the ground plane for the geodetic
      * point is zero.
      *
      * Note that whenever the camera moves, the result of the method will be
@@ -1552,10 +1551,10 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
-     * Unproject canvas pixel coordinates to an ILatLon representing geographical
+     * Unproject canvas pixel coordinates to geodetic
      * coordinates.
      *
-     * @description The pixel point may not always correspond to geographical
+     * @description The pixel point may not always correspond to geodetic
      * coordinates. In the case of no correspondence the returned value will
      * be `null`.
      *

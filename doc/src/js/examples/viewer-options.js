@@ -28,7 +28,7 @@ export function init(opts) {
     keyboard: {keyZoom: false},
     mouse: {scrollZoom: false},
     sequence: false,
-    zoom: {size: ComponentSize.Large},
+    zoom: false,
   };
   const viewerOptions = {
     apiClient: accessToken,

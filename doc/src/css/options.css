@@ -1,0 +1,86 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
+
+.example-option-container .root,
+.example-option-container .folder,
+.example-option-container .controller {
+  border-bottom: 1px solid #2c2c2c;
+  color: #eee;
+}
+
+.example-option-container .root,
+.example-option-container .folder {
+  background-color: #000;
+  cursor: pointer;
+  font: 10px 'Lucida Grande', sans-serif;
+  font-weight: bold;
+}
+
+.example-option-container .root {
+  width: 200px;
+  text-align: center;
+  height: 16px;
+  line-height: 16px;
+  border-right: 4px solid #000;
+  margin-left: 4px;
+}
+
+.example-option-container .folder {
+  border-left: 4px solid rgba(0, 0, 0, 0);
+  height: 20px;
+  line-height: 20px;
+  padding-left: 4px;
+}
+
+.example-option-container .content {
+  padding-left: 4px;
+}
+
+.example-option-container .controller {
+  background-color: #1a1a1a;
+  padding: 0 4px 0 5px;
+  font: 10px 'Lucida Grande', sans-serif;
+}
+
+.example-option-container .controller.boolean {
+  border-left: 3px solid #806787;
+}
+
+.example-option-container .controller.option {
+  border-left: 3px solid #1ed36f;
+}
+
+.example-option-container .controller.boolean:hover {
+  background-color: #000;
+  cursor: pointer;
+}
+
+.example-option-container .controller.boolean div {
+  display: inline-block;
+}
+
+.example-option-container .controller span,
+.example-option-container .controller div {
+  height: 20px;
+  line-height: 20px;
+}
+
+.example-option-container .controller span {
+  width: 72px;
+  display: inline-block;
+}
+
+.example-option-container .controller.option input[type='checkbox'] {
+  margin-top: 7px;
+  vertical-align: middle;
+}
+
+.example-option-container .controller.option select {
+  font: 11px 'Lucida Grande', sans-serif;
+}

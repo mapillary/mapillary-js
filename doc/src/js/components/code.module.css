@@ -10,7 +10,7 @@
 .codeButton {
   position: fixed;
   top: 76px;
-  right: 16px;
+  left: 16px;
   padding: 13px 12px 9px 12px;
   border-radius: 50%;
   margin-bottom: 0px;
