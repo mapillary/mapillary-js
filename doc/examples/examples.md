@@ -16,18 +16,16 @@ slug: /
 | --- | --- |
 | [Initialization](/examples/viewer-initialization) | Initialize the viewer in different ways and check if it is [navigable](/api/classes/viewer.viewer-1#isnavigable) |
 | [Options](/examples/viewer-options) | Configure appearance and behavior through [viewer](/api/interfaces/viewer.vieweroptions) and [component](/api/interfaces/viewer.componentoptions) options |
-| Filtering |  |
-| Moving programatically |  |
+| [Methods](/examples/viewer-methods) | Configure appearance and behavior with methods after initial [load](/api/classes/viewer.viewer-1#on) |
 | Events |  |
-| Center, zoom, and bearing |  |
-| Image LngLat explained |  |
-| Map synchronization |  |
+| Filtering |  |
+| Viewpoint | Center, zoom, and bearing |
 
 ### Image
 
-| Example | Description |
-| ------- | ----------- |
-| LngLat  |             |
+| Example          | Description |
+| ---------------- | ----------- |
+| LngLat Explained |             |
 
 ## Component
 

@@ -31,3 +31,10 @@
   margin: 0 calc(-1 * var(--ifm-pre-padding));
   padding: 0 var(--ifm-pre-padding);
 }
+
+@import './options.css';
+
+.example-option-container .controller.option select {
+  background-color: var(--ifm-navbar-background-color);
+  color: var(--ifm-font-color-base);
+}

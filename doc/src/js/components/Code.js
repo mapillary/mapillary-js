@@ -13,11 +13,12 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './code.module.css';
 
 export function Code(props) {
-  const {title} = props;
+  const {title, style} = props;
   const name = title.replaceAll(' ', '-');
   return (
     <a
       className={styles.codeButton}
+      style={style ?? {}}
       href={`https://github.com/mapillary/mapillary-js/blob/main/doc/src/js/examples/${name}.js`}
       rel="noreferrer"
       target="_blank"
