@@ -542,6 +542,28 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
+     * Get the viewer's current image.
+     *
+     * @returns {Promise<Image>} Promise to the current image.
+     *
+     * @example
+     * ```js
+     * viewer.getImage().then(image => { console.log(image.id); });
+     * ```
+     */
+    public getImage(): Promise<Image> {
+        return new Promise<Image>(
+            (resolve: (image: Image) => void, reject: (reason: Error) => void): void => {
+                this._navigator.stateService.currentImage$.pipe(
+                    first())
+                    .subscribe(
+                        (image) => { resolve(image); },
+                        (error) => { reject(error); });
+            }
+        );
+    }
+
+    /**
      * Get the viewer's current point of view.
      *
      * @returns {Promise<PointOfView>} Promise to the current point of view

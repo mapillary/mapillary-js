@@ -1,7 +1,7 @@
 /**
  * @module api
  *
- * @description Interfaces and methods for extending
+ * @description Interfaces and methods for using
  * MapillaryJS with custom data.
  */
 

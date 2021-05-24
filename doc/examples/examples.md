@@ -18,14 +18,8 @@ slug: /
 | [Options](/examples/viewer-options) | Configure appearance and behavior through [viewer](/api/interfaces/viewer.vieweroptions) and [component](/api/interfaces/viewer.componentoptions) options |
 | [Methods](/examples/viewer-methods) | Configure appearance and behavior with methods after initial [load](/api/classes/viewer.viewer-1#on) |
 | [Events](/examples/viewer-events) | Add event listeners and handle viewer [events](/api/modules/viewer#viewereventtype) |
-| [Filtering](/examples/viewer-filters) | [Filter](/api/classes/viewer.viewer-1#setfilter) what images are shown and can be navigated to |
-| Viewpoint | Center, zoom, and bearing |
-
-### Image
-
-| Example          | Description |
-| ---------------- | ----------- |
-| LngLat Explained |             |
+| [Filtering](/examples/viewer-filters) | Apply [filters](/api/classes/viewer.viewer-1#setfilter) to decide what images are shown and can be navigated to |
+| [Viewpoint](/examples/viewer-coordinates) | Control the viewer's [point](/api/classes/viewer.viewer-1#setcenter) and [field](/api/classes/viewer.viewer-1#setzoom) of view |
 
 ## Component
 
@@ -74,7 +68,7 @@ slug: /
 
 | Example | MapillaryJS API | Description |
 | --- | --- | --- |
-| [Procedural Data Provider](/examples/procedural-data-provider) | Data Provider | Serve [procedurally generated](https://en.wikipedia.org/wiki/Procedural_generation) data |
+| [Procedural Provider](/examples/procedural-data-provider) | Data Provider | Serve [procedurally generated](https://en.wikipedia.org/wiki/Procedural_generation) data |
 | [WebGL Renderer](/examples/webgl-renderer) | Render | Use [WebGL](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API) to render a 3D object |
 | [Three.js Renderer](/examples/three-renderer) | Render | Use [Three.js](https://threejs.org/) to render a 3D object |
 | [Animation](/examples/animation) | Render | Make a rotating cube [animation](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Animating_objects_with_WebGL) |

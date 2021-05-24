@@ -1,7 +1,8 @@
 /**
  * @module viewer
  *
- * @description Main interfaces and methods for interacting with MapillaryJS.
+ * @description Main interfaces and methods for interacting with
+ * and extending MapillaryJS.
  */
 
 // Support

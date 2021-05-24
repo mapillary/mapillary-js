@@ -29,6 +29,11 @@
   font-weight: bold;
 }
 
+.example-option-container .root span,
+.example-option-container .folder span {
+  user-select: none;
+}
+
 .example-option-container .root {
   text-align: center;
   height: 16px;
