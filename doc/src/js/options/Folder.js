@@ -17,11 +17,13 @@ export class Folder {
       this.container.classList.add('example-option-container');
     }
     this.folder = document.createElement('div');
-    this.folder.textContent = options.parent ? options.name : 'Open Controls';
     this.folder.classList.add(this.parent ? 'folder' : 'root');
     if (options.open) {
       this.folder.classList.add('active');
     }
+    this.name = document.createElement('span');
+    this.name.textContent = options.parent ? options.name : 'Open Controls';
+    this.folder.appendChild(this.name);
 
     this.content = document.createElement('div');
     this.content.style.display = options.open ? 'block' : 'none';
@@ -32,7 +34,7 @@ export class Folder {
     this.folder.addEventListener('click', () => {
       const display = this.content.style.display === 'block' ? 'none' : 'block';
       if (!this.parent) {
-        this.folder.textContent =
+        this.name.textContent =
           display === 'block' ? 'Close Controls' : 'Open Controls';
       }
       this.folder.classList.toggle('active');
