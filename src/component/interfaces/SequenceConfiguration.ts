@@ -7,7 +7,7 @@ import { NavigationDirection } from "../../graph/edge/NavigationDirection";
  * @interface
  * @example
  * ```js
- * var viewer = new Viewer({
+ * const viewer = new Viewer({
  *     ...
  *     component: {
  *         sequence: {
@@ -36,6 +36,8 @@ export interface SequenceConfiguration extends ComponentConfiguration {
      * highlight id will be highlighted.
      *
      * @default undefined
+     *
+     * @ignore
      */
     highlightId?: string;
 

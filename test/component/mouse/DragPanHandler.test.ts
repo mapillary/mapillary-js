@@ -13,7 +13,7 @@ import { TransformHelper } from "../../helper/TransformHelper";
 import { Navigator } from "../../../src/viewer/Navigator";
 import { Image as MImage } from "../../../src/graph/Image";
 import { Transform } from "../../../src/geo/Transform";
-import { DragPanHandler } from "../../../src/component/mouse/DragPanHandler";
+import { DragPanHandler } from "../../../src/component/pointer/DragPanHandler";
 import { Spatial } from "../../../src/geo/Spatial";
 import { ViewportCoords } from "../../../src/geo/ViewportCoords";
 import { RenderCamera } from "../../../src/render/RenderCamera";

@@ -40,7 +40,7 @@ import { ImageComponent }
     from "./component/image/ImageComponent";
 import { KeyboardComponent } from "./component/keyboard/KeyboardComponent";
 import { MarkerComponent } from "./component/marker/MarkerComponent";
-import { MouseComponent } from "./component/mouse/MouseComponent";
+import { PointerComponent } from "./component/pointer/PointerComponent";
 import { PopupComponent } from "./component/popup/PopupComponent";
 import { SequenceComponent } from "./component/sequence/SequenceComponent";
 import { SliderComponent } from "./component/slider/SliderComponent";
@@ -56,7 +56,7 @@ ComponentService.register(DirectionComponent);
 ComponentService.register(ImageComponent);
 ComponentService.register(KeyboardComponent);
 ComponentService.register(MarkerComponent);
-ComponentService.register(MouseComponent);
+ComponentService.register(PointerComponent);
 ComponentService.register(PopupComponent);
 ComponentService.register(SequenceComponent);
 ComponentService.register(SliderComponent);

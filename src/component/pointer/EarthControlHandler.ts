@@ -23,20 +23,20 @@ import { RenderCamera } from "../../render/RenderCamera";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
-import { MouseConfiguration } from "../interfaces/MouseConfiguration";
+import { PointerConfiguration } from "../interfaces/PointerConfiguration";
 import { HandlerBase } from "../util/HandlerBase";
 import { MouseOperator } from "../util/MouseOperator";
 import { SubscriptionHolder } from "../../util/SubscriptionHolder";
 
 
-export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
+export class EarthControlHandler extends HandlerBase<PointerConfiguration> {
     private _viewportCoords: ViewportCoords;
     private _spatial: Spatial;
     private _subscriptions: SubscriptionHolder;
 
     /** @ignore */
     constructor(
-        component: Component<MouseConfiguration>,
+        component: Component<PointerConfiguration>,
         container: Container,
         navigator: Navigator,
         viewportCoords: ViewportCoords,
@@ -204,7 +204,7 @@ export class EarthControlHandler extends HandlerBase<MouseConfiguration> {
         this._subscriptions.unsubscribe();
     }
 
-    protected _getConfiguration(): MouseConfiguration {
+    protected _getConfiguration(): PointerConfiguration {
         return {};
     }
 

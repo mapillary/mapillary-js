@@ -26,7 +26,7 @@ export function init(opts) {
     cover: false,
     direction: {maxWidth: 300},
     keyboard: {keyZoom: false},
-    mouse: {scrollZoom: false},
+    pointer: {scrollZoom: false},
     sequence: false,
     zoom: false,
   };

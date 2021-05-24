@@ -3,7 +3,7 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Spatial } from "../../geo/Spatial";
 import { ViewportCoords } from "../../geo/ViewportCoords";
-import { MouseConfiguration } from "../interfaces/MouseConfiguration";
+import { PointerConfiguration } from "../interfaces/PointerConfiguration";
 import { BounceHandler } from "./BounceHandler";
 import { DragPanHandler } from "./DragPanHandler";
 import { EarthControlHandler } from "./EarthControlHandler";
@@ -12,9 +12,9 @@ import { TouchZoomHandler } from "./TouchZoomHandler";
 import { ComponentName } from "../ComponentName";
 
 /**
- * @class MouseComponent
+ * @class PointerComponent
  *
- * @classdesc Component handling mouse and touch events for camera movement.
+ * @classdesc Component handling mouse, pen, and touch events for camera movement.
  *
  * To retrive and use the mouse component
  *
@@ -22,12 +22,12 @@ import { ComponentName } from "../ComponentName";
  * ```js
  * var viewer = new Viewer({ ... });
  *
- * var mouseComponent = viewer.getComponent("mouse");
+ * var pointerComponent = viewer.getComponent("pointer");
  * ```
  */
-export class MouseComponent extends Component<MouseConfiguration> {
+export class PointerComponent extends Component<PointerConfiguration> {
     /** @inheritdoc */
-    public static componentName: ComponentName = "mouse";
+    public static componentName: ComponentName = "pointer";
 
     private _bounceHandler: BounceHandler;
     private _dragPanHandler: DragPanHandler;
@@ -126,7 +126,7 @@ export class MouseComponent extends Component<MouseConfiguration> {
 
         this._subscriptions.push(this._configuration$
             .subscribe(
-                (configuration: MouseConfiguration): void => {
+                (configuration: PointerConfiguration): void => {
                     if (configuration.dragPan) {
                         this._dragPanHandler.enable();
                     } else {
@@ -167,7 +167,7 @@ export class MouseComponent extends Component<MouseConfiguration> {
         this._touchZoomHandler.disable();
     }
 
-    protected _getDefaultConfiguration(): MouseConfiguration {
+    protected _getDefaultConfiguration(): PointerConfiguration {
         return {
             dragPan: true,
             earthControl: true,

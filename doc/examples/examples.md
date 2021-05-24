@@ -29,7 +29,7 @@ slug: /
 
 ## Component
 
-### Interaction
+### Input
 
 | Example  | Description                                            |
 | -------- | ------------------------------------------------------ |

@@ -134,7 +134,7 @@ export class ComponentController {
         this._uTrue(options.direction, "direction");
         this._uTrue(options.image, "image");
         this._uTrue(options.keyboard, "keyboard");
-        this._uTrue(options.mouse, "mouse");
+        this._uTrue(options.pointer, "pointer");
         this._uTrue(options.sequence, "sequence");
         this._uTrue(options.zoom, "zoom");
     }

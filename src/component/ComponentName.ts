@@ -7,7 +7,7 @@ export type ComponentName =
     | "image"
     | "keyboard"
     | "marker"
-    | "mouse"
+    | "pointer"
     | "popup"
     | "sequence"
     | "slider"

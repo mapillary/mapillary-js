@@ -3,7 +3,7 @@ import { CacheConfiguration } from "../../component/interfaces/CacheConfiguratio
 import { DirectionConfiguration } from "../../component/interfaces/DirectionConfiguration";
 import { KeyboardConfiguration } from "../../component/interfaces/KeyboardConfiguration";
 import { MarkerConfiguration } from "../../component/interfaces/MarkerConfiguration";
-import { MouseConfiguration } from "../../component/interfaces/MouseConfiguration";
+import { PointerConfiguration } from "../../component/interfaces/PointerConfiguration";
 import { SequenceConfiguration } from "../../component/interfaces/SequenceConfiguration";
 import { SliderConfiguration } from "../../component/interfaces/SliderConfiguration";
 import { SpatialConfiguration } from "../../component/interfaces/SpatialConfiguration";
@@ -91,13 +91,13 @@ export interface ComponentOptions {
     marker?: boolean | MarkerConfiguration;
 
     /**
-     * Enable mouse and touch interaction for zoom and pan.
+     * Enable mouse, pen, and touch interaction for zoom and pan.
      *
      * @description Requires WebGL support.
      *
      * @default true
      */
-    mouse?: boolean | MouseConfiguration;
+    pointer?: boolean | PointerConfiguration;
 
     /**
      * Show HTML popups over images.

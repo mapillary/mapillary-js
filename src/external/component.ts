@@ -62,12 +62,13 @@ export { SimpleMarker } from "../component/marker/marker/SimpleMarker";
 export { SimpleMarkerOptions }
     from "../component/marker/interfaces/SimpleMarkerOptions";
 
-// Mouse
-export { MouseConfiguration } from "../component/interfaces/MouseConfiguration";
-export { DragPanHandler } from "../component/mouse/DragPanHandler";
-export { MouseComponent } from "../component/mouse/MouseComponent";
-export { ScrollZoomHandler } from "../component/mouse/ScrollZoomHandler";
-export { TouchZoomHandler } from "../component/mouse/TouchZoomHandler";
+// Pointer
+export { DragPanHandler } from "../component/pointer/DragPanHandler";
+export { PointerComponent } from "../component/pointer/PointerComponent";
+export { PointerConfiguration }
+    from "../component/interfaces/PointerConfiguration";
+export { ScrollZoomHandler } from "../component/pointer/ScrollZoomHandler";
+export { TouchZoomHandler } from "../component/pointer/TouchZoomHandler";
 
 // Popup
 export { PopupOffset } from "../component/popup/interfaces/PopupOffset";
