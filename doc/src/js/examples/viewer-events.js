@@ -16,6 +16,7 @@ let log;
 
 export function init(opts) {
   const {accessToken, container} = opts;
+  const imageId = 'kcXKtxR_S3ISk0zNR_TDnA';
 
   const viewerOptions = {
     apiClient: accessToken,
@@ -23,7 +24,6 @@ export function init(opts) {
     container,
   };
   viewer = new Viewer(viewerOptions);
-  const imageId = 'kcXKtxR_S3ISk0zNR_TDnA';
   viewer.moveTo(imageId).catch((error) => console.warn(error));
 
   log = new Log({container, header: 'Event Log Tail (last 10 seconds)'});
