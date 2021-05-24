@@ -23,9 +23,6 @@ let settings;
 
 function makeFolder(container) {
   const folder = new Folder();
-  folder.container.style.position = 'absolute';
-  folder.container.style.top = '0px';
-  folder.container.style.right = '12px';
   container.appendChild(folder.container);
   return folder;
 }
@@ -40,13 +37,13 @@ function toggleComponent(value, name) {
 
 export function init(opts) {
   const {accessToken, container} = opts;
-  const imageId = 'kcXKtxR_S3ISk0zNR_TDnA';
 
   viewer = new Viewer({
     apiClient: accessToken,
     component: {cover: false},
     container,
   });
+  const imageId = 'kcXKtxR_S3ISk0zNR_TDnA';
   viewer.moveTo(imageId).catch((error) => console.warn(error));
 
   settings = makeFolder(container);

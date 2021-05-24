@@ -29,6 +29,9 @@
   line-height: 16px;
   border-right: 4px solid #000;
   margin-left: 4px;
+  position: absolute;
+  top: 0px;
+  right: 12px;
 }
 
 .example-option-container .folder {

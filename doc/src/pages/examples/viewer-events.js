@@ -11,14 +11,14 @@ import React from 'react';
 import Layout from '@theme/Layout';
 import {Code} from '../../js/components/Code';
 import {ViewerComponent} from '../../js/components/ViewerComponent';
-import {dispose, init} from '../../js/examples/viewer-initialization';
+import {dispose, init} from '../../js/examples/viewer-events';
 
 export default function Example() {
-  const title = 'Viewer Initialization';
+  const title = 'Viewer Events';
   return (
     <Layout title={title} noFooter="true">
       <ViewerComponent init={init} dispose={dispose} />
-      <Code title={title.toLowerCase()} style={{zIndex: 100}} />
+      <Code title={title.toLowerCase()} />
     </Layout>
   );
 }
