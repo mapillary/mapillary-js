@@ -13,7 +13,7 @@ import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
-import { MouseConfiguration } from "../interfaces/MouseConfiguration";
+import { PointerConfiguration } from "../interfaces/PointerConfiguration";
 import { HandlerBase } from "../util/HandlerBase";
 import { isSpherical } from "../../geo/Geo";
 
@@ -22,15 +22,15 @@ import { isSpherical } from "../../geo/Geo";
  *
  * @example
  * ```js
- * var mouseComponent = viewer.getComponent("mouse");
+ * var pointerComponent = viewer.getComponent("pointer");
  *
- * mouseComponent.scrollZoom.disable();
- * mouseComponent.scrollZoom.enable();
+ * pointerComponent.scrollZoom.disable();
+ * pointerComponent.scrollZoom.enable();
  *
- * var isEnabled = mouseComponent.scrollZoom.isEnabled;
+ * var isEnabled = pointerComponent.scrollZoom.isEnabled;
  * ```
  */
-export class ScrollZoomHandler extends HandlerBase<MouseConfiguration> {
+export class ScrollZoomHandler extends HandlerBase<PointerConfiguration> {
     private _viewportCoords: ViewportCoords;
 
     private _preventDefaultSubscription: Subscription;
@@ -38,7 +38,7 @@ export class ScrollZoomHandler extends HandlerBase<MouseConfiguration> {
 
     /** @ignore */
     constructor(
-        component: Component<MouseConfiguration>,
+        component: Component<PointerConfiguration>,
         container: Container,
         navigator: Navigator,
         viewportCoords: ViewportCoords) {
@@ -123,7 +123,7 @@ export class ScrollZoomHandler extends HandlerBase<MouseConfiguration> {
         this._zoomSubscription = null;
     }
 
-    protected _getConfiguration(enable: boolean): MouseConfiguration {
+    protected _getConfiguration(enable: boolean): PointerConfiguration {
         return { scrollZoom: enable };
     }
 }

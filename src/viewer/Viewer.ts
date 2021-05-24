@@ -289,7 +289,7 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * @example
      * ```js
-     * viewer.deactivateComponent("mouse");
+     * viewer.deactivateComponent("pointer");
      * ```
      */
     public deactivateComponent(
@@ -495,7 +495,7 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * @example
      * ```js
-     * var mouseComponent = viewer.getComponent("mouse");
+     * var pointerComponent = viewer.getComponent("pointer");
      * ```
      */
     public getComponent<TComponent extends Component<ComponentConfiguration>>(

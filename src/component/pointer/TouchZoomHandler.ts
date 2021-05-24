@@ -21,7 +21,7 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { TouchPinch } from "../../viewer/interfaces/TouchPinch";
 import { Component } from "../Component";
-import { MouseConfiguration } from "../interfaces/MouseConfiguration";
+import { PointerConfiguration } from "../interfaces/PointerConfiguration";
 import { HandlerBase } from "../util/HandlerBase";
 import { isSpherical } from "../../geo/Geo";
 
@@ -30,15 +30,15 @@ import { isSpherical } from "../../geo/Geo";
  *
  * @example
  * ```js
- * var mouseComponent = viewer.getComponent("mouse");
+ * var pointerComponent = viewer.getComponent("pointer");
  *
- * mouseComponent.touchZoom.disable();
- * mouseComponent.touchZoom.enable();
+ * pointerComponent.touchZoom.disable();
+ * pointerComponent.touchZoom.enable();
  *
- * var isEnabled = mouseComponent.touchZoom.isEnabled;
+ * var isEnabled = pointerComponent.touchZoom.isEnabled;
  * ```
  */
-export class TouchZoomHandler extends HandlerBase<MouseConfiguration> {
+export class TouchZoomHandler extends HandlerBase<PointerConfiguration> {
     private _viewportCoords: ViewportCoords;
 
     private _activeSubscription: Subscription;
@@ -47,7 +47,7 @@ export class TouchZoomHandler extends HandlerBase<MouseConfiguration> {
 
     /** @ignore */
     constructor(
-        component: Component<MouseConfiguration>,
+        component: Component<PointerConfiguration>,
         container: Container,
         navigator: Navigator,
         viewportCoords: ViewportCoords) {
@@ -128,7 +128,7 @@ export class TouchZoomHandler extends HandlerBase<MouseConfiguration> {
         this._zoomSubscription = null;
     }
 
-    protected _getConfiguration(enable: boolean): MouseConfiguration {
+    protected _getConfiguration(enable: boolean): PointerConfiguration {
         return { touchZoom: enable };
     }
 }

@@ -23,7 +23,7 @@ import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
-import { MouseConfiguration } from "../interfaces/MouseConfiguration";
+import { PointerConfiguration } from "../interfaces/PointerConfiguration";
 import { HandlerBase } from "../util/HandlerBase";
 import { Spatial } from "../../geo/Spatial";
 import * as ImageBoundary from "./ImageBoundary";
@@ -32,14 +32,14 @@ import * as ImageBoundary from "./ImageBoundary";
  * The `BounceHandler` ensures that the viewer bounces back to the image
  * when drag panning outside of the image edge.
  */
-export class BounceHandler extends HandlerBase<MouseConfiguration> {
+export class BounceHandler extends HandlerBase<PointerConfiguration> {
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
 
     private _bounceSubscription: Subscription;
 
     constructor(
-        component: Component<MouseConfiguration>,
+        component: Component<PointerConfiguration>,
         container: Container,
         navigator: Navigator,
         viewportCoords: ViewportCoords,
@@ -141,7 +141,7 @@ export class BounceHandler extends HandlerBase<MouseConfiguration> {
         this._bounceSubscription.unsubscribe();
     }
 
-    protected _getConfiguration(): MouseConfiguration {
+    protected _getConfiguration(): PointerConfiguration {
         return {};
     }
 }

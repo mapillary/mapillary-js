@@ -52,7 +52,7 @@ Then, you can run several commands:
 
 We recommend running `yarn test` to make sure you don’t introduce any regressions as you work on your change.
 
-The easiest way to try your changes is to run `yarn start` and open the debug page at [http://localhost:3000](http://localhost:3000).
+The easiest way to try your changes is to run `yarn start` and open the debug page at [http://localhost:8000](http://localhost:8000).
 
 However it can be handy to try your build of MapillaryJS in a real project. First, run `yarn build`. This will produce pre-built bundles in the `dist` folder.
 

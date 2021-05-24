@@ -41,7 +41,7 @@ function checkSupport() {
       cover: false,
       image: false,
       keyboard: false,
-      mouse: false,
+      pointer: false,
       sequence: false,
       zoom: false,
       fallback: {

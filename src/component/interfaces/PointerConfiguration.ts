@@ -9,7 +9,7 @@ import { ComponentConfiguration } from "./ComponentConfiguration";
  * var viewer = new Viewer({
  *     ...
  *     component: {
- *         mouse: {
+ *         pointer: {
  *             dragPan: false,
  *             scrollZoom: false,
  *             touchZoom: false,
@@ -19,7 +19,7 @@ import { ComponentConfiguration } from "./ComponentConfiguration";
  * });
  * ```
  */
-export interface MouseConfiguration extends ComponentConfiguration {
+export interface PointerConfiguration extends ComponentConfiguration {
     /**
      * Activate or deactivate the `DragPanHandler`.
      *

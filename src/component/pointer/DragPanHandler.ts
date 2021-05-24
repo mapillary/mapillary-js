@@ -27,7 +27,7 @@ import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { Component } from "../Component";
-import { MouseConfiguration } from "../interfaces/MouseConfiguration";
+import { PointerConfiguration } from "../interfaces/PointerConfiguration";
 import { HandlerBase } from "../util/HandlerBase";
 import { Spatial } from "../../geo/Spatial";
 import { EulerRotation } from "../../state/interfaces/EulerRotation";
@@ -41,15 +41,15 @@ import { isSpherical } from "../../geo/Geo";
  *
  * @example
  * ```js
- * var mouseComponent = viewer.getComponent("mouse");
+ * var pointerComponent = viewer.getComponent("pointer");
  *
- * mouseComponent.dragPan.disable();
- * mouseComponent.dragPan.enable();
+ * pointerComponent.dragPan.disable();
+ * pointerComponent.dragPan.enable();
  *
- * var isEnabled = mouseComponent.dragPan.isEnabled;
+ * var isEnabled = pointerComponent.dragPan.isEnabled;
  * ```
  */
-export class DragPanHandler extends HandlerBase<MouseConfiguration> {
+export class DragPanHandler extends HandlerBase<PointerConfiguration> {
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
 
@@ -61,7 +61,7 @@ export class DragPanHandler extends HandlerBase<MouseConfiguration> {
 
     /** @ignore */
     constructor(
-        component: Component<MouseConfiguration>,
+        component: Component<PointerConfiguration>,
         container: Container,
         navigator: Navigator,
         viewportCoords: ViewportCoords,
@@ -314,7 +314,7 @@ export class DragPanHandler extends HandlerBase<MouseConfiguration> {
         this._rotateSubscription = null;
     }
 
-    protected _getConfiguration(enable: boolean): MouseConfiguration {
+    protected _getConfiguration(enable: boolean): PointerConfiguration {
         return { dragPan: enable };
     }
 
