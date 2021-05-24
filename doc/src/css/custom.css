@@ -38,3 +38,9 @@
   background-color: var(--ifm-navbar-background-color);
   color: var(--ifm-font-color-base);
 }
+
+@import './log.css';
+
+.example-log-container .log-item {
+  border-left: 3px solid var(--ifm-color-primary);
+}

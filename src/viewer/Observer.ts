@@ -48,7 +48,7 @@ type UnprojectionParams = [
     LngLatAlt,
     Transform,
     State,
-]
+];
 
 export class Observer {
     private _started: boolean;
@@ -90,7 +90,7 @@ export class Observer {
                         navigable,
                         target: this._viewer,
                         type,
-                    }
+                    };
                     this._viewer.fire(type, event);
                 }));
 
@@ -102,7 +102,7 @@ export class Observer {
                         loading,
                         target: this._viewer,
                         type,
-                    }
+                    };
                     this._viewer.fire(type, event);
                 }));
 
@@ -114,7 +114,7 @@ export class Observer {
                     const event: ViewerLoadEvent = {
                         target: this._viewer,
                         type,
-                    }
+                    };
                     this._viewer.fire(type, event);
                 }));
     }
@@ -200,7 +200,7 @@ export class Observer {
                     image: image,
                     target: this._viewer,
                     type,
-                }
+                };
                 this._viewer.fire(type, event);
             }));
 
@@ -216,7 +216,7 @@ export class Observer {
                         status,
                         target: this._viewer,
                         type,
-                    }
+                    };
                     this._viewer.fire(type, event);
                 }));
 
@@ -232,7 +232,7 @@ export class Observer {
                         status,
                         target: this._viewer,
                         type,
-                    }
+                    };
                     this._viewer.fire(type, event);
                 }));
 
@@ -355,7 +355,7 @@ export class Observer {
                     const event: ViewerStateEvent = {
                         target: this._viewer,
                         type,
-                    }
+                    };
                     this._viewer.fire(type, event);
                 }));
 
@@ -374,7 +374,7 @@ export class Observer {
                     const event: ViewerStateEvent = {
                         target: this._viewer,
                         type,
-                    }
+                    };
                     this._viewer.fire(type, event);
                 }));
 

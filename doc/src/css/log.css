@@ -1,0 +1,38 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
+
+.example-log-container {
+  user-select: none;
+  color: #eee;
+  position: absolute;
+  top: 0px;
+  right: 12px;
+  width: 200px;
+  font: 10px 'Lucida Grande', sans-serif;
+}
+
+.example-log-container .header {
+  border-bottom: 1px solid #2c2c2c;
+  background-color: #000;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+}
+
+.example-log-container .log-item {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  background-color: #1a1a1a;
+  padding: 0 4px 0 5px;
+  height: 18px;
+  line-height: 18px;
+  border-bottom: 1px solid #2c2c2c;
+  border-left: 3px solid #1ed36f;
+}

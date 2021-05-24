@@ -17,7 +17,7 @@ slug: /
 | [Initialization](/examples/viewer-initialization) | Initialize the viewer in different ways and check if it is [navigable](/api/classes/viewer.viewer-1#isnavigable) |
 | [Options](/examples/viewer-options) | Configure appearance and behavior through [viewer](/api/interfaces/viewer.vieweroptions) and [component](/api/interfaces/viewer.componentoptions) options |
 | [Methods](/examples/viewer-methods) | Configure appearance and behavior with methods after initial [load](/api/classes/viewer.viewer-1#on) |
-| Events |  |
+| [Events](/examples/viewer-events) | Add event listeners and handle viewer [events](/api/modules/viewer#viewereventtype) |
 | Filtering |  |
 | Viewpoint | Center, zoom, and bearing |
 
