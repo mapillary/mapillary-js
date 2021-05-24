@@ -18,7 +18,7 @@ slug: /
 | [Options](/examples/viewer-options) | Configure appearance and behavior through [viewer](/api/interfaces/viewer.vieweroptions) and [component](/api/interfaces/viewer.componentoptions) options |
 | [Methods](/examples/viewer-methods) | Configure appearance and behavior with methods after initial [load](/api/classes/viewer.viewer-1#on) |
 | [Events](/examples/viewer-events) | Add event listeners and handle viewer [events](/api/modules/viewer#viewereventtype) |
-| Filtering |  |
+| [Filtering](/examples/viewer-filters) | [Filter](/api/classes/viewer.viewer-1#setfilter) what images are shown and can be navigated to |
 | Viewpoint | Center, zoom, and bearing |
 
 ### Image

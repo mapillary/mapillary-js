@@ -7,6 +7,13 @@
  * @format
  */
 
+.example-option-container {
+  width: 200px;
+  position: absolute;
+  top: 0px;
+  right: 12px;
+}
+
 .example-option-container .root,
 .example-option-container .folder,
 .example-option-container .controller {
@@ -23,15 +30,11 @@
 }
 
 .example-option-container .root {
-  width: 200px;
   text-align: center;
   height: 16px;
   line-height: 16px;
   border-right: 4px solid #000;
   margin-left: 4px;
-  position: absolute;
-  top: 0px;
-  right: 12px;
 }
 
 .example-option-container .folder {
@@ -51,23 +54,6 @@
   font: 10px 'Lucida Grande', sans-serif;
 }
 
-.example-option-container .controller.boolean {
-  border-left: 3px solid #806787;
-}
-
-.example-option-container .controller.option {
-  border-left: 3px solid #1ed36f;
-}
-
-.example-option-container .controller.boolean:hover {
-  background-color: #000;
-  cursor: pointer;
-}
-
-.example-option-container .controller.boolean div {
-  display: inline-block;
-}
-
 .example-option-container .controller span,
 .example-option-container .controller div {
   height: 20px;
@@ -77,6 +63,25 @@
 .example-option-container .controller span {
   width: 72px;
   display: inline-block;
+  user-select: none;
+}
+
+.example-option-container .controller.boolean {
+  border-left: 3px solid #e61d5f;
+}
+
+.example-option-container .controller.boolean:hover,
+.example-option-container .controller.function:hover {
+  background-color: #000;
+  cursor: pointer;
+}
+
+.example-option-container .controller.boolean div {
+  display: inline-block;
+}
+
+.example-option-container .controller.option {
+  border-left: 3px solid #1ed36f;
 }
 
 .example-option-container .controller.option input[type='checkbox'] {
@@ -86,4 +91,14 @@
 
 .example-option-container .controller.option select {
   font: 11px 'Lucida Grande', sans-serif;
+}
+
+.example-option-container .controller.function {
+  border-left: 3px solid #2fa1d6;
+  height: 20px;
+  line-height: 20px;
+}
+
+.example-option-container .controller.function span {
+  width: 100%;
 }

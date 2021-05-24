@@ -18,14 +18,14 @@ import {Folder} from '../options/Folder';
 import {BooleanController} from '../options/BooleanController';
 import {OptionController} from '../options/OptionController';
 
-let viewer;
-let settings;
-
 function makeFolder(container) {
   const folder = new Folder();
   container.appendChild(folder.container);
   return folder;
 }
+
+let viewer;
+let settings;
 
 function toggleComponent(value, name) {
   if (value) {
@@ -37,13 +37,13 @@ function toggleComponent(value, name) {
 
 export function init(opts) {
   const {accessToken, container} = opts;
+  const imageId = 'kcXKtxR_S3ISk0zNR_TDnA';
 
   viewer = new Viewer({
     apiClient: accessToken,
     component: {cover: false},
     container,
   });
-  const imageId = 'kcXKtxR_S3ISk0zNR_TDnA';
   viewer.moveTo(imageId).catch((error) => console.warn(error));
 
   settings = makeFolder(container);
