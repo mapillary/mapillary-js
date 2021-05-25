@@ -12,6 +12,8 @@ slug: /
 
 ## Viewer
 
+### Core Functionality
+
 | Example | Description |
 | --- | --- |
 | [Initialization](/examples/viewer-initialization) | Initialize the viewer in different ways and check if it is [navigable](/api/classes/viewer.viewer-1#isnavigable) |
@@ -20,6 +22,13 @@ slug: /
 | [Events](/examples/viewer-events) | Add event listeners and handle viewer [events](/api/modules/viewer#viewereventtype) |
 | [Filtering](/examples/viewer-filters) | Apply [filters](/api/classes/viewer.viewer-1#setfilter) to decide what images are shown and can be navigated to |
 | [Viewpoint](/examples/viewer-coordinates) | Control the viewer's [point](/api/classes/viewer.viewer-1#setcenter) and [field](/api/classes/viewer.viewer-1#setzoom) of view |
+
+### Map Synchronization
+
+| Example | Description |
+| --- | --- |
+| [Viewer to Map](/examples/viewer-to-map) | Update a [Mapbox](https://docs.mapbox.com/mapbox-gl-js/api/) map based on viewer position |
+| Map to Viewer | Navigate the viewer based on [Mapbox](https://docs.mapbox.com/mapbox-gl-js/api/) map interaction |
 
 ## Component
 

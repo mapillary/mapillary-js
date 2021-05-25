@@ -20,7 +20,7 @@ To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.
 Install the package via [Yarn](https://classic.yarnpkg.com) (or [npm](https://docs.npmjs.com/about-npm)).
 
 ```sh
-yarn add mapillary-js
+yarn add mapillary-js@next
 ```
 
 Use a CSS loader or include the CSS file in the `<head>` of your HTML file.
@@ -52,7 +52,7 @@ const viewer = new Viewer({
 Install the package via [Yarn](https://classic.yarnpkg.com) (or [npm](https://docs.npmjs.com/about-npm)).
 
 ```sh
-yarn add mapillary-js
+yarn add mapillary-js@next
 ```
 
 Use a CSS loader or include the CSS file in the `<head>` of your HTML file.
