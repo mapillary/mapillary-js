@@ -44,3 +44,5 @@
 .example-log-container .log-item {
   border-left: 3px solid var(--ifm-color-primary);
 }
+
+@import './mapbox.css';

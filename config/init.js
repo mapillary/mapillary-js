@@ -6,15 +6,26 @@ export const pathname = (dirname) => {
   return new URL(url).pathname;
 };
 
-const accessToken = process.env.ACCESS_TOKEN;
+const mapillaryAccessToken = process.env.MAPILLARY_ACCESS_TOKEN;
+const mapboxAccessToken = process.env.MAPBOX_ACCESS_TOKEN;
+
+const esmContent = `
+export const accessToken = '${mapillaryAccessToken}';
+export const mapboxAccessToken = '${mapboxAccessToken}';
+`;
+const umdContent = `
+var accessToken = '${mapillaryAccessToken}';
+var mapboxAccessToken = '${mapboxAccessToken}';
+`;
+
 const files = [
   {
     name: "token.js",
-    content: `export const accessToken = '${accessToken}';`,
+    content: esmContent,
   },
   {
     name: "token.umd.js",
-    content: `var accessToken = '${accessToken}';`,
+    content: umdContent,
   },
 ];
 

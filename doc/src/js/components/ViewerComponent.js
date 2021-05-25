@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import {accessToken} from '../../../.access-token/token';
+import {accessToken, mapboxAccessToken} from '../../../.access-token/token';
 
 import styles from './viewer.module.css';
 
@@ -22,6 +22,7 @@ export class ViewerComponent extends React.Component {
     const {init} = this.props;
     init({
       accessToken,
+      mapboxAccessToken,
       container: this.containerRef.current,
     });
   }

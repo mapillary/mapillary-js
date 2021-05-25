@@ -6,7 +6,7 @@ slug: /
 
 ## Overview
 
-This page is an overview of the MapillaryJS documentation and related resources.
+This page is an overview of the MapillaryJS `v4.x` documentation and related resources.
 
 ### Try MapillaryJS
 

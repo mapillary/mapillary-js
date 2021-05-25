@@ -31,6 +31,7 @@ const importer = (req, res, next) => {
     if (err) {
       res.sendStatus(404);
     } else {
+      data = data.replace("import mapboxgl from 'mapbox-gl';", "");
       const mapillary = / from \'.*\/mapillary.module\';/;
       data = data.replace(mapillary, " from '/dist/mapillary.module.js';");
 
