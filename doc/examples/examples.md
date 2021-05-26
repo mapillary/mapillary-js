@@ -34,10 +34,10 @@ slug: /
 
 ### Input
 
-| Example  | Description                                            |
-| -------- | ------------------------------------------------------ |
-| Pointer  | Activate and deactivate mouse, pen, and touch handlers |
-| Keyboard | Activate and deactivate keyboard handlers              |
+| Example | Description |
+| --- | --- |
+| [Pointer](/examples/component-pointer) | Activate and deactivate [mouse, pen, and touch handlers](/api/classes/component.pointercomponent#accessors) |
+| [Keyboard](/examples/component-keyboard) | Activate and deactivate [keyboard handlers](/api/classes/component.keyboardcomponent#accessors) |
 
 ### Spatial
 

@@ -25,7 +25,6 @@ function makeFolder(container) {
 }
 
 let viewer;
-let settings;
 
 function toggleComponent(value, name) {
   if (value) {
@@ -46,7 +45,7 @@ export function init(opts) {
   });
   viewer.moveTo(imageId).catch((error) => console.warn(error));
 
-  settings = makeFolder(container);
+  const settings = makeFolder(container);
 
   {
     // Component appearance

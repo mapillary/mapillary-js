@@ -5,9 +5,9 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "docusaurus build",
+    "build": "docusaurus build --out-dir build/mapillary-js",
     "build-api": "typedoc --entryDocument index.md --out api",
-    "build-docs": "docusaurus build  --config docusaurus.docs.config.js",
+    "build-docs": "yarn build --config docusaurus.docs.config.js",
     "build-mods": "yarn --cwd .. build && yarn copy-mods",
     "ci": "yarn lint && yarn prettier:diff",
     "clear": "yarn clear-api && docusaurus clear",
