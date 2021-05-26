@@ -46,6 +46,10 @@ module.exports = {
   ],
   themes: ['@docusaurus/theme-live-codeblock'],
   themeConfig: {
+    algolia: {
+      apiKey: 'babb57526d420b45135a3724e9cabb84',
+      indexName: 'mapillary',
+    },
     navbar: {
       title: 'MapillaryJS',
       logo: {
