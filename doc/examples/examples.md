@@ -27,8 +27,8 @@ slug: /
 
 | Example | Description |
 | --- | --- |
-| [Viewer to Map](/examples/viewer-to-map) | Update a [Mapbox](https://docs.mapbox.com/mapbox-gl-js/api/) map based on viewer position |
-| Map to Viewer | Navigate the viewer based on [Mapbox](https://docs.mapbox.com/mapbox-gl-js/api/) map interaction |
+| [Viewer to Map](/examples/viewer-to-map) | Update a [Mapbox](https://docs.mapbox.com/mapbox-gl-js/api/) map from viewer [position](/api/classes/viewer.viewer-1#getposition) and [field of view](/api/classes/viewer.viewer-1#getfieldofview) |
+| [Map to Viewer](/examples/viewer-from-map) | Navigate the viewer based on [Mapbox](https://docs.mapbox.com/mapbox-gl-js/api/) map interaction |
 
 ## Component
 
