@@ -11,10 +11,10 @@ import React from 'react';
 import Layout from '@theme/Layout';
 import {Code} from '../../js/components/Code';
 import {ViewerComponent} from '../../js/components/ViewerComponent';
-import {dispose, init} from '../../js/examples/component-pointer';
+import {dispose, init} from '../../js/examples/component-keyboard';
 
 export default function Example() {
-  const title = 'Component Pointer';
+  const title = 'Component Keyboard';
   return (
     <Layout title={title} noFooter="true">
       <ViewerComponent init={init} dispose={dispose} />
