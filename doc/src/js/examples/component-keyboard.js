@@ -46,34 +46,30 @@ export function init(opts) {
   const settings = makeFolder(container);
   const config = {...componentOptions.keyboard};
 
+  const handleChange = (handler) => {
+    return (value) => {
+      if (value) {
+        handler.enable();
+      } else {
+        handler.disable();
+      }
+    };
+  };
+
   {
     const folder = settings.addFolder({
       name: 'Sequence Keyboard Handlers',
       open: true,
     });
-
     folder.add(
       new BooleanController(config, 'keyPlay')
         .setName('Play')
-        .onChange((value) => {
-          if (value) {
-            pointerComponent.keyPlay.enable();
-          } else {
-            pointerComponent.keyPlay.disable();
-          }
-        }),
+        .onChange(handleChange(pointerComponent.keyPlay)),
     );
-
     folder.add(
       new BooleanController(config, 'keySequenceNavigation')
         .setName('Navigation')
-        .onChange((value) => {
-          if (value) {
-            pointerComponent.keySequenceNavigation.enable();
-          } else {
-            pointerComponent.keySequenceNavigation.disable();
-          }
-        }),
+        .onChange(handleChange(pointerComponent.keySequenceNavigation)),
     );
   }
 
@@ -82,29 +78,15 @@ export function init(opts) {
       name: 'Spatial Keyboard Handlers',
       open: true,
     });
-
     folder.add(
       new BooleanController(config, 'keyZoom')
         .setName('Zoom')
-        .onChange((value) => {
-          if (value) {
-            pointerComponent.keyZoom.enable();
-          } else {
-            pointerComponent.keyZoom.disable();
-          }
-        }),
+        .onChange(handleChange(pointerComponent.keyZoom)),
     );
-
     folder.add(
       new BooleanController(config, 'keySpatialNavigation')
         .setName('Navigation')
-        .onChange((value) => {
-          if (value) {
-            pointerComponent.keySpatialNavigation.enable();
-          } else {
-            pointerComponent.keySpatialNavigation.disable();
-          }
-        }),
+        .onChange(handleChange(pointerComponent.keySpatialNavigation)),
     );
   }
 }

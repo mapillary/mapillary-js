@@ -36,14 +36,14 @@ slug: /
 
 | Example | Description |
 | --- | --- |
-| [Pointer](/examples/component-pointer) | Activate and deactivate [mouse, pen, and touch handlers](/api/classes/component.pointercomponent#accessors) |
-| [Keyboard](/examples/component-keyboard) | Activate and deactivate [keyboard handlers](/api/classes/component.keyboardcomponent#accessors) |
+| [Pointer](/examples/component-pointer) | Activate and deactivate pan and zoom [pointer handlers](/api/classes/component.pointercomponent#accessors) |
+| [Keyboard](/examples/component-keyboard) | Activate and deactivate play, navigation, and zoom [keyboard handlers](/api/classes/component.keyboardcomponent#accessors) |
 
 ### Spatial
 
 | Example | Description |
-| ------- | ----------- |
-| Options |             |
+| --- | --- |
+| [Point cloud](/examples/component-spatial) | Visualize point clouds, undistorted camera frames, and use [earth controls](/api/enums/viewer.cameracontrols) |
 
 ### Marker
 
