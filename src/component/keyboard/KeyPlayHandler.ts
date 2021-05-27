@@ -117,6 +117,6 @@ export class KeyPlayHandler extends HandlerBase<KeyboardConfiguration> {
     }
 
     protected _getConfiguration(enable: boolean): KeyboardConfiguration {
-        return { keyZoom: enable };
+        return { keyPlay: enable };
     }
 }

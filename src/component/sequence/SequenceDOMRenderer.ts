@@ -354,20 +354,20 @@ export class SequenceDOMRenderer {
 
         let buttonProperties: vd.createProperties = { onclick: onclick };
 
-        let iconClass: string = configuration.playing ?
-            "mapillary-sequence-icon-stop" :
-            canPlay ? "mapillary-sequence-icon-play" : "mapillary-sequence-icon-play-inactive";
-
-        let iconProperties: vd.createProperties = { className: iconClass };
+        let iconProperties: vd.createProperties = {};
         if (configuration.direction === NavigationDirection.Prev) {
             iconProperties.style = {
                 transform: "rotate(180deg) translate(50%, 50%)",
             };
         }
 
-        let icon: vd.VNode = vd.h("div.mapillary-sequence-icon", iconProperties, []);
+        let icon = vd.h("div.mapillary-sequence-icon", iconProperties, []);
 
-        let buttonClass: string = canPlay ? "mapillary-sequence-play" : "mapillary-sequence-play-inactive";
+        let buttonClass = configuration.playing ?
+            "mapillary-sequence-stop" :
+            canPlay ?
+                "mapillary-sequence-play" :
+                "mapillary-sequence-play-inactive";
 
         return vd.h("div." + buttonClass, buttonProperties, [icon]);
     }
