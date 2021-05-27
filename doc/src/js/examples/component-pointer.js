@@ -45,40 +45,30 @@ export function init(opts) {
   const settings = makeFolder(container);
   const config = {...componentOptions.pointer};
 
+  const handleChange = (handler) => {
+    return (value) => {
+      if (value) {
+        handler.enable();
+      } else {
+        handler.disable();
+      }
+    };
+  };
+
   settings.add(
     new BooleanController(config, 'dragPan')
       .setName('Drag Pan')
-      .onChange((value) => {
-        if (value) {
-          pointerComponent.dragPan.enable();
-        } else {
-          pointerComponent.dragPan.disable();
-        }
-      }),
+      .onChange(handleChange(pointerComponent.dragPan)),
   );
-
   settings.add(
     new BooleanController(config, 'scrollZoom')
       .setName('Scroll Zoom')
-      .onChange((value) => {
-        if (value) {
-          pointerComponent.scrollZoom.enable();
-        } else {
-          pointerComponent.scrollZoom.disable();
-        }
-      }),
+      .onChange(handleChange(pointerComponent.scrollZoom)),
   );
-
   settings.add(
     new BooleanController(config, 'touchZoom')
       .setName('Touch Zoom')
-      .onChange((value) => {
-        if (value) {
-          pointerComponent.touchZoom.enable();
-        } else {
-          pointerComponent.touchZoom.disable();
-        }
-      }),
+      .onChange(handleChange(pointerComponent.touchZoom)),
   );
 }
 
