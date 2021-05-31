@@ -43,25 +43,7 @@ slug: /
 
 | Example | Description |
 | --- | --- |
-| [Point cloud](/examples/component-spatial) | Visualize point clouds, undistorted camera frames, and use [earth controls](/api/enums/viewer.cameracontrols) |
-
-### Marker
-
-| Example              | Description                         |
-| -------------------- | ----------------------------------- |
-| Add and drag markers |                                     |
-| Marker appearance    | Configure marker style and behavior |
-| Hovered markers      |                                     |
-| Map synchronization  |                                     |
-| One million markers  |                                     |
-
-### Popup
-
-| Example                  | Description |
-| ------------------------ | ----------- |
-| Display popups           |             |
-| Configure popups         |             |
-| Connect popups with tags |             |
+| [Point Cloud](/examples/component-spatial) | Visualize point clouds, undistorted camera frames, and use [earth controls](/api/enums/viewer.cameracontrols) |
 
 ### Tag
 
@@ -72,6 +54,23 @@ slug: /
 | Create tags           |                                   |
 | Listen to tag changes |                                   |
 | Hover tags            |                                   |
+
+### Popup
+
+| Example | Description |
+| --- | --- |
+| [Display Popups](/examples/component-popup) | Display [regular, floating](/api/classes/component.popup) and [custom, fixed](/api/interfaces/component.popupoptions) HTML popups |
+| Tag Popups | Connect popups to tags |
+
+### Marker
+
+| Example              | Description                         |
+| -------------------- | ----------------------------------- |
+| Add and drag markers |                                     |
+| Marker appearance    | Configure marker style and behavior |
+| Hovered markers      |                                     |
+| Map synchronization  |                                     |
+| One million markers  |                                     |
 
 ## Extension
 

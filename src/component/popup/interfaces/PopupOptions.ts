@@ -11,7 +11,7 @@ export interface PopupOptions {
     /**
      * Specify if the popup should capture pointer events.
      *
-     * @description If the popup is specifed to not capture
+     * @description If the popup is specified to not capture
      * pointer events the provided content can still override
      * this behavior for the individual content HTML elements
      * by specifying the appropriate CSS.
