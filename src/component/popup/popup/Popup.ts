@@ -75,7 +75,11 @@ export class Popup {
     private _dom: DOM;
     private _viewportCoords: ViewportCoords;
 
-    constructor(options?: PopupOptions, viewportCoords?: ViewportCoords, dom?: DOM) {
+    constructor(
+        options?: PopupOptions,
+        viewportCoords?: ViewportCoords,
+        dom?: DOM) {
+
         this._options = {};
 
         options = !!options ? options : {};
