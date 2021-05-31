@@ -60,7 +60,7 @@ slug: /
 | Example | Description |
 | --- | --- |
 | [Display Popups](/examples/component-popup) | Display [regular, floating](/api/classes/component.popup) and [custom, fixed](/api/interfaces/component.popupoptions) HTML popups |
-| Tag Popups | Connect popups to tags |
+| [Tag-Popup](/examples/component-popup-tag) | Connect popups to [point](/api/classes/component.popup#setbasicpoint) and [rectangle](/api/classes/component.popup#setbasicrect) tags |
 
 ### Marker
 
