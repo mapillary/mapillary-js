@@ -46,7 +46,7 @@ import { PopupAlignment } from "./PopupAlignment";
  *
  * var cleanPopup = new Popup({
  *     clean: true,
- *     float: mapillary.Alignment.Top,
+ *     float: Alignment.Top,
  *     offset: 10,
  *     opacity: 0.7,
  * });

@@ -30,9 +30,9 @@ export function init(opts) {
   };
 
   viewer = new Viewer(viewerOptions);
-  viewer.moveTo(imageId).catch((error) => console.warn(error));
-
   const popupComponent = viewer.getComponent('popup');
+
+  viewer.moveTo(imageId).catch((error) => console.warn(error));
 
   // Parking sign
   const signText = document.createElement('span');
@@ -49,7 +49,7 @@ export function init(opts) {
   meterContent.style.border = '2px solid red';
   meterContent.style.color = '#f00';
   meterContent.style.padding = '5px 10px';
-  meterContent.innerHTML = 'parking meter';
+  meterContent.textContent = 'parking meter';
 
   const meter = new Popup({
     capturePointer: false,
