@@ -1,0 +1,84 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
+
+.example-editor-toolbar {
+  color: #eee;
+  position: absolute;
+  top: 80px;
+  left: 24px;
+  width: 32px;
+  background-color: red;
+  cursor: pointer;
+}
+
+.example-editor-toolbar .button-translate,
+.example-editor-toolbar .button-rotate,
+.example-editor-toolbar .button-scale {
+  padding-left: 6px;
+}
+
+.example-editor-toolbar .button-translate,
+.example-editor-toolbar .button-rotate,
+.example-editor-toolbar .button-scale,
+.example-editor-toolbar .button-space {
+  height: 32px;
+  position: relative;
+  border-bottom: 1px solid #3f3f3f;
+  background-color: #2c2c2c;
+}
+
+.example-editor-toolbar .button-translate:hover,
+.example-editor-toolbar .button-rotate:hover,
+.example-editor-toolbar .button-scale:hover,
+.example-editor-toolbar .button-space:hover {
+  background-color: #000;
+}
+
+.example-editor-toolbar .icon-translate,
+.example-editor-toolbar .icon-rotate,
+.example-editor-toolbar .icon-scale {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  margin-top: 6px;
+}
+
+.example-editor-toolbar .icon-translate {
+  background-image: url('/img/examples/translate.svg');
+}
+
+.example-editor-toolbar .icon-rotate {
+  background-image: url('/img/examples/rotate.svg');
+}
+
+.example-editor-toolbar .icon-scale {
+  background-image: url('/img/examples/scale.svg');
+}
+
+.example-editor-toolbar .button-space {
+  text-align: center;
+}
+
+.example-editor-toolbar .button-space input[type='checkbox'] {
+  margin-top: 9.5px;
+  margin-left: 3px;
+  margin-right: 3px;
+}
+
+.example-editor-toolbar .button-translate.selected,
+.example-editor-toolbar .button-rotate.selected,
+.example-editor-toolbar .button-scale.selected {
+  background-color: #1ed36f;
+}
+
+.example-editor-toolbar .button-translate.selected:hover,
+.example-editor-toolbar .button-rotate.selected:hover,
+.example-editor-toolbar .button-scale.selected:hover {
+  background-color: #1ed36f;
+}

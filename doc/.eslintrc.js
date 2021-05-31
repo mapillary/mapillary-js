@@ -73,5 +73,6 @@ module.exports = {
         argsIgnorePattern: '^_',
       },
     ],
+    'max-classes-per-file': OFF,
   },
 };
