@@ -26,7 +26,11 @@ export function init(opts) {
   viewer = new Viewer(viewerOptions);
   viewer.moveTo(imageId).catch((error) => console.warn(error));
 
-  log = new Log({container, header: 'Event Log Tail (last 10 seconds)'});
+  log = new Log({
+    container,
+    header: 'Event Log Tail (last 10 seconds)',
+    timeout: 10,
+  });
 
   // Load events
   viewer.on('load', (event) => log.add(`'${event.type}`));

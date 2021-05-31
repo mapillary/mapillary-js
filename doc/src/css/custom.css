@@ -45,4 +45,6 @@
   border-left: 3px solid var(--ifm-color-primary);
 }
 
+@import './editor.css';
+
 @import './mapbox.css';

@@ -10,7 +10,7 @@
 export class Log {
   constructor(options) {
     this.size = options.size ?? 10;
-    this.timeout = options.timeout ?? 10;
+    this.timeout = options.timeout ?? 0;
     this.fifo = [];
 
     this.container = document.createElement('div');
@@ -50,12 +50,16 @@ export class Log {
     }
 
     const logItem = {container: log, timeoutId: null};
-    logItem.timeoutId = window.setTimeout(onTimeout(logItem), timeout * 1e3);
+    if (this.timeout > 0) {
+      logItem.timeoutId = window.setTimeout(onTimeout(logItem), timeout * 1e3);
+    }
     fifo.push(logItem);
   }
 
   clear() {
-    this.fifo.forEach((item) => window.clearTimeout(item.timeoutId));
+    if (this.timeout > 0) {
+      this.fifo.forEach((item) => window.clearTimeout(item.timeoutId));
+    }
     this.fifo = [];
   }
 }
