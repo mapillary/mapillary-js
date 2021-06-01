@@ -126,6 +126,7 @@ export function init(opts) {
   mapboxgl.accessToken = mapboxAccessToken;
   map = new mapboxgl.Map({
     container: containers.map,
+    pitch: 45,
     style: 'mapbox://styles/mapbox/streets-v11',
     zoom: 18,
   });
