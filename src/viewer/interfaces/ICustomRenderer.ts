@@ -110,10 +110,10 @@ export interface ICustomRenderer {
      * [WebGL model view projection article](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_model_view_projection)
      * on MDN for an introduction to the view and projection matrices.
      *
-     * @param {WebGLRenderingContext | WebGL2RenderingContext} context -
-     * The viewer's gl context.
-     * @param {Array<number>} viewMatrix - The viewer's view matrix.
-     * @param {Array<number>} projectionMatrix - The viewers's projection
+     * @param {WebGLRenderingContext | WebGL2RenderingContext} context The
+     * viewer's WebGL context.
+     * @param {Array<number>} viewMatrix The viewer's view matrix.
+     * @param {Array<number>} projectionMatrix The viewers's projection
      * matrix.
      */
     render(
