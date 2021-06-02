@@ -49,8 +49,8 @@ slug: /
 
 | Example | Description |
 | --- | --- |
-| [Display](/examples/component-tag) | Display and configure [point](/api/classes/component.pointgeometry), [polygon](https://mapillary.github.io/mapillary-js/api/classes/component.polygongeometry) and [rectangle](/api/classes/component.rectgeometry) 2D [tags](/api/classes/component.tag) |
-| Create |  |
+| [Display](/examples/component-tag) | Display and configure [point](/api/classes/component.pointgeometry), [polygon](https://mapillary.github.io/mapillary-js/api/classes/component.polygongeometry) and [rectangle](/api/classes/component.rectgeometry) image [tags](/api/classes/component.tag) |
+| [Create](/examples/component-tag-create) | Create [spot](/api/classes/component.spottag), [outline](/api/classes/component.outlinetag), and [extreme point](/api/classes/component.extremepointtag) tags from user input |
 | Interact |  |
 
 ### Popup
