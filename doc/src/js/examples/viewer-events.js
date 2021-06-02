@@ -28,8 +28,8 @@ export function init(opts) {
 
   log = new Log({
     container,
-    header: 'Event Log Tail (last 10 seconds)',
-    timeout: 10,
+    header: 'Event Log Tail (last 30 seconds)',
+    timeout: 30,
   });
 
   // Load events

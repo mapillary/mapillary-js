@@ -345,10 +345,10 @@ export class TagComponent extends Component<TagConfiguration> {
      * @description The method only has an effect when the tag
      * mode is either of the following modes:
      *
-     * TagMode.CreatePoints
-     * TagMode.CreatePolygon
-     * TagMode.CreateRect
-     * TagMode.CreateRectDrag
+     * {@link TagMode.CreatePoints}
+     * {@link TagMode.CreatePolygon}
+     * {@link TagMode.CreateRect}
+     * {@link TagMode.CreateRectDrag}
      *
      * In the case of points or polygon creation, only the created
      * vertices are used, i.e. the mouse position is disregarded.

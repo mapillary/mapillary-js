@@ -17,6 +17,14 @@
   font: 10px 'Lucida Grande', sans-serif;
 }
 
+.example-log-container.option-child {
+  top: initial;
+  right: initial;
+  margin-left: 4px;
+  width: 196px;
+  font: 10px 'Lucida Grande', sans-serif;
+}
+
 .example-log-container .header {
   border-bottom: 1px solid #2c2c2c;
   background-color: #000;

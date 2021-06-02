@@ -51,7 +51,7 @@ slug: /
 | --- | --- |
 | [Display](/examples/component-tag) | Display and configure [point](/api/classes/component.pointgeometry), [polygon](https://mapillary.github.io/mapillary-js/api/classes/component.polygongeometry) and [rectangle](/api/classes/component.rectgeometry) image [tags](/api/classes/component.tag) |
 | [Create](/examples/component-tag-create) | Create [spot](/api/classes/component.spottag), [outline](/api/classes/component.outlinetag), and [extreme point](/api/classes/component.extremepointtag) tags from user input |
-| Interact |  |
+| [Interact](/examples/component-tag-interact) | Listen to tag [events](/api/classes/component.tagcomponent#events) and use the tag component [methods](/api/classes/component.tagcomponent#methods) |
 
 ### Popup
 
