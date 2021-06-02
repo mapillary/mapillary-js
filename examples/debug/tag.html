@@ -56,7 +56,7 @@
                 apiClient: accessToken,
                 component: { cover: false, tag: true },
                 container: "mly",
-                imageId: "zarcRdNFZwg3FkXNcsFeGw",
+                imageId: "GlwvajfC7oML4PkLzHrB7g",
                 renderMode: RenderMode.Letterbox,
             });
 
@@ -103,8 +103,8 @@
 
             let createdTags = {};
 
-            function onTagGeometryChanged(tag) {
-                return;
+            function onGeometry(event) {
+                console.log(event.target.geometry);
             }
 
             let createdIndex = 0;
@@ -122,7 +122,7 @@
                 };
 
                 let tag = new OutlineTag(id, geometry, options);
-                tag.on("geometrychanged", onTagGeometryChanged);
+                tag.on("geometry", onGeometry);
 
                 return tag;
             }
@@ -137,7 +137,7 @@
                 };
 
                 let tag = new SpotTag(id, geometry, options);
-                tag.on("geometrychanged", onTagGeometryChanged);
+                tag.on("geometry", onGeometry);
 
                 return tag;
             }
