@@ -1,5 +1,5 @@
 export class EventEmitter {
-    private _events: { [type: string]: ((event: any) => void)[] };
+    private _events: { [type: string]: ((event: any) => void)[]; };
 
     constructor() { this._events = {}; }
 
@@ -29,16 +29,14 @@ export class EventEmitter {
         handler: (event: T) => void): void {
         if (!type) { this._events = {}; return; }
 
-        if (!this._listens(type)) {
+        if (this._listens(type)) {
             const index = this._events[type].indexOf(handler);
             if (index >= 0) {
                 this._events[type].splice(index, 1);
             }
-            if (this._events[type].length) {
+            if (!this._events[type].length) {
                 delete this._events[type];
             }
-        } else {
-            delete this._events[type];
         }
     }
 
@@ -49,8 +47,8 @@ export class EventEmitter {
         type: string,
         event: T): void {
         if (!this._listens(type)) { return; }
-        for (let fn of this._events[type]) {
-            fn.call(this, event);
+        for (const handler of this._events[type]) {
+            handler(event);
         }
     }
 
