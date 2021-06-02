@@ -15,6 +15,11 @@ export class Log {
 
     this.container = document.createElement('div');
     this.container.classList.add('example-log-container');
+    if (options.classList) {
+      for (const className of options.classList) {
+        this.container.classList.add(className);
+      }
+    }
     this.header = document.createElement('div');
     this.header.classList.add('header');
     this.header.textContent = options.header;

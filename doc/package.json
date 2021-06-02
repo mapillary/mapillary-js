@@ -20,6 +20,7 @@
     "lint": "eslint --cache \"**/*.js\" && stylelint \"**/*.css\"",
     "prettier": "prettier --config .prettierrc --write \"**/*.{js,jsx,ts,tsx,md,mdx}\"",
     "prettier:diff": "prettier --config .prettierrc --list-different \"**/*.{js,jsx,ts,tsx,md,mdx}\"",
+    "rebuild": "yarn clear-all && yarn build-mods && yarn build",
     "serve": "docusaurus serve",
     "start": "docusaurus start",
     "start-docs": "docusaurus start --config docusaurus.docs.config.js",
