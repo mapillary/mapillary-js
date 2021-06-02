@@ -47,30 +47,28 @@ slug: /
 
 ### Tag
 
-| Example               | Description                       |
-| --------------------- | --------------------------------- |
-| Show tags             | Show point, polygon and rect tags |
-| Configure tags        |                                   |
-| Create tags           |                                   |
-| Listen to tag changes |                                   |
-| Hover tags            |                                   |
+| Example | Description |
+| --- | --- |
+| [Display](/examples/component-tag) | Display and configure [point](/api/classes/component.pointgeometry), [polygon](https://mapillary.github.io/mapillary-js/api/classes/component.polygongeometry) and [rectangle](/api/classes/component.rectgeometry) 2D [tags](/api/classes/component.tag) |
+| Create |  |
+| Interact |  |
 
 ### Popup
 
 | Example | Description |
 | --- | --- |
-| [Display Popups](/examples/component-popup) | Display [regular, floating](/api/classes/component.popup) and [custom, fixed](/api/interfaces/component.popupoptions) HTML popups |
-| [Tag-Popup](/examples/component-popup-tag) | Connect popups to [point](/api/classes/component.popup#setbasicpoint) and [rectangle](/api/classes/component.popup#setbasicrect) tags |
+| [Display](/examples/component-popup) | Display [regular, floating](/api/classes/component.popup) and [custom, fixed](/api/interfaces/component.popupoptions) HTML popups |
+| [Connect Tags](/examples/component-popup-tag) | Connect popups to [point](/api/classes/component.popup#setbasicpoint) and [rectangle](/api/classes/component.popup#setbasicrect) tags |
 
 ### Marker
 
-| Example              | Description                         |
-| -------------------- | ----------------------------------- |
-| Add and drag markers |                                     |
-| Marker appearance    | Configure marker style and behavior |
-| Hovered markers      |                                     |
-| Map synchronization  |                                     |
-| One million markers  |                                     |
+| Example             | Description                         |
+| ------------------- | ----------------------------------- |
+| Add                 |                                     |
+| Appearance          | Configure marker style and behavior |
+| Interact            |                                     |
+| Map Synchronization |                                     |
+| One Million         |                                     |
 
 ## Extension
 

@@ -21,8 +21,9 @@ export class Folder {
     if (options.open) {
       this.folder.classList.add('active');
     }
+    const rootName = options.open ? 'Close Controls' : 'Open Controls';
     this.name = document.createElement('span');
-    this.name.textContent = options.parent ? options.name : 'Open Controls';
+    this.name.textContent = options.parent ? options.name : rootName;
     this.folder.appendChild(this.name);
 
     this.content = document.createElement('div');
