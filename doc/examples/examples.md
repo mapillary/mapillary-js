@@ -64,7 +64,7 @@ slug: /
 
 | Example | Description |
 | --- | --- |
-| Display | Display markers with different appearance and behavior |
+| [Display](/examples/component-marker) | Display markers with different [appearance](/api/interfaces/component.simplemarkeroptions) and [behavior](/api/classes/component.markercomponent#getmarkeridat) |
 | Map Synchronization | Create and edit markers in the viewer or on a map and keep it synchronized |
 | [Million](/examples/component-marker-million) | Add one million draggable markers to the spatial index without affecting performance |
 

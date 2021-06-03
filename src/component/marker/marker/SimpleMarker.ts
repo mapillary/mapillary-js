@@ -80,6 +80,8 @@ export class SimpleMarker extends Marker {
             }));
         interactive.position.z = height;
 
+        interactive.renderOrder = 1;
+
         const group = new THREE.Object3D();
         group.add(interactive);
         group.add(marker);
