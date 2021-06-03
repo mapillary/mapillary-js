@@ -65,8 +65,8 @@ slug: /
 | Example | Description |
 | --- | --- |
 | [Display](/examples/component-marker) | Display markers with different [appearance](/api/interfaces/component.simplemarkeroptions) and [behavior](/api/classes/component.markercomponent#getmarkeridat) |
-| Map Synchronization | Create and edit markers in the viewer or on a map and keep it synchronized |
-| [Million](/examples/component-marker-million) | Add one million draggable markers to the spatial index without affecting performance |
+| [Map Synchronization](/examples/component-marker-map) | Create and edit markers in the viewer and a [Mapbox](https://docs.mapbox.com/mapbox-gl-js/api/) map and keep them [synchronized](/api/classes/component.markercomponent#on) |
+| [Million](/examples/component-marker-million) | Add one million [interactive](/api/interfaces/component.simplemarkeroptions#interactive) markers to the spatial index without affecting performance |
 
 ## Extension
 
