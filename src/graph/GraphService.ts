@@ -32,6 +32,7 @@ import { Sequence } from "./Sequence";
 import { LngLat } from "../api/interfaces/LngLat";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { ProviderCellEvent } from "../api/events/ProviderCellEvent";
+import { GraphMapillaryError } from "../error/GraphMapillaryError";
 
 /**
  * @class GraphService
@@ -237,6 +238,10 @@ export class GraphService {
                 }),
             tap(
                 (graph: Graph): void => {
+                    if (!graph.hasNode(id)) {
+                        throw new GraphMapillaryError(`Failed to cache image (${id})`);
+                    }
+
                     if (!graph.hasInitializedCache(id)) {
                         graph.initializeCache(id);
                     }
@@ -604,7 +609,7 @@ export class GraphService {
                             tap(() => { graph.resetSpatialEdges(); }));
                     }))
             .subscribe(cellId => { this._dataAdded$.next(cellId); });
-    }
+    };
 
     private _removeFromArray<T>(object: T, objects: T[]): void {
         const index: number = objects.indexOf(object);

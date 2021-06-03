@@ -26,6 +26,7 @@ import { Sequence } from "../../src/graph/Sequence";
 import { DataProvider } from "../helper/ProviderHelper";
 import { LngLat } from "../../src/api/interfaces/LngLat";
 import { ProviderEventType } from "../../src/api/events/ProviderEventType";
+import { GraphMapillaryError } from "../../src/error/GraphMapillaryError";
 
 describe("GraphService.ctor", () => {
     it("should create a graph service", () => {
@@ -116,7 +117,7 @@ describe("GraphService.dataAdded$", () => {
             type: "datacreate",
             target: dataProvider,
             cellIds: ["cellId"],
-        })
+        });
     });
 
     it("should reset spatial edges for each updated cell", (done: Function) => {
@@ -151,7 +152,7 @@ describe("GraphService.dataAdded$", () => {
             type,
             target: dataProvider,
             cellIds: cellIds.slice(),
-        })
+        });
     });
 });
 
@@ -406,7 +407,7 @@ describe("GraphService.graphMode$", () => {
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
-        spyOn(graph, "hasNode").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValues(false, true);
 
         const cacheFull$: Subject<Graph> = new Subject<Graph>();
         const cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
@@ -496,12 +497,45 @@ describe("GraphService.cacheNode$", () => {
         helper = new ImageHelper();
     });
 
+    it("should throw if node did not exist", (done: Function) => {
+        spyOn(console, "error").and.stub();
+
+        const api = new APIWrapper(new DataProvider());
+        const graph = new Graph(api);
+
+        spyOn(graph, "isCachingFull").and.returnValue(false);
+        const hasNodeSpy = spyOn(graph, "hasNode")
+            .and.returnValues(false, false);
+
+        const cacheFull$ = new Subject<Graph>();
+        const cacheFullSpy = spyOn(graph, "cacheFull$");
+        cacheFullSpy.and.returnValue(cacheFull$);
+
+        const graphService = new GraphService(graph);
+
+        const image = new TestNode(helper.createCoreImageEnt());
+
+        graphService.cacheImage$(image.id)
+            .subscribe(
+                (): void => fail(),
+                (error): void => {
+                    expect(error).toBeInstanceOf(GraphMapillaryError);
+                    expect(cacheFullSpy.calls.count()).toBe(1);
+                    expect(hasNodeSpy.calls.count()).toBe(2);
+
+                    done();
+                });
+
+        cacheFull$.next(graph);
+    });
+
+
     it("should cache and return image", (done: Function) => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
-        spyOn(graph, "hasNode").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValues(false, true);
 
         const cacheFull$: Subject<Graph> = new Subject<Graph>();
         const cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
@@ -602,7 +636,7 @@ describe("GraphService.cacheNode$", () => {
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
-        spyOn(graph, "hasNode").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValues(false, true);
 
         const cacheFull$: Subject<Graph> = new Subject<Graph>();
         spyOn(graph, "cacheFull$").and.returnValue(cacheFull$);
@@ -653,7 +687,7 @@ describe("GraphService.cacheNode$", () => {
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
-        spyOn(graph, "hasNode").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValues(false, true);
 
         const cacheFull$: Subject<Graph> = new Subject<Graph>();
         spyOn(graph, "cacheFull$").and.returnValue(cacheFull$);
@@ -692,7 +726,7 @@ describe("GraphService.cacheNode$", () => {
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
-        spyOn(graph, "hasNode").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValues(false, true);
 
         const cacheFull$: Subject<Graph> = new Subject<Graph>();
         spyOn(graph, "cacheFull$").and.returnValue(cacheFull$);
@@ -734,7 +768,7 @@ describe("GraphService.cacheNode$", () => {
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
-        spyOn(graph, "hasNode").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValues(false, true);
 
         const cacheFull$: Subject<Graph> = new Subject<Graph>();
         spyOn(graph, "cacheFull$").and.returnValue(cacheFull$);
@@ -780,7 +814,7 @@ describe("GraphService.reset$", () => {
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
-        spyOn(graph, "hasNode").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValues(false, true);
 
         const cacheFull$: Subject<Graph> = new Subject<Graph>();
         const cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
@@ -836,7 +870,7 @@ describe("GraphService.reset$", () => {
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
-        spyOn(graph, "hasNode").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValues(false, true);
 
         const cacheFull$: Subject<Graph> = new Subject<Graph>();
         const cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
@@ -894,7 +928,7 @@ describe("GraphService.reset$", () => {
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
-        spyOn(graph, "hasNode").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValues(false, true);
 
         const cacheFull$: Subject<Graph> = new Subject<Graph>();
         const cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
@@ -979,7 +1013,7 @@ describe("GraphService.setFilter$", () => {
         const graph: Graph = new Graph(api);
 
         spyOn(graph, "isCachingFull").and.returnValue(false);
-        spyOn(graph, "hasNode").and.returnValue(false);
+        spyOn(graph, "hasNode").and.returnValues(false, true);
 
         const cacheFull$: Subject<Graph> = new Subject<Graph>();
         const cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
