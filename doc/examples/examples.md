@@ -62,13 +62,11 @@ slug: /
 
 ### Marker
 
-| Example             | Description                         |
-| ------------------- | ----------------------------------- |
-| Add                 |                                     |
-| Appearance          | Configure marker style and behavior |
-| Interact            |                                     |
-| Map Synchronization |                                     |
-| One Million         |                                     |
+| Example | Description |
+| --- | --- |
+| Display | Display markers with different appearance and behavior |
+| Map Synchronization | Create and edit markers in the viewer or on a map and keep it synchronized |
+| [Million](/examples/component-marker-million) | Add one million draggable markers to the spatial index without affecting performance |
 
 ## Extension
 
