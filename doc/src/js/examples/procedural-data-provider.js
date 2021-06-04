@@ -265,6 +265,7 @@ let viewer;
 export function init(opts) {
   const {container} = opts;
 
+  const imageId = 'image|fisheye|0';
   const dataProvider = new ProceduralDataProvider();
   const options = {
     dataProvider,
@@ -277,7 +278,7 @@ export function init(opts) {
     imageTiling: false,
   };
   viewer = new Viewer(options);
-  viewer.moveTo('image|fisheye|0').catch((error) => console.error(error));
+  viewer.moveTo(imageId).catch((error) => console.error(error));
 }
 
 export function dispose() {

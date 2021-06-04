@@ -51,6 +51,8 @@
             } from "/dist/mapillary.module.js";
             import { accessToken } from "/doc-src/.access-token/token.js";
 
+            const imageId = "147617667372938";
+
             // Setup map
             const map = L.map("map").setView(
                 [56.04351888068181, 12.695600612967427],
@@ -68,14 +70,14 @@
 
             // Setup viewer
             const mly = new Viewer({
-                apiClient: accessToken,
+                accessToken,
                 component: {
                     marker: { visibleBBoxSize: 100 },
                 },
                 container: "mly",
             });
 
-            mly.moveTo("6Zhtztzt67fWmdd4OYH44w").then(
+            mly.moveTo(imageId).then(
                 () => {
                     /* noop */
                 },

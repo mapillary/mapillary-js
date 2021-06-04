@@ -27,10 +27,10 @@ let settings;
 
 export function init(opts) {
   const {accessToken, container} = opts;
-  const imageId = 'zSjQF6Pr7szFL2dVLBCmeg';
+  const imageId = '812898706331239';
 
   const viewerOptions = {
-    apiClient: accessToken,
+    accessToken,
     component: {cover: false},
     container,
   };

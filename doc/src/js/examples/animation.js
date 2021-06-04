@@ -121,8 +121,10 @@ let viewer;
 
 export function init(opts) {
   const {accessToken, container} = opts;
+
+  const imageId = '3748064795322267';
   const options = {
-    apiClient: accessToken,
+    accessToken,
     component: {cover: false},
     container,
   };
@@ -140,9 +142,7 @@ export function init(opts) {
   const cubeRenderer = new RotatingCubeRenderer(cube);
   viewer.addCustomRenderer(cubeRenderer);
 
-  viewer
-    .moveTo('H_g2NFQvEXdGGyTjY27FMA')
-    .catch((error) => console.error(error));
+  viewer.moveTo(imageId).catch((error) => console.error(error));
 }
 
 export function dispose() {

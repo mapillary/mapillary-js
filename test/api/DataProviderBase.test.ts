@@ -130,6 +130,28 @@ describe("DataProviderBase.getArrayBuffer", () => {
                 });
 
         requestMock.status = 404;
+        requestMock.onload(undefined);
+    });
+
+    test("should reject with response", (done: Function) => {
+        const requestMock: XMLHTTPRequestMock = new XMLHTTPRequestMock();
+        spyOn(window, <keyof Window>"XMLHttpRequest").and.returnValue(requestMock);
+
+        const abort: Promise<void> = new Promise((_, __): void => { /*noop*/ });
+        const provider: DataProvider = new DataProvider();
+
+        const response = { code: 1 };
+
+        provider.getArrayBuffer(abort)
+            .then(
+                undefined,
+                (reason: Error): void => {
+                    expect(reason).toBe(response);
+
+                    done();
+                });
+
+        requestMock.status = 500;
         requestMock.response = response;
         requestMock.onload(undefined);
     });

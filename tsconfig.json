@@ -2,27 +2,17 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "declaration": true,
-    "lib": [
-      "es6",
-      "dom"
-    ],
+    "lib": ["es6", "dom"],
     "module": "es6",
     "moduleResolution": "node",
     "noImplicitAny": true,
     "outDir": "build/esm/",
     "sourceMap": true,
     "target": "es6",
-    "typeRoots": [
-      "node_modules/@types",
-      "types",
-      "types/@mapbox"
-    ],
+    "typeRoots": ["node_modules/@types", "types", "types/@mapbox"],
     "types": [
       "earcut",
-      "falcor",
-      "falcor-http-datasource",
       "jest",
-      "latlon-geohash",
       "node",
       "pbf",
       "polylabel",
@@ -33,8 +23,5 @@
       "virtual-dom"
     ]
   },
-  "include": [
-    "src/**/*",
-    "test/**/*"
-  ]
+  "include": ["src/**/*", "test/**/*"]
 }

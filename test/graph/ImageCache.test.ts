@@ -2,7 +2,6 @@ import {
     first,
     skip,
 } from "rxjs/operators";
-import { FalcorDataProvider } from "../../src/api/falcor/FalcorDataProvider";
 import { NavigationDirection } from "../../src/graph/edge/NavigationDirection";
 import { NavigationEdge } from "../../src/graph/edge/interfaces/NavigationEdge";
 import { NavigationEdgeStatus }
@@ -10,6 +9,7 @@ import { NavigationEdgeStatus }
 import { ImageCache } from "../../src/graph/ImageCache";
 import { MockCreator } from "../helper/MockCreator";
 import { ImageHelper } from "../helper/ImageHelper";
+import { DataProvider } from "../helper/ProviderHelper";
 
 global.URL.createObjectURL = jest.fn();
 
@@ -223,7 +223,7 @@ describe("ImageCache.cacheImage$", () => {
             },
         };
 
-        const dataProvider = new FalcorDataProvider({ clientId: "cid" });
+        const dataProvider = new DataProvider();
         spyOn(dataProvider, "getImageBuffer").and.returnValue(promise);
 
         const imageMock: HTMLImageElement = new Image();
@@ -257,7 +257,7 @@ describe("ImageCache.cacheImage$", () => {
             },
         };
 
-        const dataProvider = new FalcorDataProvider({ clientId: "cid" });
+        const dataProvider = new DataProvider();
         spyOn(dataProvider, "getImageBuffer").and.returnValue(promise);
 
         const imageMock: HTMLImageElement = new Image();
@@ -287,7 +287,7 @@ describe("ImageCache.cacheImage$", () => {
             },
         };
 
-        const dataProvider = new FalcorDataProvider({ clientId: "cid" });
+        const dataProvider = new DataProvider();
         spyOn(dataProvider, "getImageBuffer").and.returnValue(promise);
 
         const imageMock: HTMLImageElement = new Image();

@@ -25,7 +25,6 @@ import { ViewerOptions } from "./options/ViewerOptions";
 
 import { APIWrapper } from "../api/APIWrapper";
 import { DataProviderBase } from "../api/DataProviderBase";
-import { FalcorDataProvider } from "../api/falcor/FalcorDataProvider";
 import { CancelMapillaryError } from "../error/CancelMapillaryError";
 import { FilterExpression } from "../graph/FilterExpression";
 import { Graph } from "../graph/Graph";
@@ -37,6 +36,7 @@ import { StateService } from "../state/StateService";
 import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { cameraControlsToState } from "./Modes";
 import { CameraControls } from "./enums/CameraControls";
+import { GraphDataProvider } from "../api/provider/GraphDataProvider";
 
 export class Navigator {
     private _api: APIWrapper;
@@ -75,9 +75,8 @@ export class Navigator {
                 throw new Error("Incorrect type: 'dataProvider' must extend the DataProviderBase class.");
             }
         } else {
-            this._api = new APIWrapper(new FalcorDataProvider({
-                clientId: options.apiClient,
-                userAccessToken: options.accessToken,
+            this._api = new APIWrapper(new GraphDataProvider({
+                accessToken: options.accessToken,
             }));
         }
 

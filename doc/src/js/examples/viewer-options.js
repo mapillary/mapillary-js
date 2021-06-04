@@ -31,12 +31,12 @@ export function init(opts) {
     zoom: false,
   };
   const viewerOptions = {
-    apiClient: accessToken,
+    accessToken,
     cameraControls: CameraControls.Street,
     combinedPanning: false,
     component: componentOptions,
     container,
-    imageId: 'vBcUqs0vPik9KAb1TFq6iw',
+    imageId: '1211723002580553',
     imageTiling: false,
     renderMode: RenderMode.Letterbox,
     trackResize: false,

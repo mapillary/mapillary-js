@@ -77,6 +77,7 @@ function render(props) {
   function init(opts) {
     const {container} = opts;
 
+    const imageId = 'image|fisheye|0';
     const geometry = new S2GeometryProvider(19);
     const dataProvider = new procedural.ProceduralDataProvider(geometry);
     const options = {
@@ -90,7 +91,7 @@ function render(props) {
       container,
     };
     viewer = new Viewer(options);
-    viewer.moveTo('image|fisheye|0').catch(mapillaryErrorHandler);
+    viewer.moveTo(imageId).catch(mapillaryErrorHandler);
   }
 
   function dispose() {

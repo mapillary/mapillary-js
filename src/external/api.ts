@@ -20,14 +20,11 @@ export {
 
 // Provider
 export { DataProviderBase } from "../api/DataProviderBase";
-export { GeohashGeometryProvider } from "../api/GeohashGeometryProvider";
 export { GeometryProviderBase } from "../api/GeometryProviderBase";
+export { GraphDataProvider } from "../api/provider/GraphDataProvider";
+export { GraphDataProviderOptions }
+    from "../api/provider/GraphDataProviderOptions";
 export { S2GeometryProvider } from "../api/S2GeometryProvider";
-
-// Falcor
-export { FalcorDataProvider } from "../api/falcor/FalcorDataProvider";
-export { FalcorDataProviderOptions }
-    from "../api/falcor/FalcorDataProviderOptions";
 
 // Event
 export { ProviderCellEvent } from "../api/events/ProviderCellEvent";

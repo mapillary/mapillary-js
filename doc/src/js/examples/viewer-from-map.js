@@ -19,7 +19,7 @@ const SOURCE = {
       {
         type: 'Feature',
         properties: {
-          imageId: 'xdc6J0WyCHJ5oUusuLULG3',
+          imageId: '1155477361601810',
         },
         geometry: {
           type: 'Point',
@@ -29,7 +29,7 @@ const SOURCE = {
       {
         type: 'Feature',
         properties: {
-          imageId: 'UuqKA68FhDxPZY5ZSiorza',
+          imageId: '210400870916819',
         },
         geometry: {
           type: 'Point',
@@ -39,7 +39,7 @@ const SOURCE = {
       {
         type: 'Feature',
         properties: {
-          imageId: 'LlQd0yvaEZOm9ukjFK2GKQ',
+          imageId: '1088588038329507',
         },
         geometry: {
           type: 'Point',
@@ -49,7 +49,7 @@ const SOURCE = {
       {
         type: 'Feature',
         properties: {
-          imageId: 'R2OpBhi70--i1QwZg3plyg',
+          imageId: '136571571843306',
         },
         geometry: {
           type: 'Point',
@@ -125,7 +125,7 @@ export function init(opts) {
 
   const containers = makeContainers(container);
   const viewerOptions = {
-    apiClient: accessToken,
+    accessToken,
     component: {
       cover: false,
     },

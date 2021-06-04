@@ -145,14 +145,14 @@ let viewer;
 
 export function init(opts) {
   const {accessToken, container} = opts;
-  const imageId = 'GlwvajfC7oML4PkLzHrB7g';
+  const imageId = '1370255906687696';
 
   const componentOptions = {
     cover: false,
     tag: true,
   };
   const viewerOptions = {
-    apiClient: accessToken,
+    accessToken,
     component: componentOptions,
     container,
   };

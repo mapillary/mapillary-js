@@ -49,15 +49,17 @@
             (function main() {
                 checkSupport();
 
+                const imageId = "303729947926829";
+
                 const container = document.createElement("div");
                 container.className = "viewer";
                 document.body.append(container);
 
                 const viewer = new Viewer({
-                    apiClient: accessToken,
+                    accessToken,
                     component: { cover: false },
                     container,
-                    imageId: "zarcRdNFZwg3FkXNcsFeGw",
+                    imageId,
                     renderMode: RenderMode.Letterbox,
                 });
                 viewer.on("load", (event) => console.log(event.type));

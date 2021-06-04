@@ -37,8 +37,10 @@
             import { SimpleMarker, Viewer } from "/dist/mapillary.module.js";
             import { accessToken } from "/doc-src/.access-token/token.js";
 
+            const imageId = "147617667372938";
+
             const mly = new Viewer({
-                apiClient: accessToken,
+                accessToken,
                 component: { cover: false, marker: true },
                 container: "mly",
             });
@@ -125,7 +127,7 @@
             };
 
             // Start creating and adding markers when image has been set
-            mly.moveTo("6Zhtztzt67fWmdd4OYH44w").then(
+            mly.moveTo(imageId).then(
                 function (n) {
                     let intervalId = window.setInterval(function () {
                         const markers = createRandomMarkers(

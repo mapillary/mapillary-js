@@ -325,6 +325,7 @@ function render(props) {
   function init(opts) {
     const {container} = opts;
 
+    const imageId = 'image|fisheye|0';
     const dataProvider = new procedural.ProceduralDataProvider();
     const options = {
       dataProvider,
@@ -337,7 +338,7 @@ function render(props) {
       imageTiling: false,
     };
     viewer = new Viewer(options);
-    viewer.moveTo('image|fisheye|0').catch(mapillaryErrorHandler);
+    viewer.moveTo(imageId).catch(mapillaryErrorHandler);
   }
 
   function dispose() {

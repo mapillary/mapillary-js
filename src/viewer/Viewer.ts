@@ -133,7 +133,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * @example
      * ```js
      * var viewer = new Viewer({
-     *     apiClient: "<my-client-id>",
+     *     accessToken: "<my-access-token>",
      *     container: "<my-container-id>",
      * });
      * ```

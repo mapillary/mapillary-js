@@ -33,7 +33,7 @@ In order to accept your pull request, we need you to submit a CLA. You only need
 
 After cloning MapillaryJS, run `yarn install` to fetch its dependencies.
 
-If you want to use data from the Mapillary platform during development, you need to [register an application](https://www.mapillary.com/dashboard/developers) to get a client access token.
+If you want to use data from the Mapillary platform during development, you need to [register an application](https://www.mapillary.com/dashboard/developers) to get a [client access token](https://mapillary.com/developer/api-documentation).
 
 Setup your MapillaryJS development environment with the following command:
 
