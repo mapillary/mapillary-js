@@ -8,23 +8,28 @@ import { CameraControls } from "../enums/CameraControls";
 
 /**
  * Interface for the options that can be provided to the {@link Viewer}.
- *
- * @interface
  */
 export interface ViewerOptions {
     /**
-     * A `Mapillary API ClientID` client token string. A
-     * client id be obtained from https://www.mapillary.com/app/settings/developers.
+     * Optional access token for API requests of
+     * resources.
      *
-     * @ignore
+     * @description Can be a user access token or
+     * a client access token.
+     *
+     * A Mapillary client access token can be obtained
+     * by [registering an application](https://www.mapillary.com/dashboard/developers).
+     *
+     * The access token can also be set through the
+     * {@link Viewer.setAccessToken} method.
      */
-    apiClient?: string;
+    accessToken?: string;
 
     /**
      * Value specifying the initial camera controls of
      * the viewer.
      *
-     * @default {CameraControls.Street}
+     * @default {@link CameraControls.Street}
      */
     cameraControls?: CameraControls;
 
@@ -54,6 +59,8 @@ export interface ViewerOptions {
      * @description The data provider will override the
      * default MapillaryJS data provider and take responsibility
      * for all IO handling.
+     *
+     * The data provider takes precedance over the {@link }
      *
      * A data provider instance must extend
      * the data provider base class.
@@ -86,7 +93,7 @@ export interface ViewerOptions {
     /**
      * The render mode in the viewer.
      *
-     * @default {RenderMode.Fill}
+     * @default {@link RenderMode.Fill}
      */
     renderMode?: RenderMode;
 
@@ -107,7 +114,7 @@ export interface ViewerOptions {
     /**
      * The transtion mode in the viewer.
      *
-     * @default {TransitionMode.Default}
+     * @default {@link TransitionMode.Default}
      */
     transitionMode?: TransitionMode;
 
@@ -115,13 +122,4 @@ export interface ViewerOptions {
      * The URL options.
      */
     url?: UrlOptions;
-
-    /**
-     * Optional access token for API requests of
-     * protected resources.
-     *
-     * @description Can be a user access token or
-     * a client access token.
-     */
-    accessToken?: string;
 }

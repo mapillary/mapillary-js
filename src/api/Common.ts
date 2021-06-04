@@ -3,6 +3,11 @@ import Pbf from "pbf";
 import { MapillaryError } from "../error/MapillaryError";
 import { MeshContract } from "./contracts/MeshContract";
 
+export interface XMLHttpRequestHeader {
+    name: string,
+    value: string,
+}
+
 /**
  * Decompress and parse an array buffer containing zipped
  * json data and return as a json object.
@@ -35,16 +40,49 @@ export function decompress<T>(buffer: ArrayBuffer): T {
 export function fetchArrayBuffer(
     url: string,
     abort?: Promise<void>): Promise<ArrayBuffer> {
+    const method = "GET";
+    const responseType = "arraybuffer";
+    return xhrFetch(url, method, responseType, [], null, abort);
+
+}
+
+export function xhrFetch(
+    url: string,
+    method: "GET",
+    responseType: "arraybuffer",
+    headers: XMLHttpRequestHeader[],
+    body?: string,
+    abort?: Promise<void>): Promise<ArrayBuffer>;
+export function xhrFetch<TResult>(
+    url: string,
+    method: "GET" | "POST",
+    responseType: "json",
+    headers: XMLHttpRequestHeader[],
+    body?: string,
+    abort?: Promise<void>): Promise<TResult>;
+export function xhrFetch<TResult>(
+    url: string,
+    method: "GET" | "POST",
+    responseType: "arraybuffer" | "json",
+    headers: XMLHttpRequestHeader[],
+    body?: string,
+    abort?: Promise<void>): Promise<TResult> {
+
     const xhr = new XMLHttpRequest();
-    const promise = new Promise<ArrayBuffer>(
+    const promise = new Promise<TResult>(
         (resolve, reject) => {
-            xhr.open("GET", url, true);
-            xhr.responseType = "arraybuffer";
+            xhr.open(method, url, true);
+            for (const header of headers) {
+                xhr.setRequestHeader(header.name, header.value);
+            }
+            xhr.responseType = responseType;
             xhr.timeout = 15000;
 
             xhr.onload = () => {
                 if (xhr.status !== 200) {
-                    reject(new MapillaryError(`Response status error: ${url}`));
+                    const error = xhr.response ??
+                        new MapillaryError(`Response status error: ${url}`);
+                    reject(error);
                 }
 
                 if (!xhr.response) {
@@ -63,7 +101,7 @@ export function fetchArrayBuffer(
             xhr.onabort = () => {
                 reject(new MapillaryError(`Request aborted: ${url}`));
             };
-            xhr.send(null);
+            xhr.send(method === "POST" ? body : null);
         });
 
     if (!!abort) { abort.catch((): void => { xhr.abort(); }); }

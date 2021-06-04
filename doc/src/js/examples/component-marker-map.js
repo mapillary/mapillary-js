@@ -290,7 +290,7 @@ let map;
 
 export function init(opts) {
   const {accessToken, mapboxAccessToken, container} = opts;
-  const imageId = 'm-slOlK_DYuHWHJSxeJd7g';
+  const imageId = '1182252392217616';
   const containers = makeContainers(container);
 
   const componentOptions = {
@@ -298,7 +298,7 @@ export function init(opts) {
     marker: true,
   };
   const viewerOptions = {
-    apiClient: accessToken,
+    accessToken,
     component: componentOptions,
     container: containers.viewer,
   };

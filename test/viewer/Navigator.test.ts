@@ -16,7 +16,6 @@ import { StateServiceMockCreator } from "../helper/StateServiceMockCreator";
 import { Navigator } from "../../src/viewer/Navigator";
 import { Image } from "../../src/graph/Image";
 import { APIWrapper } from "../../src/api/APIWrapper";
-import { FalcorDataProvider } from "../../src/api/falcor/FalcorDataProvider";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { Graph } from "../../src/graph/Graph";
 import { GraphService } from "../../src/graph/GraphService";
@@ -28,6 +27,7 @@ import { CacheService } from "../../src/viewer/CacheService";
 import { LoadingService } from "../../src/viewer/LoadingService";
 import { CancelMapillaryError } from "../../src/error/CancelMapillaryError";
 import { NavigationDirection } from "../../src/graph/edge/NavigationDirection";
+import { DataProvider } from "../helper/ProviderHelper";
 
 const createState: () => IAnimationState = (): IAnimationState => {
     return {
@@ -59,8 +59,7 @@ describe("Navigator.ctor", () => {
     });
 
     it("should be defined with optional params", () => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
@@ -81,8 +80,7 @@ describe("Navigator.ctor", () => {
 
 describe("Navigator.moveToKey$", () => {
     it("should start loading", () => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
@@ -110,8 +108,7 @@ describe("Navigator.moveToKey$", () => {
     });
 
     it("should stop loading when succeeding", () => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
@@ -148,8 +145,7 @@ describe("Navigator.moveToKey$", () => {
     });
 
     it("should stop loading when error is thrown", () => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
@@ -185,8 +181,7 @@ describe("Navigator.moveToKey$", () => {
     });
 
     it("should abort previous request when new request is done", (done: () => void) => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
@@ -218,8 +213,7 @@ describe("Navigator.moveToKey$", () => {
     });
 
     it("should succeed when image is cached", (done: () => void) => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
@@ -256,8 +250,7 @@ describe("Navigator.moveToKey$", () => {
     });
 
     it("should succeed when image is not cached prior to call", (done: () => void) => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
@@ -298,8 +291,7 @@ describe("Navigator.moveToKey$", () => {
 
     describe("Navigator.moveToKey$", () => {
         it("should complete and not abort when another call is made in callback", () => {
-            const clientId: string = "clientId";
-            const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+            const api: APIWrapper = new APIWrapper(new DataProvider());
             const graphService: GraphService = new GraphService(new Graph(api));
             const loadingService: LoadingService = new LoadingService();
             const stateService: StateService = new StateService(State.Traversing);
@@ -358,8 +350,7 @@ describe("Navigator.moveToKey$", () => {
 
 describe("Navigator.movedToKey$", () => {
     it("should emit when move succeeds", (done: Function) => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
@@ -427,8 +418,7 @@ describe("Navigator.setFilter$", () => {
     });
 
     it("should set filter when no key requested", (done: Function) => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
@@ -470,8 +460,7 @@ describe("Navigator.setFilter$", () => {
     });
 
     it("should only set filter once when no key requested initially and key requested later", () => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
@@ -503,8 +492,7 @@ describe("Navigator.setFilter$", () => {
     });
 
     it("should set filter and cache requested when key requested but not moved to", (done: Function) => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
@@ -566,8 +554,7 @@ describe("Navigator.setFilter$", () => {
     });
 
     it("should set filter and cache trajectory keys when moved to", (done: Function) => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
@@ -664,8 +651,7 @@ describe("Navigator.setToken$", () => {
     });
 
     it("should set token on api and reset when not moved to key", (done: Function) => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
@@ -710,8 +696,7 @@ describe("Navigator.setToken$", () => {
     });
 
     it("should set token, reset and cache trajectory keys when moved to", (done: Function) => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
@@ -807,8 +792,7 @@ describe("Navigator.setToken$", () => {
     });
 
     it("should abort outstanding move to key request", (done: () => void) => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateService(State.Traversing);
@@ -842,8 +826,7 @@ describe("Navigator.setToken$", () => {
     });
 
     it("should abort outstanding move dir request", (done: () => void) => {
-        const clientId: string = "clientId";
-        const api: APIWrapper = new APIWrapper(new FalcorDataProvider(({ clientId: clientId })));
+        const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
         const stateService: StateService = new StateServiceMockCreator().create();

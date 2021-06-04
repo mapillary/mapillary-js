@@ -26,12 +26,12 @@ function makeContainer(parent) {
 
 export function init(opts) {
   const {accessToken, container} = opts;
-  const imageId = '6ZcXjb82YuNEtPNA3fqBzA';
+  const imageId = '2873697312943603';
 
   // Initialize with cover active
   // Viewer is not navigable when cover is active
   viewer1 = new Viewer({
-    apiClient: accessToken,
+    accessToken,
     container: makeContainer(container),
     imageId,
   });
@@ -43,7 +43,7 @@ export function init(opts) {
   // Initialize with automatic cover deactivation
   // Viewer is not navigable when cover is active and loading
   viewer2 = new Viewer({
-    apiClient: accessToken,
+    accessToken,
     component: {cover: false},
     container: makeContainer(container),
     imageId,
@@ -56,11 +56,11 @@ export function init(opts) {
   // Initialize without an image ID
   // Viewer is navigable immediately when initialized without image ID
   viewer3 = new Viewer({
-    apiClient: accessToken,
+    accessToken,
     container: makeContainer(container),
   });
   console.info('viewer3 - is navigable:', viewer3.isNavigable);
-  viewer3.moveTo('6ZcXjb82YuNEtPNA3fqBzA').then(
+  viewer3.moveTo(imageId).then(
     (image) => console.info('viewer3 - navigated to:', image.id),
     (error) => console.error('viewer3', error),
   );
@@ -69,12 +69,12 @@ export function init(opts) {
   // This is equivalent to initialization #3
   // Viewer is always navigable immediately when initialized without image ID
   viewer4 = new Viewer({
-    apiClient: accessToken,
+    accessToken,
     component: {cover: false},
     container: makeContainer(container),
   });
   console.info('viewer4 - is navigable:', viewer4.isNavigable);
-  viewer4.moveTo('6ZcXjb82YuNEtPNA3fqBzA').then(
+  viewer4.moveTo(imageId).then(
     (image) => console.info('viewer4 - navigated to:', image.id),
     (error) => console.error('viewer4', error),
   );

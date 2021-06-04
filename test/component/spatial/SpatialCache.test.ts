@@ -1,13 +1,12 @@
 import { Subject } from "rxjs";
 
 import { Image } from "../../../src/graph/Image";
-import { FalcorDataProvider } from "../../../src/api/falcor/FalcorDataProvider";
-import { GeohashGeometryProvider } from "../../../src/api/GeohashGeometryProvider";
 import { ClusterContract } from "../../../src/api/contracts/ClusterContract";
 import { SpatialCache } from "../../../src/component/spatial/SpatialCache";
 import { GraphService } from "../../../src/graph/GraphService";
 import { GraphServiceMockCreator } from "../../helper/GraphServiceMockCreator";
 import { ImageHelper } from "../../helper/ImageHelper";
+import { DataProvider } from "../../helper/ProviderHelper";
 
 const cacheTile: (
     hash: string,
@@ -49,9 +48,7 @@ describe("SpatialCache.cacheTile$", () => {
         const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell$);
 
-        const geometryProvider = new GeohashGeometryProvider();
-
-        const dataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider = new DataProvider();
         const cache: SpatialCache = new SpatialCache(
             graphService, dataProvider);
 
@@ -68,8 +65,7 @@ describe("SpatialCache.cacheTile$", () => {
         const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell$);
 
-        const geometryProvider = new GeohashGeometryProvider();
-        const dataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider = new DataProvider();
         const cache: SpatialCache = new SpatialCache(
             graphService, dataProvider);
 
@@ -88,9 +84,7 @@ describe("SpatialCache.cacheTile$", () => {
         const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell$);
 
-        const geometryProvider = new GeohashGeometryProvider();
-        const dataProvider = new FalcorDataProvider(
-            { clientId: "cid" }, geometryProvider);
+        const dataProvider = new DataProvider();
         const cache: SpatialCache = new SpatialCache(
             graphService, dataProvider);
 
@@ -118,8 +112,7 @@ describe("SpatialCache.cacheTile$", () => {
         const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell$);
 
-        const geometryProvider = new GeohashGeometryProvider();
-        const dataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider = new DataProvider();
         const cache: SpatialCache = new SpatialCache(
             graphService, dataProvider);
 
@@ -159,9 +152,7 @@ describe("SpatialCache.cacheReconstructions$", () => {
             },
         };
 
-        const geometryProvider = new GeohashGeometryProvider();
-        const dataProvider = new FalcorDataProvider(
-            { clientId: "cid" }, geometryProvider);
+        const dataProvider = new DataProvider();
         spyOn(dataProvider, "getCluster").and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
@@ -199,8 +190,7 @@ describe("SpatialCache.cacheReconstructions$", () => {
             },
         };
 
-        const geometryProvider = new GeohashGeometryProvider();
-        const dataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider = new DataProvider();
         spyOn(dataProvider, "getCluster").and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
@@ -233,8 +223,7 @@ describe("SpatialCache.cacheReconstructions$", () => {
             then: (): void => { /*noop*/ },
         };
 
-        const geometryProvider = new GeohashGeometryProvider();
-        const dataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider = new DataProvider();
         const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getCluster");
         clusterSpy.and.returnValue(promise);
 
@@ -268,8 +257,7 @@ describe("SpatialCache.cacheReconstructions$", () => {
             },
         };
 
-        const geometryProvider = new GeohashGeometryProvider();
-        const dataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider = new DataProvider();
         const clusterSpy: jasmine.Spy = spyOn(dataProvider, "getCluster");
         clusterSpy.and.returnValue(promise);
 
@@ -322,11 +310,8 @@ describe("SpatialCache.updateCell$", () => {
         const cacheCellSpy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell$);
 
-        const geometryProvider = new GeohashGeometryProvider();
 
-        const dataProvider = new FalcorDataProvider(
-            { clientId: "cid" },
-            geometryProvider);
+        const dataProvider = new DataProvider();
         const cache: SpatialCache = new SpatialCache(
             graphService, dataProvider);
 
@@ -341,8 +326,7 @@ describe("SpatialCache.updateCell$", () => {
         const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell1$);
 
-        const geometryProvider = new GeohashGeometryProvider();
-        const dataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider = new DataProvider();
         const cache: SpatialCache = new SpatialCache(
             graphService, dataProvider);
 
@@ -374,8 +358,7 @@ describe("SpatialCache.updateCell$", () => {
         const cacheCellSpy: jasmine.Spy = <jasmine.Spy>graphService.cacheCell$;
         cacheCellSpy.and.returnValue(cacheCell1$);
 
-        const geometryProvider = new GeohashGeometryProvider();
-        const dataProvider = new FalcorDataProvider({ clientId: "cid" }, geometryProvider);
+        const dataProvider = new DataProvider();
         const cache: SpatialCache = new SpatialCache(
             graphService, dataProvider);
 
@@ -411,9 +394,7 @@ describe("SpatialCache.updateReconstructions$", () => {
     };
 
     it("should throw when tile not cached", () => {
-        const geometryProvider = new GeohashGeometryProvider();
-        const dataProvider = new FalcorDataProvider(
-            { clientId: "cid" }, geometryProvider);
+        const dataProvider = new DataProvider();
         spyOn(dataProvider, "getCluster").and
             .returnValue(
                 new Promise<ClusterContract>(() => { /* noop */ }));
@@ -435,9 +416,7 @@ describe("SpatialCache.updateReconstructions$", () => {
             },
         };
 
-        const geometryProvider = new GeohashGeometryProvider();
-        const dataProvider = new FalcorDataProvider(
-            { clientId: "cid" }, geometryProvider);
+        const dataProvider = new DataProvider();
         const clusterSpy = spyOn(dataProvider, "getCluster").and
             .returnValue(promise);
 
@@ -475,9 +454,7 @@ describe("SpatialCache.updateReconstructions$", () => {
             },
         };
 
-        const geometryProvider = new GeohashGeometryProvider();
-        const dataProvider = new FalcorDataProvider(
-            { clientId: "cid" }, geometryProvider);
+        const dataProvider = new DataProvider();
         const clusterSpy = spyOn(dataProvider, "getCluster").and
             .returnValue(promise);
 

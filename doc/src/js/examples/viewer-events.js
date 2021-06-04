@@ -16,10 +16,10 @@ let log;
 
 export function init(opts) {
   const {accessToken, container} = opts;
-  const imageId = 'kcXKtxR_S3ISk0zNR_TDnA';
+  const imageId = '380382436545748';
 
   const viewerOptions = {
-    apiClient: accessToken,
+    accessToken,
     component: {cover: false},
     container,
   };

@@ -12,7 +12,7 @@ MapillaryJS is an interactive street imagery and semantic mapping visualization 
 
 ## Installation and Usage
 
-To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need an access token. When [providing your own data](https://mapillary.github.io/mapillary-js/docs/extension/extend), no access token is needed.
+To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need an [access token](https://www.mapillary.com/dashboard/developers). When [providing your own data](https://mapillary.github.io/mapillary-js/docs/extension/extend), no access token is needed.
 
 <details open>
   <summary><b><code>ES6 bundler</code></b></summary>
@@ -38,7 +38,7 @@ Include the following code in your JavaScript file.
 import { Viewer } from "mapillary-js";
 
 const viewer = new Viewer({
-  apiClient: "<your access token>",
+  accessToken: "<your access token>",
   container: "<your HTML element ID>",
   imageId: "<your image ID for initializing the viewer>",
 });
@@ -70,7 +70,7 @@ Include the following code in your TypeScript file.
 import { Viewer, ViewerOptions } from "mapillary-js";
 
 const options: ViewerOptions = {
-  apiClient: "<your access token>",
+  accessToken: "<your access token>",
   container: "<your HTML element ID>",
   imageId: "<your image ID for initializing the viewer>",
 };
@@ -105,7 +105,7 @@ The global [UMD](https://github.com/umdjs/umd) name for MapillaryJS is `mapillar
 var { Viewer } = mapillary;
 
 var viewer = new Viewer({
-  apiClient: "<your access token>",
+  accessToken: "<your access token>",
   container: "mly",
   imageId: "<your image ID for initializing the viewer>",
 });

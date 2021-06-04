@@ -17,14 +17,14 @@ let viewer;
 
 export function init(opts) {
   const {accessToken, container} = opts;
-  const imageId = 'FnqSkFAZXjv4Uqmqd4X_NA';
+  const imageId = '300943088210479';
 
   const componentOptions = {
     cover: false,
     popup: true,
   };
   const viewerOptions = {
-    apiClient: accessToken,
+    accessToken,
     component: componentOptions,
     container,
   };

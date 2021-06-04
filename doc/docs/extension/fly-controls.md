@@ -258,9 +258,10 @@ function render(props) {
   function init(opts) {
     const {accessToken, container} = opts;
 
+    const imageId = '578479680210256';
     const cameraControls = CameraControls.Custom;
     const options = {
-      apiClient: accessToken,
+      accessToken,
       cameraControls,
       component: {
         cover: false,
@@ -279,7 +280,7 @@ function render(props) {
     const flyControls = new flycontrols.FlyCameraControls(flyOptions);
     viewer.attachCustomCameraControls(flyControls);
 
-    viewer.moveTo('lKiLKEpwHq6zs1kTywTbY6').catch(mapillaryErrorHandler);
+    viewer.moveTo(imageId).catch(mapillaryErrorHandler);
   }
 
   function dispose() {

@@ -100,8 +100,10 @@ function render(props) {
 
   function init(opts) {
     const {accessToken, container} = opts;
+
+    const imageId = '3748064795322267';
     const options = {
-      apiClient: accessToken,
+      accessToken,
       component: {cover: false},
       container,
     };
@@ -119,7 +121,7 @@ function render(props) {
     const cubeRenderer = new animation.RotatingCubeRenderer(cube);
     viewer.addCustomRenderer(cubeRenderer);
 
-    viewer.moveTo('H_g2NFQvEXdGGyTjY27FMA').catch(mapillaryErrorHandler);
+    viewer.moveTo(imageId).catch(mapillaryErrorHandler);
   }
 
   function dispose() {

@@ -52,11 +52,13 @@
             } from "/dist/mapillary.module.js";
             import { accessToken } from "/doc-src/.access-token/token.js";
 
+            const imageId = "1370255906687696";
+
             let viewer = new Viewer({
-                apiClient: accessToken,
+                accessToken,
                 component: { cover: false, tag: true },
                 container: "mly",
-                imageId: "GlwvajfC7oML4PkLzHrB7g",
+                imageId,
                 renderMode: RenderMode.Letterbox,
             });
 

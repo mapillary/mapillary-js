@@ -38,18 +38,18 @@
             } from "/dist/mapillary.module.js";
             import { accessToken } from "/doc-src/.access-token/token.js";
 
+            const imageId = "780299919518360";
+
             let cameraControls = CameraControls.Earth;
             let spatialActive = true;
             const viewer = new Viewer({
-                apiClient: accessToken,
+                accessToken,
                 cameraControls,
                 component: { cover: false, spatial: spatialActive },
                 container: "mly",
             });
 
-            viewer
-                .moveTo("zarcRdNFZwg3FkXNcsFeGw")
-                .catch((error) => console.error(error));
+            viewer.moveTo(imageId).catch((error) => console.error(error));
 
             const spatial = viewer.getComponent("spatial");
             viewer.on("click", (event) => {

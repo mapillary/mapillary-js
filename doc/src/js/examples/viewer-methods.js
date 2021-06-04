@@ -36,10 +36,10 @@ function toggleComponent(value, name) {
 
 export function init(opts) {
   const {accessToken, container} = opts;
-  const imageId = 'kcXKtxR_S3ISk0zNR_TDnA';
+  const imageId = '380382436545748';
 
   viewer = new Viewer({
-    apiClient: accessToken,
+    accessToken,
     component: {cover: false},
     container,
   });

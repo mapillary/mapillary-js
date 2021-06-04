@@ -66,16 +66,17 @@ let viewer;
 
 export function init(opts) {
   const {container, accessToken} = opts;
+  const imageId = '2873697312943603';
+
   const {component, message} = checkSupport();
 
   if (component) {
     viewer = new Viewer({
-      apiClient: accessToken,
+      accessToken,
       component,
       container,
     });
 
-    const imageId = '6ZcXjb82YuNEtPNA3fqBzA';
     viewer.moveTo(imageId).catch((error) => console.error(error));
   }
   container.appendChild(message);

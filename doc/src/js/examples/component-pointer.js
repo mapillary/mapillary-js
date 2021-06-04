@@ -22,7 +22,7 @@ let viewer;
 
 export function init(opts) {
   const {accessToken, container} = opts;
-  const imageId = 'vBcUqs0vPik9KAb1TFq6iw';
+  const imageId = '1211723002580553';
 
   const componentOptions = {
     cover: false,
@@ -33,7 +33,7 @@ export function init(opts) {
     },
   };
   const viewerOptions = {
-    apiClient: accessToken,
+    accessToken,
     component: componentOptions,
     container,
   };

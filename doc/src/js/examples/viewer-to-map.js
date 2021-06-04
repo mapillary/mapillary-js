@@ -111,12 +111,12 @@ let map;
 
 export function init(opts) {
   const {accessToken, mapboxAccessToken, container} = opts;
-  const imageId = 'uadAaSBt5juezeVmR6mlxQ';
+  const imageId = '524779645570864';
 
   const containers = makeContainers(container);
 
   const viewerOptions = {
-    apiClient: accessToken,
+    accessToken,
     component: {cover: false},
     container: containers.viewer,
   };

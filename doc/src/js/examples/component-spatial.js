@@ -29,7 +29,7 @@ let viewer;
 
 export function init(opts) {
   const {accessToken, container} = opts;
-  const imageId = '05xGXQ7OegvBVF7dbXZD_Q';
+  const imageId = '298096478644828';
 
   const componentOptions = {
     cover: false,
@@ -44,7 +44,7 @@ export function init(opts) {
     },
   };
   const viewerOptions = {
-    apiClient: accessToken,
+    accessToken,
     component: componentOptions,
     container,
   };

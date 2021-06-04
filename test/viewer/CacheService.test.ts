@@ -7,7 +7,6 @@ import { ImageHelper } from "../helper/ImageHelper";
 
 import { Image } from "../../src/graph/Image";
 import { APIWrapper } from "../../src/api/APIWrapper";
-import { FalcorDataProvider } from "../../src/api/falcor/FalcorDataProvider";
 import { Graph } from "../../src/graph/Graph";
 import { GraphMode } from "../../src/graph/GraphMode";
 import { GraphService } from "../../src/graph/GraphService";
@@ -16,10 +15,11 @@ import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
 import { State } from "../../src/state/State";
 import { StateService } from "../../src/state/StateService";
 import { CacheService } from "../../src/viewer/CacheService";
+import { DataProvider } from "../helper/ProviderHelper";
 
 describe("CacheService.ctor", () => {
     it("should be defined when constructed", () => {
-        const api = new APIWrapper(new FalcorDataProvider({ clientId: "cid" }));
+        const api = new APIWrapper(new DataProvider());
         const graphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService(State.Traversing);
 
@@ -31,7 +31,7 @@ describe("CacheService.ctor", () => {
 
 describe("CacheService.configure", () => {
     it("should configure without errors", () => {
-        const api = new APIWrapper(new FalcorDataProvider({ clientId: "cid" }));
+        const api = new APIWrapper(new DataProvider());
         const graphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService(State.Traversing);
 
@@ -45,7 +45,7 @@ describe("CacheService.configure", () => {
 
 describe("CacheService.started", () => {
     it("should not be started", () => {
-        const api = new APIWrapper(new FalcorDataProvider({ clientId: "cid" }));
+        const api = new APIWrapper(new DataProvider());
         const graphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService(State.Traversing);
 
@@ -55,7 +55,7 @@ describe("CacheService.started", () => {
     });
 
     it("should be started after calling start", () => {
-        const api = new APIWrapper(new FalcorDataProvider({ clientId: "cid" }));
+        const api = new APIWrapper(new DataProvider());
         const graphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService(State.Traversing);
 
@@ -67,7 +67,7 @@ describe("CacheService.started", () => {
     });
 
     it("should not be started after calling stop", () => {
-        const api = new APIWrapper(new FalcorDataProvider({ clientId: "cid" }));
+        const api = new APIWrapper(new DataProvider());
         const graphService = new GraphService(new Graph(api));
         const stateService: StateService = new StateService(State.Traversing);
 
@@ -122,10 +122,15 @@ describe("CacheService.start", () => {
     });
 
     it("should call graph service uncache method", () => {
-        const api = new APIWrapper(new FalcorDataProvider({ clientId: "cid" }));
+        const api = new APIWrapper(new DataProvider());
         const graph = new Graph(api);
         const graphService = new GraphService(graph);
         graphService.setGraphMode(GraphMode.Spatial);
+
+        spyOn(graph.api.data.geometry, "lngLatToCellId")
+            .and.returnValue("cell-id");
+        spyOn(graph.api.data.geometry, "getAdjacent")
+            .and.returnValue(["cell-id", "adjacend-id"]);
 
         const currentStateSubject$ = new Subject<AnimationFrame>();
         const stateService = new TestStateService(currentStateSubject$);
@@ -160,15 +165,20 @@ describe("CacheService.start", () => {
         expect(uncacheSpy.calls.first().args[0].length).toBe(2);
         expect(uncacheSpy.calls.first().args[0][0]).toBe(coreImage1.id);
         expect(uncacheSpy.calls.first().args[0][1]).toBe(coreImage2.id);
-        expect(uncacheSpy.calls.first().args[1].length).toBe(9);
+        expect(uncacheSpy.calls.first().args[1].length).toBe(2);
         expect(uncacheSpy.calls.first().args[2]).toBeUndefined();
     });
 
     it("should call graph service uncache method with sequence key of last trajectory image", () => {
-        const api = new APIWrapper(new FalcorDataProvider({ clientId: "cid" }));
+        const api = new APIWrapper(new DataProvider());
         const graph = new Graph(api);
         const graphService = new GraphService(graph);
         graphService.setGraphMode(GraphMode.Sequence);
+
+        spyOn(graph.api.data.geometry, "lngLatToCellId")
+            .and.returnValue("cell-id");
+        spyOn(graph.api.data.geometry, "getAdjacent")
+            .and.returnValue(["cell-id", "adjacent-id"]);
 
         const currentStateSubject$ = new Subject<AnimationFrame>();
         const stateService = new TestStateService(currentStateSubject$);
@@ -204,12 +214,12 @@ describe("CacheService.start", () => {
         expect(uncacheSpy.calls.first().args[0].length).toBe(2);
         expect(uncacheSpy.calls.first().args[0][0]).toBe(coreImage1.id);
         expect(uncacheSpy.calls.first().args[0][1]).toBe(coreImage2.id);
-        expect(uncacheSpy.calls.first().args[1].length).toBe(9);
+        expect(uncacheSpy.calls.first().args[1].length).toBe(2);
         expect(uncacheSpy.calls.first().args[2]).toBe(coreImage2.sequence.id);
     });
 
     it("should cache current image if switching to sequence graph mode", () => {
-        const api = new APIWrapper(new FalcorDataProvider({ clientId: "cid" }));
+        const api = new APIWrapper(new DataProvider());
         const graph = new Graph(api);
         const graphService = new GraphService(graph);
 
@@ -252,7 +262,7 @@ describe("CacheService.start", () => {
     });
 
     it("should cache all trajectory images ahead if switching to spatial graph mode", () => {
-        const api = new APIWrapper(new FalcorDataProvider({ clientId: "cid" }));
+        const api = new APIWrapper(new DataProvider());
         const graph = new Graph(api);
         const graphService = new GraphService(graph);
 
@@ -304,7 +314,7 @@ describe("CacheService.start", () => {
     it("should keep the subscription open if caching a image fails", () => {
         spyOn(console, "error").and.stub();
 
-        const api = new APIWrapper(new FalcorDataProvider({ clientId: "cid" }));
+        const api = new APIWrapper(new DataProvider());
         const graph = new Graph(api);
         const graphService = new GraphService(graph);
 

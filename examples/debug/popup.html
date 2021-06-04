@@ -87,11 +87,12 @@
             }
 
             function initViewer() {
+                const imageId = "300943088210479";
                 const container = document.createElement("div");
                 container.className = "mly-viewer-container";
                 document.body.appendChild(container);
                 const viewerOptions = {
-                    apiClient: accessToken,
+                    accessToken,
                     component: {
                         cover: false,
                         popup: true,
@@ -100,9 +101,7 @@
                     container,
                 };
                 const viewer = new Viewer(viewerOptions);
-                viewer
-                    .moveTo("FnqSkFAZXjv4Uqmqd4X_NA")
-                    .catch((error) => console.error(error));
+                viewer.moveTo(imageId).catch((error) => console.error(error));
                 return viewer;
             }
 
