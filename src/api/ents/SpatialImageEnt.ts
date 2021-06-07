@@ -21,7 +21,9 @@ export interface SpatialImageEnt extends CameraEnt, IDEnt {
     atomic_scale?: number;
 
     /**
-     * Timestamp when the image was captured.
+     * Timestamp representing the capture date and time.
+     *
+     * @description Unix epoch timestamp in milliseconds.
      */
     captured_at: number;
 

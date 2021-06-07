@@ -125,6 +125,9 @@ export class Image {
     /**
      * Get capturedAt.
      *
+     * @description Timestamp of the image capture date
+     * and time represented as a Unix epoch timestamp in milliseconds.
+     *
      * @returns {number} Timestamp when the image was captured.
      */
     public get capturedAt(): number {
