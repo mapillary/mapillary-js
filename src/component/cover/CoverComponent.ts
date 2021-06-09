@@ -26,7 +26,6 @@ import { MapillaryError } from "../../error/MapillaryError";
 import { Image as MImage } from "../../graph/Image";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
-import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { ImagesContract } from "../../api/contracts/ImagesContract";
@@ -128,9 +127,11 @@ export class CoverComponent extends Component<CoverConfiguration> {
 
         subs.push(observableCombineLatest(
             this._configuration$,
+            this._container.configurationService.exploreUrl$,
             this._container.renderService.size$).pipe(
                 map(
-                    ([configuration, size]: [CoverConfiguration, ViewportSize]): VirtualNodeHash => {
+                    ([configuration, exploreUrl, size]:
+                        [CoverConfiguration, string, ViewportSize]): VirtualNodeHash => {
                         if (!configuration.src) {
                             return { name: this._name, vNode: vd.h("div", []) };
                         }
@@ -147,7 +148,7 @@ export class CoverComponent extends Component<CoverConfiguration> {
 
                         const container: vd.VNode = vd.h(
                             "div.mapillary-cover-container" + compactClass,
-                            [this._getCoverButtonVNode(configuration)]);
+                            [this._getCoverButtonVNode(configuration, exploreUrl)]);
 
                         return { name: this._name, vNode: container };
                     }))
@@ -162,13 +163,19 @@ export class CoverComponent extends Component<CoverConfiguration> {
         return { state: CoverState.Visible };
     }
 
-    private _getCoverButtonVNode(configuration: CoverConfiguration): vd.VNode {
+    private _getCoverButtonVNode(
+        configuration: CoverConfiguration,
+        exploreUrl: string): vd.VNode {
+
         const cover: string = configuration.state === CoverState.Loading ? "div.mapillary-cover.mapillary-cover-loading" : "div.mapillary-cover";
         const coverButton: vd.VNode = vd.h(
             "div.mapillary-cover-button",
             [vd.h("div.mapillary-cover-button-icon", [])]);
 
-        const coverLogo: vd.VNode = vd.h("a.mapillary-cover-logo", { href: ViewerConfiguration.explore, target: "_blank" }, []);
+        const coverLogo: vd.VNode = vd.h(
+            "a.mapillary-cover-logo",
+            { href: exploreUrl, target: "_blank" },
+            []);
         const coverIndicator: vd.VNode = vd.h(
             "div.mapillary-cover-indicator",
             { onclick: (): void => { this.configure({ state: CoverState.Loading }); } },

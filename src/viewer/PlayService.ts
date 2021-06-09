@@ -27,7 +27,6 @@ import {
     withLatestFrom,
 } from "rxjs/operators";
 
-import { GraphCalculator } from "../graph/GraphCalculator";
 import { GraphMode } from "../graph/GraphMode";
 import { GraphService } from "../graph/GraphService";
 import { Image } from '../graph/Image';

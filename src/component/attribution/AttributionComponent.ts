@@ -6,7 +6,6 @@ import { map } from "rxjs/operators";
 import { Image } from "../../graph/Image";
 import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
-import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
 
 import { Component } from "../Component";
 import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
@@ -18,13 +17,15 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
     protected _activate(): void {
         this._subscriptions.push(
             observableCombineLatest(
+                this._container.configurationService.exploreUrl$,
                 this._navigator.stateService.currentImage$,
                 this._container.renderService.size$).pipe(
                     map(
-                        ([image, size]: [Image, ViewportSize]): VirtualNodeHash => {
+                        ([exploreUrl, image, size]: [string, Image, ViewportSize]): VirtualNodeHash => {
                             const attribution =
                                 this._makeAttribution(
                                     image.creatorUsername,
+                                    exploreUrl,
                                     image.id,
                                     image.capturedAt,
                                     size.width);
@@ -44,8 +45,13 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
         return {};
     }
 
+    private makeImageUrl(exploreUrl: string, id: string): string {
+        return `${exploreUrl}/app/?pKey=${id}&focus=photo`;
+    }
+
     private _makeAttribution(
         creatorUsername: string,
+        exploreUrl: string,
         imageId: string,
         capturedAt: number,
         viewportWidth: number)
@@ -53,7 +59,7 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
         const compact = viewportWidth <= 640;
 
         const date = this._makeDate(capturedAt, compact);
-        const by = this._makeBy(creatorUsername, imageId, compact);
+        const by = this._makeBy(creatorUsername, exploreUrl, imageId, compact);
 
         const compactClass = compact ?
             ".mapillary-attribution-compact" : "";
@@ -66,6 +72,7 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
 
     private _makeBy(
         creatorUsername: string,
+        exploreUrl: string,
         imageId: string,
         compact: boolean): vd.VNode[] {
 
@@ -73,18 +80,19 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
             "div.mapillary-attribution-logo",
             []);
         return creatorUsername ?
-            this._makeCreatorBy(icon, creatorUsername, imageId, compact) :
-            this._makeGeneralBy(icon, imageId, compact);
+            this._makeCreatorBy(icon, creatorUsername, exploreUrl, imageId, compact) :
+            this._makeGeneralBy(icon, exploreUrl, imageId, compact);
     }
 
     private _makeCreatorBy(
         icon: vd.VNode,
         creatorUsername: string,
+        exploreUrl: string,
         imageId: string,
         compact: boolean): vd.VNode[] {
         const mapillary = vd.h(
             "a.mapillary-attribution-icon-container",
-            { href: ViewerConfiguration.explore, rel: "noreferrer", target: "_blank" },
+            { href: exploreUrl, rel: "noreferrer", target: "_blank" },
             [icon]);
 
         const content = compact ?
@@ -97,7 +105,7 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
         const image = vd.h(
             "a.mapillary-attribution-image-container",
             {
-                href: ViewerConfiguration.exploreImage(imageId),
+                href: this.makeImageUrl(exploreUrl, imageId),
                 rel: "noreferrer",
                 target: "_blank",
             },
@@ -108,6 +116,7 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
 
     private _makeGeneralBy(
         icon: vd.VNode,
+        exploreUrl: string,
         imageId: string,
         compact: boolean): vd.VNode[] {
 
@@ -134,7 +143,7 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
         const image = vd.h(
             "a.mapillary-attribution-image-container",
             {
-                href: ViewerConfiguration.exploreImage(imageId),
+                href: this.makeImageUrl(exploreUrl, imageId),
                 rel: "noreferrer",
                 target: "_blank",
             },

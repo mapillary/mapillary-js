@@ -19,7 +19,6 @@ import { RenderCamera } from "../render/RenderCamera";
 import { RenderMode } from "../render/RenderMode";
 import { TransitionMode } from "../state/TransitionMode";
 import { EventEmitter } from "../util/EventEmitter";
-import { ViewerConfiguration } from "./ViewerConfiguration";
 import { ICustomRenderer } from "./interfaces/ICustomRenderer";
 import { PointOfView } from "./interfaces/PointOfView";
 import { ViewerOptions } from "./options/ViewerOptions";
@@ -140,8 +139,6 @@ export class Viewer extends EventEmitter implements IViewer {
      */
     constructor(options: ViewerOptions) {
         super();
-
-        ViewerConfiguration.setOptions(options);
 
         this._navigator =
             new Navigator(options);
