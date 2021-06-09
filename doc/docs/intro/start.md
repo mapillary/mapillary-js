@@ -1,10 +1,8 @@
 ---
 id: start
-title: Getting Started
+title: Introduction
 slug: /
 ---
-
-## Overview
 
 This page is an overview of the MapillaryJS `v4.x` documentation and related resources.
 
@@ -20,11 +18,11 @@ Throughout the documentation you will see live examples. The live example editor
 
 ### Step-by-Step Guide
 
-Our [guide to main concepts](/docs/guides) is the best place to start to learn concepts step by step. Every next chapter in it builds on the knowledge introduced in the previous chapters.
+Our [guide to main concepts](/docs/main/guides) is the best place to start to learn concepts step by step. Every next chapter in it builds on the knowledge introduced in the previous chapters.
 
 ### Extend and Augment
 
-Once you’re comfortable with the main concepts and played with MapillaryJS a little bit, you might be interested in more advanced topics. The [guide to extending MapillaryJS](/docs/extension/extend) will introduce you to the powerful extension APIs which lets you extend and augment the MapillaryJS experience. You can load and visualize your own data format, render your own 3D models onto the MapillaryJS canvas, and define your own interactivity.
+Once you’re comfortable with the main concepts and have played with MapillaryJS a little bit, you might be interested in more advanced topics. The [guide to extending MapillaryJS](/docs/extension/extend) will introduce you to the powerful extension APIs which lets you extend and augment the MapillaryJS experience. You can load and visualize your own data format, render your own 3D models onto the MapillaryJS canvas, and define your own interactivity.
 
 ### API Reference
 

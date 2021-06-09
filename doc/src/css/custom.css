@@ -22,7 +22,7 @@
   --ifm-color-primary-light: rgb(36, 212, 112);
   --ifm-color-primary-lighter: rgb(68, 221, 127);
   --ifm-color-primary-lightest: rgb(112, 233, 146);
-  --ifm-code-font-size: 95%;
+  --ifm-code-font-size: 80%;
 }
 
 .docusaurus-highlight-code-line {

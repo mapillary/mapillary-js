@@ -18,7 +18,8 @@ export interface ViewerOptions {
      * a client access token.
      *
      * A Mapillary client access token can be obtained
-     * by [registering an application](https://www.mapillary.com/dashboard/developers).
+     * by [signing in](https://www.mapillary.com/app/?login=true) and
+     * [registering an application](https://www.mapillary.com/dashboard/developers).
      *
      * The access token can also be set through the
      * {@link Viewer.setAccessToken} method.
