@@ -1,4 +1,0 @@
----
-id: guides
-title: Guides
----

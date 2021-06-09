@@ -93,8 +93,8 @@ module.exports = {
               to: 'docs',
             },
             {
-              label: 'Guides',
-              to: 'docs/guides',
+              label: 'Main Concepts',
+              to: 'docs/main/guides',
             },
             {
               label: 'Extension',

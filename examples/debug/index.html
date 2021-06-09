@@ -59,9 +59,11 @@
                     accessToken,
                     component: { cover: false },
                     container,
-                    imageId,
                     renderMode: RenderMode.Letterbox,
                 });
+
+                viewer.moveTo(imageId).catch((error) => console.warn(error));
+
                 viewer.on("load", (event) => console.log(event.type));
 
                 addButtons(viewer);

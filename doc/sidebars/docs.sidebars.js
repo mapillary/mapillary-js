@@ -9,8 +9,8 @@
 
 module.exports = {
   docs: {
-    Introduction: ['intro/start', 'intro/try', 'intro/glossary'],
-    Guides: ['guides'],
+    'Getting Started': ['intro/start', 'intro/try', 'intro/glossary'],
+    'Main Concepts': ['main/guides', 'main/init'],
     Extension: [
       {
         type: 'doc',
