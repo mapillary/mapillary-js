@@ -1,14 +1,15 @@
-import { KeyboardService } from "./KeyboardService";
-import { MouseService } from "./MouseService";
-import { SpriteService } from "./SpriteService";
-import { TouchService } from "./TouchService";
-import { ViewerOptions } from "./options/ViewerOptions";
-
 import { DOMRenderer } from "../render/DOMRenderer";
 import { GLRenderer } from "../render/GLRenderer";
 import { RenderService } from "../render/RenderService";
 import { StateService } from "../state/StateService";
 import { DOM } from "../util/DOM";
+
+import { ViewerOptions } from "./options/ViewerOptions";
+import { KeyboardService } from "./KeyboardService";
+import { MouseService } from "./MouseService";
+import { SpriteService } from "./SpriteService";
+import { TouchService } from "./TouchService";
+import { ConfigurationService } from "./ConfigurationService";
 
 export class Container {
     public id: string;
@@ -23,6 +24,8 @@ export class Container {
     public touchService: TouchService;
 
     public spriteService: SpriteService;
+
+    public readonly configurationService: ConfigurationService;
 
     private _canvasContainer: HTMLDivElement;
     private _canvas: HTMLCanvasElement;
@@ -86,6 +89,8 @@ export class Container {
                 "div",
                 "mapillary-dom",
                 this._container);
+
+        this.configurationService = new ConfigurationService(options);
 
         this.renderService =
             new RenderService(
@@ -166,7 +171,7 @@ export class Container {
         if (this._trackResize) {
             this.renderService.resize$.next();
         }
-    }
+    };
 
     private _removeNode(node: Node): void {
         if (node.parentNode) {

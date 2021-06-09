@@ -1,4 +1,6 @@
 import { Container } from "../../src/viewer/Container";
+import { ConfigurationServiceMockCreator }
+    from "./ConfigurationServiceMockCreator";
 import { DOMRendererMockCreator } from "./DOMRendererMockCreator";
 import { GLRendererMockCreator } from "./GLRendererMockCreator";
 import { KeyboardServiceMockCreator } from "./KeyboardServiceMockCreator";
@@ -14,6 +16,10 @@ export class ContainerMockCreator extends MockCreatorBase<Container> {
         const mock: Container = new MockCreator().create(Container, "Container");
 
         this._mockProperty(mock, "canvasContainer", document.createElement("canvas"));
+        this._mockProperty(
+            mock,
+            "configurationService",
+            new ConfigurationServiceMockCreator().create());
         this._mockProperty(mock, "domRenderer", new DOMRendererMockCreator().create());
         this._mockProperty(mock, "container", document.createElement("div"));
         this._mockProperty(mock, "glRenderer", new GLRendererMockCreator().create());

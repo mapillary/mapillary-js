@@ -46,10 +46,8 @@ import { RegionOfInterestCalculator }
 import { TextureProvider } from "../../tile/TextureProvider";
 import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { Transform } from "../../geo/Transform";
-import { ViewerConfiguration } from "../../viewer/ViewerConfiguration";
 import { ComponentName } from "../ComponentName";
 import { State } from "../../state/State";
-import { Camera } from "three";
 
 interface ImageGLRendererOperation {
     (renderer: ImageGLRenderer): ImageGLRenderer;
@@ -170,9 +168,14 @@ export class ImageComponent extends Component<ComponentConfiguration> {
                 }))
             .subscribe(this._rendererOperation$));
 
-        const textureProvider$ = this._navigator.stateService.currentState$
-            .pipe(
-                filter(() => ViewerConfiguration.imageTiling),
+        const textureProvider$ =
+            this._container.configurationService.imageTiling$.pipe(
+                switchMap(
+                    (active): Observable<AnimationFrame> => {
+                        return active ?
+                            this._navigator.stateService.currentState$ :
+                            new Subject();
+                    }),
                 distinctUntilChanged(
                     undefined,
                     (frame: AnimationFrame): string => {
@@ -220,56 +223,60 @@ export class ImageComponent extends Component<ComponentConfiguration> {
                     previous.abort();
                 }));
 
-        const roiTrigger$ = ViewerConfiguration.imageTiling ?
-            observableCombineLatest(
-                this._navigator.stateService.state$,
-                this._navigator.stateService.inTranslation$)
-                .pipe(
-                    switchMap(
-                        ([state, inTranslation]: [State, boolean]) => {
-                            const streetState =
-                                state === State.Traversing ||
-                                state === State.Waiting ||
-                                state === State.WaitingInteractively;
-                            const active = streetState && !inTranslation;
-                            return active ?
-                                this._container.renderService.renderCameraFrame$ :
-                                observableEmpty();
-                        }),
-                    map(
-                        (camera: RenderCamera): PositionLookat => {
-                            return {
-                                camera,
-                                height: camera.size.height.valueOf(),
-                                lookat: camera.camera.lookat.clone(),
-                                width: camera.size.width.valueOf(),
-                                zoom: camera.zoom.valueOf(),
-                            };
-                        }),
-                    pairwise(),
-                    map(
-                        ([pl0, pl1]: [PositionLookat, PositionLookat])
-                            : StalledCamera => {
-                            const stalled =
-                                pl0.width === pl1.width &&
-                                pl0.height === pl1.height &&
-                                pl0.zoom === pl1.zoom &&
-                                pl0.lookat.equals(pl1.lookat);
+        const roiTrigger$ =
+            this._container.configurationService.imageTiling$.pipe(
+                switchMap(
+                    (active): Observable<[State, boolean]> => {
+                        return active ?
+                            observableCombineLatest(
+                                this._navigator.stateService.state$,
+                                this._navigator.stateService.inTranslation$) :
+                            new Subject();
+                    }),
+                switchMap(
+                    ([state, inTranslation]: [State, boolean]) => {
+                        const streetState =
+                            state === State.Traversing ||
+                            state === State.Waiting ||
+                            state === State.WaitingInteractively;
+                        const active = streetState && !inTranslation;
+                        return active ?
+                            this._container.renderService.renderCameraFrame$ :
+                            observableEmpty();
+                    }),
+                map(
+                    (camera: RenderCamera): PositionLookat => {
+                        return {
+                            camera,
+                            height: camera.size.height.valueOf(),
+                            lookat: camera.camera.lookat.clone(),
+                            width: camera.size.width.valueOf(),
+                            zoom: camera.zoom.valueOf(),
+                        };
+                    }),
+                pairwise(),
+                map(
+                    ([pl0, pl1]: [PositionLookat, PositionLookat])
+                        : StalledCamera => {
+                        const stalled =
+                            pl0.width === pl1.width &&
+                            pl0.height === pl1.height &&
+                            pl0.zoom === pl1.zoom &&
+                            pl0.lookat.equals(pl1.lookat);
 
-                            return { camera: pl1.camera, stalled };
-                        }),
-                    distinctUntilChanged(
-                        (x, y): boolean => {
-                            return x.stalled === y.stalled;
-                        }),
-                    filter(
-                        (camera: StalledCamera): boolean => {
-                            return camera.stalled;
-                        }),
-                    withLatestFrom(
-                        this._container.renderService.size$,
-                        this._navigator.stateService.currentTransform$)) :
-            observableEmpty();
+                        return { camera: pl1.camera, stalled };
+                    }),
+                distinctUntilChanged(
+                    (x, y): boolean => {
+                        return x.stalled === y.stalled;
+                    }),
+                filter(
+                    (camera: StalledCamera): boolean => {
+                        return camera.stalled;
+                    }),
+                withLatestFrom(
+                    this._container.renderService.size$,
+                    this._navigator.stateService.currentTransform$));
 
         subs.push(textureProvider$.pipe(
             switchMap(
