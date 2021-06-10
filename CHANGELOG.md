@@ -42,6 +42,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Handle fisheye origin singularity ([#339](https://github.com/mapillary/mapillary-js/pull/339))
 - Filter spatial data ([#338](https://github.com/mapillary/mapillary-js/pull/338))
 - Fix earth controls in Firefox on Mac ([#333](https://github.com/mapillary/mapillary-js/pull/333))
+- Allow different image tiling configs for multiple viewers in the same app ([#441](https://github.com/mapillary/mapillary-js/pull/441))
 
 ### :nail_care: Improvements
 

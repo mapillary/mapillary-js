@@ -20,14 +20,14 @@ To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.
 Install the package via [Yarn](https://classic.yarnpkg.com) (or [npm](https://docs.npmjs.com/about-npm)).
 
 ```sh
-yarn add mapillary-js@next
+yarn add mapillary-js
 ```
 
 Use a CSS loader or include the CSS file in the `<head>` of your HTML file.
 
 ```html
 <link
-  href="https://unpkg.com/mapillary-js@4.0.0-beta.7/dist/mapillary.css"
+  href="https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.css"
   rel="stylesheet"
 />
 ```
@@ -52,14 +52,14 @@ const viewer = new Viewer({
 Install the package via [Yarn](https://classic.yarnpkg.com) (or [npm](https://docs.npmjs.com/about-npm)).
 
 ```sh
-yarn add mapillary-js@next
+yarn add mapillary-js
 ```
 
 Use a CSS loader or include the CSS file in the `<head>` of your HTML file.
 
 ```html
 <link
-  href="https://unpkg.com/mapillary-js@4.0.0-beta.7/dist/mapillary.css"
+  href="https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.css"
   rel="stylesheet"
 />
 ```
@@ -85,9 +85,9 @@ const viewer = new Viewer(options);
 Include the JavaScript and CSS files in the `<head>` of your HTML file.
 
 ```html
-<script src="https://unpkg.com/mapillary-js@4.0.0-beta.7/dist/mapillary.js"></script>
+<script src="https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.js"></script>
 <link
-  href="https://unpkg.com/mapillary-js@4.0.0-beta.7/dist/mapillary.css"
+  href="https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.css"
   rel="stylesheet"
 />
 ```
