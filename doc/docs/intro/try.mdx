@@ -6,6 +6,8 @@ title: Try MapillaryJS
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+MapillaryJS is essentially an [npm package](https://www.npmjs.com/package/mapillary-js) that can be installed via [Yarn](https://classic.yarnpkg.com) or [npm](https://docs.npmjs.com/about-npm). In this guide we will go through what you need to do to start using MapillaryJS in your web application.
+
 :::info You will learn
 
 - How to install MapillaryJS
@@ -13,20 +15,24 @@ import TabItem from '@theme/TabItem';
 
 :::
 
-## Installation
+## Prerequisites
 
-MapillaryJS is essentially an [npm package](https://www.npmjs.com/package/mapillary-js) that can be installed via [Yarn](https://classic.yarnpkg.com) or [npm](https://docs.npmjs.com/about-npm).
+### Client Access Token
 
-### Prerequisites
+To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need to:
 
-For this guide, the following is required.
+1. Create a [Mapillary account](https://www.mapillary.com/app/?login=true)
+2. [Sign in](https://www.mapillary.com/app/?login=true) to your account
+3. [Register an application](https://www.mapillary.com/dashboard/developers) in the developer dashboard
+4. Get the [client access token](https://mapillary.com/developer/api-documentation) for your new application
 
-- You have [Node](https://nodejs.org) installed at `version >= v12.3.0`.
-- You have [Yarn](https://classic.yarnpkg.com) installed at `version >= v1.22.0`.
-
-To start using MapillaryJS with data from the [Mapillary](https://www.mapillary.com) platform, you need to have an [account](https://www.mapillary.com/app/?login=true). After signing in, you need [register an application](https://www.mapillary.com/dashboard/developers) to get a [client access token](https://mapillary.com/developer/api-documentation).
+Keep the _client access token_ for your application at hand, you will use it when initializing the MapillaryJS viewer later.
 
 When [extending MapillaryJS](/docs/extension/extend) to provide your own data, no account or access token is needed.
+
+### Tools
+
+To install MapillaryJS you need to have [Yarn](https://classic.yarnpkg.com) or [Node.js and npm](https://docs.npmjs.com/cli/v7/configuring-npm/install) installed.
 
 Once you have setup the prerequisites, you can try MapillaryJS in your own website.
 
@@ -68,7 +74,9 @@ Use a CSS loader or include the CSS file in the `<head>` of your HTML file.
 />
 ```
 
-Include the following code in your application. If you are developing a TypeScript application you will get code editor intellisense while typing.
+Include the following code in your application. You need to replace `<your access token>` with the _client access token_ for the application you registered before. You also need a valid image ID to initialize the viewer.
+
+If you are developing a TypeScript application you will get code editor intellisense while typing.
 
 <Tabs
   defaultValue='ts'
@@ -211,4 +219,4 @@ function renderMapillary(props) {
 
 ## Next steps
 
-Now you are ready to start exploring the [guide to main concepts](/docs/main/guides).
+Now you are ready to start exploring the [guide to main concepts](/docs/main/guide).

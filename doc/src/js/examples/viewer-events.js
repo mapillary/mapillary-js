@@ -32,17 +32,17 @@ export function init(opts) {
     timeout: 30,
   });
 
-  // Load events
+  // State events
   viewer.on('load', (event) => log.add(`'${event.type}`));
+  viewer.on('movestart', (event) => log.add(`'${event.type}'`));
+  viewer.on('moveend', (event) => log.add(`'${event.type}'`));
+
+  // Load events
   viewer.on('dataloading', (event) => {
     log.add(`'${event.type}' - loading: ${event.loading}`);
   });
 
-  // State events
-  viewer.on('movestart', (event) => log.add(`'${event.type}'`));
-  viewer.on('moveend', (event) => log.add(`'${event.type}'`));
-
-  // Mouse events
+  // Pointer events
   viewer.on('click', (event) => {
     const basic = event.basicPoint
       ? event.basicPoint.map((c) => c.toFixed(2)).join(', ')

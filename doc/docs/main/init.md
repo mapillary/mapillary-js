@@ -3,7 +3,9 @@ id: init
 title: Initialization
 ---
 
-MapillaryJS comes with a core set of interaction and visualization features. You can customize the [Viewer](/api/classes/viewer.viewer-1) behavior in different ways. In this guide we will do this at initialization time.
+MapillaryJS comes with a core set of street imagery interaction and visualization features. The `Viewer` object represents the street imagery viewer on your web page. It exposes methods that you can use to programatically change the view, and fires events as users interact with it.
+
+You can customize the [Viewer](/api/classes/viewer.viewer-1) behavior in different ways. In this guide we will do this at initialization time.
 
 :::info You will learn
 
@@ -47,10 +49,7 @@ function render(props) {
 
   function init(opts) {
     const {accessToken, container} = opts;
-    const options = {
-      accessToken,
-      container,
-    };
+    const options = {accessToken, container};
     viewer = new Viewer(options);
     viewer.moveTo(imageId).catch(mapillaryErrorHandler);
   }
