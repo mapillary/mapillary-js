@@ -18,7 +18,7 @@ Throughout the documentation you will see live examples. The live example editor
 
 ### Step-by-Step Guide
 
-Our [guide to main concepts](/docs/main/guides) is the best place to start to learn concepts step by step. Every next chapter in it builds on the knowledge introduced in the previous chapters.
+Our [guide to main concepts](/docs/main/guide) is the best place to start to learn concepts step by step. Every next chapter in it builds on the knowledge introduced in the previous chapters.
 
 ### Extend and Augment
 

@@ -51,7 +51,7 @@ import { cameraControlsToState } from "./Modes";
  * @class Viewer
  *
  * @classdesc The Viewer object represents the navigable image viewer.
- * Create a Viewer by specifying a container, client ID, image id and
+ * Create a Viewer by specifying a container, client ID, image ID and
  * other options. The viewer exposes methods and events for programmatic
  * interaction.
  *
@@ -96,34 +96,39 @@ export class Viewer extends EventEmitter implements IViewer {
     /**
      * Create a new viewer instance.
      *
-     * @description It is possible to initialize the viewer with or
-     * without a id.
+     * @description The `Viewer` object represents the street imagery
+     * viewer on your web page. It exposes methods and properties that
+     * you can use to programatically change the view, and fires
+     * events as users interact with it.
+     *
+     * It is possible to initialize the viewer with or
+     * without a ID.
      *
      * When you want to show a specific image in the viewer from
-     * the start you should initialize it with a id.
+     * the start you should initialize it with a ID.
      *
-     * When you do not know the first image id at implementation
+     * When you do not know the first image ID at implementation
      * time, e.g. in a map-viewer application you should initialize
-     * the viewer without a id and call `moveTo` instead.
+     * the viewer without a ID and call `moveTo` instead.
      *
-     * When initializing with a id the viewer is bound to that id
-     * until the image for that id has been successfully loaded.
-     * Also, a cover with the image of the id will be shown.
-     * If the data for that id can not be loaded because the id is
+     * When initializing with an ID the viewer is bound to that ID
+     * until the image for that ID has been successfully loaded.
+     * Also, a cover with the image of the ID will be shown.
+     * If the data for that ID can not be loaded because the ID is
      * faulty or other errors occur it is not possible to navigate
-     * to another id because the viewer is not navigable. The viewer
-     * becomes navigable when the data for the id has been loaded and
+     * to another ID because the viewer is not navigable. The viewer
+     * becomes navigable when the data for the ID has been loaded and
      * the image is shown in the viewer. This way of initializing
      * the viewer is mostly for embedding in blog posts and similar
      * where one wants to show a specific image initially.
      *
-     * If the viewer is initialized without a id (with null or
-     * undefined) it is not bound to any particular id and it is
-     * possible to move to any id with `viewer.moveTo("<my-image-id>")`.
-     * If the first move to a id fails it is possible to move to another
-     * id. The viewer will show a black background until a move
+     * If the viewer is initialized without a ID (with null or
+     * undefined) it is not bound to any particular ID and it is
+     * possible to move to any ID with `viewer.moveTo("<my-image-id>")`.
+     * If the first move to a ID fails it is possible to move to another
+     * ID. The viewer will show a black background until a move
      * succeeds. This way of intitializing is suited for a map-viewer
-     * application when the initial id is not known at implementation
+     * application when the initial ID is not known at implementation
      * time.
      *
      * @param {ViewerOptions} options - Optional configuration object
@@ -180,9 +185,9 @@ export class Viewer extends EventEmitter implements IViewer {
      * moving, i.e. calling the {@link moveTo} and {@link moveDir}
      * methods or changing the authentication state,
      * i.e. calling {@link setAccessToken}. The viewer will not be in a navigable
-     * state if the cover is activated and the viewer has been supplied a id.
+     * state if the cover is activated and the viewer has been supplied a ID.
      * When the cover is deactivated or the viewer is activated without being
-     * supplied a id it will be navigable.
+     * supplied a ID it will be navigable.
      *
      * @returns {boolean} Boolean indicating whether the viewer is navigable.
      */
@@ -649,7 +654,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * Check if a custom renderer has been added to the viewer's
      * rendering pipeline.
      *
-     * @param {string} id - Unique id of the custom renderer.
+     * @param {string} id - Unique ID of the custom renderer.
      * @returns {boolean} Value indicating whether the customer
      * renderer has been added.
      */
@@ -694,14 +699,14 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
-     * Navigate to a given image id.
+     * Navigate to a given image ID.
      *
      * @param {string} imageId - Id of the image to move to.
      * @returns {Promise<Image>} Promise to the image that was navigated to.
      * @throws Propagates any IO errors to the caller.
      * @throws When viewer is not navigable.
      * @throws {@link CancelMapillaryError} When a subsequent
-     * move request is made before the move to id call has completed.
+     * move request is made before the move to ID call has completed.
      *
      * @example
      * ```js
@@ -1287,7 +1292,7 @@ export class Viewer extends EventEmitter implements IViewer {
     /**
      * Remove a custom renderer from the viewer's rendering pipeline.
      *
-     * @param id - Unique id of the custom renderer.
+     * @param id - Unique ID of the custom renderer.
      */
     public removeCustomRenderer(rendererId: string): void {
         this._customRenderer.remove(rendererId, this);

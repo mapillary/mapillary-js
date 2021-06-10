@@ -10,7 +10,21 @@
 module.exports = {
   docs: {
     'Getting Started': ['intro/start', 'intro/try', 'intro/glossary'],
-    'Main Concepts': ['main/guides', 'main/init'],
+    'Main Concepts': [
+      'main/guide',
+      'main/init',
+      {
+        type: 'doc',
+        id: 'main/control',
+        label: 'Control',
+      },
+      'main/event',
+      {
+        type: 'doc',
+        id: 'main/component',
+        label: 'Components',
+      },
+    ],
     Extension: [
       {
         type: 'doc',

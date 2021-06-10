@@ -94,7 +94,7 @@ module.exports = {
             },
             {
               label: 'Main Concepts',
-              to: 'docs/main/guides',
+              to: 'docs/main/guide',
             },
             {
               label: 'Extension',
