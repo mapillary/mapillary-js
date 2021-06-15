@@ -211,7 +211,9 @@ export class CoverComponent extends Component<CoverConfiguration> {
                     .subscribe(
                         (items: ImagesContract): void => {
                             for (const item of items) {
-                                if (item.node_id !== id) {
+                                const imageId = typeof id === "number" ?
+                                    (<number>id).toString() : id;
+                                if (item.node_id !== imageId) {
                                     continue;
                                 }
 
