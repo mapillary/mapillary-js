@@ -121,7 +121,7 @@ In our procedural provider we want all cameras to look to north, so we use the `
 
 ### Computed vs Original
 
-When running a Structure from Motion algorithm, EXIF GPS positions and other metadata are often used as priors. The algorithm will then improved the positioning of the camera captures. Properties prefixed with `computed` in MapillaryJS refers to output from an algorithm. Properties prefixed `original` referse to metadata from the capture device. If you do not have original metadata, you can just set it to the computed value.
+When running a Structure from Motion algorithm, EXIF GPS positions and other metadata are often used as priors. The algorithm will then improved the positioning of the camera captures. Properties prefixed with `computed` in MapillaryJS refer to output from an algorithm. Properties prefixed `original` refer to metadata from the capture device. If you do not have original metadata, you can just set it to the computed value.
 
 ### Merge ID
 
