@@ -36,7 +36,7 @@ The [examples section](/examples) gives you a deep dive into the details of usin
 
 ### What is MapillaryJS, Exactly?
 
-MapillaryJS is an interactive, extendable street imagery and sematic mapping visualization platform. But what does that actually mean? Let us go through it together.
+MapillaryJS is an interactive, extendable street imagery and semantic mapping visualization platform. But what does that actually mean? Let us go through it together.
 
 #### Street Imagery
 
