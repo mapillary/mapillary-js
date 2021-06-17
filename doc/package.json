@@ -15,7 +15,7 @@
     "clear-api": "rm -rf api",
     "clear-mods": "rm -rf mods",
     "copy-mods": "./mods.sh",
-    "deploy": "yarn build-mods && docusaurus deploy",
+    "deploy": "yarn clear-all && yarn build-mods && docusaurus deploy",
     "docusaurus": "docusaurus",
     "lint": "eslint --cache \"**/*.js\" && stylelint \"**/*.css\"",
     "prettier": "prettier --config .prettierrc --write \"**/*.{js,jsx,ts,tsx,md,mdx}\"",
