@@ -53,7 +53,7 @@ export interface PopupOptions {
      * - A single number in pixels in the float direction that the popup
      * will be translated with respect to the current anchor point.
      *
-     * - An object of number arrays specifing an offset for
+     * - An object of number arrays specifying an offset for
      * each float direction. Negative offsets indicate left and up.
      *
      * @default 0

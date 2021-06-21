@@ -1,20 +1,20 @@
-export class EventEmitter {
+import { IEventEmitter } from "./interfaces/IEventEmitter";
+
+export class EventEmitter implements IEventEmitter {
     private _events: { [type: string]: ((event: any) => void)[]; };
 
     constructor() { this._events = {}; }
 
     /**
-     * Subscribe to an event by its name.
-     * @param {string} type - The name of the event
-     * to subscribe to.
-     * @param {(event: T) => void} handler - The
-     * handler called when the event occurs.
+     * @ignore
      */
-    public on<T>(
+    public fire<T>(
         type: string,
-        handler: (event: T) => void): void {
-        this._events[type] = this._events[type] || [];
-        this._events[type].push(handler);
+        event: T): void {
+        if (!this._listens(type)) { return; }
+        for (const handler of this._events[type]) {
+            handler(event);
+        }
     }
 
     /**
@@ -41,15 +41,17 @@ export class EventEmitter {
     }
 
     /**
-     * @ignore
+     * Subscribe to an event by its name.
+     * @param {string} type - The name of the event
+     * to subscribe to.
+     * @param {(event: T) => void} handler - The
+     * handler called when the event occurs.
      */
-    public fire<T>(
+    public on<T>(
         type: string,
-        event: T): void {
-        if (!this._listens(type)) { return; }
-        for (const handler of this._events[type]) {
-            handler(event);
-        }
+        handler: (event: T) => void): void {
+        this._events[type] = this._events[type] || [];
+        this._events[type].push(handler);
     }
 
     private _listens(eventType: string): boolean {

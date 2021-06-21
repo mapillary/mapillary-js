@@ -65,7 +65,7 @@ describe("CustomRenderer.add", () => {
 });
 
 describe("CustomRenderer.add", () => {
-    it("should invoke onAdd after gl intialization", done => {
+    it("should invoke onAdd after gl initialization", done => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
@@ -106,7 +106,7 @@ describe("CustomRenderer.add", () => {
             .next(referenceMock);
     });
 
-    it("should not invoke onReferenceChanged on gl intialization", () => {
+    it("should not invoke onReferenceChanged on gl initialization", () => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
@@ -144,7 +144,7 @@ describe("CustomRenderer.add", () => {
         expect(invokeCount).toBe(0);
     });
 
-    it("should invoke onReferenceChanged after gl intialization", () => {
+    it("should invoke onReferenceChanged after gl initialization", () => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
@@ -329,7 +329,7 @@ describe("CustomRenderer.dispose", () => {
             container,
             navigator);
 
-        const viewer = <any>{}
+        const viewer = <any>{};
         const id = "id";
 
         customRenderer.add(

@@ -1,7 +1,7 @@
 /**
  * Interface for the popup offset with respect to its anchor point.
  *
- * @description An object of number arrays specifing an offset for
+ * @description An object of number arrays specifying an offset for
  * each float direction. Negative offsets indicate left and up.
  *
  * @interface

@@ -21,7 +21,7 @@ The MapillaryJS _cover_ is a special component that can be activated and deactiv
 
 If we specify an image ID in the [viewer options](/api/interfaces/viewer.vieweroptions#imageid), the cover will always be visible initially (but can be hidden automatically through with the `cover: false` component option).
 
-If we do not specify an image ID in the viewer options the cover will be hidden (resulting in a dark background being shown). In this case, we need another way to tell inform the Viewer about the intial image. We can use the Viewer.[moveTo](/api/classes/viewer.Viewer/#moveto) method to do that by calling it with our image ID.
+If we do not specify an image ID in the viewer options the cover will be hidden (resulting in a dark background being shown). In this case, we need another way to tell inform the Viewer about the initial image. We can use the Viewer.[moveTo](/api/classes/viewer.Viewer/#moveto) method to do that by calling it with our image ID.
 
 :::tip
 
@@ -130,7 +130,7 @@ function render(props) {
 
 The [ComponentOptions](/api/interfaces/viewer.componentoptions) can be used to activate or deactivate all components by specifying a boolean value.
 
-Most components also have a [configuration](/api/modules/component#interfaces). The component configurations give us an opportunity to to do more fine grained component specific configuration. Specifying a component configuration for a component option property means that the component will be activated on intialization in the same way as setting its value to 'true'.
+Most components also have a [configuration](/api/modules/component#interfaces). The component configurations give us an opportunity to to do more fine grained component specific configuration. Specifying a component configuration for a component option property means that the component will be activated on initialization in the same way as setting its value to 'true'.
 
 With component options can for example deactivate certain _pointer_ handlers to avoid interfering with the default browser scroll behavior or tell the _sequence_ component to play a sequence immediately on load.
 

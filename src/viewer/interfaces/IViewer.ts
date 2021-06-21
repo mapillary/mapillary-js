@@ -1,4 +1,5 @@
 import { LngLat } from "../../api/interfaces/LngLat";
+import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
 import { Component } from "../../component/Component";
 import { ComponentConfiguration }
     from "../../component/interfaces/ComponentConfiguration";
@@ -7,7 +8,9 @@ import { FilterExpression } from "../../graph/FilterExpression";
 import { Image } from "../../graph/Image";
 import { RenderMode } from "../../render/RenderMode";
 import { TransitionMode } from "../../state/TransitionMode";
+import { CameraControls } from "../enums/CameraControls";
 import { ViewerEventType } from "../events/ViewerEventType";
+import { ICustomCameraControls } from "./ICustomCameraControls";
 
 import { ICustomRenderer } from "./ICustomRenderer";
 import { PointOfView } from "./PointOfView";
@@ -18,13 +21,16 @@ export interface IViewer {
     activateComponent(name: string): void;
     activateCover(): void;
     addCustomRenderer(renderer: ICustomRenderer): void;
+    attachCustomCameraControls(controls: ICustomCameraControls): void;
     deactivateCombinedPanning(): void;
     deactivateComponent(name: string): void;
     deactivateCover(): void;
+    detachCustomCameraControls(): Promise<ICustomCameraControls>;
     fire<T>(
         type: ViewerEventType,
         event: T): void;
     getBearing(): Promise<number>;
+    getCameraControls(): Promise<CameraControls>;
     getCanvas(): HTMLCanvasElement;
     getCanvasContainer(): HTMLDivElement;
     getCenter(): Promise<number[]>;
@@ -32,8 +38,10 @@ export interface IViewer {
         name: string): TComponent;
     getContainer(): HTMLElement;
     getFieldOfView(): Promise<number>;
+    getImage(): Promise<Image>;
     getPointOfView(): Promise<PointOfView>;
     getPosition(): Promise<LngLat>;
+    getReference(): Promise<LngLatAlt>;
     getZoom(): Promise<number>;
     hasCustomRenderer(rendererId: string): boolean;
     moveDir(direction: NavigationDirection): Promise<Image>;
@@ -49,6 +57,7 @@ export interface IViewer {
     remove(): void;
     removeCustomRenderer(rendererId: string): void;
     resize(): void;
+    setCameraControls(controls: CameraControls): void;
     setCenter(center: number[]): void;
     setFieldOfView(fov: number): void;
     setFilter(filter: FilterExpression): Promise<void>;
