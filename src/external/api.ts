@@ -62,3 +62,7 @@ export { URLEnt } from "../api/ents/URLEnt";
 // Type
 export { LngLat } from "../api/interfaces/LngLat";
 export { LngLatAlt } from "../api/interfaces/LngLatAlt";
+
+// Util
+export { EventEmitter } from "../util/EventEmitter";
+export { IEventEmitter } from "../util/interfaces/IEventEmitter";

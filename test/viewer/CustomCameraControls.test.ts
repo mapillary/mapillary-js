@@ -50,7 +50,7 @@ describe("CustomCameraControls.ctor", () => {
 });
 
 describe("CustomRenderer.attach", () => {
-    test("should invoke onAttach after gl intialization", done => {
+    test("should invoke onAttach after gl initialization", done => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);

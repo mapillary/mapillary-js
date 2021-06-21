@@ -471,7 +471,7 @@ describe("RectGeometry.initializeAnchorIndexing", () => {
         expect((): void => { rectGeometry.initializeAnchorIndexing(4); }).toThrowError(Error);
     });
 
-    it("should throw if already intialized", () => {
+    it("should throw if already initialized", () => {
         const rect = [0.2, 0.2, 0.3, 0.3];
         const rectGeometry = new RectGeometry(rect);
 

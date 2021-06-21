@@ -79,7 +79,7 @@ export interface SliderConfiguration extends ComponentConfiguration {
     /**
      * Initial position of the slider on the interval [0, 1].
      *
-     * @description Configures the intial position of the slider.
+     * @description Configures the initial position of the slider.
      * The inital position value will be used when the component
      * is activated.
      *

@@ -247,7 +247,7 @@ Now that we have implemented our custom cube renderer, we just need to add it to
 
 Press the left button to fly forward and the right button to fly backward or use the [fly key commands](https://github.com/mrdoob/three.js/blob/r125/examples/jsm/controls/FlyControls.js#L57-L76) for specific motion.
 
-Try to intialize the `Viewer` with `Street` or `Earth` controls and change to the `Custom` controls by calling Viewer.`setCameraControls`. Try changing the fly options to see how they affect the viewport and camera behavior.
+Try to initialize the `Viewer` with `Street` or `Earth` controls and change to the `Custom` controls by calling Viewer.`setCameraControls`. Try changing the fly options to see how they affect the viewport and camera behavior.
 
 :::
 

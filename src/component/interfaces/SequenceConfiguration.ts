@@ -70,7 +70,7 @@ export interface SequenceConfiguration extends ComponentConfiguration {
     minWidth?: number;
 
     /**
-     * Indicating wheter the component is playing.
+     * Indicating whether the component is playing.
      *
      * @default false
      */

@@ -92,7 +92,7 @@ export interface PotentialEdge {
     /**
      * The counter clockwise horizontal rotation angle from
      * the X-axis in a spherical coordiante system.
-     * @propery {number} worldMotionAzimuth
+     * @property {number} worldMotionAzimuth
      */
     worldMotionAzimuth: number;
 }
