@@ -79,11 +79,10 @@ export function init(opts) {
     (error) => console.error('viewer4', error),
   );
 
-  const onNavigable = (name) => {
-    return (event) => {
-      console.info(name, '- navigable changed to:', event.navigable);
-    };
+  const onNavigable = (name) => (event) => {
+    console.info(name, '- navigable changed to:', event.navigable);
   };
+
   viewer1.on('navigable', onNavigable('viewer1'));
   viewer2.on('navigable', onNavigable('viewer2'));
   viewer3.on('navigable', onNavigable('viewer3'));
