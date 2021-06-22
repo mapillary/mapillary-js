@@ -68,9 +68,7 @@ export function init(opts) {
     spatialComponent.configure(newConfig);
   };
 
-  const handleConfig = (name) => {
-    return (value) => configure(name, value);
-  };
+  const handleConfig = (name) => (value) => configure(name, value);
 
   {
     const folder = settings.addFolder({

@@ -45,14 +45,12 @@ export function init(opts) {
   const settings = makeFolder(container);
   const config = {...componentOptions.pointer};
 
-  const handleChange = (handler) => {
-    return (value) => {
-      if (value) {
-        handler.enable();
-      } else {
-        handler.disable();
-      }
-    };
+  const handleChange = (handler) => (value) => {
+    if (value) {
+      handler.enable();
+    } else {
+      handler.disable();
+    }
   };
 
   settings.add(

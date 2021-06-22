@@ -22,7 +22,7 @@ module.exports = {
   parserOptions: {
     allowImportExportEverywhere: true,
   },
-  extends: ['airbnb', 'prettier', 'prettier/react'],
+  extends: ['airbnb', 'prettier'],
   plugins: ['react-hooks', 'header'],
   rules: {
     // Ignore certain webpack alias because it can't be resolved
