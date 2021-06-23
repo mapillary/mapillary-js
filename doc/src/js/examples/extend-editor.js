@@ -45,7 +45,7 @@ function canvasToViewport(canvasPoint, container) {
   return [viewportX, viewportY];
 }
 
-function makePosition(geoPosition, reference) {
+function geoToPosition(geoPosition, reference) {
   const enuPosition = geodeticToEnu(
     geoPosition.lng,
     geoPosition.lat,
@@ -252,7 +252,7 @@ export class TransformBoxRenderer {
     this.viewer = viewer;
     this.reference = reference;
 
-    const position = makePosition(this.box.geoPosition, reference);
+    const position = geoToPosition(this.box.geoPosition, reference);
     this.box.mesh.position.fromArray(position);
 
     const canvas = viewer.getCanvas();
@@ -286,7 +286,7 @@ export class TransformBoxRenderer {
   }
 
   onReference(viewer, reference) {
-    const position = makePosition(this.box.geoPosition, reference);
+    const position = geoToPosition(this.box.geoPosition, reference);
     this.box.mesh.position.fromArray(position);
     this.transformer.onReference(reference);
   }

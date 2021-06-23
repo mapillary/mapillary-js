@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Extend Map Sync</title>
+        <link rel="icon" href="data:," />
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no"
+        />
+
+        <link rel="stylesheet" href="/dist/mapillary.css" />
+        <link rel="stylesheet" href="/mods/mapbox-gl/dist/mapbox-gl.css" />
+
+        <script src="/mods/mapbox-gl/dist/mapbox-gl.js"></script>
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            html,
+            body,
+            .viewer {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <script type="module">
+            import {
+                accessToken,
+                mapboxAccessToken,
+            } from "/doc-src/.access-token/token.js";
+            import { init } from "/doc-src/src/js/examples/extend-map-sync.js";
+
+            const container = document.createElement("div");
+            container.className = "viewer";
+            document.body.appendChild(container);
+
+            init({ accessToken, mapboxAccessToken, container });
+        </script>
+    </body>
+</html>

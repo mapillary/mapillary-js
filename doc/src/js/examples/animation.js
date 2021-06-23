@@ -22,7 +22,7 @@ import {
   WebGLRenderer,
 } from '../../../mods/three/build/three.module';
 
-function makePosition(geoPosition, reference) {
+function geoToPosition(geoPosition, reference) {
   const position = geodeticToEnu(
     geoPosition.lng,
     geoPosition.lat,
@@ -70,7 +70,7 @@ export class RotatingCubeRenderer {
   onAdd(viewer, reference, context) {
     this.viewer = viewer;
 
-    const position = makePosition(this.cube.geoPosition, reference);
+    const position = geoToPosition(this.cube.geoPosition, reference);
     this.cube.mesh.position.fromArray(position);
 
     const canvas = viewer.getCanvas();
@@ -88,7 +88,7 @@ export class RotatingCubeRenderer {
   }
 
   onReference(viewer, reference) {
-    const position = makePosition(this.cube.geoPosition, reference);
+    const position = geoToPosition(this.cube.geoPosition, reference);
     this.cube.mesh.position.fromArray(position);
   }
 

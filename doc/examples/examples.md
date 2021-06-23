@@ -77,4 +77,5 @@ slug: /
 | [Three.js Renderer](/examples/three-renderer) | Render | Use [Three.js](https://threejs.org/) to render a cube |
 | [Animation](/examples/animation) | Render | Make a rotating cube [animation](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Animating_objects_with_WebGL) |
 | [Editor](/examples/extend-editor) | Render | Use [transform controls](https://github.com/mrdoob/three.js/blob/r125/examples/jsm/controls/TransformControls.js) to translate, rotate, and scale a box |
+| [Map Synchronzation](/examples/extend-map-sync) | Render | Translate and rotate a cube in a [Mapbox](https://docs.mapbox.com/mapbox-gl-js/api/) map and reflect the changes in the viewer |
 | [Fly Controls](/examples/fly-controls) | Camera Control | Attach [fly controls](https://github.com/mrdoob/three.js/blob/r127/examples/jsm/controls/FlyControls.js) leveraging Three.js |

@@ -32,7 +32,13 @@ const importer = (req, res, next) => {
       res.sendStatus(404);
     } else {
       data = data.replace("import mapboxgl from 'mapbox-gl';", "");
-      const mapillary = / from \'.*\/mapillary.module\';/;
+
+      const relative = /(\sfrom\s\'\.\/.*)(';)/g;
+      data = data.replaceAll(relative, (match, p1, p2) => {
+        return [p1, ".js';"].join("");
+      });
+
+      const mapillary = /\sfrom\s\'.*\/mapillary.module\';/;
       data = data.replace(mapillary, " from '/dist/mapillary.module.js';");
 
       const mods = /(?!.*mapillary)(.*)(\sfrom\s\'.*\/mods\/)(.*)(';)/g;
