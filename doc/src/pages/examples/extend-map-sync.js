@@ -14,7 +14,7 @@ import {ViewerComponent} from '../../js/components/ViewerComponent';
 import {dispose, init} from '../../js/examples/extend-map-sync';
 
 export default function Example() {
-  const title = 'Extend Map Synchronization';
+  const title = 'Extend Map Sync';
   return (
     <Layout title={title} noFooter="true">
       <ViewerComponent init={init} dispose={dispose} />
