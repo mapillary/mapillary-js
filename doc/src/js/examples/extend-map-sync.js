@@ -474,7 +474,7 @@ export function init(opts) {
     const image = await viewer.getImage();
     onImage(image);
     await onPosition();
-    cubeLayer.setReference(image.lngLat);
+    cubeLayer.setReference(cubeRenderer.reference);
   });
   viewer.on('image', (event) => onImage(event.image));
   viewer.on('position', onPosition);
