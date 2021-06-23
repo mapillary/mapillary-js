@@ -22,24 +22,37 @@ jobs:
       - name: Lint
         run: yarn lint
 
-      - name: Test
-        run: yarn test
-
       - name: Build
         run: yarn build
+
+      - name: Test
+        run: yarn test
+  doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "15.x"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
+
+      - name: Setup
+        run: yarn setup
 
       - name: Install doc dependencies
         run: |
           yarn --cwd doc install && \
-          yarn --cwd doc copy-mods
-
-      - name: Lint doc
+          yarn --cwd doc build-mods
+      - name: Lint
         run: yarn --cwd doc ci
 
       - name: Build API reference
         run: |
           yarn --cwd doc build-api && \
           yarn --cwd doc clear-api
-
-      - name: Build doc
+      - name: Build doc website
         run: yarn --cwd doc build
