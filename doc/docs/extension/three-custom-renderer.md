@@ -89,7 +89,7 @@ ICustomRenderer.[onAdd](/api/interfaces/viewer.icustomrenderer#onadd) is called 
 To calculate the topocentric position of our cube, we will make use of the [geodeticToEnu](/api/modules/api#geodetictoenu) helper function in MapillaryJS and make a position array.
 
 ```js
-function makePosition(geoPosition, reference) {
+function geoToPosition(geoPosition, reference) {
   const enuPosition = geodeticToEnu(
     geoPosition.lng,
     geoPosition.lat,
@@ -114,7 +114,7 @@ At last, we create our scene and add the cube mesh to it.
 class ThreeCubeRenderer {
   // ...
   onAdd(viewer, reference, context) {
-    const position = makePosition(this.cube.geoPosition, reference);
+    const position = geoToPosition(this.cube.geoPosition, reference);
     this.cube.mesh.position.fromArray(position);
 
     const canvas = viewer.getCanvas();
@@ -141,7 +141,7 @@ While we will only operate in a small area around the cube with our renderer, Ma
 class ThreeCubeRenderer {
   //...
   onReference(viewer, reference) {
-    const position = makePosition(this.cube.geoPosition, reference);
+    const position = geoToPosition(this.cube.geoPosition, reference);
     this.cube.mesh.position.fromArray(position);
   }
 }

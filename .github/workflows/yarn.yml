@@ -47,6 +47,7 @@ jobs:
         run: |
           yarn --cwd doc install && \
           yarn --cwd doc build-mods
+
       - name: Lint
         run: yarn --cwd doc ci
 
@@ -54,5 +55,6 @@ jobs:
         run: |
           yarn --cwd doc build-api && \
           yarn --cwd doc clear-api
+
       - name: Build doc website
         run: yarn --cwd doc build
