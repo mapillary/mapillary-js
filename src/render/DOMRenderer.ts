@@ -229,7 +229,7 @@ export class DOMRenderer {
                     return nodePatch;
                 },
                 { vNode: vd.h("div.mapillary-dom-renderer", []), vpatch: null }),
-            pluck<VirtualNodePatch, vd.VPatch[]>("vpatch"));
+            pluck("vpatch"));
 
         this._element$ = this._vPatch$.pipe(
             scan(
