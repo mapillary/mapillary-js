@@ -8,11 +8,6 @@
  */
 
 import {
-  geodeticToEnu,
-  RenderPass,
-  Viewer,
-} from '../../../mods/mapillary-js/dist/mapillary.module';
-import {
   BoxGeometry,
   Camera,
   Clock,
@@ -20,7 +15,13 @@ import {
   MeshBasicMaterial,
   Scene,
   WebGLRenderer,
-} from '../../../mods/three/build/three.module';
+} from 'three';
+
+import {
+  geodeticToEnu,
+  RenderPass,
+  Viewer,
+} from '../../mapillary-js/dist/mapillary.module';
 
 function geoToPosition(geoPosition, reference) {
   const position = geodeticToEnu(

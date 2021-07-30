@@ -119,7 +119,7 @@ class WebGLCubeRenderer {
 
 ### `onAdd`
 
-ICustomRenderer.[onAdd](/api/interfaces/viewer.icustomrenderer#onadd) is called when the renderer has been added to the `Viewer` with the Viewer.[addCustomRenderer](/api/classes/viewer.viewer-1#addcustomrenderer) method. This gives your renderer a chance to initialize WebGL resources and register event listeners. It is also a chance to calculate the [local topocentric positions](/docs/theory/coordinates#local-topocentric-coordinates) for scene objects using the provided reference.
+ICustomRenderer.[onAdd](/api/interfaces/viewer.icustomrenderer#onadd) is called when the renderer has been added to the `Viewer` with the Viewer.[addCustomRenderer](/api/classes/viewer.Viewer#addcustomrenderer) method. This gives your renderer a chance to initialize WebGL resources and register event listeners. It is also a chance to calculate the [local topocentric positions](/docs/theory/coordinates#local-topocentric-coordinates) for scene objects using the provided reference.
 
 To calculate the topocentric position of our cube, we will make use of the [geodeticToEnu](/api/modules/api#geodetictoenu) helper function in MapillaryJS and make a translation matrix by translating the cube according to the east, north, up coordinates.
 
@@ -202,7 +202,7 @@ class WebGLCubeRenderer {
 
 ### `onRemove`
 
-ICustomRenderer.[onRemove](/api/interfaces/viewer.icustomrenderer#onremove) is called when the renderer has been removed from the `Viewer` with the Viewer.[removeCustomRenderer](/api/classes/viewer.viewer-1#addcustomrenderer) method. This gives us a chance to clean up our WebGL resources (and potential event listeners etc).
+ICustomRenderer.[onRemove](/api/interfaces/viewer.icustomrenderer#onremove) is called when the renderer has been removed from the `Viewer` with the Viewer.[removeCustomRenderer](/api/classes/viewer.Viewer#addcustomrenderer) method. This gives us a chance to clean up our WebGL resources (and potential event listeners etc).
 
 ```js
 class WebGLCubeRenderer {
@@ -288,7 +288,7 @@ As of this writing, MapillaryJS will always render the street imagery layer as a
 
 ## Adding the Renderer
 
-Now that we have implemented our custom cube renderer, we just need to add it to the `Viewer` through the Viewer.[addCustomRenderer](/api/classes/viewer.viewer-1#addcustomrenderer) method.
+Now that we have implemented our custom cube renderer, we just need to add it to the `Viewer` through the Viewer.[addCustomRenderer](/api/classes/viewer.Viewer#addcustomrenderer) method.
 
 :::tip
 

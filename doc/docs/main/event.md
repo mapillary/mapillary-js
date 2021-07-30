@@ -15,7 +15,7 @@ title: Event Handling
 
 ## Register Handlers
 
-`Viewer` is an event emitter. As such, it exposes the Viewer.[on](/api/classes/viewer.viewer-1/#on) method which can be called to register event handlers. Each event handler is registered to a specific [ViewerEventType](/api/modules/viewer/#viewereventtype).
+`Viewer` is an event emitter. As such, it exposes the Viewer.[on](/api/classes/viewer.Viewer/#on) method which can be called to register event handlers. Each event handler is registered to a specific [ViewerEventType](/api/modules/viewer/#viewereventtype).
 
 Let's start by registering an event handler for the `load` event. The load event is fired immediately after all necessary resources have been downloaded and the first visually complete rendering of the viewer has occurred. We can listen to it to initialize application specific functionality and resources on `Viewer` load.
 
@@ -27,7 +27,7 @@ viewer.on('load', (event) => console.log(`'${event.type}'`));
 
 The `load` event is state event that emits an object with two properties, the [type](/api/interfaces/viewer.viewerstateevent#type) and the [target](/api/interfaces/viewer.viewerstateevent#target). The target is the object instance that emitted the event, in this case the viewer.
 
-We can listen to other state events too. Let's take a look at the `position` event. It is fired when the viewer's position changes. We can use the Viewer.[getPosition](/api/classes/viewer.viewer-1/#getposition) to get the position and use it in our application.
+We can listen to other state events too. Let's take a look at the `position` event. It is fired when the viewer's position changes. We can use the Viewer.[getPosition](/api/classes/viewer.Viewer/#getposition) to get the position and use it in our application.
 
 ```js
 const viewer = new Viewer({accessToken, container});
@@ -187,7 +187,7 @@ function render(props) {
 
 When users interact with the viewer, for example by panning, zooming, or navigating, the viewpoint, position, and other camera pose properties changes. We can register event handlers to listen and act on these changes. For the live example below we will listen to the `pov` event and use the `Viewer` bearing to update a compass north indicator.
 
-We call the Viewer.[getPointOfView](/api/classes/viewer.viewer-1/#getpointofview) method in our event handler and use the PointOfView.[bearing](/api/interfaces/viewer.pointofview#bearing) property to rotate our north indicator.
+We call the Viewer.[getPointOfView](/api/classes/viewer.Viewer/#getpointofview) method in our event handler and use the PointOfView.[bearing](/api/interfaces/viewer.pointofview#bearing) property to rotate our north indicator.
 
 :::tip
 
@@ -239,7 +239,7 @@ function render(props) {
 
 ## Remove Handlers
 
-When we do not need to listen to a specific event type any more, we call the Viewer.[off](/api/classes/viewer.viewer-1/#off) method to remove our event handler.
+When we do not need to listen to a specific event type any more, we call the Viewer.[off](/api/classes/viewer.Viewer/#off) method to remove our event handler.
 
 ```js
 const viewer = new Viewer({accessToken, container});

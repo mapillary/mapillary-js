@@ -7,7 +7,7 @@
  * @format
  */
 
-@import '../../../mods/mapillary-js/dist/mapillary.css';
+@import '../../mapillary-js/dist/mapillary.css';
 
 .mapillaryViewer {
   height: calc(100vh - 60px);

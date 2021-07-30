@@ -7,7 +7,7 @@
  * @format
  */
 
-import {CancelMapillaryError} from '../../../mods/mapillary-js/dist/mapillary.module';
+import {CancelMapillaryError} from '../../mapillary-js/dist/mapillary.module';
 
 export function mapillaryErrorHandler(error) {
   if (error instanceof CancelMapillaryError) {

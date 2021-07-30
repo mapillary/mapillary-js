@@ -58,7 +58,7 @@ class RotatingCubeRenderer {
 
 Our `onReference` and `onRemove` implementations remain the same, so let's move on to the `render` method. Here we make use of the clock to rotate the cube mesh according to our rotation speed and the elapsed time between each animation frame.
 
-Finally, we call the Viewer.[triggerRerender](/api/classes/viewer.viewer-1#triggerrerender) method to force the `Viewer` to rerender and call our render implementation on every animation frame. We need to trigger rerender on every animation frame because we want our cube to rotate indefinitely.
+Finally, we call the Viewer.[triggerRerender](/api/classes/viewer.Viewer#triggerrerender) method to force the `Viewer` to rerender and call our render implementation on every animation frame. We need to trigger rerender on every animation frame because we want our cube to rotate indefinitely.
 
 ```js
 class RotatingCubeRenderer {
@@ -86,7 +86,7 @@ Rerendering on every frame has a performance impact. Whenever it is possible, fo
 
 ## Adding the Renderer
 
-Now that we have implemented our rotating cube renderer, we just need to add it to the `Viewer` through the Viewer.[addCustomRenderer](/api/classes/viewer.viewer-1#addcustomrenderer) method.
+Now that we have implemented our rotating cube renderer, we just need to add it to the `Viewer` through the Viewer.[addCustomRenderer](/api/classes/viewer.Viewer#addcustomrenderer) method.
 
 :::tip
 

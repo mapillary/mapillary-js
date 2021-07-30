@@ -11,7 +11,7 @@ import {
   Alignment,
   Popup,
   Viewer,
-} from '../../../mods/mapillary-js/dist/mapillary.module';
+} from '../../mapillary-js/dist/mapillary.module';
 
 let viewer;
 

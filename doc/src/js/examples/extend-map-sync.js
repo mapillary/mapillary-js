@@ -21,13 +21,13 @@ import {
   Vector2,
   Vector3,
   WebGLRenderer,
-} from '../../../mods/three/build/three.module';
+} from 'three';
 
 import {
   geodeticToEnu,
   RenderPass,
   Viewer,
-} from '../../../mods/mapillary-js/dist/mapillary.module';
+} from '../../mapillary-js/dist/mapillary.module';
 
 function makeInstructions() {
   const message = document.createElement('div');

@@ -16,18 +16,18 @@ slug: /
 
 | Example | Description |
 | --- | --- |
-| [Initialization](/examples/viewer-initialization) | Initialize the viewer in different ways and check if it is [navigable](/api/classes/viewer.viewer-1#isnavigable) |
+| [Initialization](/examples/viewer-initialization) | Initialize the viewer in different ways and check if it is [navigable](/api/classes/viewer.Viewer#isnavigable) |
 | [Options](/examples/viewer-options) | Configure appearance and behavior through [viewer](/api/interfaces/viewer.vieweroptions) and [component](/api/interfaces/viewer.componentoptions) options |
-| [Methods](/examples/viewer-methods) | Configure appearance and behavior with methods after initial [load](/api/classes/viewer.viewer-1#on) |
+| [Methods](/examples/viewer-methods) | Configure appearance and behavior with methods after initial [load](/api/classes/viewer.Viewer#on) |
 | [Events](/examples/viewer-events) | Add event listeners and handle viewer [events](/api/modules/viewer#viewereventtype) |
-| [Filtering](/examples/viewer-filters) | Apply [filters](/api/classes/viewer.viewer-1#setfilter) to decide what images are shown and can be navigated to |
-| [Viewpoint](/examples/viewer-coordinates) | Control the viewer's [point](/api/classes/viewer.viewer-1#setcenter) and [field](/api/classes/viewer.viewer-1#setzoom) of view |
+| [Filtering](/examples/viewer-filters) | Apply [filters](/api/classes/viewer.Viewer#setfilter) to decide what images are shown and can be navigated to |
+| [Viewpoint](/examples/viewer-coordinates) | Control the viewer's [point](/api/classes/viewer.Viewer#setcenter) and [field](/api/classes/viewer.Viewer#setzoom) of view |
 
 ### Map Synchronization
 
 | Example | Description |
 | --- | --- |
-| [Viewer to Map](/examples/viewer-to-map) | Update a [Mapbox](https://docs.mapbox.com/mapbox-gl-js/api/) map from viewer [position](/api/classes/viewer.viewer-1#getposition) and [field of view](/api/classes/viewer.viewer-1#getfieldofview) |
+| [Viewer to Map](/examples/viewer-to-map) | Update a [Mapbox](https://docs.mapbox.com/mapbox-gl-js/api/) map from viewer [position](/api/classes/viewer.Viewer#getposition) and [field of view](/api/classes/viewer.Viewer#getfieldofview) |
 | [Map to Viewer](/examples/viewer-from-map) | Navigate the viewer based on [Mapbox](https://docs.mapbox.com/mapbox-gl-js/api/) map interaction |
 
 ## Component

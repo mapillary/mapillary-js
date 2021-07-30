@@ -11,7 +11,7 @@ import {
   isSupported,
   isFallbackSupported,
   Viewer,
-} from '../../../mods/mapillary-js/dist/mapillary.module';
+} from '../../mapillary-js/dist/mapillary.module';
 
 function makeMessage(content) {
   const message = document.createElement('div');

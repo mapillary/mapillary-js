@@ -24,43 +24,57 @@ const logger = (req, res, next) => {
   next();
 };
 
-const importer = (req, res, next) => {
-  const reqPath = req.path.endsWith(".js") ? req.path : `${req.path}.js`;
-  const file = path.join(pathname("doc"), reqPath);
-  fs.readFile(file, "utf-8", (err, data) => {
-    if (err) {
-      res.sendStatus(404);
-    } else {
-      data = data.replace("import mapboxgl from 'mapbox-gl';", "");
+const importer = (basepath) => {
+  return (req, res, next) => {
+    const reqPath = req.path.endsWith(".js") ? req.path : `${req.path}.js`;
+    const file = path.join(pathname(basepath), reqPath);
+    fs.readFile(file, "utf-8", (err, data) => {
+      if (err) {
+        res.sendStatus(404);
+      } else {
+        const mapbox = "import mapboxgl from 'mapbox-gl';";
+        data = data.replace(mapbox, "");
 
-      const relative = /(\sfrom\s\'\.\/.*)(';)/g;
-      data = data.replace(relative, (match, p1, p2) => {
-        return [p1, ".js';"].join("");
-      });
+        const threeExamples = /(\sfrom\s\')(three\/examples\/)(.*)(';)/g;
+        function replacer(match, p1, p2, p3, __) {
+          return [p1, "/node_modules/", p2, p3, ".js';"].join("");
+        }
+        data = data.replace(threeExamples, replacer);
 
-      const mapillary = /\sfrom\s\'.*\/mapillary.module\';/;
-      data = data.replace(mapillary, " from '/dist/mapillary.module.js';");
+        const three = /\sfrom\s\'three\';/;
+        data = data.replace(
+          three,
+          " from '/node_modules/three/build/three.module.js';"
+        );
 
-      const mods = /(?!.*mapillary)(.*)(\sfrom\s\'.*\/mods\/)(.*)(';)/g;
-      function replacer(match, p1, _, p3, __) {
-        return [p1, " from '/mods/", p3, ".js';"].join("");
+        const mapillary =
+          /\sfrom\s\'..\/..\/mapillary-js\/dist\/mapillary.module\';/;
+        data = data.replace(mapillary, " from '/dist/mapillary.module.js';");
+
+        const relative = /(\sfrom\s\'\.\/.*)(';)/g;
+        data = data.replace(relative, (match, p1, p2) => {
+          return [p1, ".js';"].join("");
+        });
+
+        res.type("application/javascript");
+        res.send(data);
       }
-      data = data.replace(mods, replacer);
-
-      res.type("application/javascript");
-      res.send(data);
-    }
-  });
+    });
+  };
 };
 
 const app = express();
 app.use(logger);
 app.use("/doc-css", express.static(pathname("doc/src/css")));
-app.use("/doc-src", importer);
+app.use("/doc-src", importer("doc"));
 app.use("/dist", express.static(pathname("dist")));
 app.use("/doc", express.static(pathname("examples/doc")));
 app.use(
-  "/mods",
+  "/node_modules/three/examples",
+  importer("node_modules/three/examples")
+);
+app.use(
+  "/node_modules",
   express.static(pathname("node_modules")),
   express.static(pathname("doc/node_modules"))
 );

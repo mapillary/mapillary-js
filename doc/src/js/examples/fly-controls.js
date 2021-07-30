@@ -7,18 +7,16 @@
  * @format
  */
 
+import {Clock, Matrix4, PerspectiveCamera} from 'three';
+
+import {FlyControls} from 'three/examples/jsm/controls/FlyControls';
+
 import {
   enuToGeodetic,
   geodeticToEnu,
   CameraControls,
   Viewer,
-} from '../../../mods/mapillary-js/dist/mapillary.module';
-import {
-  Clock,
-  Matrix4,
-  PerspectiveCamera,
-} from '../../../mods/three/build/three.module';
-import {FlyControls} from '../../../mods/three/examples/jsm/controls/FlyControls';
+} from '../../mapillary-js/dist/mapillary.module';
 
 function calcAspect(element) {
   const width = element.offsetWidth;

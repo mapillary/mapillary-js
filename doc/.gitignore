@@ -9,7 +9,7 @@
 .cache-loader
 .docusaurus
 /api
-/mods
+/src/mapillary-js
 
 # Misc
 .DS_Store

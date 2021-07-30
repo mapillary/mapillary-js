@@ -15,7 +15,7 @@ import {
   SpotTag,
   TagDomain,
   Viewer,
-} from '../../../mods/mapillary-js/dist/mapillary.module';
+} from '../../mapillary-js/dist/mapillary.module';
 
 import {Folder} from '../options/Folder';
 import {BooleanController} from '../options/BooleanController';

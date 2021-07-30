@@ -11,7 +11,7 @@ import {
   geodeticToEnu,
   RenderPass,
   Viewer,
-} from '../../../mods/mapillary-js/dist/mapillary.module';
+} from '../../mapillary-js/dist/mapillary.module';
 
 function initBuffers(gl) {
   const positions = [

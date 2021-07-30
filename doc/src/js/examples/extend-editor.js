@@ -18,16 +18,16 @@ import {
   Scene,
   Vector2,
   WebGLRenderer,
-} from '../../../mods/three/build/three.module';
+} from 'three';
 
-import {TransformControls} from '../../../mods/three/examples/jsm/controls/TransformControls';
+import {TransformControls} from 'three/examples/jsm/controls/TransformControls';
 
 import {
   enuToGeodetic,
   geodeticToEnu,
   RenderPass,
   Viewer,
-} from '../../../mods/mapillary-js/dist/mapillary.module';
+} from '../../mapillary-js/dist/mapillary.module';
 
 import {Log} from '../options/Log';
 
@@ -157,7 +157,7 @@ class Transformer {
     this.selectionBox.material.transparent = true;
     this.selectionBox.visible = false;
 
-    this.controls = new TransformControls(camera, viewer.getContainer());
+    this.controls = new TransformControls(camera, viewer.getCanvas());
 
     this.controls.addEventListener('dragging-changed', (event) => {
       if (event.value) {
