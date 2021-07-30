@@ -14,7 +14,7 @@ const pathname = (dirname) => {
 const logger = (req, res, next) => {
   const clearColor = "\x1b[0m";
   res.on("finish", () => {
-    const color = res.statusCode === 200 ? clearColor : "\x1b[31m";
+    const color = res.statusCode < 400 ? clearColor : "\x1b[31m";
     const format = `${color}%s${clearColor}`;
     const message =
       `[${new Date().toISOString()}] ${req.method} ` +
@@ -34,7 +34,7 @@ const importer = (req, res, next) => {
       data = data.replace("import mapboxgl from 'mapbox-gl';", "");
 
       const relative = /(\sfrom\s\'\.\/.*)(';)/g;
-      data = data.replaceAll(relative, (match, p1, p2) => {
+      data = data.replace(relative, (match, p1, p2) => {
         return [p1, ".js';"].join("");
       });
 
@@ -45,7 +45,7 @@ const importer = (req, res, next) => {
       function replacer(match, p1, _, p3, __) {
         return [p1, " from '/mods/", p3, ".js';"].join("");
       }
-      data = data.replaceAll(mods, replacer);
+      data = data.replace(mods, replacer);
 
       res.type("application/javascript");
       res.send(data);
