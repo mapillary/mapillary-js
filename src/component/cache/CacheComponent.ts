@@ -70,7 +70,7 @@ export class CacheComponent extends Component<CacheConfiguration> {
                         let next$ = this._cache$(status.edges, NavigationDirection.Next, sequenceDepth);
                         let prev$ = this._cache$(status.edges, NavigationDirection.Prev, sequenceDepth);
 
-                        return observableMerge<EdgesDepth>(
+                        return observableMerge(
                             next$,
                             prev$).pipe(
                                 catchError(
@@ -118,7 +118,7 @@ export class CacheComponent extends Component<CacheConfiguration> {
                         let turnRight$ = this._cache$(edges, NavigationDirection.TurnRight, turnDepth);
                         let turnU$ = this._cache$(edges, NavigationDirection.TurnU, turnDepth);
 
-                        return observableMerge<EdgesDepth>(
+                        return observableMerge(
                             forward$,
                             backward$,
                             left$,

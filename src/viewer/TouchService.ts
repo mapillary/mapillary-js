@@ -119,7 +119,7 @@ export class TouchService {
                 }),
             share());
 
-        let singleTouchStart$: Observable<TouchEvent> = observableMerge<TouchEvent>(
+        let singleTouchStart$: Observable<TouchEvent> = observableMerge(
             this._touchStart$,
             this._touchEnd$,
             this._touchCancel$).pipe(
@@ -128,7 +128,7 @@ export class TouchService {
                         return te.touches.length === 1 && te.targetTouches.length === 1;
                     }));
 
-        let multipleTouchStart$: Observable<TouchEvent> = observableMerge<TouchEvent>(
+        let multipleTouchStart$: Observable<TouchEvent> = observableMerge(
             this._touchStart$,
             this._touchEnd$,
             this._touchCancel$).pipe(
@@ -137,7 +137,7 @@ export class TouchService {
                         return te.touches.length >= 1;
                     }));
 
-        let touchStop$: Observable<TouchEvent> = observableMerge<TouchEvent>(
+        let touchStop$: Observable<TouchEvent> = observableMerge(
             this._touchEnd$,
             this._touchCancel$).pipe(
                 filter(
@@ -176,7 +176,7 @@ export class TouchService {
                                 touchStop$)));
                 }));
 
-        let touchesChanged$: Observable<TouchEvent> = observableMerge<TouchEvent>(
+        let touchesChanged$: Observable<TouchEvent> = observableMerge(
             this._touchStart$,
             this._touchEnd$,
             this._touchCancel$);
