@@ -132,7 +132,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * time.
      *
      * @param {ViewerOptions} options - Optional configuration object
-     * specifing Viewer's and the components' initial setup.
+     * specifying Viewer's and the components' initial setup.
      *
      * @example
      * ```js
@@ -396,7 +396,7 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * @description The camera control mode determines
      * how the camera is controlled when the viewer
-     * recieves pointer and keyboard input.
+     * receives pointer and keyboard input.
      *
      * @returns {CameraControls} controls - Camera control mode.
      *
@@ -1326,7 +1326,7 @@ export class Viewer extends EventEmitter implements IViewer {
      *
      * @description The camera control mode determines
      * how the camera is controlled when the viewer
-     * recieves pointer and keyboard input.
+     * receives pointer and keyboard input.
      *
      * Changing the camera control mode is not possible
      * when the slider component is active and attempts
