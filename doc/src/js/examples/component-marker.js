@@ -7,10 +7,7 @@
  * @format
  */
 
-import {
-  SimpleMarker,
-  Viewer,
-} from '../../../mods/mapillary-js/dist/mapillary.module';
+import {SimpleMarker, Viewer} from '../../mapillary-js/dist/mapillary.module';
 
 function createMarker(markerId, lngLat, color) {
   const marker = new SimpleMarker(markerId, lngLat, {

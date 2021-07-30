@@ -8,8 +8,8 @@
  */
 
 import React from 'react';
-import * as mapillary from '../../../mods/mapillary-js/dist/mapillary.module';
-import * as three from '../../../mods/three/build/three.module';
+import * as three from 'three';
+import * as mapillary from '../../mapillary-js/dist/mapillary.module';
 
 import {accessToken} from '../../../.access-token/token';
 import {mapillaryErrorHandler} from '../../js/utils/error';
@@ -21,7 +21,7 @@ import * as procedural from '../../js/examples/procedural-data-provider';
 import * as threerenderer from '../../js/examples/three-renderer';
 import * as webglrenderer from '../../js/examples/webgl-renderer';
 
-import '../../../mods/mapillary-js/dist/mapillary.css';
+import '../../mapillary-js/dist/mapillary.css';
 
 // Add react-live imports you need here
 const ReactLiveScope = {

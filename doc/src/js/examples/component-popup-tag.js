@@ -14,7 +14,7 @@ import {
   RectGeometry,
   SpotTag,
   Viewer,
-} from '../../../mods/mapillary-js/dist/mapillary.module';
+} from '../../mapillary-js/dist/mapillary.module';
 
 function createPopup(label) {
   const span = document.createElement('span');

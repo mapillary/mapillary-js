@@ -7,10 +7,7 @@
  * @format
  */
 
-import {
-  SimpleMarker,
-  Viewer,
-} from '../../../mods/mapillary-js/dist/mapillary.module';
+import {SimpleMarker, Viewer} from '../../mapillary-js/dist/mapillary.module';
 
 function randomColor() {
   return `#${Math.floor(Math.random() * 16777215)

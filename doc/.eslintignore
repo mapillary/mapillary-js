@@ -6,4 +6,4 @@ node_modules
 .docusaurus
 api
 build
-mods
+src/mapillary-js

@@ -5,7 +5,7 @@ title: Initialization
 
 MapillaryJS comes with a core set of street imagery interaction and visualization features. The `Viewer` object represents the street imagery viewer on your web page. It exposes methods that you can use to programatically change the view, and fires events as users interact with it.
 
-You can customize the [Viewer](/api/classes/viewer.viewer-1) behavior in different ways. In this guide we will do this at initialization time.
+You can customize the [Viewer](/api/classes/viewer.Viewer) behavior in different ways. In this guide we will do this at initialization time.
 
 :::info You will learn
 
@@ -21,7 +21,7 @@ The MapillaryJS _cover_ is a special component that can be activated and deactiv
 
 If we specify an image ID in the [viewer options](/api/interfaces/viewer.vieweroptions#imageid), the cover will always be visible initially (but can be hidden automatically through with the `cover: false` component option).
 
-If we do not specify an image ID in the viewer options the cover will be hidden (resulting in a dark background being shown). In this case, we need another way to tell inform the Viewer about the intial image. We can use the Viewer.[moveTo](/api/classes/viewer.viewer-1/#moveto) method to do that by calling it with our image ID.
+If we do not specify an image ID in the viewer options the cover will be hidden (resulting in a dark background being shown). In this case, we need another way to tell inform the Viewer about the intial image. We can use the Viewer.[moveTo](/api/classes/viewer.Viewer/#moveto) method to do that by calling it with our image ID.
 
 :::tip
 

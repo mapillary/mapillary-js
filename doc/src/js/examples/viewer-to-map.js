@@ -9,7 +9,7 @@
 
 import mapboxgl from 'mapbox-gl';
 
-import {Viewer} from '../../../mods/mapillary-js/dist/mapillary.module';
+import {Viewer} from '../../mapillary-js/dist/mapillary.module';
 
 function makeContainers(container) {
   const boundingRect = container.getBoundingClientRect();

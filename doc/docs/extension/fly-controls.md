@@ -37,7 +37,7 @@ class FlyCameraControls {
 
 ### `onAttach`
 
-ICustomCameraControls.[onAttach](/api/interfaces/viewer.icustomcameracontrols#onattach) is called when the controls have been attached to the `Viewer` with the Viewer.[attachCustomCameraControls](/api/classes/viewer.viewer-1#attachcustomcameracontrols) method. `onAttach` provides two important callback parameters, `viewMatrixCallback` and `projectionMatrixCallback`. You should invoke these callbacks to modify the pose and projection of the `Viewer`'s camera whenever the controls causes an update.
+ICustomCameraControls.[onAttach](/api/interfaces/viewer.icustomcameracontrols#onattach) is called when the controls have been attached to the `Viewer` with the Viewer.[attachCustomCameraControls](/api/classes/viewer.Viewer#attachcustomcameracontrols) method. `onAttach` provides two important callback parameters, `viewMatrixCallback` and `projectionMatrixCallback`. You should invoke these callbacks to modify the pose and projection of the `Viewer`'s camera whenever the controls causes an update.
 
 Custom camera controls trigger rerendering automatically when the camera pose or projection is changed through the `viewMatrixCallback` or `projectionMatrixCallback`. Invoking the callbacks has no effect if custom camera controls has not been [activated](/docs/extension/fly-controls#activating-and-deactivating).
 
@@ -78,7 +78,7 @@ Simpilar to the `viewMatrix`, the `projectionMatrix` array contains the `Viewer`
 Our `onActivate` implementation consist of the following steps.
 
 1. We save the geodetic reference for the future in case it changes.
-2. We use the Viewer.[getContainer](/api/classes/viewer.viewer-1#getcontainer) method to get the container for determining the viewer aspect and create a [PerspectiveCamera](https://threejs.org/docs/index.html?q=perspe#api/en/cameras/PerspectiveCamera). We want up to correspond to the Z-axis initially so we rotate the camera 90 degrees.
+2. We use the Viewer.[getContainer](/api/classes/viewer.Viewer#getcontainer) method to get the container for determining the viewer aspect and create a [PerspectiveCamera](https://threejs.org/docs/index.html?q=perspe#api/en/cameras/PerspectiveCamera). We want up to correspond to the Z-axis initially so we rotate the camera 90 degrees.
 3. We create the fly controls, providing the camera and the container for attaching event handlers (which happens in the Three.js FlyControls constructor).
 4. We use the `viewMatrix` inverse to set the initial camera position to the current `Viewer` position.
 5. We create an event listener invoking the `viewMatrixCallback` whenever the controls emits a change.
@@ -181,7 +181,7 @@ class FlyCameraControls {
 
 ### `onResize`
 
-Whenever the `Viewer` detects that it is resized, either through [browser resize tracking](/api/interfaces/viewer.vieweroptions#trackresize) or through you informing it with the Viewer.(resize)[/api/classes/viewer.viewer-1#resize] method, it will notify our camera controls. This gives us a chance to recalculate the aspect and update the projection matrix.
+Whenever the `Viewer` detects that it is resized, either through [browser resize tracking](/api/interfaces/viewer.vieweroptions#trackresize) or through you informing it with the Viewer.(resize)[/api/classes/viewer.Viewer#resize] method, it will notify our camera controls. This gives us a chance to recalculate the aspect and update the projection matrix.
 
 ```js
 class FlyCameraControls {
@@ -197,7 +197,7 @@ class FlyCameraControls {
 
 ### `onDeactivate`
 
-The `onDeactivate` method is called when other camera controls are activated with the Viewer.[setCameraControls](/api/classes/viewer.viewer-1#setcameracontrols) method. We use the `onDeactivate` method to dispose the fly controls and remove our event listener. Note that our controls are still attached to the `Viewer` and may be activated again in the future.
+The `onDeactivate` method is called when other camera controls are activated with the Viewer.[setCameraControls](/api/classes/viewer.Viewer#setcameracontrols) method. We use the `onDeactivate` method to dispose the fly controls and remove our event listener. Note that our controls are still attached to the `Viewer` and may be activated again in the future.
 
 ```js
 class FlyCameraControls {
@@ -214,7 +214,7 @@ class FlyCameraControls {
 
 ### `onDetach`
 
-The `onDetach` method is called when the camera controls have been detached from the viewer by calling Viewer.[detachCameraControls](/api/classes/viewer.viewer-1#detachcustomcameracontrols). This gives use a chance to remove the matrix callbacks.
+The `onDetach` method is called when the camera controls have been detached from the viewer by calling Viewer.[detachCameraControls](/api/classes/viewer.Viewer#detachcustomcameracontrols). This gives use a chance to remove the matrix callbacks.
 
 ```js
 class FlyCameraControls {
@@ -228,20 +228,20 @@ class FlyCameraControls {
 
 ## Attaching and Detaching
 
-Only a single custom camera control instance can be attached to the `Viewer` at any given time. A controls instance is attached with the Viewer.[attachCustomCameraControls](/api/classes/viewer.viewer-1#attachcustomcameracontrols) method. Although only a single control instance can be attached at any given time, multiple different controls can be used during the `Viewer` lifespan. By detaching a controls instance with the Viewer.[detachCustomCameraControls](/api/classes/viewer.viewer-1#detachcustomcameracontrols) method, another controls instance can be attached.
+Only a single custom camera control instance can be attached to the `Viewer` at any given time. A controls instance is attached with the Viewer.[attachCustomCameraControls](/api/classes/viewer.Viewer#attachcustomcameracontrols) method. Although only a single control instance can be attached at any given time, multiple different controls can be used during the `Viewer` lifespan. By detaching a controls instance with the Viewer.[detachCustomCameraControls](/api/classes/viewer.Viewer#detachcustomcameracontrols) method, another controls instance can be attached.
 
 ### Activating and Deactivating
 
 You can activate an attached controls instance in two ways.
 
 1. Use the the ViewerOptions.[cameraControls](/api/interfaces/viewer.vieweroptions#cameracontrols) option to specify the CameraControls.[Custom](/api/enums/viewer.cameracontrols#custom) mode upon initialization.
-2. Set the `Custom` mode with the Viewer.[setCameraControls](/api/classes/viewer.viewer-1#setcameracontrols) method at any time during the `Viewer` lifespan.
+2. Set the `Custom` mode with the Viewer.[setCameraControls](/api/classes/viewer.Viewer#setcameracontrols) method at any time during the `Viewer` lifespan.
 
-Deactivating the custom controls is done by calling the Viewer.[setCameraControls](/api/classes/viewer.viewer-1#setcameracontrols) method with any oother [CameraControls] mode.
+Deactivating the custom controls is done by calling the Viewer.[setCameraControls](/api/classes/viewer.Viewer#setcameracontrols) method with any oother [CameraControls] mode.
 
 ## Putting the Controls to Use
 
-Now that we have implemented our custom cube renderer, we just need to add it to the `Viewer` through the Viewer.[addCustomRenderer](/api/classes/viewer.viewer-1#addcustomrenderer) method.
+Now that we have implemented our custom cube renderer, we just need to add it to the `Viewer` through the Viewer.[addCustomRenderer](/api/classes/viewer.Viewer#addcustomrenderer) method.
 
 :::tip
 
