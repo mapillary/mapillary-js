@@ -4,9 +4,9 @@ This website is built using [Docusaurus 2](https://docusaurus.io/).
 
 ## Development Workflow
 
-After cloning MapillaryJS, run `yarn install && yarn install-modules` in this directory to fetch the documentation dependencies. Then, you can run several commands:
+After cloning MapillaryJS, run `yarn install && yarn install-mjs` in this directory to fetch the documentation dependencies. Then, you can run several commands:
 
-- `yarn install-modules` builds the `mapillary-js` library and copies its distribution `src/mapillary-js` directory. This step is required for building the docs.
+- `yarn install-mjs` builds the `mapillary-js` library and copies its distribution to the `src/mapillary-js` directory. This step is required for building the docs.
 - `yarn ci` check for linting/formatting issues.
 - `yarn start-docs` starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server. It omits the API and examples sections for faster iteration. It omits the API and examples sections for faster iteration.
 - `yarn build` generates static content into the `build` directory and can be served using any static contents hosting service.

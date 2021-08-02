@@ -4,7 +4,18 @@ title: Introduction
 slug: /
 ---
 
+**MapillaryJS** is a client-side JavaScript library for building street imagery map experiences. You can use MapillaryJS to display street imagery maps in a web browser or client and you can augment the experience with your own data.
+
 This page is an overview of the MapillaryJS `v4.x` documentation and related resources.
+
+### Use cases
+
+Use cases for MapillaryJS include:
+
+- Navigating real world places in an interactive street imagery experience
+- Visualizing, editing, and animating 3D representations of geographic data
+- Dynamically displaying custom client-side data in an undistorted virtual 3D world
+- Adding markers and popups to street imagery maps programmatically
 
 ### Try MapillaryJS
 
@@ -36,13 +47,19 @@ The [examples section](/examples) gives you a deep dive into the details of usin
 
 ### What is MapillaryJS, Exactly?
 
-MapillaryJS is an interactive, extendable street imagery and semantic mapping visualization platform. But what does that actually mean? Let us go through it together.
+MapillaryJS is an interactive, extendable street imagery map component for semantic map visualization on the web. But what does that actually mean? Let us go through it together.
+
+As a start, you can think of MapillaryJS as a three-dimensional sibling to a traditional 2D map. While the traditional 2D map gives a great overview, the street imagery map gives you access to the finest details. MapillaryJS can be a used as a component in any web application, paired with a 2D map or on its own.
+
+#### Interactive
+
+MapillaryJS provides user interactivity to navigate the street imagery smoothly in a virtual, undistorted 3D world.
 
 #### Street Imagery
 
 Street imagery is simply images captured anywhere on earth at street-level, i.e roughly at eye-height. MapillaryJS provides interactivity to navigate street imagery smoothly in a virtual, undistorted 3D world.
 
-#### Semantic Mapping
+#### Semantic Map
 
 [Mapping](https://en.wikipedia.org/wiki/Cartography) is the practice of making or using maps.
 
@@ -50,9 +67,9 @@ Street imagery is simply images captured anywhere on earth at street-level, i.e 
 
 MapillaryJS provides methods to visualize the underlying data used to create semantic 3D maps through its spatial rendering capabilities. This is useful for understanding the structure of semantic mapping algorithm output.
 
-#### Visualization Platform
+#### Extendable Visualization Component
 
-The aim of MapillaryJS is to provide the following characteristics:
+MapillaryJS aims to provide the following characteristics:
 
 - Core capabilities
   - A small set of capabilities that work really well.
@@ -74,7 +91,7 @@ The aim of MapillaryJS is to provide the following characteristics:
     - Render any 3D content, e.g. by using Three.js.
     - Build application specific interactivity.
 
-By providing the above characteristics, MapillaryJS can be a visualization platform in the browser for spatial and mapping developers to build upon and extend.
+With the above, you are able to create augmented experiences by extending the MapillaryJS core functionality.
 
 ### Glossary
 
