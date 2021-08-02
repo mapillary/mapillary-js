@@ -1,1 +1,0 @@
-(self.webpackChunkmapillary_js_doc=self.webpackChunkmapillary_js_doc||[]).push([[5301],{2539:function(e){"use strict";e.exports=JSON.parse('{"pluginId":"examples","version":"current","label":"Next","isLast":true,"docsSidebars":{"examples":[{"type":"link","label":"Examples","href":"/mapillary-js/examples/"}]},"permalinkToSidebar":{"/mapillary-js/examples/":"examples"}}')}}]);
