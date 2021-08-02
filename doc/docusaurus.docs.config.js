@@ -10,7 +10,7 @@
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'MapillaryJS',
-  tagline: 'Interactive, extendable street imagery visualization platform',
+  tagline: 'Interactive, extendable street imagery map experiences',
   url: 'https://mapillary.github.io',
   baseUrl: '/mapillary-js/',
   onBrokenLinks: 'error',
