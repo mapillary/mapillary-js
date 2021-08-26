@@ -11,10 +11,10 @@ import React from 'react';
 import Layout from '@theme/Layout';
 import {Code} from '../../js/components/Code';
 import {ViewerComponent} from '../../js/components/ViewerComponent';
-import {dispose, init} from '../../js/examples/fly-controls';
+import {dispose, init} from '../../js/examples/extend-fly-controls';
 
 export default function Example() {
-  const title = 'Fly Controls';
+  const title = 'Extend Fly Controls';
   return (
     <Layout title={title} noFooter="true">
       <ViewerComponent init={init} dispose={dispose} />

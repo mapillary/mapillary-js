@@ -305,7 +305,7 @@ function render(props) {
 
 :::info
 
-You can view the complete code in the [Fly Controls](/examples/fly-controls) example.
+You can view the complete code in the [Fly Controls](/examples/extend-fly-controls) example.
 
 For another example of custom camera controls leveraging Three.js, you can take a look at the [OpenSfM orbit camera controls](https://github.com/mapillary/OpenSfM/blob/398fe61fd970c7fa80b10b56606643408fa3dd7e/viewer/src/ui/OrbitCameraControls.js).
 

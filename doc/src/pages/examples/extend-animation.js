@@ -11,10 +11,10 @@ import React from 'react';
 import Layout from '@theme/Layout';
 import {Code} from '../../js/components/Code';
 import {ViewerComponent} from '../../js/components/ViewerComponent';
-import {dispose, init} from '../../js/examples/webgl-renderer';
+import {dispose, init} from '../../js/examples/extend-animation';
 
 export default function Example() {
-  const title = 'WebGL Renderer';
+  const title = 'Extend Animation';
   return (
     <Layout title={title} noFooter="true">
       <ViewerComponent init={init} dispose={dispose} />

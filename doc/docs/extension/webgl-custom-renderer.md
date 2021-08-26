@@ -145,7 +145,7 @@ function makeModelMatrix(geoPosition, reference) {
 
 :::tip
 
-If you need to perform vector and matrix operations, we recommend using the [glMatrix](https://glmatrix.net/) library or the [Three.js math modules](https://threejs.org/docs/index.html#api/en/math/Matrix4) (like in the [Three.js Custom Renderer](/examples/three-renderer) example).
+If you need to perform vector and matrix operations, we recommend using the [glMatrix](https://glmatrix.net/) library or the [Three.js math modules](https://threejs.org/docs/index.html#api/en/math/Matrix4) (like in the [Three.js Custom Renderer](/examples/extend-three-renderer) example).
 
 :::
 
@@ -346,6 +346,6 @@ function render(props) {
 
 :::info
 
-You can view the complete code in the [WebGL Renderer](/examples/webgl-renderer) example.
+You can view the complete code in the [WebGL Renderer](/examples/extend-webgl-renderer) example.
 
 :::
