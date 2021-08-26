@@ -15,11 +15,11 @@ import {accessToken} from '../../../.access-token/token';
 import {mapillaryErrorHandler} from '../../js/utils/error';
 import {ViewerComponent} from '../../js/components/ViewerComponent';
 
-import * as animation from '../../js/examples/animation';
-import * as flycontrols from '../../js/examples/fly-controls';
-import * as procedural from '../../js/examples/procedural-data-provider';
-import * as threerenderer from '../../js/examples/three-renderer';
-import * as webglrenderer from '../../js/examples/webgl-renderer';
+import * as animation from '../../js/examples/extend-animation';
+import * as flycontrols from '../../js/examples/extend-fly-controls';
+import * as procedural from '../../js/examples/extend-procedural-data-provider';
+import * as threerenderer from '../../js/examples/extend-three-renderer';
+import * as webglrenderer from '../../js/examples/extend-webgl-renderer';
 
 import '../../mapillary-js/dist/mapillary.css';
 

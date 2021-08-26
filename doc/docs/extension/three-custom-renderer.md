@@ -287,7 +287,7 @@ function render(props) {
 
 :::info
 
-You can view the complete code in the [Three.js Renderer](/examples/three-renderer) example.
+You can view the complete code in the [Three.js Renderer](/examples/extend-three-renderer) example.
 
 For more examples of custom renderers using Three.js, you can take a look at the [OpenSfM axes and earth grid renderers](https://github.com/mapillary/OpenSfM/tree/398fe61fd970c7fa80b10b56606643408fa3dd7e/viewer/src/renderer).
 

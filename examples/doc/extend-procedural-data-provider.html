@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Three.js Renderer</title>
+        <title>Extend Procedural Data Provider</title>
         <link rel="icon" href="data:," />
         <meta charset="utf-8" />
         <meta
@@ -28,14 +28,13 @@
 
     <body>
         <script type="module">
-            import { accessToken } from "/doc-src/.access-token/token.js";
-            import { init } from "/doc-src/src/js/examples/three-renderer.js";
+            import { init } from "/doc-src/src/js/examples/extend-procedural-data-provider.js";
 
             const container = document.createElement("div");
             container.className = "viewer";
             document.body.appendChild(container);
 
-            init({ accessToken, container });
+            init({ container });
         </script>
     </body>
 </html>

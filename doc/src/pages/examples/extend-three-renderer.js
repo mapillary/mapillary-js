@@ -11,10 +11,10 @@ import React from 'react';
 import Layout from '@theme/Layout';
 import {Code} from '../../js/components/Code';
 import {ViewerComponent} from '../../js/components/ViewerComponent';
-import {dispose, init} from '../../js/examples/procedural-data-provider';
+import {dispose, init} from '../../js/examples/extend-three-renderer';
 
 export default function Example() {
-  const title = 'Procedural Data Provider';
+  const title = 'Extend Three Renderer';
   return (
     <Layout title={title} noFooter="true">
       <ViewerComponent init={init} dispose={dispose} />

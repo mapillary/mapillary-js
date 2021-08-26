@@ -72,10 +72,10 @@ slug: /
 
 | Example | MapillaryJS API | Description |
 | --- | --- | --- |
-| [Procedural Provider](/examples/procedural-data-provider) | Data Provider | Serve [procedurally generated](https://en.wikipedia.org/wiki/Procedural_generation) data |
-| [WebGL Renderer](/examples/webgl-renderer) | Render | Use [WebGL](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API) to render a cube |
-| [Three.js Renderer](/examples/three-renderer) | Render | Use [Three.js](https://threejs.org/) to render a cube |
-| [Animation](/examples/animation) | Render | Make a rotating cube [animation](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Animating_objects_with_WebGL) |
+| [Procedural Provider](/examples/extend-procedural-data-provider) | Data Provider | Serve [procedurally generated](https://en.wikipedia.org/wiki/Procedural_generation) data |
+| [WebGL Renderer](/examples/extend-webgl-renderer) | Render | Use [WebGL](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API) to render a cube |
+| [Three.js Renderer](/examples/extend-three-renderer) | Render | Use [Three.js](https://threejs.org/) to render a cube |
+| [Animation](/examples/extend-animation) | Render | Make a rotating cube [animation](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Animating_objects_with_WebGL) |
 | [Editor](/examples/extend-editor) | Render | Use [transform controls](https://github.com/mrdoob/three.js/blob/r125/examples/jsm/controls/TransformControls.js) to translate, rotate, and scale a box |
 | [Map Synchronization](/examples/extend-map-sync) | Render | Translate and rotate a cube in a [Mapbox](https://docs.mapbox.com/mapbox-gl-js/api/) map and reflect the changes in the viewer |
-| [Fly Controls](/examples/fly-controls) | Camera Control | Attach [fly controls](https://github.com/mrdoob/three.js/blob/r127/examples/jsm/controls/FlyControls.js) leveraging Three.js |
+| [Fly Controls](/examples/extend-fly-controls) | Camera Control | Attach [fly controls](https://github.com/mrdoob/three.js/blob/r127/examples/jsm/controls/FlyControls.js) leveraging Three.js |

@@ -363,7 +363,7 @@ Now you know how to provide MapillaryJS with your own data by:
 
 :::info
 
-You can view the complete code in the [Procedural Data Provider](/examples/procedural-data-provider) example.
+You can view the complete code in the [Procedural Data Provider](/examples/extend-procedural-data-provider) example.
 
 If you want to build a data provider fetching files from a server, you can use the [OpenSfM data provider](https://github.com/mapillary/OpenSfM/blob/6585f0561e7c9d4907eadc7bc2fb9dbdad8a2945/viewer/src/provider/OpensfmDataProvider.js) as inspiration.
 

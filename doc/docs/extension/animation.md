@@ -144,6 +144,6 @@ function render(props) {
 
 :::info
 
-You can view the complete code in the [Animation](/examples/animation) example.
+You can view the complete code in the [Animation](/examples/extend-animation) example.
 
 :::
