@@ -53,6 +53,7 @@ export {
     ComparisonFilterExpression,
     ComparisonFilterOperator,
     FilterExpression,
+    FilterImage,
     FilterKey,
     FilterOperator,
     FilterValue,

@@ -23,8 +23,8 @@
     "prettier:diff": "prettier --config .prettierrc --list-different \"**/*.{js,jsx,ts,tsx,md,mdx}\"",
     "rebuild": "yarn clear-all && yarn install-mjs && yarn build",
     "serve": "docusaurus serve",
-    "start": "docusaurus start",
-    "start-docs": "docusaurus start --config docusaurus.docs.config.js",
+    "start": "docusaurus start --config docusaurus.docs.config.js",
+    "start-api": "docusaurus start",
     "swizzle": "docusaurus swizzle",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids"
