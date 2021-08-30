@@ -22,7 +22,7 @@ export type FilterOperator =
     | SetMembershipFilterOperator;
 
 // Key
-type FilterImage = Pick<
+export type FilterImage = Pick<
     Image,
     | "cameraType"
     | "capturedAt"

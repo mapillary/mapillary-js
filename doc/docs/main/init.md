@@ -62,7 +62,7 @@ function render(props) {
       container,
       imageId,
     };
-    viewer = new Viewer(options);
+    coverViewer = new Viewer(options);
   }
 
   return (
@@ -88,7 +88,9 @@ The other options are optional. We can deactivate things like _image tiling_, _c
 
 :::tip
 
-Try resizing the browser window with `trackResize` set to `true` or `false`. Check the difference in pixel resolution when zooming with `imageTiling` set to `true` or `false`.
+Check the difference in pixel resolution when zooming with `imageTiling` set to `true` or `false`.
+
+Try resizing the browser window with `trackResize` set to `true` or `false`. If you set `trackResize` to `false`, you can still programatically inform the `Viewer` that it has been resized by calling the Viewer.[resize](/api/classes/viewer.Viewer#resize) method.
 
 :::
 
@@ -170,7 +172,7 @@ function render(props) {
 
 :::info
 
-You can view the complete code for all `Viewer` initialization behaviors in the [Viewer Initialization](/examples/viewer-initialization) example.
+You can view the complete code for all initial `Viewer` behaviors in the [Viewer Initialization](/examples/viewer-initialization) example.
 
 :::
 
