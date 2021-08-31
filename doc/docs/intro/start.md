@@ -47,13 +47,11 @@ The [examples section](/examples) gives you a deep dive into the details of usin
 
 ### What is MapillaryJS, Exactly?
 
-MapillaryJS is an interactive, extendable street imagery map component for semantic map visualization on the web. But what does that actually mean? Let us go through it together.
+MapillaryJS is an interactive, extendable street imagery map component for semantic map visualization on the web. But what does that actually mean?
 
 As a start, you can think of MapillaryJS as a three-dimensional sibling to a traditional 2D map. While the traditional 2D map gives a great overview, the street imagery map gives you access to the finest details. MapillaryJS can be a used as a component in any web application, paired with a 2D map or on its own.
 
-#### Interactive
-
-MapillaryJS provides user interactivity to navigate the street imagery smoothly in a virtual, undistorted 3D world.
+Let us go through it all together.
 
 #### Street Imagery
 
@@ -66,6 +64,10 @@ Street imagery is simply images captured anywhere on earth at street-level, i.e 
 [Semantics](https://en.wikipedia.org/wiki/Semantics) is the study of meaning, reference or truth. In our case, it is about understanding the meaning of each part of the map.
 
 MapillaryJS provides methods to visualize the underlying data used to create semantic 3D maps through its spatial rendering capabilities. This is useful for understanding the structure of semantic mapping algorithm output.
+
+#### Interactive
+
+MapillaryJS provides user interactivity to navigate the street imagery smoothly in a virtual, undistorted 3D world.
 
 #### Extendable Visualization Component
 
