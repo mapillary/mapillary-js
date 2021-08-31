@@ -3,7 +3,7 @@ id: control
 title: Controlling the Viewer
 ---
 
-In the [initialization guide](/main/init) we configured the [Viewer](/api/classes/viewer.Viewer) with options at creation time. In this guide we will control the viewer's behavior and appearance after initialization through the `Viewer`'s API methods.
+In the [initialization guide](/docs/main/init) we configured the [Viewer](/api/classes/viewer.Viewer) with options at creation time. In this guide we will control the viewer's behavior and appearance after initialization through the `Viewer`'s API methods.
 
 :::info You will learn
 
@@ -46,6 +46,7 @@ function render(props) {
   toolbar.classList.add('example-editor-toolbar');
   toolbar.style.zIndex = 100;
   toolbar.style.top = '16px';
+  toolbar.style.left = '16px';
   toolbar.appendChild(space);
 
   // Listen to cover checkbox clicks
