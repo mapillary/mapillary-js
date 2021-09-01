@@ -4,7 +4,7 @@
 
 # MapillaryJS
 
-MapillaryJS is a client-side JavaScript library for interactive, extendable street imagery map experiences on the web. It takes spatial, semantic, and texture data and renders it using WebGL. MapillaryJS can be augmented and extended with custom rendering, animation, camera controls, interactivity, and data providers.
+MapillaryJS is a client-side JavaScript library for interactive, extendable street imagery map experiences on the web. It takes spatial, semantic, and texture data and renders it using WebGL. MapillaryJS can be customized with camera controls, user interactivity, and data providers and it can be augmented with geospatial rendering, animation, and content placement.
 
 <a href="https://www.mapillary.com">
 <img width="100%" alt="Mapillary" src="https://user-images.githubusercontent.com/2492302/117429732-9dbe1e80-af27-11eb-9531-47ae4df50c65.png">

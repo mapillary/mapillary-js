@@ -18,7 +18,7 @@ import styles from './styles.module.css';
 const features = [
   {
     title: 'Visualization Component',
-    imageUrl: 'img/hero/mjs.png',
+    imageUrl: 'img/hero/semantic.png',
     description: (
       <>
         MapillaryJS client-side JavaScript library for building street imagery
@@ -29,7 +29,7 @@ const features = [
   },
   {
     title: 'Interact and Navigate',
-    imageUrl: 'img/hero/semantic.png',
+    imageUrl: 'img/hero/mjs.png',
     description: (
       <>
         MapillaryJS takes spatial, semantic, and texture data and renders it
@@ -64,8 +64,10 @@ function Feature({imageUrl, title, description}) {
           />
         </div>
       )}
-      <h3>{title}</h3>
-      <p>{description}</p>
+      <div className="text--center">
+        <h3>{title}</h3>
+        <p>{description}</p>
+      </div>
     </div>
   );
 }
