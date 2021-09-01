@@ -19,13 +19,12 @@ export class PerspectiveCameraFrame extends CameraFrameBase {
         origin: number[])
         : number[] {
 
-        const depth = size;
         const [originX, originY, originZ] = origin;
 
         const cameraCenter = [0, 0, 0];
         const positions: number[] = [];
         for (const vertex2d of [[0, 0], [1, 0], [1, 1], [0, 1]]) {
-            const corner = transform.unprojectBasic(vertex2d, depth, true);
+            const corner = transform.unprojectBasic(vertex2d, size);
             corner[0] -= originX;
             corner[1] -= originY;
             corner[2] -= originZ;
@@ -48,13 +47,12 @@ export class PerspectiveCameraFrame extends CameraFrameBase {
         vertices2d.push(...this._subsample([0, 0], [1, 0], samples));
         vertices2d.push(...this._subsample([1, 0], [1, 1], samples));
 
-        const depth = size;
         const [originX, originY, originZ] = origin;
         const positions: number[] = [];
         for (const vertex2d of vertices2d) {
             const position =
                 transform.unprojectBasic(
-                    vertex2d, depth, true);
+                    vertex2d, size);
             position[0] -= originX;
             position[1] -= originY;
             position[2] -= originZ;
