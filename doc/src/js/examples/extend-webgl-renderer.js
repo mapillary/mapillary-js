@@ -211,9 +211,13 @@ export class WebGLCubeRenderer {
   }
 
   render(context, viewMatrix, projectionMatrix) {
-    const gl = context;
     const {buffers, programInfo} = this;
     const {modelMatrix} = this.cube;
+
+    const gl = context;
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
 
     {
       const numComponents = 3;
