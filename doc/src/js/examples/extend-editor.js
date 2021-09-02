@@ -300,9 +300,11 @@ export class TransformBoxRenderer {
 
   render(context, viewMatrix, projectionMatrix) {
     const {camera, scene, renderer} = this;
+
     camera.matrix.fromArray(viewMatrix).invert();
     camera.updateMatrixWorld(true);
     camera.projectionMatrix.fromArray(projectionMatrix);
+    camera.projectionMatrixInverse.fromArray(projectionMatrix).invert();
 
     renderer.resetState();
     renderer.render(scene, camera);
@@ -319,7 +321,6 @@ export class TransformBoxRenderer {
     const [viewportX, viewportY] = canvasToViewport(pixelPoint, canvas);
     pointer.set(viewportX, viewportY);
 
-    camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
     raycaster.setFromCamera(pointer, camera);
 
     const intersections = raycaster.intersectObject(box.mesh);
