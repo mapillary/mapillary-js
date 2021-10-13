@@ -183,8 +183,8 @@ We populate the generated data in the constructor. Here we also generate geometr
 
 ```js
 class ProceduralDataProvider extends DataProviderBase {
-  constructor() {
-    super(new S2GeometryProvider());
+  constructor(options) {
+    super(options.geometry ?? new S2GeometryProvider());
 
     const {images, sequences} = generateImages();
     this.images = images;
@@ -326,7 +326,7 @@ function render(props) {
     const {container} = opts;
 
     const imageId = 'image|fisheye|0';
-    const dataProvider = new procedural.ProceduralDataProvider();
+    const dataProvider = new procedural.ProceduralDataProvider({});
     const options = {
       dataProvider,
       cameraControls: CameraControls.Earth,
