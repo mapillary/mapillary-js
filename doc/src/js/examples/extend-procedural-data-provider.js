@@ -50,11 +50,10 @@ function generateCells(images, geometryProvider) {
   return cells;
 }
 
-function generateCluster(options) {
+function generateCluster(options, intervals) {
   const {cameraType, east, focal, height, k1, k2, width} = options;
   const {alt, lat, lng} = REFERENCE;
 
-  const intervals = 10;
   const distance = 5;
 
   const images = [];
@@ -116,7 +115,7 @@ function generateCluster(options) {
 }
 
 function generateClusters(options) {
-  const {height} = options;
+  const {height, intervals} = options;
   const images = [];
   const sequences = [];
 
@@ -145,7 +144,7 @@ function generateClusters(options) {
     const aspect = cameraTypeToAspect(config.cameraType);
     config.width = aspect * height;
     config.height = height;
-    const cluster = generateCluster(config);
+    const cluster = generateCluster(config, intervals);
     images.push(...cluster.images);
     sequences.push(cluster.sequence);
   }
@@ -198,13 +197,16 @@ function getImageBuffer(options) {
 }
 
 export class ProceduralDataProvider extends DataProviderBase {
-  constructor(geometry) {
-    super(geometry ?? new S2GeometryProvider());
+  constructor(options) {
+    super(options.geometry ?? new S2GeometryProvider());
 
-    this.tileSize = 10;
-    this.tilesY = 10;
+    this.imageTileSize = 10;
+    this.imageTilesY = 10;
 
-    const clusters = generateClusters({height: this.tileSize * this.tilesY});
+    const clusters = generateClusters({
+      height: this.imageTileSize * this.imageTilesY,
+      intervals: options.intervals ?? 10,
+    });
     this.sequences = clusters.sequences;
     this.images = clusters.images;
     this.cells = generateCells(this.images.values(), this._geometry);
@@ -233,8 +235,8 @@ export class ProceduralDataProvider extends DataProviderBase {
   }
 
   getImageBuffer(url) {
-    const {tileSize, tilesY} = this;
-    const options = {tileSize, tilesY, url};
+    const {imageTileSize, imageTilesY} = this;
+    const options = {tileSize: imageTileSize, tilesY: imageTilesY, url};
     return getImageBuffer(options);
   }
 
@@ -266,7 +268,7 @@ export function init(opts) {
   const {container} = opts;
 
   const imageId = 'image|fisheye|0';
-  const dataProvider = new ProceduralDataProvider();
+  const dataProvider = new ProceduralDataProvider({});
   const options = {
     dataProvider,
     cameraControls: CameraControls.Earth,

@@ -79,7 +79,7 @@ function render(props) {
 
     const imageId = 'image|fisheye|0';
     const geometry = new S2GeometryProvider(19);
-    const dataProvider = new procedural.ProceduralDataProvider(geometry);
+    const dataProvider = new procedural.ProceduralDataProvider({geometry});
     const options = {
       dataProvider,
       cameraControls: CameraControls.Earth,

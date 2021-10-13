@@ -64,6 +64,11 @@ module.exports = {
             label: 'Three.js',
           },
           'extension/animation',
+          {
+            type: 'doc',
+            id: 'extension/graphics-developer',
+            label: 'Graphics',
+          },
         ],
       },
       {

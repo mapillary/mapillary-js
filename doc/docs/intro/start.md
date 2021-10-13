@@ -35,6 +35,10 @@ Our [guide to main concepts](/docs/main/guide) is the best place to start to lea
 
 Once you’re comfortable with the main concepts and have played with MapillaryJS a little bit, you might be interested in more advanced topics. The [guide to extending MapillaryJS](/docs/extension/extend) will introduce you to the powerful extension APIs which lets you extend and augment the MapillaryJS experience. You can load and visualize your own data format, render your own 3D models onto the MapillaryJS canvas, and define your own interactivity.
 
+### Coming from a Graphics background
+
+If you are an experienced graphics developer or have worked with libraries like [Three.js](https://threejs.org or platforms like [Unity](https://unity.com), it is a good idea to go through the [graphics developer guide](/docs/extension/graphics-developer) if you plan to augment MapillaryJS by rendering your own 3D objects in the undistorted virtual 3D space.
+
 ### API Reference
 
 The [API reference](/api) is useful when you want to learn more details about a particular MapillaryJS API.

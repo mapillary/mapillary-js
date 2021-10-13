@@ -17,6 +17,7 @@ import {ViewerComponent} from '../../js/components/ViewerComponent';
 
 import * as animation from '../../js/examples/extend-animation';
 import * as flycontrols from '../../js/examples/extend-fly-controls';
+import * as graphics from '../../js/examples/extend-graphics-developer';
 import * as procedural from '../../js/examples/extend-procedural-data-provider';
 import * as threerenderer from '../../js/examples/extend-three-renderer';
 import * as webglrenderer from '../../js/examples/extend-webgl-renderer';
@@ -29,6 +30,7 @@ const ReactLiveScope = {
   mapillaryErrorHandler,
   animation,
   flycontrols,
+  graphics,
   procedural,
   webglrenderer,
   threerenderer,
