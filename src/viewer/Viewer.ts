@@ -319,8 +319,8 @@ export class Viewer extends EventEmitter implements IViewer {
      * be detached before attaching another custom camera
      * control instance.
      */
-    public detachCustomCameraControls(): void {
-        this._customCameraControls.detach(this);
+    public detachCustomCameraControls(): Promise<ICustomCameraControls> {
+        return this._customCameraControls.detach(this);
     }
 
     public fire(
