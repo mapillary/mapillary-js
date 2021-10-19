@@ -24,7 +24,7 @@ global.WebGL2RenderingContext = <any>jest.fn();
 type WebGLMocks = {
     context: WebGL2RenderingContext;
     renderer: WebGLRenderer;
-}
+};
 
 function createWebGLMocks(): WebGLMocks {
     const renderer = <WebGLRenderer><unknown>new RendererMock();
@@ -682,6 +682,56 @@ describe("CustomRenderer.detach", () => {
 
         (<Subject<State>>navigator.stateService.state$)
             .next(State.Earth);
+    });
+
+    test("should only invoke onDetach once", () => {
+        const navigator = new NavigatorMockCreator().create();
+        const container = new ContainerMockCreator().create();
+        spyOn(Navigator, "Navigator").and.returnValue(navigator);
+        spyOn(Container, "Container").and.returnValue(container);
+
+        const controls = new CustomCameraControls(
+            container,
+            navigator);
+
+        const viewer = <any>{};
+
+        let detachCount = 0;
+        controls.attach(
+            {
+                onActivate: () => {
+                    fail();
+                },
+                onAnimationFrame: () => {
+                    fail();
+                },
+                onAttach: () => {
+                    fail();
+                },
+                onDeactivate: (v) => {
+                    fail();
+                },
+                onDetach: (v) => {
+                    expect(v).toBe(viewer);
+                    detachCount++;
+                },
+                onReference: () => {
+                    fail();
+                },
+                onResize: () => {
+                    fail();
+                },
+            },
+            viewer);
+
+        controls.detach(viewer);
+
+        (<Subject<State>>navigator.stateService.state$)
+            .next(State.Earth);
+        (<Subject<State>>navigator.stateService.state$)
+            .next(State.Traversing);
+
+        expect(detachCount).toBe(1);
     });
 
     test("should invoke onDeactive when detatching if in custom state", done => {

@@ -11,6 +11,7 @@ import {
     skip,
     startWith,
     switchMap,
+    take,
     withLatestFrom,
 } from "rxjs/operators";
 
@@ -157,22 +158,31 @@ export class CustomCameraControls {
         this.detach(viewer);
     }
 
-    public detach(viewer: IViewer): void {
-        if (!this._controls) {
-            return;
-        }
+    public detach(viewer: IViewer): Promise<ICustomCameraControls> {
+        const controls = this._controls;
+        this._controls = null;
 
         this._subscriptions.unsubscribe();
 
-        this._navigator.stateService.state$
-            .subscribe(state => {
-                if (state === State.Custom) {
-                    this._controls.onDeactivate(viewer);
-                }
+        return new Promise(resolve => {
+            this._navigator.stateService.state$
+                .pipe(take(1))
+                .subscribe(state => {
+                    if (!controls) {
+                        resolve(null);
+                        return;
+                    }
 
-                this._controls.onDetach(viewer);
-                this._controls = null;
-            });
+                    if (state === State.Custom) {
+                        controls.onDeactivate(viewer);
+                    }
+
+                    controls.onDetach(viewer);
+                    resolve(controls);
+                });
+        });
+
+
     }
 
     private _updateProjectionMatrix(projectionMatrix: number[]): void {
