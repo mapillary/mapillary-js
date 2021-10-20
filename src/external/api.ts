@@ -24,6 +24,8 @@ export { GeometryProviderBase } from "../api/GeometryProviderBase";
 export { GraphDataProvider } from "../api/provider/GraphDataProvider";
 export { GraphDataProviderOptions }
     from "../api/provider/GraphDataProviderOptions";
+export { IDataProvider } from "../api/interfaces/IDataProvider";
+
 export { S2GeometryProvider } from "../api/S2GeometryProvider";
 
 // Event

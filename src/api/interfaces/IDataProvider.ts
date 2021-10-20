@@ -1,58 +1,34 @@
-import { MapillaryError } from "../error/MapillaryError";
-import { EventEmitter } from "../util/EventEmitter";
+import { EventEmitter } from "../../util/EventEmitter";
 import { ClusterContract }
-    from "./contracts/ClusterContract";
-import { MeshContract } from "./contracts/MeshContract";
-import { GeometryProviderBase } from "./GeometryProviderBase";
-import { CoreImagesContract } from "./contracts/CoreImagesContract";
-import { SpatialImagesContract } from "./contracts/SpatialImagesContract";
-import { ImagesContract } from "./contracts/ImagesContract";
-import { SequenceContract } from "./contracts/SequenceContract";
-import { ImageTilesContract } from "./contracts/ImageTilesContract";
+    from "../contracts/ClusterContract";
+import { MeshContract } from "../contracts/MeshContract";
+import { GeometryProviderBase } from "../GeometryProviderBase";
+import { CoreImagesContract } from "../contracts/CoreImagesContract";
+import { SpatialImagesContract } from "../contracts/SpatialImagesContract";
+import { ImagesContract } from "../contracts/ImagesContract";
+import { SequenceContract } from "../contracts/SequenceContract";
+import { ImageTilesContract } from "../contracts/ImageTilesContract";
 import { ImageTilesRequestContract }
-    from "./contracts/ImageTilesRequestContract";
-import { ProviderEventType } from "./events/ProviderEventType";
-import { ProviderEvent } from "./events/ProviderEvent";
-import { ProviderCellEvent } from "./events/ProviderCellEvent";
-import { IDataProvider } from "./interfaces/IDataProvider";
+    from "../contracts/ImageTilesRequestContract";
+import { ProviderEventType } from "../events/ProviderEventType";
+import { ProviderEvent } from "../events/ProviderEvent";
+import { ProviderCellEvent } from "../events/ProviderCellEvent";
 
 /**
- * @class DataProviderBase
+ * @interface IDataProvider
  *
- * @classdesc Base class to extend if implementing a data provider
+ * Interface describing the members of a data provider
  * class.
  *
  * @fires datacreate
- *
- * @example
- * ```js
- * class MyDataProvider extends DataProviderBase {
- *   constructor() {
- *     super(new S2GeometryProvider());
- *   }
- *   ...
- * }
- * ```
  */
-export abstract class DataProviderBase extends EventEmitter implements IDataProvider {
-    /**
-     * Create a new data provider base instance.
-     *
-     * @param {GeometryProviderBase} geometry - Geometry
-     * provider instance.
-     */
-    constructor(protected _geometry: GeometryProviderBase) {
-        super();
-    }
-
+export interface IDataProvider extends EventEmitter {
     /**
      * Get geometry property.
      *
      * @returns {GeometryProviderBase} Geometry provider instance.
      */
-    public get geometry(): GeometryProviderBase {
-        return this._geometry;
-    }
+    geometry: GeometryProviderBase;
 
     /**
      * Fire when data has been created in the data provider
@@ -81,21 +57,19 @@ export abstract class DataProviderBase extends EventEmitter implements IDataProv
      * provider.fire(type, event);
      * ```
      */
-    public fire(
+    fire(
         type: "datacreate",
         event: ProviderCellEvent)
         : void;
     /** @ignore */
-    public fire(
+    fire(
         type: ProviderEventType,
         event: ProviderEvent)
         : void;
-    public fire<T>(
+    fire<T>(
         type: ProviderEventType,
         event: T)
-        : void {
-        super.fire(type, event);
-    }
+        : void;
 
     /**
      * Get core images in a geometry cell.
@@ -105,10 +79,8 @@ export abstract class DataProviderBase extends EventEmitter implements IDataProv
      * the core images of the requested geometry cell id.
      * @throws Rejects the promise on errors.
      */
-    public getCoreImages(
-        cellId: string): Promise<CoreImagesContract> {
-        return Promise.reject(new MapillaryError("Not implemented"));
-    }
+    getCoreImages(
+        cellId: string): Promise<CoreImagesContract>;
 
     /**
      * Get a cluster reconstruction.
@@ -121,11 +93,9 @@ export abstract class DataProviderBase extends EventEmitter implements IDataProv
      * cluster reconstruction.
      * @throws Rejects the promise on errors.
      */
-    public getCluster(
+    getCluster(
         url: string,
-        abort?: Promise<void>): Promise<ClusterContract> {
-        return Promise.reject(new MapillaryError("Not implemented"));
-    }
+        abort?: Promise<void>): Promise<ClusterContract>;
 
     /**
      * Get spatial images.
@@ -136,10 +106,8 @@ export abstract class DataProviderBase extends EventEmitter implements IDataProv
      * the spatial images of the requested image ids.
      * @throws Rejects the promise on errors.
      */
-    public getSpatialImages(
-        imageIds: string[]): Promise<SpatialImagesContract> {
-        return Promise.reject(new MapillaryError("Not implemented"));
-    }
+    getSpatialImages(
+        imageIds: string[]): Promise<SpatialImagesContract>;
 
     /**
      * Get complete images.
@@ -150,10 +118,8 @@ export abstract class DataProviderBase extends EventEmitter implements IDataProv
      * requested image ids.
      * @throws Rejects the promise on errors.
      */
-    public getImages(
-        imageIds: string[]): Promise<ImagesContract> {
-        return Promise.reject(new MapillaryError("Not implemented"));
-    }
+    getImages(
+        imageIds: string[]): Promise<ImagesContract>;
 
     /**
      * Get an image as an array buffer.
@@ -165,12 +131,9 @@ export abstract class DataProviderBase extends EventEmitter implements IDataProv
      * buffer containing the image.
      * @throws Rejects the promise on errors.
      */
-    public getImageBuffer(
+    getImageBuffer(
         url: string,
-        abort?: Promise<void>): Promise<ArrayBuffer> {
-        return Promise.reject(new MapillaryError("Not implemented"));
-    }
-
+        abort?: Promise<void>): Promise<ArrayBuffer>;
     /**
      * Get image tiles urls for a tile level.
      *
@@ -187,10 +150,8 @@ export abstract class DataProviderBase extends EventEmitter implements IDataProv
      *   .then((response) => console.log(response));
      * ```
      */
-    public getImageTiles(
-        tiles: ImageTilesRequestContract): Promise<ImageTilesContract> {
-        return Promise.reject(new MapillaryError("Not implemented"));
-    }
+    getImageTiles(
+        tiles: ImageTilesRequestContract): Promise<ImageTilesContract>;
 
     /**
      * Get a mesh.
@@ -201,11 +162,9 @@ export abstract class DataProviderBase extends EventEmitter implements IDataProv
      * @returns {Promise<MeshContract>} Promise to the mesh.
      * @throws Rejects the promise on errors.
      */
-    public getMesh(
+    getMesh(
         url: string,
-        abort?: Promise<void>): Promise<MeshContract> {
-        return Promise.reject(new MapillaryError("Not implemented"));
-    }
+        abort?: Promise<void>): Promise<MeshContract>;
 
     /**
      * Get sequence.
@@ -216,26 +175,22 @@ export abstract class DataProviderBase extends EventEmitter implements IDataProv
      * requested image ids.
      * @throws Rejects the promise on errors.
      */
-    public getSequence(
-        sequenceId: string): Promise<SequenceContract> {
-        return Promise.reject(new MapillaryError("Not implemented"));
-    }
+    getSequence(sequenceId: string): Promise<SequenceContract>;
 
-    public off(
+    off(
         type: ProviderCellEvent["type"],
         handler: (event: ProviderCellEvent) => void)
         : void;
     /** @ignore */
-    public off(
+    off(
         type: ProviderEventType,
         handler: (event: ProviderEvent) => void)
         : void;
-    public off<T>(
+    /** @ignore */
+    off<T>(
         type: ProviderEventType,
         handler: (event: T) => void)
-        : void {
-        super.off(type, handler);
-    }
+        : void;
 
     /**
      * Fired when data has been created in the data provider
@@ -255,21 +210,20 @@ export abstract class DataProviderBase extends EventEmitter implements IDataProv
      * });
      * ```
      */
-    public on(
+    on(
         type: "datacreate",
         handler: (event: ProviderCellEvent) => void)
         : void;
     /** @ignore */
-    public on(
+    on(
         type: ProviderEventType,
         handler: (event: ProviderEvent) => void)
         : void;
-    public on<T>(
+    /** @ignore */
+    on<T>(
         type: ProviderEventType,
         handler: (event: T) => void)
-        : void {
-        super.on(type, handler);
-    }
+        : void;
 
     /**
      * Set an access token for authenticated API requests of
@@ -278,7 +232,5 @@ export abstract class DataProviderBase extends EventEmitter implements IDataProv
      * @param {string} [accessToken] accessToken - User access
      * token or client access token.
      */
-    public setAccessToken(accessToken?: string): void {
-        throw new MapillaryError("Not implemented");
-    }
+    setAccessToken(accessToken?: string): void;
 }

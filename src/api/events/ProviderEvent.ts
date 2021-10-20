@@ -1,4 +1,4 @@
-import { DataProviderBase } from "../DataProviderBase";
+import { IDataProvider } from "../interfaces/IDataProvider";
 import { ProviderEventType } from "./ProviderEventType";
 
 /**
@@ -8,7 +8,7 @@ export interface ProviderEvent {
     /**
      * Data provider target that emitted the event.
      */
-    target: DataProviderBase;
+    target: IDataProvider;
 
     /**
      * Provider event type.

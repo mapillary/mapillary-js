@@ -21,7 +21,7 @@ import { NavigationEdge } from "./edge/interfaces/NavigationEdge";
 import { NavigationEdgeStatus } from "./interfaces/NavigationEdgeStatus";
 
 import { MeshContract } from "../api/contracts/MeshContract";
-import { DataProviderBase } from "../api/DataProviderBase";
+import { IDataProvider } from "../api/interfaces/IDataProvider";
 import { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
 
 /**
@@ -32,7 +32,7 @@ import { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
 export class ImageCache {
     private _disposed: boolean;
 
-    private _provider: DataProviderBase;
+    private _provider: IDataProvider;
 
     private _image: HTMLImageElement;
     private _mesh: MeshContract;
@@ -58,7 +58,7 @@ export class ImageCache {
     /**
      * Create a new image cache instance.
      */
-    constructor(provider: DataProviderBase) {
+    constructor(provider: IDataProvider) {
         this._disposed = false;
 
         this._provider = provider;

@@ -24,7 +24,6 @@ import { PlayService } from "./PlayService";
 import { ViewerOptions } from "./options/ViewerOptions";
 
 import { APIWrapper } from "../api/APIWrapper";
-import { DataProviderBase } from "../api/DataProviderBase";
 import { CancelMapillaryError } from "../error/CancelMapillaryError";
 import { FilterExpression } from "../graph/FilterExpression";
 import { Graph } from "../graph/Graph";
@@ -69,11 +68,7 @@ export class Navigator {
         if (api) {
             this._api = api;
         } else if (options.dataProvider) {
-            if (options.dataProvider instanceof DataProviderBase) {
-                this._api = new APIWrapper(options.dataProvider);
-            } else {
-                throw new Error("Incorrect type: 'dataProvider' must extend the DataProviderBase class.");
-            }
+            this._api = new APIWrapper(options.dataProvider);
         } else {
             this._api = new APIWrapper(new GraphDataProvider({
                 accessToken: options.accessToken,
