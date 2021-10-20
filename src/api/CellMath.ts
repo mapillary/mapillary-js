@@ -1,9 +1,9 @@
-import { GeometryProvider } from "../../test/helper/ProviderHelper";
+import { IGeometryProvider } from "./interfaces/IGeometryProvider";
 
 export function connectedComponent(
     cellId: string,
     depth: number,
-    geometry: GeometryProvider)
+    geometry: IGeometryProvider)
     : string[] {
 
     const cells = new Set<string>();
@@ -17,7 +17,7 @@ function connectedComponentRecursive(
     current: string[],
     currentDepth: number,
     maxDepth: number,
-    geometry: GeometryProvider)
+    geometry: IGeometryProvider)
     : void {
 
     if (currentDepth >= maxDepth) { return; }
