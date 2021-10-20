@@ -3,6 +3,7 @@ import {
     enuToGeodetic,
     geodeticToEnu,
 } from "../geo/GeoCoords";
+import { IGeometryProvider } from "./interfaces/IGeometryProvider";
 import { LngLat } from "./interfaces/LngLat";
 
 /**
@@ -18,7 +19,7 @@ import { LngLat } from "./interfaces/LngLat";
  * }
  * ```
  */
-export abstract class GeometryProviderBase {
+export abstract class GeometryProviderBase implements IGeometryProvider {
     /**
      * Create a new geometry provider base instance.
      */

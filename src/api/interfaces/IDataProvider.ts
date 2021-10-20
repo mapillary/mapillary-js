@@ -2,7 +2,6 @@ import { EventEmitter } from "../../util/EventEmitter";
 import { ClusterContract }
     from "../contracts/ClusterContract";
 import { MeshContract } from "../contracts/MeshContract";
-import { GeometryProviderBase } from "../GeometryProviderBase";
 import { CoreImagesContract } from "../contracts/CoreImagesContract";
 import { SpatialImagesContract } from "../contracts/SpatialImagesContract";
 import { ImagesContract } from "../contracts/ImagesContract";
@@ -13,12 +12,15 @@ import { ImageTilesRequestContract }
 import { ProviderEventType } from "../events/ProviderEventType";
 import { ProviderEvent } from "../events/ProviderEvent";
 import { ProviderCellEvent } from "../events/ProviderCellEvent";
+import { IGeometryProvider } from "./IGeometryProvider";
 
 /**
  * @interface IDataProvider
  *
- * Interface describing the members of a data provider
- * class.
+ * Interface describing data provider members.
+ *
+ * This is a specification for implementers to model: it is
+ * not an exported method or class.
  *
  * @fires datacreate
  */
@@ -26,9 +28,9 @@ export interface IDataProvider extends EventEmitter {
     /**
      * Get geometry property.
      *
-     * @returns {GeometryProviderBase} Geometry provider instance.
+     * @returns {IGeometryProvider} Geometry provider instance.
      */
-    geometry: GeometryProviderBase;
+    geometry: IGeometryProvider;
 
     /**
      * Fire when data has been created in the data provider

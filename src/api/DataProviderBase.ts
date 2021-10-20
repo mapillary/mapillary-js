@@ -3,7 +3,6 @@ import { EventEmitter } from "../util/EventEmitter";
 import { ClusterContract }
     from "./contracts/ClusterContract";
 import { MeshContract } from "./contracts/MeshContract";
-import { GeometryProviderBase } from "./GeometryProviderBase";
 import { CoreImagesContract } from "./contracts/CoreImagesContract";
 import { SpatialImagesContract } from "./contracts/SpatialImagesContract";
 import { ImagesContract } from "./contracts/ImagesContract";
@@ -15,6 +14,7 @@ import { ProviderEventType } from "./events/ProviderEventType";
 import { ProviderEvent } from "./events/ProviderEvent";
 import { ProviderCellEvent } from "./events/ProviderCellEvent";
 import { IDataProvider } from "./interfaces/IDataProvider";
+import { IGeometryProvider } from "./interfaces/IGeometryProvider";
 
 /**
  * @class DataProviderBase
@@ -38,19 +38,19 @@ export abstract class DataProviderBase extends EventEmitter implements IDataProv
     /**
      * Create a new data provider base instance.
      *
-     * @param {GeometryProviderBase} geometry - Geometry
+     * @param {IGeometryProvider} geometry - Geometry
      * provider instance.
      */
-    constructor(protected _geometry: GeometryProviderBase) {
+    constructor(protected _geometry: IGeometryProvider) {
         super();
     }
 
     /**
      * Get geometry property.
      *
-     * @returns {GeometryProviderBase} Geometry provider instance.
+     * @returns {IGeometryProvider} Geometry provider instance.
      */
-    public get geometry(): GeometryProviderBase {
+    public get geometry(): IGeometryProvider {
         return this._geometry;
     }
 

@@ -21,7 +21,7 @@ import { IDEnt } from '../ents/IDEnt';
 import { ImageEnt } from '../ents/ImageEnt';
 import { ImageTileEnt } from '../ents/ImageTileEnt';
 import { SpatialImageEnt } from '../ents/SpatialImageEnt';
-import { GeometryProviderBase } from '../GeometryProviderBase';
+import { IGeometryProvider } from '../interfaces/IGeometryProvider';
 import { S2GeometryProvider } from '../S2GeometryProvider';
 import {
     GraphClusterContract,
@@ -48,7 +48,7 @@ export class GraphDataProvider extends DataProviderBase {
 
     constructor(
         options?: GraphDataProviderOptions,
-        geometry?: GeometryProviderBase,
+        geometry?: IGeometryProvider,
         converter?: GraphConverter,
         queryCreator?: GraphQueryCreator) {
 
