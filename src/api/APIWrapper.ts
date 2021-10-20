@@ -2,7 +2,6 @@ import {
     Observable,
     Subscriber,
 } from "rxjs";
-import { DataProviderBase } from "./DataProviderBase";
 import { CoreImagesContract } from "./contracts/CoreImagesContract";
 import { ImagesContract } from "./contracts/ImagesContract";
 import { SpatialImagesContract } from "./contracts/SpatialImagesContract";
@@ -10,6 +9,7 @@ import { SequenceContract } from "./contracts/SequenceContract";
 import { ImageTilesRequestContract }
     from "./contracts/ImageTilesRequestContract";
 import { ImageTilesContract } from "./contracts/ImageTilesContract";
+import { IDataProvider } from "./interfaces/IDataProvider";
 
 /**
  * @class API
@@ -17,9 +17,9 @@ import { ImageTilesContract } from "./contracts/ImageTilesContract";
  * @classdesc Provides methods for access to the API.
  */
 export class APIWrapper {
-    constructor(private readonly _data: DataProviderBase) { }
+    constructor(private readonly _data: IDataProvider) { }
 
-    public get data(): DataProviderBase {
+    public get data(): IDataProvider {
         return this._data;
     }
 

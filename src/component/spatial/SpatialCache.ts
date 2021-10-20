@@ -16,8 +16,8 @@ import {
     tap,
 } from "rxjs/operators";
 
-import { DataProviderBase } from "../../api/DataProviderBase";
 import { ClusterContract } from "../../api/contracts/ClusterContract";
+import { IDataProvider } from "../../api/interfaces/IDataProvider";
 import { CancelMapillaryError } from "../../error/CancelMapillaryError";
 import { GraphService } from "../../graph/GraphService";
 import { Image } from "../../graph/Image";
@@ -25,23 +25,23 @@ import { Image } from "../../graph/Image";
 type ClusterData = {
     key: string;
     url: string;
-}
+};
 
 export class SpatialCache {
     private _graphService: GraphService;
-    private _data: DataProviderBase;
+    private _data: IDataProvider;
 
-    private _cacheRequests: { [cellId: string]: Function[] };
-    private _cells: { [cellId: string]: Image[] };
+    private _cacheRequests: { [cellId: string]: Function[]; };
+    private _cells: { [cellId: string]: Image[]; };
 
-    private _clusters: { [key: string]: ClusterContract };
-    private _clusterCells: { [key: string]: string[] };
-    private _cellClusters: { [cellId: string]: ClusterData[] };
+    private _clusters: { [key: string]: ClusterContract; };
+    private _clusterCells: { [key: string]: string[]; };
+    private _cellClusters: { [cellId: string]: ClusterData[]; };
 
-    private _cachingClusters$: { [cellId: string]: Observable<ClusterContract> };
-    private _cachingCells$: { [cellId: string]: Observable<Image[]> };
+    private _cachingClusters$: { [cellId: string]: Observable<ClusterContract>; };
+    private _cachingCells$: { [cellId: string]: Observable<Image[]>; };
 
-    constructor(graphService: GraphService, provider: DataProviderBase) {
+    constructor(graphService: GraphService, provider: IDataProvider) {
         this._graphService = graphService;
         this._data = provider;
 
@@ -357,7 +357,7 @@ export class SpatialCache {
                     if (this._clusterCells[reconstruction.id].indexOf(cellId) === -1) {
                         this._clusterCells[reconstruction.id].push(cellId);
                     }
-                }))
+                }));
     }
 
     private _getCluster(id: string): ClusterContract {

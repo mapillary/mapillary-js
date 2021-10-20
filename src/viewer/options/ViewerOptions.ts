@@ -1,7 +1,7 @@
 import { ComponentOptions } from "./ComponentOptions";
 import { UrlOptions } from "./UrlOptions";
 
-import { DataProviderBase } from "../../api/DataProviderBase";
+import { IDataProvider } from "../../api/interfaces/IDataProvider";
 import { RenderMode } from "../../render/RenderMode";
 import { TransitionMode } from "../../state/TransitionMode";
 import { CameraControls } from "../enums/CameraControls";
@@ -61,12 +61,14 @@ export interface ViewerOptions {
      * default MapillaryJS data provider and take responsibility
      * for all IO handling.
      *
-     * The data provider takes precedance over the {@link }
+     * The data provider takes precedence over the {@link ViewerOptions.accessToken} property.
      *
-     * A data provider instance must extend
-     * the data provider base class.
+     * A data provider instance must implement all members
+     * specified in the {@link IDataProvider} interface. This can
+     * be done by extending the {@link DataProviderBase} class or
+     * implementing the interface directly.
      */
-    dataProvider?: DataProviderBase;
+    dataProvider?: IDataProvider;
 
     /**
      * Optional `image-id` to start from. The id
