@@ -20,6 +20,7 @@ export type ViewerEventType =
     | "image"
     | "position"
     | "pov"
+    | "reference"
     | "remove"
     | "sequenceedges"
     | "spatialedges";

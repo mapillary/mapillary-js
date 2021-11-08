@@ -32,6 +32,7 @@ export { ViewerMouseEvent } from "../viewer/events/ViewerMouseEvent";
 export { ViewerNavigableEvent } from "../viewer/events/ViewerNavigableEvent";
 export { ViewerNavigationEdgeEvent }
     from "../viewer/events/ViewerNavigationEdgeEvent";
+export { ViewerReferenceEvent } from "../viewer/events/ViewerReferenceEvent";
 export { ViewerStateEvent } from "../viewer/events/ViewerStateEvent";
 
 // Viewer options
