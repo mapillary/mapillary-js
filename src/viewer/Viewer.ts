@@ -46,6 +46,7 @@ import { ICustomCameraControls } from "./interfaces/ICustomCameraControls";
 import { CustomCameraControls } from "./CustomCameraControls";
 import { ViewerLoadEvent } from "./events/ViewerLoadEvent";
 import { cameraControlsToState } from "./Modes";
+import { ViewerReferenceEvent } from "./events/ViewerReferenceEvent";
 
 /**
  * @class Viewer
@@ -343,6 +344,10 @@ export class Viewer extends EventEmitter implements IViewer {
         event: ViewerNavigationEdgeEvent)
         : void;
     public fire(
+        type: ViewerReferenceEvent["type"],
+        event: ViewerReferenceEvent)
+        : void;
+    public fire(
         type: ViewerStateEvent["type"],
         event: ViewerStateEvent)
         : void;
@@ -625,6 +630,31 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
+     * Get the viewer's current reference position.
+     *
+     * @description The reference position specifies the origin in
+     * the viewer's topocentric coordinate system.
+     *
+     * @returns {Promise<LngLatAlt>} Promise to the reference position.
+     *
+     * @example
+     * ```js
+     * viewer.getReference().then(reference => { console.log(reference); });
+     * ```
+     */
+    public getReference(): Promise<LngLatAlt> {
+        return new Promise<LngLatAlt>(
+            (resolve: (reference: LngLatAlt) => void, reject: (reason: Error) => void): void => {
+                this._navigator.stateService.reference$.pipe(
+                    first())
+                    .subscribe(
+                        (reference) => { resolve(reference); },
+                        (error) => { reject(error); });
+            }
+        );
+    }
+
+    /**
      * Get the image's current zoom level.
      *
      * @returns {Promise<number>} Promise to the viewers's current
@@ -751,6 +781,10 @@ export class Viewer extends EventEmitter implements IViewer {
     public off(
         type: ViewerNavigationEdgeEvent["type"],
         handler: (event: ViewerNavigationEdgeEvent) => void)
+        : void;
+    public off(
+        type: ViewerReferenceEvent["type"],
+        handler: (event: ViewerReferenceEvent) => void)
         : void;
     public off(
         type: ViewerStateEvent["type"],
@@ -1111,6 +1145,27 @@ export class Viewer extends EventEmitter implements IViewer {
     public on(
         type: "pov",
         handler: (event: ViewerStateEvent) => void)
+        : void;
+    /**
+     * Fired when the viewer's reference position changes.
+     *
+     * The reference position specifies the origin in
+     * the viewer's topocentric coordinate system.
+     *
+     * @event reference
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("reference", function(reference) {
+     *   console.log("A reference event has occurred.");
+     * });
+     * ```
+     */
+    public on(
+        type: "reference",
+        handler: (event: ViewerReferenceEvent) => void)
         : void;
     /**
      * Fired when the viewer is removed. After this event is emitted

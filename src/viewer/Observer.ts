@@ -38,6 +38,7 @@ import { ViewerStateEvent } from "./events/ViewerStateEvent";
 import { ViewerBearingEvent } from "./events/ViewerBearingEvent";
 import { State } from "../state/State";
 import { ViewerLoadEvent } from "./events/ViewerLoadEvent";
+import { ViewerReferenceEvent } from "./events/ViewerReferenceEvent";
 
 type UnprojectionParams = [
     [
@@ -197,7 +198,7 @@ export class Observer {
             .subscribe((image: Image): void => {
                 const type: ViewerEventType = "image";
                 const event: ViewerImageEvent = {
-                    image: image,
+                    image,
                     target: this._viewer,
                     type,
                 };
@@ -235,6 +236,17 @@ export class Observer {
                     };
                     this._viewer.fire(type, event);
                 }));
+
+        subs.push(this._navigator.stateService.reference$
+            .subscribe((reference: LngLatAlt): void => {
+                const type: ViewerEventType = "reference";
+                const event: ViewerReferenceEvent = {
+                    reference,
+                    target: this._viewer,
+                    type,
+                };
+                this._viewer.fire(type, event);
+            }));
 
         subs.push(observableCombineLatest(
             this._navigator.stateService.inMotion$,
