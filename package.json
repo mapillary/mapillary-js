@@ -1,6 +1,6 @@
 {
   "name": "mapillary-js",
-  "version": "4.0.0",
+  "version": "4.1.0-beta.0",
   "description": "A WebGL interactive street imagery library",
   "license": "MIT",
   "main": "dist/mapillary.js",
