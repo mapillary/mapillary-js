@@ -4,7 +4,7 @@ export class RendererMock implements THREE.Renderer {
     public clear(): void { /* noop */; }
     public clearDepth(): void { /* noop */ }
     public getContext(): void { /* noop */ }
-    public getRenderTarget(): THREE.RenderTarget { return; }
+    public getRenderTarget(): THREE.WebGLRenderTarget { return; }
     public render(
         s: THREE.Scene,
         c: THREE.Camera,
