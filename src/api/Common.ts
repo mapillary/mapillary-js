@@ -43,7 +43,6 @@ export function fetchArrayBuffer(
     const method = "GET";
     const responseType = "arraybuffer";
     return xhrFetch(url, method, responseType, [], null, abort);
-
 }
 
 export function xhrFetch(
