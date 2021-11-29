@@ -1,14 +1,13 @@
-import { Clock, CatmullRomCurve3, Quaternion, Vector3 } from "three";
+import { CatmullRomCurve3, MathUtils, Quaternion, Vector3 } from "three";
 
 import { StateBase } from "./StateBase";
 import { EulerRotation } from "../interfaces/EulerRotation";
 import { IStateBase } from "../interfaces/IStateBase";
-import { lerp, smootherstep, smoothstep } from "three/src/math/MathUtils";
 
 export class EarthState extends StateBase {
     private _transition: number = 0;
     private _curveE: CatmullRomCurve3;
-    private _curveF: CatmullRomCurve3;
+    private _curveL: CatmullRomCurve3;
     private _curveU: CatmullRomCurve3;
     private _focal0: number;
     private _focal1: number;
@@ -54,25 +53,25 @@ export class EarthState extends StateBase {
                     t.multiplyScalar(Math.max(50, t.length()))));
         }
 
-        const e1 = this._camera.position.clone();
-        const f1 = forward.clone().normalize();
-        const u1 = this._camera.up.clone();
+        const eye1 = this._camera.position.clone();
+        const lookat1 = eye1.clone().add(forward.clone().normalize().multiplyScalar(10));
+        const up1 = this._camera.up.clone();
 
-        const e0 = e1.clone().add(f1.clone().multiplyScalar(10));
-        const f0 = f1.clone();
-        const u0 = u1.clone();
+        const eye0 = lookat1.clone();
+        const lookat0 = eye0.clone().add(forward.clone().normalize().multiplyScalar(10));
+        const up0 = up1.clone();
 
-        const e2 = eye.clone();
-        const f2 = lookat.clone().sub(eye).normalize();
-        const u2 = new Vector3(0, 0, 1);
+        const eye2 = eye.clone();
+        const lookat2 = lookat.clone();
+        const up2 = new Vector3(0, 0, 1);
 
-        const e3 = eye.clone().add(f2.clone().multiplyScalar(-10));
-        const f3 = e2.clone().sub(e3).normalize();
-        const u3 = u2.clone();
+        const eye3 = eye.clone().add(lookat2.clone().sub(eye2).normalize().multiplyScalar(-10));
+        const lookat3 = lookat2.clone();
+        const up3 = up2.clone();
 
-        this._curveE = new CatmullRomCurve3([e0, e1, e2, e3]);
-        this._curveF = new CatmullRomCurve3([f0, f1, f2, f3]);
-        this._curveU = new CatmullRomCurve3([u0, u1, u2, u3]);
+        this._curveE = new CatmullRomCurve3([eye0, eye1, eye2, eye3]);
+        this._curveL = new CatmullRomCurve3([lookat0, lookat1, lookat2, lookat3]);
+        this._curveU = new CatmullRomCurve3([up0, up1, up2, up3]);
 
         this._focal0 = this._camera.focal;
         this._focal1 = 0.5 / Math.tan(Math.PI / 3);
@@ -165,16 +164,16 @@ export class EarthState extends StateBase {
             return;
         }
 
-        this._transition = Math.min(this._transition + delta / 2, 1);
-        const t = (smootherstep(this._transition, 0, 1) + 1) / 3;
+        this._transition = Math.min(this._transition + 2 * delta / 3, 1);
+        const t = (MathUtils.smootherstep(this._transition, 0, 1) + 1) / 3;
 
         const eye = this._curveE.getPoint(t);
-        const forward = this._curveF.getPoint(t);
+        const lookat = this._curveL.getPoint(t);
         const up = this._curveU.getPoint(t);
-        const focal = lerp(this._focal0, this._focal1, 3 * t - 1);
+        const focal = MathUtils.lerp(this._focal0, this._focal1, 3 * t - 1);
 
         this._camera.position.copy(eye);
-        this._camera.lookat.copy(eye.clone().add(forward.multiplyScalar(10)));
+        this._camera.lookat.copy(lookat);
         this._camera.up.copy(up);
         this._camera.focal = focal;
     }
