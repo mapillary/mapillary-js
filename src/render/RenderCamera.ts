@@ -204,14 +204,11 @@ export class RenderCamera {
         }
 
         const alpha = state.alpha;
-
         if (this._changed || alpha !== this._alpha) {
             this._alpha = alpha;
 
             switch (this._state) {
                 case State.Earth:
-                    this._perspective.fov = 60;
-                    this._changed = true;
                     break;
                 case State.Custom:
                     break;
