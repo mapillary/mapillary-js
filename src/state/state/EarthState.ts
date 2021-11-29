@@ -7,7 +7,6 @@ import { lerp, smootherstep, smoothstep } from "three/src/math/MathUtils";
 
 export class EarthState extends StateBase {
     private _transition: number = 0;
-    private _clock: Clock = new Clock();
     private _curveE: CatmullRomCurve3;
     private _curveF: CatmullRomCurve3;
     private _curveU: CatmullRomCurve3;
@@ -74,8 +73,6 @@ export class EarthState extends StateBase {
         this._curveE = new CatmullRomCurve3([e0, e1, e2, e3]);
         this._curveF = new CatmullRomCurve3([f0, f1, f2, f3]);
         this._curveU = new CatmullRomCurve3([u0, u1, u2, u3]);
-
-        this._clock.start();
 
         this._focal0 = this._camera.focal;
         this._focal1 = 0.5 / Math.tan(Math.PI / 3);
@@ -163,12 +160,11 @@ export class EarthState extends StateBase {
             .add(new Vector3().fromArray(direction));
     }
 
-    public update(): void {
+    public update(delta: number): void {
         if (!this._isTransitioning) {
             return;
         }
 
-        const delta = this._clock.getDelta();
         this._transition = Math.min(this._transition + delta / 2, 1);
         const t = (smootherstep(this._transition, 0, 1) + 1) / 3;
 

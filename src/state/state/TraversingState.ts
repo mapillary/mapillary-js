@@ -75,7 +75,7 @@ export class TraversingState extends InteractiveStateBase {
         this._speedCoefficient = this._spatial.clamp(speed, 0, 10);
     }
 
-    public update(fps: number): void {
+    public update(delta: number): void {
         if (this._alpha === 1 && this._currentIndex + this._alpha < this._trajectory.length) {
             this._currentIndex += 1;
 
@@ -93,7 +93,7 @@ export class TraversingState extends InteractiveStateBase {
             this._desiredLookat = null;
         }
 
-        let animationSpeed: number = this._animationSpeed * (60 / fps);
+        let animationSpeed: number = this._animationSpeed * delta / 1e-1 * 6;
         this._baseAlpha = Math.min(1, this._baseAlpha + this._speedCoefficient * animationSpeed);
         if (this._smoothing) {
             this._alpha = MathUtils.smootherstep(this._baseAlpha, 0, 1);

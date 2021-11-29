@@ -32,7 +32,7 @@ export class InteractiveWaitingState extends InteractiveStateBase {
         this._alpha = Math.max(0, Math.min(1, position));
     }
 
-    public update(fps: number): void {
+    public update(delta: number): void {
         this._updateRotation();
         if (!this._rotationDelta.isZero) {
             this._applyRotation(this._rotationDelta, this._previousCamera);
@@ -44,7 +44,7 @@ export class InteractiveWaitingState extends InteractiveStateBase {
             this._applyRotationBasic(this._basicRotation);
         }
 
-        let animationSpeed: number = this._animationSpeed * (60 / fps);
+        let animationSpeed = this._animationSpeed * delta / 1e-1 * 6;
         this._updateZoom(animationSpeed);
         this._updateLookat(animationSpeed);
 

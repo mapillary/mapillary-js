@@ -35,6 +35,7 @@ import { Image } from "../graph/Image";
 import { Transform } from "../geo/Transform";
 import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
+import { Clock } from "three";
 
 interface IContextOperation {
     (context: IStateContext): IStateContext;
@@ -47,7 +48,6 @@ export class StateService {
 
     private _contextOperation$: BehaviorSubject<IContextOperation>;
     private _context$: Observable<IStateContext>;
-    private _fps$: Observable<number>;
     private _state$: Observable<State>;
 
     private _currentState$: Observable<AnimationFrame>;
@@ -70,9 +70,9 @@ export class StateService {
     private _frameGenerator: FrameGenerator;
     private _frameId: number;
 
-    private _fpsSampleRate: number;
-
+    private _clock: Clock = new Clock();
     private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
+
 
     constructor(
         initialState: State,
@@ -82,7 +82,6 @@ export class StateService {
 
         this._start$ = new Subject<void>();
         this._frame$ = new Subject<number>();
-        this._fpsSampleRate = 30;
 
         this._contextOperation$ = new BehaviorSubject<IContextOperation>(
             (context: IStateContext): IStateContext => {
@@ -107,42 +106,23 @@ export class StateService {
             publishReplay(1),
             refCount());
 
-        this._fps$ = this._start$.pipe(
-            switchMap(
-                (): Observable<number> => {
-                    return this._frame$.pipe(
-                        bufferCount(1, this._fpsSampleRate),
-                        map(
-                            (): number => {
-                                return new Date().getTime();
-                            }),
-                        pairwise(),
-                        map(
-                            (times: [number, number]): number => {
-                                return Math.max(20, 1000 * this._fpsSampleRate / (times[1] - times[0]));
-                            }),
-                        startWith(60));
-                }),
-            share());
-
         this._currentState$ = this._frame$.pipe(
             withLatestFrom(
-                this._fps$,
                 this._context$,
-                (frameId: number, fps: number, context: IStateContext): [number, number, IStateContext] => {
-                    return [frameId, fps, context];
+                (frameId: number, context: IStateContext): [number, IStateContext] => {
+                    return [frameId, context];
                 }),
             filter(
-                (fc: [number, number, IStateContext]): boolean => {
-                    return fc[2].currentImage != null;
+                (fc: [number, IStateContext]): boolean => {
+                    return fc[1].currentImage != null;
                 }),
             tap(
-                (fc: [number, number, IStateContext]): void => {
-                    fc[2].update(fc[1]);
+                (fc: [number, IStateContext]): void => {
+                    fc[1].update(this._clock.getDelta());
                 }),
             map(
-                (fc: [number, number, IStateContext]): AnimationFrame => {
-                    return { fps: fc[1], id: fc[0], state: fc[2] };
+                (fc: [number, IStateContext]): AnimationFrame => {
+                    return { fps: 60, id: fc[0], state: fc[1] };
                 }),
             share());
 
@@ -552,6 +532,7 @@ export class StateService {
     }
 
     public start(): void {
+        this._clock.start();
         if (this._frameId == null) {
             this._start$.next(null);
             this._frameId = this._frameGenerator.requestAnimationFrame(this._frame.bind(this));
@@ -560,6 +541,7 @@ export class StateService {
     }
 
     public stop(): void {
+        this._clock.stop();
         if (this._frameId != null) {
             this._frameGenerator.cancelAnimationFrame(this._frameId);
             this._frameId = null;

@@ -123,8 +123,8 @@ export class StateContext implements IStateContext {
         this._state.setZoom(zoom);
     }
 
-    public update(fps: number): void {
-        this._state.update(fps);
+    public update(delta: number): void {
+        this._state.update(delta);
     }
 
     public append(images: Image[]): void {

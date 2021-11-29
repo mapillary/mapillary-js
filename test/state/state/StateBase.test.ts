@@ -23,7 +23,7 @@ class TestStateBase extends StateBase {
     public rotateBasicWithoutInertia(basic: number[]): void { return; }
     public rotateToBasic(basic: number[]): void { return; }
     public zoomIn(delta: number, reference: number[]): void { return; }
-    public update(fps: number): void { return; }
+    public update(delta: number): void { return; }
     public setCenter(center: number[]): void { return; }
     public setZoom(zoom: number): void { return; }
     public setSpeed(speed: number): void { return; }
