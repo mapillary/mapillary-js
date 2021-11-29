@@ -1,5 +1,6 @@
 import {
     BufferAttribute,
+    Color,
     Points,
     PointsMaterial,
 } from "three";
@@ -7,6 +8,7 @@ import { ClusterContract } from "../../../api/contracts/ClusterContract";
 
 export interface ClusterPointsParameters {
     cluster: ClusterContract;
+    color: string;
     originalSize: number;
     scale: number;
     translation: number[];
@@ -21,14 +23,12 @@ export class ClusterPoints extends Points {
         super();
 
         this._originalSize = parameters.originalSize;
-        const cluster = parameters.cluster;
-        const scale = parameters.scale;
-        const translation = parameters.translation;
+
+        const { cluster, color, scale, translation } = parameters;
 
         this._makeAttributes(cluster);
         this.material.size = scale * this._originalSize;
-        this.material.vertexColors = true;
-        this.material.needsUpdate = true;
+        this.setColor(color);
 
         this.matrixAutoUpdate = false;
         this.position.fromArray(translation);
@@ -39,6 +39,12 @@ export class ClusterPoints extends Points {
     public dispose(): void {
         this.geometry.dispose();
         this.material.dispose();
+    }
+
+    public setColor(color?: string): void {
+        this.material.vertexColors = color == null;
+        this.material.color = new Color(color);
+        this.material.needsUpdate = true;
     }
 
     public resize(scale: number): void {
@@ -56,8 +62,8 @@ export class ClusterPoints extends Points {
                 continue;
             }
 
-            const point = points[pointId]
-            positions.push(...point.coordinates)
+            const point = points[pointId];
+            positions.push(...point.coordinates);
 
             const color = point.color;
             colors.push(color[0]);

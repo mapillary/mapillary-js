@@ -94,6 +94,8 @@ export { CameraVisualizationMode }
     from "../component/spatial/enums/CameraVisualizationMode";
 export { OriginalPositionMode }
     from "../component/spatial/enums/OriginalPositionMode";
+export { PointVisualizationMode }
+    from "../component/spatial/enums/PointVisualizationMode";
 export { SpatialComponent }
     from "../component/spatial/SpatialComponent";
 export { SpatialConfiguration }

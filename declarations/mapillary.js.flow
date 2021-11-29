@@ -2336,6 +2336,12 @@ declare var OriginalPositionMode: {|
   +Flat: 2, // 2
 |};
 
+declare var PointVisualizationMode: {|
+  +Hidden: 0, // 0
+  +Original: 1, // 1
+  +Cluster: 2, // 2
+|};
+
 /**
  * Interface for configuration of spatial component.
  * @interface
@@ -2349,7 +2355,7 @@ declare var OriginalPositionMode: {|
  *             cellsVisible: true,
  *             originalPositionMode: OriginalPositionMode.Altitude,
  *             pointSize: 0.5,
- *             pointsVisible: false,
+ *             pointVisualizationMode: PointVisualizationMode.Hidden,
  *         },
  *     },
  *     ...
@@ -2401,9 +2407,17 @@ export type SpatialConfiguration = {
 
   /**
    * Specify if the points should be visible or not.
+   * @deprecated `pointsVisible` will be removed in
+   * v5.x. Use {@link pointVisualizationMode} instead.
    * @default true
    */
   pointsVisible?: boolean,
+
+  /**
+   * Specify how point clouds should be visualized.
+   * @default PointVisualizationMode.Original
+   */
+  pointVisualizationMode?: $Values<typeof PointVisualizationMode>,
   ...
 } & ComponentConfiguration;
 

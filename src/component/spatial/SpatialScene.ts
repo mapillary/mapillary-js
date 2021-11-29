@@ -20,6 +20,7 @@ import { SpatialIntersection } from "./scene/SpatialIntersection";
 import { SpatialCell } from "./scene/SpatialCell";
 import { SpatialAssets } from "./scene/SpatialAssets";
 import { isModeVisible } from "./Modes";
+import { PointVisualizationMode } from "./enums/PointVisualizationMode";
 
 const NO_CLUSTER_ID = "NO_CLUSTER_ID";
 const NO_MERGE_ID = "NO_MERGE_ID";
@@ -30,7 +31,7 @@ type Clusters = {
         cellIds: string[];
         points: Object3D;
     };
-}
+};
 
 export class SpatialScene {
     private _scene: Scene;
@@ -43,13 +44,13 @@ export class SpatialScene {
         [cellId: string]: { keys: string[]; };
     };
     private _clusters: Clusters;
-    private _images: { [cellId: string]: SpatialCell };
-    private _cells: { [cellId: string]: Object3D };
+    private _images: { [cellId: string]: SpatialCell; };
+    private _cells: { [cellId: string]: Object3D; };
 
     private _cameraVisualizationMode: CameraVisualizationMode;
     private _cameraSize: number;
     private _pointSize: number;
-    private _pointsVisible: boolean;
+    private _pointVisualizationMode: PointVisualizationMode;
     private _positionMode: OriginalPositionMode;
     private _cellsVisible: boolean;
 
@@ -64,7 +65,7 @@ export class SpatialScene {
 
     private _imageCellMap: Map<string, string>;
 
-    private _colors: { hover: string, select: string };
+    private _colors: { hover: string, select: string; };
 
     constructor(
         configuration: SpatialConfiguration,
@@ -90,10 +91,12 @@ export class SpatialScene {
             !!configuration.cameraVisualizationMode ?
                 configuration.cameraVisualizationMode :
                 CameraVisualizationMode.Homogeneous;
-
         this._cameraSize = configuration.cameraSize;
         this._pointSize = configuration.pointSize;
-        this._pointsVisible = configuration.pointsVisible;
+        this._pointVisualizationMode =
+            !!configuration.pointVisualizationMode ?
+                configuration.pointVisualizationMode :
+                PointVisualizationMode.Original;
         this._positionMode = configuration.originalPositionMode;
         this._cellsVisible = configuration.cellsVisible;
 
@@ -127,17 +130,19 @@ export class SpatialScene {
             };
 
             const visible = this._getClusterVisible(clusterId);
-            this._clusters[clusterId].points.visible = visible;
-            this._clusters[clusterId].points.add(
-                new ClusterPoints({
-                    cluster: reconstruction,
-                    originalSize: this._originalPointSize,
-                    scale: this._pointSize,
-                    translation,
-                }));
+            const cluster = this._clusters[clusterId];
 
-            this._scene.add(
-                this._clusters[clusterId].points);
+            const color = this._pointVisualizationMode === PointVisualizationMode.Cluster ? this._assets.getColor(clusterId) : null;
+            const points = new ClusterPoints({
+                cluster: reconstruction,
+                color,
+                originalSize: this._originalPointSize,
+                scale: this._pointSize,
+                translation,
+            });
+            cluster.points.visible = visible;
+            cluster.points.add(points);
+            this._scene.add(cluster.points);
         }
 
         if (this._clusters[clusterId].cellIds.indexOf(cellId) === -1) {
@@ -260,10 +265,10 @@ export class SpatialScene {
 
     public setFilter(filter: FilterFunction): void {
         this._filter = filter;
-        const clusterVisibles: { [key: string]: boolean } = {};
+        const clusterVisibles: { [key: string]: boolean; } = {};
         for (const imageCell of Object.values(this._images)) {
             imageCell.applyFilter(filter);
-            const imageCV = imageCell.clusterVisibles
+            const imageCV = imageCell.clusterVisibles;
             for (const clusterId in imageCV) {
                 if (!imageCV.hasOwnProperty(clusterId)) {
                     continue;
@@ -275,10 +280,11 @@ export class SpatialScene {
             }
         }
 
-        const pointsVisible = this._pointsVisible;
+        const pointsVisible =
+            this._pointVisualizationMode !== PointVisualizationMode.Hidden;
         for (const clusterId in clusterVisibles) {
             if (!clusterVisibles.hasOwnProperty(clusterId)) { continue; }
-            clusterVisibles[clusterId] &&= pointsVisible
+            clusterVisibles[clusterId] &&= pointsVisible;
             const visible = clusterVisibles[clusterId];
             if (clusterId in this._clusters) {
                 this._clusters[clusterId].points.visible = visible;
@@ -339,22 +345,28 @@ export class SpatialScene {
         this._needsRender = true;
     }
 
-    public setPointVisibility(visible: boolean): void {
-        if (visible === this._pointsVisible) {
+    public setPointVisualizationMode(mode: PointVisualizationMode): void {
+        if (mode === this._pointVisualizationMode) {
             return;
         }
 
+        this._pointVisualizationMode = mode;
         for (const clusterId in this._clusters) {
             if (!this._clusters.hasOwnProperty(clusterId)) {
                 continue;
             }
 
-            this._clusters[clusterId].points.visible = visible;
+            const cluster = this._clusters[clusterId];
+            cluster.points.visible = this._getClusterVisible(clusterId);
+
+            for (const points of cluster.points.children) {
+                const color = mode === PointVisualizationMode.Cluster ?
+                    this._assets.getColor(clusterId) : null;
+                (<ClusterPoints>points).setColor(color);
+            }
         }
 
-        this._pointsVisible = visible;
         this._needsRender = true;
-
     }
 
     public setPositionMode(mode: OriginalPositionMode): void {
@@ -465,7 +477,9 @@ export class SpatialScene {
     }
 
     private _getClusterVisible(clusterId: string): boolean {
-        if (!this._pointsVisible) { return false; }
+        if (this._pointVisualizationMode === PointVisualizationMode.Hidden) {
+            return false;
+        }
         let visible = false;
         for (const imageCell of Object.values(this._images)) {
             const imageCV = imageCell.clusterVisibles;

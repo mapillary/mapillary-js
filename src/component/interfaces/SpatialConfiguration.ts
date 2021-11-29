@@ -1,6 +1,7 @@
 import { ComponentConfiguration } from "./ComponentConfiguration";
 import { CameraVisualizationMode } from "../spatial/enums/CameraVisualizationMode";
 import { OriginalPositionMode } from "../spatial/enums/OriginalPositionMode";
+import { PointVisualizationMode } from "../spatial/enums/PointVisualizationMode";
 
 /**
  * Interface for configuration of spatial component.
@@ -17,7 +18,7 @@ import { OriginalPositionMode } from "../spatial/enums/OriginalPositionMode";
  *             cellsVisible: true,
  *             originalPositionMode: OriginalPositionMode.Altitude,
  *             pointSize: 0.5,
- *             pointsVisible: false,
+ *             pointVisualizationMode: PointVisualizationMode.Hidden,
  *         },
  *     },
  *     ...
@@ -77,7 +78,17 @@ export interface SpatialConfiguration extends ComponentConfiguration {
     /**
      * Specify if the points should be visible or not.
      *
+     * @deprecated `pointsVisible` will be removed in
+     * v5.x. Use {@link pointVisualizationMode} instead.
+     *
      * @default true
      */
     pointsVisible?: boolean;
+
+    /**
+     * Specify how point clouds should be visualized.
+     *
+     * @default PointVisualizationMode.Original
+     */
+    pointVisualizationMode?: PointVisualizationMode;
 }

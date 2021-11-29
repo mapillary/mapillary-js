@@ -11,6 +11,7 @@ import {
   CameraControls,
   CameraVisualizationMode,
   OriginalPositionMode,
+  PointVisualizationMode,
   Viewer,
 } from '../../mapillary-js/dist/mapillary.module';
 
@@ -39,7 +40,7 @@ export function init(opts) {
       cellGridDepth: 1,
       originalPositionMode: OriginalPositionMode.Hidden,
       pointSize: 0.1,
-      pointsVisible: true,
+      pointVisualizationMode: PointVisualizationMode.Original,
       cellsVisible: false,
     },
   };
@@ -59,7 +60,9 @@ export function init(opts) {
     CameraVisualizationMode[config.cameraVisualizationMode];
   config.originalPositionMode =
     OriginalPositionMode[config.originalPositionMode];
-  config.cameraControls = CameraControls.Street;
+  config.pointVisualizationMode =
+    PointVisualizationMode[config.pointVisualizationMode];
+  config.cameraControls = CameraControls[CameraControls.Street];
   config.image = true;
 
   const configure = (name, value) => {
@@ -115,9 +118,15 @@ export function init(opts) {
       open: true,
     });
     folder.add(
-      new BooleanController(config, 'pointsVisible')
-        .setName('Visible')
-        .onChange(handleConfig('pointsVisible')),
+      new OptionController(config, 'pointVisualizationMode', [
+        PointVisualizationMode[PointVisualizationMode.Original],
+        PointVisualizationMode[PointVisualizationMode.Cluster],
+        PointVisualizationMode[PointVisualizationMode.Hidden],
+      ])
+        .setName('Mode')
+        .onChange((mode) =>
+          configure('pointVisualizationMode', PointVisualizationMode[mode]),
+        ),
     );
     folder.add(
       new NumberController(config, 'pointSize', {min: 0, max: 1})

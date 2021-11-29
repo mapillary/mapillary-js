@@ -11,6 +11,7 @@ import {
   enuToGeodetic,
   CameraControls,
   DataProviderBase,
+  PointVisualizationMode,
   S2GeometryProvider,
   Viewer,
 } from '../../mapillary-js/dist/mapillary.module';
@@ -111,11 +112,34 @@ function generateCluster(options, intervals) {
     });
   }
 
-  return {images, sequence};
+  const cluster = {id: clusterId, points: {}, reference: REFERENCE};
+  for (let i = 0; i <= intervals; i++) {
+    const easts = [-3, 3];
+    const north = (-intervals * distance) / 2 + distance * i;
+    const up = 0;
+    for (let y = 0; y < distance; y++) {
+      for (let z = 0; z < distance; z++) {
+        for (const x of easts) {
+          const pointId = `${i}-${z}-${y}-${x}`;
+          const cx = east + x;
+          const cy = north + y;
+          const cz = up + z;
+          cluster.points[pointId] = {
+            coordinates: [cx, cy, cz],
+            color: [1, 1, 1],
+          };
+        }
+      }
+    }
+  }
+
+  return {cluster, images, sequence};
 }
 
 function generateClusters(options) {
   const {height, intervals} = options;
+
+  const clusters = [];
   const images = [];
   const sequences = [];
 
@@ -145,11 +169,13 @@ function generateClusters(options) {
     config.width = aspect * height;
     config.height = height;
     const cluster = generateCluster(config, intervals);
+    clusters.push(cluster.cluster);
     images.push(...cluster.images);
     sequences.push(cluster.sequence);
   }
 
   return {
+    clusters: new Map(clusters.map((c) => [c.id, c])),
     images: new Map(images.map((i) => [i.id, i])),
     sequences: new Map(sequences.map((s) => [s.id, s])),
   };
@@ -209,8 +235,8 @@ export class ProceduralDataProvider extends DataProviderBase {
     });
     this.sequences = clusters.sequences;
     this.images = clusters.images;
+    this.clusters = clusters.clusters;
     this.cells = generateCells(this.images.values(), this._geometry);
-    this.clusters = new Map();
     this.meshes = new Map();
   }
 
@@ -274,7 +300,12 @@ export function init(opts) {
     cameraControls: CameraControls.Earth,
     component: {
       cover: false,
-      spatial: {cameraSize: 0.5, cellGridDepth: 3, cellsVisible: true},
+      spatial: {
+        cameraSize: 0.5,
+        cellGridDepth: 3,
+        cellsVisible: true,
+        pointVisualizationMode: PointVisualizationMode.Hidden,
+      },
     },
     container,
     imageTiling: false,
