@@ -1,5 +1,5 @@
 import * as vd from "virtual-dom";
-import UnitBezier from "@mapbox/unitbezier";
+import { MathUtils } from "three";
 
 import {
     combineLatest as observableCombineLatest,
@@ -71,7 +71,6 @@ export class BearingComponent extends Component<BearingConfiguration> {
     private _distinctThreshold: number;
 
     private _animationSpeed: number;
-    private _unitBezier: UnitBezier;
 
     /** @ignore */
     constructor(name: string, container: Container, navigator: Navigator) {
@@ -84,7 +83,6 @@ export class BearingComponent extends Component<BearingConfiguration> {
         this._distinctThreshold = Math.PI / 360;
 
         this._animationSpeed = 0.075;
-        this._unitBezier = new UnitBezier(0.74, 0.67, 0.38, 0.96);
     }
 
     protected _activate(): void {
@@ -187,9 +185,9 @@ export class BearingComponent extends Component<BearingConfiguration> {
                 { alpha: 0, curr: [0, 0, 0], prev: [0, 0, 0] }),
             map(
                 (state: ImageFovState): ImageFov => {
-                    const alpha: number = this._unitBezier.solve(state.alpha);
-                    const curr: ImageFov = state.curr;
-                    const prev: ImageFov = state.prev;
+                    const alpha = MathUtils.smootherstep(state.alpha, 0, 1);
+                    const curr = state.curr;
+                    const prev = state.prev;
 
                     return [
                         this._interpolate(prev[0], curr[0], alpha),
@@ -201,9 +199,9 @@ export class BearingComponent extends Component<BearingConfiguration> {
             map(
                 (nbf: ImageFov): ImageFovOperation => {
                     return (state: ImageFovState): ImageFovState => {
-                        const a: number = this._unitBezier.solve(state.alpha);
-                        const c: ImageFov = state.curr;
-                        const p: ImageFov = state.prev;
+                        const a = MathUtils.smootherstep(state.alpha, 0, 1);
+                        const c = state.curr;
+                        const p = state.prev;
 
                         const prev: ImageFov = [
                             this._interpolate(p[0], c[0], a),

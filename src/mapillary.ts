@@ -3,8 +3,8 @@
  *
  * This is a workaround to make the CommonJS unit testing
  * work with Jest. Once Jest/Node supports ES6 modules
- * fully this should be removed. GeoRBush and UnitBezier
- * are registered here only to avoid loading them during
+ * fully this should be removed. GeoRBush is registered
+ * here only to avoid loading it during
  * unit tests.
  */
 import { Graph } from "./graph/Graph";
@@ -12,10 +12,6 @@ import { MarkerSet } from "./component/marker/MarkerSet";
 import { GeoRBush } from "./geo/GeoRBush";
 Graph.register(GeoRBush);
 MarkerSet.register(GeoRBush);
-
-import UnitBezier from "@mapbox/unitbezier";
-import { TraversingState } from "./state/state/TraversingState";
-TraversingState.register(UnitBezier);
 
 /**
  * Component bootstrap

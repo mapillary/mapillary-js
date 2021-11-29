@@ -1,8 +1,6 @@
 import { ComponentService } from "../src/component/ComponentService";
 import { MarkerSet } from "../src/component/marker/MarkerSet";
 import { Graph } from "../src/graph/Graph";
-import { TraversingState } from "../src/state/state/TraversingState";
-import { Interpolator } from "../src/state/interfaces/IInterpolator";
 
 type Item = {
     lat: number;
@@ -14,10 +12,10 @@ type BBox = {
     maxY: number,
     minX: number,
     minY: number,
-}
+};
 
 class SpatialIndexMock<T extends Item> {
-    private _items: T[] = []
+    private _items: T[] = [];
     public all(): T[] { return this._items.slice(); }
     public clear(): void { this._items = []; }
     public insert(item: T): void { this._items.push(item); }
@@ -39,13 +37,8 @@ class SpatialIndexMock<T extends Item> {
 
 class CoverMock { public activate(): void { /* noop */ } }
 
-class InterpolatorMock implements Interpolator {
-    public solve(x: number): number { return x; }
-}
-
 export function bootstrap(): void {
     ComponentService.registerCover(<any>CoverMock);
     Graph.register(SpatialIndexMock);
     MarkerSet.register(SpatialIndexMock);
-    TraversingState.register(InterpolatorMock);
 }

@@ -9,7 +9,7 @@
     "outDir": "build/esm/",
     "sourceMap": true,
     "target": "es6",
-    "typeRoots": ["node_modules/@types", "types", "types/@mapbox"],
+    "typeRoots": ["node_modules/@types", "types"],
     "types": [
       "earcut",
       "jest",
@@ -19,7 +19,6 @@
       "rbush",
       "s2-geometry",
       "three",
-      "unitbezier",
       "virtual-dom"
     ]
   },

@@ -31,7 +31,6 @@
     "last 2 versions"
   ],
   "dependencies": {
-    "@mapbox/unitbezier": "0.0.0",
     "@types/earcut": "^2.1.1",
     "@types/node": "^14.14.31",
     "@types/pako": "^1.0.2",
