@@ -166,7 +166,7 @@ export abstract class StateBase implements IStateBase {
 
     public zoomIn(delta: number, reference: number[]): void { /*noop*/ }
 
-    public update(fps: number): void { /*noop*/ }
+    public update(delta: number): void { /*noop*/ }
 
     public setCenter(center: number[]): void { /*noop*/ }
 

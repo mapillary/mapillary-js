@@ -34,7 +34,7 @@ export class WaitingState extends StateBase {
         this._alpha = Math.max(0, Math.min(1, position));
     }
 
-    public update(fps: number): void {
+    public update(): void {
         this._camera.lerpCameras(this._previousCamera, this._currentCamera, this.alpha);
     }
 
