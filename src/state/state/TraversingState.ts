@@ -1,20 +1,17 @@
-import * as THREE from "three";
+import { MathUtils } from "three";
 
 import { InteractiveStateBase } from "./InteractiveStateBase";
 import { IStateBase } from "../interfaces/IStateBase";
 import { Image } from "../../graph/Image";
-import { Interpolator } from "../interfaces/IInterpolator";
 import { isSpherical } from "../../geo/Geo";
 
 export class TraversingState extends InteractiveStateBase {
-    private static _interpolator: new (...args: number[]) => Interpolator;
 
     private _baseAlpha: number;
 
     private _speedCoefficient: number;
 
-    private _unitBezier: Interpolator;
-    private _useBezier: boolean;
+    private _smoothing: boolean;
 
     constructor(state: IStateBase) {
         super(state);
@@ -25,14 +22,7 @@ export class TraversingState extends InteractiveStateBase {
 
         this._baseAlpha = this._alpha;
         this._speedCoefficient = 1;
-        this._unitBezier =
-            new TraversingState._interpolator(0.74, 0.67, 0.38, 0.96);
-        this._useBezier = false;
-    }
-
-    public static register(
-        interpolator: new (...args: number[]) => any): void {
-        TraversingState._interpolator = interpolator;
+        this._smoothing = false;
     }
 
     public append(images: Image[]): void {
@@ -77,7 +67,7 @@ export class TraversingState extends InteractiveStateBase {
         this._setDesiredZoom();
 
         if (this._trajectory.length < 3) {
-            this._useBezier = true;
+            this._smoothing = true;
         }
     }
 
@@ -89,7 +79,7 @@ export class TraversingState extends InteractiveStateBase {
         if (this._alpha === 1 && this._currentIndex + this._alpha < this._trajectory.length) {
             this._currentIndex += 1;
 
-            this._useBezier = this._trajectory.length < 3 &&
+            this._smoothing = this._trajectory.length < 3 &&
                 this._currentIndex + 1 === this._trajectory.length;
 
             this._setCurrent();
@@ -105,8 +95,8 @@ export class TraversingState extends InteractiveStateBase {
 
         let animationSpeed: number = this._animationSpeed * (60 / fps);
         this._baseAlpha = Math.min(1, this._baseAlpha + this._speedCoefficient * animationSpeed);
-        if (this._useBezier) {
-            this._alpha = this._unitBezier.solve(this._baseAlpha);
+        if (this._smoothing) {
+            this._alpha = MathUtils.smootherstep(this._baseAlpha, 0, 1);
         } else {
             this._alpha = this._baseAlpha;
         }
@@ -123,7 +113,7 @@ export class TraversingState extends InteractiveStateBase {
         }
 
         this._updateZoom(animationSpeed);
-        this._updateLookat(animationSpeed)
+        this._updateLookat(animationSpeed);
 
         this._camera.lerpCameras(this._previousCamera, this._currentCamera, this.alpha);
     }

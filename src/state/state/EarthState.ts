@@ -8,7 +8,7 @@ export class EarthState extends StateBase {
     constructor(state: IStateBase) {
         super(state);
 
-        const eye = this._camera.position.clone()
+        const eye = this._camera.position.clone();
         const forward = this._camera.lookat
             .clone()
             .sub(eye)
@@ -16,7 +16,7 @@ export class EarthState extends StateBase {
         const xy = Math.sqrt(forward.x * forward.x + forward.y * forward.y);
         const angle = Math.atan2(forward.z, xy);
 
-        const lookat = new Vector3()
+        const lookat = new Vector3();
         if (angle > -Math.PI / 45) {
             lookat.copy(eye);
             eye.add(new Vector3(forward.x, forward.y, 0)
