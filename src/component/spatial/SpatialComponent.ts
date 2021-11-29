@@ -55,13 +55,14 @@ import { ComponentName } from "../ComponentName";
 import { isModeVisible, isOverviewState } from "./Modes";
 import { State } from "../../state/State";
 import { connectedComponent } from "../../api/CellMath";
+import { PointVisualizationMode } from "./enums/PointVisualizationMode";
 
 type IntersectEvent = MouseEvent | FocusEvent;
 
 type Cell = {
     id: string;
     images: Image[];
-}
+};
 
 type AdjancentParams = [boolean, boolean, number, number, Image];
 
@@ -143,7 +144,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
     }
 
     protected _activate(): void {
-        this._navigator.cacheService.configure({ cellDepth: 3 })
+        this._navigator.cacheService.configure({ cellDepth: 3 });
 
         const subs = this._subscriptions;
 
@@ -226,7 +227,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                     if (o1 !== o2) {
                         return false;
                     }
-                    const isd = i1.id === i2.id && s1 === s2 && d1 === d2
+                    const isd = i1.id === i2.id && s1 === s2 && d1 === d2;
                     if (o1) {
                         return isd;
                     }
@@ -334,14 +335,18 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 (c: SpatialConfiguration): SpatialConfiguration => {
                     c.cameraSize = this._spatial.clamp(c.cameraSize, 0.01, 1);
                     c.pointSize = this._spatial.clamp(c.pointSize, 0.01, 1);
+                    const pointVisualizationMode =
+                        c.pointsVisible ?
+                            c.pointVisualizationMode ?? PointVisualizationMode.Original :
+                            PointVisualizationMode.Hidden;
                     return {
                         cameraSize: c.cameraSize,
                         cameraVisualizationMode: c.cameraVisualizationMode,
                         cellsVisible: c.cellsVisible,
                         originalPositionMode: c.originalPositionMode,
                         pointSize: c.pointSize,
-                        pointsVisible: c.pointsVisible,
-                    }
+                        pointVisualizationMode,
+                    };
                 }),
             distinctUntilChanged(
                 (c1: SpatialConfiguration, c2: SpatialConfiguration)
@@ -351,16 +356,17 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                         c1.cellsVisible === c2.cellsVisible &&
                         c1.originalPositionMode === c2.originalPositionMode &&
                         c1.pointSize === c2.pointSize &&
-                        c1.pointsVisible === c2.pointsVisible;
+                        c1.pointVisualizationMode === c2.pointVisualizationMode;
                 }))
             .subscribe(
                 (c: SpatialConfiguration): void => {
                     this._scene.setCameraSize(c.cameraSize);
-                    this._scene.setPointSize(c.pointSize);
-                    this._scene.setPointVisibility(c.pointsVisible);
-                    this._scene.setCellVisibility(c.cellsVisible);
                     const cvm = c.cameraVisualizationMode;
                     this._scene.setCameraVisualizationMode(cvm);
+                    this._scene.setCellVisibility(c.cellsVisible);
+                    this._scene.setPointSize(c.pointSize);
+                    const pvm = c.pointVisualizationMode;
+                    this._scene.setPointVisualizationMode(pvm);
                     const opm = c.originalPositionMode;
                     this._scene.setPositionMode(opm);
                 }));
@@ -421,7 +427,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                             size: c.cameraSize,
                             visible: isModeVisible(c.cameraVisualizationMode),
                             state,
-                        }
+                        };
                     }),
                 distinctUntilChanged(
                     (c1: IntersectConfiguration, c2: IntersectConfiguration): boolean => {
@@ -523,7 +529,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                         );
                     }),
                 publish<[Cell, LngLatAlt]>(),
-                refCount())
+                refCount());
 
         subs.push(updatedCell$
             .subscribe(
@@ -586,6 +592,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             originalPositionMode: OriginalPositionMode.Hidden,
             pointSize: 0.1,
             pointsVisible: true,
+            pointVisualizationMode: PointVisualizationMode.Original,
             cellsVisible: false,
         };
     }

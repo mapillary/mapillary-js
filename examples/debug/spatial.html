@@ -34,6 +34,7 @@
                 CameraControls,
                 CameraVisualizationMode,
                 OriginalPositionMode,
+                PointVisualizationMode,
                 Viewer,
             } from "/dist/mapillary.module.js";
             import { accessToken } from "/doc-src/.access-token/token.js";
@@ -115,6 +116,22 @@
                 };
             })();
 
+            const rotatePvm = (function () {
+                const hidden = PointVisualizationMode.Hidden;
+                const original = PointVisualizationMode.Original;
+                const cluster = PointVisualizationMode.Cluster;
+                const pvmRotation = {};
+                pvmRotation[hidden] = original;
+                pvmRotation[original] = cluster;
+                pvmRotation[cluster] = hidden;
+
+                return function () {
+                    s.pointVisualizationMode =
+                        pvmRotation[s.pointVisualizationMode];
+                    configure("pointVisualizationMode");
+                };
+            })();
+
             const setFilter = (function () {
                 let filterIndex = 0;
                 const filters = [
@@ -144,9 +161,6 @@
 
                 let name = undefined;
                 switch (e.key) {
-                    case "p":
-                        name = "pointsVisible";
-                        break;
                     case "t":
                         name = "cellsVisible";
                         break;
@@ -164,6 +178,9 @@
                         break;
                     case "r":
                         rotateCc();
+                        break;
+                    case "p":
+                        rotatePvm();
                         break;
                     case "q":
                         changeSize("pointSize", 0.9);
