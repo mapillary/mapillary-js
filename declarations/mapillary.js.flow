@@ -49,6 +49,72 @@ declare function enuToGeodetic(
 ): number[];
 
 /**
+ * Convert coordinates from Earth-Centered, Earth-Fixed (ECEF) reference
+ * to local topocentric (ENU) reference.
+ * @param {number} X ECEF X-value.
+ * @param {number} Y ECEF Y-value.
+ * @param {number} Z ECEF Z-value.
+ * @param {number} refLng Reference longitude in degrees.
+ * @param {number} refLat Reference latitude in degrees.
+ * @param {number} refAlt Reference altitude in meters.
+ * @returns {Array<number>} The x, y, z topocentric ENU coordinates in East, North
+ * and Up directions respectively.
+ */
+declare function ecefToEnu(
+  X: number,
+  Y: number,
+  Z: number,
+  refLng: number,
+  refLat: number,
+  refAlt: number
+): number[];
+
+/**
+ * Convert coordinates from local topocentric (ENU) reference
+ * to Earth-Centered, Earth-Fixed (ECEF) reference.
+ * @param {number} x Topocentric ENU coordinate in East direction.
+ * @param {number} y Topocentric ENU coordinate in North direction.
+ * @param {number} z Topocentric ENU coordinate in Up direction.
+ * @param {number} refLng Reference longitude in degrees.
+ * @param {number} refLat Reference latitude in degrees.
+ * @param {number} refAlt Reference altitude in meters.
+ * @returns {Array<number>} The X, Y, Z ECEF coordinates.
+ */
+declare function enuToEcef(
+  x: number,
+  y: number,
+  z: number,
+  refLng: number,
+  refLat: number,
+  refAlt: number
+): number[];
+
+/**
+ * Convert coordinates from geodetic reference (WGS84) to Earth-Centered,
+ * Earth-Fixed (ECEF) reference.
+ * @param {number} lng Longitude in degrees.
+ * @param {number} lat Latitude in degrees.
+ * @param {number} alt Altitude in meters.
+ * @returns {Array<number>} The X, Y, Z ECEF coordinates.
+ */
+declare function geodeticToEcef(
+  lng: number,
+  lat: number,
+  alt: number
+): number[];
+
+/**
+ * Convert coordinates from Earth-Centered, Earth-Fixed (ECEF) reference
+ * to geodetic reference (WGS84).
+ * @param {number} X ECEF X-value.
+ * @param {number} Y ECEF Y-value.
+ * @param {number} Z ECEF Z-value.
+ * @returns {Array<number>} The longitude, latitude in degrees
+ * and altitude in meters.
+ */
+declare function ecefToGeodetic(X: number, Y: number, Z: number): number[];
+
+/**
  * Contract describing triangulated meshes.
  */
 export interface MeshContract {
@@ -7995,8 +8061,12 @@ declare export {
   Viewer,
   ZoomComponent,
   decompress,
+  ecefToEnu,
+  ecefToGeodetic,
+  enuToEcef,
   enuToGeodetic,
   fetchArrayBuffer,
+  geodeticToEcef,
   geodeticToEnu,
   isFallbackSupported,
   isSupported,
