@@ -633,7 +633,7 @@ export interface IGeometryProvider {
  * not an exported method or class.
  * @fires datacreate
  */
-export interface IDataProvider {
+export interface IDataProvider extends IEventEmitter {
   /**
    * Get geometry property.
    * @returns {IGeometryProvider} Geometry provider instance.
@@ -8037,6 +8037,7 @@ declare export {
   PointGeometry,
   PointerComponent,
   PointsGeometry,
+  PointVisualizationMode,
   PolygonGeometry,
   Popup,
   PopupComponent,
