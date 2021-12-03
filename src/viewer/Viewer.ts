@@ -47,6 +47,7 @@ import { CustomCameraControls } from "./CustomCameraControls";
 import { ViewerLoadEvent } from "./events/ViewerLoadEvent";
 import { cameraControlsToState } from "./Modes";
 import { ViewerReferenceEvent } from "./events/ViewerReferenceEvent";
+import { IDataProvider } from "../external/api";
 
 /**
  * @class Viewer
@@ -177,6 +178,20 @@ export class Viewer extends EventEmitter implements IViewer {
             new CustomCameraControls(
                 this._container,
                 this._navigator);
+    }
+
+    /**
+     * Returns the data provider used by the viewer to fetch
+     * all contracts, ents, and buffers.
+     *
+     * @description The viewer's data provider can be set
+     * upon initialization through the {@link ViewerOptions.dataProvider}
+     * property.
+     *
+     * @returns {IDataProvider} The viewer's data provider.
+     */
+    public get dataProvider(): IDataProvider {
+        return this._navigator.api.data;
     }
 
     /**
