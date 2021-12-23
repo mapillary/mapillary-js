@@ -39,6 +39,8 @@ export class CustomCameraControls {
             throw new MapillaryError('Custom camera controls already attached');
         }
 
+        this._controls = controls;
+
         const attach$ = new Subject<void>();
         const active$ = attach$
             .pipe(
@@ -149,13 +151,6 @@ export class CustomCameraControls {
                         attach$.next();
                         attach$.complete();
                     }));
-
-
-        this._controls = controls;
-    }
-
-    public dispose(viewer: IViewer): void {
-        this.detach(viewer);
     }
 
     public detach(viewer: IViewer): Promise<ICustomCameraControls> {
@@ -181,8 +176,14 @@ export class CustomCameraControls {
                     resolve(controls);
                 });
         });
+    }
 
+    public dispose(viewer: IViewer): void {
+        this.detach(viewer);
+    }
 
+    public has(controls: ICustomCameraControls): boolean {
+        return !!this._controls && controls === this._controls;
     }
 
     private _updateProjectionMatrix(projectionMatrix: number[]): void {

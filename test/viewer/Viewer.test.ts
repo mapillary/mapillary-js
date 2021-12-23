@@ -153,6 +153,26 @@ describe("Viewer.removeCustomRenderer", () => {
     });
 });
 
+describe("Viewer.hasCustomCameraControls", () => {
+    it("should call custom renderer", () => {
+        const mocks = createMocks();
+        const viewer = new Viewer({ container: "" });
+
+        viewer.hasCustomCameraControls({
+            onActivate: null,
+            onAnimationFrame: null,
+            onAttach: null,
+            onDeactivate: null,
+            onDetach: null,
+            onReference: null,
+            onResize: null,
+        });
+
+        const spy = (<jasmine.Spy>mocks.customCameraControls.has);
+        expect(spy.calls.count()).toBe(1);
+    });
+});
+
 describe("Viewer.triggerRerender", () => {
     it("should call gl renderer", () => {
         const mocks = createMocks();

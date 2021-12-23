@@ -43,6 +43,7 @@ export interface IViewer {
     getPosition(): Promise<LngLat>;
     getReference(): Promise<LngLatAlt>;
     getZoom(): Promise<number>;
+    hasCustomCameraControls(controls: ICustomCameraControls): boolean;
     hasCustomRenderer(rendererId: string): boolean;
     moveDir(direction: NavigationDirection): Promise<Image>;
     moveTo(imageId: string): Promise<Image>;
