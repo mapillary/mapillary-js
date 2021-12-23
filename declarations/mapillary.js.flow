@@ -173,8 +173,8 @@ declare function readMeshPbf(buffer: ArrayBuffer): MeshContract;
  */
 export interface IEventEmitter {
   fire<T>(type: string, event: T): void;
-  off<T>(type: string, handler: (event: T) => void): void;
-  on<T>(type: string, handler: (event: T) => void): void;
+  off<T>(type: string, handler: (event: T) => mixed): void;
+  on<T>(type: string, handler: (event: T) => mixed): void;
 }
 
 declare class EventEmitter implements IEventEmitter {
@@ -184,19 +184,19 @@ declare class EventEmitter implements IEventEmitter {
    * Subscribe to an event by its name.
    * @param {string} type - The name of the event
    * to subscribe to.
-   * @param {(event: T) => void} handler - The
+   * @param {(event: T) => mixed} handler - The
    * handler called when the event occurs.
    */
-  on<T>(type: string, handler: (event: T) => void): void;
+  on<T>(type: string, handler: (event: T) => mixed): void;
 
   /**
    * Unsubscribe from an event by its name.
    * @param {string} type - The name of the event
    * to unsubscribe from.
-   * @param {(event: T) => void} handler - The
+   * @param {(event: T) => mixed} handler - The
    * handler to remove.
    */
-  off<T>(type: string, handler: (event: T) => void): void;
+  off<T>(type: string, handler: (event: T) => mixed): void;
 
   /**
    * @ignore
@@ -884,9 +884,9 @@ declare class DataProviderBase implements IDataProvider, IEventEmitter {
    */
   getSequence(sequenceId: string): Promise<SequenceContract>;
 
-  off<T>(type: string, handler: (event: T) => void): void;
+  off<T>(type: string, handler: (event: T) => mixed): void;
 
-  on<T>(type: string, handler: (event: T) => void): void;
+  on<T>(type: string, handler: (event: T) => mixed): void;
 
   /**
    * Set an access token for authenticated API requests of
@@ -3202,8 +3202,8 @@ export interface IViewer {
   hasCustomRenderer(rendererId: string): boolean;
   moveDir(direction: $Values<typeof NavigationDirection>): Promise<Image>;
   moveTo(imageId: string): Promise<Image>;
-  off<T>(type: ViewerEventType, handler: (event: T) => void): void;
-  on<T>(type: ViewerEventType, handler: (event: T) => void): void;
+  off<T>(type: ViewerEventType, handler: (event: T) => mixed): void;
+  on<T>(type: ViewerEventType, handler: (event: T) => mixed): void;
   project(lngLat: LngLat): Promise<number[]>;
   projectFromBasic(basicPoint: number[]): Promise<number[]>;
   remove(): void;
@@ -4088,8 +4088,8 @@ declare class Viewer implements IEventEmitter, IViewer {
   unprojectToBasic(pixelPoint: number[]): Promise<number[]>;
 
   fire<T>(type: string, event: T): void;
-  off<T>(type: string, handler: (event: T) => void): void;
-  on<T>(type: string, handler: (event: T) => void): void;
+  off<T>(type: string, handler: (event: T) => mixed): void;
+  on<T>(type: string, handler: (event: T) => mixed): void;
 }
 /**
  * @class MapillaryError
@@ -5269,12 +5269,12 @@ declare class Component<TConfiguration: ComponentConfiguration>
   /**
    * @inheritdoc
    */
-  off<T>(type: string, handler: (event: T) => void): void;
+  off<T>(type: string, handler: (event: T) => mixed): void;
 
   /**
    * @inheritdoc
    */
-  on<T>(type: string, handler: (event: T) => void): void;
+  on<T>(type: string, handler: (event: T) => mixed): void;
 
   /**
    * Detect the viewer's new width and height and resize the component's
