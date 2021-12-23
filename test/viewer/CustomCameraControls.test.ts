@@ -18,6 +18,7 @@ import { CustomCameraControls } from "../../src/viewer/CustomCameraControls";
 import { State } from "../../src/state/State";
 import { ViewportSize } from "../../src/render/interfaces/ViewportSize";
 import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
+import { ICustomCameraControls } from "../../src/mapillary";
 
 global.WebGL2RenderingContext = <any>jest.fn();
 
@@ -49,7 +50,50 @@ describe("CustomCameraControls.ctor", () => {
     });
 });
 
-describe("CustomRenderer.attach", () => {
+describe("CustomCameraControls.has", () => {
+    test("should have camera controls immediately after attaching", () => {
+        const navigator = new NavigatorMockCreator().create();
+        const container = new ContainerMockCreator().create();
+        spyOn(Navigator, "Navigator").and.returnValue(navigator);
+        spyOn(Container, "Container").and.returnValue(container);
+
+        const controls = new CustomCameraControls(
+            container,
+            navigator);
+
+        const viewer = <any>{};
+        const custom: ICustomCameraControls = {
+            onActivate: () => { /* noop*/ },
+            onAnimationFrame: () => { /* noop*/ },
+            onAttach: () => { /* noop*/ },
+            onDeactivate: () => { /* noop*/ },
+            onDetach: () => { /* noop*/ },
+            onReference: () => { /* noop */ },
+            onResize: () => { /* noop */ },
+        };
+
+        expect(controls.has(custom)).toBe(false);
+
+        controls.attach(custom, viewer);
+
+        expect(controls.has(custom)).toBe(true);
+
+        const other: ICustomCameraControls = {
+            onActivate: () => { /* noop*/ },
+            onAnimationFrame: () => { /* noop*/ },
+            onAttach: () => { /* noop*/ },
+            onDeactivate: () => { /* noop*/ },
+            onDetach: () => { /* noop*/ },
+            onReference: () => { /* noop */ },
+            onResize: () => { /* noop */ },
+        };
+
+        expect(controls.has(other)).toBe(false);
+
+    });
+});
+
+describe("CustomCameraControls.attach", () => {
     test("should invoke onAttach after gl initialization", done => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
@@ -638,7 +682,7 @@ describe("CustomRenderer.attach", () => {
     });
 });
 
-describe("CustomRenderer.detach", () => {
+describe("CustomCameraControls.detach", () => {
     test("should invoke onDetach when detatching", done => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();

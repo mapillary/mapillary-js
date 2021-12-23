@@ -694,6 +694,17 @@ export class Viewer extends EventEmitter implements IViewer {
             });
     }
 
+    /**
+     * Check if a controls instance is the camera controls that are
+     * currently attached to the viewer.
+     *
+     * @param {ICustomCameraControls} controls - Camera controls instance.
+     * @returns {boolean} Value indicating whether the controls instance
+     * is currently attached.
+     */
+    public hasCustomCameraControls(controls: ICustomCameraControls): boolean {
+        return this._customCameraControls.has(controls);
+    }
 
     /**
      * Check if a custom renderer has been added to the viewer's
