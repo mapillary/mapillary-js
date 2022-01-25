@@ -38,7 +38,7 @@ If you want to use data from the Mapillary platform during development, first yo
 Setup your MapillaryJS development environment with the following command:
 
 ```zsh
-ACCESS_TOKEN=<YOUR_CLIENT_ACCESS_TOKEN> yarn setup
+MAPILLARY_ACCESS_TOKEN="<YOUR_CLIENT_ACCESS_TOKEN>" yarn setup
 ```
 
 Then, you can run several commands:
