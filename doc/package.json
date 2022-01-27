@@ -40,7 +40,7 @@
     "mapbox-gl": "^2.4.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "three": "^0.132.2",
+    "three": "^0.137.0",
     "url-loader": "^4.1.1"
   },
   "devDependencies": {
