@@ -3212,7 +3212,7 @@ export interface IViewer {
   setCameraControls(controls: $Values<typeof CameraControls>): void;
   setCenter(center: number[]): void;
   setFieldOfView(fov: number): void;
-  setFilter(filter: FilterExpression): Promise<void>;
+  setFilter(filter?: FilterExpression): Promise<void>;
   setRenderMode(renderMode: $Values<typeof RenderMode>): void;
   setTransitionMode(transitionMode: $Values<typeof TransitionMode>): void;
   setAccessToken(accessToken?: string): Promise<void>;
@@ -3980,7 +3980,8 @@ declare class Viewer implements IEventEmitter, IViewer {
    * Set the filter selecting images to use when calculating
    * the spatial edges.
    * @description [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
-   * @param {FilterExpression} filter - The filter expression.
+   * @param {FilterExpression} [filter] - The filter expression.
+   * Applied filter is cleared if omitted.
    * @returns {Promise<void>} Promise that resolves after filter is applied.
    * @example ```js
    * // Examples
@@ -3989,7 +3990,7 @@ declare class Viewer implements IEventEmitter, IViewer {
    * viewer.setFilter(["in", "sequenceId", "<sequence-id-1>", "<sequence-id-2>"]);
    * ```
    */
-  setFilter(filter: FilterExpression): Promise<void>;
+  setFilter(filter?: FilterExpression): Promise<void>;
 
   /**
  * Set the viewer's render mode.

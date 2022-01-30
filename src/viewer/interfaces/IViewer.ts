@@ -60,7 +60,7 @@ export interface IViewer {
     setCameraControls(controls: CameraControls): void;
     setCenter(center: number[]): void;
     setFieldOfView(fov: number): void;
-    setFilter(filter: FilterExpression): Promise<void>;
+    setFilter(filter?: FilterExpression): Promise<void>;
     setRenderMode(renderMode: RenderMode): void;
     setTransitionMode(transitionMode: TransitionMode): void;
     setAccessToken(accessToken?: string): Promise<void>;
