@@ -21,6 +21,8 @@ import { SpatialCell } from "./scene/SpatialCell";
 import { SpatialAssets } from "./scene/SpatialAssets";
 import { isModeVisible } from "./Modes";
 import { PointVisualizationMode } from "./enums/PointVisualizationMode";
+import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
+import { resetEnu } from "./SpatialCommon";
 
 const NO_CLUSTER_ID = "NO_CLUSTER_ID";
 const NO_MERGE_ID = "NO_MERGE_ID";
@@ -250,6 +252,51 @@ export class SpatialScene {
             this._images[cellId].hasImage(imageId);
     }
 
+    public render(
+        camera: PerspectiveCamera,
+        renderer: WebGLRenderer): void {
+        renderer.render(this._scene, camera);
+        this._needsRender = false;
+    }
+
+    public resetReference(
+        reference: LngLatAlt,
+        prevReference: LngLatAlt)
+        : void {
+        const clusters = this._clusters;
+        for (const clusterId in clusters) {
+            if (!clusters.hasOwnProperty(clusterId)) {
+                continue;
+            }
+            const cluster = clusters[clusterId];
+            cluster.points.position.fromArray(resetEnu(
+                reference,
+                cluster.points.position.toArray(),
+                prevReference));
+        }
+
+        const cells = this._cells;
+        for (const cellId in cells) {
+            if (!cells.hasOwnProperty(cellId)) {
+                continue;
+            }
+            const cell = cells[cellId];
+            cell.position.fromArray(resetEnu(
+                reference,
+                cell.position.toArray(),
+                prevReference));
+        }
+
+        const images = this._images;
+        for (const cellId in images) {
+            if (!images.hasOwnProperty(cellId)) {
+                continue;
+            }
+            const spatialCell = images[cellId];
+            spatialCell.resetReference(reference, prevReference);
+        }
+    }
+
     public setCameraSize(cameraSize: number): void {
         if (Math.abs(cameraSize - this._cameraSize) < 1e-3) { return; }
 
@@ -433,13 +480,6 @@ export class SpatialScene {
 
         this._cameraVisualizationMode = mode;
         this._needsRender = true;
-    }
-
-    public render(
-        camera: PerspectiveCamera,
-        renderer: WebGLRenderer): void {
-        renderer.render(this._scene, camera);
-        this._needsRender = false;
     }
 
     public uncache(keepCellIds?: string[]): void {
