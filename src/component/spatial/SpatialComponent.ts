@@ -273,9 +273,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                                         map((images: Image[]) => ({ id: cellId, images })));
                                 },
                                 6));
-                    }),
-                publishReplay(1),
-                refCount());
+                    }));
 
         subs.push(cell$.pipe(
             withLatestFrom(this._navigator.stateService.reference$))
