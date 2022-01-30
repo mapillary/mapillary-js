@@ -1497,7 +1497,8 @@ export class Viewer extends EventEmitter implements IViewer {
      * documentation for a full list of properties that can be used
      * in a filter) are shown the the example code.
      *
-     * @param {FilterExpression} filter - The filter expression.
+     * @param {FilterExpression} [filter] - The filter expression.
+     * Applied filter is cleared if omitted.
      * @returns {Promise<void>} Promise that resolves after filter is applied.
      *
      * @example
@@ -1508,7 +1509,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * viewer.setFilter(["in", "sequenceId", "<sequence-id-1>", "<sequence-id-2>"]);
      * ```
      */
-    public setFilter(filter: FilterExpression): Promise<void> {
+    public setFilter(filter?: FilterExpression): Promise<void> {
         return new Promise<void>(
             (resolve: (value: void) => void, reject: (reason: Error) => void): void => {
                 this._navigator.setFilter$(filter)
