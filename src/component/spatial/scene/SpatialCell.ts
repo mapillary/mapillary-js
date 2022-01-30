@@ -14,6 +14,8 @@ import { CameraVisualizationMode } from "../enums/CameraVisualizationMode";
 import { isSpherical } from "../../../geo/Geo";
 import { SphericalCameraFrame } from "./SphericalCameraFrame";
 import { PerspectiveCameraFrame } from "./PerspectiveCameraFrame";
+import { LngLatAlt } from "../../../api/interfaces/LngLatAlt";
+import { resetEnu } from "../SpatialCommon";
 
 type ColorIdCamerasMap = Map<string, CameraFrameBase[]>;
 
@@ -42,11 +44,11 @@ type ImageVisualizationProps = {
 export class SpatialCell {
     public readonly cameras: Object3D;
     public readonly keys: string[];
-    public clusterVisibles: { [key: string]: boolean };
+    public clusterVisibles: { [key: string]: boolean; };
 
     private readonly _positions: Object3D;
-    private readonly _positionLines: { [key: string]: PositionLine };
-    private readonly _cameraFrames: { [key: string]: CameraFrameBase };
+    private readonly _positionLines: { [key: string]: PositionLine; };
+    private readonly _cameraFrames: { [key: string]: CameraFrameBase; };
     private readonly _clusters: ColorIdCamerasMap;
     private readonly _connectedComponents: ColorIdCamerasMap;
     private readonly _sequences: ColorIdCamerasMap;
@@ -54,7 +56,7 @@ export class SpatialCell {
         [id: string]: {
             image: Image,
             ids: ImageIdMap,
-        }
+        };
     };
 
     private _frameMaterial: LineBasicMaterial;
@@ -167,7 +169,7 @@ export class SpatialCell {
             return this._sequences;
         }
         const cvm = CameraVisualizationMode;
-        const defaultId = cvm[cvm.Homogeneous]
+        const defaultId = cvm[cvm.Homogeneous];
         const cameras = <ColorIdCamerasMap>new Map();
         cameras.set(defaultId, <CameraFrameBase[]>this.cameras.children);
         return cameras;
@@ -190,6 +192,35 @@ export class SpatialCell {
 
     public hasImage(key: string): boolean {
         return this.keys.indexOf(key) !== -1;
+    }
+
+    public resetReference(
+        reference: LngLatAlt,
+        prevReference: LngLatAlt)
+        : void {
+        const frames = this._cameraFrames;
+        for (const frameId in frames) {
+            if (!frames.hasOwnProperty(frameId)) {
+                continue;
+            }
+            const frame = frames[frameId];
+            frame.position.fromArray(resetEnu(
+                reference,
+                frame.position.toArray(),
+                prevReference));
+        }
+
+        const lines = this._positionLines;
+        for (const lineId in lines) {
+            if (!lines.hasOwnProperty(lineId)) {
+                continue;
+            }
+            const line = lines[lineId];
+            line.position.fromArray(resetEnu(
+                reference,
+                line.position.toArray(),
+                prevReference));
+        }
     }
 
     public visualize(props: ImageVisualizationProps): void {

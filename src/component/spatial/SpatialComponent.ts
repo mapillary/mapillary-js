@@ -23,6 +23,7 @@ import {
     take,
     withLatestFrom,
     filter,
+    pairwise,
 } from "rxjs/operators";
 
 import { Image } from "../../graph/Image";
@@ -149,9 +150,13 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
         const subs = this._subscriptions;
 
         subs.push(this._navigator.stateService.reference$
-            .subscribe((): void => {
-                this._scene.uncache();
-            }));
+            .pipe(
+                pairwise())
+            .subscribe(
+                ([prevReference, reference]: [LngLatAlt, LngLatAlt]): void => {
+                    this._scene.resetReference(reference, prevReference);
+                }
+            ));
 
         subs.push(this._navigator.graphService.filter$
             .subscribe(imageFilter => { this._scene.setFilter(imageFilter); }));
@@ -268,7 +273,9 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                                         map((images: Image[]) => ({ id: cellId, images })));
                                 },
                                 6));
-                    }));
+                    }),
+                publishReplay(1),
+                refCount());
 
         subs.push(cell$.pipe(
             withLatestFrom(this._navigator.stateService.reference$))
