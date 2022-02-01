@@ -13,12 +13,15 @@ import { State } from "../state/State";
 import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { EulerRotation } from "../state/interfaces/EulerRotation";
 import { isSpherical } from "../geo/Geo";
+import { MathUtils } from "three";
 
 export class RenderCamera {
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
 
     private _alpha: number;
+    private _stateTransitionAlpha: number;
+    private _stateTransitionFov: number;
     private _renderMode: RenderMode;
     private _zoom: number;
     private _frameId: number;
@@ -62,6 +65,8 @@ export class RenderCamera {
         this._initialFov = 60;
 
         this._alpha = -1;
+        this._stateTransitionAlpha = -1;
+        this._stateTransitionFov = -1;
         this._renderMode = renderMode;
         this._zoom = 0;
 
@@ -166,6 +171,10 @@ export class RenderCamera {
                 this.setRenderMode(this._renderMode);
                 this.setSize(this._size);
             }
+            if (this._state === State.Earth) {
+                const y = this._fovToY(this._perspective.fov, this._zoom);
+                this._stateTransitionFov = this._yToFov(y, 0);
+            }
 
             this._changed = true;
         }
@@ -191,25 +200,33 @@ export class RenderCamera {
         }
 
         const zoom = state.zoom;
-
         if (zoom !== this._zoom) {
-            this._zoom = zoom;
-
             this._changed = true;
         }
 
         if (this._changed) {
-            this._currentFov = this._computeCurrentFov(this.zoom);
-            this._previousFov = this._computePreviousFov(this._zoom);
+            this._currentFov = this._computeCurrentFov(zoom);
+            this._previousFov = this._computePreviousFov(zoom);
         }
 
         const alpha = state.alpha;
-        if (this._changed || alpha !== this._alpha) {
+        const sta = state.stateTransitionAlpha;
+        if (this._changed ||
+            alpha !== this._alpha ||
+            sta !== this._stateTransitionAlpha) {
+
             this._alpha = alpha;
+            this._stateTransitionAlpha = sta;
 
             switch (this._state) {
-                case State.Earth:
+                case State.Earth: {
+                    const startFov = this._stateTransitionFov;
+                    const endFov = this._focalToFov(state.camera.focal);
+                    const fov = MathUtils.lerp(startFov, endFov, sta);
+                    const y = this._fovToY(fov, 0);
+                    this._perspective.fov = this._yToFov(y, zoom);
                     break;
+                }
                 case State.Custom:
                     break;
                 default:
@@ -221,6 +238,8 @@ export class RenderCamera {
                     this._changed = true;
                     break;
             }
+
+            this._zoom = zoom;
 
             if (this._state !== State.Custom) {
                 this._perspective.updateProjectionMatrix();
@@ -252,6 +271,7 @@ export class RenderCamera {
     }
 
     public setProjectionMatrix(matrix: number[]): void {
+        this._perspective.fov = this._focalToFov(matrix[5] / 2);
         this._perspective.projectionMatrix.fromArray(matrix);
         this._perspective.projectionMatrixInverse
             .copy(this._perspective.projectionMatrix)
@@ -376,6 +396,14 @@ export class RenderCamera {
 
     private _yToFov(y: number, zoom: number): number {
         return 2 * Math.atan(y / Math.pow(2, zoom)) * 180 / Math.PI;
+    }
+
+    private _focalToFov(focal: number): number {
+        return 2 * Math.atan2(1, 2 * focal) * 180 / Math.PI;
+    }
+
+    private _fovToY(fov: number, zoom: number): number {
+        return Math.pow(2, zoom) * Math.tan(Math.PI * fov / 360);
     }
 
     private _interpolateFov(v1: number, v2: number, alpha: number): number {

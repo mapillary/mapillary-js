@@ -9,8 +9,8 @@ export class EarthState extends StateBase {
     private _curveE: CatmullRomCurve3;
     private _curveL: CatmullRomCurve3;
     private _curveU: CatmullRomCurve3;
-    private _focal0: number;
-    private _focal1: number;
+    private _zoom0: number;
+    private _zoom1: number;
 
     constructor(state: IStateBase) {
         super(state);
@@ -73,8 +73,9 @@ export class EarthState extends StateBase {
         this._curveL = new CatmullRomCurve3([lookat0, lookat1, lookat2, lookat3]);
         this._curveU = new CatmullRomCurve3([up0, up1, up2, up3]);
 
-        this._focal0 = this._camera.focal;
-        this._focal1 = 0.5 / Math.tan(Math.PI / 3);
+        this._zoom0 = this._zoom;
+        this._zoom1 = 0;
+        this._camera.focal = 0.5 / Math.tan(Math.PI / 4);
     }
 
     private get _isTransitioning(): boolean {
@@ -165,16 +166,21 @@ export class EarthState extends StateBase {
         }
 
         this._transition = Math.min(this._transition + 2 * delta / 3, 1);
-        const t = (MathUtils.smootherstep(this._transition, 0, 1) + 1) / 3;
+        const sta = MathUtils.smootherstep(this._transition, 0, 1);
+        const t = (sta + 1) / 3;
 
         const eye = this._curveE.getPoint(t);
         const lookat = this._curveL.getPoint(t);
         const up = this._curveU.getPoint(t);
-        const focal = MathUtils.lerp(this._focal0, this._focal1, 3 * t - 1);
 
         this._camera.position.copy(eye);
         this._camera.lookat.copy(lookat);
         this._camera.up.copy(up);
-        this._camera.focal = focal;
+        this._zoom = MathUtils.lerp(this._zoom0, this._zoom1, sta);
+        this._stateTransitionAlpha = sta;
+    }
+
+    protected _getStateTransitionAlpha(): number {
+        return this._stateTransitionAlpha;
     }
 }

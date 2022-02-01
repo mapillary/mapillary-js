@@ -17,6 +17,7 @@ export abstract class StateBase implements IStateBase {
     protected _reference: LngLatAlt;
 
     protected _alpha: number;
+    protected _stateTransitionAlpha: number;
     protected _camera: Camera;
     protected _zoom: number;
 
@@ -46,6 +47,7 @@ export abstract class StateBase implements IStateBase {
         this._reference = state.reference;
 
         this._alpha = state.alpha;
+        this._stateTransitionAlpha = 0;
         this._camera = state.camera.clone();
         this._zoom = state.zoom;
 
@@ -96,6 +98,10 @@ export abstract class StateBase implements IStateBase {
 
     public get alpha(): number {
         return this._getAlpha();
+    }
+
+    public get stateTransitionAlpha(): number {
+        return this._getStateTransitionAlpha();
     }
 
     public get camera(): Camera {
@@ -273,6 +279,7 @@ export abstract class StateBase implements IStateBase {
     }
 
     protected _getAlpha(): number { return 1; }
+    protected _getStateTransitionAlpha(): number { return 1; }
 
     protected _setCurrent(): void {
         this._setCurrentImage();

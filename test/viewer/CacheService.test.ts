@@ -109,6 +109,7 @@ const createState: () => IAnimationState = (): IAnimationState => {
         previousTransform: null,
         reference: null,
         state: State.Traversing,
+        stateTransitionAlpha: 0,
         trajectory: null,
         zoom: 0,
     };
