@@ -43,6 +43,10 @@ export class StateContext implements IStateContext {
         return this._state.alpha;
     }
 
+    public get stateTransitionAlpha(): number {
+        return this._state.stateTransitionAlpha;
+    }
+
     public get camera(): Camera {
         return this._state.camera;
     }

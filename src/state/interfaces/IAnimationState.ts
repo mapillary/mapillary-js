@@ -20,4 +20,5 @@ export interface IAnimationState {
     previousTransform: Transform;
     motionless: boolean;
     state: State;
+    stateTransitionAlpha: number;
 }
