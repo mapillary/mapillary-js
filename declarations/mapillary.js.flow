@@ -3173,6 +3173,7 @@ export interface PointOfView {
   tilt: number;
 }
 export interface IViewer {
+  +dataProvider: IDataProvider;
   +isNavigable: boolean;
   activateCombinedPanning(): void;
   activateComponent(name: string): void;
@@ -3581,6 +3582,14 @@ declare class Viewer implements IEventEmitter, IViewer {
    * ```
    */
   constructor(options: ViewerOptions): this;
+
+  /**
+   * Returns the data provider used by the viewer to fetch
+   * all contracts, ents, and buffers.
+   * @description [object Object],[object Object],[object Object]
+   * @returns {IDataProvider} The viewer's data provider.
+   */
+  dataProvider: IDataProvider;
 
   /**
    * Return a boolean indicating if the viewer is in a navigable state.
