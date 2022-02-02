@@ -3,6 +3,7 @@ import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
 import { Component } from "../../component/Component";
 import { ComponentConfiguration }
     from "../../component/interfaces/ComponentConfiguration";
+import { IDataProvider } from "../../external/api";
 import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { FilterExpression } from "../../graph/FilterExpression";
 import { Image } from "../../graph/Image";
@@ -16,6 +17,7 @@ import { ICustomRenderer } from "./ICustomRenderer";
 import { PointOfView } from "./PointOfView";
 
 export interface IViewer {
+    readonly dataProvider: IDataProvider;
     readonly isNavigable: boolean;
     activateCombinedPanning(): void;
     activateComponent(name: string): void;
