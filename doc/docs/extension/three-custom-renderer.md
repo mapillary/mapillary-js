@@ -149,7 +149,7 @@ class ThreeCubeRenderer {
 
 ### `onRemove`
 
-ICustomRenderer.[onRemove](/api/interfaces/viewer.icustomrenderer#onremove) is called when the renderer has been removed from the `Viewer` with the Viewer.[removeCustomRenderer](/api/classes/viewer.Viewer#addcustomrenderer) method. This gives us a chance to clean up our Three.js resources (and potential event listeners etc).
+ICustomRenderer.[onRemove](/api/interfaces/viewer.icustomrenderer#onremove) is called when the renderer has been removed from the `Viewer` with the Viewer.[removeCustomRenderer](/api/classes/viewer.Viewer#addcustomrenderer) method. This gives us a chance to clean up our Three.js resources (and potential event listeners etc). Everything that we created in the `onAdd` method should be disposed and cleaned up now.
 
 ```js
 class ThreeCubeRenderer {
