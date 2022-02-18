@@ -27,6 +27,19 @@ import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { connectedComponent } from "../api/CellMath";
 import { APIWrapper } from "../api/APIWrapper";
 import { LngLat } from "../api/interfaces/LngLat";
+import { LngLatAlt } from "../api/interfaces/LngLatAlt";
+
+interface CacheState {
+    lngLat: LngLat,
+    sequenceId: string,
+    trajectoryIds: string[],
+}
+
+interface CacheKeepers {
+    cellIds: string[];
+    imageIds: string[];
+    sequenceId: string;
+}
 
 export interface CacheServiceConfiguration {
     cellDepth: number;
@@ -41,7 +54,7 @@ export class CacheService {
         private readonly _graphService: GraphService,
         private readonly _stateService: StateService,
         private readonly _api: APIWrapper) {
-        this._subscriptions = new SubscriptionHolder()
+        this._subscriptions = new SubscriptionHolder();
         this._started = false;
         this._cellDepth = 1;
     }
@@ -63,6 +76,26 @@ export class CacheService {
 
         const subs = this._subscriptions;
 
+        subs.push(this._stateService.reference$
+            .pipe(
+                withLatestFrom(
+                    this._stateService.currentState$,
+                    this._graphService.graphMode$),
+                map(
+                    ([, frame, mode]: [LngLatAlt, AnimationFrame, GraphMode]): CacheKeepers => {
+                        const state = this._frameToState(frame);
+                        return this._makeKeepers(state, mode);
+                    }),
+                switchMap(
+                    (keepers: CacheKeepers): Observable<void> => {
+                        return this._graphService
+                            .uncache$(
+                                keepers.imageIds,
+                                keepers.cellIds,
+                                keepers.sequenceId);
+                    }))
+            .subscribe(() => { /*noop*/ }));
+
         subs.push(this._stateService.currentState$
             .pipe(
                 distinctUntilChanged(
@@ -71,41 +104,19 @@ export class CacheService {
                         return frame.state.currentImage.id;
                     }),
                 map(
-                    (frame: AnimationFrame): [string[], LngLat, string] => {
-                        const state = frame.state;
-                        const trajectory = state.trajectory;
-                        const trajectoryKeys = trajectory
-                            .map(
-                                (n: Image): string => {
-                                    return n.id;
-                                });
-
-                        const sequenceKey =
-                            trajectory[trajectory.length - 1].sequenceId;
-
-                        return [
-                            trajectoryKeys,
-                            state.currentImage.originalLngLat,
-                            sequenceKey,
-                        ];
+                    (frame: AnimationFrame): CacheState => {
+                        return this._frameToState(frame);
                     }),
                 bufferCount(1, 5),
                 withLatestFrom(this._graphService.graphMode$),
                 switchMap(
-                    ([keepBuffer, graphMode]: [[string[], LngLat, string][], GraphMode]): Observable<void> => {
-                        const keepKeys = keepBuffer[0][0];
-                        const lngLat = keepBuffer[0][1];
-                        const geometry = this._api.data.geometry;
-                        const cellId = geometry.lngLatToCellId(lngLat)
-                        const keepCellIds = connectedComponent(
-                            cellId, this._cellDepth, geometry);
-                        const keepSequenceKey =
-                            graphMode === GraphMode.Sequence ?
-                                keepBuffer[0][2] :
-                                undefined;
-
+                    ([stateBuffer, graphMode]: [CacheState[], GraphMode]): Observable<void> => {
+                        const keepers = this._makeKeepers(stateBuffer[0], graphMode);
                         return this._graphService
-                            .uncache$(keepKeys, keepCellIds, keepSequenceKey);
+                            .uncache$(
+                                keepers.imageIds,
+                                keepers.cellIds,
+                                keepers.sequenceId);
                     }))
             .subscribe(() => { /*noop*/ }));
 
@@ -146,9 +157,9 @@ export class CacheService {
                     withLatestFrom(this._stateService.currentId$),
                     switchMap(
                         ([_, imageId]: [string, string]): Observable<Image> => {
-                            return this._graphService.cacheImage$(imageId)
+                            return this._graphService.cacheImage$(imageId);
                         }))
-                .subscribe(() => { /*noop*/ }))
+                .subscribe(() => { /*noop*/ }));
 
         this._started = true;
     }
@@ -178,5 +189,39 @@ export class CacheService {
 
                     return observableEmpty();
                 }));
+    }
+
+    private _frameToState(frame: AnimationFrame): CacheState {
+        const state = frame.state;
+        const trajectory = state.trajectory;
+        const trajectoryIds = trajectory
+            .map(
+                (n: Image): string => {
+                    return n.id;
+                });
+
+        const sequenceId =
+            trajectory[trajectory.length - 1].sequenceId;
+
+        return {
+            lngLat: state.currentImage.originalLngLat,
+            sequenceId,
+            trajectoryIds,
+        };
+    }
+
+    private _makeKeepers(state: CacheState, graphMode: GraphMode): CacheKeepers {
+        const imageIds = state.trajectoryIds;
+        const lngLat = state.lngLat;
+        const geometry = this._api.data.geometry;
+        const cellId = geometry.lngLatToCellId(lngLat);
+        const cellIds = connectedComponent(
+            cellId, this._cellDepth, geometry);
+        const sequenceId =
+            graphMode === GraphMode.Sequence ?
+                state.sequenceId :
+                undefined;
+
+        return { cellIds, imageIds, sequenceId };
     }
 }
