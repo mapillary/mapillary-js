@@ -371,6 +371,17 @@ export class Observer {
                     this._viewer.fire(type, event);
                 }));
 
+        subs.push(this._navigator.stateService.reference$
+            .subscribe(
+                (): void => {
+                    const type: ViewerEventType = "position";
+                    const event: ViewerStateEvent = {
+                        target: this._viewer,
+                        type,
+                    };
+                    this._viewer.fire(type, event);
+                }));
+
         subs.push(this._container.renderService.renderCamera$.pipe(
             distinctUntilChanged(
                 ([phi1, theta1], [phi2, theta2]): boolean => {
