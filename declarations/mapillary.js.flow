@@ -3033,13 +3033,16 @@ export type ComparisonFilterExpression = [
   FilterKey,
   FilterValue
 ];
-export type SetMembershipFilterExpression = [
-  SetMembershipFilterOperator,
-  FilterKey
-] &
-  FilterValue[];
-export type CombiningFilterExpression = [CombiningFilterOperator] &
-  (ComparisonFilterExpression | SetMembershipFilterExpression)[];
+export type SetMembershipFilterExpression = (
+  | SetMembershipFilterOperator
+  | FilterKey
+  | FilterValue
+)[];
+export type CombiningFilterExpression = (
+  | CombiningFilterOperator
+  | ComparisonFilterExpression
+  | SetMembershipFilterExpression
+)[];
 export type FilterExpression =
   | ComparisonFilterExpression
   | SetMembershipFilterExpression
