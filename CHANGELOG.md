@@ -4,6 +4,49 @@ All notable changes to MapillaryJS from v3.x will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 4.1.0 - March 2, 2022
+
+### :rocket: New Features
+
+- Viewer method and event to get topocentric reference ([#475](https://github.com/mapillary/mapillary-js/pull/475))
+- Add provider interfaces to APT to not require providers to extend base classes ([#477](https://github.com/mapillary/mapillary-js/pull/477))
+- Flow declarations included in distribution ([#478](https://github.com/mapillary/mapillary-js/pull/478))
+- Add geodetic conversion methods to exported API ([#484](https://github.com/mapillary/mapillary-js/pull/484))
+- Point visualization mode enumeration ([#486](https://github.com/mapillary/mapillary-js/pull/486))
+- Cluster point visualization mode ([#486](https://github.com/mapillary/mapillary-js/pull/486))
+- Expose data provider as a viewer property ([#502](https://github.com/mapillary/mapillary-js/pull/502))
+- Add viewer method to check if camera controls are attached ([#503](https://github.com/mapillary/mapillary-js/pull/503))
+
+### :bug: Fixed
+
+- Detach custom camera controls correctly ([#474](https://github.com/mapillary/mapillary-js/pull/474))
+- Guard against bleeding CSS line height values ([#499](https://github.com/mapillary/mapillary-js/pull/499))
+- Move spatial component items instead of disposing on reference change to avoid race conditions ([#504](https://github.com/mapillary/mapillary-js/pull/504))
+- Render spatial component items correctly on activation ([#508](https://github.com/mapillary/mapillary-js/pull/508))
+
+### :nail_care: Improvements
+
+- Render spherical camera frames to avoid large star shapes for fisheye models ([#464](https://github.com/mapillary/mapillary-js/pull/464))
+- Smooth transition when entering earth state ([#501](https://github.com/mapillary/mapillary-js/pull/501))
+
+### :memo: Documentation
+
+- Add custom renderer example for synchronizing content pose between viewer and map ([#452](https://github.com/mapillary/mapillary-js/pull/452))
+- Fix JSDoc typos ([#458](https://github.com/mapillary/mapillary-js/pull/458))
+- Add viewer control and component guides ([#465](https://github.com/mapillary/mapillary-js/pull/465))
+- Improve wording in readme and try documentation, fix readme commands ([#465](https://github.com/mapillary/mapillary-js/pull/465))
+- Fix WebGL and editor examples ([#467](https://github.com/mapillary/mapillary-js/pull/467))
+- Add guide to write custom renderers for graphics developers ([#483](https://github.com/mapillary/mapillary-js/pull/483))
+- Add relevant phrases to glossary ([#485](https://github.com/mapillary/mapillary-js/pull/485))
+- Fix setup command example in contribution documention ([#496](https://github.com/mapillary/mapillary-js/pull/496))
+- Clarify how custom renderers should use onRemove method ([#517](https://github.com/mapillary/mapillary-js/pull/517))
+
+### :house: Internal
+
+- Update dependencies ([#457](https://github.com/mapillary/mapillary-js/pull/457))
+- Allow IDs of type number in cover component ([#446](https://github.com/mapillary/mapillary-js/pull/446))
+- Build library and documentation in different action jobs ([#450](https://github.com/mapillary/mapillary-js/pull/450))
+
 ## 4.0.0 - June 8, 2021
 
 ### :rocket: New Features
