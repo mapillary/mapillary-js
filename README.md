@@ -27,7 +27,7 @@ Use a CSS loader or include the CSS file in the `<head>` of your HTML file.
 
 ```html
 <link
-  href="https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.css"
+  href="https://unpkg.com/mapillary-js@4.1.0/dist/mapillary.css"
   rel="stylesheet"
 />
 ```
@@ -59,7 +59,7 @@ Use a CSS loader or include the CSS file in the `<head>` of your HTML file.
 
 ```html
 <link
-  href="https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.css"
+  href="https://unpkg.com/mapillary-js@4.1.0/dist/mapillary.css"
   rel="stylesheet"
 />
 ```
@@ -85,9 +85,9 @@ const viewer = new Viewer(options);
 Include the JavaScript and CSS files in the `<head>` of your HTML file.
 
 ```html
-<script src="https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.js"></script>
+<script src="https://unpkg.com/mapillary-js@4.1.0/dist/mapillary.js"></script>
 <link
-  href="https://unpkg.com/mapillary-js@4.0.0/dist/mapillary.css"
+  href="https://unpkg.com/mapillary-js@4.1.0/dist/mapillary.css"
   rel="stylesheet"
 />
 ```
