@@ -6,6 +6,7 @@ import { Image } from "../../graph/Image";
 export interface IStateContext extends IAnimationState {
     custom(): void;
     earth(): void;
+    gravityTraverse(): void;
     traverse(): void;
     wait(): void;
     waitInteractively(): void;

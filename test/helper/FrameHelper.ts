@@ -31,6 +31,7 @@ export class FrameHelper {
                 lastImage: currentImage,
                 motionless: false,
                 imagesAhead: 0,
+                previousCamera: null,
                 previousImage: undefined,
                 previousTransform: undefined,
                 reference: { alt: 0, lat: 0, lng: 0 },

@@ -427,7 +427,8 @@ export class ImageComponent extends Component<ComponentConfiguration> {
             .pipe(
                 switchMap(
                     state => {
-                        return state === State.Traversing ?
+                        return state === State.Traversing ||
+                            state === State.GravityTraversing ?
                             this._navigator.panService.panImages$ :
                             observableEmpty();
 

@@ -351,7 +351,14 @@ export class PanService {
         const directions: number[][] = [[0, 0.5]];
         const pointsPerLine: number = 20;
 
-        return Geo.computeProjectedPoints(transform, vertices, directions, pointsPerLine, this._viewportCoords);
+        return Geo
+            .computeProjectedPoints(
+                transform,
+                vertices,
+                directions,
+                pointsPerLine,
+                this._viewportCoords)
+            .map(([x, y]) => [Math.abs(x), Math.abs(y)]);
     }
 
     private _computeHorizontalFov(projectedPoints: number[][]): number {

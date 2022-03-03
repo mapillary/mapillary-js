@@ -25,6 +25,20 @@ export enum CameraControls {
     /**
      * Control the camera in a first person view
      * from the street level perspective.
+     *
+     * @description The virtual viewer camera will
+     * be rotated according to the orientation of
+     * the images.
      */
     Street,
+
+    /**
+     * Control the camera in a first person view
+     * from the street level perspective.
+     *
+     * @description The virtual viewer camera will
+     * maintain gravity alignment for its up vector
+     * at all times.
+     */
+    Gravity,
 }

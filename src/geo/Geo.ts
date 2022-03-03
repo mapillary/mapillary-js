@@ -45,27 +45,29 @@ export function computeProjectedPoints(
         const d: number[] = basicDirections[side];
 
         for (let i: number = 0; i <= pointsPerLine; ++i) {
-            basicPoints.push([v[0] + d[0] * i / pointsPerLine,
-            v[1] + d[1] * i / pointsPerLine]);
+            basicPoints.push([
+                v[0] + d[0] * i / pointsPerLine,
+                v[1] + d[1] * i / pointsPerLine,
+            ]);
         }
     }
 
-    const camera: THREE.Camera = new THREE.Camera();
+    const camera = new THREE.Camera();
     camera.up.copy(transform.upVector());
     camera.position.copy(new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 0)));
     camera.lookAt(new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 10)));
     camera.updateMatrix();
     camera.updateMatrixWorld(true);
 
-    const projectedPoints: number[][] = basicPoints
+    const projectedPoints = basicPoints
         .map(
             (basicPoint: number[]): number[] => {
-                const worldPoint: number[] = transform.unprojectBasic(basicPoint, 10000);
-                const cameraPoint: number[] = viewportCoords.worldToCamera(worldPoint, camera);
+                const worldPoint = transform.unprojectBasic(basicPoint, 10000);
+                const cameraPoint = viewportCoords.worldToCamera(worldPoint, camera);
 
                 return [
-                    Math.abs(cameraPoint[0] / cameraPoint[2]),
-                    Math.abs(cameraPoint[1] / cameraPoint[2]),
+                    cameraPoint[0] / cameraPoint[2],
+                    cameraPoint[1] / cameraPoint[2],
                 ];
             });
 
