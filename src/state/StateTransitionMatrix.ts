@@ -2,6 +2,7 @@ import { IStateBase } from "./interfaces/IStateBase";
 import { State } from "./State";
 import { CustomState } from "./state/CustomState";
 import { EarthState } from "./state/EarthState";
+import { GravityTraversingState } from "./state/GravityTraversingState";
 import { InteractiveWaitingState } from "./state/InteractiveWaitingState";
 import { StateBase } from "./state/StateBase";
 import { TraversingState } from "./state/TraversingState";
@@ -16,6 +17,7 @@ export class StateTransitionMatrix {
     constructor() {
         const custom = State[State.Custom];
         const earth = State[State.Earth];
+        const gravityTraverse = State[State.GravityTraversing];
         const traverse = State[State.Traversing];
         const wait = State[State.Waiting];
         const waitInteractively = State[State.WaitingInteractively];
@@ -24,17 +26,19 @@ export class StateTransitionMatrix {
         const creator = this._creators;
         creator.set(custom, CustomState);
         creator.set(earth, EarthState);
+        creator.set(gravityTraverse, GravityTraversingState);
         creator.set(traverse, TraversingState);
         creator.set(wait, WaitingState);
         creator.set(waitInteractively, InteractiveWaitingState);
 
         this._transitions = new Map();
         const transitions = this._transitions;
-        transitions.set(custom, [earth, traverse]);
-        transitions.set(earth, [custom, traverse]);
-        transitions.set(traverse, [custom, earth, wait, waitInteractively]);
-        transitions.set(wait, [traverse, waitInteractively]);
-        transitions.set(waitInteractively, [traverse, wait]);
+        transitions.set(custom, [earth, gravityTraverse, traverse]);
+        transitions.set(earth, [custom, gravityTraverse, traverse]);
+        transitions.set(gravityTraverse, [custom, earth, traverse, wait, waitInteractively]);
+        transitions.set(traverse, [custom, earth, gravityTraverse, wait, waitInteractively]);
+        transitions.set(wait, [gravityTraverse, traverse, waitInteractively]);
+        transitions.set(waitInteractively, [gravityTraverse, traverse, wait]);
     }
 
     public getState(state: StateBase): State {
@@ -42,6 +46,8 @@ export class StateTransitionMatrix {
             return State.Custom;
         } else if (state instanceof EarthState) {
             return State.Earth;
+        } else if (state instanceof GravityTraversingState) {
+            return State.GravityTraversing;
         } else if (state instanceof TraversingState) {
             return State.Traversing;
         } else if (state instanceof WaitingState) {

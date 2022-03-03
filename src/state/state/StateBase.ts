@@ -132,6 +132,10 @@ export abstract class StateBase implements IStateBase {
         return this._currentCamera;
     }
 
+    public get previousCamera(): Camera {
+        return this._previousCamera;
+    }
+
     public get currentTransform(): Transform {
         return this._trajectoryTransforms.length > 0 ?
             this._trajectoryTransforms[this.currentIndex] : null;

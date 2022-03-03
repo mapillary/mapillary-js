@@ -41,6 +41,7 @@
             import {
                 isFallbackSupported,
                 isSupported,
+                CameraControls,
                 RenderMode,
                 Viewer,
             } from "/dist/mapillary.module.js";
@@ -57,6 +58,7 @@
 
                 const viewer = new Viewer({
                     accessToken,
+                    cameraControls: CameraControls.Gravity,
                     component: { cover: false },
                     container,
                     renderMode: RenderMode.Letterbox,
@@ -89,6 +91,12 @@
                 addButton("Fill", () => viewer.setRenderMode(RenderMode.Fill));
                 addButton("Letterbox", () =>
                     viewer.setRenderMode(RenderMode.Letterbox)
+                );
+                addButton("Gravity", () =>
+                    viewer.setCameraControls(CameraControls.Gravity)
+                );
+                addButton("Street", () =>
+                    viewer.setCameraControls(CameraControls.Street)
                 );
 
                 let filterIndex = 0;

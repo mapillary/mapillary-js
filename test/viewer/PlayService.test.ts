@@ -210,6 +210,7 @@ let createState: () => IAnimationState = (): IAnimationState => {
         lastImage: null,
         motionless: false,
         imagesAhead: 0,
+        previousCamera: null,
         previousImage: null,
         previousTransform: null,
         reference: null,

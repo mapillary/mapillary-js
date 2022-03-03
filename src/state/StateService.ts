@@ -378,6 +378,11 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.earth(); });
     }
 
+    public gravityTraverse(): void {
+        this._inMotionOperation$.next(true);
+        this._invokeContextOperation((context: IStateContext) => { context.gravityTraverse(); });
+    }
+
     public traverse(): void {
         this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.traverse(); });

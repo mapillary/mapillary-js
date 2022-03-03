@@ -1422,12 +1422,14 @@ export class Viewer extends EventEmitter implements IViewer {
      */
     public setCameraControls(controls: CameraControls): void {
         const state = cameraControlsToState(controls);
-        if (state === State.Traversing) {
-            this._navigator.stateService.traverse();
+        if (state === State.Custom) {
+            this._navigator.stateService.custom();
         } else if (state === State.Earth) {
             this._navigator.stateService.earth();
-        } else if (state === State.Custom) {
-            this._navigator.stateService.custom();
+        } else if (state === State.GravityTraversing) {
+            this._navigator.stateService.gravityTraverse();
+        } else if (state === State.Traversing) {
+            this._navigator.stateService.traverse();
         } else {
             console.warn(
                 `Unsupported camera control transition (${controls})`);

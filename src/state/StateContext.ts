@@ -67,6 +67,10 @@ export class StateContext implements IStateContext {
         return this._state.currentCamera;
     }
 
+    public get previousCamera(): Camera {
+        return this._state.previousCamera;
+    }
+
     public get currentTransform(): Transform {
         return this._state.currentTransform;
     }
@@ -101,6 +105,10 @@ export class StateContext implements IStateContext {
 
     public earth(): void {
         this._transition(State.Earth);
+    }
+
+    public gravityTraverse(): void {
+        this._transition(State.GravityTraversing);
     }
 
     public traverse(): void {
