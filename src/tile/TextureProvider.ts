@@ -413,7 +413,7 @@ export class TextureProvider {
             targetHeight,
             {
                 depthBuffer: false,
-                format: THREE.RGBFormat,
+                format: THREE.RGBAFormat,
                 magFilter: THREE.LinearFilter,
                 minFilter: THREE.LinearFilter,
                 stencilBuffer: false,
@@ -501,7 +501,7 @@ export class TextureProvider {
         const target = this._renderer.getRenderTarget();
 
         this._renderer.resetState();
-        this._renderer.setRenderTarget(this._render.target)
+        this._renderer.setRenderTarget(this._render.target);
         this._renderer.render(scene, this._render.camera);
         this._renderer.setRenderTarget(target);
 
