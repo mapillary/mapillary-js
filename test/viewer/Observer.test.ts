@@ -6,6 +6,7 @@ import { EventEmitter } from "../../src/util/EventEmitter";
 import { Observer } from "../../src/viewer/Observer";
 import { Viewer } from "../../src/viewer/Viewer";
 import { ViewerDataLoadingEvent } from "../../src/viewer/events/ViewerDataLoadingEvent";
+import { LngLatAlt, ViewerStateEvent } from "../../src/mapillary";
 
 describe("Observer.ctor", () => {
     it("should be defined", () => {
@@ -86,5 +87,31 @@ describe("Observer.dataloading", () => {
         observer.stopEmit();
 
         (<Subject<boolean>>navigatorMock.loadingService.loading$).next(true);
+    });
+});
+
+describe("Observer.position", () => {
+    it("should emit when reference changes", (done: Function) => {
+        const viewer = <Viewer>new EventEmitter();
+        const navigatorMock = new NavigatorMockCreator().create();
+
+        const observer = new Observer(
+            viewer,
+            navigatorMock,
+            new ContainerMockCreator().create());
+        observer.startEmit();
+
+        viewer.on(
+            "position",
+            (event: ViewerStateEvent) => {
+                expect(event.type).toBe("position");
+                done();
+            });
+
+        (<Subject<LngLatAlt>>navigatorMock.stateService.reference$).next({
+            lng: 0,
+            lat: 1,
+            alt: 2
+        });
     });
 });
