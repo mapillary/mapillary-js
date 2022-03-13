@@ -16,6 +16,9 @@ import { State } from "../../src/state/State";
 import { StateService } from "../../src/state/StateService";
 import { CacheService } from "../../src/viewer/CacheService";
 import { DataProvider } from "../helper/ProviderHelper";
+import { createDefaultState } from "../helper/StateHelper";
+import { StateServiceMockCreator } from "../helper/StateServiceMockCreator";
+import { LngLatAlt } from "../../src/mapillary";
 
 describe("CacheService.ctor", () => {
     it("should be defined when constructed", () => {
@@ -94,28 +97,6 @@ class TestStateService extends StateService {
     }
 }
 
-const createState: () => IAnimationState = (): IAnimationState => {
-    return {
-        alpha: 0,
-        camera: null,
-        currentCamera: null,
-        currentIndex: 0,
-        currentImage: null,
-        currentTransform: null,
-        lastImage: null,
-        motionless: false,
-        imagesAhead: 0,
-        previousCamera: null,
-        previousImage: null,
-        previousTransform: null,
-        reference: null,
-        state: State.Traversing,
-        stateTransitionAlpha: 0,
-        trajectory: null,
-        zoom: 0,
-    };
-};
-
 describe("CacheService.start", () => {
     let helper: ImageHelper;
 
@@ -153,7 +134,7 @@ describe("CacheService.start", () => {
         coreImage2.id = "image2";
         const image2 = new Image(coreImage2);
 
-        const state = createState();
+        const state = createDefaultState();
         state.trajectory = [image1, image2];
         state.currentImage = image1;
 
@@ -202,7 +183,7 @@ describe("CacheService.start", () => {
         coreImage2.sequence.id = "sequence2";
         const image2 = new Image(coreImage2);
 
-        const state = createState();
+        const state = createDefaultState();
         state.trajectory = [image1, image2];
         state.currentImage = image1;
 
@@ -248,7 +229,7 @@ describe("CacheService.start", () => {
         coreImage2.id = "image2";
         const image2 = new Image(coreImage2);
 
-        const state = createState();
+        const state = createDefaultState();
         state.trajectory = [image1, image2];
         state.currentImage = image1;
 
@@ -295,7 +276,7 @@ describe("CacheService.start", () => {
         coreImage3.id = "image3";
         const image3 = new Image(coreImage3);
 
-        const state = createState();
+        const state = createDefaultState();
         state.trajectory = [image1, image2, image3];
         state.currentImage = image2;
         state.currentIndex = 1;
@@ -335,7 +316,7 @@ describe("CacheService.start", () => {
         coreImage1.id = "image1";
         const image1 = new Image(coreImage1);
 
-        const state = createState();
+        const state = createDefaultState();
         state.trajectory = [image1];
         state.currentImage = image1;
         state.currentIndex = 0;
@@ -357,5 +338,54 @@ describe("CacheService.start", () => {
         expect(cacheImageSpy.calls.count()).toBe(2);
 
         cacheService.stop();
+    });
+
+    it("should uncache graph service on reference change", () => {
+        const graph = new Graph(new APIWrapper(new DataProvider()));
+        const graphService = new GraphService(graph);
+        graphService.setGraphMode(GraphMode.Spatial);
+        spyOn(graph.api.data.geometry, "lngLatToCellId")
+            .and.returnValue("cell-id");
+        spyOn(graph.api.data.geometry, "getAdjacent")
+            .and.returnValue(["cell-id", "adjacend-id"]);
+
+        const stateService = new StateServiceMockCreator().create();
+
+        const uncacheSpy = spyOn(graphService, "uncache$");
+        const uncacheSubject = new Subject<Graph>();
+        uncacheSpy.and.returnValue(uncacheSubject);
+
+        const cacheService = new CacheService(graphService, stateService, graph.api);
+
+        cacheService.start();
+
+        const coreImage1 = helper.createCoreImageEnt();
+        coreImage1.id = "image1";
+        const image1 = new Image(coreImage1);
+
+        const coreImage2 = helper.createCoreImageEnt();
+        coreImage2.id = "image2";
+        const image2 = new Image(coreImage2);
+
+        const state = createDefaultState();
+        state.trajectory = [image1, image2];
+        state.currentImage = image1;
+
+        (<Subject<AnimationFrame>>stateService.currentState$).next({ fps: 60, id: 0, state: state });
+
+        expect(uncacheSpy.calls.count()).toBe(1);
+
+        (<Subject<LngLatAlt>>stateService.reference$).next({ lng: 0, lat: 1, alt: 3 });
+        (<Subject<LngLatAlt>>stateService.reference$).complete();
+
+        uncacheSubject.complete();
+
+        expect(uncacheSpy.calls.count()).toBe(2);
+        expect(uncacheSpy.calls.mostRecent().args.length).toBe(3);
+        expect(uncacheSpy.calls.mostRecent().args[0].length).toBe(2);
+        expect(uncacheSpy.calls.mostRecent().args[0][0]).toBe(coreImage1.id);
+        expect(uncacheSpy.calls.mostRecent().args[0][1]).toBe(coreImage2.id);
+        expect(uncacheSpy.calls.mostRecent().args[1].length).toBe(2);
+        expect(uncacheSpy.calls.mostRecent().args[2]).toBeUndefined();
     });
 });
