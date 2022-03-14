@@ -62,6 +62,8 @@ export interface ViewerMouseEvent extends ViewerEvent {
     | "click"
     | "contextmenu"
     | "dblclick"
+    | "drag"
+    | "dragstart"
     | "mousedown"
     | "mousemove"
     | "mouseout"

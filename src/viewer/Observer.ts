@@ -40,6 +40,7 @@ import { State } from "../state/State";
 import { ViewerLoadEvent } from "./events/ViewerLoadEvent";
 import { ViewerReferenceEvent } from "./events/ViewerReferenceEvent";
 import { ViewerResetEvent } from "./events/ViewerResetEvent";
+import { ViewerDragEndEvent } from "./events/ViewerDragEndEvent";
 
 type UnprojectionParams = [
     [
@@ -295,6 +296,17 @@ export class Observer {
                     this._viewer.fire(type, event);
                 }));
 
+        subs.push(this._container.mouseService.mouseDragEnd$.subscribe(
+            (originalEvent: MouseEvent | FocusEvent) => {
+                const type = "dragend";
+                const event: ViewerDragEndEvent = {
+                    originalEvent,
+                    target: this._viewer,
+                    type,
+                };
+                this._viewer.fire(type, event);
+            }));
+
         const mouseMove$ = this._container.mouseService.active$.pipe(
             switchMap(
                 (active: boolean): Observable<MouseEvent> => {
@@ -313,6 +325,12 @@ export class Observer {
             this._mapMouseEvent$(
                 "dblclick",
                 this._container.mouseService.dblClick$),
+            this._mapMouseEvent$(
+                "drag",
+                this._container.mouseService.mouseDrag$),
+            this._mapMouseEvent$(
+                "dragstart",
+                this._container.mouseService.mouseDragStart$),
             this._mapMouseEvent$(
                 "mousedown",
                 this._container.mouseService.mouseDown$),
