@@ -37,7 +37,7 @@ Once you’re comfortable with the main concepts and have played with MapillaryJ
 
 ### Coming from a Graphics background
 
-If you are an experienced graphics developer or have worked with libraries like [Three.js](https://threejs.org or platforms like [Unity](https://unity.com), it is a good idea to go through the [graphics developer guide](/docs/extension/graphics-developer) if you plan to augment MapillaryJS by rendering your own 3D objects in the undistorted virtual 3D space.
+If you are an experienced graphics developer or have worked with libraries like [Three.js](https://threejs.org) or platforms like [Unity](https://unity.com), it is a good idea to go through the [graphics developer guide](/docs/extension/graphics-developer) if you plan to augment MapillaryJS by rendering your own 3D objects in the undistorted virtual 3D space.
 
 ### API Reference
 
