@@ -1428,30 +1428,11 @@ export class Graph {
             idsInUse[key] = true;
         }
 
-        const tileThreshold = this._tileThreshold;
-        const calculator = this._graphCalculator;
         const geometry = this._api.data.geometry;
         const keepCells = new Set<string>(keepCellIds);
-        for (let id in idsInUse) {
-            if (!idsInUse.hasOwnProperty(id)) { continue; }
-
-            const node = this._nodes[id];
-            const [sw, ne] = calculator
-                .boundingBoxCorners(
-                    node.lngLat,
-                    tileThreshold,
-                );
-            const nodeCellIds = geometry.bboxToCellIds(sw, ne);
-
-            for (const nodeCellId of nodeCellIds) {
-                if (!keepCells.has(nodeCellId)) {
-                    keepCells.add(nodeCellId);
-                }
-            }
-        }
 
         const potentialCells: [string, TileAccess][] = [];
-        for (let cellId in this._cachedTiles) {
+        for (const cellId in this._cachedTiles) {
             if (!this._cachedTiles.hasOwnProperty(cellId) ||
                 keepCells.has(cellId)) {
                 continue;
@@ -1459,17 +1440,62 @@ export class Graph {
             potentialCells.push([cellId, this._cachedTiles[cellId]]);
         }
 
-        const uncacheCells = potentialCells
+        const sortedPotentialCells = potentialCells
             .sort(
                 (h1: [string, TileAccess], h2: [string, TileAccess]): number => {
                     return h2[1].accessed - h1[1].accessed;
-                })
+                });
+        const keepPotentialCells = sortedPotentialCells
+            .slice(0, this._configuration.maxUnusedTiles)
+            .map(
+                (h: [string, TileAccess]): string => {
+                    return h[0];
+                });
+        for (const potentialCell of keepPotentialCells) {
+            keepCells.add(potentialCell);
+        }
+
+        for (const id in idsInUse) {
+            if (!idsInUse.hasOwnProperty(id)) { continue; }
+
+            const node = this._nodes[id];
+            const nodeCellId = geometry.lngLatToCellId(node.lngLat);
+            if (!keepCells.has(nodeCellId)) {
+                if (id in this._cachedNodeTiles) {
+                    delete this._cachedNodeTiles[id];
+                }
+                if (id in this._nodeToTile) {
+                    delete this._nodeToTile[id];
+                }
+                if (id in this._cachedNodeTiles) {
+                    delete this._cachedNodeTiles[id];
+                }
+                if (id in this._cachedSpatialEdges) {
+                    delete this._cachedSpatialEdges[id];
+                }
+
+                if (node.hasInitializedCache()) {
+                    node.resetSpatialEdges();
+                }
+                if (nodeCellId in this._cachedTiles) {
+                    const index =
+                        this._cachedTiles[nodeCellId].nodes
+                            .findIndex(n => n.id === id);
+                    if (index !== -1) {
+                        this._cachedTiles[nodeCellId].nodes.splice(index, 1);
+                    }
+                }
+
+                this._preStore(nodeCellId, node);
+            }
+        }
+
+        const uncacheCells = sortedPotentialCells
             .slice(this._configuration.maxUnusedTiles)
             .map(
                 (h: [string, TileAccess]): string => {
                     return h[0];
                 });
-
         for (let uncacheCell of uncacheCells) {
             this._uncacheTile(uncacheCell, keepSequenceId);
         }
