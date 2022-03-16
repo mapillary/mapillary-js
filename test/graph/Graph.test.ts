@@ -33,6 +33,7 @@ import {
     DataProvider,
     GeometryProvider,
 } from "../helper/ProviderHelper";
+import { ImageCache } from "../../src/graph/ImageCache";
 
 describe("Graph.ctor", () => {
     it("should create a graph", () => {
@@ -3852,9 +3853,7 @@ describe("Graph.uncache", () => {
 
     it("should not uncache and dispose node by uncaching tile when tile is related to kept key", () => {
         const geometryProvider = new GeometryProvider();
-        const dataProvider = new DataProvider(
-
-            geometryProvider);
+        const dataProvider = new DataProvider(geometryProvider);
         const api = new APIWrapper(dataProvider);
         const calculator = new GraphCalculator();
 
@@ -3890,7 +3889,7 @@ describe("Graph.uncache", () => {
             new Subject<CoreImagesContract>();
         spyOn(api, "getCoreImages$").and.returnValue(coreImages);
 
-        graph.hasTiles(fullNode.id);
+        expect(graph.hasTiles(fullNode.id)).toBe(false);
         observableFrom(graph.cacheTiles$(fullNode.id)).pipe(
             mergeAll())
             .subscribe(() => { /*noop*/ });
@@ -3904,16 +3903,20 @@ describe("Graph.uncache", () => {
         expect(graph.hasTiles(fullNode.id)).toBe(true);
 
         const node = graph.getNode(fullNode.id);
+        node.initializeCache(new ImageCache(dataProvider));
+
         const nodeUncacheSpy = spyOn(node, "uncache").and.stub();
         const nodeDisposeSpy = spyOn(node, "dispose").and.stub();
+        const spatialDisposeSpy = spyOn(node, "resetSpatialEdges").and.stub();
 
         graph.uncache([node.id], []);
 
         expect(nodeUncacheSpy.calls.count()).toBe(0);
         expect(nodeDisposeSpy.calls.count()).toBe(0);
+        expect(spatialDisposeSpy.calls.count()).toBe(1);
 
         expect(graph.hasNode(fullNode.id)).toBe(true);
-        expect(graph.hasTiles(fullNode.id)).toBe(true);
+        expect(graph.hasTiles(fullNode.id)).toBe(false);
     });
 });
 

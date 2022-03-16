@@ -628,6 +628,19 @@ export class Image {
     }
 
     /**
+     * Returns a value indicating if the image has an initialized
+     * image cache.
+     *
+     * @description The image cache is initialized internally by
+     * the library.
+     *
+     * @ignore
+     */
+    public hasInitializedCache(): boolean {
+        return this._cache != null;
+    }
+
+    /**
      * Initialize the image cache.
      *
      * @description The image cache is initialized internally by
