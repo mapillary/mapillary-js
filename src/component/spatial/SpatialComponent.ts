@@ -150,8 +150,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
         const subs = this._subscriptions;
 
         subs.push(this._navigator.stateService.reference$
-            .pipe(
-                pairwise())
+            .pipe(pairwise())
             .subscribe(
                 ([prevReference, reference]: [LngLatAlt, LngLatAlt]): void => {
                     this._scene.resetReference(reference, prevReference);

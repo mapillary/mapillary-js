@@ -180,14 +180,16 @@ export class StateService {
         this._reference$ = imageChangedSubject$.pipe(
             map(
                 (f: AnimationFrame): LngLatAlt => {
-                    return f.state.reference;
+                    const { reference } = f.state;
+                    return {
+                        lng: reference.lng,
+                        lat: reference.lat,
+                        alt: reference.alt,
+                    };
                 }),
             distinctUntilChanged(
-                (r1: LngLat, r2: LngLat): boolean => {
+                (r1: LngLatAlt, r2: LngLatAlt): boolean => {
                     return r1.lat === r2.lat && r1.lng === r2.lng;
-                },
-                (reference: LngLatAlt): LngLat => {
-                    return { lat: reference.lat, lng: reference.lng };
                 }),
             publishReplay(1),
             refCount());
