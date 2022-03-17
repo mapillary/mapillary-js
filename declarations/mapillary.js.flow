@@ -2657,6 +2657,7 @@ declare var CameraControls: {|
   +Custom: 0, // 0
   +Earth: 1, // 1
   +Street: 2, // 2
+  +Gravity: 3, // 3
 |};
 
 /**
