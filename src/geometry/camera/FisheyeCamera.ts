@@ -2,13 +2,24 @@ import { Camera } from "../Camera";
 import { distortionFromDistortedRadius, makeRadialPeak } from "../Common";
 import { EPSILON } from "../Constants";
 
+type Parameters = {
+    focal: number,
+    k1: number,
+    k2: number,
+};
+
+type Uniforms = {
+    radial_peak: number | number[],
+};
+
 function bearing(
     point: number[],
-    parameters: number[],
-    radialPeak: number): number[] {
+    parameters: Parameters,
+    uniforms: Uniforms): number[] {
 
     const [x, y] = point;
-    const [focal, k1, k2] = parameters;
+    const { focal, k1, k2 } = parameters;
+    const radialPeak = <number>uniforms.radial_peak;
 
     const [dxn, dyn] = [x / focal, y / focal];
     const dTheta = Math.sqrt(dxn * dxn + dyn * dyn);
@@ -26,11 +37,12 @@ function bearing(
 
 function project(
     point: number[],
-    parameters: number[],
-    radialPeak: number): number[] {
+    parameters: Parameters,
+    uniforms: Uniforms): number[] {
 
     const [x, y, z] = point;
-    const [focal, k1, k2] = parameters;
+    const { focal, k1, k2 } = parameters;
+    const radialPeak = <number>uniforms.radial_peak;
 
     if (z > 0) {
         const r = Math.sqrt(x * x + y * y);
@@ -52,20 +64,29 @@ function project(
 }
 
 export class FisheyeCamera extends Camera {
-    private readonly _radialPeak: number;
-
     constructor(parameters: number[]) {
-        super('fisheye', parameters);
+        super('perspective');
 
-        const [_, k1, k2] = this.parameters;
-        this._radialPeak = makeRadialPeak(k1, k2);
+        const [focal, k1, k2] = parameters;
+        this.parameters.focal = focal;
+        this.parameters.k1 = k1;
+        this.parameters.k2 = k2;
+
+        const radialPeak = makeRadialPeak(k1, k2);
+        this.uniforms.radial_peak = radialPeak;
     }
 
-    public bearing(point: number[]): number[] {
-        return bearing(point, this.parameters, this._radialPeak);
+    public bearingFromSfm(point: number[]): number[] {
+        return bearing(
+            point,
+            <Parameters>this.parameters,
+            <Uniforms>this.uniforms);
     }
 
-    public project(point: number[]): number[] {
-        return project(point, this.parameters, this._radialPeak);
+    public projectToSfm(point: number[]): number[] {
+        return project(
+            point,
+            <Parameters>this.parameters,
+            <Uniforms>this.uniforms);
     }
 }

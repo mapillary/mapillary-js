@@ -5,6 +5,24 @@ import { Shaders } from "../shaders/Shaders";
 import { Transform } from "../../geo/Transform";
 import { Image } from "../../graph/Image";
 import { isFisheye, isSpherical } from "../../geo/Geo";
+import { IUniform } from "three";
+import { Camera } from "../../geometry/Camera";
+
+function makeCameraUniforms(camera: Camera): { [key: string]: IUniform; } {
+    const cameraUniforms: { [key: string]: IUniform; } = {};
+    const { parameters, uniforms } = camera;
+    for (const key in parameters) {
+        if (parameters.hasOwnProperty(key)) {
+            cameraUniforms[key] = { value: parameters[key] };
+        }
+    }
+    for (const key in uniforms) {
+        if (uniforms.hasOwnProperty(key)) {
+            cameraUniforms[key] = { value: uniforms[key] };
+        }
+    }
+    return cameraUniforms;
+}
 
 export class MeshFactory {
     private _imagePlaneDepth: number;
@@ -71,6 +89,7 @@ export class MeshFactory {
                 opacity: { value: 1.0 },
                 projectorMat: { value: transform.rt },
                 projectorTex: { value: texture },
+                ...makeCameraUniforms(transform.camera),
             },
             vertexShader: Shaders.spherical.vertex,
         };
@@ -85,15 +104,12 @@ export class MeshFactory {
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
-                focal: { value: transform.focal },
-                k1: { value: transform.ck1 },
-                k2: { value: transform.ck2 },
                 opacity: { value: 1.0 },
                 projectorMat: { value: transform.basicRt },
                 projectorTex: { value: texture },
-                radial_peak: { value: !!transform.radialPeak ? transform.radialPeak : 0.0 },
                 scale_x: { value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth },
                 scale_y: { value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight },
+                ...makeCameraUniforms(transform.camera),
             },
             vertexShader: Shaders.perspective.vertex,
         };
@@ -108,15 +124,12 @@ export class MeshFactory {
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
-                focal: { value: transform.focal },
-                k1: { value: transform.ck1 },
-                k2: { value: transform.ck2 },
                 opacity: { value: 1.0 },
                 projectorMat: { value: transform.basicRt },
                 projectorTex: { value: texture },
-                radial_peak: { value: !!transform.radialPeak ? transform.radialPeak : 0.0 },
                 scale_x: { value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth },
                 scale_y: { value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight },
+                ...makeCameraUniforms(transform.camera),
             },
             vertexShader: Shaders.fisheye.vertex,
         };

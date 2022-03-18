@@ -1,9 +1,25 @@
 import * as THREE from "three";
-import { isFisheye, isSpherical } from "./Geo";
+import { MapillaryError } from "../error/MapillaryError";
+import { FisheyeCamera } from "../geometry/camera/FisheyeCamera";
+import { PerspectiveCamera } from "../geometry/camera/PerspectiveCamera";
+import { SphericalCamera } from "../geometry/camera/SphericalCamera";
+import { ICamera } from "../geometry/interfaces/ICamera";
+import { isSpherical } from "./Geo";
 
 import { CameraType } from "./interfaces/CameraType";
 
-const EPSILON = 1e-8;
+function createCamera(type: string, parameters: number[]): ICamera {
+    switch (type) {
+        case "perspective":
+            return new PerspectiveCamera(parameters);
+        case "fisheye":
+            return new FisheyeCamera(parameters);
+        case "spherical":
+            return new SphericalCamera();
+        default:
+            return new PerspectiveCamera([0.85, 0, 0]);
+    }
+}
 
 /**
  * @class Transform
@@ -12,6 +28,8 @@ const EPSILON = 1e-8;
  * and projections.
  */
 export class Transform {
+    public readonly camera: ICamera;
+
     private _width: number;
     private _height: number;
     private _focal: number;
@@ -26,12 +44,6 @@ export class Transform {
     private _scaledWorldToCamera: THREE.Matrix4;
     private _scaledWorldToCameraInverse: THREE.Matrix4;
     private _basicWorldToCamera: THREE.Matrix4;
-
-    private _ck1: number;
-    private _ck2: number;
-    private _cameraType: CameraType;
-
-    private _radialPeak: number;
 
     /**
      * Create a new transform instance.
@@ -95,25 +107,13 @@ export class Transform {
             this._worldToCamera,
             orientation);
 
-        this._ck1 = !!ck1 ? ck1 : 0;
-        this._ck2 = !!ck2 ? ck2 : 0;
-        this._cameraType = !!cameraType ?
-            cameraType :
-            "perspective";
-
-        this._radialPeak = this._getRadialPeak(this._ck1, this._ck2);
-    }
-
-    public get ck1(): number {
-        return this._ck1;
-    }
-
-    public get ck2(): number {
-        return this._ck2;
+        this.camera = createCamera(
+            cameraType,
+            [this._focal, ck1 ?? 0, ck2 ?? 0]);
     }
 
     public get cameraType(): CameraType {
-        return this._cameraType;
+        return <CameraType>this.camera.type;
     }
 
     /**
@@ -220,15 +220,6 @@ export class Transform {
      */
     public get hasValidScale(): boolean {
         return this._scale > 1e-2 && this._scale < 50;
-    }
-
-    /**
-     * Get radial peak.
-     * @returns {number} Value indicating the radius where the radial
-     * undistortion function peaks.
-     */
-    public get radialPeak(): number {
-        return this._radialPeak;
     }
 
     /**
@@ -342,7 +333,7 @@ export class Transform {
         distance: number,
         depth?: boolean): number[] {
         const bearing = this._sfmToBearing(sfm);
-        const unprojectedCamera = depth && !isSpherical(this._cameraType) ?
+        const unprojectedCamera = depth && !isSpherical(this.camera.type) ?
             new THREE.Vector4(
                 distance * bearing[0] / bearing[2],
                 distance * bearing[1] / bearing[2],
@@ -372,54 +363,7 @@ export class Transform {
      * on the unit sphere).
      */
     private _sfmToBearing(sfm: number[]): number[] {
-        if (isSpherical(this._cameraType)) {
-            let lng: number = sfm[0] * 2 * Math.PI;
-            let lat: number = -sfm[1] * 2 * Math.PI;
-            let x: number = Math.cos(lat) * Math.sin(lng);
-            let y: number = -Math.sin(lat);
-            let z: number = Math.cos(lat) * Math.cos(lng);
-            return [x, y, z];
-        } else if (isFisheye(this._cameraType)) {
-            let [dxn, dyn]: number[] = [sfm[0] / this._focal, sfm[1] / this._focal];
-            const dTheta: number = Math.sqrt(dxn * dxn + dyn * dyn);
-            let d: number = this._distortionFromDistortedRadius(dTheta, this._ck1, this._ck2, this._radialPeak);
-            let theta: number = dTheta / d;
-            let z: number = Math.cos(theta);
-            let r: number = Math.sin(theta);
-            const denomTheta = dTheta > EPSILON ? 1 / dTheta : 1;
-            let x: number = r * dxn * denomTheta;
-            let y: number = r * dyn * denomTheta;
-            return [x, y, z];
-        } else {
-            let [dxn, dyn]: number[] = [sfm[0] / this._focal, sfm[1] / this._focal];
-            const dr: number = Math.sqrt(dxn * dxn + dyn * dyn);
-            let d: number = this._distortionFromDistortedRadius(dr, this._ck1, this._ck2, this._radialPeak);
-
-            const xn: number = dxn / d;
-            const yn: number = dyn / d;
-
-            let v: THREE.Vector3 = new THREE.Vector3(xn, yn, 1);
-            v.normalize();
-            return [v.x, v.y, v.z];
-        }
-    }
-
-    /** Compute distortion given the distorted radius.
-     *
-     *  Solves for d in the equation
-     *    y = d(x, k1, k2) * x
-     * given the distorted radius, y.
-     */
-    private _distortionFromDistortedRadius(distortedRadius: number, k1: number, k2: number, radialPeak: number): number {
-        let d: number = 1.0;
-        for (let i: number = 0; i < 10; i++) {
-            let radius: number = distortedRadius / d;
-            if (radius > radialPeak) {
-                radius = radialPeak;
-            }
-            d = 1 + k1 * radius ** 2 + k2 * radius ** 4;
-        }
-        return d;
+        return this.camera.bearingFromSfm(sfm);
     }
 
     /**
@@ -431,55 +375,7 @@ export class Transform {
      * @returns {Array<number>} 2D SfM coordinates.
      */
     private _bearingToSfm(bearing: number[]): number[] {
-        if (isSpherical(this._cameraType)) {
-            let x: number = bearing[0];
-            let y: number = bearing[1];
-            let z: number = bearing[2];
-            let lng: number = Math.atan2(x, z);
-            let lat: number = Math.atan2(-y, Math.sqrt(x * x + z * z));
-            return [lng / (2 * Math.PI), -lat / (2 * Math.PI)];
-        } else if (isFisheye(this._cameraType)) {
-            if (bearing[2] > 0) {
-                const [x, y, z]: number[] = bearing;
-                const r: number = Math.sqrt(x * x + y * y);
-                let theta: number = Math.atan2(r, z);
-
-                if (theta > this._radialPeak) {
-                    theta = this._radialPeak;
-                }
-
-                const distortion: number = 1.0 + theta ** 2 * (this._ck1 + theta ** 2 * this._ck2);
-                const s: number = this._focal * distortion * theta / r;
-
-                return [s * x, s * y];
-            } else {
-                return [
-                    bearing[0] < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
-                    bearing[1] < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
-                ];
-            }
-        } else {
-            if (bearing[2] > 0) {
-                let [xn, yn]: number[] = [bearing[0] / bearing[2], bearing[1] / bearing[2]];
-                let r2: number = xn * xn + yn * yn;
-                const rp2: number = this._radialPeak ** 2;
-
-                if (r2 > rp2) {
-                    r2 = rp2;
-                }
-
-                const d: number = 1 + this._ck1 * r2 + this._ck2 * r2 ** 2;
-                return [
-                    this._focal * d * xn,
-                    this._focal * d * yn,
-                ];
-            } else {
-                return [
-                    bearing[0] < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
-                    bearing[1] < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
-                ];
-            }
-        }
+        return this.camera.projectToSfm(bearing);
     }
 
     /**

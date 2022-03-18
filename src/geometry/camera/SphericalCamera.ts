@@ -26,15 +26,13 @@ function project(point: number[]): number[] {
 }
 
 export class SphericalCamera extends Camera {
-    constructor() {
-        super('spherical', []);
-    }
+    constructor() { super('spherical'); }
 
-    public bearing(point: number[]): number[] {
+    public bearingFromSfm(point: number[]): number[] {
         return bearing(point);
     }
 
-    public project(point: number[]): number[] {
+    public projectToSfm(point: number[]): number[] {
         return project(point);
     }
 }

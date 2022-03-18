@@ -1,7 +1,8 @@
 export interface ICamera {
-    readonly parameters: number[];
+    readonly parameters: { [key: string]: number; };
     readonly type: string;
+    readonly uniforms: { [key: string]: number | number[]; };
 
-    bearing(point: number[]): number[];
-    project(point: number[]): number[];
+    bearingFromSfm(point: number[]): number[];
+    projectToSfm(bearing: number[]): number[];
 }
