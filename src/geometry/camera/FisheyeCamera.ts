@@ -51,8 +51,9 @@ function project(
             theta = radialPeak;
         }
 
-        const distortion = 1.0 + theta ** 2 * (k1 + theta ** 2 * k2);
-        const s = focal * distortion * theta / r;
+        const theta2 = theta ** 2;
+        const distortion = 1.0 + theta2 * (k1 + theta2 * k2);
+        const s = focal * theta * distortion / r;
 
         return [s * x, s * y];
     } else {
@@ -63,9 +64,43 @@ function project(
     }
 }
 
+export const FISHEYE_CAMERA_TYPE = "fisheye";
+
+export const FISHEYE_PROJECT_FUNCTION = /* glsl */ `
+vec2 projectToSfm(vec3 bearing, Parameters parameters, Uniforms uniforms) {
+    float focal = parameters.focal;
+    float k1 = parameters.k1;
+    float k2 = parameters.k2;
+
+    float radial_peak = uniforms.radial_peak;
+
+    float x = bearing.x;
+    float y = bearing.y;
+    float z = bearing.z;
+
+    float r = sqrt(x * x + y * y);
+    float theta = atan(r, z);
+
+    if (theta > radial_peak) {
+        theta = radial_peak;
+    }
+
+    float theta2 = theta * theta;
+    float distortion = 1.0 + theta2 * (k1 + theta2 * k2);
+    float s = focal * theta * distortion / r;
+
+    float xn = s * x;
+    float yn = s * y;
+
+    return vec2(xn, yn);
+}
+`;
+
 export class FisheyeCamera extends Camera {
+    public readonly projectToSfmFunction: string = FISHEYE_PROJECT_FUNCTION;
+
     constructor(parameters: number[]) {
-        super('perspective');
+        super(FISHEYE_CAMERA_TYPE);
 
         const [focal, k1, k2] = parameters;
         this.parameters.focal = focal;
