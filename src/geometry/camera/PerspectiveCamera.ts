@@ -63,9 +63,37 @@ function project(
     }
 }
 
+export const PERSPECTIVE_CAMERA_TYPE = "perspective";
+
+export const PERSPECTIVE_PROJECT_FUNCTION = /* glsl */ `
+vec2 projectToSfm(vec3 bearing, Parameters parameters, Uniforms uniforms) {
+    float focal = parameters.focal;
+    float k1 = parameters.k1;
+    float k2 = parameters.k2;
+
+    float radial_peak = uniforms.radial_peak;
+
+    float x = bearing.x / bearing.z;
+    float y = bearing.y / bearing.z;
+    float r2 = x * x + y * y;
+
+    if (r2 > radial_peak * sqrt(r2)) {
+        r2 = radial_peak * radial_peak;
+    }
+
+    float d = 1.0 + k1 * r2 + k2 * r2 * r2;
+    float xn = focal * d * x;
+    float yn = focal * d * y;
+
+    return vec2(xn, yn);
+}
+`;
+
 export class PerspectiveCamera extends Camera {
+    public readonly projectToSfmFunction: string = PERSPECTIVE_PROJECT_FUNCTION;
+
     constructor(parameters: number[]) {
-        super('perspective');
+        super(PERSPECTIVE_CAMERA_TYPE);
 
         const [focal, k1, k2] = parameters;
         this.parameters.focal = focal;

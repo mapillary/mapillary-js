@@ -1,17 +1,17 @@
-import { MapillaryError } from "../error/MapillaryError";
-import { ICamera } from "./interfaces/ICamera";
+import {
+    CameraParameters,
+    CameraUniforms,
+    ICamera,
+} from "./interfaces/ICamera";
 
 export abstract class Camera implements ICamera {
-    public readonly parameters: { [key: string]: number; } = {};
-    public readonly uniforms: { [key: string]: number | number[]; } = {};
+    public readonly parameters: CameraParameters = {};
+    public readonly uniforms: CameraUniforms = {};
+
+    public projectToSfmFunction: string;
 
     constructor(public readonly type: string) { }
 
-    public bearingFromSfm(_point: number[]): number[] {
-        throw new MapillaryError("Not implemented");
-    }
-
-    public projectToSfm(_point: number[]): number[] {
-        throw new MapillaryError("Not implemented");
-    }
+    public abstract bearingFromSfm(_point: number[]): number[];
+    public abstract projectToSfm(_point: number[]): number[];
 }

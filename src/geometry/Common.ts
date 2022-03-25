@@ -30,7 +30,7 @@ export function makeRadialPeak(k1: number, k2: number): number {
     const d = b ** 2 - 4 * a * c;
 
     if (d < 0) {
-        return undefined;
+        return Number.POSITIVE_INFINITY;
     }
 
     const root1 = (-b - Math.sqrt(d)) / 2 / a;
@@ -43,5 +43,5 @@ export function makeRadialPeak(k1: number, k2: number): number {
         Math.sqrt(minRoot) :
         maxRoot > 0 ?
             Math.sqrt(maxRoot) :
-            undefined;
+            Number.POSITIVE_INFINITY;
 }

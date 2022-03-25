@@ -5,8 +5,14 @@ import { Shaders } from "../shaders/Shaders";
 import { Transform } from "../../geo/Transform";
 import { Image } from "../../graph/Image";
 import { isFisheye, isSpherical } from "../../geo/Geo";
-import { IUniform } from "three";
+import { IUniform, Matrix3, Matrix4, Vector2, Vector3, Vector4 } from "three";
 import { Camera } from "../../geometry/Camera";
+
+import {
+    fragment as defaultFragment,
+    vertex as defaultVertex,
+} from "../../shader/default.glsl";
+import { resolveExpands, resolveIncludes } from "../../shader/Resolver";
 
 function makeCameraUniforms(camera: Camera): { [key: string]: IUniform; } {
     const cameraUniforms: { [key: string]: IUniform; } = {};
@@ -17,11 +23,56 @@ function makeCameraUniforms(camera: Camera): { [key: string]: IUniform; } {
         }
     }
     for (const key in uniforms) {
-        if (uniforms.hasOwnProperty(key)) {
+        if (!uniforms.hasOwnProperty(key)) {
+            continue;
+        }
+
+        const value = uniforms[key];
+        if (value instanceof Array) {
+            switch (value.length) {
+                case 2:
+                    cameraUniforms[key] = {
+                        value: new Vector2().fromArray(value),
+                    };
+                    break;
+                case 3:
+                    cameraUniforms[key] = {
+                        value: new Vector3().fromArray(value),
+                    };
+                    break;
+                case 4:
+                    cameraUniforms[key] = {
+                        value: new Vector4().fromArray(value),
+                    };
+                    break;
+                case 9:
+                    cameraUniforms[key] = {
+                        value: new Matrix3().fromArray(value),
+                    };
+                    break;
+                case 16:
+                    cameraUniforms[key] = {
+                        value: new Matrix4().fromArray(value),
+                    };
+                    break;
+                default:
+                    throw new Error('Uniform vector of length <' + value.length + '> not supported');
+            }
+        } else {
             cameraUniforms[key] = { value: uniforms[key] };
         }
     }
     return cameraUniforms;
+}
+
+function resolveShader(camera: Camera, shader: string): string {
+    let resolved = resolveIncludes(shader);
+    resolved = resolveExpands(
+        resolved,
+        camera.projectToSfmFunction,
+        camera.parameters,
+        camera.uniforms);
+    return resolved;
 }
 
 export class MeshFactory {
@@ -45,7 +96,7 @@ export class MeshFactory {
 
     private _createImageSphere(image: Image, transform: Transform): THREE.Mesh {
         let texture: THREE.Texture = this._createTexture(image.image);
-        let materialParameters: THREE.ShaderMaterialParameters = this._createSphereMaterialParameters(transform, texture);
+        let materialParameters: THREE.ShaderMaterialParameters = this._createDefaultMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
 
         let mesh: THREE.Mesh = this._useMesh(transform, image) ?
@@ -57,7 +108,7 @@ export class MeshFactory {
 
     private _createImagePlane(image: Image, transform: Transform): THREE.Mesh {
         let texture: THREE.Texture = this._createTexture(image.image);
-        let materialParameters: THREE.ShaderMaterialParameters = this._createPlaneMaterialParameters(transform, texture);
+        let materialParameters: THREE.ShaderMaterialParameters = this._createDefaultMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
 
         let geometry: THREE.BufferGeometry = this._useMesh(transform, image) ?
@@ -69,7 +120,7 @@ export class MeshFactory {
 
     private _createImagePlaneFisheye(image: Image, transform: Transform): THREE.Mesh {
         let texture: THREE.Texture = this._createTexture(image.image);
-        let materialParameters: THREE.ShaderMaterialParameters = this._createPlaneMaterialParametersFisheye(transform, texture);
+        let materialParameters: THREE.ShaderMaterialParameters = this._createDefaultMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
 
         let geometry: THREE.BufferGeometry = this._useMesh(transform, image) ?
@@ -79,59 +130,42 @@ export class MeshFactory {
         return new THREE.Mesh(geometry, material);
     }
 
-    private _createSphereMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
-        let materialParameters: THREE.ShaderMaterialParameters = {
+    private _createDefaultMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
+        return {
             depthWrite: false,
-            fragmentShader: Shaders.spherical.fragment,
+            fragmentShader: resolveShader(transform.camera, defaultFragment),
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
+                curtain: { value: 1.0 },
                 opacity: { value: 1.0 },
                 projectorMat: { value: transform.rt },
                 projectorTex: { value: texture },
+                scale_x: { value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth },
+                scale_y: { value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight },
                 ...makeCameraUniforms(transform.camera),
             },
-            vertexShader: Shaders.spherical.vertex,
+            vertexShader: resolveShader(transform.camera, defaultVertex),
         };
-
-        return materialParameters;
     }
 
-    private _createPlaneMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
+    private _createCurtainSphereMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
+        console.log(resolveShader(transform.camera, defaultFragment));
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
-            fragmentShader: Shaders.perspective.fragment,
+            fragmentShader: resolveShader(transform.camera, defaultFragment),
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
+                curtain: { value: 1.0 },
                 opacity: { value: 1.0 },
-                projectorMat: { value: transform.basicRt },
+                projectorMat: { value: transform.rt },
                 projectorTex: { value: texture },
                 scale_x: { value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth },
                 scale_y: { value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight },
                 ...makeCameraUniforms(transform.camera),
             },
-            vertexShader: Shaders.perspective.vertex,
-        };
-
-        return materialParameters;
-    }
-
-    private _createPlaneMaterialParametersFisheye(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
-        let materialParameters: THREE.ShaderMaterialParameters = {
-            depthWrite: false,
-            fragmentShader: Shaders.fisheye.fragment,
-            side: THREE.DoubleSide,
-            transparent: true,
-            uniforms: {
-                opacity: { value: 1.0 },
-                projectorMat: { value: transform.basicRt },
-                projectorTex: { value: texture },
-                scale_x: { value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth },
-                scale_y: { value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight },
-                ...makeCameraUniforms(transform.camera),
-            },
-            vertexShader: Shaders.fisheye.vertex,
+            vertexShader: resolveShader(transform.camera, defaultVertex),
         };
 
         return materialParameters;
