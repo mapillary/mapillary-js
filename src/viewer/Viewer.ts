@@ -1409,10 +1409,6 @@ export class Viewer extends EventEmitter implements IViewer {
      * how the camera is controlled when the viewer
      * receives pointer and keyboard input.
      *
-     * Changing the camera control mode is not possible
-     * when the slider component is active and attempts
-     * to do so will be ignored.
-     *
      * @param {CameraControls} controls - Camera control mode.
      *
      * @example

@@ -140,25 +140,6 @@
                     viewer.activateComponent("cache");
                     sequenceComponent.stop();
                 });
-
-                let sliderActive = false;
-                addButton("Slider", () => {
-                    if (sliderActive) {
-                        viewer.activateComponent("image");
-                        viewer.activateComponent("direction");
-                        viewer.activateComponent("sequence");
-                        viewer.activateComponent("keyboard");
-                        viewer.deactivateComponent("slider");
-                        sliderActive = false;
-                    } else {
-                        viewer.activateComponent("slider");
-                        viewer.deactivateComponent("image");
-                        viewer.deactivateComponent("direction");
-                        viewer.deactivateComponent("sequence");
-                        viewer.deactivateComponent("keyboard");
-                        sliderActive = true;
-                    }
-                });
             }
         </script>
     </body>

@@ -35,7 +35,6 @@ describe("Transform.rt", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -78,7 +77,6 @@ describe("Transform.rt", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -123,7 +121,6 @@ describe("Transform.rt", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -166,7 +163,6 @@ describe("Transform.rt", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -222,7 +218,6 @@ describe("Transform.srt", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -267,7 +262,6 @@ describe("Transform.srt", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -311,7 +305,6 @@ describe("Transform.srt", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -366,7 +359,6 @@ describe("Transform.basicWidth", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -391,7 +383,6 @@ describe("Transform.basicWidth", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -426,7 +417,6 @@ describe("Transform.basicHeight", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -451,7 +441,6 @@ describe("Transform.basicHeight", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -484,7 +473,6 @@ describe("Transform.width", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -508,7 +496,6 @@ describe("Transform.width", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -541,7 +528,6 @@ describe("Transform.height", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -566,7 +552,6 @@ describe("Transform.height", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -597,7 +582,6 @@ describe("Transform.focal", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -621,7 +605,6 @@ describe("Transform.focal", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -652,7 +635,6 @@ describe("Transform.orientation", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -676,7 +658,6 @@ describe("Transform.orientation", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -706,7 +687,6 @@ describe("Transform.scale", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -730,7 +710,6 @@ describe("Transform.scale", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -764,7 +743,6 @@ describe("Transform.unprojectSfM", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -788,7 +766,6 @@ describe("Transform.unprojectSfM", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -818,7 +795,6 @@ describe("Transform.unprojectSfM", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -842,7 +818,6 @@ describe("Transform.unprojectSfM", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -871,7 +846,6 @@ describe("Transform.unprojectSfM", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -908,7 +882,6 @@ describe("Transform.projectBasic", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -931,7 +904,6 @@ describe("Transform.projectBasic", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -969,7 +941,6 @@ describe("Transform.unprojectBasic", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -999,7 +970,6 @@ describe("Transform.unprojectBasic", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -1031,7 +1001,6 @@ describe("Transform.unprojectBasic", () => {
             image.rotation,
             t,
             null,
-            null,
             image.cameraParameters,
             <CameraType>image.cameraType);
 
@@ -1061,7 +1030,6 @@ describe("Transform.unprojectBasic", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);
@@ -1093,7 +1061,6 @@ describe("Transform.unprojectBasic", () => {
             image.scale,
             image.rotation,
             t,
-            null,
             null,
             image.cameraParameters,
             <CameraType>image.cameraType);

@@ -708,7 +708,6 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             image.rotation,
             translation,
             undefined,
-            undefined,
             image.cameraParameters,
             <CameraType>image.cameraType);
 

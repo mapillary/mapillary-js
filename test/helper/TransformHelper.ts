@@ -19,7 +19,6 @@ export class TransformHelper {
             image.rotation,
             [0, 0, 0],
             null,
-            null,
             image.cameraParameters,
             cameraType);
     }
