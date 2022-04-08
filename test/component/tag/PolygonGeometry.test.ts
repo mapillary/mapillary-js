@@ -498,7 +498,7 @@ describe("PolygonGeometry.get3dDomainTriangles", () => {
 
         const transform = new Transform(
             1, 1, 1, 0.5, [0, 0, 0], [0, 0, 0],
-            undefined, undefined, [1, 0, 0]);
+            undefined, [1, 0, 0]);
 
         const triangles = geometry.get3dDomainTriangles3d(transform);
 
@@ -513,7 +513,7 @@ describe("PolygonGeometry.getTriangles", () => {
 
         const transform = new Transform(
             1, 1, 1, 0.5, [0, 0, 0], [0, 0, 0],
-            undefined, undefined, [1, 0, 0]);
+            undefined, [1, 0, 0]);
 
         const triangles = geometry.getTriangles3d(transform);
 
@@ -526,7 +526,7 @@ describe("PolygonGeometry.getTriangles", () => {
 
         const transform = new Transform(
             1, 1, 1, 0.5, [0, 0, 0], [0, 0, 0],
-            undefined, undefined, [1, 0, 0]);
+            undefined, [1, 0, 0]);
 
         const triangles = geometry.getTriangles3d(transform);
 
@@ -538,7 +538,7 @@ describe("PolygonGeometry.getTriangles", () => {
         const geometry = new PolygonGeometry(polygon);
         const transform = new Transform(
             1, 1, 1, 0.5, [0, 0, 0], [0, 0, 0],
-            undefined, undefined, [1, 0, 0]);
+            undefined, [1, 0, 0]);
 
         const triangles = geometry.getTriangles3d(transform);
 

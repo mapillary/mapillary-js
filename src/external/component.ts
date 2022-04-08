@@ -81,14 +81,6 @@ export { SequenceConfiguration }
     from "../component/interfaces/SequenceConfiguration";
 export { SequenceComponent } from "../component/sequence/SequenceComponent";
 
-// Slider
-export {
-    SliderConfiguration,
-    SliderConfigurationIds,
-    SliderConfigurationMode,
-} from "../component/interfaces/SliderConfiguration";
-export { SliderComponent } from "../component/slider/SliderComponent";
-
 // Spatial
 export { CameraVisualizationMode }
     from "../component/spatial/enums/CameraVisualizationMode";

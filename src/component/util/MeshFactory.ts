@@ -25,86 +25,6 @@ export class MeshFactory {
         }
     }
 
-    public createFlatMesh(
-        image: Image,
-        transform: Transform,
-        basicX0: number,
-        basicX1: number,
-        basicY0: number,
-        basicY1: number): THREE.Mesh {
-
-        let texture: THREE.Texture = this._createTexture(image.image);
-        let materialParameters: THREE.ShaderMaterialParameters =
-            this._createDistortedPlaneMaterialParameters(transform, texture);
-        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-
-        let geometry: THREE.BufferGeometry = this._getFlatImagePlaneGeoFromBasic(transform, basicX0, basicX1, basicY0, basicY1);
-
-        return new THREE.Mesh(geometry, material);
-    }
-
-    public createCurtainMesh(image: Image, transform: Transform): THREE.Mesh {
-        if (isSpherical(transform.cameraType)) {
-            return this._createSphereCurtainMesh(image, transform);
-        } else if (isFisheye(transform.cameraType)) {
-            return this._createCurtainMeshFisheye(image, transform);
-        } else {
-            return this._createCurtainMesh(image, transform);
-        }
-    }
-
-    public createDistortedCurtainMesh(image: Image, transform: Transform): THREE.Mesh {
-        return this._createDistortedCurtainMesh(image, transform);
-    }
-
-    private _createCurtainMesh(image: Image, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this._createTexture(image.image);
-        let materialParameters: THREE.ShaderMaterialParameters =
-            this._createCurtainPlaneMaterialParameters(transform, texture);
-        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-
-        let geometry: THREE.BufferGeometry = this._useMesh(transform, image) ?
-            this._getImagePlaneGeo(transform, image) :
-            this._getRegularFlatImagePlaneGeo(transform);
-
-        return new THREE.Mesh(geometry, material);
-    }
-
-    private _createCurtainMeshFisheye(image: Image, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this._createTexture(image.image);
-        let materialParameters: THREE.ShaderMaterialParameters =
-            this._createCurtainPlaneMaterialParametersFisheye(transform, texture);
-        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-
-        let geometry: THREE.BufferGeometry = this._useMesh(transform, image) ?
-            this._getImagePlaneGeoFisheye(transform, image) :
-            this._getRegularFlatImagePlaneGeo(transform);
-
-        return new THREE.Mesh(geometry, material);
-    }
-
-    private _createDistortedCurtainMesh(image: Image, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this._createTexture(image.image);
-        let materialParameters: THREE.ShaderMaterialParameters =
-            this._createDistortedCurtainPlaneMaterialParameters(transform, texture);
-        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-
-        let geometry: THREE.BufferGeometry = this._getRegularFlatImagePlaneGeo(transform);
-
-        return new THREE.Mesh(geometry, material);
-    }
-
-    private _createSphereCurtainMesh(image: Image, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this._createTexture(image.image);
-        let materialParameters: THREE.ShaderMaterialParameters =
-            this._createCurtainSphereMaterialParameters(transform, texture);
-        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-
-        return this._useMesh(transform, image) ?
-            new THREE.Mesh(this._getImageSphereGeo(transform, image), material) :
-            new THREE.Mesh(this._getFlatImageSphereGeo(transform), material);
-    }
-
     private _createImageSphere(image: Image, transform: Transform): THREE.Mesh {
         let texture: THREE.Texture = this._createTexture(image.image);
         let materialParameters: THREE.ShaderMaterialParameters = this._createSphereMaterialParameters(transform, texture);
@@ -158,24 +78,6 @@ export class MeshFactory {
         return materialParameters;
     }
 
-    private _createCurtainSphereMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
-        let materialParameters: THREE.ShaderMaterialParameters = {
-            depthWrite: false,
-            fragmentShader: Shaders.sphericalCurtain.fragment,
-            side: THREE.DoubleSide,
-            transparent: true,
-            uniforms: {
-                curtain: { value: 1.0 },
-                opacity: { value: 1.0 },
-                projectorMat: { value: transform.rt },
-                projectorTex: { value: texture },
-            },
-            vertexShader: Shaders.sphericalCurtain.vertex,
-        };
-
-        return materialParameters;
-    }
-
     private _createPlaneMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
         let materialParameters: THREE.ShaderMaterialParameters = {
             depthWrite: false,
@@ -217,89 +119,6 @@ export class MeshFactory {
                 scale_y: { value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight },
             },
             vertexShader: Shaders.fisheye.vertex,
-        };
-
-        return materialParameters;
-    }
-
-    private _createCurtainPlaneMaterialParametersFisheye(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
-        let materialParameters: THREE.ShaderMaterialParameters = {
-            depthWrite: false,
-            fragmentShader: Shaders.fisheyeCurtain.fragment,
-            side: THREE.DoubleSide,
-            transparent: true,
-            uniforms: {
-                curtain: { value: 1.0 },
-                focal: { value: transform.focal },
-                k1: { value: transform.ck1 },
-                k2: { value: transform.ck2 },
-                opacity: { value: 1.0 },
-                projectorMat: { value: transform.basicRt },
-                projectorTex: { value: texture },
-                radial_peak: { value: !!transform.radialPeak ? transform.radialPeak : 0.0 },
-                scale_x: { value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth },
-                scale_y: { value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight },
-            },
-            vertexShader: Shaders.fisheyeCurtain.vertex,
-        };
-
-        return materialParameters;
-    }
-
-    private _createCurtainPlaneMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
-        let materialParameters: THREE.ShaderMaterialParameters = {
-            depthWrite: false,
-            fragmentShader: Shaders.perspectiveCurtain.fragment,
-            side: THREE.DoubleSide,
-            transparent: true,
-            uniforms: {
-                curtain: { value: 1.0 },
-                focal: { value: transform.focal },
-                k1: { value: transform.ck1 },
-                k2: { value: transform.ck2 },
-                opacity: { value: 1.0 },
-                projectorMat: { value: transform.basicRt },
-                projectorTex: { value: texture },
-                radial_peak: { value: !!transform.radialPeak ? transform.radialPeak : 0.0 },
-                scale_x: { value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth },
-                scale_y: { value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight },
-            },
-            vertexShader: Shaders.perspectiveCurtain.vertex,
-        };
-
-        return materialParameters;
-    }
-
-    private _createDistortedCurtainPlaneMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
-        let materialParameters: THREE.ShaderMaterialParameters = {
-            depthWrite: false,
-            fragmentShader: Shaders.perspectiveDistortedCurtain.fragment,
-            side: THREE.DoubleSide,
-            transparent: true,
-            uniforms: {
-                curtain: { value: 1.0 },
-                opacity: { value: 1.0 },
-                projectorMat: { value: transform.projectorMatrix() },
-                projectorTex: { value: texture },
-            },
-            vertexShader: Shaders.perspectiveDistortedCurtain.vertex,
-        };
-
-        return materialParameters;
-    }
-
-    private _createDistortedPlaneMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
-        let materialParameters: THREE.ShaderMaterialParameters = {
-            depthWrite: false,
-            fragmentShader: Shaders.perspectiveDistorted.fragment,
-            side: THREE.DoubleSide,
-            transparent: true,
-            uniforms: {
-                opacity: { value: 1.0 },
-                projectorMat: { value: transform.projectorMatrix() },
-                projectorTex: { value: texture },
-            },
-            vertexShader: Shaders.perspectiveDistorted.vertex,
         };
 
         return materialParameters;
@@ -494,23 +313,6 @@ export class MeshFactory {
         vertices.push(transform.unprojectSfM([dx, -dy], this._imagePlaneDepth));
         vertices.push(transform.unprojectSfM([dx, dy], this._imagePlaneDepth));
         vertices.push(transform.unprojectSfM([-dx, dy], this._imagePlaneDepth));
-
-        return this._createFlatGeometry(vertices);
-    }
-
-    private _getFlatImagePlaneGeoFromBasic(
-        transform: Transform,
-        basicX0: number,
-        basicX1: number,
-        basicY0: number,
-        basicY1: number): THREE.BufferGeometry {
-
-        let vertices: number[][] = [];
-
-        vertices.push(transform.unprojectBasic([basicX0, basicY0], this._imagePlaneDepth));
-        vertices.push(transform.unprojectBasic([basicX1, basicY0], this._imagePlaneDepth));
-        vertices.push(transform.unprojectBasic([basicX1, basicY1], this._imagePlaneDepth));
-        vertices.push(transform.unprojectBasic([basicX0, basicY1], this._imagePlaneDepth));
 
         return this._createFlatGeometry(vertices);
     }

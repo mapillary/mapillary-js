@@ -27,8 +27,6 @@ export class Transform {
     private _scaledWorldToCameraInverse: THREE.Matrix4;
     private _basicWorldToCamera: THREE.Matrix4;
 
-    private _textureScale: number[];
-
     private _ck1: number;
     private _ck2: number;
     private _cameraType: CameraType;
@@ -54,7 +52,6 @@ export class Transform {
         rotation: number[],
         translation: number[],
         image: HTMLImageElement,
-        textureScale?: number[],
         cameraParameters?: number[],
         cameraType?: CameraType) {
 
@@ -87,7 +84,7 @@ export class Transform {
         this._worldToCamera = this.createWorldToCamera(rotation, translation);
         this._worldToCameraInverse = new THREE.Matrix4()
             .copy(this._worldToCamera)
-            .invert()
+            .invert();
         this._scaledWorldToCamera =
             this._createScaledWorldToCamera(this._worldToCamera, this._scale);
         this._scaledWorldToCameraInverse = new THREE.Matrix4()
@@ -97,8 +94,6 @@ export class Transform {
         this._basicWorldToCamera = this._createBasicWorldToCamera(
             this._worldToCamera,
             orientation);
-
-        this._textureScale = !!textureScale ? textureScale : [1, 1];
 
         this._ck1 = !!ck1 ? ck1 : 0;
         this._ck2 = !!ck2 ? ck2 : 0;
@@ -698,13 +693,9 @@ export class Transform {
      * coordinates transformation matrix.
      */
     private _normalizedToTextureMatrix(): THREE.Matrix4 {
-        const size: number = Math.max(this._width, this._height);
-
-        const scaleX: number = this._orientation < 5 ? this._textureScale[0] : this._textureScale[1];
-        const scaleY: number = this._orientation < 5 ? this._textureScale[1] : this._textureScale[0];
-
-        const w: number = size / this._width * scaleX;
-        const h: number = size / this._height * scaleY;
+        const size = Math.max(this._width, this._height);
+        const w = size / this._width;
+        const h = size / this._height;
 
         switch (this._orientation) {
             case 1:

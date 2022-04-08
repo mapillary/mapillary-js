@@ -341,7 +341,6 @@ export class PanService {
             image.rotation,
             translation,
             image.assetsCached ? image.image : undefined,
-            undefined,
             image.cameraParameters,
             <CameraType>image.cameraType);
     }

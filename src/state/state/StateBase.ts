@@ -67,7 +67,6 @@ export abstract class StateBase implements IStateBase {
                 image.rotation,
                 translation,
                 image.image,
-                undefined,
                 image.cameraParameters,
                 <CameraType>image.cameraType);
 
@@ -386,7 +385,6 @@ export abstract class StateBase implements IStateBase {
                 image.rotation,
                 translation,
                 image.image,
-                undefined,
                 image.cameraParameters,
                 <CameraType>image.cameraType);
 
@@ -410,7 +408,6 @@ export abstract class StateBase implements IStateBase {
                 image.rotation,
                 translation,
                 image.image,
-                undefined,
                 image.cameraParameters,
                 <CameraType>image.cameraType);
 
