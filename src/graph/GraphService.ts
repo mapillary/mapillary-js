@@ -33,6 +33,8 @@ import { LngLat } from "../api/interfaces/LngLat";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { ProviderCellEvent } from "../api/events/ProviderCellEvent";
 import { GraphMapillaryError } from "../error/GraphMapillaryError";
+import { ProjectionService } from "../viewer/ProjectionService";
+import { ICameraFactory } from "../geometry/interfaces/ICameraFactory";
 
 /**
  * @class GraphService
@@ -55,12 +57,16 @@ export class GraphService {
     private _spatialSubscriptions: Subscription[];
     private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
+    private _cameraFactory: ICameraFactory;
+
     /**
      * Create a new graph service instance.
      *
      * @param {Graph} graph - Graph instance to be operated on.
      */
-    constructor(graph: Graph) {
+    constructor(graph: Graph, cameraFactory?: ICameraFactory) {
+        this._cameraFactory = cameraFactory ?? new ProjectionService();
+
         const subs = this._subscriptions;
 
         this._graph$ = observableConcat(
@@ -215,7 +221,7 @@ export class GraphService {
                 (image: Image): Observable<Image> => {
                     return image.assetsCached ?
                         observableOf(image) :
-                        image.cacheAssets$();
+                        image.cacheAssets$(this._cameraFactory);
                 }),
             publishReplay(1),
             refCount());

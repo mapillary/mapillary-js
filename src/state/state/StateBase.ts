@@ -67,8 +67,7 @@ export abstract class StateBase implements IStateBase {
                 image.rotation,
                 translation,
                 image.image,
-                image.cameraParameters,
-                <CameraType>image.cameraType);
+                image.camera);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -385,8 +384,7 @@ export abstract class StateBase implements IStateBase {
                 image.rotation,
                 translation,
                 image.image,
-                image.cameraParameters,
-                <CameraType>image.cameraType);
+                image.camera);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -408,8 +406,7 @@ export abstract class StateBase implements IStateBase {
                 image.rotation,
                 translation,
                 image.image,
-                image.cameraParameters,
-                <CameraType>image.cameraType);
+                image.camera);
 
             this._trajectoryTransforms.unshift(transform);
             this._trajectoryCameras.unshift(new Camera(transform));

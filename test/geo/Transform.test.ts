@@ -7,6 +7,7 @@ import { Image } from "../../src/graph/Image";
 import { Transform } from "../../src/geo/Transform";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { CameraType } from "../../src/geo/interfaces/CameraType";
+import { ProjectionService } from "../../src/viewer/ProjectionService";
 
 
 describe("Transform.rt", () => {
@@ -26,6 +27,8 @@ describe("Transform.rt", () => {
         let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         spatialImage.computed_rotation = r;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -35,8 +38,7 @@ describe("Transform.rt", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let rt: THREE.Matrix4 = transform.rt;
 
@@ -69,6 +71,8 @@ describe("Transform.rt", () => {
         let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         spatialImage.computed_rotation = r;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -78,8 +82,7 @@ describe("Transform.rt", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let rt: THREE.Matrix4 = transform.rt;
 
@@ -112,6 +115,8 @@ describe("Transform.rt", () => {
         let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         spatialImage.computed_rotation = r;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -121,8 +126,7 @@ describe("Transform.rt", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let rt: THREE.Matrix4 = transform.rt;
 
@@ -155,6 +159,8 @@ describe("Transform.rt", () => {
         let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         spatialImage.computed_rotation = r;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -164,8 +170,7 @@ describe("Transform.rt", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let rt: THREE.Matrix4 = transform.rt;
 
@@ -209,6 +214,8 @@ describe("Transform.srt", () => {
         spatialImage.atomic_scale = 1;
         spatialImage.computed_rotation = r;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -218,8 +225,7 @@ describe("Transform.srt", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let sRt: THREE.Matrix4 = transform.srt;
 
@@ -253,6 +259,8 @@ describe("Transform.srt", () => {
         spatialImage.atomic_scale = 3;
         spatialImage.computed_rotation = r;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -262,8 +270,7 @@ describe("Transform.srt", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let sRt: THREE.Matrix4 = transform.srt;
 
@@ -297,6 +304,8 @@ describe("Transform.srt", () => {
         spatialImage.atomic_scale = 0.5;
         spatialImage.computed_rotation = r;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -306,8 +315,7 @@ describe("Transform.srt", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let sRt: THREE.Matrix4 = transform.srt;
 
@@ -350,6 +358,8 @@ describe("Transform.basicWidth", () => {
         spatialImage.width = width;
         spatialImage.exif_orientation = 1;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -359,8 +369,7 @@ describe("Transform.basicWidth", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         expect(transform.basicWidth).toBe(width);
     });
@@ -375,6 +384,8 @@ describe("Transform.basicWidth", () => {
         spatialImage.height = height;
         spatialImage.exif_orientation = 5;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -384,8 +395,7 @@ describe("Transform.basicWidth", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         expect(transform.basicWidth).toBe(height);
     });
@@ -408,6 +418,8 @@ describe("Transform.basicHeight", () => {
         spatialImage.height = height;
         spatialImage.exif_orientation = 1;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -417,8 +429,7 @@ describe("Transform.basicHeight", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         expect(transform.basicHeight).toBe(height);
     });
@@ -433,6 +444,8 @@ describe("Transform.basicHeight", () => {
         spatialImage.width = width;
         spatialImage.exif_orientation = 5;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -442,8 +455,7 @@ describe("Transform.basicHeight", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         expect(transform.basicHeight).toBe(width);
     });
@@ -464,6 +476,8 @@ describe("Transform.width", () => {
         const spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         spatialImage.width = 0;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -473,8 +487,7 @@ describe("Transform.width", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         expect(transform.width).toBe(4);
     });
@@ -488,6 +501,8 @@ describe("Transform.width", () => {
         let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         spatialImage.width = width;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -497,8 +512,7 @@ describe("Transform.width", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         expect(transform.width).toBe(width);
     });
@@ -519,6 +533,8 @@ describe("Transform.height", () => {
         spatialImage.height = -1;
         spatialImage.exif_orientation = 1;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -528,8 +544,7 @@ describe("Transform.height", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         expect(transform.height).toBe(3);
     });
@@ -544,6 +559,8 @@ describe("Transform.height", () => {
         spatialImage.height = height;
         spatialImage.exif_orientation = 1;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -553,8 +570,7 @@ describe("Transform.height", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         expect(transform.height).toBe(height);
     });
@@ -573,6 +589,8 @@ describe("Transform.focal", () => {
         let image: Image = new Image(helper.createCoreImageEnt());
         let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -582,8 +600,7 @@ describe("Transform.focal", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         expect(transform.focal).toBe(1);
     });
@@ -597,6 +614,8 @@ describe("Transform.focal", () => {
         let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         spatialImage.camera_parameters = [focal, 0, 0];
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -606,8 +625,7 @@ describe("Transform.focal", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         expect(transform.focal).toBe(focal);
     });
@@ -626,6 +644,8 @@ describe("Transform.orientation", () => {
         let image: Image = new Image(helper.createCoreImageEnt());
         let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -635,8 +655,7 @@ describe("Transform.orientation", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         expect(transform.orientation).toBe(1);
     });
@@ -650,6 +669,8 @@ describe("Transform.orientation", () => {
         let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         spatialImage.exif_orientation = 3;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -659,8 +680,7 @@ describe("Transform.orientation", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         expect(transform.orientation).toBe(orientation);
     });
@@ -678,6 +698,8 @@ describe("Transform.scale", () => {
 
         let image: Image = new Image(helper.createCoreImageEnt());
         image.makeComplete(helper.createSpatialImageEnt());
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -687,8 +709,7 @@ describe("Transform.scale", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         expect(transform.scale).toBe(0);
     });
@@ -702,6 +723,8 @@ describe("Transform.scale", () => {
         let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         spatialImage.atomic_scale = 0.4;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -711,8 +734,7 @@ describe("Transform.scale", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         expect(transform.scale).toBe(scale);
     });
@@ -734,6 +756,8 @@ describe("Transform.unprojectSfM", () => {
 
         let image: Image = new Image(helper.createCoreImageEnt());
         image.makeComplete(helper.createSpatialImageEnt());
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -743,8 +767,7 @@ describe("Transform.unprojectSfM", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let sfm: number[] = transform.unprojectSfM([0, 0], 0);
 
@@ -758,6 +781,8 @@ describe("Transform.unprojectSfM", () => {
 
         let image: Image = new Image(helper.createCoreImageEnt());
         image.makeComplete(helper.createSpatialImageEnt());
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -767,8 +792,7 @@ describe("Transform.unprojectSfM", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let sfm: number[] = transform.unprojectSfM([0, 0], 0);
 
@@ -786,6 +810,8 @@ describe("Transform.unprojectSfM", () => {
         let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         spatialImage.computed_rotation = r;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -795,8 +821,7 @@ describe("Transform.unprojectSfM", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let sfm: number[] = transform.unprojectSfM([0, 0], 0);
 
@@ -810,6 +835,8 @@ describe("Transform.unprojectSfM", () => {
 
         let image: Image = new Image(helper.createCoreImageEnt());
         image.makeComplete(helper.createSpatialImageEnt());
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -819,8 +846,7 @@ describe("Transform.unprojectSfM", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let depth: number = 10;
         let sfm: number[] = transform.unprojectSfM([0, 0], depth);
@@ -838,6 +864,8 @@ describe("Transform.unprojectSfM", () => {
         let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         spatialImage.computed_rotation = r;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -847,8 +875,7 @@ describe("Transform.unprojectSfM", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let depth: number = 5;
         let sfm: number[] = transform.unprojectSfM([0.5, 0], depth);
@@ -873,6 +900,8 @@ describe("Transform.projectBasic", () => {
 
         let image: Image = new Image(helper.createCoreImageEnt());
         image.makeComplete(helper.createSpatialImageEnt());
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -882,8 +911,7 @@ describe("Transform.projectBasic", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let pixel: number[] = transform.projectBasic([0, 0, 10]);
 
@@ -896,6 +924,8 @@ describe("Transform.projectBasic", () => {
 
         let image: Image = new Image(helper.createCoreImageEnt());
         image.makeComplete(helper.createSpatialImageEnt());
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -905,8 +935,7 @@ describe("Transform.projectBasic", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let pixel: number[] = transform.projectBasic([1, 1, 10]);
 
@@ -932,6 +961,8 @@ describe("Transform.unprojectBasic", () => {
         spatialImage.computed_rotation = [0.1, 0.2, 0.3];
         spatialImage.exif_orientation = 1;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -941,8 +972,7 @@ describe("Transform.unprojectBasic", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -962,6 +992,8 @@ describe("Transform.unprojectBasic", () => {
         spatialImage.computed_rotation = [0.1, 0.2, 0.3];
         spatialImage.exif_orientation = 3;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -971,8 +1003,7 @@ describe("Transform.unprojectBasic", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -992,6 +1023,8 @@ describe("Transform.unprojectBasic", () => {
         spatialImage.computed_rotation = [0.1, 0.2, 0.3];
         spatialImage.exif_orientation = 6;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -1001,8 +1034,7 @@ describe("Transform.unprojectBasic", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -1022,6 +1054,8 @@ describe("Transform.unprojectBasic", () => {
         spatialImage.computed_rotation = [0.1, 0.2, 0.3];
         spatialImage.exif_orientation = 8;
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -1031,8 +1065,7 @@ describe("Transform.unprojectBasic", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let pixel: number[] = [-0.1, 0.2];
 
@@ -1053,6 +1086,8 @@ describe("Transform.unprojectBasic", () => {
         spatialImage.camera_type = "spherical";
 
         image.makeComplete(spatialImage);
+        const camera = new ProjectionService()
+            .makeCamera(image.cameraType, image.cameraParameters);
 
         let transform: Transform = new Transform(
             image.exifOrientation,
@@ -1062,8 +1097,7 @@ describe("Transform.unprojectBasic", () => {
             image.rotation,
             t,
             null,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            camera);
 
         let basicPixel: number[] = [0.4534546, 0.72344564];
 

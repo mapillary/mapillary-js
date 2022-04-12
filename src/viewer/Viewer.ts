@@ -49,6 +49,7 @@ import { cameraControlsToState } from "./Modes";
 import { ViewerReferenceEvent } from "./events/ViewerReferenceEvent";
 import { IDataProvider } from "../external/api";
 import { ViewerResetEvent } from "./events/ViewerResetEvent";
+import { ICamera } from "../geometry/interfaces/ICamera";
 
 /**
  * @class Viewer
@@ -1464,6 +1465,29 @@ export class Viewer extends EventEmitter implements IViewer {
      */
     public resize(): void {
         this._container.renderService.resize$.next();
+    }
+
+    /**
+     * Register a class constructor for a camera type.
+     *
+     * @description The Viewer will invoke the camera
+     * constructor each time that camera type should be
+     * instantiated.
+     *
+     * @param {string} type - Camera type.
+     * @param ctor - Contructor for Camera class implementing the
+     * {@link ICamera} interface.
+     *
+     * @example
+     * ```js
+     * import {MyCamera} from "./MyCameraClasses";
+     * viewer.registerCamera("my-camera-type", MyCamera);
+     * ```
+     */
+    public registerCamera(
+        type: string,
+        ctor: { new(parameters: number[]): ICamera; }): void {
+        this._navigator.projectionService.registerCamera(type, ctor);
     }
 
     /**

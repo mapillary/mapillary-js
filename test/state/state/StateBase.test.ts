@@ -8,6 +8,11 @@ import { IStateBase } from "../../../src/state/interfaces/IStateBase";
 import { StateBase } from "../../../src/state/state/StateBase";
 import { Camera } from "../../../src/geo/Camera";
 import { TransitionMode } from "../../../src/state/TransitionMode";
+import { ProjectionService } from "../../../src/viewer/ProjectionService";
+import { ImageCache } from "../../../src/graph/ImageCache";
+import { ICamera } from "../../../src/geometry/interfaces/ICamera";
+import { DataProviderBase } from "../../../src/mapillary";
+import { DataProvider, GeometryProvider } from "../../helper/ProviderHelper";
 
 class TestStateBase extends StateBase {
     public traverse(): StateBase { return null; }
@@ -63,6 +68,8 @@ let createCompleteImage: () => Image = (): Image => {
     let helper: ImageHelper = new ImageHelper();
     let image: TestImage = new TestImage(helper.createCoreImageEnt());
     image.makeComplete(helper.createSpatialImageEnt());
+    image.initializeCache(new ImageCache(new DataProvider()));
+    image.cacheCamera(new ProjectionService());
 
     return image;
 };
@@ -100,11 +107,15 @@ describe("StateBase.motionlessTransition", () => {
         imageEnt1.merge_id = "1";
         const image1: Image = new TestImage(imageEnt1);
         image1.makeComplete(imageEnt1);
+        image1.initializeCache(new ImageCache(new DataProvider()));
+        image1.cacheCamera(new ProjectionService());
 
         const imageEnt2: ImageEnt = helper.createImageEnt();
         imageEnt2.merge_id = "1";
         const image2: Image = new TestImage(imageEnt2);
         image2.makeComplete(imageEnt2);
+        image2.initializeCache(new ImageCache(new DataProvider()));
+        image2.cacheCamera(new ProjectionService());
 
         stateBase.set([image1]);
         stateBase.set([image2]);
@@ -123,11 +134,15 @@ describe("StateBase.motionlessTransition", () => {
         imageEnt1.merge_id = "1";
         const image1: Image = new TestImage(imageEnt1);
         image1.makeComplete(imageEnt1);
+        image1.initializeCache(new ImageCache(new DataProvider()));
+        image1.cacheCamera(new ProjectionService());
 
         const imageEnt2: ImageEnt = helper.createImageEnt();
         imageEnt2.merge_id = "1";
         const image2: Image = new TestImage(imageEnt2);
         image2.makeComplete(imageEnt2);
+        image2.initializeCache(new ImageCache(new DataProvider()));
+        image2.cacheCamera(new ProjectionService());
 
         stateBase.set([image1]);
         stateBase.set([image2]);
@@ -209,6 +224,8 @@ describe("StateBase.remove", () => {
         coreImage.id = "currentImage";
         let image: TestImage = new TestImage(coreImage);
         image.makeComplete(helper.createSpatialImageEnt());
+        image.initializeCache(new ImageCache(new DataProvider()));
+        image.cacheCamera(new ProjectionService());
 
         stateBase.set([image]);
         stateBase.prepend([createCompleteImage(), createCompleteImage()]);
@@ -230,6 +247,8 @@ describe("StateBase.remove", () => {
         coreImage.id = "currentImage";
         let image: TestImage = new TestImage(coreImage);
         image.makeComplete(helper.createSpatialImageEnt());
+        image.initializeCache(new ImageCache(new DataProvider()));
+        image.cacheCamera(new ProjectionService());
 
         stateBase.set([image]);
         stateBase.prepend([
@@ -273,6 +292,8 @@ describe("StateBase.clear", () => {
         coreImage.id = "currentImage";
         let image: TestImage = new TestImage(coreImage);
         image.makeComplete(helper.createSpatialImageEnt());
+        image.initializeCache(new ImageCache(new DataProvider()));
+        image.cacheCamera(new ProjectionService());
 
         stateBase.set([image]);
         stateBase.prepend([createCompleteImage(), createCompleteImage()]);
@@ -294,6 +315,8 @@ describe("StateBase.clear", () => {
         coreImage.id = "currentImage";
         let image: TestImage = new TestImage(coreImage);
         image.makeComplete(helper.createSpatialImageEnt());
+        image.initializeCache(new ImageCache(new DataProvider()));
+        image.cacheCamera(new ProjectionService());
 
         stateBase.set([image]);
         stateBase.prepend([
@@ -320,6 +343,8 @@ describe("StateBase.clear", () => {
         coreImage.id = "currentImage";
         let image: TestImage = new TestImage(coreImage);
         image.makeComplete(helper.createSpatialImageEnt());
+        image.initializeCache(new ImageCache(new DataProvider()));
+        image.cacheCamera(new ProjectionService());
 
         stateBase.set([image]);
         stateBase.append([createCompleteImage()]);
@@ -341,6 +366,8 @@ describe("StateBase.clear", () => {
         coreImage.id = "currentImage";
         let image: TestImage = new TestImage(coreImage);
         image.makeComplete(helper.createSpatialImageEnt());
+        image.initializeCache(new ImageCache(new DataProvider()));
+        image.cacheCamera(new ProjectionService());
 
         stateBase.set([image]);
         stateBase.append([
@@ -367,6 +394,8 @@ describe("StateBase.clear", () => {
         coreImage.id = "currentImage";
         let image: TestImage = new TestImage(coreImage);
         image.makeComplete(helper.createSpatialImageEnt());
+        image.initializeCache(new ImageCache(new DataProvider()));
+        image.cacheCamera(new ProjectionService());
 
         stateBase.set([image]);
         stateBase.prepend([createCompleteImage(), createCompleteImage()]);
@@ -406,6 +435,8 @@ describe("StateBase.clearPrior", () => {
         coreImage.id = "currentImage";
         let image: TestImage = new TestImage(coreImage);
         image.makeComplete(helper.createSpatialImageEnt());
+        image.initializeCache(new ImageCache(new DataProvider()));
+        image.cacheCamera(new ProjectionService());
 
         stateBase.set([image]);
         stateBase.prepend([createCompleteImage(), createCompleteImage()]);
@@ -427,6 +458,8 @@ describe("StateBase.clearPrior", () => {
         coreImage.id = "currentImage";
         let image: TestImage = new TestImage(coreImage);
         image.makeComplete(helper.createSpatialImageEnt());
+        image.initializeCache(new ImageCache(new DataProvider()));
+        image.cacheCamera(new ProjectionService());
 
         stateBase.set([image]);
         stateBase.prepend([

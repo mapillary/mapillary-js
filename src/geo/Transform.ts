@@ -1,25 +1,8 @@
 import * as THREE from "three";
-import { MapillaryError } from "../error/MapillaryError";
-import { FisheyeCamera } from "../geometry/camera/FisheyeCamera";
-import { PerspectiveCamera } from "../geometry/camera/PerspectiveCamera";
-import { SphericalCamera } from "../geometry/camera/SphericalCamera";
 import { ICamera } from "../geometry/interfaces/ICamera";
 import { isSpherical } from "./Geo";
-
 import { CameraType } from "./interfaces/CameraType";
 
-function createCamera(type: string, parameters: number[]): ICamera {
-    switch (type) {
-        case "perspective":
-            return new PerspectiveCamera(parameters);
-        case "fisheye":
-            return new FisheyeCamera(parameters);
-        case "spherical":
-            return new SphericalCamera();
-        default:
-            return new PerspectiveCamera([0.85, 0, 0]);
-    }
-}
 
 /**
  * @class Transform
@@ -28,8 +11,6 @@ function createCamera(type: string, parameters: number[]): ICamera {
  * and projections.
  */
 export class Transform {
-    public readonly camera: ICamera;
-
     private _width: number;
     private _height: number;
     private _focal: number;
@@ -64,8 +45,7 @@ export class Transform {
         rotation: number[],
         translation: number[],
         image: HTMLImageElement,
-        cameraParameters?: number[],
-        cameraType?: CameraType) {
+        public readonly camera: ICamera) {
 
         this._orientation = this._getValue(orientation, 1);
 
@@ -83,14 +63,7 @@ export class Transform {
         this._basicWidth = keepOrientation ? width : height;
         this._basicHeight = keepOrientation ? height : width;
 
-        const parameters = this._getCameraParameters(
-            cameraParameters,
-            cameraType);
-        const focal = parameters[0];
-        const ck1 = parameters[1];
-        const ck2 = parameters[2];
-
-        this._focal = this._getValue(focal, 1);
+        this._focal = this._getValue(camera.parameters["focal"], 1);
         this._scale = this._getValue(scale, 0);
 
         this._worldToCamera = this.createWorldToCamera(rotation, translation);
@@ -106,10 +79,6 @@ export class Transform {
         this._basicWorldToCamera = this._createBasicWorldToCamera(
             this._worldToCamera,
             orientation);
-
-        this.camera = createCamera(
-            cameraType,
-            [this._focal, ck1 ?? 0, ck2 ?? 0]);
     }
 
     public get cameraType(): CameraType {
@@ -254,29 +223,6 @@ export class Transform {
             default:
                 return new THREE.Vector3(-rte[1], -rte[5], -rte[9]);
         }
-    }
-
-    /**
-     * Calculate projector matrix for projecting 3D points to texture map
-     * coordinates (u and v).
-     *
-     * @returns {THREE.Matrix4} Projection matrix for 3D point to texture
-     * map coordinate calculations.
-     */
-    public projectorMatrix(): THREE.Matrix4 {
-        let projector: THREE.Matrix4 = this._normalizedToTextureMatrix();
-
-        let f: number = this._focal;
-        let projection: THREE.Matrix4 = new THREE.Matrix4().set(
-            f, 0, 0, 0,
-            0, f, 0, 0,
-            0, 0, 0, 0,
-            0, 0, 1, 0);
-
-        projector.multiply(projection);
-        projector.multiply(this._worldToCamera);
-
-        return projector;
     }
 
     /**
@@ -556,29 +502,6 @@ export class Transform {
         return new THREE.Matrix4()
             .makeRotationAxis(axis, angle)
             .multiply(rt);
-    }
-
-    private _getRadialPeak(k1: number, k2: number): number {
-        const a: number = 5 * k2;
-        const b: number = 3 * k1;
-        const c: number = 1;
-        const d: number = b ** 2 - 4 * a * c;
-
-        if (d < 0) {
-            return undefined;
-        }
-
-        const root1: number = (-b - Math.sqrt(d)) / 2 / a;
-        const root2: number = (-b + Math.sqrt(d)) / 2 / a;
-
-        const minRoot: number = Math.min(root1, root2);
-        const maxRoot: number = Math.max(root1, root2);
-
-        return minRoot > 0 ?
-            Math.sqrt(minRoot) :
-            maxRoot > 0 ?
-                Math.sqrt(maxRoot) :
-                undefined;
     }
 
     /**
