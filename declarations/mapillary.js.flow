@@ -3122,6 +3122,9 @@ export interface IViewer {
   remove(): void;
   removeCustomRenderer(rendererId: string): void;
   reset(): Promise<void>;
+  registerCamera(
+        type: string,
+        ctor: { new(parameters: number[]): ICamera; });
   resize(): void;
   setCameraControls(controls: $Values<typeof CameraControls>): void;
   setCenter(center: number[]): void;
@@ -3826,6 +3829,27 @@ declare class Viewer implements IEventEmitter, IViewer {
    * ```
    */
   projectFromBasic(basicPoint: number[]): Promise<number[]>;
+
+  /**
+   * Register a class constructor for a camera type.
+   *
+   * @description The Viewer will invoke the camera
+   * constructor each time that camera type should be
+   * instantiated.
+   *
+   * @param {string} type - Camera type.
+   * @param ctor - Contructor for Camera class implementing the
+   * {@link ICamera} interface.
+   *
+   * @example
+   * ```js
+   * import {MyCamera} from "./MyCameraClasses";
+   * viewer.registerCamera("my-camera-type", MyCamera);
+   * ```
+   */
+  registerCamera(
+      type: string,
+      ctor: { new(parameters: number[]): ICamera; }): void;
 
   /**
    * Clean up and release all internal resources associated with

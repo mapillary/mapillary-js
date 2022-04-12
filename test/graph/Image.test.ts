@@ -4,6 +4,8 @@ import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { MeshContract } from "../../src/api/contracts/MeshContract";
 import { ImageCache } from "../../src/graph/ImageCache";
+import { PerspectiveCamera } from "../../src/geometry/camera/PerspectiveCamera";
+import { ICamera } from "../../src/geometry/interfaces/ICamera";
 
 describe("Image", () => {
     let helper: ImageHelper;
@@ -185,6 +187,7 @@ describe("Image.assetsCached", () => {
     class ImageCacheMock extends ImageCache {
         protected _overridingImage: HTMLImageElement;
         protected _overridingMesh: MeshContract;
+        protected _overridingCamera: ICamera;
 
         constructor() { super(undefined); }
 
@@ -203,6 +206,14 @@ describe("Image.assetsCached", () => {
         public set mesh(value: MeshContract) {
             this._overridingMesh = value;
         }
+
+        public get camera(): ICamera {
+            return this._overridingCamera;
+        }
+
+        public set camera(value: ICamera) {
+            this._overridingCamera = value;
+        }
     }
 
     it("should be cached when assets set", () => {
@@ -214,6 +225,7 @@ describe("Image.assetsCached", () => {
         let imageCache: ImageCacheMock = new ImageCacheMock();
         imageCache.image = new Image();
         imageCache.mesh = { faces: [], vertices: [] };
+        imageCache.camera = new PerspectiveCamera([1, 0, 0]);
 
         image.initializeCache(imageCache);
 

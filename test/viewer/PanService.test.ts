@@ -13,13 +13,15 @@ import { GraphServiceMockCreator } from "../helper/GraphServiceMockCreator";
 import { ImageHelper } from "../helper/ImageHelper";
 import { StateServiceMockCreator } from "../helper/StateServiceMockCreator";
 import { State } from "../../src/state/State";
+import { ProjectionService } from "../../src/viewer/ProjectionService";
 
 describe("PanService.ctor", () => {
     it("should be defined when constructed", () => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const stateService: StateService = new StateServiceMockCreator().create();
+        const projectionService = new ProjectionService();
 
-        const panService: PanService = new PanService(graphService, stateService);
+        const panService: PanService = new PanService(graphService, stateService, projectionService);
 
         expect(panService).toBeDefined();
     });
@@ -29,11 +31,12 @@ describe("PanService.panImages$", () => {
     it("should emit empty initially", (done: Function) => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const stateService: StateService = new StateServiceMockCreator().create();
+        const projectionService = new ProjectionService();
 
         const cacheBoundingBoxSubject: Subject<Image[]> = new Subject<Image[]>();
         (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(cacheBoundingBoxSubject);
 
-        const panService: PanService = new PanService(graphService, stateService);
+        const panService: PanService = new PanService(graphService, stateService, projectionService);
 
         panService.panImages$.subscribe(
             (images: [Image, Transform, number][]): void => {
@@ -49,11 +52,12 @@ describe("PanService.panImages$", () => {
     it("should emit", (done: Function) => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const stateService: StateService = new StateServiceMockCreator().create();
+        const projectionService = new ProjectionService();
 
         const cacheBoundingBoxSubject: Subject<Image[]> = new Subject<Image[]>();
         (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(cacheBoundingBoxSubject);
 
-        const panService: PanService = new PanService(graphService, stateService);
+        const panService: PanService = new PanService(graphService, stateService, projectionService);
         panService.start();
 
         panService.panImages$.pipe(
@@ -74,11 +78,12 @@ describe("PanService.panImages$", () => {
     it("should emit empty when not merged", (done: Function) => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const stateService: StateService = new StateServiceMockCreator().create();
+        const projectionService = new ProjectionService();
 
         const cacheBoundingBoxSubject: Subject<Image[]> = new Subject<Image[]>();
         (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(cacheBoundingBoxSubject);
 
-        const panService: PanService = new PanService(graphService, stateService);
+        const panService: PanService = new PanService(graphService, stateService, projectionService);
         panService.start();
 
         panService.panImages$.pipe(
@@ -101,11 +106,12 @@ describe("PanService.panImages$", () => {
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const stateService: StateService = new StateServiceMockCreator().create();
+        const projectionService = new ProjectionService();
 
         const erroredCacheBoundingBoxSubject: Subject<Image[]> = new Subject<Image[]>();
         (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(erroredCacheBoundingBoxSubject);
 
-        const panService: PanService = new PanService(graphService, stateService);
+        const panService: PanService = new PanService(graphService, stateService, projectionService);
         panService.start();
 
         let emitCount: number = 0;
@@ -138,11 +144,12 @@ describe("PanService.panImages$", () => {
     it("should emit after being disabled", (done: Function) => {
         const graphService: GraphService = new GraphServiceMockCreator().create();
         const stateService: StateService = new StateServiceMockCreator().create();
+        const projectionService = new ProjectionService();
 
         const cacheBoundingBoxSubject: Subject<Image[]> = new Subject<Image[]>();
         (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(cacheBoundingBoxSubject);
 
-        const panService: PanService = new PanService(graphService, stateService);
+        const panService: PanService = new PanService(graphService, stateService, projectionService);
         panService.start();
         panService.disable();
         panService.enable();

@@ -33,10 +33,10 @@ import { Image } from "../graph/Image";
 import { StateService } from "../state/StateService";
 import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
-import { CameraType } from "../geo/interfaces/CameraType";
 import { isSpherical } from "../geo/Geo";
 import { geodeticToEnu } from "../geo/GeoCoords";
 import { State } from "../state/State";
+import { ICameraFactory } from "../geometry/interfaces/ICameraFactory";
 
 enum PanMode {
     Disabled,
@@ -47,6 +47,7 @@ enum PanMode {
 export class PanService {
     private _graphService: GraphService;
     private _stateService: StateService;
+    private _cameraFactory: ICameraFactory;
     private _graphCalculator: GraphCalculator;
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
@@ -61,6 +62,7 @@ export class PanService {
     constructor(
         graphService: GraphService,
         stateService: StateService,
+        cameraFactory: ICameraFactory,
         enabled?: boolean,
         graphCalculator?: GraphCalculator,
         spatial?: Spatial,
@@ -68,6 +70,7 @@ export class PanService {
 
         this._graphService = graphService;
         this._stateService = stateService;
+        this._cameraFactory = cameraFactory;
         this._graphCalculator = graphCalculator ?? new GraphCalculator();
         this._spatial = spatial ?? new Spatial();
         this._viewportCoords = viewportCoords ?? new ViewportCoords();
@@ -356,8 +359,9 @@ export class PanService {
             image.rotation,
             translation,
             image.assetsCached ? image.image : undefined,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            image.assetsCached ? image.camera : this._cameraFactory.makeCamera(
+                image.cameraType,
+                image.cameraParameters));
     }
 
     private _computeProjectedPoints(transform: Transform): number[][] {

@@ -37,6 +37,10 @@ import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { cameraControlsToState } from "./Modes";
 import { CameraControls } from "./enums/CameraControls";
 import { GraphDataProvider } from "../api/provider/GraphDataProvider";
+import { ProjectionService } from "./ProjectionService";
+import { FISHEYE_CAMERA_TYPE, FisheyeCamera } from "../geometry/camera/FisheyeCamera";
+import { PerspectiveCamera, PERSPECTIVE_CAMERA_TYPE } from "../geometry/camera/PerspectiveCamera";
+import { SPHERICAL_CAMERA_TYPE, SphericalCamera } from "../geometry/camera/SphericalCamera";
 
 export class Navigator {
     private _api: APIWrapper;
@@ -47,7 +51,9 @@ export class Navigator {
     private _loadingName: string;
     private _panService: PanService;
     private _playService: PlayService;
+    private _projectionService: ProjectionService;
     private _stateService: StateService;
+
 
     private _idRequested$: BehaviorSubject<string>;
     private _movedToId$: BehaviorSubject<string>;
@@ -76,8 +82,10 @@ export class Navigator {
             }));
         }
 
+        this._projectionService = new ProjectionService();
+
         this._graphService = graphService ??
-            new GraphService(new Graph(this.api));
+            new GraphService(new Graph(this.api), this._projectionService);
 
         this._loadingName = "navigator";
         this._loadingService = loadingService ??
@@ -102,6 +110,7 @@ export class Navigator {
             new PanService(
                 this._graphService,
                 this._stateService,
+                this._projectionService,
                 options.combinedPanning);
 
         this._idRequested$ = new BehaviorSubject<string>(null);
@@ -138,6 +147,10 @@ export class Navigator {
 
     public get playService(): PlayService {
         return this._playService;
+    }
+
+    public get projectionService(): ProjectionService {
+        return this._projectionService;
     }
 
     public get stateService(): StateService {

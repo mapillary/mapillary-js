@@ -725,8 +725,9 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             image.rotation,
             translation,
             undefined,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            image.assetsCached ? image.camera : this._navigator.projectionService.makeCamera(
+                image.cameraType,
+                image.cameraParameters));
 
         return transform;
     }

@@ -9,6 +9,8 @@ import { CoreImageEnt } from "../api/ents/CoreImageEnt";
 import { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
 import { LngLat } from "../api/interfaces/LngLat";
 import { MeshContract } from "../api/contracts/MeshContract";
+import { ICameraFactory } from "../geometry/interfaces/ICameraFactory";
+import { ICamera } from "../geometry/interfaces/ICamera";
 
 /**
  * @class Image
@@ -80,8 +82,20 @@ export class Image {
         return this._core != null &&
             this._spatial != null &&
             this._cache != null &&
+            this._cache.camera != null &&
             this._cache.image != null &&
             this._cache.mesh != null;
+    }
+
+    /**
+     * Get camera.
+     *
+     * @returns {ICamera} Camera of the image
+     *
+     * @ignore
+     */
+    public get camera(): ICamera {
+        return this._cache.camera;
     }
 
     /**
@@ -533,11 +547,24 @@ export class Image {
      *
      * @ignore
      */
-    public cacheAssets$(): Observable<Image> {
+    public cacheAssets$(factory: ICameraFactory): Observable<Image> {
+        this.cacheCamera(factory);
         return this._cache
             .cacheAssets$(this._spatial, this.merged)
             .pipe(
                 map((): Image => { return this; }));
+    }
+
+    /**
+     * Cache the image camera.
+     *
+     * @ignore
+     */
+    public cacheCamera(factory: ICameraFactory): void {
+        this._cache.cacheCamera(
+            factory.makeCamera(
+                this._spatial.camera_type,
+                this._spatial.camera_parameters));
     }
 
     /**
