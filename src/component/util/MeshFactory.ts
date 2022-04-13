@@ -1,18 +1,13 @@
 import * as THREE from "three";
 
-import { Shaders } from "../shaders/Shaders";
-
 import { Transform } from "../../geo/Transform";
 import { Image } from "../../graph/Image";
 import { isFisheye, isSpherical } from "../../geo/Geo";
 import { IUniform, Matrix3, Matrix4, Vector2, Vector3, Vector4 } from "three";
 import { Camera } from "../../geometry/Camera";
 
-import {
-    fragment as defaultFragment,
-    vertex as defaultVertex,
-} from "../../shader/default.glsl";
 import { resolveExpands, resolveIncludes } from "../../shader/Resolver";
+import { Shader } from "../../shader/Shader";
 
 function makeCameraUniforms(camera: Camera): { [key: string]: IUniform; } {
     const cameraUniforms: { [key: string]: IUniform; } = {};
@@ -130,45 +125,25 @@ export class MeshFactory {
         return new THREE.Mesh(geometry, material);
     }
 
-    private _createDefaultMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
+    private _createDefaultMaterialParameters(
+        transform: Transform,
+        texture: THREE.Texture): THREE.ShaderMaterialParameters {
+        const scaleX = Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth;
+        const scaleY = Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight;
         return {
             depthWrite: false,
-            fragmentShader: resolveShader(transform.camera, defaultFragment),
+            fragmentShader: resolveShader(transform.camera, Shader.texture.fragment),
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
-                curtain: { value: 1.0 },
+                extrinsicMatrix: { value: transform.rt },
+                map: { value: texture },
                 opacity: { value: 1.0 },
-                projectorMat: { value: transform.rt },
-                projectorTex: { value: texture },
-                scale_x: { value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth },
-                scale_y: { value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight },
+                scale: { value: new Vector2(scaleX, scaleY) },
                 ...makeCameraUniforms(transform.camera),
             },
-            vertexShader: resolveShader(transform.camera, defaultVertex),
+            vertexShader: resolveShader(transform.camera, Shader.texture.vertex),
         };
-    }
-
-    private _createCurtainSphereMaterialParameters(transform: Transform, texture: THREE.Texture): THREE.ShaderMaterialParameters {
-        console.log(resolveShader(transform.camera, defaultFragment));
-        let materialParameters: THREE.ShaderMaterialParameters = {
-            depthWrite: false,
-            fragmentShader: resolveShader(transform.camera, defaultFragment),
-            side: THREE.DoubleSide,
-            transparent: true,
-            uniforms: {
-                curtain: { value: 1.0 },
-                opacity: { value: 1.0 },
-                projectorMat: { value: transform.rt },
-                projectorTex: { value: texture },
-                scale_x: { value: Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth },
-                scale_y: { value: Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight },
-                ...makeCameraUniforms(transform.camera),
-            },
-            vertexShader: resolveShader(transform.camera, defaultVertex),
-        };
-
-        return materialParameters;
     }
 
     private _createTexture(image: HTMLImageElement): THREE.Texture {

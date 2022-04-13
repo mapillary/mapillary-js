@@ -3,9 +3,9 @@ import * as THREE from "three";
 import { ProjectorShaderMaterial } from "../image/interfaces/ProjectorShaderMaterial";
 
 export class MeshScene {
-    private _planes: { [key: string]: THREE.Mesh };
-    private _planesOld: { [key: string]: THREE.Mesh };
-    private _planesPeriphery: { [key: string]: THREE.Mesh };
+    private _planes: { [key: string]: THREE.Mesh; };
+    private _planesOld: { [key: string]: THREE.Mesh; };
+    private _planesPeriphery: { [key: string]: THREE.Mesh; };
 
     private _scene: THREE.Scene;
     private _sceneOld: THREE.Scene;
@@ -21,15 +21,15 @@ export class MeshScene {
         this._scenePeriphery = new THREE.Scene();
     }
 
-    public get planes(): { [key: string]: THREE.Mesh } {
+    public get planes(): { [key: string]: THREE.Mesh; } {
         return this._planes;
     }
 
-    public get planesOld(): { [key: string]: THREE.Mesh } {
+    public get planesOld(): { [key: string]: THREE.Mesh; } {
         return this._planesOld;
     }
 
-    public get planesPeriphery(): { [key: string]: THREE.Mesh } {
+    public get planesPeriphery(): { [key: string]: THREE.Mesh; } {
         return this._planesPeriphery;
     }
 
@@ -45,7 +45,7 @@ export class MeshScene {
         return this._scenePeriphery;
     }
 
-    public updateImagePlanes(planes: { [key: string]: THREE.Mesh }): void {
+    public updateImagePlanes(planes: { [key: string]: THREE.Mesh; }): void {
         this._dispose(this._planesOld, this.sceneOld);
 
         for (const key in this._planes) {
@@ -71,7 +71,7 @@ export class MeshScene {
         this._planes = planes;
     }
 
-    public addImagePlanes(planes: { [key: string]: THREE.Mesh }): void {
+    public addImagePlanes(planes: { [key: string]: THREE.Mesh; }): void {
         for (const key in planes) {
             if (!planes.hasOwnProperty(key)) {
                 continue;
@@ -83,7 +83,7 @@ export class MeshScene {
         }
     }
 
-    public addImagePlanesOld(planes: { [key: string]: THREE.Mesh }): void {
+    public addImagePlanesOld(planes: { [key: string]: THREE.Mesh; }): void {
         for (const key in planes) {
             if (!planes.hasOwnProperty(key)) {
                 continue;
@@ -95,12 +95,12 @@ export class MeshScene {
         }
     }
 
-    public setImagePlanes(planes: { [key: string]: THREE.Mesh }): void {
+    public setImagePlanes(planes: { [key: string]: THREE.Mesh; }): void {
         this._clear();
         this.addImagePlanes(planes);
     }
 
-    public addPeripheryPlanes(planes: { [key: string]: THREE.Mesh }): void {
+    public addPeripheryPlanes(planes: { [key: string]: THREE.Mesh; }): void {
         for (const key in planes) {
             if (!planes.hasOwnProperty(key)) {
                 continue;
@@ -112,12 +112,12 @@ export class MeshScene {
         }
     }
 
-    public setPeripheryPlanes(planes: { [key: string]: THREE.Mesh }): void {
+    public setPeripheryPlanes(planes: { [key: string]: THREE.Mesh; }): void {
         this._clearPeriphery();
         this.addPeripheryPlanes(planes);
     }
 
-    public setImagePlanesOld(planes: { [key: string]: THREE.Mesh }): void {
+    public setImagePlanesOld(planes: { [key: string]: THREE.Mesh; }): void {
         this._clearOld();
         this.addImagePlanesOld(planes);
     }
@@ -142,7 +142,7 @@ export class MeshScene {
         this._planesPeriphery = {};
     }
 
-    private _dispose(planes: { [key: string]: THREE.Mesh }, scene: THREE.Scene): void {
+    private _dispose(planes: { [key: string]: THREE.Mesh; }, scene: THREE.Scene): void {
         for (const key in planes) {
             if (!planes.hasOwnProperty(key)) {
                 continue;
@@ -152,7 +152,7 @@ export class MeshScene {
             scene.remove(plane);
             plane.geometry.dispose();
             (<THREE.Material>plane.material).dispose();
-            let texture: THREE.Texture = (<ProjectorShaderMaterial>plane.material).uniforms.projectorTex.value;
+            let texture: THREE.Texture = (<ProjectorShaderMaterial>plane.material).uniforms.map.value;
             if (texture != null) {
                 texture.dispose();
             }

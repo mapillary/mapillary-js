@@ -8,7 +8,7 @@ type Parameters = {
 };
 
 type Uniforms = {
-    radial_peak: number | number[],
+    radialPeak: number | number[],
 };
 
 function bearing(
@@ -18,7 +18,7 @@ function bearing(
 
     const [x, y] = point;
     const { focal, k1, k2 } = parameters;
-    const radialPeak = <number>uniforms.radial_peak;
+    const radialPeak = <number>uniforms.radialPeak;
 
     const [dxn, dyn] = [x / focal, y / focal];
     const dr = Math.sqrt(dxn * dxn + dyn * dyn);
@@ -39,7 +39,7 @@ function project(
 
     const [x, y, z] = point;
     const { focal, k1, k2 } = parameters;
-    const radialPeak = <number>uniforms.radial_peak;
+    const radialPeak = <number>uniforms.radialPeak;
 
     if (z > 0) {
         const xn = x / z;
@@ -71,14 +71,14 @@ vec2 projectToSfm(vec3 bearing, Parameters parameters, Uniforms uniforms) {
     float k1 = parameters.k1;
     float k2 = parameters.k2;
 
-    float radial_peak = uniforms.radial_peak;
+    float radialPeak = uniforms.radialPeak;
 
     float x = bearing.x / bearing.z;
     float y = bearing.y / bearing.z;
     float r2 = x * x + y * y;
 
-    if (r2 > radial_peak * sqrt(r2)) {
-        r2 = radial_peak * radial_peak;
+    if (r2 > radialPeak * sqrt(r2)) {
+        r2 = radialPeak * radialPeak;
     }
 
     float d = 1.0 + k1 * r2 + k2 * r2 * r2;
@@ -101,7 +101,7 @@ export class PerspectiveCamera extends Camera {
         this.parameters.k2 = k2;
 
         const radialPeak = makeRadialPeak(k1, k2);
-        this.uniforms.radial_peak = radialPeak;
+        this.uniforms.radialPeak = radialPeak;
     }
 
     public bearingFromSfm(point: number[]): number[] {

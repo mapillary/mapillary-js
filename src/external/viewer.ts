@@ -75,3 +75,7 @@ export { CancelMapillaryError } from "../error/CancelMapillaryError";
 export { ArgumentMapillaryError } from "../error/ArgumentMapillaryError";
 export { GraphMapillaryError } from "../error/GraphMapillaryError";
 export { MapillaryError } from "../error/MapillaryError";
+
+// Shader
+export { ShaderChunk } from "../shader/ShaderChunk";
+export { Shader } from "../shader/Shader";
