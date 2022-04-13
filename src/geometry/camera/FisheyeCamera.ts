@@ -97,10 +97,10 @@ vec2 projectToSfm(vec3 bearing, Parameters parameters, Uniforms uniforms) {
 `;
 
 export class FisheyeCamera extends Camera {
-    public readonly projectToSfmFunction: string = FISHEYE_PROJECT_FUNCTION;
-
     constructor(parameters: number[]) {
-        super(FISHEYE_CAMERA_TYPE);
+        super(
+            FISHEYE_CAMERA_TYPE,
+            FISHEYE_PROJECT_FUNCTION);
 
         const [focal, k1, k2] = parameters;
         this.parameters.focal = focal;

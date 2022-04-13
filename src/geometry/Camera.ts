@@ -8,9 +8,9 @@ export abstract class Camera implements ICamera {
     public readonly parameters: CameraParameters = {};
     public readonly uniforms: CameraUniforms = {};
 
-    public projectToSfmFunction: string;
-
-    constructor(public readonly type: string) { }
+    constructor(
+        public readonly type: string,
+        public readonly projectToSfmFunction: string) { }
 
     public abstract bearingFromSfm(_point: number[]): number[];
     public abstract projectToSfm(_point: number[]): number[];
