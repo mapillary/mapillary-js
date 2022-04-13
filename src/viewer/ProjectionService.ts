@@ -15,9 +15,11 @@ import {
     ICamera,
 } from "../geometry/interfaces/ICamera";
 import { ICameraFactory } from "../geometry/interfaces/ICameraFactory";
+import { GLShader, Shader } from "../shader/Shader";
 
 export class ProjectionService implements ICameraFactory {
     private readonly _cameraFactory: { [type: string]: CameraConstructor; } = {};
+    private _shader: GLShader;
 
     constructor() {
         this.registerCamera(
@@ -29,10 +31,12 @@ export class ProjectionService implements ICameraFactory {
         this.registerCamera(
             SPHERICAL_CAMERA_TYPE,
             SphericalCamera);
+
+        this._shader = Shader.texture;
     }
 
-    public registerCamera(type: string, ctor: CameraConstructor): void {
-        this._cameraFactory[type] = ctor;
+    public getShader(): GLShader {
+        return this._shader;
     }
 
     public makeCamera(type: string, parameters: number[]): ICamera {
@@ -41,5 +45,17 @@ export class ProjectionService implements ICameraFactory {
         }
 
         return new this._cameraFactory[type](parameters);
+    }
+
+    public registerCamera(type: string, ctor: CameraConstructor): void {
+        this._cameraFactory[type] = ctor;
+    }
+
+    public setShader(shader?: GLShader): void {
+        if (!shader) {
+            this._shader = Shader.texture;
+        }
+
+        this._shader = shader;
     }
 }

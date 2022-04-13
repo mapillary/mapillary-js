@@ -9,7 +9,7 @@ type Parameters = {
 };
 
 type Uniforms = {
-    radial_peak: number | number[],
+    radialPeak: number | number[],
 };
 
 function bearing(
@@ -19,7 +19,7 @@ function bearing(
 
     const [x, y] = point;
     const { focal, k1, k2 } = parameters;
-    const radialPeak = <number>uniforms.radial_peak;
+    const radialPeak = <number>uniforms.radialPeak;
 
     const [dxn, dyn] = [x / focal, y / focal];
     const dTheta = Math.sqrt(dxn * dxn + dyn * dyn);
@@ -42,7 +42,7 @@ function project(
 
     const [x, y, z] = point;
     const { focal, k1, k2 } = parameters;
-    const radialPeak = <number>uniforms.radial_peak;
+    const radialPeak = <number>uniforms.radialPeak;
 
     if (z > 0) {
         const r = Math.sqrt(x * x + y * y);
@@ -72,7 +72,7 @@ vec2 projectToSfm(vec3 bearing, Parameters parameters, Uniforms uniforms) {
     float k1 = parameters.k1;
     float k2 = parameters.k2;
 
-    float radial_peak = uniforms.radial_peak;
+    float radialPeak = uniforms.radialPeak;
 
     float x = bearing.x;
     float y = bearing.y;
@@ -81,8 +81,8 @@ vec2 projectToSfm(vec3 bearing, Parameters parameters, Uniforms uniforms) {
     float r = sqrt(x * x + y * y);
     float theta = atan(r, z);
 
-    if (theta > radial_peak) {
-        theta = radial_peak;
+    if (theta > radialPeak) {
+        theta = radialPeak;
     }
 
     float theta2 = theta * theta;
@@ -108,7 +108,7 @@ export class FisheyeCamera extends Camera {
         this.parameters.k2 = k2;
 
         const radialPeak = makeRadialPeak(k1, k2);
-        this.uniforms.radial_peak = radialPeak;
+        this.uniforms.radialPeak = radialPeak;
     }
 
     public bearingFromSfm(point: number[]): number[] {

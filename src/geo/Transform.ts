@@ -63,7 +63,7 @@ export class Transform {
         this._basicWidth = keepOrientation ? width : height;
         this._basicHeight = keepOrientation ? height : width;
 
-        this._focal = this._getValue(camera.parameters["focal"], 1);
+        this._focal = this._getValue(camera.parameters.focal, 1);
         this._scale = this._getValue(scale, 0);
 
         this._worldToCamera = this.createWorldToCamera(rotation, translation);

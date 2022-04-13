@@ -2,7 +2,7 @@ import {
     CameraParameters,
     CameraUniforms,
 } from "../geometry/interfaces/ICamera";
-import { Chunk } from "./Chunk";
+import { ShaderChunk } from "./ShaderChunk";
 
 const expandPattern = /^[ \t]*#expand +<([\w\d./]+)>/gm;
 const includePattern = /^[ \t]*#include +<([\w\d./]+)>/gm;
@@ -104,8 +104,8 @@ function expandProjectToSfmInvocation(
     return expansion;
 }
 
-function includeReplacer(_match: string, include: keyof typeof Chunk): string {
-    const chunk = Chunk[include];
+function includeReplacer(_match: string, include: keyof typeof ShaderChunk): string {
+    const chunk = ShaderChunk[include];
     if (chunk === undefined) {
         throw new Error('Can not resolve #include <' + include + '>');
     }
