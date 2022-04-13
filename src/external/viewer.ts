@@ -41,6 +41,14 @@ export { FallbackOptions } from "../viewer/options/FallbackOptions";
 export { UrlOptions } from "../viewer/options/UrlOptions";
 export { ViewerOptions } from "../viewer/options/ViewerOptions";
 
+// Geometry
+export {
+    CameraConstructor,
+    CameraParameters,
+    CameraUniforms,
+    ICamera,
+} from "../geometry/interfaces/ICamera";
+
 // Graph
 export { Image } from "../graph/Image";
 export { NavigationDirection } from "../graph/edge/NavigationDirection";

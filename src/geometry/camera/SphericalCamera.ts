@@ -43,9 +43,11 @@ vec2 projectToSfm(vec3 bearing) {
 `;
 
 export class SphericalCamera extends Camera {
-    public readonly projectToSfmFunction: string = SPHERICAL_PROJECT_FUNCTION;
-
-    constructor() { super(SPHERICAL_CAMERA_TYPE); }
+    constructor() {
+        super(
+            SPHERICAL_CAMERA_TYPE,
+            SPHERICAL_PROJECT_FUNCTION);
+    }
 
     public bearingFromSfm(point: number[]): number[] {
         return bearing(point);

@@ -90,10 +90,10 @@ vec2 projectToSfm(vec3 bearing, Parameters parameters, Uniforms uniforms) {
 `;
 
 export class PerspectiveCamera extends Camera {
-    public readonly projectToSfmFunction: string = PERSPECTIVE_PROJECT_FUNCTION;
-
     constructor(parameters: number[]) {
-        super(PERSPECTIVE_CAMERA_TYPE);
+        super(
+            PERSPECTIVE_CAMERA_TYPE,
+            PERSPECTIVE_PROJECT_FUNCTION);
 
         const [focal, k1, k2] = parameters;
         this.parameters.focal = focal;

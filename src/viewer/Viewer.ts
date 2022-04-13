@@ -49,7 +49,7 @@ import { cameraControlsToState } from "./Modes";
 import { ViewerReferenceEvent } from "./events/ViewerReferenceEvent";
 import { IDataProvider } from "../external/api";
 import { ViewerResetEvent } from "./events/ViewerResetEvent";
-import { ICamera } from "../geometry/interfaces/ICamera";
+import { CameraConstructor } from "../geometry/interfaces/ICamera";
 
 /**
  * @class Viewer
@@ -1486,7 +1486,7 @@ export class Viewer extends EventEmitter implements IViewer {
      */
     public registerCamera(
         type: string,
-        ctor: { new(parameters: number[]): ICamera; }): void {
+        ctor: CameraConstructor): void {
         this._navigator.projectionService.registerCamera(type, ctor);
     }
 
