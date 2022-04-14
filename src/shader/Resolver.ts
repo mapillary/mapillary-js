@@ -1,6 +1,7 @@
 import {
     CameraParameters,
     CameraUniforms,
+    ICamera,
 } from "../geometry/interfaces/ICamera";
 import { ShaderChunk } from "./ShaderChunk";
 
@@ -112,13 +113,13 @@ function includeReplacer(_match: string, include: keyof typeof ShaderChunk): str
     return resolveIncludes(chunk);
 }
 
-export function resolveIncludes(shader: string): string {
+function resolveIncludes(shader: string): string {
     return shader.replace(includePattern, includeReplacer);
 }
 
-export function resolveExpands(
+function resolveExpands(
     shader: string,
-    projectToSfmDefinition: string,
+    projectToSfmFunction: string,
     parameters: CameraParameters,
     uniforms: CameraUniforms): string {
 
@@ -129,7 +130,7 @@ export function resolveExpands(
             case "uniforms":
                 return expandUniforms(uniforms);
             case "project_to_sfm_definition":
-                return expandProjectToSfmDefinition(projectToSfmDefinition);
+                return expandProjectToSfmDefinition(projectToSfmFunction);
             case "project_to_sfm_invocation":
                 return expandProjectToSfmInvocation(parameters, uniforms);
             default:
@@ -139,3 +140,13 @@ export function resolveExpands(
 
     return shader.replace(expandPattern, expandReplacer);
 };
+
+export function resolveShader(
+    shader: string,
+    camera: ICamera): string {
+    return resolveExpands(
+        resolveIncludes(shader),
+        camera.projectToSfmFunction,
+        camera.parameters,
+        camera.uniforms);
+}

@@ -6,7 +6,7 @@ import { isFisheye, isSpherical } from "../../geo/Geo";
 import { IUniform, Material, Matrix3, Matrix4, ShaderMaterial, Vector2, Vector3, Vector4 } from "three";
 import { Camera } from "../../geometry/Camera";
 
-import { resolveExpands, resolveIncludes } from "../../shader/Resolver";
+import { resolveShader } from "../../shader/Resolver";
 import { GLShader } from "../../shader/Shader";
 
 function makeCameraUniforms(camera: Camera): { [key: string]: IUniform; } {
@@ -58,16 +58,6 @@ function makeCameraUniforms(camera: Camera): { [key: string]: IUniform; } {
         }
     }
     return cameraUniforms;
-}
-
-function resolveShader(camera: Camera, shader: string): string {
-    let resolved = resolveIncludes(shader);
-    resolved = resolveExpands(
-        resolved,
-        camera.projectToSfmFunction,
-        camera.parameters,
-        camera.uniforms);
-    return resolved;
 }
 
 export class MeshFactory {
@@ -132,7 +122,7 @@ export class MeshFactory {
         const scaleY = Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight;
         return {
             depthWrite: false,
-            fragmentShader: resolveShader(transform.camera, shader.fragment),
+            fragmentShader: resolveShader(shader.fragment, transform.camera),
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
@@ -142,7 +132,7 @@ export class MeshFactory {
                 scale: { value: new Vector2(scaleX, scaleY) },
                 ...makeCameraUniforms(transform.camera),
             },
-            vertexShader: resolveShader(transform.camera, shader.vertex),
+            vertexShader: resolveShader(shader.vertex, transform.camera),
         };
     }
 

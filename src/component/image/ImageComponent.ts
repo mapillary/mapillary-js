@@ -216,6 +216,16 @@ export class ImageComponent extends Component<ComponentConfiguration> {
                 publishReplay(1),
                 refCount());
 
+        subs.push(this._navigator.projectionService.shader$.pipe(
+            map(
+                (shader: GLShader): ImageGLRendererOperation => {
+                    return (renderer: ImageGLRenderer): ImageGLRenderer => {
+                        renderer.setShader(shader);
+                        return renderer;
+                    };
+                }))
+            .subscribe(this._rendererOperation$));
+
         subs.push(textureProvider$.subscribe(() => { /*noop*/ }));
 
         subs.push(textureProvider$.pipe(
