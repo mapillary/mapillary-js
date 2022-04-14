@@ -9,6 +9,7 @@ import { TextureProvider } from "../../tile/TextureProvider";
 import { MeshFactory } from "../util/MeshFactory";
 import { MeshScene } from "../util/MeshScene";
 import { ProjectorShaderMaterial } from "./interfaces/ProjectorShaderMaterial";
+import { GLShader } from "../../shader/Shader";
 
 export class ImageGLRenderer {
     private _factory: MeshFactory;
@@ -53,8 +54,8 @@ export class ImageGLRenderer {
         this._needsRender = true;
     }
 
-    public addPeripheryPlane(image: Image, transform: Transform): void {
-        const mesh: THREE.Mesh = this._factory.createMesh(image, transform);
+    public addPeripheryPlane(image: Image, transform: Transform, shader: GLShader): void {
+        const mesh: THREE.Mesh = this._factory.createMesh(image, transform, shader);
         const planes: { [key: string]: THREE.Mesh; } = {};
         planes[image.id] = mesh;
         this._scene.addPeripheryPlanes(planes);
@@ -68,11 +69,11 @@ export class ImageGLRenderer {
         this._needsRender = true;
     }
 
-    public updateFrame(frame: AnimationFrame): void {
+    public updateFrame(frame: AnimationFrame, shader: GLShader): void {
         this._updateFrameId(frame.id);
         this._needsRender = this._updateAlpha(frame.state.alpha) || this._needsRender;
         this._needsRender = this._updateAlphaOld(frame.state.alpha) || this._needsRender;
-        this._needsRender = this._updateImagePlanes(frame.state) || this._needsRender;
+        this._needsRender = this._updateImagePlanes(frame.state, shader) || this._needsRender;
     }
 
     public setTextureProvider(key: string, provider: TextureProvider): void {
@@ -129,7 +130,7 @@ export class ImageGLRenderer {
             const plane: THREE.Mesh = planes[key];
 
             let material: ProjectorShaderMaterial = <ProjectorShaderMaterial>plane.material;
-            let texture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
+            let texture: THREE.Texture = <THREE.Texture>material.uniforms.map.value;
 
             texture.image = imageElement;
             texture.needsUpdate = true;
@@ -228,7 +229,7 @@ export class ImageGLRenderer {
         return true;
     }
 
-    private _updateImagePlanes(state: IAnimationState): boolean {
+    private _updateImagePlanes(state: IAnimationState, shader: GLShader): boolean {
         if (state.currentImage == null ||
             state.currentImage.id === this._currentKey) {
             return false;
@@ -250,7 +251,10 @@ export class ImageGLRenderer {
         if (previousKey != null) {
             if (previousKey !== this._currentKey && previousKey !== this._previousKey) {
                 let previousMesh: THREE.Mesh =
-                    this._factory.createMesh(state.previousImage, state.previousTransform);
+                    this._factory.createMesh(
+                        state.previousImage,
+                        state.previousTransform,
+                        shader);
 
                 const previousPlanes: { [key: string]: THREE.Mesh; } = {};
                 previousPlanes[previousKey] = previousMesh;
@@ -264,7 +268,8 @@ export class ImageGLRenderer {
         let currentMesh =
             this._factory.createMesh(
                 state.currentImage,
-                state.currentTransform);
+                state.currentTransform,
+                shader);
 
         const planes: { [key: string]: THREE.Mesh; } = {};
         planes[currentKey] = currentMesh;
@@ -288,11 +293,11 @@ export class ImageGLRenderer {
             const plane: THREE.Mesh = planes[key];
             let material: ProjectorShaderMaterial = <ProjectorShaderMaterial>plane.material;
 
-            let oldTexture: THREE.Texture = <THREE.Texture>material.uniforms.projectorTex.value;
-            material.uniforms.projectorTex.value = null;
+            let oldTexture: THREE.Texture = <THREE.Texture>material.uniforms.map.value;
+            material.uniforms.map.value = null;
             oldTexture.dispose();
 
-            material.uniforms.projectorTex.value = texture;
+            material.uniforms.map.value = texture;
         }
     }
 

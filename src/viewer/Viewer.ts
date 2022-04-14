@@ -50,6 +50,7 @@ import { ViewerReferenceEvent } from "./events/ViewerReferenceEvent";
 import { IDataProvider } from "../external/api";
 import { ViewerResetEvent } from "./events/ViewerResetEvent";
 import { CameraConstructor } from "../geometry/interfaces/ICamera";
+import { GLShader } from "../shader/Shader";
 
 /**
  * @class Viewer
@@ -1647,6 +1648,10 @@ export class Viewer extends EventEmitter implements IViewer {
      */
     public setRenderMode(renderMode: RenderMode): void {
         this._container.renderService.renderMode$.next(renderMode);
+    }
+
+    public setShader(shader: GLShader): void {
+        this._navigator.projectionService.setShader(shader);
     }
 
     /**

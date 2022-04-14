@@ -48,6 +48,7 @@ import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { Transform } from "../../geo/Transform";
 import { ComponentName } from "../ComponentName";
 import { State } from "../../state/State";
+import { GLShader } from "../../shader/Shader";
 
 interface ImageGLRendererOperation {
     (renderer: ImageGLRenderer): ImageGLRenderer;
@@ -170,10 +171,11 @@ export class ImageComponent extends Component<ComponentConfiguration> {
             .subscribe(this._rendererOperation$));
 
         subs.push(this._navigator.stateService.currentState$.pipe(
+            withLatestFrom(this._navigator.projectionService.shader$),
             map(
-                (frame: AnimationFrame): ImageGLRendererOperation => {
+                ([frame, shader]: [AnimationFrame, GLShader]): ImageGLRendererOperation => {
                     return (renderer: ImageGLRenderer): ImageGLRenderer => {
-                        renderer.updateFrame(frame);
+                        renderer.updateFrame(frame, shader);
 
                         return renderer;
                     };
@@ -381,10 +383,11 @@ export class ImageComponent extends Component<ComponentConfiguration> {
             share());
 
         subs.push(cachedPanNodes$.pipe(
+            withLatestFrom(this._navigator.projectionService.shader$),
             map(
-                ([n, t]: [ImageNode, Transform]): ImageGLRendererOperation => {
+                ([[n, t], s]: [[ImageNode, Transform], GLShader]): ImageGLRendererOperation => {
                     return (renderer: ImageGLRenderer): ImageGLRenderer => {
-                        renderer.addPeripheryPlane(n, t);
+                        renderer.addPeripheryPlane(n, t, s);
 
                         return renderer;
                     };
