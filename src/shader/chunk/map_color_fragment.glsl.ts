@@ -3,13 +3,11 @@ export default /* glsl */`
     float u = uv.x;
     float v = uv.y;
 
-    vec4 baseColor;
+    vec4 mapColor;
     if (u >= 0. && u <= 1. && v >= 0. && v <= 1.) {
-        baseColor = texture2D(map, vec2(u, v));
-        baseColor.a = opacity;
+        mapColor = texture2D(map, vec2(u, v));
+        mapColor.a = opacity;
     } else {
-        baseColor = vec4(0.0, 0.0, 0.0, 0.0);
+        mapColor = vec4(0.0, 0.0, 0.0, 0.0);
     }
-
-    gl_FragColor = baseColor;
 `;

@@ -3,11 +3,11 @@ import * as THREE from "three";
 import { Transform } from "../../geo/Transform";
 import { Image } from "../../graph/Image";
 import { isFisheye, isSpherical } from "../../geo/Geo";
-import { IUniform, Matrix3, Matrix4, Vector2, Vector3, Vector4 } from "three";
+import { IUniform, Material, Matrix3, Matrix4, ShaderMaterial, Vector2, Vector3, Vector4 } from "three";
 import { Camera } from "../../geometry/Camera";
 
 import { resolveExpands, resolveIncludes } from "../../shader/Resolver";
-import { Shader } from "../../shader/Shader";
+import { GLShader } from "../../shader/Shader";
 
 function makeCameraUniforms(camera: Camera): { [key: string]: IUniform; } {
     const cameraUniforms: { [key: string]: IUniform; } = {};
@@ -79,60 +79,60 @@ export class MeshFactory {
         this._imageSphereRadius = imageSphereRadius != null ? imageSphereRadius : 200;
     }
 
-    public createMesh(image: Image, transform: Transform): THREE.Mesh {
+    public createMesh(image: Image, transform: Transform, shader: GLShader): THREE.Mesh {
+        const texture = this._createTexture(image.image);
+        const materialParameters =
+            this._createMaterialParameters(
+                transform,
+                texture,
+                shader);
+        const material = new THREE.ShaderMaterial(materialParameters);
+
         if (isSpherical(transform.cameraType)) {
-            return this._createImageSphere(image, transform);
+            return this._createImageSphere(image, transform, material);
         } else if (isFisheye(transform.cameraType)) {
-            return this._createImagePlaneFisheye(image, transform);
+            return this._createImagePlaneFisheye(image, transform, material);
         } else {
-            return this._createImagePlane(image, transform);
+            return this._createImagePlane(image, transform, material);
         }
     }
 
-    private _createImageSphere(image: Image, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this._createTexture(image.image);
-        let materialParameters: THREE.ShaderMaterialParameters = this._createDefaultMaterialParameters(transform, texture);
-        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-
-        let mesh: THREE.Mesh = this._useMesh(transform, image) ?
-            new THREE.Mesh(this._getImageSphereGeo(transform, image), material) :
-            new THREE.Mesh(this._getFlatImageSphereGeo(transform), material);
-
-        return mesh;
+    private _createImageSphere(
+        image: Image,
+        transform: Transform,
+        material: ShaderMaterial): THREE.Mesh {
+        const geometry = this._useMesh(transform, image) ?
+            this._getImageSphereGeo(transform, image) :
+            this._getFlatImageSphereGeo(transform);
+        return new THREE.Mesh(geometry, material);
     }
 
-    private _createImagePlane(image: Image, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this._createTexture(image.image);
-        let materialParameters: THREE.ShaderMaterialParameters = this._createDefaultMaterialParameters(transform, texture);
-        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-
-        let geometry: THREE.BufferGeometry = this._useMesh(transform, image) ?
+    private _createImagePlane(
+        image: Image,
+        transform: Transform,
+        material: ShaderMaterial): THREE.Mesh {
+        const geometry = this._useMesh(transform, image) ?
             this._getImagePlaneGeo(transform, image) :
             this._getRegularFlatImagePlaneGeo(transform);
-
         return new THREE.Mesh(geometry, material);
     }
 
-    private _createImagePlaneFisheye(image: Image, transform: Transform): THREE.Mesh {
-        let texture: THREE.Texture = this._createTexture(image.image);
-        let materialParameters: THREE.ShaderMaterialParameters = this._createDefaultMaterialParameters(transform, texture);
-        let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
-
-        let geometry: THREE.BufferGeometry = this._useMesh(transform, image) ?
+    private _createImagePlaneFisheye(image: Image, transform: Transform, material: ShaderMaterial): THREE.Mesh {
+        const geometry = this._useMesh(transform, image) ?
             this._getImagePlaneGeoFisheye(transform, image) :
             this._getRegularFlatImagePlaneGeoFisheye(transform);
-
         return new THREE.Mesh(geometry, material);
     }
 
-    private _createDefaultMaterialParameters(
+    private _createMaterialParameters(
         transform: Transform,
-        texture: THREE.Texture): THREE.ShaderMaterialParameters {
+        texture: THREE.Texture,
+        shader: GLShader): THREE.ShaderMaterialParameters {
         const scaleX = Math.max(transform.basicHeight, transform.basicWidth) / transform.basicWidth;
         const scaleY = Math.max(transform.basicWidth, transform.basicHeight) / transform.basicHeight;
         return {
             depthWrite: false,
-            fragmentShader: resolveShader(transform.camera, Shader.texture.fragment),
+            fragmentShader: resolveShader(transform.camera, shader.fragment),
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
@@ -142,7 +142,7 @@ export class MeshFactory {
                 scale: { value: new Vector2(scaleX, scaleY) },
                 ...makeCameraUniforms(transform.camera),
             },
-            vertexShader: resolveShader(transform.camera, Shader.texture.vertex),
+            vertexShader: resolveShader(transform.camera, shader.vertex),
         };
     }
 

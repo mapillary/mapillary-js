@@ -5,7 +5,7 @@ export const vertex = /* glsl */`
 void main()
 {
     #include <extrinsic_vertex>
-    #include <position_vertex>
+    #include <gl_position_vertex>
 }
 `;
 
@@ -23,6 +23,7 @@ void main()
 {
     #include <bearing_fragment>
     #expand <project_to_sfm_invocation>
-    #include <color_fragment>
+    #include <map_color_fragment>
+    #include <gl_frag_color_fragment>
 }
 `;

@@ -1,4 +1,15 @@
 import {
+    Observable,
+    Subject,
+    Subscription,
+} from "rxjs";
+import {
+    publishReplay,
+    refCount,
+    startWith,
+} from "rxjs/operators";
+
+import {
     FisheyeCamera,
     FISHEYE_CAMERA_TYPE,
 } from "../geometry/camera/FisheyeCamera";
@@ -19,7 +30,11 @@ import { GLShader, Shader } from "../shader/Shader";
 
 export class ProjectionService implements ICameraFactory {
     private readonly _cameraFactory: { [type: string]: CameraConstructor; } = {};
+
     private _shader: GLShader;
+    private _shader$: Observable<GLShader>;
+    private _shaderChanged$: Subject<GLShader>;
+    private _shaderSubscription: Subscription;
 
     constructor() {
         this.registerCamera(
@@ -33,6 +48,21 @@ export class ProjectionService implements ICameraFactory {
             SphericalCamera);
 
         this._shader = Shader.texture;
+        this._shaderChanged$ = new Subject<GLShader>();
+        this._shader$ = this._shaderChanged$.pipe(
+            startWith(this._shader),
+            publishReplay(1),
+            refCount());
+
+        this._shaderSubscription = this._shader$.subscribe();
+    }
+
+    public get shader$(): Observable<GLShader> {
+        return this._shader$;
+    }
+
+    public dispose(): void {
+        this._shaderSubscription.unsubscribe();
     }
 
     public getShader(): GLShader {
@@ -57,5 +87,6 @@ export class ProjectionService implements ICameraFactory {
         }
 
         this._shader = shader;
+        this._shaderChanged$.next(this._shader);
     }
 }

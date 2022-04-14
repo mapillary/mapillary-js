@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>MapillaryJS Shader</title>
+        <link rel="icon" href="data:," />
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no"
+        />
+
+        <link rel="stylesheet" href="/dist/mapillary.css" />
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+            }
+
+            .viewer {
+                width: 100%;
+                height: calc(100% - 32px);
+            }
+
+            button {
+                margin-top: 4px;
+                margin-left: 6px;
+                height: 24px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <script type="module">
+            import {
+                CameraControls,
+                Shader,
+                ShaderChunk,
+                Viewer,
+            } from "/dist/mapillary.module.js";
+            import { accessToken } from "/doc-src/.access-token/token.js";
+
+            (function main() {
+                const imageId = "303729947926829";
+
+                const container = document.createElement("div");
+                container.className = "viewer";
+                document.body.append(container);
+
+                const viewer = new Viewer({
+                    accessToken,
+                    cameraControls: CameraControls.Street,
+                    component: { cover: false },
+                    container,
+                });
+
+                viewer.moveTo(imageId).catch((error) => console.warn(error));
+                addButtons(viewer);
+            })();
+
+            function addButton(content, handler) {
+                const button = document.createElement("button");
+                button.textContent = content;
+                button.addEventListener("click", handler);
+                document.body.append(button);
+            }
+
+            function addButtons(viewer) {
+                addButton("Texture", () => viewer.setShader(Shader.texture));
+                addButton("Magnesis", () => viewer.setShader(makeMagnesis()));
+                addButton("Earth", () =>
+                    viewer.setCameraControls(CameraControls.Earth)
+                );
+                addButton("Street", () =>
+                    viewer.setCameraControls(CameraControls.Street)
+                );
+            }
+
+            function makeMagnesis() {
+                const vertex = /* glsl */ `
+#include <uniforms_vertex>
+#include <varyings_vertex>
+
+varying vec4 cameraCoords;
+
+void main()
+{
+    cameraCoords = modelViewMatrix * vec4(position, 1.0);
+    #include <extrinsic_vertex>
+    #include <gl_position_vertex>
+}
+`;
+                const fragment = `
+#include <precision_fragment>
+#include <common>
+#include <uniforms_fragment>
+#include <varyings_fragment>
+#include <coordinates>
+
+#expand <parameters>
+#expand <uniforms>
+#expand <project_to_sfm_definition>
+
+varying vec4 cameraCoords;
+
+void main()
+{
+    #include <bearing_fragment>
+    #expand <project_to_sfm_invocation>
+    #include <map_color_fragment>
+
+    float magnesis = cameraCoords.x * 3.0;
+    if (abs(magnesis - floor(magnesis)) < 0.07) {
+        mapColor.r = 1.0;
+    }
+
+    #include <gl_frag_color_fragment>
+}
+`;
+                const magnesis = {
+                    fragment,
+                    vertex,
+                };
+                return magnesis;
+            }
+        </script>
+    </body>
+</html>
