@@ -84,14 +84,14 @@ describe("ProjectionService.registerCamera", () => {
 
         const type = "custom";
         class CustomCamera implements ICamera {
-            type: string = type;
-            parameters: CameraParameters = {};
-            uniforms: CameraUniforms = {};
-            projectToSfmFunction: string = "";
-            bearingFromSfm(): number[] {
+            public type: string = type;
+            public parameters: CameraParameters = {};
+            public uniforms: CameraUniforms = {};
+            public projectToSfmFunction: string = "";
+            public bearingFromSfm(): number[] {
                 return [0, 0, 0];
             }
-            projectToSfm(): number[] {
+            public projectToSfm(): number[] {
                 return [0, 0];
             }
         }
