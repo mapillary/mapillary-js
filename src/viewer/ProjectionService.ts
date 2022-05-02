@@ -29,7 +29,7 @@ import { ICameraFactory } from "../geometry/interfaces/ICameraFactory";
 import { GLShader, Shader } from "../shader/Shader";
 
 export class ProjectionService implements ICameraFactory {
-    private readonly _cameraFactory: { [type: string]: CameraConstructor; } = {};
+    private readonly _cameraFactory: Map<string, CameraConstructor> = new Map();
 
     private _shader: GLShader;
     private _shader$: Observable<GLShader>;
@@ -65,28 +65,32 @@ export class ProjectionService implements ICameraFactory {
         this._shaderSubscription.unsubscribe();
     }
 
+    public hasCamera(type: string): boolean {
+        return this._cameraFactory.has(type);
+    }
+
     public getShader(): GLShader {
         return this._shader;
     }
 
     public makeCamera(type: string, parameters: number[]): ICamera {
-        if (!(type in this._cameraFactory)) {
+        if (!this.hasCamera(type)) {
             return new PerspectiveCamera([0.85, 0, 0]);
         }
 
-        return new this._cameraFactory[type](parameters);
+        return new (this._cameraFactory.get(type))(parameters);
     }
 
     public registerCamera(type: string, ctor: CameraConstructor): void {
-        this._cameraFactory[type] = ctor;
+        this._cameraFactory.set(type, ctor);
     }
 
     public setShader(shader?: GLShader): void {
-        if (!shader) {
-            this._shader = Shader.texture;
-        }
+        this._shader = shader ? {
+            fragment: `${shader.fragment}`,
+            vertex: `${shader.vertex}`,
+        } : Shader.texture;
 
-        this._shader = shader;
         this._shaderChanged$.next(this._shader);
     }
 }
