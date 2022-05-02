@@ -48,6 +48,18 @@ export {
     CameraUniforms,
     ICamera,
 } from "../geometry/interfaces/ICamera";
+export {
+    FISHEYE_CAMERA_TYPE,
+    FisheyeCamera,
+} from "../geometry/camera/FisheyeCamera";
+export {
+    PERSPECTIVE_CAMERA_TYPE,
+    PerspectiveCamera,
+} from "../geometry/camera/PerspectiveCamera";
+export {
+    SPHERICAL_CAMERA_TYPE,
+    SphericalCamera,
+} from "../geometry/camera/SphericalCamera";
 
 // Graph
 export { Image } from "../graph/Image";
@@ -78,4 +90,4 @@ export { MapillaryError } from "../error/MapillaryError";
 
 // Shader
 export { ShaderChunk } from "../shader/ShaderChunk";
-export { Shader } from "../shader/Shader";
+export { GLShader, Shader } from "../shader/Shader";
