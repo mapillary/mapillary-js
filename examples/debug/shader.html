@@ -101,15 +101,29 @@ vec3 hsv2rgb(vec3 c) {
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
-vec4 depthToColor(float depth) {
-    float t = inverseMix(0.0, 64.0, depth);
-    float start = 1.0 / 2.0;
-    float end = 1.0;
+vec3 hsvMix(float start, float end, float t) {
     float hue = clamp(mix(start, end, t), start, end);
     float saturation = 1.0;
-    float value = 0.7;
-    vec3 hsv = vec3(hue, saturation, value);
-    return vec4(hsv2rgb(hsv), 1.0);
+    float value = 1.0;
+    return vec3(hue, saturation, value);
+}
+
+vec4 depthToColor(float depth) {
+    float minDepth = 0.0;
+    float minThreshold = 4.0;
+    float maxThreshold = 24.0;
+    float maxDepth = 128.0;
+
+    if (depth < minThreshold) {
+        float t = inverseMix(minThreshold, minDepth, depth);
+        return vec4(hsv2rgb(hsvMix(0.0, 5.0 / 6.0, t)), 1.0);
+    } else if (depth < maxThreshold) {
+        float t = inverseMix(minThreshold, maxThreshold, depth);
+        return vec4(hsv2rgb(hsvMix(0.0, 2.0 / 3.0, t)), 1.0);
+    } else {
+        float t = clamp(inverseMix(maxThreshold, maxDepth, depth), 0.0, 1.0);
+        return vec4(hsv2rgb(hsvMix(2.0 / 3.0, 1.0, t)), 1.0);
+    }
 }
 
 void main()
@@ -140,7 +154,7 @@ void main()
     #expand <project_to_sfm_invocation>
     #include <map_color_fragment>
 
-    mapColor.rgb = mix(mapColor.rgb, depthColor.rgb, 0.65);
+    mapColor.rgb = mix(mapColor.rgb, depthColor.rgb, 0.7);
 
     #include <gl_frag_color_fragment>
 }
@@ -185,7 +199,7 @@ void main()
     #expand <project_to_sfm_invocation>
     #include <map_color_fragment>
 
-    float magnesis = cameraCoords.x * 3.0;
+    float magnesis = cameraCoords.x * 2.0;
     if (abs(magnesis - floor(magnesis)) < 0.07) {
         mapColor.r = 1.0;
     }
@@ -232,7 +246,7 @@ void main()
     #include <map_color_fragment>
 
     float terrain = length(positionExtrinsic.xz) / 2.0;
-    if (abs(terrain - floor(terrain)) < 0.04) {
+    if (abs(terrain - floor(terrain)) < 0.03) {
         mapColor.gb = vec2(1.0, 1.0);
     }
 
