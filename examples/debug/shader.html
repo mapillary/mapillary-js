@@ -73,9 +73,12 @@
 
             function addButtons(viewer) {
                 addButton("Texture", () => viewer.setShader(Shader.texture));
-                addButton("Magnesis", () => viewer.setShader(makeMagnesis()));
-                addButton("Depth", () => viewer.setShader(makeDepth()));
                 addButton("Terrain", () => viewer.setShader(makeTerrain()));
+                addButton("Magnesis", () => viewer.setShader(makeMagnesis()));
+                addButton("Depth-Blend", () =>
+                    viewer.setShader(makeDepth(0.65))
+                );
+                addButton("Depth", () => viewer.setShader(makeDepth(1.0)));
                 addButton("Earth", () =>
                     viewer.setCameraControls(CameraControls.Earth)
                 );
@@ -84,7 +87,7 @@
                 );
             }
 
-            function makeDepth() {
+            function makeDepth(alpha) {
                 const vertex = /* glsl */ `
 #include <uniforms_vertex>
 #include <varyings_vertex>
@@ -154,7 +157,7 @@ void main()
     #expand <project_to_sfm_invocation>
     #include <map_color_fragment>
 
-    mapColor.rgb = mix(mapColor.rgb, depthColor.rgb, 0.7);
+    mapColor.rgb = mix(mapColor.rgb, depthColor.rgb, ${alpha.toFixed(2)});
 
     #include <gl_frag_color_fragment>
 }
