@@ -1380,6 +1380,42 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
+     * Reset the viewer's cache.
+     *
+     * @description All images in the viewer's cache at the moment when
+     * reset is called will eventually be removed if not navigated to
+     * again.
+     *
+     * @returns {Promise<void>} Promise that resolves when viewer's cache
+     * has been reset.
+     *
+     * @throws When viewer is not navigable.
+     *
+     * @example
+     * ```js
+     * viewer.reset()
+     *     .then(() => { console.log("viewer reset"); });
+     * ```
+     */
+    public reset(): Promise<void> {
+        const reset$: Observable<void> = this.isNavigable ?
+            this._navigator.reset$() :
+            observableThrowError(new Error("Calling reset is not supported when viewer is not navigable."));
+
+        return new Promise<void>(
+            (resolve: (value: void) => void, reject: (reason: Error) => void): void => {
+                reset$
+                    .subscribe(
+                        (): void => {
+                            resolve(undefined);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        });
+            });
+    }
+
+    /**
      * Detect the viewer's new width and height and resize it
      * manually.
      *
