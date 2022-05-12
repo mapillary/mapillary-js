@@ -48,6 +48,7 @@ export class GraphService {
     private _firstGraphSubjects$: Subject<Graph>[];
 
     private _dataAdded$: Subject<string> = new Subject<string>();
+    private _dataReset$: Subject<void> = new Subject<void>();
 
     private _initializeCacheSubscriptions: Subscription[];
     private _sequenceSubscriptions: Subscription[];
@@ -96,6 +97,10 @@ export class GraphService {
      */
     public get dataAdded$(): Observable<string> {
         return this._dataAdded$;
+    }
+
+    public get dataReset$(): Observable<void> {
+        return this._dataReset$;
     }
 
     /**
@@ -550,6 +555,7 @@ export class GraphService {
             tap(
                 (graph: Graph): void => {
                     graph.reset(keepIds);
+                    this._dataReset$.next();
                 }),
             map(
                 (): void => {

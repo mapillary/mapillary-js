@@ -149,6 +149,12 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
 
         const subs = this._subscriptions;
 
+        subs.push(this._navigator.graphService.dataReset$
+            .subscribe(() => {
+                this._cache.uncache();
+                this._scene.uncache();
+            }));
+
         subs.push(this._navigator.stateService.reference$
             .pipe(pairwise())
             .subscribe(
@@ -171,7 +177,19 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             publishReplay(1),
             refCount());
 
-        const cellId$ = this._navigator.stateService.currentImage$
+        const currentImage$ = observableMerge(
+            this._navigator.stateService.currentImage$,
+            this._navigator.graphService.dataReset$.pipe(
+                switchMap(
+                    () => this._navigator.stateService.currentImage$.pipe(
+                        first())
+                )))
+            .pipe(
+                publishReplay(1),
+                refCount());
+
+
+        const cellId$ = currentImage$
             .pipe(
                 map(
                     (image: Image): string => {
@@ -222,7 +240,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             sequencePlay$,
             bearing$,
             cellGridDepth$,
-            this._navigator.stateService.currentImage$)
+            currentImage$)
             .pipe(
                 distinctUntilChanged((
                     [o1, s1, b1, d1, i1]: AdjancentParams,

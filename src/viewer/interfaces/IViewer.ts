@@ -59,6 +59,7 @@ export interface IViewer {
     projectFromBasic(basicPoint: number[]): Promise<number[]>;
     remove(): void;
     removeCustomRenderer(rendererId: string): void;
+    reset(): Promise<void>;
     resize(): void;
     setCameraControls(controls: CameraControls): void;
     setCenter(center: number[]): void;

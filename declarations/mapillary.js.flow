@@ -3121,6 +3121,7 @@ export interface IViewer {
   projectFromBasic(basicPoint: number[]): Promise<number[]>;
   remove(): void;
   removeCustomRenderer(rendererId: string): void;
+  reset(): Promise<void>;
   resize(): void;
   setCameraControls(controls: $Values<typeof CameraControls>): void;
   setCenter(center: number[]): void;
@@ -3847,6 +3848,21 @@ declare class Viewer implements IEventEmitter, IViewer {
    * @param id - Unique ID of the custom renderer.
    */
   removeCustomRenderer(rendererId: string): void;
+
+  /**
+   * Reset the viewer's cache.
+   * @description All images in the viewer's cache at the moment when
+   * reset is called will eventually be removed if not navigated to
+   * again.
+   * @returns {Promise<void>} Promise that resolves when viewer's cache
+   * has been reset.
+   * @throws When viewer is not navigable.
+   * @example ```js
+   * viewer.reset()
+   *     .then(() => { console.log("viewer reset"); });
+   * ```
+   */
+  reset(): Promise<void>;
 
   /**
    * Detect the viewer's new width and height and resize it

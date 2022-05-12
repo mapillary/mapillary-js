@@ -153,14 +153,6 @@ export class Navigator {
         this._stateService.dispose();
     }
 
-    public moveTo$(id: string): Observable<Image> {
-        this._abortRequest(`to id ${id}`);
-        this._loadingService.startLoading(this._loadingName);
-
-        const image$ = this._moveTo$(id);
-        return this._makeRequest$(image$);
-    }
-
     public moveDir$(direction: NavigationDirection): Observable<Image> {
         this._abortRequest(`in dir ${NavigationDirection[direction]}`);
 
@@ -197,6 +189,19 @@ export class Navigator {
                 }));
 
         return this._makeRequest$(image$);
+    }
+
+    public moveTo$(id: string): Observable<Image> {
+        this._abortRequest(`to id ${id}`);
+        this._loadingService.startLoading(this._loadingName);
+
+        const image$ = this._moveTo$(id);
+        return this._makeRequest$(image$);
+    }
+
+    public reset$(): Observable<void> {
+        this._abortRequest("to reset");
+        return this._reset$();
     }
 
     public setFilter$(filter: FilterExpression): Observable<void> {
@@ -246,34 +251,7 @@ export class Navigator {
 
     public setAccessToken$(accessToken?: string): Observable<void> {
         this._abortRequest("to set user token");
-
-        this._stateService.clearImages();
-
-        return this._movedToId$.pipe(
-            first(),
-            tap(
-                (): void => {
-                    this._api.setAccessToken(accessToken);
-                }),
-            mergeMap(
-                (id: string): Observable<void> => {
-                    return id == null ?
-                        this._graphService.reset$([]) :
-                        this._trajectoryIds$().pipe(
-                            mergeMap(
-                                (ids: string[]): Observable<Image> => {
-                                    return this._graphService.reset$(ids).pipe(
-                                        mergeMap(
-                                            (): Observable<Image> => {
-                                                return this._cacheIds$(ids);
-                                            }));
-                                }),
-                            last(),
-                            map(
-                                (): void => {
-                                    return undefined;
-                                }));
-                }));
+        return this._reset$(() => this._api.setAccessToken(accessToken));
     }
 
     private _cacheIds$(ids: string[]): Observable<Image> {
@@ -343,6 +321,33 @@ export class Navigator {
             finalize(
                 (): void => {
                     this._loadingService.stopLoading(this._loadingName);
+                }));
+    }
+
+    private _reset$(callback?: () => void): Observable<void> {
+        this._stateService.clearImages();
+
+        return this._movedToId$.pipe(
+            first(),
+            tap((): void => { if (callback) { callback(); }; }),
+            mergeMap(
+                (id: string): Observable<void> => {
+                    return id == null ?
+                        this._graphService.reset$([]) :
+                        this._trajectoryIds$().pipe(
+                            mergeMap(
+                                (ids: string[]): Observable<Image> => {
+                                    return this._graphService.reset$(ids).pipe(
+                                        mergeMap(
+                                            (): Observable<Image> => {
+                                                return this._cacheIds$(ids);
+                                            }));
+                                }),
+                            last(),
+                            map(
+                                (): void => {
+                                    return undefined;
+                                }));
                 }));
     }
 
