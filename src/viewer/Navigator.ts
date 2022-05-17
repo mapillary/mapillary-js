@@ -1,5 +1,6 @@
 import {
     from as observableFrom,
+    of as observableOf,
     throwError as observableThrowError,
     BehaviorSubject,
     Observable,
@@ -193,6 +194,7 @@ export class Navigator {
 
     public moveTo$(id: string): Observable<Image> {
         this._abortRequest(`to id ${id}`);
+
         this._loadingService.startLoading(this._loadingName);
 
         const image$ = this._moveTo$(id);
@@ -201,7 +203,9 @@ export class Navigator {
 
     public reset$(): Observable<void> {
         this._abortRequest("to reset");
-        return this._reset$();
+
+        return this._reset$()
+            .pipe(map(() => undefined));
     }
 
     public setFilter$(filter: FilterExpression): Observable<void> {
@@ -251,7 +255,20 @@ export class Navigator {
 
     public setAccessToken$(accessToken?: string): Observable<void> {
         this._abortRequest("to set user token");
-        return this._reset$(() => this._api.setAccessToken(accessToken));
+
+        return this._reset$(() => this._api.setAccessToken(accessToken))
+            .pipe(
+                mergeMap(
+                    (ids: string[]): Observable<void> => {
+                        return ids.length === 0 ?
+                            observableOf(undefined) :
+                            this._cacheIds$(ids).pipe(
+                                last(),
+                                map(
+                                    (): void => {
+                                        return undefined;
+                                    }));
+                    }));
     }
 
     private _cacheIds$(ids: string[]): Observable<Image> {
@@ -324,30 +341,24 @@ export class Navigator {
                 }));
     }
 
-    private _reset$(callback?: () => void): Observable<void> {
+    private _reset$(preCallback?: () => void): Observable<string[]> {
         this._stateService.clearImages();
 
         return this._movedToId$.pipe(
             first(),
-            tap((): void => { if (callback) { callback(); }; }),
+            tap((): void => { if (preCallback) { preCallback(); }; }),
             mergeMap(
-                (id: string): Observable<void> => {
-                    return id == null ?
-                        this._graphService.reset$([]) :
-                        this._trajectoryIds$().pipe(
-                            mergeMap(
-                                (ids: string[]): Observable<Image> => {
-                                    return this._graphService.reset$(ids).pipe(
-                                        mergeMap(
-                                            (): Observable<Image> => {
-                                                return this._cacheIds$(ids);
-                                            }));
-                                }),
-                            last(),
-                            map(
-                                (): void => {
-                                    return undefined;
-                                }));
+                (id: string): Observable<string[]> => {
+                    const ids$ = id == null ?
+                        observableOf([]) :
+                        this._trajectoryIds$();
+
+                    return ids$.pipe(
+                        mergeMap(
+                            (ids: string[]): Observable<string[]> => {
+                                return this._graphService.reset$(ids).pipe(
+                                    map(() => ids));
+                            }));
                 }));
     }
 
@@ -363,4 +374,4 @@ export class Navigator {
                             });
                 }));
     }
-}
+};
