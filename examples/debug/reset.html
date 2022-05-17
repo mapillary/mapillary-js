@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Reset</title>
+        <link rel="icon" href="data:," />
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no"
+        />
+
+        <link rel="stylesheet" href="/dist/mapillary.css" />
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            html,
+            body,
+            .viewer {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <script type="module">
+            import { accessToken } from "/doc-src/.access-token/token.js";
+            import { CameraControls, Viewer } from "/dist/mapillary.module.js";
+            import { DynamicProceduralDataProvider } from "/doc-src/src/js/utils/DynamicProceduralDataProvider.js";
+
+            let viewer;
+            let dataProvider;
+            const reference = { lng: 0, lat: 0, alt: 0 };
+
+            (function main() {
+                const container = document.createElement("div");
+                container.className = "viewer";
+                document.body.append(container);
+
+                dataProvider = new DynamicProceduralDataProvider({ reference });
+                const options = {
+                    dataProvider,
+                    cameraControls: CameraControls.Earth,
+                    component: {
+                        cover: false,
+                        spatial: {
+                            cameraSize: 0.3,
+                            cellGridDepth: 1,
+                            cellsVisible: true,
+                        },
+                    },
+                    container,
+                    imageTiling: false,
+                };
+                viewer = new Viewer(options);
+                viewer.on("reset", (event) => console.log(event.type));
+                viewer
+                    .moveTo(dataProvider.images.keys().next().value)
+                    .catch((error) => console.error(error));
+
+                listen();
+            })();
+
+            function increment() {
+                const delta = 1e-5;
+                reference.lng += delta;
+                reference.lat += delta;
+                reference.alt += delta;
+            }
+
+            function listen() {
+                window.document.addEventListener("keydown", async (e) => {
+                    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
+                        return;
+                    }
+
+                    try {
+                        switch (e.key) {
+                            case "c":
+                                // Clear
+                                dataProvider.clear();
+                                await viewer.reset();
+                                break;
+                            case "r":
+                                // Reset
+                                increment();
+                                dataProvider.clear();
+                                await viewer.reset();
+                                dataProvider.populate({ reference });
+                                await viewer.moveTo(
+                                    dataProvider.images.keys().next().value
+                                );
+                                break;
+                            default:
+                                break;
+                        }
+                    } catch (error) {
+                        console.log(error);
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>
