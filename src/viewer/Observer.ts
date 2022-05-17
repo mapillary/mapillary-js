@@ -39,6 +39,7 @@ import { ViewerBearingEvent } from "./events/ViewerBearingEvent";
 import { State } from "../state/State";
 import { ViewerLoadEvent } from "./events/ViewerLoadEvent";
 import { ViewerReferenceEvent } from "./events/ViewerReferenceEvent";
+import { ViewerResetEvent } from "./events/ViewerResetEvent";
 
 type UnprojectionParams = [
     [
@@ -242,6 +243,16 @@ export class Observer {
                 const type: ViewerEventType = "reference";
                 const event: ViewerReferenceEvent = {
                     reference,
+                    target: this._viewer,
+                    type,
+                };
+                this._viewer.fire(type, event);
+            }));
+
+        subs.push(this._navigator.graphService.dataReset$
+            .subscribe((): void => {
+                const type: ViewerEventType = "reset";
+                const event: ViewerResetEvent = {
                     target: this._viewer,
                     type,
                 };

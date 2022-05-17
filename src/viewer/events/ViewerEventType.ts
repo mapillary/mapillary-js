@@ -22,5 +22,6 @@ export type ViewerEventType =
     | "pov"
     | "reference"
     | "remove"
+    | "reset"
     | "sequenceedges"
     | "spatialedges";

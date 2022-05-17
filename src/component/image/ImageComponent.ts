@@ -125,7 +125,8 @@ export class ImageComponent extends Component<ComponentConfiguration> {
             map(
                 (): ImageGLRendererOperation => {
                     return (renderer: ImageGLRenderer): ImageGLRenderer => {
-                        renderer.dispose();
+                        renderer.reset();
+                        renderer.clearNeedsRender();
 
                         return null;
                     };
@@ -156,6 +157,17 @@ export class ImageComponent extends Component<ComponentConfiguration> {
             .subscribe(this._container.glRenderer.render$));
 
         this._rendererCreator$.next(null);
+
+        subs.push(this._navigator.graphService.dataReset$.pipe(
+            map(
+                (): ImageGLRendererOperation => {
+                    return (renderer: ImageGLRenderer): ImageGLRenderer => {
+                        renderer.reset();
+
+                        return renderer;
+                    };
+                }))
+            .subscribe(this._rendererOperation$));
 
         subs.push(this._navigator.stateService.currentState$.pipe(
             map(
