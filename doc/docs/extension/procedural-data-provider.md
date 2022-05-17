@@ -54,7 +54,7 @@ function Image(props) {
     let didCancel = false;
 
     async function createURL() {
-      const buffer = await procedural.generateImageBuffer({
+      const buffer = await image.generateImageBuffer({
         tileSize,
         tilesX: aspect * tilesY,
         tilesY,

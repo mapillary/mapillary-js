@@ -28,12 +28,15 @@ import {
   Viewer,
 } from '../../mapillary-js/dist/mapillary.module';
 
-import {ProceduralDataProvider} from './extend-procedural-data-provider';
+import {
+  DEFAULT_REFERENCE,
+  ProceduralDataProvider,
+} from '../utils/ProceduralDataProvider';
 
 const CONE_GEO_ANCHOR = {
-  alt: 10,
-  lat: 15,
-  lng: 20,
+  lng: DEFAULT_REFERENCE.lng,
+  lat: DEFAULT_REFERENCE.lat,
+  alt: DEFAULT_REFERENCE.alt,
 };
 
 const THREE_TO_MAPILLARY_TRANSFORM = new Matrix4().makeRotationFromEuler(
