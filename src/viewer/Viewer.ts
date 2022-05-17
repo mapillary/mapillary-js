@@ -48,6 +48,7 @@ import { ViewerLoadEvent } from "./events/ViewerLoadEvent";
 import { cameraControlsToState } from "./Modes";
 import { ViewerReferenceEvent } from "./events/ViewerReferenceEvent";
 import { IDataProvider } from "../external/api";
+import { ViewerResetEvent } from "./events/ViewerResetEvent";
 
 /**
  * @class Viewer
@@ -361,6 +362,10 @@ export class Viewer extends EventEmitter implements IViewer {
     public fire(
         type: ViewerReferenceEvent["type"],
         event: ViewerReferenceEvent)
+        : void;
+    public fire(
+        type: ViewerResetEvent["type"],
+        event: ViewerResetEvent)
         : void;
     public fire(
         type: ViewerStateEvent["type"],
@@ -813,6 +818,10 @@ export class Viewer extends EventEmitter implements IViewer {
         handler: (event: ViewerReferenceEvent) => void)
         : void;
     public off(
+        type: ViewerResetEvent["type"],
+        handler: (event: ViewerResetEvent) => void)
+        : void;
+    public off(
         type: ViewerStateEvent["type"],
         handler: (event: ViewerStateEvent) => void)
         : void;
@@ -1211,6 +1220,25 @@ export class Viewer extends EventEmitter implements IViewer {
     public on(
         type: "remove",
         handler: (event: ViewerStateEvent) => void)
+        : void;
+    /**
+     * Fired when the viewer is reset. When this event is emitted
+     * the viewer has cleared its internal cache.
+     *
+     * @event remove
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("reset", function() {
+     *   console.log("A rest event has occurred.");
+     * });
+     * ```
+     */
+    public on(
+        type: "reset",
+        handler: (event: ViewerResetEvent) => void)
         : void;
     /**
      * Fired every time the sequence edges of the current image changes.

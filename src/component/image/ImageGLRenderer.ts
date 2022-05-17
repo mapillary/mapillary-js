@@ -20,7 +20,7 @@ export class ImageGLRenderer {
 
     private _currentKey: string;
     private _previousKey: string;
-    private _providerDisposers: { [key: string]: () => void };
+    private _providerDisposers: { [key: string]: () => void; };
 
     private _frameId: number;
     private _needsRender: boolean;
@@ -55,7 +55,7 @@ export class ImageGLRenderer {
 
     public addPeripheryPlane(image: Image, transform: Transform): void {
         const mesh: THREE.Mesh = this._factory.createMesh(image, transform);
-        const planes: { [key: string]: THREE.Mesh } = {};
+        const planes: { [key: string]: THREE.Mesh; } = {};
         planes[image.id] = mesh;
         this._scene.addPeripheryPlanes(planes);
 
@@ -114,7 +114,7 @@ export class ImageGLRenderer {
         : void {
         this._needsRender = true;
 
-        const planes: { [key: string]: THREE.Mesh } =
+        const planes: { [key: string]: THREE.Mesh; } =
             this._extend({}, this._scene.planes, this._scene.planesOld, this._scene.planesPeriphery);
 
         for (const key in planes) {
@@ -140,9 +140,9 @@ export class ImageGLRenderer {
         perspectiveCamera: THREE.PerspectiveCamera,
         renderer: THREE.WebGLRenderer): void {
 
-        const planes: { [key: string]: THREE.Mesh } = this._scene.planes;
-        const planesOld: { [key: string]: THREE.Mesh } = this._scene.planesOld;
-        const planesPeriphery: { [key: string]: THREE.Mesh } = this._scene.planesPeriphery;
+        const planes: { [key: string]: THREE.Mesh; } = this._scene.planes;
+        const planesOld: { [key: string]: THREE.Mesh; } = this._scene.planesOld;
+        const planesPeriphery: { [key: string]: THREE.Mesh; } = this._scene.planesPeriphery;
 
         const planeAlpha: number = Object.keys(planesOld).length ? 1 : this._alpha;
         const peripheryAlpha: number = Object.keys(planesOld).length ? 1 : Math.floor(this._alpha);
@@ -194,8 +194,14 @@ export class ImageGLRenderer {
         this._needsRender = false;
     }
 
-    public dispose(): void {
+    public reset(): void {
         this._scene.clear();
+
+        for (const disposeProvider of Object.values(this._providerDisposers)) {
+            disposeProvider();
+        }
+
+        this._needsRender = true;
     }
 
     private _updateFrameId(frameId: number): void {
@@ -246,7 +252,7 @@ export class ImageGLRenderer {
                 let previousMesh: THREE.Mesh =
                     this._factory.createMesh(state.previousImage, state.previousTransform);
 
-                const previousPlanes: { [key: string]: THREE.Mesh } = {};
+                const previousPlanes: { [key: string]: THREE.Mesh; } = {};
                 previousPlanes[previousKey] = previousMesh;
                 this._scene.updateImagePlanes(previousPlanes);
             }
@@ -260,7 +266,7 @@ export class ImageGLRenderer {
                 state.currentImage,
                 state.currentTransform);
 
-        const planes: { [key: string]: THREE.Mesh } = {};
+        const planes: { [key: string]: THREE.Mesh; } = {};
         planes[currentKey] = currentMesh;
         this._scene.updateImagePlanes(planes);
 
@@ -272,7 +278,7 @@ export class ImageGLRenderer {
     private _updateTexture(texture: THREE.Texture): void {
         this._needsRender = true;
 
-        const planes: { [key: string]: THREE.Mesh } = this._scene.planes;
+        const planes: { [key: string]: THREE.Mesh; } = this._scene.planes;
 
         for (const key in planes) {
             if (!planes.hasOwnProperty(key)) {
