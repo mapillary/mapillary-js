@@ -110,6 +110,35 @@ describe("Viewer.remove", () => {
     });
 });
 
+describe("Viewer.reset", () => {
+    it("should call navigator", () => {
+        const mocks = createMocks();
+        new MockCreator().mockProperty(mocks.controller, 'navigable', true);
+        const resetSubject = new Subject<void>();
+        (<jasmine.Spy>mocks.navigator.reset$).and.returnValue(resetSubject);
+
+        const viewer = new Viewer({ container: "" });
+        viewer.reset();
+
+        expect((<jasmine.Spy>mocks.navigator.reset$).calls.count())
+            .toBe(1);
+    });
+
+    it("should throw if not navigable", (done: Function) => {
+        const mocks = createMocks();
+        new MockCreator().mockProperty(mocks.controller, 'navigable', false);
+        const resetSubject = new Subject<void>();
+        (<jasmine.Spy>mocks.navigator.reset$).and.returnValue(resetSubject);
+
+        const viewer = new Viewer({ container: "" });
+        viewer.reset().catch(
+            error => {
+                expect(error).toBeDefined();
+                done();
+            });
+    });
+});
+
 describe("Viewer.addCustomRenderer", () => {
     it("should call custom renderer", () => {
         const mocks = createMocks();

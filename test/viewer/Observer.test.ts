@@ -6,7 +6,9 @@ import { EventEmitter } from "../../src/util/EventEmitter";
 import { Observer } from "../../src/viewer/Observer";
 import { Viewer } from "../../src/viewer/Viewer";
 import { ViewerDataLoadingEvent } from "../../src/viewer/events/ViewerDataLoadingEvent";
-import { LngLatAlt, ViewerStateEvent } from "../../src/mapillary";
+import { LngLatAlt } from "../../src/api/interfaces/LngLatAlt";
+import { ViewerStateEvent } from "../../src/viewer/events/ViewerStateEvent";
+import { ViewerResetEvent } from "../../src/viewer/events/ViewerResetEvent";
 
 describe("Observer.ctor", () => {
     it("should be defined", () => {
@@ -113,5 +115,27 @@ describe("Observer.position", () => {
             lat: 1,
             alt: 2
         });
+    });
+});
+
+describe("Observer.reset", () => {
+    it("should emit when data has been reset", (done: Function) => {
+        const viewer = <Viewer>new EventEmitter();
+        const navigatorMock = new NavigatorMockCreator().create();
+
+        const observer = new Observer(
+            viewer,
+            navigatorMock,
+            new ContainerMockCreator().create());
+        observer.startEmit();
+
+        viewer.on(
+            "reset",
+            (event: ViewerResetEvent) => {
+                expect(event.type).toBe("reset");
+                done();
+            });
+
+        (<Subject<void>>navigatorMock.graphService.dataReset$).next(null);
     });
 });
