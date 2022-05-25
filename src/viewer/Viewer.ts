@@ -1232,7 +1232,7 @@ export class Viewer extends EventEmitter implements IViewer {
      * var viewer = new Viewer({ // viewer options });
      * // Set an event listener
      * viewer.on("reset", function() {
-     *   console.log("A rest event has occurred.");
+     *   console.log("A reset event has occurred.");
      * });
      * ```
      */
@@ -1426,9 +1426,12 @@ export class Viewer extends EventEmitter implements IViewer {
      * ```
      */
     public reset(): Promise<void> {
+        console.log(this.isNavigable, this._navigator.reset$);
         const reset$: Observable<void> = this.isNavigable ?
             this._navigator.reset$() :
             observableThrowError(new Error("Calling reset is not supported when viewer is not navigable."));
+
+        console.log(reset$);
 
         return new Promise<void>(
             (resolve: (value: void) => void, reject: (reason: Error) => void): void => {
