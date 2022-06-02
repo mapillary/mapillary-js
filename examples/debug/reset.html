@@ -95,6 +95,17 @@
                                     dataProvider.images.keys().next().value
                                 );
                                 break;
+                            case "v":
+                                // Reset viewer only
+                                await viewer.reset();
+                                const image = await viewer.getImage();
+                                const newId = [
+                                    ...dataProvider.images.keys(),
+                                ].find((id) => id !== image.id);
+                                if (newId) {
+                                    await viewer.moveTo(newId);
+                                }
+                                break;
                             default:
                                 break;
                         }
