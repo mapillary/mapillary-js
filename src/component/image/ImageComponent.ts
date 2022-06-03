@@ -351,10 +351,6 @@ export class ImageComponent extends Component<ComponentConfiguration> {
         subs.push(hasTexture$.subscribe(() => { /*noop*/ }));
 
         subs.push(this._navigator.panService.panImages$.pipe(
-            filter(
-                (panNodes: []): boolean => {
-                    return panNodes.length === 0;
-                }),
             map(
                 (): ImageGLRendererOperation => {
                     return (renderer: ImageGLRenderer): ImageGLRenderer => {
@@ -435,36 +431,30 @@ export class ImageComponent extends Component<ComponentConfiguration> {
                         return trigger;
                     }));
 
-        subs.push(this._navigator.stateService.state$
+        subs.push(this._navigator.panService.panImages$
             .pipe(
-                switchMap(
-                    state => {
-                        return state === State.Traversing ||
-                            state === State.GravityTraversing ?
-                            this._navigator.panService.panImages$ :
-                            observableEmpty();
-
-                    }),
                 switchMap(
                     (nts: [ImageNode, Transform, number][]):
                         Observable<[RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]> => {
 
-                        return panTrigger$.pipe(
-                            withLatestFrom(
-                                this._container.renderService.renderCamera$,
-                                this._navigator.stateService.currentImage$,
-                                this._navigator.stateService.currentTransform$),
-                            mergeMap(
-                                ([, renderCamera, currentNode, currentTransform]: [boolean, RenderCamera, ImageNode, Transform]):
-                                    Observable<[RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]> => {
-                                    return observableOf(
-                                        [
-                                            renderCamera,
-                                            currentNode,
-                                            currentTransform,
-                                            nts,
-                                        ] as [RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]);
-                                }));
+                        return nts.length === 0 ?
+                            observableEmpty() :
+                            panTrigger$.pipe(
+                                withLatestFrom(
+                                    this._container.renderService.renderCamera$,
+                                    this._navigator.stateService.currentImage$,
+                                    this._navigator.stateService.currentTransform$),
+                                mergeMap(
+                                    ([, renderCamera, currentNode, currentTransform]: [boolean, RenderCamera, ImageNode, Transform]):
+                                        Observable<[RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]> => {
+                                        return observableOf(
+                                            [
+                                                renderCamera,
+                                                currentNode,
+                                                currentTransform,
+                                                nts,
+                                            ] as [RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]);
+                                    }));
                     }),
                 switchMap(
                     ([camera, cn, ct, nts]:

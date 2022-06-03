@@ -12,6 +12,7 @@ import { FrameHelper } from "../helper/FrameHelper";
 import { GraphServiceMockCreator } from "../helper/GraphServiceMockCreator";
 import { ImageHelper } from "../helper/ImageHelper";
 import { StateServiceMockCreator } from "../helper/StateServiceMockCreator";
+import { State } from "../../src/state/State";
 
 describe("PanService.ctor", () => {
     it("should be defined when constructed", () => {
@@ -64,6 +65,7 @@ describe("PanService.panImages$", () => {
                 });
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
+        (<Subject<State>>stateService.state$).next(State.Traversing);
         (<Subject<Image>>stateService.currentImage$).next(new ImageHelper().createImage());
         (<Subject<LngLatAlt>>stateService.reference$).next({ alt: 0, lat: 0, lng: 0 });
         cacheBoundingBoxSubject.next([]);
@@ -88,6 +90,7 @@ describe("PanService.panImages$", () => {
                 });
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
+        (<Subject<State>>stateService.state$).next(State.Traversing);
         (<Subject<Image>>stateService.currentImage$).next(new ImageHelper().createUnmergedImage());
         (<Subject<LngLatAlt>>stateService.reference$).next({ alt: 0, lat: 0, lng: 0 });
         cacheBoundingBoxSubject.next([]);
@@ -113,6 +116,7 @@ describe("PanService.panImages$", () => {
                 });
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
+        (<Subject<State>>stateService.state$).next(State.Traversing);
         (<Subject<Image>>stateService.currentImage$).next(new ImageHelper().createImage());
         (<Subject<LngLatAlt>>stateService.reference$).next({ alt: 0, lat: 0, lng: 0 });
         erroredCacheBoundingBoxSubject.error(new Error());
@@ -123,6 +127,7 @@ describe("PanService.panImages$", () => {
         (<jasmine.Spy>graphService.cacheBoundingBox$).and.returnValue(cacheBoundingBoxSubject);
 
         (<Subject<Image>>stateService.currentImage$).next(new ImageHelper().createImage());
+
         (<Subject<LngLatAlt>>stateService.reference$).next({ alt: 0, lat: 0, lng: 0 });
 
         cacheBoundingBoxSubject.next([]);
@@ -151,6 +156,7 @@ describe("PanService.panImages$", () => {
                 });
 
         (<Subject<AnimationFrame>>stateService.currentState$).next(new FrameHelper().createFrame());
+        (<Subject<State>>stateService.state$).next(State.Traversing);
         (<Subject<Image>>stateService.currentImage$).next(new ImageHelper().createImage());
         (<Subject<LngLatAlt>>stateService.reference$).next({ alt: 0, lat: 0, lng: 0 });
         cacheBoundingBoxSubject.next([]);
