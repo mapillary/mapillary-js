@@ -36,6 +36,7 @@ import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { CameraType } from "../geo/interfaces/CameraType";
 import { isSpherical } from "../geo/Geo";
 import { geodeticToEnu } from "../geo/GeoCoords";
+import { State } from "../state/State";
 
 enum PanMode {
     Disabled,
@@ -286,16 +287,30 @@ export class PanService {
                         startWith([]));
                 }));
 
-        this._panImagesSubscription = this._stateService.currentState$.pipe(
+        const traversing$ = this._stateService.state$.pipe(
+            map(
+                (state: State): boolean => {
+                    return state === State.Traversing ||
+                        state === State.GravityTraversing;
+                }),
+            distinctUntilChanged());
+
+        const imagesAhead$ = this._stateService.currentState$.pipe(
             map(
                 (frame: AnimationFrame): boolean => {
                     return frame.state.imagesAhead > 0;
                 }),
-            distinctUntilChanged(),
-            switchMap(
-                (traversing: boolean): Observable<[Image, Transform, number][]> => {
-                    return traversing ? observableOf([]) : panImages$;
-                }))
+            distinctUntilChanged());
+
+        this._panImagesSubscription = observableCombineLatest(
+            traversing$,
+            imagesAhead$)
+            .pipe(
+                switchMap(
+                    ([traversing, imagesAhead]: [boolean, boolean]): Observable<[Image, Transform, number][]> => {
+                        return traversing && !imagesAhead ?
+                            panImages$ : observableOf([]);
+                    }))
             .subscribe(
                 (panImages: [Image, Transform, number][]): void => {
                     this._panImagesSubject$.next(panImages);
