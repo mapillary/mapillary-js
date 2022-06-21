@@ -1110,6 +1110,93 @@ declare interface ViewportSize {
   width: number;
 }
 declare type CameraType = "spherical" | "fisheye" | "perspective";
+
+declare var ShaderChunk: {
+  common: string,
+  coordinates: string,
+  bearing_fragment: string,
+  map_color_fragment: string,
+  gl_frag_color_fragment: string,
+  precision_fragment: string,
+  uniforms_fragment: string,
+  varyings_fragment: string,
+  extrinsic_vertex: string,
+  gl_position_vertex: string,
+  uniforms_vertex: string,
+  varyings_vertex: string,
+  ...
+};
+
+export type GLShader = {
+  fragment: string,
+  vertex: string,
+};
+declare var Shader: {
+  [name: string]: GLShader,
+  ...
+};
+
+export type CameraParameters = {
+  [key: string]: number,
+  ...
+};
+export type CameraUniforms = {
+  [key: string]: boolean | number | number[],
+  ...
+};
+
+/**
+ * @interface
+ * @description Interface for cameras. This is a
+ * specification for implementers to model: it is not
+ * an exported method or class.
+ *
+ * Implmenting a custom camera allows the implementer to
+ * render textures and camera frustums with proper undistortion.
+ *
+ * Custom cameras must have a unique type.
+ */
+export interface ICamera {
+  +type: string;
+  +parameters: CameraParameters;
+  +uniforms: CameraUniforms;
+  +projectToSfmFunction: string;
+  bearingFromSfm(point: number[]): number[];
+  projectToSfm(bearing: number[]): number[];
+}
+export interface CameraConstructor {
+  new(parameters: number[]): ICamera;
+}
+declare class Camera implements ICamera {
+  +type: string;
+  +projectToSfmFunction: string;
+  +parameters: CameraParameters;
+  +uniforms: CameraUniforms;
+  constructor(type: string, projectToSfmFunction: string): this;
+  bearingFromSfm(_point: number[]): number[];
+  projectToSfm(_point: number[]): number[];
+}
+declare var FISHEYE_CAMERA_TYPE: "fisheye";
+declare class FisheyeCamera mixins Camera {
+  constructor(parameters: number[]): this;
+  bearingFromSfm(point: number[]): number[];
+  projectToSfm(point: number[]): number[];
+}
+declare var PERSPECTIVE_CAMERA_TYPE: "perspective";
+declare class PerspectiveCamera mixins Camera {
+  constructor(parameters: number[]): this;
+  bearingFromSfm(point: number[]): number[];
+  projectToSfm(point: number[]): number[];
+}
+declare var SPHERICAL_CAMERA_TYPE: "spherical";
+declare class SphericalCamera mixins Camera {
+  constructor(): this;
+  bearingFromSfm(point: number[]): number[];
+  projectToSfm(point: number[]): number[];
+}
+
+declare function resolveShader(shader: string, camera: ICamera): string;
+
 /**
  * @class Transform
  * @classdesc Class used for calculating coordinate transformations
@@ -1251,10 +1338,10 @@ declare class Transform {
   unprojectSfM(sfm: number[], distance: number, depth?: boolean): number[];
 }
 /**
- * @class Camera
+ * @class StateCamera
  * @classdesc Holds information about a camera.
  */
-declare class Camera {
+declare class StateCamera {
   /**
    * Create a new camera instance.
    * @param {Transform} [transform] - Optional transform instance.
@@ -1274,30 +1361,30 @@ declare class Camera {
 
   /**
    * Update this camera to the linearly interpolated value of two other cameras.
-   * @param {Camera} a - First camera.
-   * @param {Camera} b - Second camera.
+   * @param {StateCamera} a - First camera.
+   * @param {StateCamera} b - Second camera.
    * @param {number} alpha - Interpolation value on the interval [0, 1].
    */
-  lerpCameras(a: Camera, b: Camera, alpha: number): void;
+  lerpCameras(a: StateCamera, b: StateCamera, alpha: number): void;
 
   /**
    * Copy the properties of another camera to this camera.
-   * @param {Camera} other - Another camera.
+   * @param {StateCamera} other - Another camera.
    */
-  copy(other: Camera): void;
+  copy(other: StateCamera): void;
 
   /**
    * Clone this camera.
-   * @returns {Camera} A camera with cloned properties equal to this camera.
+   * @returns {StateCamera} A camera with cloned properties equal to this camera.
    */
-  clone(): Camera;
+  clone(): StateCamera;
 
   /**
    * Determine the distance between this camera and another camera.
-   * @param {Camera} other - Another camera.
+   * @param {StateCamera} other - Another camera.
    * @returns {number} The distance between the cameras.
    */
-  diff(other: Camera): number;
+  diff(other: StateCamera): number;
 }
 declare var State: {|
   +Custom: 0, // 0
@@ -1482,6 +1569,13 @@ declare class Image {
    * @ignore
    */
   assetsCached: boolean;
+
+  /**
+   * Get camera.
+   * @returns {ICamera} Camera of the image
+   * @ignore
+   */
+  camera: ICamera;
 
   /**
    * Get cameraParameters.
@@ -1815,10 +1909,10 @@ declare class Image {
 declare interface IAnimationState {
   reference: LngLatAlt;
   alpha: number;
-  camera: Camera;
+  camera: StateCamera;
   zoom: number;
   currentImage: Image;
-  currentCamera: Camera;
+  currentCamera: StateCamera;
   previousImage: Image;
   trajectory: Image[];
   currentIndex: number;
@@ -1845,7 +1939,7 @@ declare class RenderCamera {
     renderMode: $Values<typeof RenderMode>
   ): this;
   alpha: number;
-  camera: Camera;
+  camera: StateCamera;
   changed: boolean;
   frameId: number;
   renderMode: $Values<typeof RenderMode>;
@@ -3122,15 +3216,14 @@ export interface IViewer {
   remove(): void;
   removeCustomRenderer(rendererId: string): void;
   reset(): Promise<void>;
-  registerCamera(
-        type: string,
-        ctor: { new(parameters: number[]): ICamera; });
+  registerCamera(type: string, ctor: CameraConstructor): void;
   resize(): void;
   setCameraControls(controls: $Values<typeof CameraControls>): void;
   setCenter(center: number[]): void;
   setFieldOfView(fov: number): void;
   setFilter(filter?: FilterExpression): Promise<void>;
   setRenderMode(renderMode: $Values<typeof RenderMode>): void;
+  setShader(shader: GLShader): void;
   setTransitionMode(transitionMode: $Values<typeof TransitionMode>): void;
   setAccessToken(accessToken?: string): Promise<void>;
   setZoom(zoom: number): void;
@@ -3847,9 +3940,7 @@ declare class Viewer implements IEventEmitter, IViewer {
    * viewer.registerCamera("my-camera-type", MyCamera);
    * ```
    */
-  registerCamera(
-      type: string,
-      ctor: { new(parameters: number[]): ICamera; }): void;
+  registerCamera(type: string, ctor: CameraConstructor): void;
 
   /**
    * Clean up and release all internal resources associated with
@@ -3968,6 +4059,25 @@ declare class Viewer implements IEventEmitter, IViewer {
  * ```
  */
   setRenderMode(renderMode: $Values<typeof RenderMode>): void;
+
+  /**
+   * Set the viewer's texture shader.
+   *
+   * @description The shader will be used for all registered projection
+   * models.
+   *
+   * @param {GLShader} shader - Texture shader.
+   *
+   * @example
+   * ```js
+   * let myShader = {
+   *     fragment: '<My fragment GLSL>',
+   *     vertex: '<My vertex GLSL>',
+   * };
+   * viewer.setShader(myShader);
+   * ```
+   */
+  setShader(shader: GLShader): void;
 
   /**
  * Set the viewer's transition mode.
@@ -7947,6 +8057,8 @@ declare export {
   DragPanHandler,
   EventEmitter,
   ExtremePointTag,
+  FISHEYE_CAMERA_TYPE,
+  FisheyeCamera,
   Geometry,
   GeometryProviderBase,
   GeometryTagError,
@@ -7964,10 +8076,12 @@ declare export {
   NavigationDirection,
   OriginalPositionMode,
   OutlineTag,
+  PERSPECTIVE_CAMERA_TYPE,
+  PerspectiveCamera,
   PointGeometry,
+  PointVisualizationMode,
   PointerComponent,
   PointsGeometry,
-  PointVisualizationMode,
   PolygonGeometry,
   Popup,
   PopupComponent,
@@ -7975,8 +8089,12 @@ declare export {
   RenderMode,
   RenderPass,
   S2GeometryProvider,
+  SPHERICAL_CAMERA_TYPE,
+  SphericalCamera,
   ScrollZoomHandler,
   SequenceComponent,
+  Shader,
+  ShaderChunk,
   SimpleMarker,
   SpatialComponent,
   SpotTag,
@@ -8000,4 +8118,5 @@ declare export {
   isFallbackSupported,
   isSupported,
   readMeshPbf,
+  resolveShader,
 };

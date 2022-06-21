@@ -1650,6 +1650,23 @@ export class Viewer extends EventEmitter implements IViewer {
         this._container.renderService.renderMode$.next(renderMode);
     }
 
+    /**
+     * Set the viewer's texture shader.
+     *
+     * @description The shader will be used for all registered projection
+     * models.
+     *
+     * @param {GLShader} shader - Texture shader.
+     *
+     * @example
+     * ```js
+     * let myShader = {
+     *     fragment: '<My fragment GLSL>',
+     *     vertex: '<My vertex GLSL>',
+     * };
+     * viewer.setShader(myShader);
+     * ```
+     */
     public setShader(shader: GLShader): void {
         this._navigator.projectionService.setShader(shader);
     }

@@ -89,5 +89,6 @@ export { GraphMapillaryError } from "../error/GraphMapillaryError";
 export { MapillaryError } from "../error/MapillaryError";
 
 // Shader
-export { ShaderChunk } from "../shader/ShaderChunk";
+export { resolveShader } from "../shader/Resolver";
 export { GLShader, Shader } from "../shader/Shader";
+export { ShaderChunk } from "../shader/ShaderChunk";
