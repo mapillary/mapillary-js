@@ -1164,9 +1164,6 @@ export interface ICamera {
   bearingFromSfm(point: number[]): number[];
   projectToSfm(bearing: number[]): number[];
 }
-export interface CameraConstructor {
-  new(parameters: number[]): ICamera;
-}
 declare class Camera implements ICamera {
   +type: string;
   +projectToSfmFunction: string;
@@ -3216,7 +3213,7 @@ export interface IViewer {
   remove(): void;
   removeCustomRenderer(rendererId: string): void;
   reset(): Promise<void>;
-  registerCamera(type: string, ctor: CameraConstructor): void;
+  registerCamera(type: string, ctor: Class<ICamera>): void;
   resize(): void;
   setCameraControls(controls: $Values<typeof CameraControls>): void;
   setCenter(center: number[]): void;
@@ -3940,7 +3937,7 @@ declare class Viewer implements IEventEmitter, IViewer {
    * viewer.registerCamera("my-camera-type", MyCamera);
    * ```
    */
-  registerCamera(type: string, ctor: CameraConstructor): void;
+  registerCamera(type: string, ctor: Class<ICamera>): void;
 
   /**
    * Clean up and release all internal resources associated with
