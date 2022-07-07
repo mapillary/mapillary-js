@@ -1,8 +1,10 @@
 /**
  * Compute distortion given the distorted radius.
  *
- *  Solves for d in the equation
+ * Solves for d in the equation
+ *
  *    y = d(x, k1, k2) * x
+ *
  * given the distorted radius, y.
  */
 export function distortionFromDistortedRadius(

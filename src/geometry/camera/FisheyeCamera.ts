@@ -41,27 +41,28 @@ function project(
     uniforms: Uniforms): number[] {
 
     const [x, y, z] = point;
-    const { focal, k1, k2 } = parameters;
-    const radialPeak = <number>uniforms.radialPeak;
 
-    if (z > 0) {
-        const r = Math.sqrt(x * x + y * y);
-        let theta = Math.atan2(r, z);
-        if (theta > radialPeak) {
-            theta = radialPeak;
-        }
-
-        const theta2 = theta ** 2;
-        const distortion = 1.0 + theta2 * (k1 + theta2 * k2);
-        const s = focal * theta * distortion / r;
-
-        return [s * x, s * y];
-    } else {
+    if (z <= 0) {
         return [
             x < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
             y < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
         ];
     }
+
+    const { focal, k1, k2 } = parameters;
+    const radialPeak = <number>uniforms.radialPeak;
+
+    const r = Math.sqrt(x * x + y * y);
+    let theta = Math.atan2(r, z);
+    if (theta > radialPeak) {
+        theta = radialPeak;
+    }
+
+    const theta2 = theta ** 2;
+    const distortion = 1.0 + theta2 * (k1 + theta2 * k2);
+    const s = focal * theta * distortion / r;
+
+    return [s * x, s * y];
 }
 
 export const FISHEYE_CAMERA_TYPE = "fisheye";

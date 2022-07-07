@@ -38,35 +38,40 @@ function project(
     uniforms: Uniforms): number[] {
 
     const [x, y, z] = point;
-    const { focal, k1, k2 } = parameters;
-    const radialPeak = <number>uniforms.radialPeak;
 
-    if (z > 0) {
-        const xn = x / z;
-        const yn = y / z;
-        const rp2 = radialPeak ** 2;
-        let r2 = xn * xn + yn * yn;
-        if (r2 > rp2) {
-            r2 = rp2;
-        }
-
-        const d = 1 + k1 * r2 + k2 * r2 ** 2;
-        return [
-            focal * d * xn,
-            focal * d * yn,
-        ];
-    } else {
+    if (z <= 0) {
         return [
             x < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
             y < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
         ];
     }
+
+    const { focal, k1, k2 } = parameters;
+    const radialPeak = <number>uniforms.radialPeak;
+
+    const xn = x / z;
+    const yn = y / z;
+    const rp2 = radialPeak ** 2;
+    let r2 = xn * xn + yn * yn;
+    if (r2 > rp2) {
+        r2 = rp2;
+    }
+
+    const d = 1 + k1 * r2 + k2 * r2 ** 2;
+    return [
+        focal * d * xn,
+        focal * d * yn,
+    ];
 }
 
 export const PERSPECTIVE_CAMERA_TYPE = "perspective";
 
 export const PERSPECTIVE_PROJECT_FUNCTION = /* glsl */ `
 vec2 projectToSfm(vec3 bearing, Parameters parameters, Uniforms uniforms) {
+    if (bearing.z < 0.) {
+        return vec2(POSITIVE_INFINITY, POSITIVE_INFINITY);
+    }
+
     float focal = parameters.focal;
     float k1 = parameters.k1;
     float k2 = parameters.k2;
