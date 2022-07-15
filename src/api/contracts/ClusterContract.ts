@@ -12,6 +12,10 @@ export interface ClusterContract {
 
     /**
      * The points of the reconstruction.
+     *
+     * @description The points are represented in local topocentric
+     * ENU coordinates relative to the cluster reference longitude,
+     * latitude, altitude.
      */
     points: { [pointId: string]: PointContract; };
 
