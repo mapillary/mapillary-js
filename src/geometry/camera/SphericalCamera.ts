@@ -3,26 +3,28 @@ import { Camera } from "../Camera";
 function bearing(point: number[]): number[] {
     const [x, y] = point;
 
+    // Unprojection
     const lng = x * 2 * Math.PI;
     const lat = -y * 2 * Math.PI;
 
-    const xn = Math.cos(lat) * Math.sin(lng);
-    const yn = -Math.sin(lat);
-    const zn = Math.cos(lat) * Math.cos(lng);
+    const xb = Math.cos(lat) * Math.sin(lng);
+    const yb = -Math.sin(lat);
+    const zb = Math.cos(lat) * Math.cos(lng);
 
-    return [xn, yn, zn];
+    return [xb, yb, zb];
 }
 
 function project(point: number[]): number[] {
     const [x, y, z] = point;
 
+    // Projection
     const lng = Math.atan2(x, z);
     const lat = Math.atan2(-y, Math.sqrt(x * x + z * z));
 
-    const xn = lng / (2 * Math.PI);
-    const yn = -lat / (2 * Math.PI);
+    const xp = lng / (2 * Math.PI);
+    const yp = -lat / (2 * Math.PI);
 
-    return [xn, yn];
+    return [xp, yp];
 }
 
 export const SPHERICAL_CAMERA_TYPE = "spherical";
@@ -33,8 +35,10 @@ vec2 projectToSfm(vec3 bearing) {
     float y = bearing.y;
     float z = bearing.z;
 
+    // Projection
     float lat = -asin(y);
     float lng = atan(x, z);
+
     float xn = lng / PI2;
     float yn = -lat / PI2;
 
