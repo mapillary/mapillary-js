@@ -9,7 +9,7 @@ type Parameters = {
 };
 
 type Uniforms = {
-    radialPeak: number | number[],
+    radialPeak: number,
 };
 
 function bearing(
@@ -21,18 +21,24 @@ function bearing(
     const { focal, k1, k2 } = parameters;
     const radialPeak = <number>uniforms.radialPeak;
 
-    const [dxn, dyn] = [x / focal, y / focal];
-    const dTheta = Math.sqrt(dxn * dxn + dyn * dyn);
+    // Transformation
+    const [xd, yd] = [x / focal, y / focal];
+
+    // Undistortion
+    const dTheta = Math.sqrt(xd * xd + yd * yd);
     const d = distortionFromDistortedRadius(dTheta, k1, k2, radialPeak);
+
     const theta = dTheta / d;
+
+    // Unprojection
     const r = Math.sin(theta);
     const denomTheta = dTheta > EPSILON ? 1 / dTheta : 1;
 
-    const xn = r * dxn * denomTheta;
-    const yn = r * dyn * denomTheta;
-    const zn = Math.cos(theta);
+    const xb = r * xd * denomTheta;
+    const yb = r * yd * denomTheta;
+    const zb = Math.cos(theta);
 
-    return [xn, yn, zn];
+    return [xb, yb, zb];
 }
 
 function project(
@@ -41,44 +47,49 @@ function project(
     uniforms: Uniforms): number[] {
 
     const [x, y, z] = point;
-
-    if (z <= 0) {
-        return [
-            x < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
-            y < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
-        ];
-    }
-
     const { focal, k1, k2 } = parameters;
     const radialPeak = <number>uniforms.radialPeak;
 
+    // Projection
     const r = Math.sqrt(x * x + y * y);
     let theta = Math.atan2(r, z);
+
     if (theta > radialPeak) {
         theta = radialPeak;
     }
 
+    const xp = theta / r * x;
+    const yp = theta / r * y;
+
+    // Distortion
     const theta2 = theta ** 2;
     const distortion = 1.0 + theta2 * (k1 + theta2 * k2);
-    const s = focal * theta * distortion / r;
 
-    return [s * x, s * y];
+    const xd = xp * distortion;
+    const yd = yp * distortion;
+
+    // Transformation
+    const xt = focal * xd;
+    const yt = focal * yd;
+
+    return [xt, yt];
 }
 
 export const FISHEYE_CAMERA_TYPE = "fisheye";
 
 export const FISHEYE_PROJECT_FUNCTION = /* glsl */ `
 vec2 projectToSfm(vec3 bearing, Parameters parameters, Uniforms uniforms) {
+    float x = bearing.x;
+    float y = bearing.y;
+    float z = bearing.z;
+
     float focal = parameters.focal;
     float k1 = parameters.k1;
     float k2 = parameters.k2;
 
     float radialPeak = uniforms.radialPeak;
 
-    float x = bearing.x;
-    float y = bearing.y;
-    float z = bearing.z;
-
+    // Projection
     float r = sqrt(x * x + y * y);
     float theta = atan(r, z);
 
@@ -86,14 +97,21 @@ vec2 projectToSfm(vec3 bearing, Parameters parameters, Uniforms uniforms) {
         theta = radialPeak;
     }
 
+    float xp = theta / r * x;
+    float yp = theta / r * y;
+
+    // Distortion
     float theta2 = theta * theta;
     float distortion = 1.0 + theta2 * (k1 + theta2 * k2);
-    float s = focal * theta * distortion / r;
 
-    float xn = s * x;
-    float yn = s * y;
+    float xd = xp * distortion;
+    float yd = yp * distortion;
 
-    return vec2(xn, yn);
+    // Transformation
+    float xt = focal * xd;
+    float yt = focal * yd;
+
+    return vec2(xt, yt);
 }
 `;
 

@@ -8,7 +8,7 @@ type Parameters = {
 };
 
 type Uniforms = {
-    radialPeak: number | number[],
+    radialPeak: number,
 };
 
 function bearing(
@@ -20,16 +20,25 @@ function bearing(
     const { focal, k1, k2 } = parameters;
     const radialPeak = <number>uniforms.radialPeak;
 
-    const [dxn, dyn] = [x / focal, y / focal];
-    const dr = Math.sqrt(dxn * dxn + dyn * dyn);
+    // Transformation
+    const [xd, yd] = [x / focal, y / focal];
+
+    // Undistortion
+    const dr = Math.sqrt(xd * xd + yd * yd);
     const d = distortionFromDistortedRadius(dr, k1, k2, radialPeak);
 
-    const xn = dxn / d;
-    const yn = dyn / d;
-    const zn = 1;
-    const length = Math.sqrt(xn * xn + yn * yn + zn * zn);
+    const xp = xd / d;
+    const yp = yd / d;
 
-    return [xn / length, yn / length, zn / length];
+    // Unprojection
+    const zp = 1;
+    const length = Math.sqrt(xp * xp + yp * yp + zp * zp);
+
+    const xb = xp / length;
+    const yb = yp / length;
+    const zb = zp / length;
+
+    return [xb, yb, zb];
 }
 
 function project(
@@ -38,7 +47,10 @@ function project(
     uniforms: Uniforms): number[] {
 
     const [x, y, z] = point;
+    const { focal, k1, k2 } = parameters;
+    const radialPeak = <number>uniforms.radialPeak;
 
+    // Projection
     if (z <= 0) {
         return [
             x < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
@@ -46,31 +58,35 @@ function project(
         ];
     }
 
-    const { focal, k1, k2 } = parameters;
-    const radialPeak = <number>uniforms.radialPeak;
+    const xp = x / z;
+    const yp = y / z;
 
-    const xn = x / z;
-    const yn = y / z;
-    const rp2 = radialPeak ** 2;
-    let r2 = xn * xn + yn * yn;
-    if (r2 > rp2) {
-        r2 = rp2;
+    // Distortion
+    let r2 = xp * xp + yp * yp;
+
+    if (r2 > radialPeak * Math.sqrt(r2)) {
+        r2 = radialPeak ** 2;
     }
 
-    const d = 1 + k1 * r2 + k2 * r2 ** 2;
-    return [
-        focal * d * xn,
-        focal * d * yn,
-    ];
+    const distortion = 1 + r2 * (k1 + r2 * k2);
+
+    const xd = xp * distortion;
+    const yd = yp * distortion;
+
+    // Transformation
+    const xt = focal * xd;
+    const yt = focal * yd;
+
+    return [xt, yt];
 }
 
 export const PERSPECTIVE_CAMERA_TYPE = "perspective";
 
 export const PERSPECTIVE_PROJECT_FUNCTION = /* glsl */ `
 vec2 projectToSfm(vec3 bearing, Parameters parameters, Uniforms uniforms) {
-    if (bearing.z < 0.) {
-        return vec2(POSITIVE_INFINITY, POSITIVE_INFINITY);
-    }
+    float x = bearing.x;
+    float y = bearing.y;
+    float z = bearing.z;
 
     float focal = parameters.focal;
     float k1 = parameters.k1;
@@ -78,19 +94,31 @@ vec2 projectToSfm(vec3 bearing, Parameters parameters, Uniforms uniforms) {
 
     float radialPeak = uniforms.radialPeak;
 
-    float x = bearing.x / bearing.z;
-    float y = bearing.y / bearing.z;
-    float r2 = x * x + y * y;
+    // Projection
+    if (z < 0.) {
+        return vec2(POSITIVE_INFINITY, POSITIVE_INFINITY);
+    }
+
+    float xp = x / z;
+    float yp = y / z;
+
+    // Distortion
+    float r2 = xp * xp + yp * yp;
 
     if (r2 > radialPeak * sqrt(r2)) {
         r2 = radialPeak * radialPeak;
     }
 
-    float d = 1.0 + k1 * r2 + k2 * r2 * r2;
-    float xn = focal * d * x;
-    float yn = focal * d * y;
+    float distortion = 1.0 + r2 * (k1 + r2 * k2);
 
-    return vec2(xn, yn);
+    float xd = xp * distortion;
+    float yd = yp * distortion;
+
+    // Transformation
+    float xt = focal * xd;
+    float yt = focal * yd;
+
+    return vec2(xt, yt);
 }
 `;
 
