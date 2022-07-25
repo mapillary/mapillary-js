@@ -151,10 +151,6 @@ export class MeshFactory {
     private _getImageSphereGeo(transform: Transform, image: Image): THREE.BufferGeometry {
         const t = transform.srtInverse;
 
-        // push everything at least 5 meters in front of the camera
-        let minZ: number = 5.0 * transform.scale;
-        let maxZ: number = this._imageSphereRadius * transform.scale;
-
         let vertices: number[] = image.mesh.vertices;
         let numVertices: number = vertices.length / 3;
         let positions: Float32Array = new Float32Array(vertices.length);
@@ -163,11 +159,7 @@ export class MeshFactory {
             let x: number = vertices[index + 0];
             let y: number = vertices[index + 1];
             let z: number = vertices[index + 2];
-
-            let l: number = Math.sqrt(x * x + y * y + z * z);
-            let boundedL: number = Math.max(minZ, Math.min(l, maxZ));
-            let factor: number = boundedL / l;
-            let p: THREE.Vector3 = new THREE.Vector3(x * factor, y * factor, z * factor);
+            let p: THREE.Vector3 = new THREE.Vector3(x, y, z);
 
             p.applyMatrix4(t);
 
@@ -191,12 +183,7 @@ export class MeshFactory {
     }
 
     private _getImagePlaneGeo(transform: Transform, image: Image): THREE.BufferGeometry {
-        const undistortionMarginFactor: number = 3;
         const t = transform.srtInverse;
-
-        // push everything at least 5 meters in front of the camera
-        let minZ: number = 5.0 * transform.scale;
-        let maxZ: number = this._imagePlaneDepth * transform.scale;
 
         let vertices: number[] = image.mesh.vertices;
         let numVertices: number = vertices.length / 3;
@@ -206,15 +193,7 @@ export class MeshFactory {
             let x: number = vertices[index + 0];
             let y: number = vertices[index + 1];
             let z: number = vertices[index + 2];
-
-            if (i < 4) {
-                x *= undistortionMarginFactor;
-                y *= undistortionMarginFactor;
-            }
-
-            let boundedZ: number = Math.max(minZ, Math.min(z, maxZ));
-            let factor: number = boundedZ / z;
-            let p: THREE.Vector3 = new THREE.Vector3(x * factor, y * factor, boundedZ);
+            let p: THREE.Vector3 = new THREE.Vector3(x, y, z);
 
             p.applyMatrix4(t);
 
@@ -240,10 +219,6 @@ export class MeshFactory {
     private _getImagePlaneGeoFisheye(transform: Transform, image: Image): THREE.BufferGeometry {
         const t = transform.srtInverse;
 
-        // push everything at least 5 meters in front of the camera
-        let minZ: number = 5.0 * transform.scale;
-        let maxZ: number = this._imagePlaneDepth * transform.scale;
-
         let vertices: number[] = image.mesh.vertices;
         let numVertices: number = vertices.length / 3;
         let positions: Float32Array = new Float32Array(vertices.length);
@@ -253,10 +228,7 @@ export class MeshFactory {
             let y: number = vertices[index + 1];
             let z: number = vertices[index + 2];
 
-            let l: number = Math.sqrt(x * x + y * y + z * z);
-            let boundedL: number = Math.max(minZ, Math.min(l, maxZ));
-            let factor: number = boundedL / l;
-            let p: THREE.Vector3 = new THREE.Vector3(x * factor, y * factor, z * factor);
+            let p: THREE.Vector3 = new THREE.Vector3(x, y, z);
 
             p.applyMatrix4(t);
 

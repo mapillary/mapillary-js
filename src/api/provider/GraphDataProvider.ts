@@ -28,7 +28,7 @@ import {
     GraphContract,
     GraphError,
 } from './GraphContracts';
-import { GraphConverter } from './GraphConverter';
+import { GraphConverter, MeshParameters } from './GraphConverter';
 import { GraphDataProviderOptions } from './GraphDataProviderOptions';
 import {
     GraphCoreImageEnt,
@@ -43,6 +43,7 @@ export class GraphDataProvider extends DataProviderBase {
 
     private readonly _convert: GraphConverter;
     private readonly _query: GraphQueryCreator;
+    private readonly _meshParameters: Map<string, MeshParameters>;
 
     private _accessToken: string | undefined;
 
@@ -56,6 +57,7 @@ export class GraphDataProvider extends DataProviderBase {
 
         this._convert = converter ?? new GraphConverter();
         this._query = queryCreator ?? new GraphQueryCreator();
+        this._meshParameters = new Map();
 
         this._method = 'GET';
         const opts = options ?? {};
@@ -140,6 +142,7 @@ export class GraphDataProvider extends DataProviderBase {
                 for (const item of items) {
                     const coreImage = this._convert.coreImage(item);
                     const spatialImage = this._convert.spatialImage(item);
+                    this._setMeshParameters(spatialImage);
                     const image = Object.assign({}, spatialImage, coreImage);
                     const contract: EntContract<ImageEnt> = {
                         node: image,
@@ -183,7 +186,10 @@ export class GraphDataProvider extends DataProviderBase {
         return fetchArrayBuffer(url, abort)
             .then(
                 (buffer: ArrayBuffer) => {
-                    return readMeshPbf(buffer);
+                    const mesh = readMeshPbf(buffer);
+                    return this._convert.mesh(
+                        mesh,
+                        this._meshParameters.get(url));
                 });
     }
 
@@ -229,6 +235,7 @@ export class GraphDataProvider extends DataProviderBase {
                 const items = r.data;
                 for (const item of items) {
                     const spatialImage = this._convert.spatialImage(item);
+                    this._setMeshParameters(spatialImage);
                     const contract: EntContract<SpatialImageEnt> = {
                         node: spatialImage,
                         node_id: item.id,
@@ -290,5 +297,14 @@ export class GraphDataProvider extends DataProviderBase {
             `${error.code} (${error.type}, ${error.fbtrace_id}): ${error.message}` :
             "Failed to fetch data";
         return message;
+    }
+
+    private _setMeshParameters(spatialImage: SpatialImageEnt): void {
+        this._meshParameters.set(
+            spatialImage.mesh.url,
+            {
+                perspective: spatialImage.camera_type === 'perspective',
+                scale: spatialImage.atomic_scale ?? 1
+            });
     }
 }
