@@ -91,6 +91,7 @@ export class GraphConverter {
         const { vertices } = source;
 
         const scale = params && params.scale != null ? params.scale : 1;
+        const scaleInv = 1 / scale;
         const perspective = params ? params.perspective : true;
 
         const zMin = scale * MIN_DEPTH;
@@ -116,17 +117,17 @@ export class GraphConverter {
                 const zBounded = Math.max(zMin, Math.min(z, zMax));
                 const factor = zBounded / z;
 
-                vertices[index + 0] = factor * x;
-                vertices[index + 1] = factor * y;
-                vertices[index + 2] = zBounded;
+                vertices[index + 0] = factor * x * scaleInv;
+                vertices[index + 1] = factor * y * scaleInv;
+                vertices[index + 2] = zBounded * scaleInv;
             } else {
                 const l = Math.sqrt(x * x + y * y + z * z);
                 const lBounded = Math.max(zMin, Math.min(l, zMax));
                 const factor = lBounded / l;
 
-                vertices[index + 0] = factor * x;
-                vertices[index + 1] = factor * y;
-                vertices[index + 2] = factor * z;
+                vertices[index + 0] = factor * x * scaleInv;
+                vertices[index + 1] = factor * y * scaleInv;
+                vertices[index + 2] = factor * z * scaleInv;
             }
         }
 

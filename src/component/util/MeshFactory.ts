@@ -149,7 +149,7 @@ export class MeshFactory {
     }
 
     private _getImageSphereGeo(transform: Transform, image: Image): THREE.BufferGeometry {
-        const t = transform.srtInverse;
+        const t = transform.rtInverse;
 
         let vertices: number[] = image.mesh.vertices;
         let numVertices: number = vertices.length / 3;
@@ -183,7 +183,7 @@ export class MeshFactory {
     }
 
     private _getImagePlaneGeo(transform: Transform, image: Image): THREE.BufferGeometry {
-        const t = transform.srtInverse;
+        const t = transform.rtInverse;
 
         let vertices: number[] = image.mesh.vertices;
         let numVertices: number = vertices.length / 3;
@@ -217,7 +217,7 @@ export class MeshFactory {
     }
 
     private _getImagePlaneGeoFisheye(transform: Transform, image: Image): THREE.BufferGeometry {
-        const t = transform.srtInverse;
+        const t = transform.rtInverse;
 
         let vertices: number[] = image.mesh.vertices;
         let numVertices: number = vertices.length / 3;

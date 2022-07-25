@@ -160,6 +160,14 @@ export class Transform {
     }
 
     /**
+     * Get rtInverse.
+     * @returns {THREE.Matrix4} The inverse of the extrinsic camera matrix.
+     */
+    public get rtInverse(): THREE.Matrix4 {
+        return this._worldToCameraInverse;
+    }
+
+    /**
      * Get srt.
      * @returns {THREE.Matrix4} The scaled extrinsic camera matrix.
      */
