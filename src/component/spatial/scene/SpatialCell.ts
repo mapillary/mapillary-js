@@ -80,11 +80,9 @@ export class SpatialCell {
         this.clusterVisibles = {};
 
         this._frameMaterial = new LineBasicMaterial({
-            fog: false,
             vertexColors: true,
         });
         this._positionMaterial = new LineBasicMaterial({
-            fog: false,
             color: 0xff0000,
         });
 
