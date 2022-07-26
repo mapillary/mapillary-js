@@ -8,7 +8,7 @@ Facebook has adopted the [Contributor Covenant](https://www.contributor-covenant
 
 ## Contribution Prerequisites
 
-- You have [Node](https://nodejs.org) installed at v14.x and [Yarn](https://classic.yarnpkg.com) at v1.22.0+.
+- You have [Node](https://nodejs.org) installed at v16.16.0+ and [Yarn](https://classic.yarnpkg.com) at v1.22.0+.
 - You are familiar with [Git](https://git-scm.com/).
 
 ## Sending a Pull Request
