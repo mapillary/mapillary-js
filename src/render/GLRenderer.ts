@@ -295,7 +295,10 @@ export class GLRenderer {
                 (): THREE.WebGLRenderer => {
                     canvasContainer.appendChild(canvas);
                     const element = renderService.element;
-                    const webGLRenderer = new THREE.WebGLRenderer({ canvas: canvas });
+                    const webGLRenderer = new THREE.WebGLRenderer({
+                        antialias: true,
+                        canvas: canvas,
+                    });
                     webGLRenderer.setPixelRatio(window.devicePixelRatio);
                     webGLRenderer.setSize(element.offsetWidth, element.offsetHeight);
                     webGLRenderer.autoClear = false;
