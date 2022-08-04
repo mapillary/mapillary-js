@@ -72,14 +72,20 @@ describe("GraphConverter.clusterReconstruction", () => {
         expect(cluster).toBeDefined();
 
         // Points
-        expect(Object.keys(cluster.points).length).toBe(1);
-        expect(pointId in cluster.points).toBe(true);
-        expect(cluster.points[pointId]).toBeDefined();
-        expect(cluster.points[pointId].color[0]).toBeCloseTo(color[0] / 255);
-        expect(cluster.points[pointId].color[1]).toBeCloseTo(color[1] / 255);
-        expect(cluster.points[pointId].color[2]).toBeCloseTo(color[2] / 255);
-        expect(cluster.points[pointId].coordinates)
-            .toEqual(point.coordinates);
+        expect(Object.keys(cluster.pointIds).length).toBe(1);
+
+        const index = cluster.pointIds.indexOf(pointId);
+        expect(index).toBeGreaterThanOrEqual(0);
+
+        const pointIndex = 3 * index;
+
+        expect(cluster.colors[pointIndex + 0]).toBeCloseTo(color[0] / 255);
+        expect(cluster.colors[pointIndex + 1]).toBeCloseTo(color[1] / 255);
+        expect(cluster.colors[pointIndex + 2]).toBeCloseTo(color[2] / 255);
+
+        expect(cluster.coordinates[pointIndex + 0]).toBeCloseTo(coordinates[0]);
+        expect(cluster.coordinates[pointIndex + 1]).toBeCloseTo(coordinates[1]);
+        expect(cluster.coordinates[pointIndex + 2]).toBeCloseTo(coordinates[2]);
 
         // Reference
         expect(cluster.reference).toBeDefined();

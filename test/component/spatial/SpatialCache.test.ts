@@ -387,8 +387,10 @@ describe("SpatialCache.updateCell$", () => {
 describe("SpatialCache.updateReconstructions$", () => {
     const createCluster = (key: string): ClusterContract => {
         return {
+            colors: [],
+            coordinates: [],
             id: key,
-            points: {},
+            pointIds: [],
             reference: { lat: 0, lng: 0, alt: 0 },
         };
     };

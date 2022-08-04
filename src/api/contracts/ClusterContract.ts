@@ -1,5 +1,4 @@
 import { LngLatAlt } from "../interfaces/LngLatAlt";
-import { PointContract } from "./PointContract";
 
 /**
  * Contract describing cluster reconstruction data.
@@ -11,13 +10,35 @@ export interface ClusterContract {
     id: string;
 
     /**
+     * The IDs of the points.
+     *
+     * @description The order of the IDs correspond with the order
+     * of the color and coordinate arrays.
+     */
+    pointIds: string[];
+
+    /**
+     * The colors of the reconstruction.
+     *
+     * @description The colors are represented as RGB values
+     * normalized to floats on the interval [0, 1].
+     *
+     * Colors are ordered according to the point IDs in
+     * a flattened array.
+     */
+    colors: number[];
+
+    /**
      * The points of the reconstruction.
      *
      * @description The points are represented in local topocentric
-     * ENU coordinates relative to the cluster reference longitude,
-     * latitude, altitude.
+     * ENU coordinates in metric scale relative to the cluster
+     * reference longitude, latitude, altitude.
+     *
+     * Coordinates are ordered according to the point IDs in
+     * a flattened array.
      */
-    points: { [pointId: string]: PointContract; };
+    coordinates: number[];
 
     /**
      * The reference longitude, latitude, altitude of

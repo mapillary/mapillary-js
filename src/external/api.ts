@@ -48,7 +48,6 @@ export { ImageTilesContract } from "../api/contracts/ImageTilesContract";
 export { ImageTilesRequestContract }
     from "../api/contracts/ImageTilesRequestContract";
 export { MeshContract } from "../api/contracts/MeshContract";
-export { PointContract } from "../api/contracts/PointContract";
 export { SequenceContract } from "../api/contracts/SequenceContract";
 export { SpatialImagesContract } from "../api/contracts/SpatialImagesContract";
 
