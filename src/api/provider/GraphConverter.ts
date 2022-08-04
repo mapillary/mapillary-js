@@ -38,16 +38,26 @@ export class GraphConverter {
         : ClusterContract {
 
         const id: string = null;
+        const colors: number[] = [];
+        const coordinates: number[] = [];
+        const pointIds: string[] = [];
+
         const points = source.points;
-        const normalize = 1 / 255;
+        const normalizer = 1 / 255;
         for (const pointId in points) {
             if (!points.hasOwnProperty(pointId)) {
                 continue;
             }
-            const color = points[pointId].color;
-            color[0] *= normalize;
-            color[1] *= normalize;
-            color[2] *= normalize;
+
+            pointIds.push(pointId);
+            const point = points[pointId];
+
+            const color = point.color;
+            colors.push(color[0] * normalizer);
+            colors.push(color[1] * normalizer);
+            colors.push(color[2] * normalizer);
+
+            coordinates.push(...point.coordinates);
         }
 
         const lla = source.reference_lla;
@@ -57,8 +67,10 @@ export class GraphConverter {
             lng: lla.longitude,
         };
         return {
+            colors,
+            coordinates,
             id,
-            points,
+            pointIds,
             reference,
         };
     }
