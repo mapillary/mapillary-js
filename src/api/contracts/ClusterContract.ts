@@ -47,4 +47,12 @@ export interface ClusterContract {
      * frame.
      */
     reference: LngLatAlt;
+
+    /**
+     * Rotation vector of the cluster in angle axis representation.
+     *
+     * @description The rotation vector is indepenent of the coordinates,
+     * i.e. it is not applied when visualizing point clouds.
+     */
+    rotation: number[];
 }
