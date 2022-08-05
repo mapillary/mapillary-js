@@ -392,6 +392,7 @@ describe("SpatialCache.updateReconstructions$", () => {
             id: key,
             pointIds: [],
             reference: { lat: 0, lng: 0, alt: 0 },
+            rotation: [0, 0, 0]
         };
     };
 

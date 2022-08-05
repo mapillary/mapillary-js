@@ -72,6 +72,7 @@ export class GraphConverter {
             id,
             pointIds,
             reference,
+            rotation: [0, 0, 0],
         };
     }
 

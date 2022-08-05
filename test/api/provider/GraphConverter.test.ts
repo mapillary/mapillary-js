@@ -92,6 +92,13 @@ describe("GraphConverter.clusterReconstruction", () => {
         expect(cluster.reference.alt).toBe(contract.reference_lla.altitude);
         expect(cluster.reference.lat).toBe(contract.reference_lla.latitude);
         expect(cluster.reference.lng).toBe(contract.reference_lla.longitude);
+
+        // Rotation
+        expect(cluster.rotation).toBeDefined();
+        expect(cluster.rotation.length).toBe(3);
+        expect(cluster.rotation[0]).toBe(0);
+        expect(cluster.rotation[1]).toBe(0);
+        expect(cluster.rotation[2]).toBe(0);
     });
 });
 
