@@ -475,11 +475,29 @@ export class RenderCamera {
                         aspect);
                 });
 
-        const fov = renderMode === RenderMode.Fill ?
-            Math.min(...fovs) * 0.995 :
-            Math.max(...fovs);
+        const vFovFill = Math.min(...fovs) * 0.995;
+        if (renderMode === RenderMode.Fill) {
+            return vFovFill;
+        }
 
-        return fov;
+        const vFovLetterbox = Math.max(...fovs);
+        const hFovLetterbox = aspect * vFovLetterbox;
+
+        const fovCoeff = 1.25;
+        const hFovFill = aspect * vFovFill;
+        const hFovMax = fovCoeff * hFovFill;
+
+        let vFov = vFovLetterbox;
+        if (hFovLetterbox > hFovMax) {
+            vFov *= hFovMax / hFovLetterbox;
+        }
+
+        const fovMax = 135;
+        const vFovMax = aspect > 2 ? vFovFill : fovCoeff * vFovFill;
+        vFov = Math.min(vFov, vFovMax, fovMax);
+        vFov = Math.max(vFov, vFovFill);
+
+        return vFov;
     }
 
     private _yToFov(y: number, zoom: number): number {
