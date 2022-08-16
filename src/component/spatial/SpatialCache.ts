@@ -15,9 +15,9 @@ import {
     refCount,
     tap,
 } from "rxjs/operators";
+import { APIWrapper } from "../../api/APIWrapper";
 
 import { ClusterContract } from "../../api/contracts/ClusterContract";
-import { IDataProvider } from "../../api/interfaces/IDataProvider";
 import { CancelMapillaryError } from "../../error/CancelMapillaryError";
 import { GraphService } from "../../graph/GraphService";
 import { Image } from "../../graph/Image";
@@ -29,7 +29,7 @@ type ClusterData = {
 
 export class SpatialCache {
     private _graphService: GraphService;
-    private _data: IDataProvider;
+    private _api: APIWrapper;
 
     private _cacheRequests: { [cellId: string]: Function[]; };
     private _cells: { [cellId: string]: Image[]; };
@@ -41,9 +41,9 @@ export class SpatialCache {
     private _cachingClusters$: { [cellId: string]: Observable<ClusterContract>; };
     private _cachingCells$: { [cellId: string]: Observable<Image[]>; };
 
-    constructor(graphService: GraphService, provider: IDataProvider) {
+    constructor(graphService: GraphService, api: APIWrapper) {
         this._graphService = graphService;
-        this._data = provider;
+        this._api = api;
 
         this._cells = {};
         this._cacheRequests = {};
@@ -367,7 +367,7 @@ export class SpatialCache {
     private _getCluster$(url: string, clusterId: string, abort: Promise<void>): Observable<ClusterContract> {
         return Observable.create(
             (subscriber: Subscriber<ClusterContract>): void => {
-                this._data.getCluster(url, abort)
+                this._api.data.getCluster(url, abort)
                     .then(
                         (reconstruction: ClusterContract): void => {
                             reconstruction.id = clusterId;

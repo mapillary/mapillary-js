@@ -87,7 +87,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
 
         this._cache = new SpatialCache(
             navigator.graphService,
-            navigator.api.data);
+            navigator.api);
         this._scene = new SpatialScene(this._getDefaultConfiguration());
         this._viewportCoords = new ViewportCoords();
         this._spatial = new Spatial();

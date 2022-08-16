@@ -38,9 +38,6 @@ import { cameraControlsToState } from "./Modes";
 import { CameraControls } from "./enums/CameraControls";
 import { GraphDataProvider } from "../api/provider/GraphDataProvider";
 import { ProjectionService } from "./ProjectionService";
-import { FISHEYE_CAMERA_TYPE, FisheyeCamera } from "../geometry/camera/FisheyeCamera";
-import { PerspectiveCamera, PERSPECTIVE_CAMERA_TYPE } from "../geometry/camera/PerspectiveCamera";
-import { SPHERICAL_CAMERA_TYPE, SphericalCamera } from "../geometry/camera/SphericalCamera";
 
 export class Navigator {
     private _api: APIWrapper;

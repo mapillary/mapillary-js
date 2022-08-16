@@ -17,6 +17,7 @@ export interface ViewerStateEvent extends ViewerEvent {
      * The event type.
      */
     type:
+    | "dataprovider"
     | "fov"
     | "moveend"
     | "movestart"

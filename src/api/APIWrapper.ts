@@ -17,7 +17,7 @@ import { IDataProvider } from "./interfaces/IDataProvider";
  * @classdesc Provides methods for access to the API.
  */
 export class APIWrapper {
-    constructor(private readonly _data: IDataProvider) { }
+    constructor(private _data: IDataProvider) { }
 
     public get data(): IDataProvider {
         return this._data;
@@ -48,6 +48,10 @@ export class APIWrapper {
 
     public setAccessToken(accessToken?: string): void {
         this._data.setAccessToken(accessToken);
+    }
+
+    public setDataProvider(data: IDataProvider): void {
+        this._data = data;
     }
 
     private _wrap$<T>(promise: Promise<T>): Observable<T> {

@@ -4,7 +4,7 @@ import {
     Observable,
 } from "rxjs";
 import {
-    first,
+    first, tap,
 } from "rxjs/operators";
 
 import { LngLat } from "../api/interfaces/LngLat";
@@ -51,6 +51,7 @@ import { IDataProvider } from "../external/api";
 import { ViewerResetEvent } from "./events/ViewerResetEvent";
 import { CameraConstructor } from "../geometry/interfaces/ICamera";
 import { GLShader } from "../shader/Shader";
+import { ViewerEvent } from "./events/ViewerEvent";
 
 /**
  * @class Viewer
@@ -909,6 +910,24 @@ export class Viewer extends EventEmitter implements IViewer {
      * ```
      */
     public on(
+        type: "dataprovider",
+        handler: (event: ViewerStateEvent) => void)
+        : void;
+    /**
+     * Fired when the viewer's data provider is set.
+     *
+     * @event loading
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("dataprovider", function() {
+     *   console.log("A provider event has occurred.");
+     * });
+     * ```
+     */
+    public on(
         type: "dataloading",
         handler: (event: ViewerDataLoadingEvent) => void)
         : void;
@@ -1540,6 +1559,50 @@ export class Viewer extends EventEmitter implements IViewer {
      */
     public setCenter(center: number[]): void {
         this._navigator.stateService.setCenter(center);
+    }
+
+    /**
+     * Set a new data provider instance.
+     *
+     * @description Resets the viewer's cache (see {@link Viewer.reset}).
+     *
+     * @returns {Promise<void>} Promise that resolves when viewer's data
+     * provider has been set.
+     *
+     * @throws When viewer is not navigable.
+     *
+     * @example
+     * ```js
+     * const myDataProvider = new MyDataProvider();
+     * viewer.setDataProvider(myDataProvider)
+     *     .then(() => { console.log("data provider set"); });
+     * ```
+     */
+    public setDataProvider(provider: IDataProvider): Promise<void> {
+        const reset$: Observable<void> = this.isNavigable ?
+            this._navigator.reset$()
+                .pipe(tap(() => {
+                    this._navigator.api.setDataProvider(provider);
+                    const type: ViewerEventType = "dataprovider";
+                    const event: ViewerStateEvent = {
+                        target: this,
+                        type,
+                    };
+                    this.fire(type, event);
+                })) :
+            observableThrowError(new Error("Calling setDataProvider is not supported when viewer is not navigable."));
+
+        return new Promise<void>(
+            (resolve: (value: void) => void, reject: (reason: Error) => void): void => {
+                reset$
+                    .subscribe(
+                        (): void => {
+                            resolve(undefined);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        });
+            });
     }
 
     /**
