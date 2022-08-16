@@ -3227,6 +3227,7 @@ export interface IViewer {
   resize(): void;
   setCameraControls(controls: $Values<typeof CameraControls>): void;
   setCenter(center: number[]): void;
+  setDataProvider(provider: IDataProvider): Promise<void>;
   setFieldOfView(fov: number): void;
   setFilter(filter?: FilterExpression): Promise<void>;
   setRenderMode(renderMode: $Values<typeof RenderMode>): void;
@@ -4025,6 +4026,20 @@ declare class Viewer implements IEventEmitter, IViewer {
    * ```
    */
   setCenter(center: number[]): void;
+
+  /**
+   * Set a new data provider instance.
+   * @description [object Object],[object Object],[object Object]
+   * @returns {Promise<void>} Promise that resolves when viewer's data
+   * provider has been set.
+   * @throws When viewer is not navigable.
+   * @example ```js
+   * const myDataProvider = new MyDataProvider();
+   * viewer.setDataProvider(myDataProvider)
+   *     .then(() => { console.log("data provider set"); });
+   * ```
+   */
+  setDataProvider(provider: IDataProvider): Promise<void>;
 
   /**
    * Set the viewer's current vertical field of view.

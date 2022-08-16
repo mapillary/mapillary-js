@@ -52,7 +52,7 @@ function generateCells(images, geometryProvider) {
 }
 
 function generateCluster(options, intervals) {
-  const {cameraType, east, focal, height, k1, k2, width} = options;
+  const {cameraType, color, east, focal, height, k1, k2, width} = options;
   let {idCounter} = options;
   const {alt, lat, lng} = options.reference;
 
@@ -119,7 +119,13 @@ function generateCluster(options, intervals) {
     idCounter += 1;
   }
 
-  const cluster = {id: clusterId, points: {}, reference: options.reference};
+  const cluster = {
+    colors: [],
+    coordinates: [],
+    id: clusterId,
+    pointIds: [],
+    reference: options.reference,
+  };
   for (let i = 0; i <= intervals; i++) {
     const easts = [-3, 3];
     const north = (-intervals * distance) / 2 + distance * i;
@@ -131,10 +137,9 @@ function generateCluster(options, intervals) {
           const cx = east + x;
           const cy = north + y;
           const cz = up + z;
-          cluster.points[pointId] = {
-            coordinates: [cx, cy, cz],
-            color: [1, 1, 1],
-          };
+          cluster.pointIds.push(pointId);
+          cluster.coordinates.push(cx, cy, cz);
+          cluster.colors.push(...color);
         }
       }
     }
@@ -153,15 +158,8 @@ function generateClusters(options) {
 
   const clusterConfigs = [
     {
-      cameraType: FISHEYE,
-      east: 9,
-      focal: 0.45,
-      k1: -0.006,
-      k2: 0.004,
-      reference,
-    },
-    {
       cameraType: PERSPECTIVE,
+      color: [1, 0, 0],
       east: -9,
       focal: 0.8,
       k1: -0.13,
@@ -169,7 +167,17 @@ function generateClusters(options) {
       reference,
     },
     {
+      cameraType: FISHEYE,
+      color: [0, 1, 0],
+      east: 9,
+      focal: 0.45,
+      k1: -0.006,
+      k2: 0.004,
+      reference,
+    },
+    {
       cameraType: SPHERICAL,
+      color: [1, 1, 0],
       east: 0,
       reference,
     },
@@ -208,11 +216,11 @@ export class ProceduralDataProvider extends DataProviderBase {
   constructor(options) {
     super(options.geometry ?? new S2GeometryProvider());
 
-    this.reference = options.reference ?? DEFAULT_REFERENCE;
+    this.idCounter = options.idCounter ?? 0;
     this.intervals = options.intervals ?? DEFAULT_INTERVALS;
+    this.reference = options.reference ?? DEFAULT_REFERENCE;
     this.imageTileSize = 10;
     this.imageTilesY = 10;
-    this.idCounter = 0;
 
     this._initialize();
     this._populate();

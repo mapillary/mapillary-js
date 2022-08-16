@@ -34,6 +34,9 @@
 
             let viewer;
             let dataProvider;
+            let intervals = 2;
+
+            const REFERENCE_DELTA = 1e-5;
             const reference = { lng: 0, lat: 0, alt: 0 };
 
             (function main() {
@@ -41,7 +44,10 @@
                 container.className = "viewer";
                 document.body.append(container);
 
-                dataProvider = new DynamicProceduralDataProvider({ reference });
+                dataProvider = new DynamicProceduralDataProvider({
+                    reference,
+                    intervals,
+                });
                 const options = {
                     dataProvider,
                     cameraControls: CameraControls.Earth,
@@ -66,10 +72,10 @@
             })();
 
             function increment() {
-                const delta = 1e-5;
-                reference.lng += delta;
-                reference.lat += delta;
-                reference.alt += delta;
+                reference.lng += REFERENCE_DELTA;
+                reference.lat += REFERENCE_DELTA;
+                reference.alt += REFERENCE_DELTA;
+                intervals++;
             }
 
             function listen() {
@@ -80,23 +86,25 @@
 
                     try {
                         switch (e.key) {
-                            case "c":
+                            case "q": {
                                 // Clear
                                 dataProvider.clear();
                                 await viewer.reset();
                                 break;
-                            case "r":
+                            }
+                            case "w": {
                                 // Reset
                                 increment();
                                 dataProvider.clear();
                                 await viewer.reset();
-                                dataProvider.populate({ reference });
+                                dataProvider.populate({ reference, intervals });
                                 await viewer.moveTo(
                                     dataProvider.images.keys().next().value
                                 );
                                 break;
-                            case "v":
-                                // Reset viewer only
+                            }
+                            case "e": {
+                                // Reset viewer and move to other image
                                 await viewer.reset();
                                 const image = await viewer.getImage();
                                 const newId = [
@@ -106,6 +114,30 @@
                                     await viewer.moveTo(newId);
                                 }
                                 break;
+                            }
+                            case "a": {
+                                // Reset viewer and move to same image
+                                // (currently an unhandled edge case)
+                                await viewer.reset();
+                                const image = await viewer.getImage();
+                                await viewer.moveTo(image.id);
+                                break;
+                            }
+                            case "s": {
+                                // Set a new data provider
+                                increment();
+                                dataProvider =
+                                    new DynamicProceduralDataProvider({
+                                        reference,
+                                        intervals,
+                                        idCounter: dataProvider.idCounter,
+                                    });
+                                await viewer.setDataProvider(dataProvider);
+                                await viewer.moveTo(
+                                    dataProvider.images.keys().next().value
+                                );
+                                break;
+                            }
                             default:
                                 break;
                         }

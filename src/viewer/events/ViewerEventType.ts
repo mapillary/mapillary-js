@@ -5,6 +5,7 @@ export type ViewerEventType =
     | "bearing"
     | "click"
     | "contextmenu"
+    | "dataprovider"
     | "dblclick"
     | "drag"
     | "dragend"

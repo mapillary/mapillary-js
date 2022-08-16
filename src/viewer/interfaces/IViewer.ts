@@ -67,6 +67,7 @@ export interface IViewer {
     setAccessToken(accessToken?: string): Promise<void>;
     setCameraControls(controls: CameraControls): void;
     setCenter(center: number[]): void;
+    setDataProvider(provider: IDataProvider): Promise<void>;
     setFieldOfView(fov: number): void;
     setFilter(filter?: FilterExpression): Promise<void>;
     setRenderMode(renderMode: RenderMode): void;
