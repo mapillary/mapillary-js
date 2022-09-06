@@ -30,6 +30,7 @@ export class GraphQueryCreator {
             'height',
             'merge_cc',
             'mesh',
+            'organization',
             'quality_score',
             'sfm_cluster',
             'thumb_1024_url',

@@ -81,7 +81,7 @@ export class GraphConverter {
 
         source.cluster = source.sfm_cluster ?? { id: null, url: null };
         source.creator = { id: null, username: null };
-        source.owner = source.owner ?? { id: null };
+        source.owner = source.organization ?? { id: null };
         source.mesh = source.mesh ?? { id: null, url: null };
 
         return source;
