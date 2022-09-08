@@ -161,7 +161,8 @@ describe("GraphConverter.spatialImage", () => {
             id: 'image-id',
             merge_cc: 7,
             mesh: { id: 'mesh-id', url: 'mesh-url' },
-            owner: { id: 'owner-id' },
+            organization: { id: 'owner-id' },
+            owner: null,
             quality_score: 0.8,
             sfm_cluster: { id: 'cluster-id', url: 'cluster-url' },
             thumb: null,
@@ -193,7 +194,7 @@ describe("GraphConverter.spatialImage", () => {
         expect(image.id).toBe(ent.id);
         expect(image.merge_id).toBe(ent.merge_cc.toString());
         expect(image.mesh.url).toBe(ent.mesh.url);
-        expect(image.owner.id).toBe(ent.owner.id);
+        expect(image.owner.id).toBe(ent.organization.id);
         expect(image.quality_score).toBe(ent.quality_score);
         expect(image.thumb.url).toBe(ent.thumb_1024_url);
         expect(image.width).toBe(ent.width);
@@ -218,6 +219,7 @@ describe("GraphConverter.spatialImage", () => {
             id: 'image-id',
             merge_cc: 7,
             mesh: null,
+            organization: null,
             owner: null,
             quality_score: 0.8,
             sfm_cluster: null,
