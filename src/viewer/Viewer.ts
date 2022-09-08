@@ -4,7 +4,7 @@ import {
     Observable,
 } from "rxjs";
 import {
-    first,
+    first, tap,
 } from "rxjs/operators";
 
 import { LngLat } from "../api/interfaces/LngLat";
@@ -48,6 +48,10 @@ import { ViewerLoadEvent } from "./events/ViewerLoadEvent";
 import { cameraControlsToState } from "./Modes";
 import { ViewerReferenceEvent } from "./events/ViewerReferenceEvent";
 import { IDataProvider } from "../external/api";
+import { ViewerResetEvent } from "./events/ViewerResetEvent";
+import { CameraConstructor } from "../geometry/interfaces/ICamera";
+import { GLShader } from "../shader/Shader";
+import { ViewerEvent } from "./events/ViewerEvent";
 
 /**
  * @class Viewer
@@ -361,6 +365,10 @@ export class Viewer extends EventEmitter implements IViewer {
     public fire(
         type: ViewerReferenceEvent["type"],
         event: ViewerReferenceEvent)
+        : void;
+    public fire(
+        type: ViewerResetEvent["type"],
+        event: ViewerResetEvent)
         : void;
     public fire(
         type: ViewerStateEvent["type"],
@@ -813,6 +821,10 @@ export class Viewer extends EventEmitter implements IViewer {
         handler: (event: ViewerReferenceEvent) => void)
         : void;
     public off(
+        type: ViewerResetEvent["type"],
+        handler: (event: ViewerResetEvent) => void)
+        : void;
+    public off(
         type: ViewerStateEvent["type"],
         handler: (event: ViewerStateEvent) => void)
         : void;
@@ -894,6 +906,24 @@ export class Viewer extends EventEmitter implements IViewer {
      * // Set an event listener
      * viewer.on("dataloading", function() {
      *   console.log("A loading event has occurred.");
+     * });
+     * ```
+     */
+    public on(
+        type: "dataprovider",
+        handler: (event: ViewerStateEvent) => void)
+        : void;
+    /**
+     * Fired when the viewer's data provider is set.
+     *
+     * @event loading
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("dataprovider", function() {
+     *   console.log("A provider event has occurred.");
      * });
      * ```
      */
@@ -1213,6 +1243,25 @@ export class Viewer extends EventEmitter implements IViewer {
         handler: (event: ViewerStateEvent) => void)
         : void;
     /**
+     * Fired when the viewer is reset. When this event is emitted
+     * the viewer has cleared its internal cache.
+     *
+     * @event remove
+     * @example
+     * ```js
+     * // Initialize the viewer
+     * var viewer = new Viewer({ // viewer options });
+     * // Set an event listener
+     * viewer.on("reset", function() {
+     *   console.log("A reset event has occurred.");
+     * });
+     * ```
+     */
+    public on(
+        type: "reset",
+        handler: (event: ViewerResetEvent) => void)
+        : void;
+    /**
      * Fired every time the sequence edges of the current image changes.
      *
      * @event sequenceedges
@@ -1380,6 +1429,42 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
+     * Reset the viewer's cache.
+     *
+     * @description All images in the viewer's cache at the moment when
+     * reset is called will eventually be removed if not navigated to
+     * again.
+     *
+     * @returns {Promise<void>} Promise that resolves when viewer's cache
+     * has been reset.
+     *
+     * @throws When viewer is not navigable.
+     *
+     * @example
+     * ```js
+     * viewer.reset()
+     *     .then(() => { console.log("viewer reset"); });
+     * ```
+     */
+    public reset(): Promise<void> {
+        const reset$: Observable<void> = this.isNavigable ?
+            this._navigator.reset$() :
+            observableThrowError(new Error("Calling reset is not supported when viewer is not navigable."));
+
+        return new Promise<void>(
+            (resolve: (value: void) => void, reject: (reason: Error) => void): void => {
+                reset$
+                    .subscribe(
+                        (): void => {
+                            resolve(undefined);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        });
+            });
+    }
+
+    /**
      * Detect the viewer's new width and height and resize it
      * manually.
      *
@@ -1403,15 +1488,34 @@ export class Viewer extends EventEmitter implements IViewer {
     }
 
     /**
+     * Register a class constructor for a camera type.
+     *
+     * @description The Viewer will invoke the camera
+     * constructor each time that camera type should be
+     * instantiated.
+     *
+     * @param {string} type - Camera type.
+     * @param ctor - Contructor for Camera class implementing the
+     * {@link ICamera} interface.
+     *
+     * @example
+     * ```js
+     * import {MyCamera} from "./MyCameraClasses";
+     * viewer.registerCamera("my-camera-type", MyCamera);
+     * ```
+     */
+    public registerCamera(
+        type: string,
+        ctor: CameraConstructor): void {
+        this._navigator.projectionService.registerCamera(type, ctor);
+    }
+
+    /**
      * Set the viewer's camera control mode.
      *
      * @description The camera control mode determines
      * how the camera is controlled when the viewer
      * receives pointer and keyboard input.
-     *
-     * Changing the camera control mode is not possible
-     * when the slider component is active and attempts
-     * to do so will be ignored.
      *
      * @param {CameraControls} controls - Camera control mode.
      *
@@ -1422,12 +1526,14 @@ export class Viewer extends EventEmitter implements IViewer {
      */
     public setCameraControls(controls: CameraControls): void {
         const state = cameraControlsToState(controls);
-        if (state === State.Traversing) {
-            this._navigator.stateService.traverse();
+        if (state === State.Custom) {
+            this._navigator.stateService.custom();
         } else if (state === State.Earth) {
             this._navigator.stateService.earth();
-        } else if (state === State.Custom) {
-            this._navigator.stateService.custom();
+        } else if (state === State.GravityTraversing) {
+            this._navigator.stateService.gravityTraverse();
+        } else if (state === State.Traversing) {
+            this._navigator.stateService.traverse();
         } else {
             console.warn(
                 `Unsupported camera control transition (${controls})`);
@@ -1453,6 +1559,50 @@ export class Viewer extends EventEmitter implements IViewer {
      */
     public setCenter(center: number[]): void {
         this._navigator.stateService.setCenter(center);
+    }
+
+    /**
+     * Set a new data provider instance.
+     *
+     * @description Resets the viewer's cache (see {@link Viewer.reset}).
+     *
+     * @returns {Promise<void>} Promise that resolves when viewer's data
+     * provider has been set.
+     *
+     * @throws When viewer is not navigable.
+     *
+     * @example
+     * ```js
+     * const myDataProvider = new MyDataProvider();
+     * viewer.setDataProvider(myDataProvider)
+     *     .then(() => { console.log("data provider set"); });
+     * ```
+     */
+    public setDataProvider(provider: IDataProvider): Promise<void> {
+        const reset$: Observable<void> = this.isNavigable ?
+            this._navigator.reset$()
+                .pipe(tap(() => {
+                    this._navigator.api.setDataProvider(provider);
+                    const type: ViewerEventType = "dataprovider";
+                    const event: ViewerStateEvent = {
+                        target: this,
+                        type,
+                    };
+                    this.fire(type, event);
+                })) :
+            observableThrowError(new Error("Calling setDataProvider is not supported when viewer is not navigable."));
+
+        return new Promise<void>(
+            (resolve: (value: void) => void, reject: (reason: Error) => void): void => {
+                reset$
+                    .subscribe(
+                        (): void => {
+                            resolve(undefined);
+                        },
+                        (error: Error): void => {
+                            reject(error);
+                        });
+            });
     }
 
     /**
@@ -1561,6 +1711,27 @@ export class Viewer extends EventEmitter implements IViewer {
      */
     public setRenderMode(renderMode: RenderMode): void {
         this._container.renderService.renderMode$.next(renderMode);
+    }
+
+    /**
+     * Set the viewer's texture shader.
+     *
+     * @description The shader will be used for all registered projection
+     * models.
+     *
+     * @param {GLShader} shader - Texture shader.
+     *
+     * @example
+     * ```js
+     * let myShader = {
+     *     fragment: '<My fragment GLSL>',
+     *     vertex: '<My vertex GLSL>',
+     * };
+     * viewer.setShader(myShader);
+     * ```
+     */
+    public setShader(shader: GLShader): void {
+        this._navigator.projectionService.setShader(shader);
     }
 
     /**

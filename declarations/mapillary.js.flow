@@ -230,23 +230,6 @@ export interface LngLatAlt extends LngLat {
    */
   alt: number;
 }
-
-/**
- * Contract describing a reconstruction point.
- */
-export interface PointContract {
-  /**
-   * RGB color vector of the point, normalized to floats
-   * on the interval [0, 1];
-   */
-  color: number[];
-
-  /**
-   * Coordinates in metric scale in topocentric ENU
-   * reference frame with respect to a geo reference.
-   */
-  coordinates: number[];
-}
 /**
  * Contract describing cluster reconstruction data.
  */
@@ -257,12 +240,32 @@ export interface ClusterContract {
   id: string;
 
   /**
-   * The points of the reconstruction.
+   * The IDs of the points.
+   * @description The order of the IDs correspond with the order
+   * of the color and coordinate arrays.
    */
-  points: {
-    [pointId: string]: PointContract,
-    ...
-  };
+  pointIds: string[];
+
+  /**
+   * The colors of the reconstruction.
+   * @description The colors are represented as RGB values
+   * normalized to floats on the interval [0, 1].
+   *
+   * Colors are ordered according to the point IDs in
+   * a flattened array.
+   */
+  colors: number[];
+
+  /**
+   * The points of the reconstruction.
+   * @description The points are represented in local topocentric
+   * ENU coordinates in metric scale relative to the cluster
+   * reference longitude, latitude, altitude.
+   *
+   * Coordinates are ordered according to the point IDs in
+   * a flattened array.
+   */
+  coordinates: number[];
 
   /**
    * The reference longitude, latitude, altitude of
@@ -271,6 +274,13 @@ export interface ClusterContract {
    * frame.
    */
   reference: LngLatAlt;
+
+  /**
+   * Rotation vector of the cluster in angle axis representation.
+   * @description The rotation vector is indepenent of the coordinates,
+   * i.e. it is not applied when visualizing point clouds.
+   */
+  rotation: number[];
 }
 /**
  * Ent representing an entity with a unique ID.
@@ -1110,6 +1120,90 @@ declare interface ViewportSize {
   width: number;
 }
 declare type CameraType = "spherical" | "fisheye" | "perspective";
+
+declare var ShaderChunk: {
+  common: string,
+  coordinates: string,
+  bearing_fragment: string,
+  map_color_fragment: string,
+  gl_frag_color_fragment: string,
+  precision_fragment: string,
+  uniforms_fragment: string,
+  varyings_fragment: string,
+  extrinsic_vertex: string,
+  gl_position_vertex: string,
+  uniforms_vertex: string,
+  varyings_vertex: string,
+  ...
+};
+
+export type GLShader = {
+  fragment: string,
+  vertex: string,
+};
+declare var Shader: {
+  [name: string]: GLShader,
+  ...
+};
+
+export type CameraParameters = {
+  [key: string]: number,
+  ...
+};
+export type CameraUniforms = {
+  [key: string]: boolean | number | number[],
+  ...
+};
+
+/**
+ * @interface
+ * @description Interface for cameras. This is a
+ * specification for implementers to model: it is not
+ * an exported method or class.
+ *
+ * Implmenting a custom camera allows the implementer to
+ * render textures and camera frustums with proper undistortion.
+ *
+ * Custom cameras must have a unique type.
+ */
+export interface ICamera {
+  +type: string;
+  +parameters: CameraParameters;
+  +uniforms: CameraUniforms;
+  +projectToSfmFunction: string;
+  bearingFromSfm(point: number[]): number[];
+  projectToSfm(bearing: number[]): number[];
+}
+declare class Camera implements ICamera {
+  +type: string;
+  +projectToSfmFunction: string;
+  +parameters: CameraParameters;
+  +uniforms: CameraUniforms;
+  constructor(type: string, projectToSfmFunction: string): this;
+  bearingFromSfm(_point: number[]): number[];
+  projectToSfm(_point: number[]): number[];
+}
+declare var FISHEYE_CAMERA_TYPE: "fisheye";
+declare class FisheyeCamera mixins Camera {
+  constructor(parameters: number[]): this;
+  bearingFromSfm(point: number[]): number[];
+  projectToSfm(point: number[]): number[];
+}
+declare var PERSPECTIVE_CAMERA_TYPE: "perspective";
+declare class PerspectiveCamera mixins Camera {
+  constructor(parameters: number[]): this;
+  bearingFromSfm(point: number[]): number[];
+  projectToSfm(point: number[]): number[];
+}
+declare var SPHERICAL_CAMERA_TYPE: "spherical";
+declare class SphericalCamera mixins Camera {
+  constructor(): this;
+  bearingFromSfm(point: number[]): number[];
+  projectToSfm(point: number[]): number[];
+}
+
+declare function resolveShader(shader: string, camera: ICamera): string;
+
 /**
  * @class Transform
  * @classdesc Class used for calculating coordinate transformations
@@ -1135,7 +1229,6 @@ declare class Transform {
     rotation: number[],
     translation: number[],
     image: HTMLImageElement,
-    textureScale?: number[],
     cameraParameters?: number[],
     cameraType?: CameraType
   ): this;
@@ -1252,10 +1345,10 @@ declare class Transform {
   unprojectSfM(sfm: number[], distance: number, depth?: boolean): number[];
 }
 /**
- * @class Camera
+ * @class StateCamera
  * @classdesc Holds information about a camera.
  */
-declare class Camera {
+declare class StateCamera {
   /**
    * Create a new camera instance.
    * @param {Transform} [transform] - Optional transform instance.
@@ -1275,30 +1368,30 @@ declare class Camera {
 
   /**
    * Update this camera to the linearly interpolated value of two other cameras.
-   * @param {Camera} a - First camera.
-   * @param {Camera} b - Second camera.
+   * @param {StateCamera} a - First camera.
+   * @param {StateCamera} b - Second camera.
    * @param {number} alpha - Interpolation value on the interval [0, 1].
    */
-  lerpCameras(a: Camera, b: Camera, alpha: number): void;
+  lerpCameras(a: StateCamera, b: StateCamera, alpha: number): void;
 
   /**
    * Copy the properties of another camera to this camera.
-   * @param {Camera} other - Another camera.
+   * @param {StateCamera} other - Another camera.
    */
-  copy(other: Camera): void;
+  copy(other: StateCamera): void;
 
   /**
    * Clone this camera.
-   * @returns {Camera} A camera with cloned properties equal to this camera.
+   * @returns {StateCamera} A camera with cloned properties equal to this camera.
    */
-  clone(): Camera;
+  clone(): StateCamera;
 
   /**
    * Determine the distance between this camera and another camera.
-   * @param {Camera} other - Another camera.
+   * @param {StateCamera} other - Another camera.
    * @returns {number} The distance between the cameras.
    */
-  diff(other: Camera): number;
+  diff(other: StateCamera): number;
 }
 declare var State: {|
   +Custom: 0, // 0
@@ -1483,6 +1576,13 @@ declare class Image {
    * @ignore
    */
   assetsCached: boolean;
+
+  /**
+   * Get camera.
+   * @returns {ICamera} Camera of the image
+   * @ignore
+   */
+  camera: ICamera;
 
   /**
    * Get cameraParameters.
@@ -1816,10 +1916,10 @@ declare class Image {
 declare interface IAnimationState {
   reference: LngLatAlt;
   alpha: number;
-  camera: Camera;
+  camera: StateCamera;
   zoom: number;
   currentImage: Image;
-  currentCamera: Camera;
+  currentCamera: StateCamera;
   previousImage: Image;
   trajectory: Image[];
   currentIndex: number;
@@ -1846,7 +1946,7 @@ declare class RenderCamera {
     renderMode: $Values<typeof RenderMode>
   ): this;
   alpha: number;
-  camera: Camera;
+  camera: StateCamera;
   changed: boolean;
   frameId: number;
   renderMode: $Values<typeof RenderMode>;
@@ -2303,91 +2403,6 @@ export type SequenceConfiguration = {
   ...
 } & ComponentConfiguration;
 
-/**
- * Enumeration for slider mode.
- * @enum {number} *
- * @readonly
- * @description Modes for specifying how transitions
- * between images are performed in slider mode. Only
- * applicable when the slider component determines
- * that transitions with motion is possilble. When it
- * is not, the stationary mode will be applied.
- */
-
-declare var SliderConfigurationMode: {|
-  +Motion: 0, // 0
-  +Stationary: 1, // 1
-|};
-
-/**
- * Interface for configuration of slider ids.
- * @interface
- */
-export interface SliderConfigurationIds {
-  /**
-   * Id for the image plane in the background.
-   */
-  background: string;
-
-  /**
-   * Id for the image plane in the foreground.
-   */
-  foreground: string;
-}
-/**
- * Interface for configuration of slider component.
- * @interface ```js
- * var viewer = new Viewer({
- *     ...
- *     component: {
- *         slider: {
- *             initialPosition: 0.5,
- *             ids: {
- *                 background: '<background-id>',
- *                 foreground: '<foreground-id>',
- *             },
- *             sliderVisible: true,
- *         },
- *     },
- *     ...
- * });
- * ```
- */
-export type SliderConfiguration = {
-  /**
-   * Initial position of the slider on the interval [0, 1].
-   * @description Configures the initial position of the slider.
-   * The inital position value will be used when the component
-   * is activated.
-   * @default 1
-   */
-  initialPosition?: number,
-
-  /**
-   * Slider image ids.
-   * @description Configures the component to show the image
-   * planes for the supplied image ids  in the foreground
-   * and the background.
-   */
-  ids?: SliderConfigurationIds,
-
-  /**
-   * Value indicating whether the slider should be visible.
-   * @description Set the value controlling if the
-   * slider is visible.
-   * @default true
-   */
-  sliderVisible?: boolean,
-
-  /**
-   * Mode used for image pair transitions.
-   * @description Configures the mode for transitions between
-   * image pairs.
-   */
-  mode?: $Values<typeof SliderConfigurationMode>,
-  ...
-} & ComponentConfiguration;
-
 declare var CameraVisualizationMode: {|
   +Hidden: 0, // 0
   +Homogeneous: 1, // 1
@@ -2690,13 +2705,6 @@ export interface ComponentOptions {
   sequence?: boolean | SequenceConfiguration;
 
   /**
-   * Show a slider for transitioning between image planes.
-   * @description Requires WebGL support.
-   * @default false
-   */
-  slider?: boolean | SliderConfiguration;
-
-  /**
    * Enable an interface for showing spatial data in the viewer.
    * @description Requires WebGL support.
    * @default false
@@ -2750,6 +2758,7 @@ declare var CameraControls: {|
   +Custom: 0, // 0
   +Earth: 1, // 1
   +Street: 2, // 2
+  +Gravity: 3, // 3
 |};
 
 /**
@@ -3213,12 +3222,16 @@ export interface IViewer {
   projectFromBasic(basicPoint: number[]): Promise<number[]>;
   remove(): void;
   removeCustomRenderer(rendererId: string): void;
+  reset(): Promise<void>;
+  registerCamera(type: string, ctor: Class<ICamera>): void;
   resize(): void;
   setCameraControls(controls: $Values<typeof CameraControls>): void;
   setCenter(center: number[]): void;
+  setDataProvider(provider: IDataProvider): Promise<void>;
   setFieldOfView(fov: number): void;
   setFilter(filter?: FilterExpression): Promise<void>;
   setRenderMode(renderMode: $Values<typeof RenderMode>): void;
+  setShader(shader: GLShader): void;
   setTransitionMode(transitionMode: $Values<typeof TransitionMode>): void;
   setAccessToken(accessToken?: string): Promise<void>;
   setZoom(zoom: number): void;
@@ -3487,7 +3500,6 @@ export type ComponentName =
   | "pointer"
   | "popup"
   | "sequence"
-  | "slider"
   | "spatial"
   | "tag"
   | "zoom";
@@ -3920,6 +3932,25 @@ declare class Viewer implements IEventEmitter, IViewer {
   projectFromBasic(basicPoint: number[]): Promise<number[]>;
 
   /**
+   * Register a class constructor for a camera type.
+   *
+   * @description The Viewer will invoke the camera
+   * constructor each time that camera type should be
+   * instantiated.
+   *
+   * @param {string} type - Camera type.
+   * @param ctor - Contructor for Camera class implementing the
+   * {@link ICamera} interface.
+   *
+   * @example
+   * ```js
+   * import {MyCamera} from "./MyCameraClasses";
+   * viewer.registerCamera("my-camera-type", MyCamera);
+   * ```
+   */
+  registerCamera(type: string, ctor: Class<ICamera>): void;
+
+  /**
    * Clean up and release all internal resources associated with
    * this viewer.
    * @description This includes DOM elements, event bindings, and
@@ -3942,6 +3973,21 @@ declare class Viewer implements IEventEmitter, IViewer {
   removeCustomRenderer(rendererId: string): void;
 
   /**
+   * Reset the viewer's cache.
+   * @description All images in the viewer's cache at the moment when
+   * reset is called will eventually be removed if not navigated to
+   * again.
+   * @returns {Promise<void>} Promise that resolves when viewer's cache
+   * has been reset.
+   * @throws When viewer is not navigable.
+   * @example ```js
+   * viewer.reset()
+   *     .then(() => { console.log("viewer reset"); });
+   * ```
+   */
+  reset(): Promise<void>;
+
+  /**
    * Detect the viewer's new width and height and resize it
    * manually.
    * @description [object Object],[object Object],[object Object],[object Object],[object Object]
@@ -3957,9 +4003,6 @@ declare class Viewer implements IEventEmitter, IViewer {
  * how the camera is controlled when the viewer
  * receives pointer and keyboard input.
  *
- * Changing the camera control mode is not possible
- * when the slider component is active and attempts
- * to do so will be ignored.
  * @param {$Values<
                 typeof
                 CameraControls>} controls - Camera control mode.
@@ -3983,6 +4026,20 @@ declare class Viewer implements IEventEmitter, IViewer {
    * ```
    */
   setCenter(center: number[]): void;
+
+  /**
+   * Set a new data provider instance.
+   * @description [object Object],[object Object],[object Object]
+   * @returns {Promise<void>} Promise that resolves when viewer's data
+   * provider has been set.
+   * @throws When viewer is not navigable.
+   * @example ```js
+   * const myDataProvider = new MyDataProvider();
+   * viewer.setDataProvider(myDataProvider)
+   *     .then(() => { console.log("data provider set"); });
+   * ```
+   */
+  setDataProvider(provider: IDataProvider): Promise<void>;
 
   /**
    * Set the viewer's current vertical field of view.
@@ -4024,6 +4081,25 @@ declare class Viewer implements IEventEmitter, IViewer {
  * ```
  */
   setRenderMode(renderMode: $Values<typeof RenderMode>): void;
+
+  /**
+   * Set the viewer's texture shader.
+   *
+   * @description The shader will be used for all registered projection
+   * models.
+   *
+   * @param {GLShader} shader - Texture shader.
+   *
+   * @example
+   * ```js
+   * let myShader = {
+   *     fragment: '<My fragment GLSL>',
+   *     vertex: '<My vertex GLSL>',
+   * };
+   * viewer.setShader(myShader);
+   * ```
+   */
+  setShader(shader: GLShader): void;
 
   /**
  * Set the viewer's transition mode.
@@ -6519,44 +6595,7 @@ declare class SequenceComponent extends Component<SequenceConfiguration> {
   _deactivate(): void;
   _getDefaultConfiguration(): SequenceConfiguration;
 }
-/**
- * @class SliderComponent
- * @classdesc Component for comparing pairs of images. Renders
- * a slider for adjusting the curtain of the first image.
- *
- * Deactivate the sequence, direction and image plane
- * components when activating the slider component to avoid
- * interfering UI elements.
- *
- * To retrive and use the slider component
- * @example ```js
- * var viewer = new Viewer({ ... });
- *
- * viewer.deactivateComponent("image");
- * viewer.deactivateComponent("direction");
- * viewer.deactivateComponent("sequence");
- *
- * viewer.activateComponent("slider");
- *
- * var sliderComponent = viewer.getComponent("slider");
- * ```
- */
-declare class SliderComponent extends Component<SliderConfiguration> {
-  static componentName: string;
 
-  /**
-   * @ignore
-   */
-  constructor(
-    name: string,
-    container: Container,
-    navigator: Navigator,
-    viewportCoords?: ViewportCoords
-  ): this;
-  _activate(): void;
-  _deactivate(): void;
-  _getDefaultConfiguration(): SliderConfiguration;
-}
 declare class SpatialComponent extends Component<SpatialConfiguration> {
   static componentName: string;
 
@@ -8040,6 +8079,8 @@ declare export {
   DragPanHandler,
   EventEmitter,
   ExtremePointTag,
+  FISHEYE_CAMERA_TYPE,
+  FisheyeCamera,
   Geometry,
   GeometryProviderBase,
   GeometryTagError,
@@ -8057,10 +8098,12 @@ declare export {
   NavigationDirection,
   OriginalPositionMode,
   OutlineTag,
+  PERSPECTIVE_CAMERA_TYPE,
+  PerspectiveCamera,
   PointGeometry,
+  PointVisualizationMode,
   PointerComponent,
   PointsGeometry,
-  PointVisualizationMode,
   PolygonGeometry,
   Popup,
   PopupComponent,
@@ -8068,11 +8111,13 @@ declare export {
   RenderMode,
   RenderPass,
   S2GeometryProvider,
+  SPHERICAL_CAMERA_TYPE,
+  SphericalCamera,
   ScrollZoomHandler,
   SequenceComponent,
+  Shader,
+  ShaderChunk,
   SimpleMarker,
-  SliderComponent,
-  SliderConfigurationMode,
   SpatialComponent,
   SpotTag,
   Tag,
@@ -8095,4 +8140,5 @@ declare export {
   isFallbackSupported,
   isSupported,
   readMeshPbf,
+  resolveShader,
 };

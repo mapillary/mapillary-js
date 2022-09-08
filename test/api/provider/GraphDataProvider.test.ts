@@ -52,7 +52,7 @@ describe("GraphDataProvider.ctor", () => {
 describe("GraphDataProvider.getCluster", () => {
     it("should return cluster reconstruction on successful load", (done) => {
         const compressed = [{
-            points: {},
+            pointIds: <number[]>[],
             reference_lla: { altitude: 1, latitude: 2, longitude: 3 },
         }];
         const fetchMock = (<jest.Mock>fetchArrayBuffer)
@@ -65,7 +65,7 @@ describe("GraphDataProvider.getCluster", () => {
         provider.getCluster("url")
             .then(
                 (r: ClusterContract): void => {
-                    expect(r.points).toEqual({});
+                    expect(r.pointIds.length).toBe(0);
                     expect(r.reference.alt).toBe(1);
                     expect(r.reference.lat).toBe(2);
                     expect(r.reference.lng).toBe(3);

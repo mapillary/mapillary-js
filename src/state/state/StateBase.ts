@@ -41,7 +41,7 @@ export abstract class StateBase implements IStateBase {
     constructor(state: IStateBase) {
         this._spatial = new Spatial();
 
-        this._referenceThreshold = 0.01;
+        this._referenceThreshold = 3000;
         this._transitionMode = state.transitionMode;
 
         this._reference = state.reference;
@@ -67,9 +67,7 @@ export abstract class StateBase implements IStateBase {
                 image.rotation,
                 translation,
                 image.image,
-                undefined,
-                image.cameraParameters,
-                <CameraType>image.cameraType);
+                image.camera);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -130,6 +128,10 @@ export abstract class StateBase implements IStateBase {
 
     public get currentCamera(): Camera {
         return this._currentCamera;
+    }
+
+    public get previousCamera(): Camera {
+        return this._previousCamera;
     }
 
     public get currentTransform(): Transform {
@@ -312,13 +314,19 @@ export abstract class StateBase implements IStateBase {
     }
 
     private _setReference(image: Image): boolean {
+        const distance = this._spatial.distanceFromLngLat(
+            image.lngLat.lng,
+            image.lngLat.lat,
+            this.reference.lng,
+            this.reference.lat);
+
         // do not reset reference if image is within threshold distance
-        if (Math.abs(image.lngLat.lat - this.reference.lat) < this._referenceThreshold &&
-            Math.abs(image.lngLat.lng - this.reference.lng) < this._referenceThreshold) {
+        if (distance < this._referenceThreshold) {
             return false;
         }
 
-        // do not reset reference if previous image exist and transition is with motion
+        // do not reset reference if previous image exist and
+        // transition is with motion
         if (this._previousImage != null && !this._motionlessTransition()) {
             return false;
         }
@@ -376,9 +384,7 @@ export abstract class StateBase implements IStateBase {
                 image.rotation,
                 translation,
                 image.image,
-                undefined,
-                image.cameraParameters,
-                <CameraType>image.cameraType);
+                image.camera);
 
             this._trajectoryTransforms.push(transform);
             this._trajectoryCameras.push(new Camera(transform));
@@ -400,9 +406,7 @@ export abstract class StateBase implements IStateBase {
                 image.rotation,
                 translation,
                 image.image,
-                undefined,
-                image.cameraParameters,
-                <CameraType>image.cameraType);
+                image.camera);
 
             this._trajectoryTransforms.unshift(transform);
             this._trajectoryCameras.unshift(new Camera(transform));

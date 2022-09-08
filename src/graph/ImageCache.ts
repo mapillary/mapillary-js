@@ -23,6 +23,7 @@ import { NavigationEdgeStatus } from "./interfaces/NavigationEdgeStatus";
 import { MeshContract } from "../api/contracts/MeshContract";
 import { IDataProvider } from "../api/interfaces/IDataProvider";
 import { SpatialImageEnt } from "../api/ents/SpatialImageEnt";
+import { ICamera } from "../geometry/interfaces/ICamera";
 
 /**
  * @class ImageCache
@@ -34,6 +35,7 @@ export class ImageCache {
 
     private _provider: IDataProvider;
 
+    private _camera: ICamera;
     private _image: HTMLImageElement;
     private _mesh: MeshContract;
     private _sequenceEdges: NavigationEdgeStatus;
@@ -63,6 +65,7 @@ export class ImageCache {
 
         this._provider = provider;
 
+        this._camera = null;
         this._image = null;
         this._mesh = null;
         this._sequenceEdges = { cached: false, edges: [] };
@@ -93,6 +96,10 @@ export class ImageCache {
         this._spatialEdgesSubscription = this._spatialEdges$.subscribe(() => { /*noop*/ });
 
         this._cachingAssets$ = null;
+    }
+
+    public get camera(): ICamera {
+        return this._camera;
     }
 
     /**
@@ -168,6 +175,10 @@ export class ImageCache {
      */
     public get spatialEdges$(): Observable<NavigationEdgeStatus> {
         return this._spatialEdges$;
+    }
+
+    public cacheCamera(camera: ICamera): void {
+        this._camera = camera;
     }
 
     /**
@@ -291,6 +302,7 @@ export class ImageCache {
 
         this._disposeImage();
 
+        this._camera = null;
         this._mesh = null;
         this._sequenceEdges = { cached: false, edges: [] };
         this._spatialEdges = { cached: false, edges: [] };

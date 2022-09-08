@@ -87,7 +87,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
 
         this._cache = new SpatialCache(
             navigator.graphService,
-            navigator.api.data);
+            navigator.api);
         this._scene = new SpatialScene(this._getDefaultConfiguration());
         this._viewportCoords = new ViewportCoords();
         this._spatial = new Spatial();
@@ -149,9 +149,14 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
 
         const subs = this._subscriptions;
 
+        subs.push(this._navigator.graphService.dataReset$
+            .subscribe(() => {
+                this._cache.uncache();
+                this._scene.uncache();
+            }));
+
         subs.push(this._navigator.stateService.reference$
-            .pipe(
-                pairwise())
+            .pipe(pairwise())
             .subscribe(
                 ([prevReference, reference]: [LngLatAlt, LngLatAlt]): void => {
                     this._scene.resetReference(reference, prevReference);
@@ -172,7 +177,19 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             publishReplay(1),
             refCount());
 
-        const cellId$ = this._navigator.stateService.currentImage$
+        const currentImage$ = observableMerge(
+            this._navigator.stateService.currentImage$,
+            this._navigator.graphService.dataReset$.pipe(
+                switchMap(
+                    () => this._navigator.stateService.currentImage$.pipe(
+                        first())
+                )))
+            .pipe(
+                publishReplay(1),
+                refCount());
+
+
+        const cellId$ = currentImage$
             .pipe(
                 map(
                     (image: Image): string => {
@@ -223,7 +240,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             sequencePlay$,
             bearing$,
             cellGridDepth$,
-            this._navigator.stateService.currentImage$)
+            currentImage$)
             .pipe(
                 distinctUntilChanged((
                     [o1, s1, b1, d1, i1]: AdjancentParams,
@@ -708,9 +725,9 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             image.rotation,
             translation,
             undefined,
-            undefined,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            image.assetsCached ? image.camera : this._navigator.projectionService.makeCamera(
+                image.cameraType,
+                image.cameraParameters));
 
         return transform;
     }

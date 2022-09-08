@@ -53,30 +53,16 @@ export class ClusterPoints extends Points {
     }
 
     private _makeAttributes(cluster: ClusterContract): void {
-        const positions: number[] = [];
-        const colors: number[] = [];
-
-        const points = cluster.points;
-        for (const pointId in points) {
-            if (!points.hasOwnProperty(pointId)) {
-                continue;
-            }
-
-            const point = points[pointId];
-            positions.push(...point.coordinates);
-
-            const color = point.color;
-            colors.push(color[0]);
-            colors.push(color[1]);
-            colors.push(color[2]);
-        }
-
         const geometry = this.geometry;
+
         geometry.setAttribute(
             "position",
-            new BufferAttribute(new Float32Array(positions), 3));
+            new BufferAttribute(
+                new Float32Array(cluster.coordinates), 3));
+
+        const colorSize = cluster.colors.length / cluster.pointIds.length;
         geometry.setAttribute(
             "color",
-            new BufferAttribute(new Float32Array(colors), 3));
+            new BufferAttribute(new Float32Array(cluster.colors), colorSize));
     }
 }

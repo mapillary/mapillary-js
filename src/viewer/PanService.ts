@@ -33,9 +33,10 @@ import { Image } from "../graph/Image";
 import { StateService } from "../state/StateService";
 import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
-import { CameraType } from "../geo/interfaces/CameraType";
 import { isSpherical } from "../geo/Geo";
 import { geodeticToEnu } from "../geo/GeoCoords";
+import { State } from "../state/State";
+import { ICameraFactory } from "../geometry/interfaces/ICameraFactory";
 
 enum PanMode {
     Disabled,
@@ -46,6 +47,7 @@ enum PanMode {
 export class PanService {
     private _graphService: GraphService;
     private _stateService: StateService;
+    private _cameraFactory: ICameraFactory;
     private _graphCalculator: GraphCalculator;
     private _spatial: Spatial;
     private _viewportCoords: ViewportCoords;
@@ -60,6 +62,7 @@ export class PanService {
     constructor(
         graphService: GraphService,
         stateService: StateService,
+        cameraFactory: ICameraFactory,
         enabled?: boolean,
         graphCalculator?: GraphCalculator,
         spatial?: Spatial,
@@ -67,6 +70,7 @@ export class PanService {
 
         this._graphService = graphService;
         this._stateService = stateService;
+        this._cameraFactory = cameraFactory;
         this._graphCalculator = graphCalculator ?? new GraphCalculator();
         this._spatial = spatial ?? new Spatial();
         this._viewportCoords = viewportCoords ?? new ViewportCoords();
@@ -286,16 +290,30 @@ export class PanService {
                         startWith([]));
                 }));
 
-        this._panImagesSubscription = this._stateService.currentState$.pipe(
+        const traversing$ = this._stateService.state$.pipe(
+            map(
+                (state: State): boolean => {
+                    return state === State.Traversing ||
+                        state === State.GravityTraversing;
+                }),
+            distinctUntilChanged());
+
+        const imagesAhead$ = this._stateService.currentState$.pipe(
             map(
                 (frame: AnimationFrame): boolean => {
                     return frame.state.imagesAhead > 0;
                 }),
-            distinctUntilChanged(),
-            switchMap(
-                (traversing: boolean): Observable<[Image, Transform, number][]> => {
-                    return traversing ? observableOf([]) : panImages$;
-                }))
+            distinctUntilChanged());
+
+        this._panImagesSubscription = observableCombineLatest(
+            traversing$,
+            imagesAhead$)
+            .pipe(
+                switchMap(
+                    ([traversing, imagesAhead]: [boolean, boolean]): Observable<[Image, Transform, number][]> => {
+                        return traversing && !imagesAhead ?
+                            panImages$ : observableOf([]);
+                    }))
             .subscribe(
                 (panImages: [Image, Transform, number][]): void => {
                     this._panImagesSubject$.next(panImages);
@@ -341,9 +359,9 @@ export class PanService {
             image.rotation,
             translation,
             image.assetsCached ? image.image : undefined,
-            undefined,
-            image.cameraParameters,
-            <CameraType>image.cameraType);
+            image.assetsCached ? image.camera : this._cameraFactory.makeCamera(
+                image.cameraType,
+                image.cameraParameters));
     }
 
     private _computeProjectedPoints(transform: Transform): number[][] {
@@ -351,7 +369,14 @@ export class PanService {
         const directions: number[][] = [[0, 0.5]];
         const pointsPerLine: number = 20;
 
-        return Geo.computeProjectedPoints(transform, vertices, directions, pointsPerLine, this._viewportCoords);
+        return Geo
+            .computeProjectedPoints(
+                transform,
+                vertices,
+                directions,
+                pointsPerLine,
+                this._viewportCoords)
+            .map(([x, y]) => [Math.abs(x), Math.abs(y)]);
     }
 
     private _computeHorizontalFov(projectedPoints: number[][]): number {

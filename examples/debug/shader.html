@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>MapillaryJS Shader</title>
+        <link rel="icon" href="data:," />
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no"
+        />
+
+        <link rel="stylesheet" href="/dist/mapillary.css" />
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+            }
+
+            .viewer {
+                width: 100%;
+                height: calc(100% - 32px);
+            }
+
+            button {
+                margin-top: 4px;
+                margin-left: 6px;
+                height: 24px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <script type="module">
+            import {
+                CameraControls,
+                Shader,
+                ShaderChunk,
+                Viewer,
+            } from "/dist/mapillary.module.js";
+            import { accessToken } from "/doc-src/.access-token/token.js";
+
+            (function main() {
+                const imageId = "303729947926829";
+
+                const container = document.createElement("div");
+                container.className = "viewer";
+                document.body.append(container);
+
+                const viewer = new Viewer({
+                    accessToken,
+                    cameraControls: CameraControls.Street,
+                    component: { cover: false },
+                    container,
+                });
+
+                viewer.moveTo(imageId).catch((error) => console.warn(error));
+                addButtons(viewer);
+            })();
+
+            function addButton(content, handler) {
+                const button = document.createElement("button");
+                button.textContent = content;
+                button.addEventListener("click", handler);
+                document.body.append(button);
+            }
+
+            function addButtons(viewer) {
+                addButton("Texture", () => viewer.setShader(Shader.texture));
+                addButton("Terrain", () => viewer.setShader(makeTerrain()));
+                addButton("Magnesis", () => viewer.setShader(makeMagnesis()));
+                addButton("Depth-Blend", () =>
+                    viewer.setShader(makeDepth(0.65))
+                );
+                addButton("Depth", () => viewer.setShader(makeDepth(1.0)));
+                addButton("Earth", () =>
+                    viewer.setCameraControls(CameraControls.Earth)
+                );
+                addButton("Street", () =>
+                    viewer.setCameraControls(CameraControls.Street)
+                );
+            }
+
+            function makeDepth(alpha) {
+                const vertex = /* glsl */ `
+#include <uniforms_vertex>
+#include <varyings_vertex>
+
+varying vec4 depthColor;
+
+float inverseMix(float a, float b, float v) {
+    return (v - a) / (b - a);
+}
+
+vec3 hsv2rgb(vec3 c) {
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+vec3 hsvMix(float start, float end, float t) {
+    float hue = clamp(mix(start, end, t), start, end);
+    float saturation = 1.0;
+    float value = 1.0;
+    return vec3(hue, saturation, value);
+}
+
+vec4 depthToColor(float depth) {
+    float minDepth = 0.0;
+    float minThreshold = 4.0;
+    float maxThreshold = 24.0;
+    float maxDepth = 128.0;
+
+    if (depth < minThreshold) {
+        float t = inverseMix(minThreshold, minDepth, depth);
+        return vec4(hsv2rgb(hsvMix(0.0, 5.0 / 6.0, t)), 1.0);
+    } else if (depth < maxThreshold) {
+        float t = inverseMix(minThreshold, maxThreshold, depth);
+        return vec4(hsv2rgb(hsvMix(0.0, 2.0 / 3.0, t)), 1.0);
+    } else {
+        float t = clamp(inverseMix(maxThreshold, maxDepth, depth), 0.0, 1.0);
+        return vec4(hsv2rgb(hsvMix(2.0 / 3.0, 1.0, t)), 1.0);
+    }
+}
+
+void main()
+{
+    #include <extrinsic_vertex>
+
+    depthColor = depthToColor(length(positionExtrinsic.xyz));
+
+    #include <gl_position_vertex>
+}
+`;
+                const fragment = /* glsl */ `
+#include <precision_fragment>
+#include <common>
+#include <uniforms_fragment>
+#include <varyings_fragment>
+#include <coordinates>
+
+#expand <parameters>
+#expand <uniforms>
+#expand <project_to_sfm_definition>
+
+varying vec4 depthColor;
+
+void main()
+{
+    #include <bearing_fragment>
+    #expand <project_to_sfm_invocation>
+    #include <map_color_fragment>
+
+    mapColor.rgb = mix(mapColor.rgb, depthColor.rgb, ${alpha.toFixed(2)});
+
+    #include <gl_frag_color_fragment>
+}
+`;
+                const magnesis = {
+                    fragment,
+                    vertex,
+                };
+                return magnesis;
+            }
+
+            function makeMagnesis() {
+                const vertex = /* glsl */ `
+#include <uniforms_vertex>
+#include <varyings_vertex>
+
+varying vec4 cameraCoords;
+
+void main()
+{
+    cameraCoords = modelViewMatrix * vec4(position, 1.0);
+    #include <extrinsic_vertex>
+    #include <gl_position_vertex>
+}
+`;
+                const fragment = /* glsl */ `
+#include <precision_fragment>
+#include <common>
+#include <uniforms_fragment>
+#include <varyings_fragment>
+#include <coordinates>
+
+#expand <parameters>
+#expand <uniforms>
+#expand <project_to_sfm_definition>
+
+varying vec4 cameraCoords;
+
+void main()
+{
+    #include <bearing_fragment>
+    #expand <project_to_sfm_invocation>
+    #include <map_color_fragment>
+
+    float magnesis = cameraCoords.x * 2.0;
+    if (abs(magnesis - floor(magnesis)) < 0.07) {
+        mapColor.r = 1.0;
+    }
+
+    #include <gl_frag_color_fragment>
+}
+`;
+                const magnesis = {
+                    fragment,
+                    vertex,
+                };
+                return magnesis;
+            }
+
+            function makeTerrain() {
+                const vertex = /* glsl */ `
+#include <uniforms_vertex>
+#include <varyings_vertex>
+
+varying vec4 cameraCoords;
+
+void main()
+{
+    cameraCoords = modelViewMatrix * vec4(position, 1.0);
+    #include <extrinsic_vertex>
+    #include <gl_position_vertex>
+}
+`;
+                const fragment = /* glsl */ `
+#include <precision_fragment>
+#include <common>
+#include <uniforms_fragment>
+#include <varyings_fragment>
+#include <coordinates>
+
+#expand <parameters>
+#expand <uniforms>
+#expand <project_to_sfm_definition>
+
+void main()
+{
+    #include <bearing_fragment>
+    #expand <project_to_sfm_invocation>
+    #include <map_color_fragment>
+
+    float terrain = length(positionExtrinsic.xz) / 2.0;
+    if (abs(terrain - floor(terrain)) < 0.03) {
+        mapColor.gb = vec2(1.0, 1.0);
+    }
+
+    #include <gl_frag_color_fragment>
+}
+`;
+                const magnesis = {
+                    fragment,
+                    vertex,
+                };
+                return magnesis;
+            }
+        </script>
+    </body>
+</html>

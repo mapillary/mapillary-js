@@ -5,7 +5,11 @@ export type ViewerEventType =
     | "bearing"
     | "click"
     | "contextmenu"
+    | "dataprovider"
     | "dblclick"
+    | "drag"
+    | "dragend"
+    | "dragstart"
     | "fov"
     | "dataloading"
     | "load"
@@ -22,5 +26,6 @@ export type ViewerEventType =
     | "pov"
     | "reference"
     | "remove"
+    | "reset"
     | "sequenceedges"
     | "spatialedges";

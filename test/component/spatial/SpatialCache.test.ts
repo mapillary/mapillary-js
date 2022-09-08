@@ -7,6 +7,7 @@ import { GraphService } from "../../../src/graph/GraphService";
 import { GraphServiceMockCreator } from "../../helper/GraphServiceMockCreator";
 import { ImageHelper } from "../../helper/ImageHelper";
 import { DataProvider } from "../../helper/ProviderHelper";
+import { APIWrapper } from "../../../src/api/APIWrapper";
 
 const cacheTile: (
     hash: string,
@@ -49,8 +50,9 @@ describe("SpatialCache.cacheTile$", () => {
         cacheCellSpy.and.returnValue(cacheCell$);
 
         const dataProvider = new DataProvider();
+        const api = new APIWrapper(dataProvider);
         const cache: SpatialCache = new SpatialCache(
-            graphService, dataProvider);
+            graphService, api);
 
         const hash: string = "12345678";
         cache.cacheCell$(hash);
@@ -66,8 +68,9 @@ describe("SpatialCache.cacheTile$", () => {
         cacheCellSpy.and.returnValue(cacheCell$);
 
         const dataProvider = new DataProvider();
+        const api = new APIWrapper(dataProvider);
         const cache: SpatialCache = new SpatialCache(
-            graphService, dataProvider);
+            graphService, api);
 
         const hash: string = "00000000";
 
@@ -85,8 +88,9 @@ describe("SpatialCache.cacheTile$", () => {
         cacheCellSpy.and.returnValue(cacheCell$);
 
         const dataProvider = new DataProvider();
+        const api = new APIWrapper(dataProvider);
         const cache: SpatialCache = new SpatialCache(
-            graphService, dataProvider);
+            graphService, api);
 
         const hash: string = "00000000";
 
@@ -113,8 +117,9 @@ describe("SpatialCache.cacheTile$", () => {
         cacheCellSpy.and.returnValue(cacheCell$);
 
         const dataProvider = new DataProvider();
+        const api = new APIWrapper(dataProvider);
         const cache: SpatialCache = new SpatialCache(
-            graphService, dataProvider);
+            graphService, api);
 
         const hash: string = "00000000";
 
@@ -156,7 +161,8 @@ describe("SpatialCache.cacheReconstructions$", () => {
         spyOn(dataProvider, "getCluster").and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cache: SpatialCache = new SpatialCache(graphService, dataProvider);
+        const api = new APIWrapper(dataProvider);
+        const cache: SpatialCache = new SpatialCache(graphService, api);
 
         cacheTile(hash, cache, graphService, [image]);
 
@@ -194,7 +200,8 @@ describe("SpatialCache.cacheReconstructions$", () => {
         spyOn(dataProvider, "getCluster").and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cache: SpatialCache = new SpatialCache(graphService, dataProvider);
+        const api = new APIWrapper(dataProvider);
+        const cache: SpatialCache = new SpatialCache(graphService, api);
 
         cacheTile(hash, cache, graphService, [image]);
 
@@ -228,7 +235,8 @@ describe("SpatialCache.cacheReconstructions$", () => {
         clusterSpy.and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cache: SpatialCache = new SpatialCache(graphService, dataProvider);
+        const api = new APIWrapper(dataProvider);
+        const cache: SpatialCache = new SpatialCache(graphService, api);
 
         cacheTile(hash, cache, graphService, [image]);
 
@@ -262,7 +270,8 @@ describe("SpatialCache.cacheReconstructions$", () => {
         clusterSpy.and.returnValue(promise);
 
         const graphService: GraphService = new GraphServiceMockCreator().create();
-        const cache: SpatialCache = new SpatialCache(graphService, dataProvider);
+        const api = new APIWrapper(dataProvider);
+        const cache: SpatialCache = new SpatialCache(graphService, api);
 
         cacheTile(hash, cache, graphService, [image]);
 
@@ -312,8 +321,9 @@ describe("SpatialCache.updateCell$", () => {
 
 
         const dataProvider = new DataProvider();
+        const api = new APIWrapper(dataProvider);
         const cache: SpatialCache = new SpatialCache(
-            graphService, dataProvider);
+            graphService, api);
 
         const cellId = "1";
 
@@ -327,8 +337,9 @@ describe("SpatialCache.updateCell$", () => {
         cacheCellSpy.and.returnValue(cacheCell1$);
 
         const dataProvider = new DataProvider();
+        const api = new APIWrapper(dataProvider);
         const cache: SpatialCache = new SpatialCache(
-            graphService, dataProvider);
+            graphService, api);
 
         const cellId = "1";
         cache.cacheCell$(cellId).subscribe();
@@ -359,8 +370,9 @@ describe("SpatialCache.updateCell$", () => {
         cacheCellSpy.and.returnValue(cacheCell1$);
 
         const dataProvider = new DataProvider();
+        const api = new APIWrapper(dataProvider);
         const cache: SpatialCache = new SpatialCache(
-            graphService, dataProvider);
+            graphService, api);
 
         const cellId = "1";
         cache.cacheCell$(cellId).subscribe();
@@ -387,9 +399,12 @@ describe("SpatialCache.updateCell$", () => {
 describe("SpatialCache.updateReconstructions$", () => {
     const createCluster = (key: string): ClusterContract => {
         return {
+            colors: [],
+            coordinates: [],
             id: key,
-            points: {},
+            pointIds: [],
             reference: { lat: 0, lng: 0, alt: 0 },
+            rotation: [0, 0, 0]
         };
     };
 
@@ -400,7 +415,8 @@ describe("SpatialCache.updateReconstructions$", () => {
                 new Promise<ClusterContract>(() => { /* noop */ }));
 
         const graphService = new GraphServiceMockCreator().create();
-        const cache = new SpatialCache(graphService, dataProvider);
+        const api = new APIWrapper(dataProvider);
+        const cache = new SpatialCache(graphService, api);
 
         expect(() => cache.updateClusters$("123")).toThrowError();
     });
@@ -421,7 +437,8 @@ describe("SpatialCache.updateReconstructions$", () => {
             .returnValue(promise);
 
         const graphService = new GraphServiceMockCreator().create();
-        const cache = new SpatialCache(graphService, dataProvider);
+        const api = new APIWrapper(dataProvider);
+        const cache = new SpatialCache(graphService, api);
 
         cacheTile(cellId, cache, graphService, [image]);
 
@@ -459,7 +476,8 @@ describe("SpatialCache.updateReconstructions$", () => {
             .returnValue(promise);
 
         const graphService = new GraphServiceMockCreator().create();
-        const cache = new SpatialCache(graphService, dataProvider);
+        const api = new APIWrapper(dataProvider);
+        const cache = new SpatialCache(graphService, api);
 
         cacheTile(cellId, cache, graphService, []);
 

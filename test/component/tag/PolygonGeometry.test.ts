@@ -3,6 +3,7 @@ import { Transform } from "../../../src/geo/Transform";
 import { MockCreator } from "../../helper/MockCreator";
 import { PolygonGeometry } from "../../../src/component/tag/geometry/PolygonGeometry";
 import { TransformHelper } from "../../helper/TransformHelper";
+import { PerspectiveCamera } from "../../../src/geometry/camera/PerspectiveCamera";
 
 const transformHelper = new TransformHelper();
 
@@ -498,7 +499,7 @@ describe("PolygonGeometry.get3dDomainTriangles", () => {
 
         const transform = new Transform(
             1, 1, 1, 0.5, [0, 0, 0], [0, 0, 0],
-            undefined, undefined, [1, 0, 0]);
+            undefined, new PerspectiveCamera([1, 0, 0]));
 
         const triangles = geometry.get3dDomainTriangles3d(transform);
 
@@ -513,7 +514,7 @@ describe("PolygonGeometry.getTriangles", () => {
 
         const transform = new Transform(
             1, 1, 1, 0.5, [0, 0, 0], [0, 0, 0],
-            undefined, undefined, [1, 0, 0]);
+            undefined, new PerspectiveCamera([1, 0, 0]));
 
         const triangles = geometry.getTriangles3d(transform);
 
@@ -526,7 +527,7 @@ describe("PolygonGeometry.getTriangles", () => {
 
         const transform = new Transform(
             1, 1, 1, 0.5, [0, 0, 0], [0, 0, 0],
-            undefined, undefined, [1, 0, 0]);
+            undefined, new PerspectiveCamera([1, 0, 0]));
 
         const triangles = geometry.getTriangles3d(transform);
 
@@ -538,7 +539,7 @@ describe("PolygonGeometry.getTriangles", () => {
         const geometry = new PolygonGeometry(polygon);
         const transform = new Transform(
             1, 1, 1, 0.5, [0, 0, 0], [0, 0, 0],
-            undefined, undefined, [1, 0, 0]);
+            undefined, new PerspectiveCamera([1, 0, 0]));
 
         const triangles = geometry.getTriangles3d(transform);
 

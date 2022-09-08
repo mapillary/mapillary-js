@@ -8,12 +8,11 @@ import { XMLHTTPRequestMock } from "../helper/RequestHelper";
 describe("decompress", () => {
     test("should decompress cluster reconstruction", () => {
 
-        const deflated = <Uint8Array><any>pako.deflate(
+        const deflated = pako.deflate(
             JSON.stringify([{
                 points: {},
                 reference_lla: { altitude: 1, latitude: 2, longitude: 3 },
-            }]),
-            { to: "string" });
+            }]));
 
         const clusters = decompress<GraphClusterContract[]>(deflated.buffer);
 

@@ -1,9 +1,8 @@
 import * as THREE from "three";
-import { isFisheye, isSpherical } from "./Geo";
-
+import { ICamera } from "../geometry/interfaces/ICamera";
+import { isSpherical } from "./Geo";
 import { CameraType } from "./interfaces/CameraType";
 
-const EPSILON = 1e-8;
 
 /**
  * @class Transform
@@ -27,14 +26,6 @@ export class Transform {
     private _scaledWorldToCameraInverse: THREE.Matrix4;
     private _basicWorldToCamera: THREE.Matrix4;
 
-    private _textureScale: number[];
-
-    private _ck1: number;
-    private _ck2: number;
-    private _cameraType: CameraType;
-
-    private _radialPeak: number;
-
     /**
      * Create a new transform instance.
      * @param {number} orientation - Image orientation.
@@ -54,9 +45,7 @@ export class Transform {
         rotation: number[],
         translation: number[],
         image: HTMLImageElement,
-        textureScale?: number[],
-        cameraParameters?: number[],
-        cameraType?: CameraType) {
+        public readonly camera: ICamera) {
 
         this._orientation = this._getValue(orientation, 1);
 
@@ -74,20 +63,13 @@ export class Transform {
         this._basicWidth = keepOrientation ? width : height;
         this._basicHeight = keepOrientation ? height : width;
 
-        const parameters = this._getCameraParameters(
-            cameraParameters,
-            cameraType);
-        const focal = parameters[0];
-        const ck1 = parameters[1];
-        const ck2 = parameters[2];
-
-        this._focal = this._getValue(focal, 1);
+        this._focal = this._getValue(camera.parameters.focal, 1);
         this._scale = this._getValue(scale, 0);
 
         this._worldToCamera = this.createWorldToCamera(rotation, translation);
         this._worldToCameraInverse = new THREE.Matrix4()
             .copy(this._worldToCamera)
-            .invert()
+            .invert();
         this._scaledWorldToCamera =
             this._createScaledWorldToCamera(this._worldToCamera, this._scale);
         this._scaledWorldToCameraInverse = new THREE.Matrix4()
@@ -97,28 +79,10 @@ export class Transform {
         this._basicWorldToCamera = this._createBasicWorldToCamera(
             this._worldToCamera,
             orientation);
-
-        this._textureScale = !!textureScale ? textureScale : [1, 1];
-
-        this._ck1 = !!ck1 ? ck1 : 0;
-        this._ck2 = !!ck2 ? ck2 : 0;
-        this._cameraType = !!cameraType ?
-            cameraType :
-            "perspective";
-
-        this._radialPeak = this._getRadialPeak(this._ck1, this._ck2);
-    }
-
-    public get ck1(): number {
-        return this._ck1;
-    }
-
-    public get ck2(): number {
-        return this._ck2;
     }
 
     public get cameraType(): CameraType {
-        return this._cameraType;
+        return <CameraType>this.camera.type;
     }
 
     /**
@@ -196,6 +160,14 @@ export class Transform {
     }
 
     /**
+     * Get rtInverse.
+     * @returns {THREE.Matrix4} The inverse of the extrinsic camera matrix.
+     */
+    public get rtInverse(): THREE.Matrix4 {
+        return this._worldToCameraInverse;
+    }
+
+    /**
      * Get srt.
      * @returns {THREE.Matrix4} The scaled extrinsic camera matrix.
      */
@@ -225,15 +197,6 @@ export class Transform {
      */
     public get hasValidScale(): boolean {
         return this._scale > 1e-2 && this._scale < 50;
-    }
-
-    /**
-     * Get radial peak.
-     * @returns {number} Value indicating the radius where the radial
-     * undistortion function peaks.
-     */
-    public get radialPeak(): number {
-        return this._radialPeak;
     }
 
     /**
@@ -268,29 +231,6 @@ export class Transform {
             default:
                 return new THREE.Vector3(-rte[1], -rte[5], -rte[9]);
         }
-    }
-
-    /**
-     * Calculate projector matrix for projecting 3D points to texture map
-     * coordinates (u and v).
-     *
-     * @returns {THREE.Matrix4} Projection matrix for 3D point to texture
-     * map coordinate calculations.
-     */
-    public projectorMatrix(): THREE.Matrix4 {
-        let projector: THREE.Matrix4 = this._normalizedToTextureMatrix();
-
-        let f: number = this._focal;
-        let projection: THREE.Matrix4 = new THREE.Matrix4().set(
-            f, 0, 0, 0,
-            0, f, 0, 0,
-            0, 0, 0, 0,
-            0, 0, 1, 0);
-
-        projector.multiply(projection);
-        projector.multiply(this._worldToCamera);
-
-        return projector;
     }
 
     /**
@@ -347,7 +287,7 @@ export class Transform {
         distance: number,
         depth?: boolean): number[] {
         const bearing = this._sfmToBearing(sfm);
-        const unprojectedCamera = depth && !isSpherical(this._cameraType) ?
+        const unprojectedCamera = depth && !isSpherical(this.camera.type) ?
             new THREE.Vector4(
                 distance * bearing[0] / bearing[2],
                 distance * bearing[1] / bearing[2],
@@ -377,54 +317,7 @@ export class Transform {
      * on the unit sphere).
      */
     private _sfmToBearing(sfm: number[]): number[] {
-        if (isSpherical(this._cameraType)) {
-            let lng: number = sfm[0] * 2 * Math.PI;
-            let lat: number = -sfm[1] * 2 * Math.PI;
-            let x: number = Math.cos(lat) * Math.sin(lng);
-            let y: number = -Math.sin(lat);
-            let z: number = Math.cos(lat) * Math.cos(lng);
-            return [x, y, z];
-        } else if (isFisheye(this._cameraType)) {
-            let [dxn, dyn]: number[] = [sfm[0] / this._focal, sfm[1] / this._focal];
-            const dTheta: number = Math.sqrt(dxn * dxn + dyn * dyn);
-            let d: number = this._distortionFromDistortedRadius(dTheta, this._ck1, this._ck2, this._radialPeak);
-            let theta: number = dTheta / d;
-            let z: number = Math.cos(theta);
-            let r: number = Math.sin(theta);
-            const denomTheta = dTheta > EPSILON ? 1 / dTheta : 1;
-            let x: number = r * dxn * denomTheta;
-            let y: number = r * dyn * denomTheta;
-            return [x, y, z];
-        } else {
-            let [dxn, dyn]: number[] = [sfm[0] / this._focal, sfm[1] / this._focal];
-            const dr: number = Math.sqrt(dxn * dxn + dyn * dyn);
-            let d: number = this._distortionFromDistortedRadius(dr, this._ck1, this._ck2, this._radialPeak);
-
-            const xn: number = dxn / d;
-            const yn: number = dyn / d;
-
-            let v: THREE.Vector3 = new THREE.Vector3(xn, yn, 1);
-            v.normalize();
-            return [v.x, v.y, v.z];
-        }
-    }
-
-    /** Compute distortion given the distorted radius.
-     *
-     *  Solves for d in the equation
-     *    y = d(x, k1, k2) * x
-     * given the distorted radius, y.
-     */
-    private _distortionFromDistortedRadius(distortedRadius: number, k1: number, k2: number, radialPeak: number): number {
-        let d: number = 1.0;
-        for (let i: number = 0; i < 10; i++) {
-            let radius: number = distortedRadius / d;
-            if (radius > radialPeak) {
-                radius = radialPeak;
-            }
-            d = 1 + k1 * radius ** 2 + k2 * radius ** 4;
-        }
-        return d;
+        return this.camera.bearingFromSfm(sfm);
     }
 
     /**
@@ -436,55 +329,7 @@ export class Transform {
      * @returns {Array<number>} 2D SfM coordinates.
      */
     private _bearingToSfm(bearing: number[]): number[] {
-        if (isSpherical(this._cameraType)) {
-            let x: number = bearing[0];
-            let y: number = bearing[1];
-            let z: number = bearing[2];
-            let lng: number = Math.atan2(x, z);
-            let lat: number = Math.atan2(-y, Math.sqrt(x * x + z * z));
-            return [lng / (2 * Math.PI), -lat / (2 * Math.PI)];
-        } else if (isFisheye(this._cameraType)) {
-            if (bearing[2] > 0) {
-                const [x, y, z]: number[] = bearing;
-                const r: number = Math.sqrt(x * x + y * y);
-                let theta: number = Math.atan2(r, z);
-
-                if (theta > this._radialPeak) {
-                    theta = this._radialPeak;
-                }
-
-                const distortion: number = 1.0 + theta ** 2 * (this._ck1 + theta ** 2 * this._ck2);
-                const s: number = this._focal * distortion * theta / r;
-
-                return [s * x, s * y];
-            } else {
-                return [
-                    bearing[0] < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
-                    bearing[1] < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
-                ];
-            }
-        } else {
-            if (bearing[2] > 0) {
-                let [xn, yn]: number[] = [bearing[0] / bearing[2], bearing[1] / bearing[2]];
-                let r2: number = xn * xn + yn * yn;
-                const rp2: number = this._radialPeak ** 2;
-
-                if (r2 > rp2) {
-                    r2 = rp2;
-                }
-
-                const d: number = 1 + this._ck1 * r2 + this._ck2 * r2 ** 2;
-                return [
-                    this._focal * d * xn,
-                    this._focal * d * yn,
-                ];
-            } else {
-                return [
-                    bearing[0] < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
-                    bearing[1] < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
-                ];
-            }
-        }
+        return this.camera.projectToSfm(bearing);
     }
 
     /**
@@ -667,29 +512,6 @@ export class Transform {
             .multiply(rt);
     }
 
-    private _getRadialPeak(k1: number, k2: number): number {
-        const a: number = 5 * k2;
-        const b: number = 3 * k1;
-        const c: number = 1;
-        const d: number = b ** 2 - 4 * a * c;
-
-        if (d < 0) {
-            return undefined;
-        }
-
-        const root1: number = (-b - Math.sqrt(d)) / 2 / a;
-        const root2: number = (-b + Math.sqrt(d)) / 2 / a;
-
-        const minRoot: number = Math.min(root1, root2);
-        const maxRoot: number = Math.max(root1, root2);
-
-        return minRoot > 0 ?
-            Math.sqrt(minRoot) :
-            maxRoot > 0 ?
-                Math.sqrt(maxRoot) :
-                undefined;
-    }
-
     /**
      * Calculate a transformation matrix from normalized coordinates for
      * texture map coordinates.
@@ -698,13 +520,9 @@ export class Transform {
      * coordinates transformation matrix.
      */
     private _normalizedToTextureMatrix(): THREE.Matrix4 {
-        const size: number = Math.max(this._width, this._height);
-
-        const scaleX: number = this._orientation < 5 ? this._textureScale[0] : this._textureScale[1];
-        const scaleY: number = this._orientation < 5 ? this._textureScale[1] : this._textureScale[0];
-
-        const w: number = size / this._width * scaleX;
-        const h: number = size / this._height * scaleY;
+        const size = Math.max(this._width, this._height);
+        const w = size / this._width;
+        const h = size / this._height;
 
         switch (this._orientation) {
             case 1:

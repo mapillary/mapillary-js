@@ -1,5 +1,6 @@
 import {
     from as observableFrom,
+    of as observableOf,
     throwError as observableThrowError,
     BehaviorSubject,
     Observable,
@@ -36,6 +37,7 @@ import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { cameraControlsToState } from "./Modes";
 import { CameraControls } from "./enums/CameraControls";
 import { GraphDataProvider } from "../api/provider/GraphDataProvider";
+import { ProjectionService } from "./ProjectionService";
 
 export class Navigator {
     private _api: APIWrapper;
@@ -46,7 +48,9 @@ export class Navigator {
     private _loadingName: string;
     private _panService: PanService;
     private _playService: PlayService;
+    private _projectionService: ProjectionService;
     private _stateService: StateService;
+
 
     private _idRequested$: BehaviorSubject<string>;
     private _movedToId$: BehaviorSubject<string>;
@@ -75,8 +79,10 @@ export class Navigator {
             }));
         }
 
+        this._projectionService = new ProjectionService();
+
         this._graphService = graphService ??
-            new GraphService(new Graph(this.api));
+            new GraphService(new Graph(this.api), this._projectionService);
 
         this._loadingName = "navigator";
         this._loadingService = loadingService ??
@@ -101,6 +107,7 @@ export class Navigator {
             new PanService(
                 this._graphService,
                 this._stateService,
+                this._projectionService,
                 options.combinedPanning);
 
         this._idRequested$ = new BehaviorSubject<string>(null);
@@ -139,6 +146,10 @@ export class Navigator {
         return this._playService;
     }
 
+    public get projectionService(): ProjectionService {
+        return this._projectionService;
+    }
+
     public get stateService(): StateService {
         return this._stateService;
     }
@@ -151,14 +162,6 @@ export class Navigator {
         this._panService.dispose();
         this._playService.dispose();
         this._stateService.dispose();
-    }
-
-    public moveTo$(id: string): Observable<Image> {
-        this._abortRequest(`to id ${id}`);
-        this._loadingService.startLoading(this._loadingName);
-
-        const image$ = this._moveTo$(id);
-        return this._makeRequest$(image$);
     }
 
     public moveDir$(direction: NavigationDirection): Observable<Image> {
@@ -197,6 +200,22 @@ export class Navigator {
                 }));
 
         return this._makeRequest$(image$);
+    }
+
+    public moveTo$(id: string): Observable<Image> {
+        this._abortRequest(`to id ${id}`);
+
+        this._loadingService.startLoading(this._loadingName);
+
+        const image$ = this._moveTo$(id);
+        return this._makeRequest$(image$);
+    }
+
+    public reset$(): Observable<void> {
+        this._abortRequest("to reset");
+
+        return this._reset$()
+            .pipe(map(() => undefined));
     }
 
     public setFilter$(filter: FilterExpression): Observable<void> {
@@ -247,33 +266,19 @@ export class Navigator {
     public setAccessToken$(accessToken?: string): Observable<void> {
         this._abortRequest("to set user token");
 
-        this._stateService.clearImages();
-
-        return this._movedToId$.pipe(
-            first(),
-            tap(
-                (): void => {
-                    this._api.setAccessToken(accessToken);
-                }),
-            mergeMap(
-                (id: string): Observable<void> => {
-                    return id == null ?
-                        this._graphService.reset$([]) :
-                        this._trajectoryIds$().pipe(
-                            mergeMap(
-                                (ids: string[]): Observable<Image> => {
-                                    return this._graphService.reset$(ids).pipe(
-                                        mergeMap(
-                                            (): Observable<Image> => {
-                                                return this._cacheIds$(ids);
-                                            }));
-                                }),
-                            last(),
-                            map(
-                                (): void => {
-                                    return undefined;
-                                }));
-                }));
+        return this._reset$(() => this._api.setAccessToken(accessToken))
+            .pipe(
+                mergeMap(
+                    (ids: string[]): Observable<void> => {
+                        return ids.length === 0 ?
+                            observableOf(undefined) :
+                            this._cacheIds$(ids).pipe(
+                                last(),
+                                map(
+                                    (): void => {
+                                        return undefined;
+                                    }));
+                    }));
     }
 
     private _cacheIds$(ids: string[]): Observable<Image> {
@@ -346,6 +351,27 @@ export class Navigator {
                 }));
     }
 
+    private _reset$(preCallback?: () => void): Observable<string[]> {
+        this._stateService.clearImages();
+
+        return this._movedToId$.pipe(
+            first(),
+            tap((): void => { if (preCallback) { preCallback(); }; }),
+            mergeMap(
+                (id: string): Observable<string[]> => {
+                    const ids$ = id == null ?
+                        observableOf([]) :
+                        this._trajectoryIds$();
+
+                    return ids$.pipe(
+                        mergeMap(
+                            (ids: string[]): Observable<string[]> => {
+                                return this._graphService.reset$(ids).pipe(
+                                    map(() => ids));
+                            }));
+                }));
+    }
+
     private _trajectoryIds$(): Observable<string[]> {
         return this._stateService.currentState$.pipe(
             first(),
@@ -358,4 +384,4 @@ export class Navigator {
                             });
                 }));
     }
-}
+};

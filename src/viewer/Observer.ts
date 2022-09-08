@@ -39,6 +39,8 @@ import { ViewerBearingEvent } from "./events/ViewerBearingEvent";
 import { State } from "../state/State";
 import { ViewerLoadEvent } from "./events/ViewerLoadEvent";
 import { ViewerReferenceEvent } from "./events/ViewerReferenceEvent";
+import { ViewerResetEvent } from "./events/ViewerResetEvent";
+import { ViewerDragEndEvent } from "./events/ViewerDragEndEvent";
 
 type UnprojectionParams = [
     [
@@ -248,6 +250,16 @@ export class Observer {
                 this._viewer.fire(type, event);
             }));
 
+        subs.push(this._navigator.graphService.dataReset$
+            .subscribe((): void => {
+                const type: ViewerEventType = "reset";
+                const event: ViewerResetEvent = {
+                    target: this._viewer,
+                    type,
+                };
+                this._viewer.fire(type, event);
+            }));
+
         subs.push(observableCombineLatest(
             this._navigator.stateService.inMotion$,
             this._container.mouseService.active$,
@@ -284,6 +296,17 @@ export class Observer {
                     this._viewer.fire(type, event);
                 }));
 
+        subs.push(this._container.mouseService.mouseDragEnd$.subscribe(
+            (originalEvent: MouseEvent | FocusEvent) => {
+                const type = "dragend";
+                const event: ViewerDragEndEvent = {
+                    originalEvent,
+                    target: this._viewer,
+                    type,
+                };
+                this._viewer.fire(type, event);
+            }));
+
         const mouseMove$ = this._container.mouseService.active$.pipe(
             switchMap(
                 (active: boolean): Observable<MouseEvent> => {
@@ -302,6 +325,12 @@ export class Observer {
             this._mapMouseEvent$(
                 "dblclick",
                 this._container.mouseService.dblClick$),
+            this._mapMouseEvent$(
+                "drag",
+                this._container.mouseService.mouseDrag$),
+            this._mapMouseEvent$(
+                "dragstart",
+                this._container.mouseService.mouseDragStart$),
             this._mapMouseEvent$(
                 "mousedown",
                 this._container.mouseService.mouseDown$),
@@ -361,6 +390,17 @@ export class Observer {
                 (rc: RenderCamera): number[] => {
                     return rc.camera.position.toArray();
                 }))
+            .subscribe(
+                (): void => {
+                    const type: ViewerEventType = "position";
+                    const event: ViewerStateEvent = {
+                        target: this._viewer,
+                        type,
+                    };
+                    this._viewer.fire(type, event);
+                }));
+
+        subs.push(this._navigator.stateService.reference$
             .subscribe(
                 (): void => {
                     const type: ViewerEventType = "position";

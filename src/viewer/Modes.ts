@@ -7,6 +7,8 @@ export function cameraControlsToState(cameraControls: CameraControls): State {
             return State.Custom;
         case CameraControls.Earth:
             return State.Earth;
+        case CameraControls.Gravity:
+            return State.GravityTraversing;
         case CameraControls.Street:
             return State.Traversing;
         default:

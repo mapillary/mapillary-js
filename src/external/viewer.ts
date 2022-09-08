@@ -41,6 +41,26 @@ export { FallbackOptions } from "../viewer/options/FallbackOptions";
 export { UrlOptions } from "../viewer/options/UrlOptions";
 export { ViewerOptions } from "../viewer/options/ViewerOptions";
 
+// Geometry
+export {
+    CameraConstructor,
+    CameraParameters,
+    CameraUniforms,
+    ICamera,
+} from "../geometry/interfaces/ICamera";
+export {
+    FISHEYE_CAMERA_TYPE,
+    FisheyeCamera,
+} from "../geometry/camera/FisheyeCamera";
+export {
+    PERSPECTIVE_CAMERA_TYPE,
+    PerspectiveCamera,
+} from "../geometry/camera/PerspectiveCamera";
+export {
+    SPHERICAL_CAMERA_TYPE,
+    SphericalCamera,
+} from "../geometry/camera/SphericalCamera";
+
 // Graph
 export { Image } from "../graph/Image";
 export { NavigationDirection } from "../graph/edge/NavigationDirection";
@@ -67,3 +87,8 @@ export { CancelMapillaryError } from "../error/CancelMapillaryError";
 export { ArgumentMapillaryError } from "../error/ArgumentMapillaryError";
 export { GraphMapillaryError } from "../error/GraphMapillaryError";
 export { MapillaryError } from "../error/MapillaryError";
+
+// Shader
+export { resolveShader } from "../shader/Resolver";
+export { GLShader, Shader } from "../shader/Shader";
+export { ShaderChunk } from "../shader/ShaderChunk";

@@ -5,20 +5,21 @@ import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
 import { Image } from "../../graph/Image";
 
 export interface IAnimationState {
-    reference: LngLatAlt;
     alpha: number;
     camera: Camera;
-    zoom: number;
-    currentImage: Image;
     currentCamera: Camera;
-    previousImage: Image;
-    trajectory: Image[];
+    currentImage: Image;
     currentIndex: number;
-    lastImage: Image;
-    imagesAhead: number;
     currentTransform: Transform;
-    previousTransform: Transform;
+    imagesAhead: number;
+    lastImage: Image;
     motionless: boolean;
+    previousCamera: Camera;
+    previousImage: Image;
+    previousTransform: Transform;
+    reference: LngLatAlt;
     state: State;
     stateTransitionAlpha: number;
+    trajectory: Image[];
+    zoom: number;
 }

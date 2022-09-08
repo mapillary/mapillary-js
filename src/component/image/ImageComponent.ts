@@ -48,6 +48,7 @@ import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { Transform } from "../../geo/Transform";
 import { ComponentName } from "../ComponentName";
 import { State } from "../../state/State";
+import { GLShader } from "../../shader/Shader";
 
 interface ImageGLRendererOperation {
     (renderer: ImageGLRenderer): ImageGLRenderer;
@@ -125,7 +126,8 @@ export class ImageComponent extends Component<ComponentConfiguration> {
             map(
                 (): ImageGLRendererOperation => {
                     return (renderer: ImageGLRenderer): ImageGLRenderer => {
-                        renderer.dispose();
+                        renderer.reset();
+                        renderer.clearNeedsRender();
 
                         return null;
                     };
@@ -157,11 +159,23 @@ export class ImageComponent extends Component<ComponentConfiguration> {
 
         this._rendererCreator$.next(null);
 
-        subs.push(this._navigator.stateService.currentState$.pipe(
+        subs.push(this._navigator.graphService.dataReset$.pipe(
             map(
-                (frame: AnimationFrame): ImageGLRendererOperation => {
+                (): ImageGLRendererOperation => {
                     return (renderer: ImageGLRenderer): ImageGLRenderer => {
-                        renderer.updateFrame(frame);
+                        renderer.reset();
+
+                        return renderer;
+                    };
+                }))
+            .subscribe(this._rendererOperation$));
+
+        subs.push(this._navigator.stateService.currentState$.pipe(
+            withLatestFrom(this._navigator.projectionService.shader$),
+            map(
+                ([frame, shader]: [AnimationFrame, GLShader]): ImageGLRendererOperation => {
+                    return (renderer: ImageGLRenderer): ImageGLRenderer => {
+                        renderer.updateFrame(frame, shader);
 
                         return renderer;
                     };
@@ -201,6 +215,16 @@ export class ImageComponent extends Component<ComponentConfiguration> {
                     }),
                 publishReplay(1),
                 refCount());
+
+        subs.push(this._navigator.projectionService.shader$.pipe(
+            map(
+                (shader: GLShader): ImageGLRendererOperation => {
+                    return (renderer: ImageGLRenderer): ImageGLRenderer => {
+                        renderer.setShader(shader);
+                        return renderer;
+                    };
+                }))
+            .subscribe(this._rendererOperation$));
 
         subs.push(textureProvider$.subscribe(() => { /*noop*/ }));
 
@@ -339,10 +363,6 @@ export class ImageComponent extends Component<ComponentConfiguration> {
         subs.push(hasTexture$.subscribe(() => { /*noop*/ }));
 
         subs.push(this._navigator.panService.panImages$.pipe(
-            filter(
-                (panNodes: []): boolean => {
-                    return panNodes.length === 0;
-                }),
             map(
                 (): ImageGLRendererOperation => {
                     return (renderer: ImageGLRenderer): ImageGLRenderer => {
@@ -373,10 +393,11 @@ export class ImageComponent extends Component<ComponentConfiguration> {
             share());
 
         subs.push(cachedPanNodes$.pipe(
+            withLatestFrom(this._navigator.projectionService.shader$),
             map(
-                ([n, t]: [ImageNode, Transform]): ImageGLRendererOperation => {
+                ([[n, t], s]: [[ImageNode, Transform], GLShader]): ImageGLRendererOperation => {
                     return (renderer: ImageGLRenderer): ImageGLRenderer => {
-                        renderer.addPeripheryPlane(n, t);
+                        renderer.addPeripheryPlane(n, t, s);
 
                         return renderer;
                     };
@@ -423,35 +444,30 @@ export class ImageComponent extends Component<ComponentConfiguration> {
                         return trigger;
                     }));
 
-        subs.push(this._navigator.stateService.state$
+        subs.push(this._navigator.panService.panImages$
             .pipe(
-                switchMap(
-                    state => {
-                        return state === State.Traversing ?
-                            this._navigator.panService.panImages$ :
-                            observableEmpty();
-
-                    }),
                 switchMap(
                     (nts: [ImageNode, Transform, number][]):
                         Observable<[RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]> => {
 
-                        return panTrigger$.pipe(
-                            withLatestFrom(
-                                this._container.renderService.renderCamera$,
-                                this._navigator.stateService.currentImage$,
-                                this._navigator.stateService.currentTransform$),
-                            mergeMap(
-                                ([, renderCamera, currentNode, currentTransform]: [boolean, RenderCamera, ImageNode, Transform]):
-                                    Observable<[RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]> => {
-                                    return observableOf(
-                                        [
-                                            renderCamera,
-                                            currentNode,
-                                            currentTransform,
-                                            nts,
-                                        ] as [RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]);
-                                }));
+                        return nts.length === 0 ?
+                            observableEmpty() :
+                            panTrigger$.pipe(
+                                withLatestFrom(
+                                    this._container.renderService.renderCamera$,
+                                    this._navigator.stateService.currentImage$,
+                                    this._navigator.stateService.currentTransform$),
+                                mergeMap(
+                                    ([, renderCamera, currentNode, currentTransform]: [boolean, RenderCamera, ImageNode, Transform]):
+                                        Observable<[RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]> => {
+                                        return observableOf(
+                                            [
+                                                renderCamera,
+                                                currentNode,
+                                                currentTransform,
+                                                nts,
+                                            ] as [RenderCamera, ImageNode, Transform, [ImageNode, Transform, number][]]);
+                                    }));
                     }),
                 switchMap(
                     ([camera, cn, ct, nts]:

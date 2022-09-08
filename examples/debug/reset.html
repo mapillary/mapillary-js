@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Reset</title>
+        <link rel="icon" href="data:," />
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no"
+        />
+
+        <link rel="stylesheet" href="/dist/mapillary.css" />
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            html,
+            body,
+            .viewer {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <script type="module">
+            import { accessToken } from "/doc-src/.access-token/token.js";
+            import { CameraControls, Viewer } from "/dist/mapillary.module.js";
+            import { DynamicProceduralDataProvider } from "/doc-src/src/js/utils/DynamicProceduralDataProvider.js";
+
+            let viewer;
+            let dataProvider;
+            let intervals = 2;
+
+            const REFERENCE_DELTA = 1e-5;
+            const reference = { lng: 0, lat: 0, alt: 0 };
+
+            (function main() {
+                const container = document.createElement("div");
+                container.className = "viewer";
+                document.body.append(container);
+
+                dataProvider = new DynamicProceduralDataProvider({
+                    reference,
+                    intervals,
+                });
+                const options = {
+                    dataProvider,
+                    cameraControls: CameraControls.Earth,
+                    component: {
+                        cover: false,
+                        spatial: {
+                            cameraSize: 0.3,
+                            cellGridDepth: 1,
+                            cellsVisible: true,
+                        },
+                    },
+                    container,
+                    imageTiling: false,
+                };
+                viewer = new Viewer(options);
+                viewer.on("reset", (event) => console.log(event.type));
+                viewer
+                    .moveTo(dataProvider.images.keys().next().value)
+                    .catch((error) => console.error(error));
+
+                listen();
+            })();
+
+            function increment() {
+                reference.lng += REFERENCE_DELTA;
+                reference.lat += REFERENCE_DELTA;
+                reference.alt += REFERENCE_DELTA;
+                intervals++;
+            }
+
+            function listen() {
+                window.document.addEventListener("keydown", async (e) => {
+                    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
+                        return;
+                    }
+
+                    try {
+                        switch (e.key) {
+                            case "q": {
+                                // Clear
+                                dataProvider.clear();
+                                await viewer.reset();
+                                break;
+                            }
+                            case "w": {
+                                // Reset
+                                increment();
+                                dataProvider.clear();
+                                await viewer.reset();
+                                dataProvider.populate({ reference, intervals });
+                                await viewer.moveTo(
+                                    dataProvider.images.keys().next().value
+                                );
+                                break;
+                            }
+                            case "e": {
+                                // Reset viewer and move to other image
+                                await viewer.reset();
+                                const image = await viewer.getImage();
+                                const newId = [
+                                    ...dataProvider.images.keys(),
+                                ].find((id) => id !== image.id);
+                                if (newId) {
+                                    await viewer.moveTo(newId);
+                                }
+                                break;
+                            }
+                            case "a": {
+                                // Reset viewer and move to same image
+                                // (currently an unhandled edge case)
+                                await viewer.reset();
+                                const image = await viewer.getImage();
+                                await viewer.moveTo(image.id);
+                                break;
+                            }
+                            case "s": {
+                                // Set a new data provider
+                                increment();
+                                dataProvider =
+                                    new DynamicProceduralDataProvider({
+                                        reference,
+                                        intervals,
+                                        idCounter: dataProvider.idCounter,
+                                    });
+                                await viewer.setDataProvider(dataProvider);
+                                await viewer.moveTo(
+                                    dataProvider.images.keys().next().value
+                                );
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+                    } catch (error) {
+                        console.log(error);
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>

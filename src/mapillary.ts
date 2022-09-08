@@ -39,7 +39,6 @@ import { MarkerComponent } from "./component/marker/MarkerComponent";
 import { PointerComponent } from "./component/pointer/PointerComponent";
 import { PopupComponent } from "./component/popup/PopupComponent";
 import { SequenceComponent } from "./component/sequence/SequenceComponent";
-import { SliderComponent } from "./component/slider/SliderComponent";
 import { SpatialComponent }
     from "./component/spatial/SpatialComponent";
 import { TagComponent } from "./component/tag/TagComponent";
@@ -55,7 +54,6 @@ ComponentService.register(MarkerComponent);
 ComponentService.register(PointerComponent);
 ComponentService.register(PopupComponent);
 ComponentService.register(SequenceComponent);
-ComponentService.register(SliderComponent);
 ComponentService.register(SpatialComponent);
 ComponentService.register(TagComponent);
 ComponentService.register(ZoomComponent);
