@@ -43,13 +43,17 @@ import { RenderCamera } from "../../render/RenderCamera";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { PlayService } from "../../viewer/PlayService";
 import { Component } from "../Component";
-import { SpatialConfiguration }
-    from "../interfaces/SpatialConfiguration";
+import {
+    MAX_CAMERA_SIZE,
+    MAX_POINT_SIZE,
+    MIN_CAMERA_SIZE,
+    MIN_POINT_SIZE,
+    SpatialConfiguration
+} from "../interfaces/SpatialConfiguration";
 import { CameraVisualizationMode } from "./enums/CameraVisualizationMode";
 import { OriginalPositionMode } from "./enums/OriginalPositionMode";
 import { SpatialScene } from "./SpatialScene";
 import { SpatialCache } from "./SpatialCache";
-import { CameraType } from "../../geo/interfaces/CameraType";
 import { geodeticToEnu } from "../../geo/GeoCoords";
 import { LngLat } from "../../api/interfaces/LngLat";
 import { ComponentName } from "../ComponentName";
@@ -188,7 +192,6 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 publishReplay(1),
                 refCount());
 
-
         const cellId$ = currentImage$
             .pipe(
                 map(
@@ -200,7 +203,56 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 publishReplay(1),
                 refCount());
 
-        const cellGridDepth$ = this._configuration$
+        const clampedConfiguration$ = this._configuration$
+            .pipe(
+                map(
+                    (c: SpatialConfiguration): SpatialConfiguration => {
+                        c.cameraSize = this._spatial.clamp(
+                            c.cameraSize, MIN_CAMERA_SIZE, MAX_CAMERA_SIZE);
+                        c.pointSize = this._spatial.clamp(
+                            c.pointSize, MIN_POINT_SIZE, MAX_POINT_SIZE);
+                        const pointVisualizationMode =
+                            c.pointsVisible ?
+                                c.pointVisualizationMode ?? PointVisualizationMode.Original :
+                                PointVisualizationMode.Hidden;
+                        return {
+                            cameraSize: c.cameraSize,
+                            cameraVisualizationMode: c.cameraVisualizationMode,
+                            cellsVisible: c.cellsVisible,
+                            originalPositionMode: c.originalPositionMode,
+                            pointSize: c.pointSize,
+                            pointVisualizationMode,
+                        };
+                    }),
+                distinctUntilChanged(
+                    (c1: SpatialConfiguration, c2: SpatialConfiguration)
+                        : boolean => {
+                        return c1.cameraSize === c2.cameraSize &&
+                            c1.cameraVisualizationMode === c2.cameraVisualizationMode &&
+                            c1.cellsVisible === c2.cellsVisible &&
+                            c1.originalPositionMode === c2.originalPositionMode &&
+                            c1.pointSize === c2.pointSize &&
+                            c1.pointVisualizationMode === c2.pointVisualizationMode;
+                    }),
+                publishReplay(1),
+                refCount());
+
+        subs.push(clampedConfiguration$
+            .subscribe(
+                (c: SpatialConfiguration): void => {
+                    this._scene.setCameraSize(c.cameraSize);
+                    const cvm = c.cameraVisualizationMode;
+                    this._scene.setCameraVisualizationMode(cvm);
+                    this._scene.setCellVisibility(c.cellsVisible);
+                    this._scene.setPointSize(c.pointSize);
+                    const pvm = c.pointVisualizationMode;
+                    this._scene.setPointVisualizationMode(pvm);
+                    const opm = c.originalPositionMode;
+                    this._scene.setPositionMode(opm);
+                }));
+
+
+        const cellGridDepth$ = clampedConfiguration$
             .pipe(
                 map(
                     (c: SpatialConfiguration): number => {
@@ -229,11 +281,6 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             distinctUntilChanged(),
             publishReplay(1),
             refCount());
-
-        subs.push(isOverview$.subscribe(
-            (isOverview: boolean): void => {
-                this._scene.setNavigationState(isOverview);
-            }));
 
         const cell$ = observableCombineLatest(
             isOverview$,
@@ -352,47 +399,6 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                         cellId);
                 }));
 
-        subs.push(this._configuration$.pipe(
-            map(
-                (c: SpatialConfiguration): SpatialConfiguration => {
-                    c.cameraSize = this._spatial.clamp(c.cameraSize, 0.01, 1);
-                    c.pointSize = this._spatial.clamp(c.pointSize, 0.01, 1);
-                    const pointVisualizationMode =
-                        c.pointsVisible ?
-                            c.pointVisualizationMode ?? PointVisualizationMode.Original :
-                            PointVisualizationMode.Hidden;
-                    return {
-                        cameraSize: c.cameraSize,
-                        cameraVisualizationMode: c.cameraVisualizationMode,
-                        cellsVisible: c.cellsVisible,
-                        originalPositionMode: c.originalPositionMode,
-                        pointSize: c.pointSize,
-                        pointVisualizationMode,
-                    };
-                }),
-            distinctUntilChanged(
-                (c1: SpatialConfiguration, c2: SpatialConfiguration)
-                    : boolean => {
-                    return c1.cameraSize === c2.cameraSize &&
-                        c1.cameraVisualizationMode === c2.cameraVisualizationMode &&
-                        c1.cellsVisible === c2.cellsVisible &&
-                        c1.originalPositionMode === c2.originalPositionMode &&
-                        c1.pointSize === c2.pointSize &&
-                        c1.pointVisualizationMode === c2.pointVisualizationMode;
-                }))
-            .subscribe(
-                (c: SpatialConfiguration): void => {
-                    this._scene.setCameraSize(c.cameraSize);
-                    const cvm = c.cameraVisualizationMode;
-                    this._scene.setCameraVisualizationMode(cvm);
-                    this._scene.setCellVisibility(c.cellsVisible);
-                    this._scene.setPointSize(c.pointSize);
-                    const pvm = c.pointVisualizationMode;
-                    this._scene.setPointVisualizationMode(pvm);
-                    const opm = c.originalPositionMode;
-                    this._scene.setPositionMode(opm);
-                }));
-
         subs.push(observableCombineLatest(cellId$, cellGridDepth$)
             .subscribe(
                 ([cellId, depth]: [string, number]): void => {
@@ -436,15 +442,11 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             .subscribe());
 
         const intersectChange$ = observableCombineLatest(
-            this._configuration$,
+            clampedConfiguration$,
             this._navigator.stateService.state$).pipe(
                 map(
                     ([c, state]: [SpatialConfiguration, State])
                         : IntersectConfiguration => {
-                        c.cameraSize = this._spatial.clamp(
-                            c.cameraSize,
-                            0.01,
-                            1);
                         return {
                             size: c.cameraSize,
                             visible: isModeVisible(c.cameraVisualizationMode),
@@ -612,7 +614,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             cameraVisualizationMode: CameraVisualizationMode.Homogeneous,
             cellGridDepth: 1,
             originalPositionMode: OriginalPositionMode.Hidden,
-            pointSize: 0.1,
+            pointSize: 0.01,
             pointsVisible: true,
             pointVisualizationMode: PointVisualizationMode.Original,
             cellsVisible: false,

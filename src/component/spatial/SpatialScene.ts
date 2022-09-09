@@ -28,6 +28,10 @@ const NO_CLUSTER_ID = "NO_CLUSTER_ID";
 const NO_MERGE_ID = "NO_MERGE_ID";
 const NO_SEQUENCE_ID = "NO_SEQUENCE_ID";
 
+const RAY_NEAR_SCALE = 1.2;
+const ORIGINAL_CAMERA_SIZE = 1;
+const ORIGINAL_POINT_SIZE = 2;
+
 type Clusters = {
     [id: string]: {
         cellIds: string[];
@@ -56,10 +60,6 @@ export class SpatialScene {
     private _positionMode: OriginalPositionMode;
     private _cellsVisible: boolean;
 
-    private readonly _rayNearScale: number;
-    private readonly _originalPointSize: number;
-    private readonly _originalCameraSize: number;
-
     private _hoveredId: string;
     private _selectedId: string;
 
@@ -72,10 +72,6 @@ export class SpatialScene {
     constructor(
         configuration: SpatialConfiguration,
         scene?: Scene) {
-        this._rayNearScale = 1.1;
-        this._originalPointSize = 2;
-        this._originalCameraSize = 2;
-
         this._imageCellMap = new Map();
 
         this._scene = !!scene ? scene : new Scene();
@@ -138,7 +134,7 @@ export class SpatialScene {
             const points = new ClusterPoints({
                 cluster: reconstruction,
                 color,
-                originalSize: this._originalPointSize,
+                originalSize: ORIGINAL_POINT_SIZE,
                 scale: this._pointSize,
                 translation,
             });
@@ -198,7 +194,7 @@ export class SpatialScene {
             scale: this._cameraSize,
             transform,
             visible,
-            maxSize: this._originalCameraSize,
+            maxSize: ORIGINAL_CAMERA_SIZE,
             originalPosition
         });
 
@@ -298,7 +294,7 @@ export class SpatialScene {
     }
 
     public setCameraSize(cameraSize: number): void {
-        if (Math.abs(cameraSize - this._cameraSize) < 1e-3) { return; }
+        if (Math.abs(cameraSize - this._cameraSize) < 1e-4) { return; }
 
         const imageCells = this._images;
         for (const cellId of Object.keys(imageCells)) {
@@ -306,6 +302,7 @@ export class SpatialScene {
         }
 
         this._intersection.raycaster.near = this._getNear(cameraSize);
+        this._intersection.setIntersectionThreshold(cameraSize);
         this._cameraSize = cameraSize;
         this._needsRender = true;
     }
@@ -368,12 +365,8 @@ export class SpatialScene {
         this._hoveredId = imageId;
     }
 
-    public setNavigationState(isOverview: boolean): void {
-        this._intersection.resetIntersectionThreshold(isOverview);
-    }
-
     public setPointSize(pointSize: number): void {
-        if (Math.abs(pointSize - this._pointSize) < 1e-3) {
+        if (Math.abs(pointSize - this._pointSize) < 1e-4) {
             return;
         }
 
@@ -576,11 +569,11 @@ export class SpatialScene {
     }
 
     private _getNear(cameraSize: number): number {
-        const near = this._rayNearScale *
-            this._originalCameraSize *
+        const near = RAY_NEAR_SCALE *
+            ORIGINAL_CAMERA_SIZE *
             cameraSize;
 
-        return Math.max(1, near);
+        return Math.max(0.01, near);
     }
 
     private _resetCameraColor(imageId: string): void {

@@ -7,15 +7,15 @@ import {
 import { SpatialOctree } from "./SpatialOctree";
 import { OCTREE_LEAF_LEVEL, OCTREE_ROOT_LEVEL } from "./SpatialOctreeMath";
 
+const MAX_THRESHOLD = 5e-2;
+const MIN_THRESHOLD = 5e-3;
+
 export class SpatialIntersection {
     private readonly _interactiveLayer: number;
     private readonly _objects: Object3D[];
     private readonly _objectImageMap: Map<string, string>;
     private readonly _octree: SpatialOctree;
     private readonly _raycaster: Raycaster;
-
-    private readonly _lineThreshold: number;
-    private readonly _largeLineThreshold: number;
 
     constructor(
         octree?: SpatialOctree,
@@ -37,10 +37,6 @@ export class SpatialIntersection {
                 1,
                 10000);
 
-        this._lineThreshold = 0.2;
-        this._largeLineThreshold = 0.4;
-
-        this._raycaster.params.Line.threshold = this._lineThreshold;
         this._raycaster.layers.set(this._interactiveLayer);
     }
 
@@ -86,15 +82,16 @@ export class SpatialIntersection {
             for (const d of deleted) {
                 this._objectImageMap.delete(d.uuid);
             }
-            this._octree.remove(object)
+            this._octree.remove(object);
         } else {
             console.warn(`Object does not exist`);
         }
     }
 
-    public resetIntersectionThreshold(useLarge: boolean): void {
-        this._raycaster.params.Line.threshold = useLarge ?
-            this._largeLineThreshold :
-            this._lineThreshold;
+    public setIntersectionThreshold(cameraSize: number): void {
+        const threshold = Math.min(
+            Math.max(MIN_THRESHOLD, 2e-1 * cameraSize),
+            MAX_THRESHOLD);
+        this._raycaster.params.Line.threshold = threshold;
     }
 }
