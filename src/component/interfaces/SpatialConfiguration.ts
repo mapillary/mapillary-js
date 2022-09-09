@@ -3,6 +3,11 @@ import { CameraVisualizationMode } from "../spatial/enums/CameraVisualizationMod
 import { OriginalPositionMode } from "../spatial/enums/OriginalPositionMode";
 import { PointVisualizationMode } from "../spatial/enums/PointVisualizationMode";
 
+export const MAX_CAMERA_SIZE = 1;
+export const MAX_POINT_SIZE = 1;
+export const MIN_CAMERA_SIZE = 1e-3;
+export const MIN_POINT_SIZE = 1e-3;
+
 /**
  * Interface for configuration of spatial component.
  *
@@ -27,7 +32,7 @@ import { PointVisualizationMode } from "../spatial/enums/PointVisualizationMode"
  */
 export interface SpatialConfiguration extends ComponentConfiguration {
     /**
-     * The camera size on the interval [0.01, 1].
+     * The camera size on the interval [0.001, 1].
      *
      * @default 0.1
      */
@@ -69,9 +74,9 @@ export interface SpatialConfiguration extends ComponentConfiguration {
     originalPositionMode?: OriginalPositionMode;
 
     /**
-     * The point size on the interval [0.01, 1].
+     * The point size on the interval [0.001, 1].
      *
-     * @default 0.1
+     * @default 0.01
      */
     pointSize?: number;
 
