@@ -76,7 +76,7 @@ export interface SpatialConfiguration extends ComponentConfiguration {
     /**
      * The point size on the interval [0.001, 1].
      *
-     * @default 0.01
+     * @default 0.05
      */
     pointSize?: number;
 

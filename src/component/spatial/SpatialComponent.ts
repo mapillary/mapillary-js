@@ -153,6 +153,51 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
 
         const subs = this._subscriptions;
 
+        subs.push(this._configuration$
+            .pipe(
+                map(
+                    (c: SpatialConfiguration): SpatialConfiguration => {
+                        c.cameraSize = this._spatial.clamp(
+                            c.cameraSize, MIN_CAMERA_SIZE, MAX_CAMERA_SIZE);
+                        c.pointSize = this._spatial.clamp(
+                            c.pointSize, MIN_POINT_SIZE, MAX_POINT_SIZE);
+                        c.cellGridDepth = this._spatial.clamp(c.cellGridDepth, 1, 3);
+                        const pointVisualizationMode =
+                            c.pointsVisible ?
+                                c.pointVisualizationMode ?? PointVisualizationMode.Original :
+                                PointVisualizationMode.Hidden;
+                        return {
+                            cameraSize: c.cameraSize,
+                            cameraVisualizationMode: c.cameraVisualizationMode,
+                            cellsVisible: c.cellsVisible,
+                            originalPositionMode: c.originalPositionMode,
+                            pointSize: c.pointSize,
+                            pointVisualizationMode,
+                        };
+                    }),
+                distinctUntilChanged(
+                    (c1: SpatialConfiguration, c2: SpatialConfiguration)
+                        : boolean => {
+                        return c1.cameraSize === c2.cameraSize &&
+                            c1.cameraVisualizationMode === c2.cameraVisualizationMode &&
+                            c1.cellsVisible === c2.cellsVisible &&
+                            c1.originalPositionMode === c2.originalPositionMode &&
+                            c1.pointSize === c2.pointSize &&
+                            c1.pointVisualizationMode === c2.pointVisualizationMode;
+                    }))
+            .subscribe(
+                (c: SpatialConfiguration): void => {
+                    this._scene.setCameraSize(c.cameraSize);
+                    const cvm = c.cameraVisualizationMode;
+                    this._scene.setCameraVisualizationMode(cvm);
+                    this._scene.setCellVisibility(c.cellsVisible);
+                    this._scene.setPointSize(c.pointSize);
+                    const pvm = c.pointVisualizationMode;
+                    this._scene.setPointVisualizationMode(pvm);
+                    const opm = c.originalPositionMode;
+                    this._scene.setPositionMode(opm);
+                }));
+
         subs.push(this._navigator.graphService.dataReset$
             .subscribe(() => {
                 this._cache.uncache();
@@ -203,60 +248,11 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 publishReplay(1),
                 refCount());
 
-        const clampedConfiguration$ = this._configuration$
-            .pipe(
-                map(
-                    (c: SpatialConfiguration): SpatialConfiguration => {
-                        c.cameraSize = this._spatial.clamp(
-                            c.cameraSize, MIN_CAMERA_SIZE, MAX_CAMERA_SIZE);
-                        c.pointSize = this._spatial.clamp(
-                            c.pointSize, MIN_POINT_SIZE, MAX_POINT_SIZE);
-                        const pointVisualizationMode =
-                            c.pointsVisible ?
-                                c.pointVisualizationMode ?? PointVisualizationMode.Original :
-                                PointVisualizationMode.Hidden;
-                        return {
-                            cameraSize: c.cameraSize,
-                            cameraVisualizationMode: c.cameraVisualizationMode,
-                            cellsVisible: c.cellsVisible,
-                            originalPositionMode: c.originalPositionMode,
-                            pointSize: c.pointSize,
-                            pointVisualizationMode,
-                        };
-                    }),
-                distinctUntilChanged(
-                    (c1: SpatialConfiguration, c2: SpatialConfiguration)
-                        : boolean => {
-                        return c1.cameraSize === c2.cameraSize &&
-                            c1.cameraVisualizationMode === c2.cameraVisualizationMode &&
-                            c1.cellsVisible === c2.cellsVisible &&
-                            c1.originalPositionMode === c2.originalPositionMode &&
-                            c1.pointSize === c2.pointSize &&
-                            c1.pointVisualizationMode === c2.pointVisualizationMode;
-                    }),
-                publishReplay(1),
-                refCount());
-
-        subs.push(clampedConfiguration$
-            .subscribe(
-                (c: SpatialConfiguration): void => {
-                    this._scene.setCameraSize(c.cameraSize);
-                    const cvm = c.cameraVisualizationMode;
-                    this._scene.setCameraVisualizationMode(cvm);
-                    this._scene.setCellVisibility(c.cellsVisible);
-                    this._scene.setPointSize(c.pointSize);
-                    const pvm = c.pointVisualizationMode;
-                    this._scene.setPointVisualizationMode(pvm);
-                    const opm = c.originalPositionMode;
-                    this._scene.setPositionMode(opm);
-                }));
-
-
-        const cellGridDepth$ = clampedConfiguration$
+        const cellGridDepth$ = this._configuration$
             .pipe(
                 map(
                     (c: SpatialConfiguration): number => {
-                        return this._spatial.clamp(c.cellGridDepth, 1, 3);
+                        return c.cellGridDepth;
                     }),
                 distinctUntilChanged(),
                 publishReplay(1),
@@ -442,7 +438,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             .subscribe());
 
         const intersectChange$ = observableCombineLatest(
-            clampedConfiguration$,
+            this._configuration$,
             this._navigator.stateService.state$).pipe(
                 map(
                     ([c, state]: [SpatialConfiguration, State])
@@ -614,7 +610,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             cameraVisualizationMode: CameraVisualizationMode.Homogeneous,
             cellGridDepth: 1,
             originalPositionMode: OriginalPositionMode.Hidden,
-            pointSize: 0.01,
+            pointSize: 0.05,
             pointsVisible: true,
             pointVisualizationMode: PointVisualizationMode.Original,
             cellsVisible: false,
