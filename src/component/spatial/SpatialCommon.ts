@@ -1,6 +1,8 @@
 import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
 import { enuToGeodetic, geodeticToEnu } from "../../geo/GeoCoords";
 
+export const SPATIAL_DEFAULT_MANUAL_COLOR = 0xFFFFFF;
+
 export function resetEnu(reference: LngLatAlt, prevEnu: number[], prevReference: LngLatAlt): number[] {
     const [prevX, prevY, prevZ] = prevEnu;
     const [lng, lat, alt] = enuToGeodetic(

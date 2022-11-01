@@ -148,6 +148,30 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
         });
     }
 
+    /**
+     * Configure the cluster color used when painting
+     * clusters manually.
+     *
+     * @description The configured color is applied when the
+     * following visualization modes are set respectively:
+     *
+     * {@link CameraVisualizationMode.Manual}
+     * {@link PointVisualizationMode.Manual}
+     *
+     * @param {string} clusterId - Id of the cluster to configure.
+     * @param {number} color - The color to paint the cluster with.
+     *
+     * @example
+     * ```js
+     * spatialComponent.configureClusterColor('my-cluster-id', 0x00ff00);
+     * ```
+     */
+    public configureClusterColor(
+        clusterId: string,
+        color: number | string): void {
+        this._scene.configureClusterColor(clusterId, color);
+    }
+
     protected _activate(): void {
         this._navigator.cacheService.configure({ cellDepth: 3 });
 

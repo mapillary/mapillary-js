@@ -15,7 +15,7 @@ import { isSpherical } from "../../../geo/Geo";
 import { SphericalCameraFrame } from "./SphericalCameraFrame";
 import { PerspectiveCameraFrame } from "./PerspectiveCameraFrame";
 import { LngLatAlt } from "../../../api/interfaces/LngLatAlt";
-import { resetEnu } from "../SpatialCommon";
+import { resetEnu, SPATIAL_DEFAULT_MANUAL_COLOR } from "../SpatialCommon";
 
 type ColorIdCamerasMap = Map<string, CameraFrameBase[]>;
 
@@ -32,7 +32,7 @@ type ImageProps = {
 
 type ImageVisualizationProps = {
     id: string;
-    color: string;
+    color: string | number;
     transform: Transform;
     originalPosition: number[];
     scale: number;
@@ -110,8 +110,21 @@ export class SpatialCell {
         this.keys.push(id);
     }
 
-    public applyCameraColor(imageId: string, color: string): void {
+    public applyCameraColor(imageId: string, color: string | number): void {
         this._cameraFrames[imageId].setColor(color);
+    }
+
+    public applyColorMap(colors: Map<string, number | string>): void {
+        const frames = this._cameraFrames;
+        const props = this._props;
+        for (const imageId in frames) {
+            if (!frames.hasOwnProperty(imageId)) { continue; }
+
+            const frame = frames[imageId];
+            const clusterId = props[imageId].ids.clusterId;
+            const color = colors.get(clusterId) ?? SPATIAL_DEFAULT_MANUAL_COLOR;
+            frame.setColor(color);
+        }
     }
 
     public applyCameraSize(size: number): void {
@@ -190,6 +203,14 @@ export class SpatialCell {
 
     public hasImage(key: string): boolean {
         return this.keys.indexOf(key) !== -1;
+    }
+
+    public getCluster(imageId: string): string {
+        if (!this.hasImage(imageId)) {
+            throw new Error(`Image does not exist (${imageId})`);
+        }
+
+        return this._props[imageId].ids.clusterId;
     }
 
     public resetReference(

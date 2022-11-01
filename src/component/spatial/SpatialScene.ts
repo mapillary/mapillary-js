@@ -19,10 +19,10 @@ import { CellLine } from "./scene/CellLine";
 import { SpatialIntersection } from "./scene/SpatialIntersection";
 import { SpatialCell } from "./scene/SpatialCell";
 import { SpatialAssets } from "./scene/SpatialAssets";
-import { isModeVisible } from "./Modes";
+import { isModeManual, isModeVisible } from "./Modes";
 import { PointVisualizationMode } from "./enums/PointVisualizationMode";
 import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
-import { resetEnu } from "./SpatialCommon";
+import { resetEnu, SPATIAL_DEFAULT_MANUAL_COLOR } from "./SpatialCommon";
 
 const NO_CLUSTER_ID = "NO_CLUSTER_ID";
 const NO_MERGE_ID = "NO_MERGE_ID";
@@ -66,13 +66,16 @@ export class SpatialScene {
     private _filter: FilterFunction;
 
     private _imageCellMap: Map<string, string>;
+    private _clusterCellMap: Map<string, string[]>;
 
     private _colors: { hover: string, select: string; };
+    private _manualColors: Map<string, number | string>;
 
     constructor(
         configuration: SpatialConfiguration,
         scene?: Scene) {
         this._imageCellMap = new Map();
+        this._clusterCellMap = new Map();
 
         this._scene = !!scene ? scene : new Scene();
         this._scene.autoUpdate = false;
@@ -101,6 +104,7 @@ export class SpatialScene {
         this._hoveredId = null;
         this._selectedId = null;
         this._colors = { hover: "#FF0000", select: "#FF8000" };
+        this._manualColors = new Map();
 
         this._filter = () => true;
     }
@@ -121,6 +125,10 @@ export class SpatialScene {
 
         const clusterId = reconstruction.id;
 
+        if (!this._manualColors.has(clusterId)) {
+            this._manualColors.set(clusterId, SPATIAL_DEFAULT_MANUAL_COLOR);
+        }
+
         if (!(clusterId in this._clusters)) {
             this._clusters[clusterId] = {
                 points: new Object3D(),
@@ -130,7 +138,13 @@ export class SpatialScene {
             const visible = this._getClusterVisible(clusterId);
             const cluster = this._clusters[clusterId];
 
-            const color = this._pointVisualizationMode === PointVisualizationMode.Cluster ? this._assets.getColor(clusterId) : null;
+            let color: number | string = null;
+            if (this._pointVisualizationMode === PointVisualizationMode.Cluster) {
+                color = this._assets.getColor(clusterId);
+            } else if (this._pointVisualizationMode === PointVisualizationMode.Manual) {
+                color = this._manualColors.get(clusterId);
+            }
+
             const points = new ClusterPoints({
                 cluster: reconstruction,
                 color,
@@ -184,8 +198,13 @@ export class SpatialScene {
         if (cell.hasImage(imageId)) { return; }
         cell.addImage({ idMap, image: image });
 
-        const colorId = cell.getColorId(imageId, this._cameraVisualizationMode);
-        const color = this._assets.getColor(colorId);
+        let color: number | string = null;
+        if (this._pointVisualizationMode === PointVisualizationMode.Cluster) {
+            const colorId = cell.getColorId(imageId, this._cameraVisualizationMode);
+            color = this._assets.getColor(colorId);
+        } else if (this._pointVisualizationMode === PointVisualizationMode.Manual) {
+            color = this._manualColors.get(idMap.clusterId);
+        }
         const visible = this._filter(image);
         cell.visualize({
             id: imageId,
@@ -198,7 +217,12 @@ export class SpatialScene {
             originalPosition
         });
 
+        if (!this._clusterCellMap.has(idMap.clusterId)) {
+            this._clusterCellMap.set(idMap.clusterId, []);
+        }
+        this._clusterCellMap.get(idMap.clusterId).push(cellId);
         this._imageCellMap.set(imageId, cellId);
+
         if (imageId === this._selectedId) {
             this._highlight(
                 imageId,
@@ -209,6 +233,10 @@ export class SpatialScene {
             const clusterVisible = this._getClusterVisible(idMap.clusterId);
             this._clusters[idMap.clusterId].points.visible = clusterVisible;
         }
+        if (!this._manualColors.has(idMap.clusterId)) {
+            this._manualColors.set(idMap.clusterId, SPATIAL_DEFAULT_MANUAL_COLOR);
+        }
+
         this._needsRender = true;
     }
 
@@ -222,6 +250,39 @@ export class SpatialScene {
         this._cells[cellId].visible = this._cellsVisible;
         this._cells[cellId].add(cell);
         this._scene.add(this._cells[cellId]);
+
+        this._needsRender = true;
+    }
+
+    public configureClusterColor(
+        clusterId: string,
+        color: number | string): void {
+        this._manualColors.set(clusterId, color);
+
+        if (!(clusterId in this._clusters)) {
+            return;
+        }
+
+        if (this._pointVisualizationMode === PointVisualizationMode.Manual) {
+            const cluster = this._clusters[clusterId];
+            cluster.points.visible = this._getClusterVisible(clusterId);
+            for (const points of cluster.points.children) {
+                (<ClusterPoints>points).setColor(color);
+            }
+        }
+
+        const mode = this._cameraVisualizationMode;
+        if (mode === CameraVisualizationMode.Manual) {
+            if (this._clusterCellMap.has(clusterId)) {
+                for (const cellId of this._clusterCellMap.get(clusterId)) {
+                    const cell = this._images[cellId];
+                    cell.applyColorMap(this._manualColors);
+                }
+            }
+
+            this._highlight(this._hoveredId, this._colors.hover, mode);
+            this._highlight(this._selectedId, this._colors.select, mode);
+        }
 
         this._needsRender = true;
     }
@@ -400,8 +461,12 @@ export class SpatialScene {
             cluster.points.visible = this._getClusterVisible(clusterId);
 
             for (const points of cluster.points.children) {
-                const color = mode === PointVisualizationMode.Cluster ?
-                    this._assets.getColor(clusterId) : null;
+                let color: string | number = null;
+                if (mode === PointVisualizationMode.Cluster) {
+                    color = this._assets.getColor(clusterId);
+                } else if (mode === PointVisualizationMode.Manual) {
+                    color = this._manualColors.get(clusterId);
+                }
                 (<ClusterPoints>points).setColor(color);
             }
         }
@@ -455,17 +520,26 @@ export class SpatialScene {
         if (mode === this._cameraVisualizationMode) { return; }
 
         const visible = isModeVisible(mode);
-        const assets = this._assets;
-        for (const cell of Object.values(this._images)) {
-            cell.cameras.visible = visible;
-            const cameraMap = cell.getCamerasByMode(mode);
-            cameraMap.forEach(
-                (cameras, colorId) => {
-                    const color = assets.getColor(colorId);
-                    for (const camera of cameras) {
-                        camera.setColor(color);
-                    }
-                });
+
+        if (isModeManual(mode)) {
+            const colors = this._manualColors;
+            for (const cell of Object.values(this._images)) {
+                cell.cameras.visible = visible;
+                cell.applyColorMap(colors);
+            }
+        } else {
+            const assets = this._assets;
+            for (const cell of Object.values(this._images)) {
+                cell.cameras.visible = visible;
+                const cameraMap = cell.getCamerasByMode(mode);
+                cameraMap.forEach(
+                    (cameras, colorId) => {
+                        const color = assets.getColor(colorId);
+                        for (const camera of cameras) {
+                            camera.setColor(color);
+                        }
+                    });
+            }
         }
 
         this._highlight(this._hoveredId, this._colors.hover, mode);
@@ -582,20 +656,29 @@ export class SpatialScene {
 
         const cellId = nceMap.get(imageId);
         const cell = this._images[cellId];
-        const colorId = cell.getColorId(imageId, this._cameraVisualizationMode);
-        const color = this._assets.getColor(colorId);
-        cell.applyCameraColor(imageId, color);
+        const isManual = isModeManual(this._cameraVisualizationMode);
+        if (isManual) {
+            const clusterId = cell.getCluster(imageId);
+            const color = this._manualColors.get(clusterId) ??
+                SPATIAL_DEFAULT_MANUAL_COLOR;
+            cell.applyCameraColor(imageId, color);
+        } else {
+            const colorId = cell.getColorId(imageId, this._cameraVisualizationMode);
+            const color = this._assets.getColor(colorId);
+            cell.applyCameraColor(imageId, color);
+        }
+
     }
 
     private _highlight(
         imageId: string,
-        color: string,
+        color: string | number,
         mode: CameraVisualizationMode): void {
         const nceMap = this._imageCellMap;
         if (imageId == null || !nceMap.has(imageId)) { return; }
         const cellId = nceMap.get(imageId);
         color = mode === CameraVisualizationMode.Homogeneous ?
-            color : "#FFFFFF";
+            color : SPATIAL_DEFAULT_MANUAL_COLOR;
         this._images[cellId].applyCameraColor(imageId, color);
     }
 }

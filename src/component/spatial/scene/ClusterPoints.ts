@@ -8,7 +8,7 @@ import { ClusterContract } from "../../../api/contracts/ClusterContract";
 
 export interface ClusterPointsParameters {
     cluster: ClusterContract;
-    color: string;
+    color: string | number;
     originalSize: number;
     scale: number;
     translation: number[];
@@ -41,7 +41,7 @@ export class ClusterPoints extends Points {
         this.material.dispose();
     }
 
-    public setColor(color?: string): void {
+    public setColor(color?: string | number): void {
         this.material.vertexColors = color == null;
         this.material.color = new Color(color);
         this.material.needsUpdate = true;

@@ -26,4 +26,14 @@ export enum CameraVisualizationMode {
      * their sequence.
      */
     Sequence,
+
+    /**
+     * Manually paint the camera frustums of each cluster
+     * with a specific color.
+     *
+     * @description If no color has been specified for a
+     * visualized cluster, the cluster will be shown with
+     * a default color.
+     */
+    Manual,
 }
