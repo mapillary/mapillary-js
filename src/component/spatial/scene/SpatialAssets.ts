@@ -16,6 +16,6 @@ export class SpatialAssets {
     }
 
     private _randomColor(): string {
-        return `hsl(${Math.floor(360 * Math.random())}, 100%, 50%)`;
+        return `hsl(${Math.floor(360 * Math.random())}, 100%, 60%)`;
     }
 }

@@ -8,7 +8,7 @@ import {
 import { Transform } from "../../../geo/Transform";
 
 export interface CameraFrameParameters {
-    color: string;
+    color: string | number;
     geometry?: BufferGeometry;
     material?: Material;
     scale: number;
@@ -47,7 +47,7 @@ export abstract class CameraFrameBase extends LineSegments {
         this.material.dispose();
     }
 
-    public setColor(color: string): CameraFrameBase {
+    public setColor(color: string | number): CameraFrameBase {
         this._updateColorAttribute(color);
         return this;
     }
@@ -65,7 +65,7 @@ export abstract class CameraFrameBase extends LineSegments {
         origin: number[])
         : number[];
 
-    protected _makeAttributes(positions: number[], color: string): void {
+    protected _makeAttributes(positions: number[], color: string | number): void {
         const geometry = this.geometry;
 
         const positionAttribute =
@@ -81,7 +81,7 @@ export abstract class CameraFrameBase extends LineSegments {
         this._updateColorAttribute(color);
     }
 
-    protected _updateColorAttribute(color: string): void {
+    protected _updateColorAttribute(color: string | number): void {
         const [r, g, b] = new Color(color).toArray();
         const colorAttribute =
             <BufferAttribute>this.geometry.attributes.color;

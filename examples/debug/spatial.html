@@ -59,6 +59,20 @@
                     .then((id) => console.log("Clicked frame:", id));
             });
 
+            function randomColor() {
+                return `hsl(${Math.floor(360 * Math.random())}, 100%, 75%)`;
+            }
+
+            const colors = new Set();
+            viewer.on("image", (event) => {
+                const clusterId = event.image.clusterId;
+                if (colors.has(clusterId)) {
+                    return;
+                }
+                colors.add(clusterId);
+                spatial.configureClusterColor(clusterId, randomColor());
+            });
+
             const s = Object.assign({}, spatial.defaultConfiguration, {
                 imagesVisible: true,
             });
@@ -70,12 +84,14 @@
                 const cluster = camMode.Cluster;
                 const connectedComponent = camMode.ConnectedComponent;
                 const sequence = camMode.Sequence;
+                const manual = camMode.Manual;
                 const camModeRotation = {};
                 camModeRotation[hidden] = homogeneous;
                 camModeRotation[homogeneous] = cluster;
                 camModeRotation[cluster] = connectedComponent;
                 camModeRotation[connectedComponent] = sequence;
-                camModeRotation[sequence] = hidden;
+                camModeRotation[sequence] = manual;
+                camModeRotation[manual] = hidden;
 
                 return function () {
                     s.cameraVisualizationMode =
@@ -120,10 +136,12 @@
                 const hidden = PointVisualizationMode.Hidden;
                 const original = PointVisualizationMode.Original;
                 const cluster = PointVisualizationMode.Cluster;
+                const manual = PointVisualizationMode.Manual;
                 const pvmRotation = {};
                 pvmRotation[hidden] = original;
                 pvmRotation[original] = cluster;
-                pvmRotation[cluster] = hidden;
+                pvmRotation[cluster] = manual;
+                pvmRotation[manual] = hidden;
 
                 return function () {
                     s.pointVisualizationMode =
@@ -153,6 +171,12 @@
                     });
                 };
             })();
+
+            function resetManualColor() {
+                for (const clusterId of colors.keys()) {
+                    spatial.configureClusterColor(clusterId, randomColor());
+                }
+            }
 
             window.document.addEventListener("keydown", (e) => {
                 if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
@@ -199,6 +223,9 @@
                         break;
                     case "f":
                         setFilter();
+                        break;
+                    case "m":
+                        resetManualColor();
                         break;
                     default:
                         break;
