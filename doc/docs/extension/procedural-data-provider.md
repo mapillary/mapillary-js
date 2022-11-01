@@ -191,6 +191,7 @@ class ProceduralDataProvider extends DataProviderBase {
     this.sequences = sequences;
     this.cells = generateCells(images, this._geometry);
   }
+}
 ```
 
 ### `getCluster`
