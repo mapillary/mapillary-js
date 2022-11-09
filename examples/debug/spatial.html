@@ -33,6 +33,7 @@
             import {
                 CameraControls,
                 CameraVisualizationMode,
+                GraphDataProvider,
                 OriginalPositionMode,
                 PointVisualizationMode,
                 Viewer,
@@ -43,34 +44,63 @@
 
             let cameraControls = CameraControls.Earth;
             let spatialActive = true;
+
+            const dataProvider = new GraphDataProvider({ accessToken });
             const viewer = new Viewer({
-                accessToken,
                 cameraControls,
                 component: { cover: false, spatial: spatialActive },
                 container: "mly",
+                dataProvider,
             });
 
             viewer.moveTo(imageId).catch((error) => console.error(error));
 
             const spatial = viewer.getComponent("spatial");
+
             viewer.on("click", (event) => {
                 spatial
                     .getFrameIdAt(event.pixelPoint)
                     .then((id) => console.log("Clicked frame:", id));
             });
 
-            function randomColor() {
-                return `hsl(${Math.floor(360 * Math.random())}, 100%, 75%)`;
-            }
+            let hoveredImageId = null;
+            let paintedClusterId = null;
+            viewer.on("mousemove", async (event) => {
+                function paintCluster(clusterId, color) {
+                    spatial.setPointOverrideColor(clusterId, color);
+                    spatial.setCameraOverrideColor(clusterId, color);
+                }
 
-            const colors = new Set();
-            viewer.on("image", (event) => {
-                const clusterId = event.image.clusterId;
-                if (colors.has(clusterId)) {
+                const imageId = await spatial.getFrameIdAt(event.pixelPoint);
+                if (imageId === hoveredImageId) {
                     return;
                 }
-                colors.add(clusterId);
-                spatial.configureClusterColor(clusterId, randomColor());
+                hoveredImageId = imageId;
+
+                if (paintedClusterId != null) {
+                    paintCluster(paintedClusterId, null);
+                    paintedClusterId = null;
+                }
+
+                if (hoveredImageId == null) {
+                    return;
+                }
+
+                const images = await dataProvider.getImages([imageId]);
+                if (images.length !== 1) {
+                    return;
+                }
+                const image = images[0];
+                if (image.node.id !== hoveredImageId) {
+                    return;
+                }
+                const clusterId = image.node.cluster.id;
+                if (clusterId === paintedClusterId) {
+                    return;
+                }
+
+                paintCluster(clusterId, 0xff00ff);
+                paintedClusterId = clusterId;
             });
 
             const s = Object.assign({}, spatial.defaultConfiguration, {
@@ -84,14 +114,12 @@
                 const cluster = camMode.Cluster;
                 const connectedComponent = camMode.ConnectedComponent;
                 const sequence = camMode.Sequence;
-                const manual = camMode.Manual;
                 const camModeRotation = {};
                 camModeRotation[hidden] = homogeneous;
                 camModeRotation[homogeneous] = cluster;
                 camModeRotation[cluster] = connectedComponent;
                 camModeRotation[connectedComponent] = sequence;
-                camModeRotation[sequence] = manual;
-                camModeRotation[manual] = hidden;
+                camModeRotation[sequence] = hidden;
 
                 return function () {
                     s.cameraVisualizationMode =
@@ -136,12 +164,10 @@
                 const hidden = PointVisualizationMode.Hidden;
                 const original = PointVisualizationMode.Original;
                 const cluster = PointVisualizationMode.Cluster;
-                const manual = PointVisualizationMode.Manual;
                 const pvmRotation = {};
                 pvmRotation[hidden] = original;
                 pvmRotation[original] = cluster;
-                pvmRotation[cluster] = manual;
-                pvmRotation[manual] = hidden;
+                pvmRotation[cluster] = hidden;
 
                 return function () {
                     s.pointVisualizationMode =
@@ -171,12 +197,6 @@
                     });
                 };
             })();
-
-            function resetManualColor() {
-                for (const clusterId of colors.keys()) {
-                    spatial.configureClusterColor(clusterId, randomColor());
-                }
-            }
 
             window.document.addEventListener("keydown", (e) => {
                 if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
@@ -223,9 +243,6 @@
                         break;
                     case "f":
                         setFilter();
-                        break;
-                    case "m":
-                        resetManualColor();
                         break;
                     default:
                         break;

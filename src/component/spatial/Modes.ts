@@ -5,10 +5,6 @@ export function isModeVisible(mode: CameraVisualizationMode): boolean {
     return mode !== CameraVisualizationMode.Hidden;
 }
 
-export function isModeManual(mode: CameraVisualizationMode): boolean {
-    return mode === CameraVisualizationMode.Manual;
-}
-
 export function isOverviewState(state: State): boolean {
     return state === State.Custom || state === State.Earth;
 }

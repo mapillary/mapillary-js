@@ -2,6 +2,7 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "declaration": false,
+    "downlevelIteration": true,
     "module": "commonjs",
     "outDir": "../build/cjs/",
     "sourceMap": false,
