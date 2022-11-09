@@ -41,7 +41,7 @@ export class ClusterPoints extends Points {
         this.material.dispose();
     }
 
-    public setColor(color?: string | number): void {
+    public setColor(color: string | number | null): void {
         this.material.vertexColors = color == null;
         this.material.color = new Color(color);
         this.material.needsUpdate = true;

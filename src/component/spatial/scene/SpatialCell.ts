@@ -15,9 +15,14 @@ import { isSpherical } from "../../../geo/Geo";
 import { SphericalCameraFrame } from "./SphericalCameraFrame";
 import { PerspectiveCameraFrame } from "./PerspectiveCameraFrame";
 import { LngLatAlt } from "../../../api/interfaces/LngLatAlt";
-import { resetEnu, SPATIAL_DEFAULT_MANUAL_COLOR } from "../SpatialCommon";
+import { resetEnu, SPATIAL_DEFAULT_COLOR } from "../SpatialCommon";
 
-type ColorIdCamerasMap = Map<string, CameraFrameBase[]>;
+type IDCamera = {
+    camera: CameraFrameBase,
+    clusterId: string,
+};
+
+type ColorIdCamerasMap = Map<string, IDCamera[]>;
 
 type ImageIdMap = {
     ccId: string;
@@ -41,6 +46,8 @@ type ImageVisualizationProps = {
     positionMode: OriginalPositionMode;
 };
 
+const DEFAULT_ID = CameraVisualizationMode[CameraVisualizationMode.Homogeneous];
+
 export class SpatialCell {
     public readonly cameras: Object3D;
     public readonly keys: string[];
@@ -51,6 +58,7 @@ export class SpatialCell {
     private readonly _cameraFrames: { [key: string]: CameraFrameBase; };
     private readonly _clusters: ColorIdCamerasMap;
     private readonly _connectedComponents: ColorIdCamerasMap;
+    private readonly _defaults: ColorIdCamerasMap;
     private readonly _sequences: ColorIdCamerasMap;
     private readonly _props: {
         [id: string]: {
@@ -73,9 +81,12 @@ export class SpatialCell {
         this._positions = new Object3D();
 
         this._cameraFrames = {};
+
         this._clusters = new Map();
         this._connectedComponents = new Map();
+        this._defaults = new Map();
         this._sequences = new Map();
+
         this._props = {};
         this.clusterVisibles = {};
 
@@ -94,15 +105,29 @@ export class SpatialCell {
     public addImage(props: ImageProps): void {
         const image = props.image;
         const id = image.id;
-        if (this.hasImage(id)) { throw new Error(`Image exists ${id}`); }
+        if (this.hasImage(id)) {
+            throw new Error(`Image exists ${id}`);
+        }
+
+        const cId = props.idMap.clusterId;
+        if (!this._clusters.has(cId)) {
+            this._clusters.set(cId, []);
+        }
+
         const ccId = props.idMap.ccId;
         if (!(this._connectedComponents.has(ccId))) {
             this._connectedComponents.set(ccId, []);
         }
-        const cId = props.idMap.clusterId;
-        if (!this._clusters.has(cId)) { this._clusters.set(cId, []); }
+
+        if (!(this._defaults.has(DEFAULT_ID))) {
+            this._defaults.set(DEFAULT_ID, []);
+        }
+
         const sId = props.idMap.sequenceId;
-        if (!this._sequences.has(sId)) { this._sequences.set(sId, []); }
+        if (!this._sequences.has(sId)) {
+            this._sequences.set(sId, []);
+        }
+
         this._props[id] = {
             image: image,
             ids: { ccId, clusterId: cId, sequenceId: sId },
@@ -112,19 +137,6 @@ export class SpatialCell {
 
     public applyCameraColor(imageId: string, color: string | number): void {
         this._cameraFrames[imageId].setColor(color);
-    }
-
-    public applyColorMap(colors: Map<string, number | string>): void {
-        const frames = this._cameraFrames;
-        const props = this._props;
-        for (const imageId in frames) {
-            if (!frames.hasOwnProperty(imageId)) { continue; }
-
-            const frame = frames[imageId];
-            const clusterId = props[imageId].ids.clusterId;
-            const color = colors.get(clusterId) ?? SPATIAL_DEFAULT_MANUAL_COLOR;
-            frame.setColor(color);
-        }
     }
 
     public applyCameraSize(size: number): void {
@@ -170,20 +182,17 @@ export class SpatialCell {
         this._intersection = null;
     }
 
-    public getCamerasByMode(
-        mode: CameraVisualizationMode): ColorIdCamerasMap {
-        if (mode === CameraVisualizationMode.Cluster) {
-            return this._clusters;
-        } else if (mode === CameraVisualizationMode.ConnectedComponent) {
-            return this._connectedComponents;
-        } else if (mode === CameraVisualizationMode.Sequence) {
-            return this._sequences;
+    public getCamerasByMode(mode: CameraVisualizationMode): ColorIdCamerasMap {
+        switch (mode) {
+            case CameraVisualizationMode.Cluster:
+                return this._clusters;
+            case CameraVisualizationMode.ConnectedComponent:
+                return this._connectedComponents;
+            case CameraVisualizationMode.Sequence:
+                return this._sequences;
+            default:
+                return this._defaults;
         }
-        const cvm = CameraVisualizationMode;
-        const defaultId = cvm[cvm.Homogeneous];
-        const cameras = <ColorIdCamerasMap>new Map();
-        cameras.set(defaultId, <CameraFrameBase[]>this.cameras.children);
-        return cameras;
     }
 
     public getColorId(imageId: string, mode: CameraVisualizationMode): string {
@@ -197,7 +206,7 @@ export class SpatialCell {
             case cvm.Sequence:
                 return props.ids.sequenceId;
             default:
-                return cvm[cvm.Homogeneous];
+                return DEFAULT_ID;
         }
     }
 
@@ -266,9 +275,11 @@ export class SpatialCell {
 
         const ids = this._props[id].ids;
         this.clusterVisibles[ids.clusterId] ||= visible;
-        this._connectedComponents.get(ids.ccId).push(camera);
-        this._clusters.get(ids.clusterId).push(camera);
-        this._sequences.get(ids.sequenceId).push(camera);
+        const idCamera = { camera, clusterId: ids.clusterId };
+        this._clusters.get(ids.clusterId).push(idCamera);
+        this._connectedComponents.get(ids.ccId).push(idCamera);
+        this._defaults.get(DEFAULT_ID).push(idCamera);
+        this._sequences.get(ids.sequenceId).push(idCamera);
 
         const positionParameters: PositionLineParameters = {
             material: this._positionMaterial,

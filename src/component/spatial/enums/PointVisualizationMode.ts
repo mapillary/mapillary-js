@@ -14,14 +14,4 @@ export enum PointVisualizationMode {
      * cluster with the same random color.
      */
     Cluster,
-
-    /**
-     * Manually paint the points of each cluster with a
-     * specific color.
-     *
-     * @description If no color has been specified for a
-     * visualized cluster, the cluster will be shown with
-     * a default color.
-     */
-    Manual,
 }

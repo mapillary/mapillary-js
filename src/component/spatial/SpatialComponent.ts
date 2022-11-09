@@ -98,6 +98,19 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
     }
 
     /**
+     * Get the currently set camera frame override color, or null if
+     * no color is set.
+     *
+     * @param {string} clusterId - Id of the cluster.
+     *
+     * @returns {string | number | null} The current override color
+     * for the cluster.
+     */
+    public getCameraOverrideColor(clusterId: string): string | number | null {
+        return this._scene.getCameraOverrideColor(clusterId);
+    }
+
+    /**
      * Returns the image id of the camera frame closest to the current
      * render camera position at the specified point.
      *
@@ -149,27 +162,58 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
     }
 
     /**
-     * Configure the cluster color used when painting
-     * clusters manually.
+     * Get the currently set point override color, or null if
+     * no color is set.
      *
-     * @description The configured color is applied when the
-     * following visualization modes are set respectively:
+     * @param {string} clusterId - Id of the cluster.
      *
-     * {@link CameraVisualizationMode.Manual}
-     * {@link PointVisualizationMode.Manual}
+     * @returns {string | number | null} The current override color
+     * for the cluster.
+     */
+    public getPointOverrideColor(clusterId: string): string | number | null {
+        return this._scene.getPointOverrideColor(clusterId);
+    }
+
+    /**
+     * Override the camera color for a cluster.
+     *
+     * @description The configured color is applied for all visible
+     * visualization modes, overriding the color of the currently
+     * selected mode.
      *
      * @param {string} clusterId - Id of the cluster to configure.
-     * @param {number} color - The color to paint the cluster with.
+     * @param {number | string} color - The color to paint the cameras with.
      *
      * @example
      * ```js
-     * spatialComponent.configureClusterColor('my-cluster-id', 0x00ff00);
+     * spatialComponent.setCameraOverrideColor('my-cluster-id', 0x00ff00);
      * ```
      */
-    public configureClusterColor(
+    public setCameraOverrideColor(
         clusterId: string,
-        color: number | string): void {
-        this._scene.configureClusterColor(clusterId, color);
+        color: number | string | null): void {
+        this._scene.setCameraOverrideColor(clusterId, color);
+    }
+
+    /**
+     * Override the point color for a cluster.
+     *
+     * @description The configured color is applied for all visible
+     * visualization modes, overriding the color of the currently
+     * selected mode.
+     *
+     * @param {string} clusterId - Id of the cluster to configure.
+     * @param {number | string} color - The color to paint the points with.
+     *
+     * @example
+     * ```js
+     * spatialComponent.setPointOverrideColor('my-cluster-id', 0x00ff00);
+     * ```
+     */
+    public setPointOverrideColor(
+        clusterId: string,
+        color: number | string | null): void {
+        this._scene.setPointOverrideColor(clusterId, color);
     }
 
     protected _activate(): void {
