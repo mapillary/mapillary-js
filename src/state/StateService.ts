@@ -5,7 +5,6 @@ import {
 } from "rxjs";
 
 import {
-    bufferCount,
     distinctUntilChanged,
     filter,
     first,
@@ -15,7 +14,6 @@ import {
     refCount,
     scan,
     share,
-    startWith,
     switchMap,
     tap,
     withLatestFrom,
@@ -29,13 +27,13 @@ import { AnimationFrame } from "./interfaces/AnimationFrame";
 import { EulerRotation } from "./interfaces/EulerRotation";
 import { IStateContext } from "./interfaces/IStateContext";
 
-import { LngLat } from "../api/interfaces/LngLat";
 import { Camera } from "../geo/Camera";
 import { Image } from "../graph/Image";
 import { Transform } from "../geo/Transform";
 import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { Clock } from "three";
+import { isNullImageId } from "../util/Common";
 
 interface IContextOperation {
     (context: IStateContext): IStateContext;
@@ -195,6 +193,10 @@ export class StateService {
             refCount());
 
         this._currentImageExternal$ = imageChanged$.pipe(
+            filter(
+                (f: AnimationFrame): boolean => {
+                    return !isNullImageId(f.state.currentImage.id);
+                }),
             map(
                 (f: AnimationFrame): Image => {
                     return f.state.currentImage;

@@ -38,6 +38,7 @@ import { cameraControlsToState } from "./Modes";
 import { CameraControls } from "./enums/CameraControls";
 import { GraphDataProvider } from "../api/provider/GraphDataProvider";
 import { ProjectionService } from "./ProjectionService";
+import { makeNullImage$ } from "../util/Common";
 
 export class Navigator {
     private _api: APIWrapper;
@@ -266,19 +267,7 @@ export class Navigator {
     public setAccessToken$(accessToken?: string): Observable<void> {
         this._abortRequest("to set user token");
 
-        return this._reset$(() => this._api.setAccessToken(accessToken))
-            .pipe(
-                mergeMap(
-                    (ids: string[]): Observable<void> => {
-                        return ids.length === 0 ?
-                            observableOf(undefined) :
-                            this._cacheIds$(ids).pipe(
-                                last(),
-                                map(
-                                    (): void => {
-                                        return undefined;
-                                    }));
-                    }));
+        return this._reset$(() => this._api.setAccessToken(accessToken));
     }
 
     private _cacheIds$(ids: string[]): Observable<Image> {
@@ -351,24 +340,19 @@ export class Navigator {
                 }));
     }
 
-    private _reset$(preCallback?: () => void): Observable<string[]> {
-        this._stateService.clearImages();
-
-        return this._movedToId$.pipe(
+    private _reset$(preCallback?: () => void): Observable<void> {
+        return makeNullImage$().pipe(
+            tap(
+                (image: Image): void => {
+                    this._stateService.setImages([image]);
+                    this._stateService.setImages([image]);
+                    this._stateService.clearImages();
+                }),
             first(),
             tap((): void => { if (preCallback) { preCallback(); }; }),
             mergeMap(
-                (id: string): Observable<string[]> => {
-                    const ids$ = id == null ?
-                        observableOf([]) :
-                        this._trajectoryIds$();
-
-                    return ids$.pipe(
-                        mergeMap(
-                            (ids: string[]): Observable<string[]> => {
-                                return this._graphService.reset$(ids).pipe(
-                                    map(() => ids));
-                            }));
+                (): Observable<void> => {
+                    return this._graphService.reset$([]);
                 }));
     }
 
