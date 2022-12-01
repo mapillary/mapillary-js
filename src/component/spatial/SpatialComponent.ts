@@ -24,6 +24,7 @@ import {
     withLatestFrom,
     filter,
     pairwise,
+    tap,
 } from "rxjs/operators";
 
 import { Image } from "../../graph/Image";
@@ -294,16 +295,7 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
             publishReplay(1),
             refCount());
 
-        const currentImage$ = observableMerge(
-            this._navigator.stateService.currentImage$,
-            this._navigator.graphService.dataReset$.pipe(
-                switchMap(
-                    () => this._navigator.stateService.currentImage$.pipe(
-                        first())
-                )))
-            .pipe(
-                publishReplay(1),
-                refCount());
+        const currentImage$ = this._navigator.stateService.currentImage$;
 
         const cellId$ = currentImage$
             .pipe(
@@ -357,6 +349,10 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                     [o1, s1, b1, d1, i1]: AdjancentParams,
                     [o2, s2, b2, d2, i2]: AdjancentParams)
                     : boolean => {
+                    if (!i1.assetsCached) {
+                        return false;
+                    }
+
                     if (o1 !== o2) {
                         return false;
                     }

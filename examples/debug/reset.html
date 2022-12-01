@@ -117,10 +117,10 @@
                             }
                             case "a": {
                                 // Reset viewer and move to same image
-                                // (currently an unhandled edge case)
-                                await viewer.reset();
                                 const image = await viewer.getImage();
-                                await viewer.moveTo(image.id);
+                                const imageId = image.id;
+                                await viewer.reset();
+                                await viewer.moveTo(imageId);
                                 break;
                             }
                             case "s": {

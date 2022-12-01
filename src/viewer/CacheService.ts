@@ -28,6 +28,7 @@ import { connectedComponent } from "../api/CellMath";
 import { APIWrapper } from "../api/APIWrapper";
 import { LngLat } from "../api/interfaces/LngLat";
 import { LngLatAlt } from "../api/interfaces/LngLatAlt";
+import { isNullImageId } from "../util/Common";
 
 interface CacheState {
     lngLat: LngLat,
@@ -211,7 +212,7 @@ export class CacheService {
     }
 
     private _makeKeepers(state: CacheState, graphMode: GraphMode): CacheKeepers {
-        const imageIds = state.trajectoryIds;
+        const imageIds = state.trajectoryIds.filter(id => !isNullImageId(id));
         const lngLat = state.lngLat;
         const geometry = this._api.data.geometry;
         const cellId = geometry.lngLatToCellId(lngLat);

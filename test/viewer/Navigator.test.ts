@@ -28,6 +28,7 @@ import { LoadingService } from "../../src/viewer/LoadingService";
 import { CancelMapillaryError } from "../../src/error/CancelMapillaryError";
 import { NavigationDirection } from "../../src/graph/edge/NavigationDirection";
 import { DataProvider } from "../helper/ProviderHelper";
+import * as Common from "../../src/util/Common";
 
 const createState: () => IAnimationState = (): IAnimationState => {
     return {
@@ -653,6 +654,9 @@ describe("Navigator.setToken$", () => {
     });
 
     it("should set token on api and reset when not moved to key", (done: Function) => {
+        spyOn(Common, "makeNullImage$")
+            .and.returnValue(observableOf(new ImageHelper().createImage()));
+
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
@@ -697,7 +701,10 @@ describe("Navigator.setToken$", () => {
         resetSubject$.complete();
     });
 
-    it("should set token, reset and cache trajectory keys when moved to", (done: Function) => {
+    it("should set token, set null images and reset graph", (done: Function) => {
+        spyOn(Common, "makeNullImage$").and.returnValue(
+            observableOf(new ImageHelper().createCachedImage()));
+
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
@@ -711,7 +718,7 @@ describe("Navigator.setToken$", () => {
 
         spyOn(loadingService, "startLoading").and.stub();
         spyOn(loadingService, "stopLoading").and.stub();
-        spyOn(stateService, "setImages").and.stub();
+        const setImagesSpy = spyOn(stateService, "setImages").and.stub();
 
         const clearImagesSpy: jasmine.Spy = spyOn(stateService, "clearImages").and.stub();
         const setTokenSpy: jasmine.Spy = spyOn(api, "setAccessToken").and.stub();
@@ -752,48 +759,38 @@ describe("Navigator.setToken$", () => {
         cacheImageSubject1$.next(image0);
         cacheImageSubject1$.complete();
 
+        setImagesSpy.calls.reset();
+
         navigator.setAccessToken$("token")
             .subscribe(
                 (): void => {
                     expect(clearImagesSpy.calls.count()).toBe(1);
+
+                    expect(setImagesSpy.calls.count()).toBe(2);
+                    const nullImage = new ImageHelper().createCachedImage();
+                    expect(setImagesSpy.calls.first().args[0][0].id).toBe(nullImage.id);
+                    expect(setImagesSpy.calls.mostRecent().args[0][0].id).toBe(nullImage.id);
+
+
                     expect(setTokenSpy.calls.count()).toBe(1);
                     expect(setTokenSpy.calls.first().args.length).toBe(1);
                     expect(setTokenSpy.calls.first().args[0]).toBe("token");
 
                     expect(resetSpy.calls.count()).toBe(1);
                     expect(resetSpy.calls.first().args.length).toBe(1);
-                    expect(resetSpy.calls.first().args[0].length).toBe(2);
-                    expect(resetSpy.calls.first().args[0][0]).toBe("image1");
-                    expect(resetSpy.calls.first().args[0][1]).toBe("image2");
-
-                    expect(cacheImageSpy.calls.count()).toBe(3);
-                    expect(cacheImageSpy.calls.argsFor(1)[0]).toBe("image1");
-                    expect(cacheImageSpy.calls.argsFor(2)[0]).toBe("image2");
+                    expect(resetSpy.calls.first().args[0].length).toBe(0);
 
                     done();
                 });
 
-        const coreImage1: CoreImageEnt = helper.createCoreImageEnt();
-        coreImage1.id = "image1";
-        const image1: Image = new Image(coreImage1);
-
-        const coreImage2: CoreImageEnt = helper.createCoreImageEnt();
-        coreImage2.id = "image2";
-        const image2: Image = new Image(coreImage2);
-
-        const state: IAnimationState = createState();
-        state.trajectory = [image1, image2];
-
-        currentStateSubject$.next({ fps: 60, id: 0, state: state });
-        currentStateSubject$.complete();
         resetSubject$.next(graph);
         resetSubject$.complete();
-        cacheImageSubject2$.next(image1);
-        cacheImageSubject2$.next(image2);
-        cacheImageSubject2$.complete();
     });
 
     it("should abort outstanding move to key request", (done: () => void) => {
+        spyOn(Common, "makeNullImage$")
+            .and.returnValue(observableOf(new ImageHelper().createImage()));
+
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
@@ -828,6 +825,9 @@ describe("Navigator.setToken$", () => {
     });
 
     it("should abort outstanding move dir request", (done: () => void) => {
+        spyOn(Common, "makeNullImage$")
+            .and.returnValue(observableOf(new ImageHelper().createImage()));
+
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();

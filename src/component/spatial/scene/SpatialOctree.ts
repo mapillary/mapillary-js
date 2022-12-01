@@ -10,7 +10,7 @@ export class SpatialOctree {
         public readonly rootLevel: number,
         public readonly leafLevel: number) {
         if (leafLevel > rootLevel) {
-            throw new Error()
+            throw new Error();
         }
         this._index = new Map();
         this._root = this._makeRoot();

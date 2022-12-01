@@ -4,6 +4,12 @@ import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { ImageEnt } from "../../src/api/ents/ImageEnt";
 import { Image } from "../../src/graph/Image";
 
+class CachedImage extends Image {
+    public get assetsCached(): boolean {
+        return true;
+    }
+}
+
 export class ImageHelper {
     private _clusterId: string = "clid";
     private _imageId: string = "iid";
@@ -77,6 +83,15 @@ export class ImageHelper {
             thumb: { id: "thumb-id", url: "thumb-url" },
             width: 1,
         };
+    }
+
+
+    public createCachedImage(cameraType: CameraType = "perspective"): Image {
+        const imageEnt = this.createImageEnt();
+        imageEnt.camera_type = cameraType;
+        const image = new CachedImage(imageEnt);
+        image.makeComplete(imageEnt);
+        return image;
     }
 
     public createImage(cameraType: CameraType = "perspective"): Image {
