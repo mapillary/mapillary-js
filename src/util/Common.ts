@@ -11,6 +11,7 @@ import { ICamera } from "../geometry/interfaces/ICamera";
 import { Observable } from "rxjs";
 
 const NULL_IMAGE_ID: string = 'null-image-id';
+const NULL_SEQUENCE_ID: string = 'null-sequence-id';
 
 class NullCameraFactory implements ICameraFactory {
     public makeCamera(_type: string, _parameters: number[]): ICamera {
@@ -58,13 +59,17 @@ export function isNullImageId(imageId: string): boolean {
     return imageId === NULL_IMAGE_ID;
 }
 
+export function isNullSequenceId(sequenceId: string): boolean {
+    return sequenceId === NULL_SEQUENCE_ID;
+}
+
 export function makeNullImage$(): Observable<Image> {
     const core: CoreImageEnt = {
         computed_geometry: null,
         geometry: { lat: 90, lng: 0 },
         id: NULL_IMAGE_ID,
         sequence: {
-            id: 'null-sequence-id',
+            id: NULL_SEQUENCE_ID,
         },
     };
     const image = new Image(core);

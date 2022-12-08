@@ -644,18 +644,18 @@ export class SpatialScene {
                 continue;
             }
 
-            this._clusters[clusterId].cellIds.splice(index, 1);
+            const cluster = this._clusters[clusterId];
 
-            if (this._clusters[clusterId].cellIds.length > 0) {
+            cluster.cellIds.splice(index, 1);
+            if (cluster.cellIds.length > 0) {
                 continue;
             }
 
-            for (const points of this._clusters[clusterId].points.children.slice()) {
+            for (const points of cluster.points.children.slice()) {
                 (<ClusterPoints>points).dispose();
             }
 
-            this._scene.remove(this._clusters[clusterId].points);
-
+            this._scene.remove(cluster.points);
             delete this._clusters[clusterId];
         }
     }
