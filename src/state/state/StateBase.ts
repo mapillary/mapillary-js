@@ -9,7 +9,6 @@ import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
 import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
 import { Image } from "../../graph/Image";
-import { CameraType } from "../../geo/interfaces/CameraType";
 
 export abstract class StateBase implements IStateBase {
     protected _spatial: Spatial;
@@ -36,12 +35,14 @@ export abstract class StateBase implements IStateBase {
     protected _motionless: boolean;
 
     private _referenceThreshold: number;
+    private _transitionThreshold: number;
     private _transitionMode: TransitionMode;
 
     constructor(state: IStateBase) {
         this._spatial = new Spatial();
 
-        this._referenceThreshold = 3000;
+        this._referenceThreshold = 500;
+        this._transitionThreshold = 100;
         this._transitionMode = state.transitionMode;
 
         this._reference = state.reference;
@@ -211,7 +212,7 @@ export abstract class StateBase implements IStateBase {
 
         this._setCurrentImage();
 
-        let referenceReset: boolean = this._setReference(this._currentImage);
+        let referenceReset: boolean = this._setReference();
         if (referenceReset) {
             this._setTrajectories();
         } else {
@@ -265,7 +266,7 @@ export abstract class StateBase implements IStateBase {
     public set(images: Image[]): void {
         this._setTrajectory(images);
         this._setCurrentImage();
-        this._setReference(this._currentImage);
+        this._setReference();
         this._setTrajectories();
         this._setCurrentCamera();
     }
@@ -286,7 +287,7 @@ export abstract class StateBase implements IStateBase {
     protected _setCurrent(): void {
         this._setCurrentImage();
 
-        let referenceReset: boolean = this._setReference(this._currentImage);
+        let referenceReset: boolean = this._setReference();
         if (referenceReset) {
             this._setTrajectories();
         }
@@ -313,27 +314,40 @@ export abstract class StateBase implements IStateBase {
             ));
     }
 
-    private _setReference(image: Image): boolean {
-        const distance = this._spatial.distanceFromLngLat(
-            image.lngLat.lng,
-            image.lngLat.lat,
-            this.reference.lng,
-            this.reference.lat);
+    private _setReference(): boolean {
+        const { currentImage, previousImage, reference } = this;
+        const referenceDistance = this._spatial.distanceFromLngLat(
+            currentImage.lngLat.lng,
+            currentImage.lngLat.lat,
+            reference.lng,
+            reference.lat);
 
         // do not reset reference if image is within threshold distance
-        if (distance < this._referenceThreshold) {
+        if (referenceDistance < this._referenceThreshold) {
             return false;
+        }
+
+        if (previousImage != null) {
+            const transitionDistance = this._spatial.distanceFromLngLat(
+                currentImage.lngLat.lng,
+                currentImage.lngLat.lat,
+                previousImage.lngLat.lng,
+                previousImage.lngLat.lat);
+
+            if (transitionDistance < this._transitionThreshold) {
+                return false;
+            }
         }
 
         // do not reset reference if previous image exist and
         // transition is with motion
-        if (this._previousImage != null && !this._motionlessTransition()) {
+        if (previousImage != null && !this._motionlessTransition()) {
             return false;
         }
 
-        this._reference.lat = image.lngLat.lat;
-        this._reference.lng = image.lngLat.lng;
-        this._reference.alt = image.computedAltitude;
+        this._reference.lat = currentImage.lngLat.lat;
+        this._reference.lng = currentImage.lngLat.lng;
+        this._reference.alt = currentImage.computedAltitude;
 
         return true;
     }

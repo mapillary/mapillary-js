@@ -48,6 +48,7 @@ import { ComponentEventType } from "../events/ComponentEventType";
 import { ComponentPlayEvent } from "../events/ComponentPlayEvent";
 import { ComponentHoverEvent } from "../events/ComponentHoverEvent";
 import { ComponentName } from "../ComponentName";
+import { isNullSequenceId } from "../../util/Common";
 
 /**
  * @class SequenceComponent
@@ -231,7 +232,9 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                             retry(3),
                             catchError(
                                 (e: Error): Observable<Sequence> => {
-                                    console.error("Failed to cache sequence", e);
+                                    if (!isNullSequenceId(image.sequenceId)) {
+                                        console.error("Failed to cache sequence", e);
+                                    }
 
                                     return observableOf(null);
                                 })));
@@ -345,9 +348,9 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                         }))
             .subscribe());
 
-        const position$: Observable<{ index: number, max: number }> = sequence$.pipe(
+        const position$: Observable<{ index: number, max: number; }> = sequence$.pipe(
             switchMap(
-                (sequence: Sequence): Observable<{ index: number, max: number }> => {
+                (sequence: Sequence): Observable<{ index: number, max: number; }> => {
                     if (!sequence) {
                         return observableOf({ index: null, max: null });
                     }
@@ -376,7 +379,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                                         skip(skipCount));
                             }),
                         map(
-                            (imageId: string): { index: number, max: number } => {
+                            (imageId: string): { index: number, max: number; } => {
                                 const index: number = sequence.imageIds.indexOf(imageId);
 
                                 if (index === -1) {
@@ -411,7 +414,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                                 number,
                                 SequenceDOMRenderer,
                                 number,
-                                { index: number, max: number },
+                                { index: number, max: number; },
                                 boolean,
                             ]): VirtualNodeHash => {
 
@@ -510,7 +513,7 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                         id,
                         target: this,
                         type,
-                    }
+                    };
                     this.fire(type, event);
                 }));
     }

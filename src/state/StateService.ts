@@ -142,6 +142,23 @@ export class StateService {
         subs.push(imageChanged$
             .subscribe(imageChangedSubject$));
 
+        this._reference$ = imageChangedSubject$.pipe(
+            map(
+                (f: AnimationFrame): LngLatAlt => {
+                    const { reference } = f.state;
+                    return {
+                        lng: reference.lng,
+                        lat: reference.lat,
+                        alt: reference.alt,
+                    };
+                }),
+            distinctUntilChanged(
+                (r1: LngLatAlt, r2: LngLatAlt): boolean => {
+                    return r1.lat === r2.lat && r1.lng === r2.lng;
+                }),
+            publishReplay(1),
+            refCount());
+
         this._currentId$ = new BehaviorSubject<string>(null);
 
         subs.push(imageChangedSubject$.pipe(
@@ -171,23 +188,6 @@ export class StateService {
             map(
                 (f: AnimationFrame): Transform => {
                     return f.state.currentTransform;
-                }),
-            publishReplay(1),
-            refCount());
-
-        this._reference$ = imageChangedSubject$.pipe(
-            map(
-                (f: AnimationFrame): LngLatAlt => {
-                    const { reference } = f.state;
-                    return {
-                        lng: reference.lng,
-                        lat: reference.lat,
-                        alt: reference.alt,
-                    };
-                }),
-            distinctUntilChanged(
-                (r1: LngLatAlt, r2: LngLatAlt): boolean => {
-                    return r1.lat === r2.lat && r1.lng === r2.lng;
                 }),
             publishReplay(1),
             refCount());
@@ -307,11 +307,11 @@ export class StateService {
             publishReplay(1),
             refCount());
 
+        subs.push(this._reference$.subscribe(() => { /*noop*/ }));
         subs.push(this._state$.subscribe(() => { /*noop*/ }));
         subs.push(this._currentImage$.subscribe(() => { /*noop*/ }));
         subs.push(this._currentCamera$.subscribe(() => { /*noop*/ }));
         subs.push(this._currentTransform$.subscribe(() => { /*noop*/ }));
-        subs.push(this._reference$.subscribe(() => { /*noop*/ }));
         subs.push(this._currentImageExternal$.subscribe(() => { /*noop*/ }));
         subs.push(this._lastState$.subscribe(() => { /*noop*/ }));
         subs.push(this._inMotion$.subscribe(() => { /*noop*/ }));

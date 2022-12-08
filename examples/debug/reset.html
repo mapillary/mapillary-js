@@ -87,13 +87,14 @@
                     try {
                         switch (e.key) {
                             case "q": {
-                                // Clear
+                                // Clear data provider and reset viewer
                                 dataProvider.clear();
                                 await viewer.reset();
                                 break;
                             }
                             case "w": {
-                                // Reset
+                                // Clear data provider, reset viewer, repopulate
+                                // and move to new image
                                 increment();
                                 dataProvider.clear();
                                 await viewer.reset();
@@ -105,17 +106,18 @@
                             }
                             case "e": {
                                 // Reset viewer and move to other image
-                                await viewer.reset();
                                 const image = await viewer.getImage();
+                                const imageId = image.id;
+                                await viewer.reset();
                                 const newId = [
                                     ...dataProvider.images.keys(),
-                                ].find((id) => id !== image.id);
+                                ].find((id) => id !== imageId);
                                 if (newId) {
                                     await viewer.moveTo(newId);
                                 }
                                 break;
                             }
-                            case "a": {
+                            case "r": {
                                 // Reset viewer and move to same image
                                 const image = await viewer.getImage();
                                 const imageId = image.id;
@@ -123,7 +125,7 @@
                                 await viewer.moveTo(imageId);
                                 break;
                             }
-                            case "s": {
+                            case "t": {
                                 // Set a new data provider
                                 increment();
                                 dataProvider =
