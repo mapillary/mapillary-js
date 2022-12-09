@@ -38,7 +38,7 @@ import { cameraControlsToState } from "./Modes";
 import { CameraControls } from "./enums/CameraControls";
 import { GraphDataProvider } from "../api/provider/GraphDataProvider";
 import { ProjectionService } from "./ProjectionService";
-import { makeNullImage$ } from "../util/Common";
+import { isNullImageId, makeNullImage$ } from "../util/Common";
 
 export class Navigator {
     private _api: APIWrapper;
@@ -292,6 +292,8 @@ export class Navigator {
             this._imageRequestSubscription = null;
         }
 
+        this._idRequested$.next(null);
+
         if (this._request$ != null) {
             if (!(this._request$.isStopped || this._request$.hasError)) {
                 this._request$.error(new CancelMapillaryError(`Request aborted by a subsequent request ${reason}.`));
@@ -341,6 +343,8 @@ export class Navigator {
     }
 
     private _reset$(preCallback?: () => void): Observable<void> {
+        this._movedToId$.next(null);
+
         return makeNullImage$().pipe(
             tap(
                 (image: Image): void => {
@@ -365,6 +369,10 @@ export class Navigator {
                         .map(
                             (image: Image): string => {
                                 return image.id;
+                            })
+                        .filter(
+                            (id: string): boolean => {
+                                return !isNullImageId(id);
                             });
                 }));
     }

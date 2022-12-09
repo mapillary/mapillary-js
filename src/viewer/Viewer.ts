@@ -1683,6 +1683,8 @@ export class Viewer extends EventEmitter implements IViewer {
      * viewer.setFilter(["==", "cameraType", "spherical"]);
      * viewer.setFilter([">=", "capturedAt", <my-time-stamp>]);
      * viewer.setFilter(["in", "sequenceId", "<sequence-id-1>", "<sequence-id-2>"]);
+     * // Clear filter
+     * viewer.setFilter([]);
      * ```
      */
     public setFilter(filter?: FilterExpression): Promise<void> {

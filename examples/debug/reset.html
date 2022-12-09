@@ -140,6 +140,24 @@
                                 );
                                 break;
                             }
+                            case "y": {
+                                // Set a filter after reset
+                                const image = await viewer.getImage();
+                                const imageId = image.id;
+                                await viewer.reset();
+                                await viewer.setFilter([]);
+                                await viewer.moveTo(imageId);
+                                break;
+                            }
+                            case "u": {
+                                // Set a filter after reset and move
+                                const image = await viewer.getImage();
+                                const imageId = image.id;
+                                await viewer.reset();
+                                await viewer.moveTo(imageId);
+                                await viewer.setFilter([]);
+                                break;
+                            }
                             default:
                                 break;
                         }
