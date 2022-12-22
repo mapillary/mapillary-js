@@ -236,6 +236,7 @@ export class SpatialCell {
                 reference,
                 frame.position.toArray(),
                 prevReference));
+            frame.update();
         }
 
         const lines = this._positionLines;
@@ -248,6 +249,7 @@ export class SpatialCell {
                 reference,
                 line.position.toArray(),
                 prevReference));
+            line.update();
         }
     }
 

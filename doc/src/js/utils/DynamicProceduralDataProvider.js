@@ -14,6 +14,17 @@ import {
 } from './ProceduralDataProvider';
 
 export class DynamicProceduralDataProvider extends ProceduralDataProvider {
+  append(options) {
+    this.idCounter = options.idCounter ?? this.idCounter;
+    this.reference = options.reference ?? DEFAULT_REFERENCE;
+    this.intervals = options.intervals ?? DEFAULT_INTERVALS;
+
+    const appended = this._append();
+    this._fire();
+
+    return appended;
+  }
+
   clear() {
     this._initialize();
   }
@@ -23,7 +34,10 @@ export class DynamicProceduralDataProvider extends ProceduralDataProvider {
     this.intervals = options.intervals ?? DEFAULT_INTERVALS;
 
     this._populate();
+    this._fire();
+  }
 
+  _fire() {
     const cellIds = [...this.cells.keys()];
     const target = this;
     const type = 'datacreate';

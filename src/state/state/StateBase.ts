@@ -41,8 +41,8 @@ export abstract class StateBase implements IStateBase {
     constructor(state: IStateBase) {
         this._spatial = new Spatial();
 
-        this._referenceThreshold = 500;
-        this._transitionThreshold = 100;
+        this._referenceThreshold = 250;
+        this._transitionThreshold = 62.5;
         this._transitionMode = state.transitionMode;
 
         this._reference = state.reference;

@@ -273,6 +273,28 @@ export class ProceduralDataProvider extends DataProviderBase {
     return this.getImages(imageIds);
   }
 
+  _append() {
+    const clusters = generateClusters({
+      height: this.imageTileSize * this.imageTilesY,
+      idCounter: this.idCounter,
+      intervals: this.intervals,
+      reference: this.reference,
+    });
+    this.idCounter += clusters.images.size;
+    this.sequences = new Map([...this.sequences, ...clusters.sequences]);
+    this.images = new Map([...this.images, ...clusters.images]);
+    this.clusters = new Map([...this.clusters, ...clusters.clusters]);
+    const cells = generateCells(this.images.values(), this._geometry);
+    for (const cellId of cells.keys()) {
+      if (!this.cells.has(cellId)) {
+        this.cells.set(cellId, []);
+      }
+      this.cells.get(cellId).push(...cells.get(cellId));
+    }
+
+    return [...clusters.images.keys()];
+  }
+
   _initialize() {
     this.sequences = new Map();
     this.images = new Map();

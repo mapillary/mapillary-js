@@ -13,8 +13,7 @@ export class CellLine extends Line {
         this._makeAttributes(vertices);
 
         this.matrixAutoUpdate = false;
-        this.updateMatrix();
-        this.updateMatrixWorld(false);
+        this.update();
     }
 
     public dispose(): void {
@@ -22,8 +21,13 @@ export class CellLine extends Line {
         this.material.dispose();
     }
 
+    public update(): void {
+        this.updateMatrix();
+        this.updateMatrixWorld(false);
+    }
+
     private _makeAttributes(vertices: number[][]): void {
-        const closedPolygon = vertices.slice()
+        const closedPolygon = vertices.slice();
         closedPolygon.push(vertices[0]);
 
         let index = 0;

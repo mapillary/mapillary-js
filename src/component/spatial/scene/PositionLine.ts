@@ -35,8 +35,7 @@ export class PositionLine extends Line {
 
         this.matrixAutoUpdate = false;
         this.position.fromArray(origin);
-        this.updateMatrix();
-        this.updateMatrixWorld(false);
+        this.update();
     }
 
     public dispose(): void {
@@ -53,6 +52,11 @@ export class PositionLine extends Line {
 
         positionAttribute.needsUpdate = true;
         this.geometry.computeBoundingSphere();
+    }
+
+    public update(): void {
+        this.updateMatrix();
+        this.updateMatrixWorld(false);
     }
 
     private _makeAttributes(
