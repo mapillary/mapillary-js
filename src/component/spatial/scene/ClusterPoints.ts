@@ -32,8 +32,7 @@ export class ClusterPoints extends Points {
 
         this.matrixAutoUpdate = false;
         this.position.fromArray(translation);
-        this.updateMatrix();
-        this.updateMatrixWorld(false);
+        this.update();
     }
 
     public dispose(): void {
@@ -50,6 +49,11 @@ export class ClusterPoints extends Points {
     public resize(scale: number): void {
         this.material.size = scale * this._originalSize;
         this.material.needsUpdate = true;
+    }
+
+    public update(): void {
+        this.updateMatrix();
+        this.updateMatrixWorld(false);
     }
 
     private _makeAttributes(cluster: ClusterContract): void {

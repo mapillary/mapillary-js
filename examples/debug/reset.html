@@ -29,7 +29,11 @@
     <body>
         <script type="module">
             import { accessToken } from "/doc-src/.access-token/token.js";
-            import { CameraControls, Viewer } from "/dist/mapillary.module.js";
+            import {
+                CameraControls,
+                Viewer,
+                S2GeometryProvider,
+            } from "/dist/mapillary.module.js";
             import { DynamicProceduralDataProvider } from "/doc-src/src/js/utils/DynamicProceduralDataProvider.js";
 
             let viewer;
@@ -45,6 +49,7 @@
                 document.body.append(container);
 
                 dataProvider = new DynamicProceduralDataProvider({
+                    geometry: new S2GeometryProvider(16),
                     reference,
                     intervals,
                 });
@@ -55,7 +60,7 @@
                         cover: false,
                         spatial: {
                             cameraSize: 0.3,
-                            cellGridDepth: 1,
+                            cellGridDepth: 2,
                             cellsVisible: true,
                         },
                     },
@@ -63,10 +68,11 @@
                     imageTiling: false,
                 };
                 viewer = new Viewer(options);
-                viewer.on("reset", (event) => console.log(event.type));
                 viewer.on("image", (event) =>
                     console.log(event.image ? event.image.id : null)
                 );
+                viewer.on("reference", (event) => console.log(event));
+                viewer.on("reset", (event) => console.log(event));
                 viewer
                     .moveTo(dataProvider.images.keys().next().value)
                     .catch((error) => console.error(error));
@@ -159,6 +165,17 @@
                                 await viewer.reset();
                                 await viewer.moveTo(imageId);
                                 await viewer.setFilter([]);
+                                break;
+                            }
+                            case "i": {
+                                // Append and move to reset internal reference
+                                reference.lng += 2.4e-3;
+                                reference.lat += 5e-5;
+                                const imageIds = dataProvider.append({
+                                    reference,
+                                    intervals,
+                                });
+                                await viewer.moveTo(imageIds[0]);
                                 break;
                             }
                             default:

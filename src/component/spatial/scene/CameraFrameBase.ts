@@ -38,8 +38,7 @@ export abstract class CameraFrameBase extends LineSegments {
         this.matrixAutoUpdate = false;
         this.position.fromArray(origin);
         this.scale.set(scale, scale, scale);
-        this.updateMatrix();
-        this.updateMatrixWorld(false);
+        this.update();
     }
 
     public dispose(): void {
@@ -57,6 +56,11 @@ export abstract class CameraFrameBase extends LineSegments {
         this.updateMatrix();
         this.updateMatrixWorld(false);
         return this;
+    }
+
+    public update(): void {
+        this.updateMatrix();
+        this.updateMatrixWorld(false);
     }
 
     protected abstract _makePositions(

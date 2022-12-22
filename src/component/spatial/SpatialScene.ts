@@ -32,11 +32,13 @@ const RAY_NEAR_SCALE = 1.2;
 const ORIGINAL_CAMERA_SIZE = 1;
 const ORIGINAL_POINT_SIZE = 2;
 
+type Cluster = {
+    cellIds: string[];
+    points: ClusterPoints;
+};
+
 type Clusters = {
-    [id: string]: {
-        cellIds: string[];
-        points: Object3D;
-    };
+    [id: string]: Cluster;
 };
 
 export class SpatialScene {
@@ -51,7 +53,7 @@ export class SpatialScene {
     };
     private _clusters: Clusters;
     private _images: { [cellId: string]: SpatialCell; };
-    private _cells: { [cellId: string]: Object3D; };
+    private _cells: { [cellId: string]: CellLine; };
 
     private _cameraVisualizationMode: CameraVisualizationMode;
     private _cameraSize: number;
@@ -131,13 +133,7 @@ export class SpatialScene {
         const clusterId = reconstruction.id;
 
         if (!(clusterId in this._clusters)) {
-            this._clusters[clusterId] = {
-                points: new Object3D(),
-                cellIds: [],
-            };
-
             const color = this._getPointColor(clusterId);
-            const cluster = this._clusters[clusterId];
             const points = new ClusterPoints({
                 cluster: reconstruction,
                 color,
@@ -145,10 +141,13 @@ export class SpatialScene {
                 scale: this._pointSize,
                 translation,
             });
-            const visible = this._getClusterVisible(clusterId);
-            cluster.points.visible = visible;
-            cluster.points.add(points);
-            this._scene.add(cluster.points);
+            points.visible = this._getClusterVisible(clusterId);
+            this._scene.add(points);
+
+            this._clusters[clusterId] = {
+                points: points,
+                cellIds: [],
+            };
         }
 
         if (this._clusters[clusterId].cellIds.indexOf(cellId) === -1) {
@@ -241,9 +240,8 @@ export class SpatialScene {
         }
 
         const cell = new CellLine(vertices);
-        this._cells[cellId] = new Object3D();
+        this._cells[cellId] = cell;
         this._cells[cellId].visible = this._cellsVisible;
-        this._cells[cellId].add(cell);
         this._scene.add(this._cells[cellId]);
 
         this._needsRender = true;
@@ -300,6 +298,7 @@ export class SpatialScene {
                 reference,
                 cluster.points.position.toArray(),
                 prevReference));
+            cluster.points.update();
         }
 
         const cells = this._cells;
@@ -308,10 +307,12 @@ export class SpatialScene {
                 continue;
             }
             const cell = cells[cellId];
+            const pos = cell.position.clone();
             cell.position.fromArray(resetEnu(
                 reference,
                 cell.position.toArray(),
                 prevReference));
+            cell.update();
         }
 
         const images = this._images;
