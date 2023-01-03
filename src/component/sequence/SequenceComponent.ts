@@ -251,7 +251,8 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
             withLatestFrom(sequence$),
             map(
                 ([index, sequence]: [number, Sequence]): string => {
-                    return sequence != null ? sequence.imageIds[index] : null;
+                    return sequence != null && !isNullSequenceId(sequence.id) ?
+                        sequence.imageIds[index] : null;
                 }),
             filter(
                 (id: string): boolean => {
@@ -380,6 +381,10 @@ export class SequenceComponent extends Component<SequenceConfiguration> {
                             }),
                         map(
                             (imageId: string): { index: number, max: number; } => {
+                                if (isNullSequenceId(sequence.id)) {
+                                    return { index: null, max: null };
+                                }
+
                                 const index: number = sequence.imageIds.indexOf(imageId);
 
                                 if (index === -1) {
