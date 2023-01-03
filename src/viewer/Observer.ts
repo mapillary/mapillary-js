@@ -41,6 +41,7 @@ import { ViewerLoadEvent } from "./events/ViewerLoadEvent";
 import { ViewerReferenceEvent } from "./events/ViewerReferenceEvent";
 import { ViewerResetEvent } from "./events/ViewerResetEvent";
 import { ViewerDragEndEvent } from "./events/ViewerDragEndEvent";
+import { isNullImageId } from "../util/Common";
 
 type UnprojectionParams = [
     [
@@ -200,7 +201,7 @@ export class Observer {
             .subscribe((image: Image): void => {
                 const type: ViewerEventType = "image";
                 const event: ViewerImageEvent = {
-                    image,
+                    image: isNullImageId(image.id) ? null : image,
                     target: this._viewer,
                     type,
                 };

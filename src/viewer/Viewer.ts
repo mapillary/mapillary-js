@@ -1431,9 +1431,8 @@ export class Viewer extends EventEmitter implements IViewer {
     /**
      * Reset the viewer's cache.
      *
-     * @description All images in the viewer's cache at the moment when
-     * reset is called will eventually be removed if not navigated to
-     * again.
+     * @description All images in the viewer's cache at the moment of the
+     * reset will be disposed.
      *
      * @returns {Promise<void>} Promise that resolves when viewer's cache
      * has been reset.

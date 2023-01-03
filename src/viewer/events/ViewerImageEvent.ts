@@ -7,8 +7,11 @@ import { Image } from "../../graph/Image";
 export interface ViewerImageEvent extends ViewerEvent {
     /**
      * The viewer's current image.
+     *
+     * @description If the viewer is reset, the emitted
+     * image will be null.
      */
-    image: Image;
+    image: Image | null;
 
     type: "image";
 }

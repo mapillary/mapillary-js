@@ -64,6 +64,9 @@
                 };
                 viewer = new Viewer(options);
                 viewer.on("reset", (event) => console.log(event.type));
+                viewer.on("image", (event) =>
+                    console.log(event.image ? event.image.id : null)
+                );
                 viewer
                     .moveTo(dataProvider.images.keys().next().value)
                     .catch((error) => console.error(error));

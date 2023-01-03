@@ -33,7 +33,6 @@ import { Transform } from "../geo/Transform";
 import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { Clock } from "three";
-import { isNullImageId } from "../util/Common";
 
 interface IContextOperation {
     (context: IStateContext): IStateContext;
@@ -193,10 +192,6 @@ export class StateService {
             refCount());
 
         this._currentImageExternal$ = imageChanged$.pipe(
-            filter(
-                (f: AnimationFrame): boolean => {
-                    return !isNullImageId(f.state.currentImage.id);
-                }),
             map(
                 (f: AnimationFrame): Image => {
                     return f.state.currentImage;
