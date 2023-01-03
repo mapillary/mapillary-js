@@ -318,6 +318,20 @@ export class Image {
     }
 
     /**
+     * Get is disposed.
+     *
+     * @description If the image has been disposed no properties
+     * are acessible. Image are disposed when the {@link Viewer}
+     * is reset or a new data provider is set.
+     *
+     * @returns {boolean} Value indicating that this image
+     * has been disposed.
+     */
+    public get isDisposed(): boolean {
+        return !this._core;
+    }
+
+    /**
      * Get lngLat.
      *
      * @description If the SfM computed longitude, latitude exist

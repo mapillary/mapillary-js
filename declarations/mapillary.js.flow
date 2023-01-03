@@ -1724,6 +1724,18 @@ declare class Image {
   id: string;
 
   /**
+   * Get is disposed.
+   *
+   * @description If the image has been disposed no properties
+   * are acessible. Image are disposed when the {@link Viewer}
+   * is reset or a new data provider is set.
+   *
+   * @returns {boolean} Value indicating that this image
+   * has been disposed.
+   */
+  isDisposed: boolean;
+
+  /**
    * Get lngLat.
    * @description If the SfM computed longitude, latitude exist
    * it will be returned, otherwise the original EXIF latitude
@@ -3466,7 +3478,7 @@ export type ViewerImageEvent = {
   /**
    * The viewer's current image.
    */
-  image: Image,
+  image: Image | null,
   type: "image",
   ...
 } & ViewerEvent;
@@ -3974,9 +3986,8 @@ declare class Viewer implements IEventEmitter, IViewer {
 
   /**
    * Reset the viewer's cache.
-   * @description All images in the viewer's cache at the moment when
-   * reset is called will eventually be removed if not navigated to
-   * again.
+   * @description All images in the viewer's cache at the moment of the
+   * reset will be disposed.
    * @returns {Promise<void>} Promise that resolves when viewer's cache
    * has been reset.
    * @throws When viewer is not navigable.
@@ -4029,7 +4040,7 @@ declare class Viewer implements IEventEmitter, IViewer {
 
   /**
    * Set a new data provider instance.
-   * @description [object Object],[object Object],[object Object]
+   * @description Resets the viewer's cache (see Viewer.reset).
    * @returns {Promise<void>} Promise that resolves when viewer's data
    * provider has been set.
    * @throws When viewer is not navigable.

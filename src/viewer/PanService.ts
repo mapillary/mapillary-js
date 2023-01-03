@@ -12,6 +12,7 @@ import {
 import {
     catchError,
     distinctUntilChanged,
+    filter,
     map,
     publishReplay,
     refCount,
@@ -37,6 +38,7 @@ import { isSpherical } from "../geo/Geo";
 import { geodeticToEnu } from "../geo/GeoCoords";
 import { State } from "../state/State";
 import { ICameraFactory } from "../geometry/interfaces/ICameraFactory";
+import { isNullImageId } from "../util/Common";
 
 enum PanMode {
     Disabled,
@@ -126,6 +128,7 @@ export class PanService {
         }
 
         const panImages$ = this._stateService.currentImage$.pipe(
+            filter((image: Image) => { return !isNullImageId(image.id); }),
             switchMap(
                 (current: Image): Observable<[Image, Transform, number][]> => {
                     if (!current.merged || isSpherical(current.cameraType)) {
