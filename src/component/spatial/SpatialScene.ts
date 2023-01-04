@@ -472,9 +472,7 @@ export class SpatialScene {
             if (!clusters.hasOwnProperty(key)) {
                 continue;
             }
-            for (const points of clusters[key].points.children) {
-                (<ClusterPoints>points).resize(pointSize);
-            }
+            clusters[key].points.resize(pointSize);
         }
 
         this._pointSize = pointSize;
@@ -603,9 +601,8 @@ export class SpatialScene {
         cluster.points.visible = this._getClusterVisible(clusterId);
 
         const color = this._getPointColor(clusterId);
-        for (const points of cluster.points.children) {
-            (<ClusterPoints>points).setColor(color);
-        }
+        cluster.points.setColor(color);
+
     }
 
     private _getClusterVisible(clusterId: string): boolean {
@@ -652,11 +649,8 @@ export class SpatialScene {
                 continue;
             }
 
-            for (const points of cluster.points.children.slice()) {
-                (<ClusterPoints>points).dispose();
-            }
-
             this._scene.remove(cluster.points);
+            cluster.points.dispose();
             delete this._clusters[clusterId];
         }
     }
