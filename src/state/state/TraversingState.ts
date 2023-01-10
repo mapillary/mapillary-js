@@ -4,6 +4,7 @@ import { InteractiveStateBase } from "./InteractiveStateBase";
 import { IStateBase } from "../interfaces/IStateBase";
 import { Image } from "../../graph/Image";
 import { isSpherical } from "../../geo/Geo";
+import { isNullImageId } from "../../util/Common";
 
 export class TraversingState extends InteractiveStateBase {
 
@@ -136,8 +137,11 @@ export class TraversingState extends InteractiveStateBase {
         let lookat: THREE.Vector3 = this._camera.lookat.clone().sub(this._camera.position);
         this._previousCamera.lookat.copy(lookat.clone().add(this._previousCamera.position));
 
-        if (isSpherical(this._currentImage.cameraType)) {
-            this._currentCamera.lookat.copy(lookat.clone().add(this._currentCamera.position));
+        if (
+            isSpherical(this._currentImage.cameraType) &&
+            !isNullImageId(this._previousImage.id)) {
+            this._currentCamera.lookat.copy(
+                lookat.clone().add(this._currentCamera.position));
         }
     }
 
