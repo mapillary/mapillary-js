@@ -196,7 +196,7 @@ export class SpatialScene {
         const colorId = cell.getColorId(imageId, this._cameraVisualizationMode);
         let color: number | string =
             this._cameraOverrideColors.has(idMap.clusterId) ?
-                this._pointOverrideColors.get(idMap.clusterId) :
+                this._cameraOverrideColors.get(idMap.clusterId) :
                 this._assets.getColor(colorId);
 
         const visible = this._filter(image);
