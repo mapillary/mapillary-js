@@ -7,6 +7,7 @@ import {
     throwError as observableThrowError,
     Observable,
     Subject,
+    BehaviorSubject,
 } from "rxjs";
 import { first } from "rxjs/operators";
 
@@ -592,6 +593,9 @@ describe("Navigator.setFilter$", () => {
                 return cacheImageSubject2$;
             });
 
+        const hasImageSubject = new Subject<boolean>();
+        const hasImageSpy = spyOn(graphService, "hasImage$").and.returnValue(hasImageSubject);
+
         const navigator: Navigator =
             new Navigator(
                 { container: "co" },
@@ -640,6 +644,8 @@ describe("Navigator.setFilter$", () => {
         currentStateSubject$.complete();
         setFilterSubject$.next(graph);
         setFilterSubject$.complete();
+        hasImageSubject.next(true);
+        hasImageSubject.complete();
         cacheImageSubject2$.next(image1);
         cacheImageSubject2$.next(image2);
         cacheImageSubject2$.complete();
@@ -691,8 +697,7 @@ describe("Navigator.setToken$", () => {
                     expect(setTokenSpy.calls.first().args[0]).toBe("token");
 
                     expect(resetSpy.calls.count()).toBe(1);
-                    expect(resetSpy.calls.first().args.length).toBe(1);
-                    expect(resetSpy.calls.first().args[0]).toEqual([]);
+                    expect(resetSpy.calls.first().args.length).toBe(0);
 
                     done();
                 });
@@ -777,8 +782,7 @@ describe("Navigator.setToken$", () => {
                     expect(setTokenSpy.calls.first().args[0]).toBe("token");
 
                     expect(resetSpy.calls.count()).toBe(1);
-                    expect(resetSpy.calls.first().args.length).toBe(1);
-                    expect(resetSpy.calls.first().args[0].length).toBe(0);
+                    expect(resetSpy.calls.first().args.length).toBe(0);
 
                     done();
                 });

@@ -15,7 +15,7 @@ import { isSpherical } from "../../../geo/Geo";
 import { SphericalCameraFrame } from "./SphericalCameraFrame";
 import { PerspectiveCameraFrame } from "./PerspectiveCameraFrame";
 import { LngLatAlt } from "../../../api/interfaces/LngLatAlt";
-import { resetEnu, SPATIAL_DEFAULT_COLOR } from "../SpatialCommon";
+import { resetEnu } from "../SpatialCommon";
 
 type IDCamera = {
     camera: CameraFrameBase,
@@ -70,6 +70,8 @@ export class SpatialCell {
     private _frameMaterial: LineBasicMaterial;
     private _positionMaterial: LineBasicMaterial;
 
+    private readonly _clusterImages: Map<string, string[]>;
+
     constructor(
         public readonly id: string,
         private _scene: Scene,
@@ -96,6 +98,8 @@ export class SpatialCell {
         this._positionMaterial = new LineBasicMaterial({
             color: 0xff0000,
         });
+
+        this._clusterImages = new Map();
 
         this._scene.add(
             this.cameras,
@@ -133,6 +137,11 @@ export class SpatialCell {
             ids: { ccId, clusterId: cId, sequenceId: sId },
         };
         this.keys.push(id);
+
+        if (!this._clusterImages.has(cId)) {
+            this._clusterImages.set(cId, []);
+        }
+        this._clusterImages.get(cId).push(id);
     }
 
     public applyCameraColor(imageId: string, color: string | number): void {
@@ -180,6 +189,49 @@ export class SpatialCell {
         this._disposePositions();
         this._scene = null;
         this._intersection = null;
+    }
+
+
+    public disposeCluster(clusterId: string): void {
+        if (!this._clusterImages.has(clusterId)) {
+            return;
+        }
+
+        const {
+            _cameraFrames,
+            _intersection,
+            _positionLines,
+            _positions,
+            _props,
+            cameras,
+            keys,
+        } = this;
+
+        const imageIds = this._clusterImages.get(clusterId);
+        for (const imageId of imageIds) {
+            this._disposeCamera(
+                _cameraFrames[imageId],
+                cameras,
+                _intersection);
+            this._disposePosition(
+                _positionLines[imageId],
+                _positions
+            );
+
+            delete _cameraFrames[imageId];
+            delete _positionLines[imageId];
+
+            const index = keys.indexOf(imageId);
+            if (index !== -1) {
+                keys.splice(index, 1);
+            }
+
+            delete _props[imageId];
+        }
+
+        this._clusterImages.delete(clusterId);
+        this._clusters.delete(clusterId);
+        delete this.clusterVisibles[clusterId];
     }
 
     public getCamerasByMode(mode: CameraVisualizationMode): ColorIdCamerasMap {
@@ -295,22 +347,35 @@ export class SpatialCell {
         this._positionLines[id] = position;
     }
 
+    private _disposeCamera(
+        camera: CameraFrameBase,
+        cameras: Object3D,
+        intersection: SpatialIntersection): void {
+        camera.dispose();
+        intersection.remove(camera);
+        cameras.remove(camera);
+    }
+
     private _disposeCameras(): void {
         const intersection = this._intersection;
         const cameras = this.cameras;
         for (const camera of cameras.children.slice()) {
-            (<CameraFrameBase>camera).dispose();
-            intersection.remove(camera);
-            cameras.remove(camera);
+            this._disposeCamera(<CameraFrameBase>camera, cameras, intersection);
         }
         this._scene.remove(this.cameras);
+    }
+
+    private _disposePosition(
+        position: PositionLine,
+        positions: Object3D): void {
+        position.dispose();
+        positions.remove(position);
     }
 
     private _disposePositions(): void {
         const positions = this._positions;
         for (const position of positions.children.slice()) {
-            (<PositionLine>position).dispose();
-            positions.remove(position);
+            this._disposePosition(<PositionLine>position, positions);
         }
         this._scene.remove(this._positions);
     }

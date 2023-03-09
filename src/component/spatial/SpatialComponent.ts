@@ -597,6 +597,15 @@ export class SpatialComponent extends Component<SpatialConfiguration> {
                 }))
             .subscribe(this._container.glRenderer.render$));
 
+        subs.push(this._navigator.graphService.dataDeleted$
+            .subscribe(
+                (clusterIds: string[]): void => {
+                    for (const clusterId of clusterIds) {
+                        this._cache.removeCluster(clusterId);
+                        this._scene.uncacheCluster(clusterId);
+                    }
+                }));
+
         const updatedCell$ = this._navigator.graphService.dataAdded$
             .pipe(
                 filter(

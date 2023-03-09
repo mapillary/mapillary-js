@@ -2682,7 +2682,7 @@ describe("Graph.reset", () => {
         const nodeDisposeSpy = spyOn(node, "dispose");
         nodeDisposeSpy.and.stub();
 
-        graph.reset([]);
+        graph.reset();
 
         expect(nodeDisposeSpy.calls.count()).toBe(0);
         expect(graph.hasNode(node.id)).toBe(false);
@@ -2722,56 +2722,10 @@ describe("Graph.reset", () => {
         const nodeDisposeSpy = spyOn(node, "dispose");
         nodeDisposeSpy.and.stub();
 
-        graph.reset([]);
+        graph.reset();
 
         expect(nodeDisposeSpy.calls.count()).toBe(1);
         expect(graph.hasNode(node.id)).toBe(false);
-    });
-
-    it("should keep supplied node", () => {
-        const geometryProvider = new GeometryProvider();
-        const dataProvider = new DataProvider(
-
-            geometryProvider);
-        const api = new APIWrapper(dataProvider);
-        const calculator = new GraphCalculator();
-
-        const h = "h";
-        spyOn(geometryProvider, "lngLatToCellId").and.returnValue(h);
-
-        const getImages = new Subject<ImagesContract>();
-        spyOn(api, "getImages$").and.returnValue(getImages);
-
-        const graph = new Graph(api, undefined, calculator);
-
-        const fullNode = helper.createImageEnt();
-        const result: ImagesContract = [{
-            node: fullNode,
-            node_id: fullNode.id,
-        }];
-        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
-
-        getImages.next(result);
-        getImages.complete();
-
-        expect(graph.hasNode(fullNode.id)).toBe(true);
-
-        const node = graph.getNode(fullNode.id);
-        graph.initializeCache(node.id);
-
-        const nodeDisposeSpy = spyOn(node, "dispose");
-        nodeDisposeSpy.and.stub();
-        const nodeResetSequenceSpy = spyOn(node, "resetSequenceEdges");
-        nodeResetSequenceSpy.and.stub();
-        const nodeResetSpatialSpy = spyOn(node, "resetSpatialEdges");
-        nodeResetSpatialSpy.and.stub();
-
-        graph.reset([node.id]);
-
-        expect(nodeDisposeSpy.calls.count()).toBe(0);
-        expect(nodeResetSequenceSpy.calls.count()).toBe(1);
-        expect(nodeResetSpatialSpy.calls.count()).toBe(1);
-        expect(graph.hasNode(node.id)).toBe(true);
     });
 });
 
@@ -4293,9 +4247,7 @@ describe("Graph.updateCells$", () => {
 
     it("should update currently caching cell", (done: Function) => {
         const geometryProvider = new GeometryProvider();
-        const dataProvider = new DataProvider(
-
-            geometryProvider);
+        const dataProvider = new DataProvider(geometryProvider);
         const api = new APIWrapper(dataProvider);
         const calculator = new GraphCalculator();
 
@@ -4353,9 +4305,7 @@ describe("Graph.updateCells$", () => {
 
     it("should add new nodes to existing cell", (done: Function) => {
         const geometryProvider = new GeometryProvider();
-        const dataProvider = new DataProvider(
-
-            geometryProvider);
+        const dataProvider = new DataProvider(geometryProvider);
         const api = new APIWrapper(dataProvider);
         const calculator = new GraphCalculator();
 
@@ -4417,5 +4367,170 @@ describe("Graph.updateCells$", () => {
         tileResult.images.push(fullNode2);
         coreImagesUpdate.next(tileResult);
         coreImagesUpdate.complete();
+    });
+});
+
+describe("Graph.deleteClusters$", () => {
+    it("should not delete when empty array", (done: Function) => {
+        const geometryProvider = new GeometryProvider();
+        const dataProvider = new DataProvider(geometryProvider);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator();
+
+        const cellIdSpy = spyOn(geometryProvider, "lngLatToCellId")
+            .and.returnValue("cell-id");
+
+        const graph = new Graph(api, undefined, calculator);
+
+        let count = 0;
+        graph.deleteClusters$([])
+            .subscribe(
+                (): void => { count++; },
+                undefined,
+                (): void => {
+                    expect(count).toBe(0);
+                    expect(cellIdSpy.calls.count()).toBe(0);
+
+                    done();
+                });
+    });
+
+    it("should not emit when cluster does not exist", (done: Function) => {
+        const geometryProvider = new GeometryProvider();
+        const dataProvider = new DataProvider(geometryProvider);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator();
+
+        const cellIdSpy = spyOn(geometryProvider, "lngLatToCellId")
+            .and.returnValue("cell-id");
+
+        const graph = new Graph(api, undefined, calculator);
+
+        let count = 0;
+        graph.deleteClusters$(["non-existing-cluster-id"])
+            .subscribe(
+                (): void => { count++; },
+                undefined,
+                (): void => {
+                    expect(count).toBe(0);
+                    expect(cellIdSpy.calls.count()).toBe(0);
+
+                    done();
+                });
+    });
+
+    it("should emit when deleting a cluster", (done: Function) => {
+        const geometryProvider = new GeometryProvider();
+        const dataProvider = new DataProvider(geometryProvider);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator();
+
+        const cellId = "cell-id";
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
+
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
+
+        const id = "node-id";
+        const fullNode = new ImageHelper().createImageEnt();
+        fullNode.id = id;
+
+        const graph = new Graph(api, undefined, calculator);
+
+        graph.cacheCell$(cellId).subscribe();
+
+        const tileResult: CoreImagesContract = {
+            cell_id: cellId,
+            images: [fullNode],
+        };
+        coreImages.next(tileResult);
+        coreImages.complete();
+
+        const spatialImages: SpatialImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getSpatialImages.next(spatialImages);
+        getSpatialImages.complete();
+
+        expect(graph.hasNode(id)).toBe(true);
+
+        let count = 0;
+
+        graph.deleteClusters$([fullNode.cluster.id])
+            .subscribe(
+                (clusterId: string): void => {
+                    count++;
+                    expect(clusterId).toBe(fullNode.cluster.id);
+
+                },
+                undefined,
+                (): void => {
+                    expect(count).toBe(1);
+
+                    expect(graph.hasNode(id)).toBe(false);
+
+                    done();
+                });
+    });
+
+    it("should not dispose deleted node", (done: Function) => {
+        const geometryProvider = new GeometryProvider();
+        const dataProvider = new DataProvider(geometryProvider);
+        const api = new APIWrapper(dataProvider);
+        const calculator = new GraphCalculator();
+
+        const cellId = "cell-id";
+        const coreImages =
+            new Subject<CoreImagesContract>();
+        spyOn(api, "getCoreImages$").and.returnValue(coreImages);
+
+        const getSpatialImages = new Subject<SpatialImagesContract>();
+        spyOn(api, "getSpatialImages$").and.returnValue(getSpatialImages);
+
+        const id = "node-id";
+        const fullNode = new ImageHelper().createImageEnt();
+        fullNode.id = id;
+
+        const graph = new Graph(api, undefined, calculator);
+
+        graph.cacheCell$(cellId).subscribe();
+
+        const tileResult: CoreImagesContract = {
+            cell_id: cellId,
+            images: [fullNode],
+        };
+        coreImages.next(tileResult);
+        coreImages.complete();
+
+        const spatialImages: SpatialImagesContract = [{
+            node: fullNode,
+            node_id: fullNode.id,
+        }];
+        getSpatialImages.next(spatialImages);
+        getSpatialImages.complete();
+
+        const node = graph.getNode(id);
+        expect(node.isDisposed).toBe(false);
+
+        let count = 0;
+
+        graph.deleteClusters$([fullNode.cluster.id])
+            .subscribe(
+                (clusterId: string): void => {
+                    count++;
+                    expect(clusterId).toBe(fullNode.cluster.id);
+
+                },
+                undefined,
+                (): void => {
+                    expect(count).toBe(1);
+
+                    expect(node.isDisposed).toBe(false);
+
+                    done();
+                });
     });
 });

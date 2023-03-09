@@ -585,7 +585,7 @@ export interface ImageTilesRequestContract {
 /**
  * @event
  */
-export type ProviderEventType = "datacreate";
+export type ProviderEventType = "datacreate" | "datadelete";
 /**
  * @interface IGeometryProvider
  *
@@ -773,6 +773,22 @@ export type ProviderCellEvent = {
    * Provider event type.
    */
   type: "datacreate",
+  ...
+} & ProviderEvent;
+/**
+ *
+ * Interface for data provider cluster events.
+ */
+export type ProviderClusterEvent = {
+  /**
+   * Cluster ids for clusters that have been deleted.
+   */
+  clusterIds: string[],
+
+  /**
+   * Provider event type.
+   */
+  type: "datadelete",
   ...
 } & ProviderEvent;
 

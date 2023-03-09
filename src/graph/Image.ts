@@ -332,6 +332,19 @@ export class Image {
     }
 
     /**
+     * Get is complete.
+     *
+     * @returns {boolean} Value indicating that this image
+     * is complete.
+     *
+     * @ignore
+     */
+    public get isComplete(): boolean {
+        return !!this._core && !!this._spatial;
+    }
+
+
+    /**
      * Get lngLat.
      *
      * @description If the SfM computed longitude, latitude exist

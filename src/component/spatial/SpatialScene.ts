@@ -69,6 +69,7 @@ export class SpatialScene {
 
     private _imageCellMap: Map<string, string>;
     private _clusterCellMap: Map<string, Set<string>>;
+    private _clusterImageMap: Map<string, Set<string>>;
 
     private _colors: { hover: string, select: string; };
     private _cameraOverrideColors: Map<string, number | string>;
@@ -79,6 +80,7 @@ export class SpatialScene {
         scene?: Scene) {
         this._imageCellMap = new Map();
         this._clusterCellMap = new Map();
+        this._clusterImageMap = new Map();
 
         this._scene = !!scene ? scene : new Scene();
         this._scene.autoUpdate = false;
@@ -145,8 +147,8 @@ export class SpatialScene {
             this._scene.add(points);
 
             this._clusters[clusterId] = {
-                points: points,
                 cellIds: [],
+                points: points,
             };
         }
 
@@ -158,6 +160,9 @@ export class SpatialScene {
         }
         if (this._cellClusters[cellId].keys.indexOf(clusterId) === -1) {
             this._cellClusters[cellId].keys.push(clusterId);
+        }
+        if (!this._clusterImageMap.has(clusterId)) {
+            this._clusterImageMap.set(clusterId, new Set());
         }
 
         this._needsRender = true;
@@ -219,6 +224,11 @@ export class SpatialScene {
             clusterCells.add(cellId);
         }
         this._imageCellMap.set(imageId, cellId);
+
+        if (!this._clusterImageMap.has(idMap.clusterId)) {
+            this._clusterImageMap.set(idMap.clusterId, new Set());
+        }
+        this._clusterImageMap.get(idMap.clusterId).add(imageId);
 
         if (imageId === this._selectedId) {
             this._highlight(
@@ -555,6 +565,54 @@ export class SpatialScene {
             }
 
             this._disposeCell(cellId);
+        }
+
+        this._needsRender = true;
+    }
+
+    public uncacheCluster(clusterId: string): void {
+        const cellIds = new Set<string>();
+        if (clusterId in this._clusters) {
+            const cluster = this._clusters[clusterId];
+            for (const cellId of cluster.cellIds) {
+                cellIds.add(cellId);
+            }
+            this._scene.remove(cluster.points);
+            cluster.points.dispose();
+            delete this._clusters[clusterId];
+        }
+
+        for (const cellId of this._clusterCellMap.get(clusterId) ?? []) {
+            cellIds.add(cellId);
+        }
+        this._clusterCellMap.delete(clusterId);
+
+        for (const cellId of cellIds.values()) {
+            if (!(cellId in this._cellClusters)) {
+                continue;
+            }
+            const cellClusters = this._cellClusters[cellId];
+            const index = cellClusters.keys.indexOf(clusterId);
+            if (index !== -1) {
+                cellClusters.keys.splice(index, 1);
+            }
+        }
+
+        for (const cellId of cellIds.values()) {
+            if (!(cellId in this._images)) {
+                continue;
+            }
+            const cell = this._images[cellId];
+            cell.disposeCluster(clusterId);
+        }
+
+        if (this._clusterImageMap.has(clusterId)) {
+            const imageCellMap = this._imageCellMap;
+            const imageIds = this._clusterImageMap.get(clusterId).values();
+            for (const imageId of imageIds) {
+                imageCellMap.delete(imageId);
+            }
+            this._clusterImageMap.delete(clusterId);
         }
 
         this._needsRender = true;

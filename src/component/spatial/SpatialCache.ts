@@ -27,33 +27,45 @@ type ClusterData = {
     url: string;
 };
 
+type Cluster = {
+    cellIds: Set<string>;
+    contract: ClusterContract;
+};
+
+type Cell = {
+    clusters: Map<string, string[]>;
+    images: Map<string, Image>;
+};
+
+type ClusterRequest = {
+    cancel: Function;
+    request: Observable<ClusterContract>;
+};
+
 export class SpatialCache {
     private _graphService: GraphService;
     private _api: APIWrapper;
 
-    private _cacheRequests: { [cellId: string]: Function[]; };
-    private _cells: { [cellId: string]: Image[]; };
-
-    private _clusters: { [key: string]: ClusterContract; };
-    private _clusterCells: { [key: string]: string[]; };
+    private _cells: Map<string, Cell>;
+    private _clusters: { [key: string]: Cluster; };
     private _cellClusters: { [cellId: string]: ClusterData[]; };
 
-    private _cachingClusters$: { [cellId: string]: Observable<ClusterContract>; };
-    private _cachingCells$: { [cellId: string]: Observable<Image[]>; };
+    private _cellClusterRequests: { [cellId: string]: ClusterRequest; };
+    private _cellImageRequests: { [cellId: string]: Observable<Image[]>; };
+    private _clusterRequests: Set<string>;
 
     constructor(graphService: GraphService, api: APIWrapper) {
         this._graphService = graphService;
         this._api = api;
 
-        this._cells = {};
-        this._cacheRequests = {};
+        this._cells = new Map();
 
         this._clusters = {};
-        this._clusterCells = {};
         this._cellClusters = {};
 
-        this._cachingCells$ = {};
-        this._cachingClusters$ = {};
+        this._cellImageRequests = {};
+        this._cellClusterRequests = {};
+        this._clusterRequests = new Set();
     }
 
     public cacheClusters$(cellId: string): Observable<ClusterContract> {
@@ -66,7 +78,7 @@ export class SpatialCache {
         }
 
         if (this.isCachingClusters(cellId)) {
-            return this._cachingClusters$[cellId];
+            return this._cellClusterRequests[cellId].request;
         }
 
         const duplicatedClusters: ClusterData[] = this.getCell(cellId)
@@ -89,31 +101,26 @@ export class SpatialCache {
                     .values());
 
         this._cellClusters[cellId] = clusters;
-        this._cacheRequests[cellId] = [];
 
-        let aborter: Function;
-        const abort: Promise<void> = new Promise(
+        let cancel: Function;
+        const cancellationToken: Promise<void> = new Promise(
             (_, reject): void => {
-                aborter = reject;
+                cancel = reject;
             });
-        this._cacheRequests[cellId].push(aborter);
+        this._cellClusterRequests[cellId] = {
+            cancel, request:
+                this._cacheClusters$(clusters, cellId, cancellationToken).pipe(
+                    finalize(
+                        (): void => {
+                            if (cellId in this._cellClusterRequests) {
+                                delete this._cellClusterRequests[cellId];
+                            }
+                        }),
+                    publish(),
+                    refCount())
+        };
 
-        this._cachingClusters$[cellId] =
-            this._cacheClusters$(clusters, cellId, abort).pipe(
-                finalize(
-                    (): void => {
-                        if (cellId in this._cachingClusters$) {
-                            delete this._cachingClusters$[cellId];
-                        }
-
-                        if (cellId in this._cacheRequests) {
-                            delete this._cacheRequests[cellId];
-                        }
-                    }),
-                publish(),
-                refCount());
-
-        return this._cachingClusters$[cellId];
+        return this._cellClusterRequests[cellId].request;
     }
 
     public cacheCell$(cellId: string): Observable<Image[]> {
@@ -122,10 +129,10 @@ export class SpatialCache {
         }
 
         if (this.isCachingCell(cellId)) {
-            return this._cachingCells$[cellId];
+            return this._cellImageRequests[cellId];
         }
 
-        this._cachingCells$[cellId] = this._graphService.cacheCell$(cellId).pipe(
+        this._cellImageRequests[cellId] = this._graphService.cacheCell$(cellId).pipe(
             catchError(
                 (error: Error): Observable<Image[]> => {
                     console.error(error);
@@ -134,37 +141,50 @@ export class SpatialCache {
                 }),
             filter(
                 (): boolean => {
-                    return !(cellId in this._cells);
+                    return !this._cells.has(cellId);
                 }),
             tap(
                 (images: Image[]): void => {
-                    this._cells[cellId] = [];
-                    this._cells[cellId].push(...images);
+                    const cell: Cell = {
+                        clusters: new Map(),
+                        images: new Map(),
+                    };
+                    this._cells.set(cellId, cell);
+                    for (const image of images) {
+                        cell.images.set(image.id, image);
+                        const clusterId = image.clusterId;
+                        if (!cell.clusters.has(clusterId)) {
+                            cell.clusters.set(clusterId, []);
+                        }
+                        const clusterImageIds =
+                            cell.clusters.get(clusterId);
+                        clusterImageIds.push(image.id);
+                    }
 
-                    delete this._cachingCells$[cellId];
+                    delete this._cellImageRequests[cellId];
                 }),
             finalize(
                 (): void => {
-                    if (cellId in this._cachingCells$) {
-                        delete this._cachingCells$[cellId];
+                    if (cellId in this._cellImageRequests) {
+                        delete this._cellImageRequests[cellId];
                     }
                 }),
             publish(),
             refCount());
 
-        return this._cachingCells$[cellId];
+        return this._cellImageRequests[cellId];
     }
 
     public isCachingClusters(cellId: string): boolean {
-        return cellId in this._cachingClusters$;
+        return cellId in this._cellClusterRequests;
     }
 
     public isCachingCell(cellId: string): boolean {
-        return cellId in this._cachingCells$;
+        return cellId in this._cellImageRequests;
     }
 
     public hasClusters(cellId: string): boolean {
-        if (cellId in this._cachingClusters$ ||
+        if (cellId in this._cellClusterRequests ||
             !(cellId in this._cellClusters)) {
             return false;
         }
@@ -179,7 +199,7 @@ export class SpatialCache {
     }
 
     public hasCell(cellId: string): boolean {
-        return !(cellId in this._cachingCells$) && cellId in this._cells;
+        return !(cellId in this._cellImageRequests) && this._cells.has(cellId);
     }
 
     public getClusters(cellId: string): ClusterContract[] {
@@ -187,7 +207,8 @@ export class SpatialCache {
             this._cellClusters[cellId]
                 .map(
                     (cd: ClusterData): ClusterContract => {
-                        return this._clusters[cd.key];
+                        const cluster = this._clusters[cd.key];
+                        return cluster ? cluster.contract : null;
                     })
                 .filter(
                     (reconstruction: ClusterContract): boolean => {
@@ -197,20 +218,53 @@ export class SpatialCache {
     }
 
     public getCell(cellId: string): Image[] {
-        return cellId in this._cells ? this._cells[cellId] : [];
+        return this._cells.has(cellId) ?
+            Array.from(this._cells.get(cellId).images.values()) : [];
+    }
+
+    public removeCluster(clusterId: string): void {
+        this._clusterRequests.delete(clusterId);
+
+        if (clusterId in this._clusters) {
+            delete this._clusters[clusterId];
+        }
+
+        const cellIds: string[] = [];
+        for (const [cellId, cell] of this._cells.entries()) {
+            if (cell.clusters.has(clusterId)) {
+                cellIds.push(cellId);
+            }
+        }
+
+        for (const cellId of cellIds) {
+            if (!this._cells.has(cellId)) {
+                continue;
+            }
+            const cell = this._cells.get(cellId);
+            const clusterImages = cell.clusters.get(clusterId) ?? [];
+            for (const imageId of clusterImages) {
+                cell.images.delete(imageId);
+            }
+            cell.clusters.delete(clusterId);
+
+            if (cellId in this._cellClusters) {
+                const cellClusters = this._cellClusters[cellId];
+                const index = cellClusters.findIndex(cd => cd.key === clusterId);
+                if (index !== -1) {
+                    cellClusters.splice(index, 1);
+                }
+            }
+        }
     }
 
     public uncache(keepCellIds?: string[]): void {
-        for (let cellId of Object.keys(this._cacheRequests)) {
+        for (const cellId of Object.keys(this._cellClusterRequests)) {
             if (!!keepCellIds && keepCellIds.indexOf(cellId) !== -1) {
                 continue;
             }
 
-            for (const aborter of this._cacheRequests[cellId]) {
-                aborter();
-            }
-
-            delete this._cacheRequests[cellId];
+            this._cellClusterRequests[cellId].cancel();
+            delete this._cellClusterRequests[cellId];
         }
 
         for (let cellId of Object.keys(this._cellClusters)) {
@@ -219,34 +273,28 @@ export class SpatialCache {
             }
 
             for (const cd of this._cellClusters[cellId]) {
-                if (!(cd.key in this._clusterCells)) {
+                if (!(cd.key in this._clusters)) {
                     continue;
                 }
 
-                const index: number = this._clusterCells[cd.key].indexOf(cellId);
-                if (index === -1) {
+                const { cellIds } = this._clusters[cd.key];
+                cellIds.delete(cellId);
+                if (cellIds.size > 0) {
                     continue;
                 }
 
-                this._clusterCells[cd.key].splice(index, 1);
-
-                if (this._clusterCells[cd.key].length > 0) {
-                    continue;
-                }
-
-                delete this._clusterCells[cd.key];
                 delete this._clusters[cd.key];
             }
 
             delete this._cellClusters[cellId];
         }
 
-        for (let cellId of Object.keys(this._cells)) {
+        for (let cellId of this._cells.keys()) {
             if (!!keepCellIds && keepCellIds.indexOf(cellId) !== -1) {
                 continue;
             }
 
-            delete this._cells[cellId];
+            this._cells.delete(cellId);
         }
     }
 
@@ -264,12 +312,21 @@ export class SpatialCache {
                 }),
             filter(
                 (): boolean => {
-                    return cellId in this._cells;
+                    return this._cells.has(cellId);
                 }),
             tap(
                 (images: Image[]): void => {
-                    this._cells[cellId] = [];
-                    this._cells[cellId].push(...images);
+                    const cell = this._cells.get(cellId);
+                    for (const image of images) {
+                        cell.images.set(image.id, image);
+                        const clusterId = image.clusterId;
+                        if (!cell.clusters.has(clusterId)) {
+                            cell.clusters.set(clusterId, []);
+                        }
+                        const clusterImageIds =
+                            cell.clusters.get(clusterId);
+                        clusterImageIds.push(image.id);
+                    }
                 }),
             publish(),
             refCount());
@@ -324,6 +381,7 @@ export class SpatialCache {
                             this._getCluster(cd.key));
                     }
 
+                    this._clusterRequests.add(cd.key);
                     return this._getCluster$(
                         cd.url,
                         cd.key,
@@ -341,27 +399,28 @@ export class SpatialCache {
                 },
                 6),
             filter(
-                (): boolean => {
-                    return cellId in this._cellClusters;
+                (cluster: ClusterContract): boolean => {
+                    return cellId in this._cellClusters &&
+                        this._clusterRequests.has(cluster.id);
                 }),
             tap(
-                (reconstruction: ClusterContract): void => {
-                    if (!this._hasCluster(reconstruction.id)) {
-                        this._clusters[reconstruction.id] = reconstruction;
+                (cluster: ClusterContract): void => {
+                    if (!this._hasCluster(cluster.id)) {
+                        this._clusters[cluster.id] = {
+                            cellIds: new Set(),
+                            contract: cluster,
+                        };
                     }
 
-                    if (!(reconstruction.id in this._clusterCells)) {
-                        this._clusterCells[reconstruction.id] = [];
-                    }
+                    const { cellIds } = this._clusters[cluster.id];
+                    cellIds.add(cellId);
 
-                    if (this._clusterCells[reconstruction.id].indexOf(cellId) === -1) {
-                        this._clusterCells[reconstruction.id].push(cellId);
-                    }
+                    this._clusterRequests.delete(cluster.id);
                 }));
     }
 
     private _getCluster(id: string): ClusterContract {
-        return this._clusters[id];
+        return this._clusters[id].contract;
     }
 
     private _getCluster$(url: string, clusterId: string, abort: Promise<void>): Observable<ClusterContract> {

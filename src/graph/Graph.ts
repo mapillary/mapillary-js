@@ -11,6 +11,7 @@ import {
 
 import {
     catchError,
+    filter as filterObservable,
     finalize,
     map,
     mergeAll,
@@ -70,6 +71,8 @@ type SequenceAccess = {
 };
 
 export type NodeIndexItem = {
+    cellId: string,
+    id: string,
     lat: number;
     lng: number;
     node: Image;
@@ -154,6 +157,11 @@ export class Graph {
     private _filterSubscription: Subscription;
 
     /**
+     * Nodes of clusters.
+     */
+    private _clusterNodes: Map<string, Set<string>>;
+
+    /**
      * All nodes in the graph.
      */
     private _nodes: { [key: string]: Image; };
@@ -166,7 +174,13 @@ export class Graph {
     /**
      * All node index items sorted in tiles for easy uncache.
      */
+    private _nodeIndexNodes: Map<string, NodeIndexItem>;
+
+    /**
+     * All node index items sorted in tiles for easy uncache.
+     */
     private _nodeIndexTiles: { [h: string]: NodeIndexItem[]; };
+
 
     /**
      * Node to tile dictionary for easy tile access updates.
@@ -177,6 +191,11 @@ export class Graph {
      * Nodes retrieved before tiles, stored on tile level.
      */
     private _preStored: { [h: string]: { [key: string]: Image; }; };
+
+    /**
+     * Nodes deleted through event, not yet possible to determine if they can be disposed.
+     */
+    private _preDeletedNodes: Map<string, Image>;
 
     /**
      * Tiles required for a node to retrive spatial area.
@@ -251,12 +270,15 @@ export class Graph {
             maxUnusedTiles: 20,
         };
 
+        this._clusterNodes = new Map();
         this._nodes = {};
         this._nodeIndex = nodeIndex ?? new Graph._spatialIndex(16);
+        this._nodeIndexNodes = new Map();
         this._nodeIndexTiles = {};
         this._nodeToTile = {};
 
         this._preStored = {};
+        this._preDeletedNodes = new Map();
 
         this._requiredNodeTiles = {};
         this._requiredSpatialArea = {};
@@ -566,7 +588,12 @@ export class Graph {
                                     `Image has no sequence key (${key}).`);
                             }
 
-                            const node = new Image(item.node);
+                            let node: Image = null;
+                            if (this._preDeletedNodes.has(id)) {
+                                node = this._unDeleteNode(id);
+                            } else {
+                                node = new Image(item.node);
+                            }
                             this._makeFull(node, item.node);
 
                             const cellId = this._api.data.geometry
@@ -720,7 +747,13 @@ export class Graph {
                                             console.warn(`Sequence missing, discarding node (${item.node_id})`);
                                         }
 
-                                        const node = new Image(item.node);
+                                        let node: Image = null;
+                                        if (this._preDeletedNodes.has(id)) {
+                                            node = this._unDeleteNode(id);
+                                        } else {
+                                            node = new Image(item.node);
+                                        }
+
                                         this._makeFull(node, item.node);
 
                                         const cellId = this._api.data.geometry
@@ -795,6 +828,10 @@ export class Graph {
             let spatialNodeBatch$: Observable<Graph> = this._api.getSpatialImages$(batch).pipe(
                 tap(
                     (items: SpatialImagesContract): void => {
+                        if (!(key in this._cachingSpatialArea$)) {
+                            return;
+                        }
+
                         for (const item of items) {
                             if (!item.node) {
                                 console.warn(`Image is empty (${item.node_id})`);
@@ -1303,45 +1340,31 @@ export class Graph {
      * Reset all spatial edges of the graph nodes.
      */
     public resetSpatialEdges(): void {
-        let cachedKeys: string[] = Object.keys(this._cachedSpatialEdges);
-
-        for (let cachedKey of cachedKeys) {
-            let node: Image = this._cachedSpatialEdges[cachedKey];
+        for (const nodeId of Object.keys(this._cachedSpatialEdges)) {
+            const node = this._cachedSpatialEdges[nodeId];
             node.resetSpatialEdges();
-
-            delete this._cachedSpatialEdges[cachedKey];
         }
+
+        this._cachedSpatialEdges = {};
     }
 
     /**
-     * Reset the complete graph but keep the nodes corresponding
-     * to the supplied keys. All other nodes will be disposed.
-     *
-     * @param {Array<string>} keepKeys - Keys for nodes to keep
-     * in graph after reset.
+     * Reset all spatial areas of the graph nodes.
      */
-    public reset(keepKeys: string[]): void {
-        const nodes: Image[] = [];
-        for (const key of keepKeys) {
-            if (!this.hasNode(key)) {
-                throw new Error(`Image does not exist ${key}`);
-            }
+    public resetSpatialArea(): void {
+        this._requiredSpatialArea = {};
+        this._cachingSpatialArea$ = {};
+    }
 
-            const node: Image = this.getNode(key);
-            node.resetSequenceEdges();
-            node.resetSpatialEdges();
-            nodes.push(node);
-        }
-
+    /**
+     * Reset the complete graph and disposed all nodes.
+     */
+    public reset(): void {
         for (let cachedKey of Object.keys(this._cachedNodes)) {
-            if (keepKeys.indexOf(cachedKey) !== -1) {
-                continue;
-            }
-
             this._cachedNodes[cachedKey].node.dispose();
-            delete this._cachedNodes[cachedKey];
         }
 
+        this._cachedNodes = {};
         this._cachedNodeTiles = {};
         this._cachedSpatialEdges = {};
         this._cachedTiles = {};
@@ -1352,23 +1375,19 @@ export class Graph {
         this._cachingSpatialArea$ = {};
         this._cachingTiles$ = {};
 
+        this._clusterNodes = new Map();
         this._nodes = {};
         this._nodeToTile = {};
 
         this._preStored = {};
-
-        for (const node of nodes) {
-            this._nodes[node.id] = node;
-
-            const h: string = this._api.data.geometry.lngLatToCellId(node.originalLngLat);
-            this._preStore(h, node);
-        }
+        this._preDeletedNodes = new Map();
 
         this._requiredNodeTiles = {};
         this._requiredSpatialArea = {};
 
         this._sequences = {};
 
+        this._nodeIndexNodes = new Map();
         this._nodeIndexTiles = {};
         this._nodeIndex.clear();
     }
@@ -1457,6 +1476,7 @@ export class Graph {
 
         for (const id in idsInUse) {
             if (!idsInUse.hasOwnProperty(id)) { continue; }
+            if (!this.hasNode(id)) { continue; }
 
             const node = this._nodes[id];
             const nodeCellId = geometry.lngLatToCellId(node.lngLat);
@@ -1570,6 +1590,19 @@ export class Graph {
             }
         }
 
+        for (const [nodeId, node] of this._preDeletedNodes.entries()) {
+            if (nodeId in idsInUse) {
+                continue;
+            }
+
+            if (nodeId in this._cachedNodes) {
+                delete this._cachedNodes[nodeId];
+            }
+
+            this._preDeletedNodes.delete(nodeId);
+            node.dispose();
+        }
+
         const potentialSequences: SequenceAccess[] = [];
         for (let sequenceId in this._sequences) {
             if (!this._sequences.hasOwnProperty(sequenceId) ||
@@ -1613,7 +1646,7 @@ export class Graph {
      * cached.
      *
      * @param {Array<string>} cellIds - Cell ids.
-     * @returns {Observable<Array<Image>>} Observable
+     * @returns {Observable<Array<string>>} Observable
      * emitting the updated cells.
      */
     public updateCells$(cellIds: string[]): Observable<string> {
@@ -1637,6 +1670,80 @@ export class Graph {
                         return observableEmpty();
                     }
                 ));
+    }
+
+    /**
+     * Deletes clusters.
+     *
+     * @description Existing nodes for the clusters are deleted
+     * and placed in a deleted store. The deleted store will be
+     * purged during uncaching if the nodes are no longer in use.
+     *
+     * Nodes in the deleted store are always removed on reset.
+     *
+     * @param {Array<string>} clusterIds - Cluster ids.
+     * @returns {Observable<Array<string>>} Observable
+     * emitting the IDs for the deleted clusters.
+     */
+    public deleteClusters$(clusterIds: string[]): Observable<string> {
+        if (!clusterIds.length) {
+            return observableEmpty();
+        }
+
+        return observableFrom(clusterIds)
+            .pipe(
+                map(
+                    (clusterId: string): string | null => {
+                        if (!this._clusterNodes.has(clusterId)) {
+                            return null;
+                        }
+
+                        const clusterNodes = this._clusterNodes.get(clusterId);
+                        for (const nodeId of clusterNodes.values()) {
+                            const node = this._nodes[nodeId];
+                            delete this._nodes[nodeId];
+
+                            if (nodeId in this._cachedNodeTiles) {
+                                delete this._cachedNodeTiles[nodeId];
+                            }
+
+                            if (nodeId in this._cachedNodeTiles) {
+                                delete this._cachedNodeTiles[nodeId];
+                            }
+
+                            if (nodeId in this._nodeToTile) {
+                                const nodeCellId = this._nodeToTile[nodeId];
+                                if (nodeCellId in this._cachedTiles) {
+                                    const tileIndex =
+                                        this._cachedTiles[nodeCellId].nodes
+                                            .findIndex(n => n.id === nodeId);
+                                    if (tileIndex !== -1) {
+                                        this._cachedTiles[nodeCellId].nodes.splice(tileIndex, 1);
+                                    }
+                                }
+                                delete this._nodeToTile[nodeId];
+                            }
+
+                            const item = this._nodeIndexNodes.get(nodeId);
+                            this._nodeIndex.remove(item);
+                            this._nodeIndexNodes.delete(nodeId);
+                            const cell = this._nodeIndexTiles[item.cellId];
+                            const nodeIndex = cell.indexOf(item);
+                            if (nodeIndex === -1) {
+                                throw new GraphMapillaryError(`Corrupt graph index cell (${nodeId})`);
+                            }
+                            cell.splice(nodeIndex, 1);
+
+                            this._preDeletedNodes.set(nodeId, node);
+                        }
+
+                        this._clusterNodes.delete(clusterId);
+
+                        return clusterId;
+                    }),
+                filterObservable((clusterId: string | null): boolean => {
+                    return clusterId != null;
+                }));
     }
 
     /**
@@ -1719,6 +1826,7 @@ export class Graph {
                     };
                     const hCache = this._cachedTiles[cellId].nodes;
                     const preStored = this._removeFromPreStore(cellId);
+                    const preDeleted = this._preDeletedNodes;
 
                     for (const core of cores) {
                         if (!core) { break; }
@@ -1734,26 +1842,39 @@ export class Graph {
                             delete preStored[core.id];
                             hCache.push(preStoredNode);
                             const preStoredNodeIndexItem: NodeIndexItem = {
+                                cellId,
+                                id: core.id,
                                 lat: preStoredNode.lngLat.lat,
                                 lng: preStoredNode.lngLat.lng,
                                 node: preStoredNode,
                             };
                             this._nodeIndex.insert(preStoredNodeIndexItem);
+                            this._nodeIndexNodes.set(core.id, preStoredNodeIndexItem);
                             this._nodeIndexTiles[cellId]
                                 .push(preStoredNodeIndexItem);
                             this._nodeToTile[preStoredNode.id] = cellId;
                             continue;
                         }
 
-                        const node = new Image(core);
+                        let node: Image = null;
+                        if (preDeleted.has(core.id)) {
+                            node = preDeleted.get(core.id);
+                            preDeleted.delete(core.id);
+                        } else {
+                            node = new Image(core);
+                        }
+
                         hCache.push(node);
                         const nodeIndexItem: NodeIndexItem = {
+                            cellId,
+                            id: node.id,
                             lat: node.lngLat.lat,
                             lng: node.lngLat.lng,
                             node: node,
                         };
 
                         this._nodeIndex.insert(nodeIndexItem);
+                        this._nodeIndexNodes.set(node.id, nodeIndexItem);
                         this._nodeIndexTiles[cellId].push(nodeIndexItem);
                         this._nodeToTile[node.id] = cellId;
 
@@ -1775,6 +1896,36 @@ export class Graph {
         return this._cachingTiles$[cellId];
     }
 
+    private _addClusterNode(node: Image): void {
+        const clusterId = node.clusterId;
+        if (clusterId == null) {
+            throw new GraphMapillaryError(`Image does not have cluster (${node.id}).`);
+        }
+
+        if (!this._clusterNodes.has(clusterId)) {
+            this._clusterNodes.set(clusterId, new Set());
+        }
+
+        const clusterNodes = this._clusterNodes.get(clusterId);
+        if (clusterNodes.has(node.id)) {
+            throw new GraphMapillaryError(`Cluster has image (${clusterId}, ${node.id}).`);
+        }
+        clusterNodes.add(node.id);
+    }
+
+    private _removeClusterNode(node: Image): void {
+        const clusterId = node.clusterId;
+        if (clusterId == null || !this._clusterNodes.has(clusterId)) {
+            return;
+        }
+
+        const clusterNodes = this._clusterNodes.get(clusterId);
+        clusterNodes.delete(node.id);
+        if (!clusterNodes.size) {
+            this._clusterNodes.delete(clusterId);
+        }
+    }
+
     private _makeFull(node: Image, fillNode: SpatialImageEnt): void {
         if (fillNode.computed_altitude == null) {
             fillNode.computed_altitude = this._defaultAlt;
@@ -1785,6 +1936,12 @@ export class Graph {
         }
 
         node.makeComplete(fillNode);
+        this._addClusterNode(node);
+    }
+
+    private _disposeNode(node: Image): void {
+        this._removeClusterNode(node);
+        node.dispose();
     }
 
     private _preStore(h: string, node: Image): void {
@@ -1818,7 +1975,7 @@ export class Graph {
 
     private _uncacheTile(h: string, keepSequenceKey: string): void {
         for (let node of this._cachedTiles[h].nodes) {
-            let key: string = node.id;
+            let key = node.id;
 
             delete this._nodeToTile[key];
 
@@ -1844,12 +2001,13 @@ export class Graph {
                     delete this._cachedSequenceNodes[node.sequenceId];
                 }
 
-                node.dispose();
+                this._disposeNode(node);
             }
         }
 
         for (let nodeIndexItem of this._nodeIndexTiles[h]) {
             this._nodeIndex.remove(nodeIndexItem);
+            this._nodeIndexNodes.delete(nodeIndexItem.id);
         }
 
         delete this._nodeIndexTiles[h];
@@ -1867,15 +2025,13 @@ export class Graph {
                 delete this._cachedNodes[key];
             }
 
-            let node: Image = this._preStored[h][key];
-
+            const node = this._preStored[h][key];
             if (node.sequenceId in this._cachedSequenceNodes) {
                 delete this._cachedSequenceNodes[node.sequenceId];
             }
-
             delete this._preStored[h][key];
 
-            node.dispose();
+            this._disposeNode(node);
 
             hs[h] = true;
         }
@@ -1913,6 +2069,7 @@ export class Graph {
 
                     const nodeIndex = this._nodeIndex;
                     const nodeIndexCell = this._nodeIndexTiles[cellId];
+                    const nodeIndexNodes = this._nodeIndexNodes;
                     const nodeToCell = this._nodeToTile;
                     const cell = this._cachedTiles[cellId];
                     cell.accessed = new Date().getTime();
@@ -1920,6 +2077,7 @@ export class Graph {
 
                     const cores = contract.images;
                     for (const core of cores) {
+
                         if (core == null) { break; }
                         if (this.hasNode(core.id)) { continue; }
 
@@ -1929,15 +2087,24 @@ export class Graph {
                             continue;
                         }
 
-                        const node = new Image(core);
+                        let node: Image = null;
+                        if (this._preDeletedNodes.has(core.id)) {
+                            node = this._unDeleteNode(core.id);
+                        } else {
+                            node = new Image(core);
+                        }
+
                         cellNodes.push(node);
                         const nodeIndexItem: NodeIndexItem = {
+                            cellId,
+                            id: node.id,
                             lat: node.lngLat.lat,
                             lng: node.lngLat.lng,
                             node: node,
                         };
                         nodeIndex.insert(nodeIndexItem);
                         nodeIndexCell.push(nodeIndexItem);
+                        nodeIndexNodes.set(node.id, nodeIndexItem);
                         nodeToCell[node.id] = cellId;
                         this._setNode(node);
                     }
@@ -1948,5 +2115,19 @@ export class Graph {
                     console.error(error);
                     return observableEmpty();
                 }));
+    }
+
+    private _unDeleteNode(id: string): Image {
+        if (!this._preDeletedNodes.has(id)) {
+            throw new GraphMapillaryError(`Pre-deleted node does not exist ${id}`);
+        }
+        const node = this._preDeletedNodes.get(id);
+        this._preDeletedNodes.delete(id);
+
+        if (node.isComplete) {
+            this._addClusterNode(node);
+        }
+
+        return node;
     }
 }

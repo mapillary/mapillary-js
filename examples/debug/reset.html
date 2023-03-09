@@ -69,10 +69,12 @@
                 };
                 viewer = new Viewer(options);
                 viewer.on("image", (event) =>
-                    console.log(event.image ? event.image.id : null)
+                    console.log("image", event.image ? event.image.id : null)
                 );
-                viewer.on("reference", (event) => console.log(event));
-                viewer.on("reset", (event) => console.log(event));
+                viewer.on("reference", (event) =>
+                    console.log("reference", event)
+                );
+                viewer.on("reset", (event) => console.log("reset", event));
                 viewer
                     .moveTo(dataProvider.images.keys().next().value)
                     .catch((error) => console.error(error));

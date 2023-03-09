@@ -15,6 +15,7 @@ import { ProviderEvent } from "./events/ProviderEvent";
 import { ProviderCellEvent } from "./events/ProviderCellEvent";
 import { IDataProvider } from "./interfaces/IDataProvider";
 import { IGeometryProvider } from "./interfaces/IGeometryProvider";
+import { ProviderClusterEvent } from "./events/ProviderClusterEvent";
 
 /**
  * @class DataProviderBase
@@ -84,6 +85,10 @@ export abstract class DataProviderBase extends EventEmitter implements IDataProv
     public fire(
         type: "datacreate",
         event: ProviderCellEvent)
+        : void;
+    public fire(
+        type: "datadelete",
+        event: ProviderClusterEvent)
         : void;
     /** @ignore */
     public fire(
@@ -225,6 +230,10 @@ export abstract class DataProviderBase extends EventEmitter implements IDataProv
         type: ProviderCellEvent["type"],
         handler: (event: ProviderCellEvent) => void)
         : void;
+    public off(
+        type: ProviderClusterEvent["type"],
+        handler: (event: ProviderClusterEvent) => void)
+        : void;
     /** @ignore */
     public off(
         type: ProviderEventType,
@@ -258,6 +267,10 @@ export abstract class DataProviderBase extends EventEmitter implements IDataProv
     public on(
         type: "datacreate",
         handler: (event: ProviderCellEvent) => void)
+        : void;
+    public on(
+        type: "datadelete",
+        handler: (event: ProviderClusterEvent) => void)
         : void;
     /** @ignore */
     public on(

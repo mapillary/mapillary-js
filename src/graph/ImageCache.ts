@@ -198,7 +198,7 @@ export class ImageCache {
             return this._cachingAssets$;
         }
 
-        this._cachingAssets$ = observableCombineLatest(
+        const cachingAssets$ = observableCombineLatest(
             this._cacheImage$(spatial),
             this._cacheMesh$(spatial, merged)).pipe(
                 map(
@@ -215,7 +215,9 @@ export class ImageCache {
                 publishReplay(1),
                 refCount());
 
-        this._cachingAssets$.pipe(
+        this._cachingAssets$ = cachingAssets$;
+
+        cachingAssets$.pipe(
             first(
                 (imageCache: ImageCache): boolean => {
                     return !!imageCache._image;
@@ -226,7 +228,7 @@ export class ImageCache {
                 },
                 (): void => { /*noop*/ });
 
-        return this._cachingAssets$;
+        return cachingAssets$;
     }
 
     /**
