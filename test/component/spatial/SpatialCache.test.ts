@@ -518,3 +518,111 @@ describe("SpatialCache.updateReconstructions$", () => {
         resolver(cluster);
     });
 });
+
+describe("SpatialCache.removeCluster", () => {
+    const createCluster = (id: string): ClusterContract => {
+        return {
+            colors: [],
+            coordinates: [],
+            id,
+            pointIds: [],
+            reference: { lat: 0, lng: 0, alt: 0 },
+            rotation: [0, 0, 0]
+        };
+    };
+
+    it("should have cell and cell clusters after remove", () => {
+        const image = new ImageHelper().createImage();
+        const cellId = "123";
+
+        let resolver: Function;
+        const promise: any = {
+            then: (resolve: (value: ClusterContract) => void): void => {
+                resolver = resolve;
+            },
+        };
+
+        const dataProvider = new DataProvider();
+        spyOn(dataProvider, "getCluster").and.returnValue(promise);
+        const graphService = new GraphServiceMockCreator().create();
+        const api = new APIWrapper(dataProvider);
+        const cache = new SpatialCache(graphService, api);
+
+        cacheTile(cellId, cache, graphService, [image]);
+
+        cache.cacheClusters$(cellId).subscribe();
+
+        const cluster = createCluster(image.clusterId);
+        resolver(cluster);
+
+        expect(cache.hasCell(cellId)).toBe(true);
+        expect(cache.hasClusters(cellId)).toBe(true);
+
+        cache.removeCluster(cluster.id);
+
+        expect(cache.hasCell(cellId)).toBe(true);
+        expect(cache.hasClusters(cellId)).toBe(true);
+    });
+
+    it("should remove cluster", () => {
+        const image = new ImageHelper().createImage();
+        const cellId = "123";
+
+        let resolver: Function;
+        const promise: any = {
+            then: (resolve: (value: ClusterContract) => void): void => {
+                resolver = resolve;
+            },
+        };
+
+        const dataProvider = new DataProvider();
+        spyOn(dataProvider, "getCluster").and.returnValue(promise);
+        const graphService = new GraphServiceMockCreator().create();
+        const api = new APIWrapper(dataProvider);
+        const cache = new SpatialCache(graphService, api);
+
+        cacheTile(cellId, cache, graphService, [image]);
+
+        cache.cacheClusters$(cellId).subscribe();
+
+        const cluster = createCluster(image.clusterId);
+        resolver(cluster);
+
+        expect(cache.getClusters(cellId).length).toBe(1);
+
+        cache.removeCluster(cluster.id);
+
+        expect(cache.getClusters(cellId).length).toBe(0);
+    });
+
+    it("should remove images", () => {
+        const image = new ImageHelper().createImage();
+        const cellId = "123";
+
+        let resolver: Function;
+        const promise: any = {
+            then: (resolve: (value: ClusterContract) => void): void => {
+                resolver = resolve;
+            },
+        };
+
+        const dataProvider = new DataProvider();
+        spyOn(dataProvider, "getCluster").and.returnValue(promise);
+        const graphService = new GraphServiceMockCreator().create();
+        const api = new APIWrapper(dataProvider);
+        const cache = new SpatialCache(graphService, api);
+
+        cacheTile(cellId, cache, graphService, [image]);
+
+        cache.cacheClusters$(cellId).subscribe();
+
+        const cluster = createCluster(image.clusterId);
+        resolver(cluster);
+
+        expect(cache.getCell(cellId).length).toBe(1);
+
+        cache.removeCluster(cluster.id);
+
+        expect(cache.getCell(cellId).length).toBe(0);
+    });
+});

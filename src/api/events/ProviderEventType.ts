@@ -2,4 +2,5 @@
  * @event
  */
 export type ProviderEventType =
-    | "datacreate";
+    | "datacreate"
+    | "datadelete";

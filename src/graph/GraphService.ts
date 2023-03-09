@@ -35,6 +35,7 @@ import { ProviderCellEvent } from "../api/events/ProviderCellEvent";
 import { GraphMapillaryError } from "../error/GraphMapillaryError";
 import { ProjectionService } from "../viewer/ProjectionService";
 import { ICameraFactory } from "../geometry/interfaces/ICameraFactory";
+import { ProviderClusterEvent } from "../api/events/ProviderClusterEvent";
 
 /**
  * @class GraphService
@@ -50,6 +51,7 @@ export class GraphService {
     private _firstGraphSubjects$: Subject<Graph>[];
 
     private _dataAdded$: Subject<string> = new Subject<string>();
+    private _dataDeleted$: Subject<string[]> = new Subject<string[]>();
     private _dataReset$: Subject<void> = new Subject<void>();
 
     private _initializeCacheSubscriptions: Subscription[];
@@ -93,6 +95,7 @@ export class GraphService {
         this._spatialSubscriptions = [];
 
         graph.api.data.on("datacreate", this._onDataAdded);
+        graph.api.data.on("datadelete", this._onDataDeleted);
     }
 
     /**
@@ -103,6 +106,16 @@ export class GraphService {
      */
     public get dataAdded$(): Observable<string> {
         return this._dataAdded$;
+    }
+
+    /**
+     * Get dataDeleted$.
+     *
+     * @returns {Observable<string>} Observable emitting
+     * a cluster id every time a cluster has been deleted.
+     */
+    public get dataDeleted$(): Observable<string[]> {
+        return this._dataDeleted$;
     }
 
     public get dataReset$(): Observable<void> {
@@ -299,7 +312,12 @@ export class GraphService {
         sequenceSubscription = graphSequence$.pipe(
             tap(
                 (graph: Graph): void => {
-                    if (!graph.getNode(id).sequenceEdges.cached) {
+                    const node = graph.getNode(id);
+                    if (!node.hasInitializedCache()) {
+                        return;
+                    }
+
+                    if (!node.sequenceEdges.cached) {
                         graph.cacheSequenceEdges(id);
                     }
                 }),
@@ -382,7 +400,12 @@ export class GraphService {
                     }),
                 tap(
                     (graph: Graph): void => {
-                        if (!graph.getNode(id).spatialEdges.cached) {
+                        const node = graph.getNode(id);
+                        if (!node.hasInitializedCache()) {
+                            return;
+                        }
+
+                        if (!node.spatialEdges.cached) {
                             graph.cacheSpatialEdges(id);
                         }
                     }),
@@ -490,6 +513,23 @@ export class GraphService {
     }
 
     /**
+     * Check if an image exists in the graph.
+     *
+     * @description If a node has been deleted it will not exist.
+     *
+     * @return {Observable<boolean>} Observable emitting a single item,
+     * a value indicating if the image exists in the graph.
+     */
+    public hasImage$(id: string): Observable<boolean> {
+        return this._graph$.pipe(
+            first(),
+            map(
+                (graph: Graph): boolean => {
+                    return graph.hasNode(id);
+                }));
+    }
+
+    /**
      * Set a spatial edge filter on the graph.
      *
      * @description Resets the spatial edges of all cached images.
@@ -546,11 +586,10 @@ export class GraphService {
      * @description Resets the graph but keeps the images of the
      * supplied ids.
      *
-     * @param {Array<string>} keepIds - Ids of images to keep in graph.
      * @return {Observable<Image>} Observable emitting a single item,
      * the graph, when it has been reset.
      */
-    public reset$(keepIds: string[]): Observable<void> {
+    public reset$(): Observable<void> {
         this._abortSubjects(this._firstGraphSubjects$);
         this._resetSubscriptions(this._initializeCacheSubscriptions);
         this._resetSubscriptions(this._sequenceSubscriptions);
@@ -560,7 +599,7 @@ export class GraphService {
             first(),
             tap(
                 (graph: Graph): void => {
-                    graph.reset(keepIds);
+                    graph.reset();
                     this._dataReset$.next();
                 }),
             map(
@@ -617,10 +656,31 @@ export class GraphService {
                 first(),
                 mergeMap(
                     graph => {
-                        return graph.updateCells$(event.cellIds).pipe(
-                            tap(() => { graph.resetSpatialEdges(); }));
+                        graph.resetSpatialArea();
+                        graph.resetSpatialEdges();
+                        return graph.updateCells$(event.cellIds);
                     }))
             .subscribe(cellId => { this._dataAdded$.next(cellId); });
+    };
+
+    private _onDataDeleted = (event: ProviderClusterEvent): void => {
+        if (!event.clusterIds.length) {
+            return;
+        }
+
+        this._graph$
+            .pipe(
+                first(),
+                mergeMap(
+                    graph => {
+                        graph.resetSpatialArea();
+                        graph.resetSpatialEdges();
+                        return graph.deleteClusters$(event.clusterIds);
+                    }))
+            .subscribe(
+                null,
+                null,
+                () => { this._dataDeleted$.next(event.clusterIds); });
     };
 
     private _removeFromArray<T>(object: T, objects: T[]): void {

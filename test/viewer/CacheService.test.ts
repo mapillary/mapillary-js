@@ -1,7 +1,7 @@
 import { bootstrap } from "../Bootstrap";
 bootstrap();
 
-import { of as observableOf, Subject } from "rxjs";
+import { BehaviorSubject, of as observableOf, Subject } from "rxjs";
 
 import { ImageHelper } from "../helper/ImageHelper";
 
@@ -240,6 +240,68 @@ describe("CacheService.start", () => {
         expect(cacheImageSpy.calls.count()).toBe(1);
         expect(cacheImageSpy.calls.first().args.length).toBe(1);
         expect(cacheImageSpy.calls.first().args[0]).toBe(coreImage1.id);
+
+        cacheService.stop();
+    });
+
+    it("should cache current image on data added event", () => {
+        const api = new APIWrapper(new DataProvider());
+        const graph = new Graph(api);
+        const graphService = new GraphService(graph);
+
+        spyOn(graphService, "uncache$").and.returnValue(observableOf<void>(null));
+
+        const stateService = new StateServiceMockCreator().create();
+
+        const cacheImageSpy = spyOn(graphService, "cacheImage$");
+        const cacheImageSubject = new Subject<Graph>();
+        cacheImageSpy.and.returnValue(cacheImageSubject);
+        spyOn(graphService, "hasImage$").and.returnValue(new BehaviorSubject(true));
+
+        const cacheService = new CacheService(graphService, stateService, api);
+
+        cacheService.start();
+
+        const coreImage1 = helper.createCoreImageEnt();
+        coreImage1.id = "image1";
+
+        (<Subject<string>>stateService.currentId$).next('image-id');
+        (<Subject<string>>graphService.dataAdded$).next('cell-id');
+
+        expect(cacheImageSpy.calls.count()).toBe(1);
+        expect(cacheImageSpy.calls.first().args.length).toBe(1);
+        expect(cacheImageSpy.calls.first().args[0]).toBe('image-id');
+
+        cacheService.stop();
+    });
+
+    it("should cache current image on data deleted event", () => {
+        const api = new APIWrapper(new DataProvider());
+        const graph = new Graph(api);
+        const graphService = new GraphService(graph);
+
+        spyOn(graphService, "uncache$").and.returnValue(observableOf<void>(null));
+
+        const stateService = new StateServiceMockCreator().create();
+
+        const cacheImageSpy = spyOn(graphService, "cacheImage$");
+        const cacheImageSubject = new Subject<Graph>();
+        cacheImageSpy.and.returnValue(cacheImageSubject);
+        spyOn(graphService, "hasImage$").and.returnValue(new BehaviorSubject(true));
+
+        const cacheService = new CacheService(graphService, stateService, api);
+
+        cacheService.start();
+
+        const coreImage1 = helper.createCoreImageEnt();
+        coreImage1.id = "image1";
+
+        (<Subject<string>>stateService.currentId$).next('image-id');
+        (<Subject<string[]>>graphService.dataDeleted$).next(['cluster-id']);
+
+        expect(cacheImageSpy.calls.count()).toBe(1);
+        expect(cacheImageSpy.calls.first().args.length).toBe(1);
+        expect(cacheImageSpy.calls.first().args[0]).toBe('image-id');
 
         cacheService.stop();
     });

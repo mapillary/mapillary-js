@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Delete</title>
+        <link rel="icon" href="data:," />
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no"
+        />
+
+        <link rel="stylesheet" href="/dist/mapillary.css" />
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            html,
+            body,
+            .viewer {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <script type="module">
+            import { accessToken } from "/doc-src/.access-token/token.js";
+            import {
+                CameraControls,
+                Viewer,
+                S2GeometryProvider,
+            } from "/dist/mapillary.module.js";
+            import { DeletableProceduralDataProvider } from "/doc-src/src/js/utils/DeletableProceduralDataProvider.js";
+
+            let viewer;
+            let dataProvider;
+
+            (function main() {
+                const container = document.createElement("div");
+                container.className = "viewer";
+                document.body.append(container);
+
+                dataProvider = new DeletableProceduralDataProvider({
+                    geometry: new S2GeometryProvider(18),
+                });
+                const options = {
+                    dataProvider,
+                    cameraControls: CameraControls.Earth,
+                    component: {
+                        cover: false,
+                        spatial: {
+                            cameraSize: 0.3,
+                            cellGridDepth: 2,
+                            cellsVisible: true,
+                        },
+                    },
+                    container,
+                    imageTiling: false,
+                };
+                viewer = new Viewer(options);
+                viewer
+                    .moveTo(dataProvider.images.keys().next().value)
+                    .catch((error) => console.error(error));
+
+                listen();
+            })();
+
+            function listen() {
+                window.document.addEventListener("keydown", (e) => {
+                    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
+                        return;
+                    }
+
+                    try {
+                        switch (e.key) {
+                            case "q": {
+                                // Delete a random cluster
+                                dataProvider.delete();
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+                    } catch (error) {
+                        console.log(error);
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>

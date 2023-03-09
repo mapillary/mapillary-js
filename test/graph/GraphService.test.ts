@@ -120,7 +120,7 @@ describe("GraphService.dataAdded$", () => {
         });
     });
 
-    it("should reset spatial edges for each updated cell", (done: Function) => {
+    it("should reset spatial edges one time for multiple updated cells", (done: Function) => {
         const dataProvider = new DataProvider();
         const api = new APIWrapper(dataProvider);
         const graph = new Graph(api);
@@ -142,7 +142,7 @@ describe("GraphService.dataAdded$", () => {
                     expect(cellIds.includes(cellId)).toBe(true);
 
                     expect(updateCellsSpy.calls.count()).toBe(1);
-                    expect(resetSpatialEdgesSpy.calls.count()).toBe(count);
+                    expect(resetSpatialEdgesSpy.calls.count()).toBe(1);
 
                     if (count === 2) { done(); }
                 });
@@ -152,6 +152,98 @@ describe("GraphService.dataAdded$", () => {
             type,
             target: dataProvider,
             cellIds: cellIds.slice(),
+        });
+    });
+});
+
+describe("GraphService.dataDeleted$", () => {
+    it("should not do work if list empty", () => {
+        const dataProvider = new DataProvider();
+        const api = new APIWrapper(dataProvider);
+        const graph = new Graph(api);
+        const graphService = new GraphService(graph);
+
+        let count = 0;
+        graphService.dataDeleted$
+            .subscribe(
+                (): void => {
+                    count++;
+                });
+
+        dataProvider.fire("datadelete", {
+            type: "datadelete",
+            target: dataProvider,
+            clusterIds: [],
+        });
+
+        expect(count).toBe(0);
+    });
+
+    it("should call graph", (done: Function) => {
+        const dataProvider = new DataProvider();
+        const api = new APIWrapper(dataProvider);
+        const graph = new Graph(api);
+
+        const deleteClustersSpy = spyOn(graph, "deleteClusters$");
+        deleteClustersSpy.and.returnValue(observableOf("cluster-id"));
+
+        const resetSpatialEdgesSpy =
+            spyOn(graph, "resetSpatialEdges").and.stub();
+
+        const graphService = new GraphService(graph);
+
+        graphService.dataDeleted$
+            .subscribe(
+                (clusterIds): void => {
+                    expect(clusterIds.length).toBe(1);
+                    expect(clusterIds[0]).toBe("cluster-id");
+
+                    expect(deleteClustersSpy.calls.count()).toBe(1);
+                    expect(resetSpatialEdgesSpy.calls.count()).toBe(1);
+
+                    done();
+                });
+
+        dataProvider.fire("datadelete", {
+            type: "datadelete",
+            target: dataProvider,
+            clusterIds: ["cluster-id"],
+        });
+    });
+
+    it("should reset spatial edges once", (done: Function) => {
+        const dataProvider = new DataProvider();
+        const api = new APIWrapper(dataProvider);
+        const graph = new Graph(api);
+
+        const deleteClustersSpy = spyOn(graph, "deleteClusters$");
+        const clusterIds = ["cluster-id1", "cluster-id2"];
+        deleteClustersSpy.and.returnValue(observableFrom(clusterIds.slice()));
+
+        const resetSpatialEdgesSpy =
+            spyOn(graph, "resetSpatialEdges").and.stub();
+
+        const graphService = new GraphService(graph);
+
+        let count = 0;
+        graphService.dataDeleted$
+            .subscribe(
+                (deletedIds): void => {
+                    count++;
+                    expect(clusterIds.includes(deletedIds[0])).toBe(true);
+                    expect(clusterIds.includes(deletedIds[1])).toBe(true);
+
+                    expect(deleteClustersSpy.calls.count()).toBe(1);
+                    expect(resetSpatialEdgesSpy.calls.count()).toBe(1);
+
+                    if (count === 1) { done(); }
+                });
+
+        const type: ProviderEventType = "datadelete";
+        dataProvider.fire(type, {
+            type,
+            target: dataProvider,
+            clusterIds: clusterIds.slice(),
         });
     });
 });
@@ -487,6 +579,10 @@ class TestNode extends Image {
 
     public get spatialEdges(): NavigationEdgeStatus {
         return this._spatialEdges;
+    }
+
+    public hasInitializedCache(): boolean {
+        return true;
     }
 }
 
@@ -851,7 +947,7 @@ describe("GraphService.reset$", () => {
                     expect(e).toBeDefined();
                 });
 
-        graphService.reset$([]);
+        graphService.reset$();
 
         cacheFull$.next(graph);
 
@@ -914,7 +1010,7 @@ describe("GraphService.reset$", () => {
         image.assetsCached = true;
         cacheAssets$.next(image);
 
-        graphService.reset$([]);
+        graphService.reset$();
 
         cacheNodeSequence$.next(graph);
 
@@ -972,7 +1068,7 @@ describe("GraphService.reset$", () => {
         image.assetsCached = true;
         cacheAssets$.next(image);
 
-        graphService.reset$([]);
+        graphService.reset$();
 
         cacheTiles$[0].next(graph);
 

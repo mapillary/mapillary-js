@@ -9,6 +9,7 @@ import {
 } from "rxjs";
 
 import {
+    filter as observableFilter,
     finalize,
     first,
     last,
@@ -274,7 +275,13 @@ export class Navigator {
         const cacheImages$ = ids
             .map(
                 (id: string): Observable<Image> => {
-                    return this._graphService.cacheImage$(id);
+                    return this._graphService.hasImage$(id).pipe(
+                        observableFilter((exists: boolean): boolean => {
+                            return exists;
+                        }),
+                        mergeMap((): Observable<Image> => {
+                            return this._graphService.cacheImage$(id);
+                        }));
                 });
 
         return observableFrom(cacheImages$).pipe(
@@ -356,7 +363,7 @@ export class Navigator {
             tap((): void => { if (preCallback) { preCallback(); }; }),
             mergeMap(
                 (): Observable<void> => {
-                    return this._graphService.reset$([]);
+                    return this._graphService.reset$();
                 }));
     }
 

@@ -13,6 +13,7 @@ import { ProviderEventType } from "../events/ProviderEventType";
 import { ProviderEvent } from "../events/ProviderEvent";
 import { ProviderCellEvent } from "../events/ProviderCellEvent";
 import { IGeometryProvider } from "./IGeometryProvider";
+import { ProviderClusterEvent } from "../events/ProviderClusterEvent";
 
 /**
  * @interface IDataProvider
@@ -62,6 +63,37 @@ export interface IDataProvider extends EventEmitter {
     fire(
         type: "datacreate",
         event: ProviderCellEvent)
+        : void;
+    /**
+     * Fire when data has been created in the data provider
+     * after initial load.
+     *
+     * @param type datacreate
+     * @param event Provider cell event
+     *
+     * @example
+     * ```js
+     * // Initialize the data provider
+     * class MyDataProvider extends DataProviderBase {
+     *   // Class implementation
+     * }
+     * var provider = new MyDataProvider();
+     * // Create the event
+     * var clusterIds = [ // Determine deleted clusters ];
+     * var target = provider;
+     * var type = "datadelete";
+     * var event = {
+     *   clusterIds,
+     *   target,
+     *   type,
+     * };
+     * // Fire the event
+     * provider.fire(type, event);
+     * ```
+     */
+    fire(
+        type: "datadelete",
+        event: ProviderClusterEvent)
         : void;
     /** @ignore */
     fire(
@@ -183,6 +215,10 @@ export interface IDataProvider extends EventEmitter {
         type: ProviderCellEvent["type"],
         handler: (event: ProviderCellEvent) => void)
         : void;
+    off(
+        type: ProviderClusterEvent["type"],
+        handler: (event: ProviderClusterEvent) => void)
+        : void;
     /** @ignore */
     off(
         type: ProviderEventType,
@@ -215,6 +251,28 @@ export interface IDataProvider extends EventEmitter {
     on(
         type: "datacreate",
         handler: (event: ProviderCellEvent) => void)
+        : void;
+    /**
+     * Fired when data has been deleted in the data provider
+     * after initial load.
+     *
+     * @event datacreate
+     * @example
+     * ```js
+     * // Initialize the data provider
+     * class MyDataProvider extends DataProviderBase {
+     *   // implementation
+     * }
+     * var provider = new MyDataProvider();
+     * // Set an event listener
+     * provider.on("datadelete", function() {
+     *   console.log("A datacreate event has occurred.");
+     * });
+     * ```
+     */
+    on(
+        type: "datadelete",
+        handler: (event: ProviderClusterEvent) => void)
         : void;
     /** @ignore */
     on(

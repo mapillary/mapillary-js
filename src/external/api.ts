@@ -35,6 +35,7 @@ export { S2GeometryProvider } from "../api/S2GeometryProvider";
 
 // Event
 export { ProviderCellEvent } from "../api/events/ProviderCellEvent";
+export { ProviderClusterEvent } from "../api/events/ProviderClusterEvent";
 export { ProviderEvent } from "../api/events/ProviderEvent";
 export { ProviderEventType } from "../api/events/ProviderEventType";
 

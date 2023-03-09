@@ -1,5 +1,6 @@
 import {
     empty as observableEmpty,
+    merge as observableMerge,
     from as observableFrom,
     Observable,
 } from "rxjs";
@@ -8,6 +9,7 @@ import {
     bufferCount,
     catchError,
     distinctUntilChanged,
+    filter,
     first,
     map,
     mergeMap,
@@ -153,12 +155,27 @@ export class CacheService {
             .subscribe(() => { /*noop*/ }));
 
         subs.push(
-            this._graphService.dataAdded$
+            observableMerge(
+                this._graphService.dataAdded$,
+                this._graphService.dataDeleted$)
                 .pipe(
                     withLatestFrom(this._stateService.currentId$),
                     switchMap(
                         ([_, imageId]: [string, string]): Observable<Image> => {
-                            return this._graphService.cacheImage$(imageId);
+                            return this._graphService.hasImage$(imageId).pipe(
+                                filter((exists: boolean): boolean => {
+                                    return exists;
+                                }),
+                                mergeMap((): Observable<Image> => {
+                                    return this._graphService.cacheImage$(imageId)
+                                        .pipe(catchError(
+                                            (error): Observable<Image> => {
+                                                console.warn(
+                                                    `Cache service data event caching failed ${imageId}`,
+                                                    error);
+                                                return observableEmpty();
+                                            }));
+                                }));
                         }))
                 .subscribe(() => { /*noop*/ }));
 

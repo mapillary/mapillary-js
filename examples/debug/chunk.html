@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chunk</title>
+        <link rel="icon" href="data:," />
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no"
+        />
+
+        <link rel="stylesheet" href="/dist/mapillary.css" />
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            html,
+            body,
+            .viewer {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <script type="module">
+            import { accessToken } from "/doc-src/.access-token/token.js";
+            import {
+                CameraControls,
+                Viewer,
+                S2GeometryProvider,
+            } from "/dist/mapillary.module.js";
+            import { ChunkDataProvider } from "/doc-src/src/js/utils/ChunkDataProvider.js";
+            import {
+                CAMERA_TYPE_SPHERICAL,
+                cameraTypeToAspect,
+                generateCluster,
+            } from "/doc-src/src/js/utils/provider.js";
+
+            let viewer;
+            let dataProvider;
+            let chunks;
+            let chunkCounter = 0;
+
+            const INTERVALS = 1;
+            const REFERENCE = { alt: 0, lat: 0, lng: 0 };
+
+            (function main() {
+                const container = document.createElement("div");
+                container.className = "viewer";
+                document.body.append(container);
+
+                dataProvider = new ChunkDataProvider({
+                    geometry: new S2GeometryProvider(18),
+                });
+                const options = {
+                    dataProvider,
+                    cameraControls: CameraControls.Earth,
+                    component: {
+                        cover: false,
+                        image: false,
+                        spatial: {
+                            cameraSize: 0.3,
+                            cellGridDepth: 2,
+                            cellsVisible: true,
+                        },
+                    },
+                    container,
+                    imageTiling: false,
+                };
+                viewer = new Viewer(options);
+                chunks = [];
+
+                listen();
+            })();
+
+            function generateChunk() {
+                const cameraType = CAMERA_TYPE_SPHERICAL;
+                const aspect = cameraTypeToAspect(cameraType);
+                const height = 100;
+                const counter = chunks.length;
+                const shift = counter * 10;
+                const mod = 3;
+                const config = {
+                    cameraType,
+                    color: [1, (counter % mod) / (mod - 1), 0],
+                    east: shift,
+                    height,
+                    id: counter.toString(),
+                    idCounter: counter * (INTERVALS + 1),
+                    reference: REFERENCE,
+                    width: aspect * height,
+                };
+
+                const chunk = generateCluster(config, INTERVALS);
+                chunk.id = chunk.cluster.id;
+                return chunk;
+            }
+
+            function listen() {
+                window.document.addEventListener("keydown", (e) => {
+                    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
+                        return;
+                    }
+
+                    try {
+                        switch (e.key) {
+                            case "q": {
+                                // Move to first
+                                const imageId = dataProvider.images
+                                    .keys()
+                                    .next().value;
+                                viewer
+                                    .moveTo(imageId)
+                                    .catch((error) => console.error(error));
+                                break;
+                            }
+                            case "w": {
+                                // Add a chunk
+                                const added = generateChunk();
+                                console.log(`Add chunk ${added.id}`);
+                                chunks.push(added);
+                                dataProvider.addChunk(added);
+                                break;
+                            }
+                            case "e": {
+                                // Delete last chunk
+                                if (!chunks.length) {
+                                    console.log("No chunk to delete");
+                                    break;
+                                }
+
+                                const deleted = chunks.pop();
+                                console.log(`Delete chunk ${deleted.id}`);
+                                dataProvider.deleteChunks([deleted.id]);
+                                break;
+                            }
+                            case "r": {
+                                // Delete all except first chunk
+                                if (!chunks.length) {
+                                    console.log("No chunks to delete");
+                                    break;
+                                }
+
+                                const deleted = chunks
+                                    .splice(1)
+                                    .map((chunk) => chunk.id);
+                                console.log(`Delete chunks ${deleted}`);
+                                dataProvider.deleteChunks(deleted);
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+                    } catch (error) {
+                        console.log(error);
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>
