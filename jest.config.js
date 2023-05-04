@@ -11,7 +11,7 @@ export default {
     "<rootDir>/src/viewer/options/",
     "interfaces",
   ],
-  coverageProvider: "v8",
+  coverageProvider: "babel",
   moduleDirectories: ["node_modules"],
   moduleFileExtensions: ["js"],
   rootDir: "build/cjs",
