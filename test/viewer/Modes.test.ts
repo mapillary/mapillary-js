@@ -10,7 +10,7 @@ describe("cameraControlsToState", () => {
             .toBe(State.Earth);
         expect(cameraControlsToState(CameraControls.Street))
             .toBe(State.Traversing);
-        expect(cameraControlsToState(-1))
+        expect(cameraControlsToState(<CameraControls>-1))
             .toBe(null);
     });
 });
