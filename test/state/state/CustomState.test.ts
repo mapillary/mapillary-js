@@ -20,7 +20,8 @@ describe("CustomState.setViewMatrix", () => {
     it("should apply view matrix on camera", () => {
         const state = new CustomState(generateStateParams());
 
-        const object = new ThreeCamera();
+        // @ts-ignore
+        const object: ThreeCamera = new ThreeCamera();
         object.up.set(0, 0, 1);
         object.position.set(1, 2, 3);
         object.lookAt(2, 2, 3);

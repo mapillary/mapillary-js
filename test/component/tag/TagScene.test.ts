@@ -307,6 +307,7 @@ describe("TagScene.intersectObjects", () => {
         const intersectObjectsSpy: jasmine.Spy = spyOn(raycaster, "intersectObjects");
         intersectObjectsSpy.and.returnValue([]);
 
+        // @ts-ignore
         const result: string[] = tagScene.intersectObjects([0, 0], new THREE.Camera());
 
         expect(result.length).toBe(0);
@@ -333,6 +334,7 @@ describe("TagScene.intersectObjects", () => {
 
         spyOn(raycaster, "intersectObjects").and.returnValue([<THREE.Intersection>{ object: retrievableObject }]);
 
+        // @ts-ignore
         const result: string[] = tagScene.intersectObjects([0, 0], new THREE.Camera());
 
         expect(result.length).toBe(1);

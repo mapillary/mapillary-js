@@ -204,7 +204,7 @@ export abstract class VertexGeometry extends Geometry {
             points = points.concat(hole3d.slice(0, -1));
         }
 
-        let flattened: { vertices: number[], holes: number[], dimensions: number } = earcut.flatten(data);
+        let flattened: { vertices: number[], holes: number[], dimensions: number; } = earcut.flatten(data);
         let indices: number[] = earcut(flattened.vertices, flattened.holes, flattened.dimensions);
         let triangles: number[] = [];
 
@@ -268,6 +268,7 @@ export abstract class VertexGeometry extends Geometry {
     }
 
     private _createCamera(upVector: number[], position: number[], lookAt: number[]): THREE.Camera {
+        // @ts-ignore
         const camera: THREE.Camera = new THREE.Camera();
         camera.up.copy(new THREE.Vector3().fromArray(upVector));
         camera.position.copy(new THREE.Vector3().fromArray(position));

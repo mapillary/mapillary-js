@@ -52,7 +52,8 @@ export function computeProjectedPoints(
         }
     }
 
-    const camera = new THREE.Camera();
+    // @ts-ignore
+    const camera: THREE.Camera = new THREE.Camera();
     camera.up.copy(transform.upVector());
     camera.position.copy(new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 0)));
     camera.lookAt(new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 10)));
