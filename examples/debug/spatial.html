@@ -66,12 +66,10 @@
             let hoveredImageId = null;
             let paintedClusterId = null;
             viewer.on("mousemove", async (event) => {
-                return;
                 function paintCluster(clusterId, color) {
                     spatial.setPointOverrideColor(clusterId, color);
                     spatial.setCameraOverrideColor(clusterId, color);
                 }
-
                 const imageId = await spatial.getFrameIdAt(event.pixelPoint);
                 if (imageId === hoveredImageId) {
                     return;

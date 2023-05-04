@@ -64,7 +64,8 @@ export class ClusterPoints extends Points {
             new BufferAttribute(
                 new Float32Array(cluster.coordinates), 3));
 
-        const colorSize = cluster.colors.length / cluster.pointIds.length;
+        const colorSize = cluster.colors.length > 0 ?
+            cluster.colors.length / cluster.pointIds.length : 3;
         geometry.setAttribute(
             "color",
             new BufferAttribute(new Float32Array(cluster.colors), colorSize));

@@ -1,4 +1,4 @@
-import { Material, Mesh, SphereBufferGeometry, Vector3 } from "three";
+import { Material, Mesh, SphereGeometry, Vector3 } from "three";
 import { Object3D, Ray } from "three";
 import { SpatialOctree } from "../../../../src/component/spatial/scene/SpatialOctree";
 
@@ -62,7 +62,7 @@ describe("SpatialOctree.intersect", () => {
     test("should intersect object", () => {
         const octree = new SpatialOctree(1, 0);
         const object = new Mesh(
-            new SphereBufferGeometry(1, 10, 10),
+            new SphereGeometry(1, 10, 10),
             new Material());
         object.position.set(0, 0, 1);
         octree.add(object);
@@ -80,7 +80,7 @@ describe("SpatialOctree.intersect", () => {
     test("should not intersect object", () => {
         const octree = new SpatialOctree(1, 0);
         const object = new Mesh(
-            new SphereBufferGeometry(1, 10, 10),
+            new SphereGeometry(1, 10, 10),
             new Material());
         object.position.set(0, 0, -1);
         octree.add(object);

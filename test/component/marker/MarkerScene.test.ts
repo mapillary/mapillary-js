@@ -211,6 +211,7 @@ describe("MarkerScene.intersectObjects", () => {
         let markerScene: MarkerScene = new MarkerScene(scene, raycaster);
         markerScene.add(marker, [0, 0, 0]);
 
+        // @ts-ignore
         let intersectedId: string = markerScene.intersectObjects([0, 0], new THREE.Camera());
 
         expect(intersectedId).toBe(marker.id);

@@ -83,7 +83,7 @@ export class SpatialScene {
         this._clusterImageMap = new Map();
 
         this._scene = !!scene ? scene : new Scene();
-        this._scene.autoUpdate = false;
+        this._scene.matrixWorldAutoUpdate = false;
         this._intersection = new SpatialIntersection();
         this._assets = new SpatialAssets();
 

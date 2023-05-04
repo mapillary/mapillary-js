@@ -37,7 +37,7 @@
     "@types/pbf": "^3.0.2",
     "@types/polylabel": "^1.0.5",
     "@types/rbush": "^3.0.0",
-    "@types/three": "^0.142.0",
+    "@types/three": "^0.152.0",
     "@types/virtual-dom": "^2.1.1",
     "earcut": "^2.2.4",
     "martinez-polygon-clipping": "^0.7.3",
@@ -47,7 +47,7 @@
     "rbush": "^3.0.1",
     "rxjs": "^7.5.6",
     "s2-geometry": "^1.2.10",
-    "three": "^0.142.0",
+    "three": "0.152.2",
     "virtual-dom": "^2.1.1"
   },
   "devDependencies": {
