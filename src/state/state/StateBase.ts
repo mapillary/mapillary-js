@@ -303,15 +303,20 @@ export abstract class StateBase implements IStateBase {
     }
 
     protected _motionlessTransition(): boolean {
-        let imagesSet: boolean = this._currentImage != null && this._previousImage != null;
+        const imagesSet =
+            this._currentImage != null &&
+            this._previousImage != null;
 
-        return imagesSet && (
-            this._transitionMode === TransitionMode.Instantaneous || !(
-                this._currentImage.merged &&
-                this._previousImage.merged &&
-                this._withinOriginalDistance() &&
-                this._sameConnectedComponent()
-            ));
+        if (!imagesSet) {
+            return false;
+        }
+
+        return this._transitionMode === TransitionMode.Instantaneous || !(
+            this._currentImage.merged &&
+            this._previousImage.merged &&
+            this._hasStructure() &&
+            this._withinDistance()
+        );
     }
 
     private _setReference(): boolean {
@@ -434,29 +439,29 @@ export abstract class StateBase implements IStateBase {
             reference);
     }
 
-    private _sameConnectedComponent(): boolean {
-        let current: Image = this._currentImage;
-        let previous: Image = this._previousImage;
+    private _hasStructure(): boolean {
+        const current = this._currentImage;
+        const previous = this._previousImage;
 
-        return !!current && !!previous &&
-            current.mergeId === previous.mergeId;
+        return current.mesh.vertices.length > 0 &&
+            previous.mesh.vertices.length > 0;
     }
 
-    private _withinOriginalDistance(): boolean {
-        let current: Image = this._currentImage;
-        let previous: Image = this._previousImage;
+    private _withinDistance(): boolean {
+        const current = this._currentImage;
+        const previous = this._previousImage;
 
         if (!current || !previous) {
             return true;
         }
 
-        // 50 km/h moves 28m in 2s
-        let distance = this._spatial.distanceFromLngLat(
-            current.originalLngLat.lng,
-            current.originalLngLat.lat,
-            previous.originalLngLat.lng,
-            previous.originalLngLat.lat);
+        const distance = this._spatial.distanceFromLngLat(
+            current.lngLat.lng,
+            current.lngLat.lat,
+            previous.lngLat.lng,
+            previous.lngLat.lat);
 
-        return distance < 25;
+        // 50 km/h moves 28m in 2s
+        return distance < 30;
     }
 }

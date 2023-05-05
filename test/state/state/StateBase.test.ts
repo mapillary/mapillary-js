@@ -10,9 +10,8 @@ import { Camera } from "../../../src/geo/Camera";
 import { TransitionMode } from "../../../src/state/TransitionMode";
 import { ProjectionService } from "../../../src/viewer/ProjectionService";
 import { ImageCache } from "../../../src/graph/ImageCache";
-import { ICamera } from "../../../src/geometry/interfaces/ICamera";
-import { DataProviderBase } from "../../../src/mapillary";
-import { DataProvider, GeometryProvider } from "../../helper/ProviderHelper";
+import { DataProvider } from "../../helper/ProviderHelper";
+import { TestImage } from "../../helper/TestImage";
 
 class TestStateBase extends StateBase {
     public traverse(): StateBase { return null; }
@@ -38,20 +37,6 @@ class TestStateBase extends StateBase {
     protected _getAlpha(): number { return; }
 }
 
-class TestImage extends Image {
-    constructor(core: CoreImageEnt) {
-        super(core);
-    }
-
-    public get assetsCached(): boolean {
-        return true;
-    }
-
-    public get image(): HTMLImageElement {
-        return null;
-    }
-}
-
 let createState: () => IStateBase = (): IStateBase => {
     return {
         alpha: 1,
@@ -66,7 +51,7 @@ let createState: () => IStateBase = (): IStateBase => {
 
 let createCompleteImage: () => Image = (): Image => {
     let helper: ImageHelper = new ImageHelper();
-    let image: TestImage = new TestImage(helper.createCoreImageEnt());
+    let image = new TestImage(helper.createCoreImageEnt());
     image.makeComplete(helper.createSpatialImageEnt());
     image.initializeCache(new ImageCache(new DataProvider()));
     image.cacheCamera(new ProjectionService());
@@ -97,7 +82,7 @@ describe("StateBase.motionlessTransition", () => {
         expect(stateBase.motionlessTransition()).toBe(false);
     });
 
-    it("should be false if images in same connected component", () => {
+    it("should be false if images has structure", () => {
         const state: IStateBase = createState();
         const stateBase: TestStateBase = new TestStateBase(state);
 
@@ -105,22 +90,98 @@ describe("StateBase.motionlessTransition", () => {
 
         const imageEnt1: ImageEnt = helper.createImageEnt();
         imageEnt1.merge_id = "1";
-        const image1: Image = new TestImage(imageEnt1);
+        const image1 = new TestImage(imageEnt1);
         image1.makeComplete(imageEnt1);
         image1.initializeCache(new ImageCache(new DataProvider()));
         image1.cacheCamera(new ProjectionService());
+        image1.mesh = {
+            vertices: [0, 0, 0, 1, 1, 1, 2, 2, 2],
+            faces: [0, 1, 2],
+        };
 
         const imageEnt2: ImageEnt = helper.createImageEnt();
         imageEnt2.merge_id = "1";
-        const image2: Image = new TestImage(imageEnt2);
+        const image2 = new TestImage(imageEnt2);
         image2.makeComplete(imageEnt2);
         image2.initializeCache(new ImageCache(new DataProvider()));
         image2.cacheCamera(new ProjectionService());
+        image2.mesh = {
+            vertices: [0, 0, 0, 1, 1, 1, 2, 2, 2],
+            faces: [0, 1, 2],
+        };
 
         stateBase.set([image1]);
         stateBase.set([image2]);
 
         expect(stateBase.motionlessTransition()).toBe(false);
+    });
+
+    it("should be true if only previous image has structure", () => {
+        const state: IStateBase = createState();
+        const stateBase: TestStateBase = new TestStateBase(state);
+
+        const helper: ImageHelper = new ImageHelper();
+
+        const imageEnt1: ImageEnt = helper.createImageEnt();
+        imageEnt1.merge_id = "1";
+        const image1 = new TestImage(imageEnt1);
+        image1.makeComplete(imageEnt1);
+        image1.initializeCache(new ImageCache(new DataProvider()));
+        image1.cacheCamera(new ProjectionService());
+        image1.mesh = {
+            vertices: [0, 0, 0, 1, 1, 1, 2, 2, 2],
+            faces: [0, 1, 2],
+        };
+
+        const imageEnt2: ImageEnt = helper.createImageEnt();
+        imageEnt2.merge_id = "1";
+        const image2 = new TestImage(imageEnt2);
+        image2.makeComplete(imageEnt2);
+        image2.initializeCache(new ImageCache(new DataProvider()));
+        image2.cacheCamera(new ProjectionService());
+        image2.mesh = {
+            vertices: [],
+            faces: [],
+        };
+
+        stateBase.set([image1]);
+        stateBase.set([image2]);
+
+        expect(stateBase.motionlessTransition()).toBe(true);
+    });
+
+    it("should be false if only current image has structure", () => {
+        const state: IStateBase = createState();
+        const stateBase: TestStateBase = new TestStateBase(state);
+
+        const helper: ImageHelper = new ImageHelper();
+
+        const imageEnt1: ImageEnt = helper.createImageEnt();
+        imageEnt1.merge_id = "1";
+        const image1 = new TestImage(imageEnt1);
+        image1.makeComplete(imageEnt1);
+        image1.initializeCache(new ImageCache(new DataProvider()));
+        image1.cacheCamera(new ProjectionService());
+        image1.mesh = {
+            vertices: [],
+            faces: [],
+        };
+
+        const imageEnt2: ImageEnt = helper.createImageEnt();
+        imageEnt2.merge_id = "1";
+        const image2 = new TestImage(imageEnt2);
+        image2.makeComplete(imageEnt2);
+        image2.initializeCache(new ImageCache(new DataProvider()));
+        image2.cacheCamera(new ProjectionService());
+        image2.mesh = {
+            vertices: [0, 0, 0, 1, 1, 1, 2, 2, 2],
+            faces: [0, 1, 2],
+        };
+
+        stateBase.set([image1]);
+        stateBase.set([image2]);
+
+        expect(stateBase.motionlessTransition()).toBe(true);
     });
 
     it("should be true if instantaneous transition mode", () => {
