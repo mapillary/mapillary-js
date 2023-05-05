@@ -5,18 +5,15 @@ import * as THREE from "three";
 
 import { ImageHelper } from "../../helper/ImageHelper";
 
-import { Image } from "../../../src/graph/Image";
 import { SpatialImageEnt } from "../../../src/api/ents/SpatialImageEnt";
 import { IStateBase } from "../../../src/state/interfaces/IStateBase";
 import { TraversingState } from "../../../src/state/state/TraversingState";
 import { Camera } from "../../../src/geo/Camera";
 import { TransitionMode } from "../../../src/state/TransitionMode";
-import { TransformHelper } from "../../helper/TransformHelper";
 import { ImageCache } from "../../../src/graph/ImageCache";
 import { DataProvider } from "../../helper/ProviderHelper";
 import { ProjectionService } from "../../../src/viewer/ProjectionService";
-
-const transformHelper = new TransformHelper();
+import { TestImage } from "../../helper/TestImage";
 
 describe("TraversingState.ctor", () => {
     it("should be defined", () => {
@@ -46,23 +43,15 @@ class TestTraversingState extends TraversingState {
     }
 }
 
-class TestImage extends Image {
-    constructor() {
-        super({
-            computed_geometry: { lat: 0, lng: 0 },
-            id: "key",
-            geometry: { lat: 0, lng: 0 },
-            sequence: { id: "skey" },
-        });
-    }
-
-    public get assetsCached(): boolean {
-        return true;
-    }
-
-    public get image(): HTMLImageElement {
-        return null;
-    }
+function createTestImage(): TestImage {
+    const image = new TestImage({
+        computed_geometry: { lat: 0, lng: 0 },
+        id: "key",
+        geometry: { lat: 0, lng: 0 },
+        sequence: { id: "skey" },
+    });
+    image.mesh = { vertices: [], faces: [] };
+    return image;
 }
 
 describe("TraversingState.currentCamera.lookat", () => {
@@ -91,7 +80,7 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let image: TestImage = new TestImage();
+        let image: TestImage = createTestImage();
         let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         image.makeComplete(spatialImage);
         image.initializeCache(new ImageCache(new DataProvider()));
@@ -125,14 +114,14 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let previousImage: TestImage = new TestImage();
+        let previousImage: TestImage = createTestImage();
         let previousSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         previousSpatialImage.computed_rotation = [Math.PI, 0, 0];
         previousImage.makeComplete(previousSpatialImage);
         previousImage.initializeCache(new ImageCache(new DataProvider()));
         previousImage.cacheCamera(new ProjectionService());
 
-        let currentImage: TestImage = new TestImage();
+        let currentImage: TestImage = createTestImage();
         let currentSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         currentImage.makeComplete(currentSpatialImage);
         currentImage.initializeCache(new ImageCache(new DataProvider()));
@@ -167,14 +156,14 @@ describe("TraversingState.currentCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let previousImage: TestImage = new TestImage();
+        let previousImage: TestImage = createTestImage();
         let preivousSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         preivousSpatialImage.computed_rotation = [Math.PI, 0, 0];
         previousImage.makeComplete(preivousSpatialImage);
         previousImage.initializeCache(new ImageCache(new DataProvider()));
         previousImage.cacheCamera(new ProjectionService());
 
-        let currentImage: TestImage = new TestImage();
+        let currentImage: TestImage = createTestImage();
         let currentSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         currentSpatialImage.camera_type = "spherical";
 
@@ -223,7 +212,7 @@ describe("TraversingState.previousCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let image: TestImage = new TestImage();
+        let image: TestImage = createTestImage();
         let spatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         image.makeComplete(spatialImage);
         image.initializeCache(new ImageCache(new DataProvider()));
@@ -257,14 +246,14 @@ describe("TraversingState.previousCamera.lookat", () => {
 
         let traversingState: TestTraversingState = new TestTraversingState(state);
 
-        let previousImage: TestImage = new TestImage();
+        let previousImage: TestImage = createTestImage();
         let previousSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         previousSpatialImage.computed_rotation = [Math.PI, 0, 0];
         previousImage.makeComplete(previousSpatialImage);
         previousImage.initializeCache(new ImageCache(new DataProvider()));
         previousImage.cacheCamera(new ProjectionService());
 
-        let currentImage: TestImage = new TestImage();
+        let currentImage: TestImage = createTestImage();
         let currentSpatialImage: SpatialImageEnt = helper.createSpatialImageEnt();
         currentImage.makeComplete(currentSpatialImage);
         currentImage.initializeCache(new ImageCache(new DataProvider()));
