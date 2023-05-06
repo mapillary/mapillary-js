@@ -81,16 +81,6 @@ export interface SpatialConfiguration extends ComponentConfiguration {
     pointSize?: number;
 
     /**
-     * Specify if the points should be visible or not.
-     *
-     * @deprecated `pointsVisible` will be removed in
-     * v5.x. Use {@link pointVisualizationMode} instead.
-     *
-     * @default true
-     */
-    pointsVisible?: boolean;
-
-    /**
      * Specify how point clouds should be visualized.
      *
      * @default PointVisualizationMode.Original
