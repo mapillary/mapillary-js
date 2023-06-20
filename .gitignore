@@ -11,6 +11,7 @@ Vagrantfile
 # Misc
 *.DS_STORE
 *.tgz
+*.watchman*
 
 yarn-error.log*
 yarn-debug.log*
