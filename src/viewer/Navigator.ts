@@ -16,6 +16,7 @@ import {
     map,
     mergeAll,
     mergeMap,
+    takeLast,
     tap,
 } from "rxjs/operators";
 
@@ -237,7 +238,7 @@ export class Navigator {
                                                 return this._cacheIds$(ids);
                                             }));
                                 }),
-                            last());
+                            takeLast(1));
                     }
 
                     return this._idRequested$.pipe(
