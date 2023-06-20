@@ -1691,11 +1691,12 @@ export class Viewer extends EventEmitter implements IViewer {
             (resolve: (value: void) => void, reject: (reason: Error) => void): void => {
                 this._navigator.setFilter$(filter)
                     .subscribe(
-                        (): void => {
-                            resolve(undefined);
-                        },
+                        (): void => { /*noop*/ },
                         (error: Error): void => {
                             reject(error);
+                        },
+                        (): void => {
+                            resolve(undefined);
                         });
             });
     }
