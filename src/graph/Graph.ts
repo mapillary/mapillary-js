@@ -1914,6 +1914,10 @@ export class Graph {
     }
 
     private _removeClusterNode(node: Image): void {
+        if (!node.isComplete) {
+            return;
+        }
+
         const clusterId = node.clusterId;
         if (clusterId == null || !this._clusterNodes.has(clusterId)) {
             return;
