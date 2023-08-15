@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { Transform } from "../../geo/Transform";
 import { Image } from "../../graph/Image";
 import { isFisheye, isSpherical } from "../../geo/Geo";
-import { IUniform, Material, Matrix3, Matrix4, ShaderMaterial, Vector2, Vector3, Vector4 } from "three";
+import { IUniform, Matrix3, Matrix4, ShaderMaterial, Vector2, Vector3, Vector4 } from "three";
 import { Camera } from "../../geometry/Camera";
 
 import { resolveShader } from "../../shader/Resolver";
@@ -126,7 +126,7 @@ export class MeshFactory {
             side: THREE.DoubleSide,
             transparent: true,
             uniforms: {
-                extrinsicMatrix: { value: transform.rt },
+                extrinsicMatrix: { value: transform.basicRt },
                 map: { value: texture },
                 opacity: { value: 1.0 },
                 scale: { value: new Vector2(scaleX, scaleY) },
