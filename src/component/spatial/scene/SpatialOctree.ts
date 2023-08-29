@@ -20,13 +20,14 @@ export class SpatialOctree {
         return this._root;
     }
 
-    public add(object: Object3D): void {
+    public add(object: Object3D): boolean {
         if (!this.root.boundingBox.containsPoint(object.position)) {
             console.warn(`Object outside bounding box ${object.uuid}`);
-            return;
+            return false;
         }
         const leaf = this._root.add(object);
         this._index.set(object.uuid, leaf);
+        return true;
     }
 
     public has(object: Object3D): boolean {
