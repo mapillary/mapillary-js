@@ -48,9 +48,11 @@ export class SpatialIntersection {
         object: Object3D,
         imageId: string): void {
         const uuid = object.uuid;
-        this._objectImageMap.set(uuid, imageId);
-        this._objects.push(object);
-        this._octree.add(object);
+        const success = this._octree.add(object);
+        if (success) {
+            this._objectImageMap.set(uuid, imageId);
+            this._objects.push(object);
+        }
     }
 
     public intersectObjects(
