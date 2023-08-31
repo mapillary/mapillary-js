@@ -85,7 +85,7 @@ export class Navigator {
         this._projectionService = new ProjectionService();
 
         this._graphService = graphService ??
-            new GraphService(new Graph(this.api), this._projectionService);
+            new GraphService(new Graph(this.api, options), this._projectionService);
 
         this._loadingName = "navigator";
         this._loadingService = loadingService ??

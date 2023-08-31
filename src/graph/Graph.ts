@@ -78,6 +78,10 @@ export type NodeIndexItem = {
     node: Image;
 };
 
+export type GraphOptions = {
+    computedGraph?: boolean;
+}
+
 /**
  * @class Graph
  *
@@ -85,6 +89,8 @@ export type NodeIndexItem = {
  */
 export class Graph {
     private static _spatialIndex: new (...args: any[]) => any;
+
+    private _computedGraph: boolean;
 
     private _api: APIWrapper;
 
@@ -226,6 +232,7 @@ export class Graph {
      */
     constructor(
         api: APIWrapper,
+        options?: GraphOptions,
         nodeIndex?: any,
         graphCalculator?: GraphCalculator,
         edgeCalculator?: EdgeCalculator,
@@ -233,6 +240,7 @@ export class Graph {
         configuration?: GraphConfiguration) {
 
         this._api = api;
+        this._computedGraph = options?.computedGraph ?? false;
 
         this._cachedNodes = {};
         this._cachedNodeTiles = {};
@@ -596,8 +604,9 @@ export class Graph {
                             }
                             this._makeFull(node, item.node);
 
+                            const lngLat = this._getNodeLngLat(node);
                             const cellId = this._api.data.geometry
-                                .lngLatToCellId(node.originalLngLat);
+                                .lngLatToCellId(lngLat);
                             this._preStore(cellId, node);
                             this._setNode(node);
 
@@ -756,8 +765,9 @@ export class Graph {
 
                                         this._makeFull(node, item.node);
 
+                                        const lngLat = this._getNodeLngLat(node);
                                         const cellId = this._api.data.geometry
-                                            .lngLatToCellId(node.originalLngLat);
+                                            .lngLatToCellId(lngLat);
                                         this._preStore(cellId, node);
                                         this._setNode(node);
                                     }
@@ -1479,7 +1489,8 @@ export class Graph {
             if (!this.hasNode(id)) { continue; }
 
             const node = this._nodes[id];
-            const nodeCellId = geometry.lngLatToCellId(node.lngLat);
+            const lngLat = this._getNodeLngLat(node);
+            const nodeCellId = geometry.lngLatToCellId(lngLat);
             if (!keepCells.has(nodeCellId)) {
                 if (id in this._cachedNodeTiles) {
                     delete this._cachedNodeTiles[id];
@@ -1946,6 +1957,14 @@ export class Graph {
     private _disposeNode(node: Image): void {
         this._removeClusterNode(node);
         node.dispose();
+    }
+
+    private _getNodeLngLat(node: Image): LngLat {
+        if (!this._computedGraph) {
+            return node.originalLngLat;
+        }
+
+        return node.lngLat;
     }
 
     private _preStore(h: string, node: Image): void {
