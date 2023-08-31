@@ -47,6 +47,17 @@ export interface ViewerOptions {
     component?: ComponentOptions;
 
     /**
+     * Base the graph on computed positions instead of original.
+     *
+     * @description Experimental property.
+     *
+     * @default false
+     *
+     * @ignore
+     */
+    computedGraph?: boolean;
+
+    /**
      * The HTML element in which MapillaryJS will render the
      * viewer, or the element's string `id`. The
      * specified element must have no children.

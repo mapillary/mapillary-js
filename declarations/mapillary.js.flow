@@ -2811,6 +2811,14 @@ export interface ViewerOptions {
   component?: ComponentOptions;
 
   /**
+   * Base the graph on computed positions instead of original.
+   * @description Experimental property.
+   * @default false
+   * @ignore
+   */
+  computedGraph?: boolean;
+
+  /**
    * The HTML element in which MapillaryJS will render the
    * viewer, or the element's string `id`. The
    * specified element must have no children.
@@ -5683,7 +5691,7 @@ declare class HandlerBase<TConfiguration: ComponentConfiguration> {
    * @ignore
    */
   constructor(
-    component: Component<TConfiguration>,
+    component_: Component<TConfiguration>,
     container: Container,
     navigator: Navigator
   ): this;
@@ -5762,7 +5770,7 @@ declare class KeySpatialNavigationHandler
    * @ignore
    */
   constructor(
-    component: Component<KeyboardConfiguration>,
+    component_: Component<KeyboardConfiguration>,
     container: Container,
     navigator: Navigator,
     spatial: Spatial
@@ -5791,7 +5799,7 @@ declare class KeyZoomHandler extends HandlerBase<KeyboardConfiguration> {
    * @ignore
    */
   constructor(
-    component: Component<KeyboardConfiguration>,
+    component_: Component<KeyboardConfiguration>,
     container: Container,
     navigator: Navigator,
     viewportCoords: ViewportCoords
@@ -6138,7 +6146,7 @@ declare class DragPanHandler extends HandlerBase<PointerConfiguration> {
    * @ignore
    */
   constructor(
-    component: Component<PointerConfiguration>,
+    component_: Component<PointerConfiguration>,
     container: Container,
     navigator: Navigator,
     viewportCoords: ViewportCoords,
@@ -6153,7 +6161,7 @@ declare class EarthControlHandler extends HandlerBase<PointerConfiguration> {
    * @ignore
    */
   constructor(
-    component: Component<PointerConfiguration>,
+    component_: Component<PointerConfiguration>,
     container: Container,
     navigator: Navigator,
     viewportCoords: ViewportCoords,
@@ -6179,7 +6187,7 @@ declare class ScrollZoomHandler extends HandlerBase<PointerConfiguration> {
    * @ignore
    */
   constructor(
-    component: Component<PointerConfiguration>,
+    component_: Component<PointerConfiguration>,
     container: Container,
     navigator: Navigator,
     viewportCoords: ViewportCoords
@@ -6204,7 +6212,7 @@ declare class TouchZoomHandler extends HandlerBase<PointerConfiguration> {
    * @ignore
    */
   constructor(
-    component: Component<PointerConfiguration>,
+    component_: Component<PointerConfiguration>,
     container: Container,
     navigator: Navigator,
     viewportCoords: ViewportCoords
