@@ -38,6 +38,15 @@ export function computeProjectedPoints(
     pointsPerLine: number,
     viewportCoords: ViewportCoords): number[][] {
 
+    // @ts-ignore
+    const camera: THREE.Camera = new THREE.Camera();
+    camera.up.copy(transform.upVector());
+    camera.position.copy(new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 0)));
+    camera.lookAt(new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 10)));
+    camera.updateMatrix();
+    camera.updateMatrixWorld(true);
+
+
     const basicPoints: number[][] = [];
 
     for (let side: number = 0; side < basicVertices.length; ++side) {
@@ -52,6 +61,33 @@ export function computeProjectedPoints(
         }
     }
 
+
+    const projectedPoints: number[][] = [];
+    for (const [index, basicPoint] of basicPoints.entries()) {
+        const worldPoint = transform.unprojectBasic(basicPoint, 10000);
+        const cameraPoint = viewportCoords.worldToCamera(worldPoint, camera);
+        if (cameraPoint[2] > 0) {
+            continue;
+        }
+
+        projectedPoints.push([
+            cameraPoint[0] / cameraPoint[2],
+            cameraPoint[1] / cameraPoint[2],
+            index,
+        ]);
+    }
+
+
+    return projectedPoints;
+}
+
+export function computeProjectedPointsSafe(
+    transform: Transform,
+    basicVertices: number[][],
+    basicDirections: number[][],
+    pointsPerLine: number,
+    viewportCoords: ViewportCoords): number[][] {
+
     // @ts-ignore
     const camera: THREE.Camera = new THREE.Camera();
     camera.up.copy(transform.upVector());
@@ -60,17 +96,28 @@ export function computeProjectedPoints(
     camera.updateMatrix();
     camera.updateMatrixWorld(true);
 
-    const projectedPoints = basicPoints
-        .map(
-            (basicPoint: number[]): number[] => {
-                const worldPoint = transform.unprojectBasic(basicPoint, 10000);
-                const cameraPoint = viewportCoords.worldToCamera(worldPoint, camera);
+    const projectedPoints: number[][] = [];
+    for (let side: number = 0; side < basicVertices.length; ++side) {
+        const v: number[] = basicVertices[side];
+        const d: number[] = basicDirections[side];
 
-                return [
-                    cameraPoint[0] / cameraPoint[2],
-                    cameraPoint[1] / cameraPoint[2],
-                ];
-            });
+        for (let i: number = 0; i <= pointsPerLine; ++i) {
+            const basicPoint = [
+                v[0] + d[0] * i / pointsPerLine,
+                v[1] + d[1] * i / pointsPerLine,
+            ];
+            const worldPoint = transform.unprojectBasic(basicPoint, 10000);
+            const cameraPoint = viewportCoords.worldToCamera(worldPoint, camera);
+            if (cameraPoint[2] > 0) {
+                break;
+            }
+
+            projectedPoints.push([
+                cameraPoint[0] / cameraPoint[2],
+                cameraPoint[1] / cameraPoint[2],
+            ]);
+        }
+    }
 
     return projectedPoints;
 }

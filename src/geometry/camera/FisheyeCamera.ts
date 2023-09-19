@@ -90,6 +90,10 @@ vec2 projectToSfm(vec3 bearing, Parameters parameters, Uniforms uniforms) {
     float radialPeak = uniforms.radialPeak;
 
     // Projection
+    if (z < 0.) {
+        return vec2(POSITIVE_INFINITY, POSITIVE_INFINITY);
+    }
+
     float r = sqrt(x * x + y * y);
     float theta = atan(r, z);
 

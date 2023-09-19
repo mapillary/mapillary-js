@@ -419,11 +419,11 @@ export class RenderCamera {
     }
 
     private _computeProjectedPoints(transform: Transform): number[][] {
-        const vertices = [[0, 0], [1, 0]];
-        const directions = [[1, 0], [0, 1]];
-        const pointsPerLine = 50;
+        const vertices = [[0.5, 0], [0.5, 0], [1, 0.5], [1, 0.5]];
+        const directions = [[-0.5, 0], [0.5, 0], [0, -0.5], [0, 0.5]];
+        const pointsPerLine = 25;
 
-        return Geo.computeProjectedPoints(
+        return Geo.computeProjectedPointsSafe(
             transform,
             vertices,
             directions,
@@ -475,7 +475,9 @@ export class RenderCamera {
                         aspect);
                 });
 
-        const vFovFill = Math.min(...fovs) * 0.995;
+        const fovMax = 125;
+        const minFov = Math.min(...fovs) * 0.995;
+        const vFovFill = Math.min(minFov, fovMax);
         if (renderMode === RenderMode.Fill) {
             return vFovFill;
         }
@@ -492,7 +494,6 @@ export class RenderCamera {
             vFov *= hFovMax / hFovLetterbox;
         }
 
-        const fovMax = 135;
         const vFovMax = aspect > 2 ? vFovFill : fovCoeff * vFovFill;
         vFov = Math.min(vFov, vFovMax, fovMax);
         vFov = Math.max(vFov, vFovFill);
