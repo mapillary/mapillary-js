@@ -20,6 +20,7 @@ import {
     startWith,
     tap,
     takeLast,
+    withLatestFrom,
 } from "rxjs/operators";
 
 import { FilterFunction } from "./FilterCreator";
@@ -656,11 +657,15 @@ export class GraphService {
                 first(),
                 mergeMap(
                     graph => {
+                        return graph.updateCells$(event.cellIds);
+                    }),
+                withLatestFrom(this._graph$.pipe(first())),
+                tap(
+                    ([_, graph]) => {
                         graph.resetSpatialArea();
                         graph.resetSpatialEdges();
-                        return graph.updateCells$(event.cellIds);
                     }))
-            .subscribe(cellId => { this._dataAdded$.next(cellId); });
+            .subscribe(([cellId]) => { this._dataAdded$.next(cellId); });
     };
 
     private _onDataDeleted = (event: ProviderClusterEvent): void => {
