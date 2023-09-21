@@ -97,6 +97,8 @@ describe("GraphService.dataAdded$", () => {
         const updateCellsSpy = spyOn(graph, "updateCells$");
         updateCellsSpy.and.returnValue(observableOf("cellId"));
 
+        const resetSpatialAreaSpy =
+            spyOn(graph, "resetSpatialArea").and.stub();
         const resetSpatialEdgesSpy =
             spyOn(graph, "resetSpatialEdges").and.stub();
 
@@ -108,6 +110,7 @@ describe("GraphService.dataAdded$", () => {
                     expect(cellId).toBe("cellId");
 
                     expect(updateCellsSpy.calls.count()).toBe(1);
+                    expect(resetSpatialAreaSpy.calls.count()).toBe(1);
                     expect(resetSpatialEdgesSpy.calls.count()).toBe(1);
 
                     done();
@@ -120,7 +123,7 @@ describe("GraphService.dataAdded$", () => {
         });
     });
 
-    it("should reset spatial edges one time for multiple updated cells", (done: Function) => {
+    it("should reset spatial edges for each updated cell", (done: Function) => {
         const dataProvider = new DataProvider();
         const api = new APIWrapper(dataProvider);
         const graph = new Graph(api);
@@ -129,6 +132,8 @@ describe("GraphService.dataAdded$", () => {
         const cellIds = ["cellId1", "cellId2"];
         updateCellsSpy.and.returnValue(observableFrom(cellIds.slice()));
 
+        const resetSpatialAreaSpy =
+            spyOn(graph, "resetSpatialArea").and.stub();
         const resetSpatialEdgesSpy =
             spyOn(graph, "resetSpatialEdges").and.stub();
 
@@ -142,9 +147,83 @@ describe("GraphService.dataAdded$", () => {
                     expect(cellIds.includes(cellId)).toBe(true);
 
                     expect(updateCellsSpy.calls.count()).toBe(1);
-                    expect(resetSpatialEdgesSpy.calls.count()).toBe(1);
+
+                    expect(resetSpatialEdgesSpy.calls.count()).toBe(count);
+                    expect(resetSpatialAreaSpy.calls.count()).toBe(count);
 
                     if (count === 2) { done(); }
+                });
+
+        const type: ProviderEventType = "datacreate";
+        dataProvider.fire(type, {
+            type,
+            target: dataProvider,
+            cellIds: cellIds.slice(),
+        });
+    });
+
+    it("should not reset spatial edges when no updated cells", () => {
+        const dataProvider = new DataProvider();
+        const api = new APIWrapper(dataProvider);
+        const graph = new Graph(api);
+
+        const updateCellsSpy = spyOn(graph, "updateCells$");
+        const cellIds = ["cellId1", "cellId2"];
+        updateCellsSpy.and.returnValue(observableFrom([]));
+
+        const resetSpatialAreaSpy =
+            spyOn(graph, "resetSpatialArea").and.stub();
+        const resetSpatialEdgesSpy =
+            spyOn(graph, "resetSpatialEdges").and.stub();
+
+        const graphService = new GraphService(graph);
+
+        graphService.dataAdded$
+            .subscribe(
+                (): void => {
+                    fail();
+                });
+
+        const type: ProviderEventType = "datacreate";
+        dataProvider.fire(type, {
+            type,
+            target: dataProvider,
+            cellIds: cellIds.slice(),
+        });
+
+        expect(updateCellsSpy.calls.count()).toBe(1);
+
+        expect(resetSpatialEdgesSpy.calls.count()).toBe(0);
+        expect(resetSpatialAreaSpy.calls.count()).toBe(0);
+    });
+
+    it("should only reset spatial edges each updated cells", (done: Function) => {
+        const dataProvider = new DataProvider();
+        const api = new APIWrapper(dataProvider);
+        const graph = new Graph(api);
+
+        const updateCellsSpy = spyOn(graph, "updateCells$");
+        const cellIds = ["cellId1", "cellId2"];
+        updateCellsSpy.and.returnValue(observableFrom([cellIds[1]]));
+
+        const resetSpatialAreaSpy =
+            spyOn(graph, "resetSpatialArea").and.stub();
+        const resetSpatialEdgesSpy =
+            spyOn(graph, "resetSpatialEdges").and.stub();
+
+        const graphService = new GraphService(graph);
+
+        graphService.dataAdded$
+            .subscribe(
+                (cellId): void => {
+                    expect(cellId).toBe(cellIds[1]);
+
+                    expect(updateCellsSpy.calls.count()).toBe(1);
+
+                    expect(resetSpatialEdgesSpy.calls.count()).toBe(1);
+                    expect(resetSpatialAreaSpy.calls.count()).toBe(1);
+
+                    done();
                 });
 
         const type: ProviderEventType = "datacreate";
