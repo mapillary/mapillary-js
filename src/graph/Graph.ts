@@ -1910,7 +1910,8 @@ export class Graph {
     private _addClusterNode(node: Image): void {
         const clusterId = node.clusterId;
         if (clusterId == null) {
-            throw new GraphMapillaryError(`Image does not have cluster (${node.id}).`);
+            console.warn(`Cannot set cluster node, cluster ID is undefined for node ${node.id}.`);
+            return;
         }
 
         if (!this._clusterNodes.has(clusterId)) {
