@@ -151,6 +151,7 @@ export class GraphConverter {
         source: GraphSpatialImageEnt)
         : SpatialImageEnt {
         source.camera_type = convertCameraType(source.camera_type);
+        source.camera_parameters = source.camera_parameters ?? [];
         source.merge_id = source.merge_cc ? source.merge_cc.toString() : null;
         source.private = null;
         const thumbUrl = source.camera_type === 'spherical' ?
