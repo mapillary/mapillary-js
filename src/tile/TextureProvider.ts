@@ -383,7 +383,8 @@ export class TextureProvider {
             },
             (error: Error): void => {
                 this._urlSubscriptions.delete(level);
-                console.error(error);
+                // tslint:disable-next-line:no-console
+                console.debug(error);
             });
 
         if (!subscription.closed) {
