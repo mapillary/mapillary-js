@@ -365,7 +365,8 @@ export class Observer {
                                 reference,
                                 transform);
 
-                        const basicPoint = state === State.Traversing ?
+                        const basicPoint = state === State.Traversing ||
+                            state === State.GravityTraversing ?
                             unprojection.basicPoint : null;
 
                         return {

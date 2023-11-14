@@ -260,6 +260,7 @@ export class ImageComponent extends Component<ComponentConfiguration> {
                 switchMap(
                     ([state, inTranslation]: [State, boolean]) => {
                         const streetState =
+                            state === State.GravityTraversing ||
                             state === State.Traversing ||
                             state === State.Waiting ||
                             state === State.WaitingInteractively;
