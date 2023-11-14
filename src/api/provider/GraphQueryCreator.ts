@@ -26,6 +26,7 @@ export class GraphQueryCreator {
             'computed_altitude',
             'computed_compass_angle',
             'computed_rotation',
+            'creator',
             'exif_orientation',
             'height',
             'merge_cc',
