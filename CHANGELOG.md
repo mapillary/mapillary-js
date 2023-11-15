@@ -4,6 +4,12 @@ All notable changes to MapillaryJS from v3.x will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 4.1.2 - November 15, 2023
+
+### :bug: Fixed
+
+- Request user (creator) from Graph API ([5c86f4f](https://github.com/mapillary/mapillary-js/commit/5c86f4f40ac27306fbe845eccc8576084aecdf05))
+
 ## 4.1.1 - September 7, 2022
 
 ### :bug: Fixed
