@@ -7,6 +7,7 @@ import {
     map,
     publish,
     refCount,
+    retry,
 } from "rxjs/operators";
 import { APIWrapper } from "../api/APIWrapper";
 import { ImageTileEnt } from "../api/ents/ImageTileEnt";
@@ -96,6 +97,7 @@ export class TileLoader {
         const urls$ = this._api
             .getImageTiles$(request)
             .pipe(
+                retry(1),
                 map(contract => contract.node),
                 finalize(
                     () => {
