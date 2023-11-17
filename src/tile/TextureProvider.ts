@@ -45,6 +45,7 @@ export class TextureProvider {
     private readonly _store: TileStore;
     private readonly _subscriptions: Map<string, Subscription>;
     private readonly _urlSubscriptions: Map<number, Subscription>;
+    private readonly _failedLevels: Set<number>;
     private readonly _renderedLevel: Set<string>;
     private readonly _rendered: Map<string, TileCoords3D>;
 
@@ -125,6 +126,7 @@ export class TextureProvider {
         this._rendered = new Map();
         this._subscriptions = new Map();
         this._urlSubscriptions = new Map();
+        this._failedLevels = new Set();
         this._loader = loader;
         this._store = store;
 
@@ -334,6 +336,10 @@ export class TextureProvider {
      * retrieve.
      */
     private _fetchTiles(level: number, tiles: TileCoords2D[]): void {
+        if (this._failedLevels.has(level)) {
+            return;
+        }
+
         const urls$ = this._store.hasURLLevel(level) ?
             observableOf(undefined) :
             this._loader
@@ -342,6 +348,11 @@ export class TextureProvider {
                     tap(ents => {
                         if (!this._store.hasURLLevel(level)) {
                             this._store.addURLs(level, ents);
+                        }
+                        if (this._failedLevels.size > 0) {
+                            // tslint:disable-next-line:no-console
+                            console.debug(`Tile URL fetch succeeded for level ${level}, resetting failed levels ${[...this._failedLevels.keys()]}`);
+                            this._failedLevels.clear();
                         }
                     }));
 
@@ -382,6 +393,7 @@ export class TextureProvider {
                 this._urlSubscriptions.delete(level);
             },
             (error: Error): void => {
+                this._failedLevels.add(level);
                 this._urlSubscriptions.delete(level);
                 // tslint:disable-next-line:no-console
                 console.debug(error);
