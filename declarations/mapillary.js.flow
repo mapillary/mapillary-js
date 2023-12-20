@@ -2642,7 +2642,7 @@ export interface FallbackOptions {
  * Interface for the component options that can be provided to the viewer.
  * @interface
  */
-export interface ComponentOptions {
+export type ComponentOptions = {
   /**
    * Show attribution.
    * @default true
@@ -2749,7 +2749,7 @@ export interface ComponentOptions {
  * Interface for the URL options that can be provided to the viewer.
  * @interface
  */
-export interface UrlOptions {
+export type UrlOptions = {
   /**
    * Explore host.
    * @description Host used for links to the full
@@ -2784,7 +2784,7 @@ declare var CameraControls: {|
 /**
  * [object Object],[object Object],[object Object]
  */
-export interface ViewerOptions {
+export type ViewerOptions = {
   /**
    * Optional access token for API requests of
    * resources.
