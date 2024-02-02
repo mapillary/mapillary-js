@@ -3113,6 +3113,7 @@ export type ViewerEventType =
 
 declare var RenderPass: {|
   +Opaque: 0, // 0
+  +Transparent: 1, // 1
 |};
 
 /**

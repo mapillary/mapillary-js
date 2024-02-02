@@ -185,7 +185,7 @@ describe("CustomRenderer.add", () => {
         expect(invokeCount).toBe(1);
     });
 
-    it("should invoke render on postrender emit", done => {
+    it("should invoke render on postrender opaque emit", done => {
         const navigator = new NavigatorMockCreator().create();
         const container = new ContainerMockCreator().create();
         spyOn(Navigator, "Navigator").and.returnValue(navigator);
@@ -245,6 +245,68 @@ describe("CustomRenderer.add", () => {
             .next(renderCameraMock);
 
         (<Subject<void>>container.glRenderer.opaqueRender$).next();
+    });
+
+    it("should invoke render on postrender transparent emit", done => {
+        const navigator = new NavigatorMockCreator().create();
+        const container = new ContainerMockCreator().create();
+        spyOn(Navigator, "Navigator").and.returnValue(navigator);
+        spyOn(Container, "Container").and.returnValue(container);
+
+        const customRenderer = new CustomRenderer(
+            container,
+            navigator);
+
+        const viewer = <any>{};
+        const referenceMock: LngLatAlt = { alt: 1, lat: 2, lng: 2 };
+        const rendererId = "id";
+
+        customRenderer.add(
+            {
+                id: rendererId,
+                renderPass: RenderPass.Transparent,
+                onAdd: () => { /* noop */ },
+                onReference: () => { /* noop */ },
+                onRemove: () => { /* noop */ },
+                render: (context, viewMatrix, projectionMatrix) => {
+                    expect(context).toBe(contextMock);
+                    expect(viewMatrix).toEqual(viewMatrixMock);
+                    expect(projectionMatrix).toEqual(projectionMatrixMock);
+                    done();
+                },
+            },
+            viewer);
+
+        const rendererMock = <WebGLRenderer><unknown>new RendererMock();
+        const contextMock = new MockCreator()
+            .create(WebGL2RenderingContext, "WebGL2RenderingContext");
+        spyOn(rendererMock, "getContext").and.returnValue(contextMock);
+        (<Subject<WebGLRenderer>>container.glRenderer.webGLRenderer$)
+            .next(rendererMock);
+        (<Subject<LngLatAlt>>navigator.stateService.reference$)
+            .next(referenceMock);
+
+        const renderCameraMock = new RenderCamera(1, 1, RenderMode.Fill);
+        const viewMatrixMock = [
+            2, 0, 0, 0,
+            0, 2, 0, 0,
+            0, 0, 2, 0,
+            0, 0, 0, 2,
+        ];
+        renderCameraMock.perspective.matrixWorldInverse
+            .fromArray(viewMatrixMock);
+        const projectionMatrixMock = [
+            3, 0, 0, 0,
+            0, 3, 0, 0,
+            0, 0, 3, 0,
+            0, 0, 0, 3,
+        ];
+        renderCameraMock.perspective.projectionMatrix
+            .fromArray(projectionMatrixMock);
+        (<Subject<RenderCamera>>container.renderService.renderCamera$)
+            .next(renderCameraMock);
+
+        (<Subject<void>>container.glRenderer.transparentRender$).next();
     });
 });
 

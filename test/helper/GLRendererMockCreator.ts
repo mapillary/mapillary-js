@@ -12,6 +12,7 @@ export class GLRendererMockCreator extends MockCreatorBase<GLRenderer> {
         this._mockProperty(mock, "webGLRenderer$", new Subject<THREE.WebGLRenderer>());
         this._mockProperty(mock, "render$", new Subject<GLRenderHash>());
         this._mockProperty(mock, "opaqueRender$", new Subject<void>());
+        this._mockProperty(mock, "transparentRender$", new Subject<void>());
 
         return mock;
     }
