@@ -106,6 +106,7 @@ export class GLRenderer {
     private _subscriptions: SubscriptionHolder = new SubscriptionHolder();
 
     private _opaqueRender$: Subject<void> = new Subject<void>();
+    private _transparentRender$: Subject<void> = new Subject<void>();
 
     constructor(
         canvas: HTMLCanvasElement,
@@ -245,6 +246,7 @@ export class GLRenderer {
                     renderer.resetState();
 
                     this._opaqueRender$.next();
+                    this._transparentRender$.next();
                 });
 
         subs.push(renderSubscription);
@@ -396,6 +398,10 @@ export class GLRenderer {
 
     public get opaqueRender$(): Observable<void> {
         return this._opaqueRender$;
+    }
+
+    public get transparentRender$(): Observable<void> {
+        return this._transparentRender$;
     }
 
     public get webGLRenderer$(): Observable<THREE.WebGLRenderer> {

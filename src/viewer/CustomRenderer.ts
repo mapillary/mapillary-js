@@ -13,6 +13,7 @@ import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { WebGLRenderer } from "three";
 import { RenderCamera } from "../render/RenderCamera";
 import { IViewer } from "./interfaces/IViewer";
+import { RenderPass } from "./enums/RenderPass";
 
 export class CustomRenderer {
     private _renderers: {
@@ -44,7 +45,11 @@ export class CustomRenderer {
                     renderer.onAdd(viewer, reference, gl.getContext());
                 }));
 
-        subs.push(this._container.glRenderer.opaqueRender$
+        const render$ = renderer.renderPass === RenderPass.Opaque ?
+            this._container.glRenderer.opaqueRender$ :
+            this._container.glRenderer.transparentRender$;
+
+        subs.push(render$
             .pipe(
                 withLatestFrom(
                     this._container.renderService.renderCamera$,
