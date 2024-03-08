@@ -19,6 +19,10 @@ const IMAGE_TILES_Y = 10;
 
 export const REFERENCE = {alt: 0, lat: 0, lng: 0};
 
+function cloneMesh(mesh) {
+  return {faces: mesh.faces.slice(), vertices: mesh.vertices.slice()};
+}
+
 export class ChunkDataProvider extends DataProviderBase {
   constructor() {
     super(new S2GeometryProvider());
@@ -27,6 +31,7 @@ export class ChunkDataProvider extends DataProviderBase {
     this.cells = new Map();
     this.clusters = new Map();
     this.images = new Map();
+    this.mesh = {faces: [], vertices: []};
     this.sequences = new Map();
   }
 
@@ -143,7 +148,7 @@ export class ChunkDataProvider extends DataProviderBase {
 
   // eslint-disable-next-line class-methods-use-this
   getMesh(_url) {
-    return Promise.resolve({faces: [], vertices: []});
+    return Promise.resolve(cloneMesh(this.mesh));
   }
 
   getSequence(sequenceId) {
@@ -156,5 +161,9 @@ export class ChunkDataProvider extends DataProviderBase {
 
   getSpatialImages(imageIds) {
     return this.getImages(imageIds);
+  }
+
+  setMesh(mesh) {
+    this.mesh = mesh;
   }
 }
