@@ -475,7 +475,7 @@ export class RenderCamera {
                         aspect);
                 });
 
-        const fovMax = 125;
+        const fovMax = this._yToFov(this._fovToY(125, 0), zoom);
         const minFov = Math.min(...fovs) * 0.995;
         const vFovFill = Math.min(minFov, fovMax);
         if (renderMode === RenderMode.Fill) {
