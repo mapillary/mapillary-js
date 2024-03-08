@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Fisheye</title>
+        <link rel="icon" href="data:," />
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no"
+        />
+
+        <link rel="stylesheet" href="/dist/mapillary.css" />
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            html,
+            body,
+            .viewer {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <script type="module">
+            import { accessToken } from "/doc-src/.access-token/token.js";
+            import {
+                CameraControls,
+                Viewer,
+                S2GeometryProvider,
+            } from "/dist/mapillary.module.js";
+            import { ChunkDataProvider } from "/doc-src/src/js/utils/ChunkDataProvider.js";
+            import {
+                CAMERA_TYPE_FISHEYE,
+                cameraTypeToAspect,
+                generateCluster,
+            } from "/doc-src/src/js/utils/provider.js";
+
+            let viewer;
+            let dataProvider;
+            let chunks;
+            let chunkCounter = 0;
+
+            const INTERVALS = 1;
+            const REFERENCE = { alt: 0, lat: 0, lng: 0 };
+
+            (function main() {
+                const container = document.createElement("div");
+                container.className = "viewer";
+                document.body.append(container);
+
+                dataProvider = new ChunkDataProvider({
+                    geometry: new S2GeometryProvider(18),
+                });
+                const options = {
+                    dataProvider,
+                    cameraControls: CameraControls.Earth,
+                    component: {
+                        cache: false,
+                        cover: false,
+                        image: true,
+                        spatial: {
+                            cameraSize: 0.3,
+                            cellGridDepth: 2,
+                            cellsVisible: true,
+                        },
+                    },
+                    container,
+                    imageTiling: false,
+                };
+                viewer = new Viewer(options);
+                chunks = [];
+
+                dataProvider.addChunk(generateChunk());
+                dataProvider.setMesh(generateMesh());
+
+                const imageId = dataProvider.images
+                    .keys()
+                    .next().value;
+                viewer
+                    .moveTo(imageId)
+                    .catch((error) => console.error(error));
+
+                listen();
+            })();
+
+            function generateChunk() {
+                const cameraType = CAMERA_TYPE_FISHEYE;
+                const height = 2495;
+                const width = 2496;
+                const focal = 0.2212;
+                const k1 = 0.1282;
+                const k2 = -0.01223;
+
+                const distance = 1;
+                const counter = chunks.length;
+                const shift = counter * 1;
+                const mod = 3;
+                const config = {
+                    cameraType,
+                    color: [1, (counter % mod) / (mod - 1), 0],
+                    distance,
+                    east: shift,
+                    focal,
+                    height,
+                    id: counter.toString(),
+                    idCounter: counter * (INTERVALS + 1),
+                    k1,
+                    k2,
+                    reference: REFERENCE,
+                    width,
+                };
+
+                const chunk = generateCluster(config, INTERVALS);
+                chunk.id = chunk.cluster.id;
+                return chunk;
+            }
+
+            function listen() {
+                window.document.addEventListener("keydown", (e) => {
+                    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
+                        return;
+                    }
+
+                    switch (e.key) {
+                        case "c": {
+                            // Change camera controls
+                            viewer.getCameraControls()
+                                .then(c => {
+                                    switch (c) {
+                                        case CameraControls.Earth: {
+                                            viewer.setCameraControls(CameraControls.Street);
+                                            break;
+                                        }
+                                        case CameraControls.Street: {
+                                            viewer.setCameraControls(CameraControls.Gravity);
+                                            break;
+                                        }
+                                        default:
+                                            viewer.setCameraControls(CameraControls.Earth);
+                                            break;
+                                    }
+                                });
+                            }
+                        default:
+                            break;
+                    }
+                });
+            }
+
+            function generateMesh() {
+                const vertices = [
+                    // Bottom
+                    -1, -1, -1,
+                    1, -1, -1,
+                    1,  1, -1,
+                    -1,  1, -1,
+                    // Top
+                    -1, -1,  1,
+                    1, -1,  1,
+                    1,  1,  1,
+                    -1,  1,  1,
+                ];
+
+                const length = 10 / Math.sqrt(3);
+                for (let i = 0; i < vertices.length; i++) {
+                    vertices[i] = length * vertices[i];
+                }
+
+                const faces = [
+                    // Back (z=-1)
+                    0, 1, 3,
+                    1, 3, 2,
+                    // Left (x=-1)
+                    0, 4, 3,
+                    3, 7, 4,
+                    // Up (y=-1)
+                    0, 4, 1,
+                    1, 5, 4,
+                    // Right (x=1)
+                    1, 5, 2,
+                    2, 6, 5,
+                    // Bottom (y=1)
+                    2, 6, 3,
+                    3, 7, 6,
+                    // Front (z=1)
+                    4, 5, 7,
+                    5, 7, 6,
+                ];
+
+                return {faces, vertices};
+            }
+        </script>
+    </body>
+</html>
