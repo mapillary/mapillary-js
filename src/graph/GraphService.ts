@@ -37,6 +37,7 @@ import { GraphMapillaryError } from "../error/GraphMapillaryError";
 import { ProjectionService } from "../viewer/ProjectionService";
 import { ICameraFactory } from "../geometry/interfaces/ICameraFactory";
 import { ProviderClusterEvent } from "../api/events/ProviderClusterEvent";
+import { CancelMapillaryError } from "../error/CancelMapillaryError";
 
 /**
  * @class GraphService
@@ -386,7 +387,12 @@ export class GraphService {
                                     return graph$.pipe(
                                         catchError(
                                             (error: Error): Observable<Graph> => {
-                                                console.error(`Failed to cache spatial images (${id}).`, error);
+                                                if (error instanceof CancelMapillaryError) {
+                                                    // tslint:disable-next-line:no-console
+                                                    console.debug(`Failed to cache spatial area (${id}).`, error);
+                                                } else {
+                                                    console.error(`Failed to cache spatial area (${id}).`, error);
+                                                }
 
                                                 return observableEmpty();
                                             }));

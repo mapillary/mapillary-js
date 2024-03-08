@@ -43,6 +43,7 @@ import { SpatialImagesContract } from "../api/contracts/SpatialImagesContract";
 import { ImagesContract } from "../api/contracts/ImagesContract";
 import { SequenceContract } from "../api/contracts/SequenceContract";
 import { CoreImagesContract } from "../api/contracts/CoreImagesContract";
+import { CancelMapillaryError } from "../error/CancelMapillaryError";
 
 type NodeTiles = {
     cache: string[];
@@ -832,14 +833,20 @@ export class Graph {
         }
 
         let batchesToCache: number = batches.length;
-        let spatialNodes$: Observable<Graph>[] = [];
+        let spatialArea$: Observable<Graph>[] = [];
 
         for (let batch of batches) {
             let spatialNodeBatch$: Observable<Graph> = this._api.getSpatialImages$(batch).pipe(
                 tap(
                     (items: SpatialImagesContract): void => {
-                        if (!(key in this._cachingSpatialArea$)) {
-                            return;
+                        const currentSpatialArea = this._requiredSpatialArea[key];
+                        if (currentSpatialArea == null || spatialArea !== currentSpatialArea) {
+                            throw new CancelMapillaryError('Required spatial area changed.');
+                        }
+
+                        const currentCaching = this._cachingSpatialArea$[key];
+                        if (currentCaching == null || spatialArea$ !== currentCaching) {
+                            throw new CancelMapillaryError('Spatial area caching changed.');
                         }
 
                         for (const item of items) {
@@ -876,7 +883,8 @@ export class Graph {
                             }
                         }
 
-                        if (--batchesToCache === 0) {
+                        const currentCaching = this._cachingSpatialArea$[key];
+                        if (spatialArea$ === currentCaching) {
                             delete this._cachingSpatialArea$[key];
                         }
 
@@ -887,16 +895,17 @@ export class Graph {
                         if (Object.keys(spatialArea.cacheNodes).length === 0) {
                             this._changed$.next(this);
                         }
+
                     }),
                 publish(),
                 refCount());
 
-            spatialNodes$.push(spatialNodeBatch$);
+            spatialArea$.push(spatialNodeBatch$);
         }
 
-        this._cachingSpatialArea$[key] = spatialNodes$;
+        this._cachingSpatialArea$[key] = spatialArea$;
 
-        return spatialNodes$;
+        return spatialArea$;
     }
 
     /**
@@ -935,7 +944,7 @@ export class Graph {
 
             let spatialNode: Image = allSpatialNodes[spatialNodeKey];
 
-            if (filter(spatialNode)) {
+            if (spatialNode.complete && filter(spatialNode)) {
                 potentialNodes.push(spatialNode);
             }
         }
