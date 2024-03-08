@@ -61,6 +61,7 @@
                     dataProvider,
                     cameraControls: CameraControls.Earth,
                     component: {
+                        cache: false,
                         cover: false,
                         image: false,
                         spatial: {
@@ -73,6 +74,7 @@
                     imageTiling: false,
                 };
                 viewer = new Viewer(options);
+                viewer.setFilter(['!=', 'cameraType', 'invalid'])
                 chunks = [];
 
                 listen();
@@ -81,13 +83,15 @@
             function generateChunk() {
                 const cameraType = CAMERA_TYPE_SPHERICAL;
                 const aspect = cameraTypeToAspect(cameraType);
+                const distance = 1;
                 const height = 100;
                 const counter = chunks.length;
-                const shift = counter * 10;
+                const shift = counter * 1;
                 const mod = 3;
                 const config = {
                     cameraType,
                     color: [1, (counter % mod) / (mod - 1), 0],
+                    distance,
                     east: shift,
                     height,
                     id: counter.toString(),

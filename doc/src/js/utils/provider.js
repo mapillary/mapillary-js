@@ -59,7 +59,7 @@ export function generateCluster(options, intervals) {
   let {idCounter} = options;
   const {alt, lat, lng} = options.reference;
 
-  const distance = 5;
+  const distance = options.distance ?? 5;
 
   const images = [];
   const thumbUrl = `${cameraType}`;
