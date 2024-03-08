@@ -449,6 +449,9 @@ export class Viewer extends EventEmitter implements IViewer {
                             case State.Earth:
                                 resolve(CameraControls.Earth);
                                 break;
+                            case State.GravityTraversing:
+                                resolve(CameraControls.Gravity);
+                                break;
                             default:
                                 resolve(CameraControls.Street);
                                 break;
