@@ -31,6 +31,46 @@ export function computeTranslation(position: LngLatAlt, rotation: number[], refe
     return translation;
 }
 
+export function computeBearings(
+    transform: Transform,
+    basicVertices: number[][],
+    basicDirections: number[][],
+    pointsPerLine: number,
+    viewportCoords: ViewportCoords): number[][] {
+
+    // @ts-ignore
+    const camera: THREE.Camera = new THREE.Camera();
+    camera.up.copy(transform.upVector());
+    camera.position.copy(new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 0)));
+    camera.lookAt(new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 10)));
+    camera.updateMatrix();
+    camera.updateMatrixWorld(true);
+
+    const basicPoints: number[][] = [];
+    for (let side: number = 0; side < basicVertices.length; ++side) {
+        const v: number[] = basicVertices[side];
+        const d: number[] = basicDirections[side];
+
+        for (let i: number = 0; i <= pointsPerLine; ++i) {
+            basicPoints.push([
+                v[0] + d[0] * i / pointsPerLine,
+                v[1] + d[1] * i / pointsPerLine,
+            ]);
+        }
+    }
+
+    const bearings: number[][] = [];
+    for (const [index, basicPoint] of basicPoints.entries()) {
+        const worldPoint = transform.unprojectBasic(basicPoint, 10000);
+        const cameraPoint = new THREE.Vector3()
+            .fromArray(viewportCoords.worldToCamera(worldPoint, camera));
+        cameraPoint.normalize();
+        bearings.push(cameraPoint.toArray());
+    }
+
+    return bearings;
+}
+
 export function computeProjectedPoints(
     transform: Transform,
     basicVertices: number[][],

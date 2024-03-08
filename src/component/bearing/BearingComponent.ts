@@ -130,12 +130,7 @@ export class BearingComponent extends Component<BearingConfiguration> {
                             return [Math.PI, Math.PI];
                         }
 
-                        const currentProjectedPoints =
-                            this._computeProjectedPoints(transform);
-                        const hFov = this._spatial
-                            .degToRad(
-                                this._computeHorizontalFov(
-                                    currentProjectedPoints));
+                        const hFov = this._computeHorizontalFov(transform);
 
                         let hFovLeft: number = hFov / 2;
                         let hFovRight: number = hFov / 2;
@@ -469,35 +464,21 @@ export class BearingComponent extends Component<BearingConfiguration> {
             ]);
     }
 
-    private _computeProjectedPoints(transform: Transform): number[][] {
+    private _computeHorizontalFov(transform: Transform): number {
         const vertices: number[][] = [[1, 0]];
         const directions: number[][] = [[0, 0.5]];
         const pointsPerLine: number = 12;
 
-        return Geo
-            .computeProjectedPoints(
-                transform,
-                vertices,
-                directions,
-                pointsPerLine,
-                this._viewportCoords)
-            .map(([x, y]) => [Math.abs(x), Math.abs(y)]);
-    }
+        const bearings = Geo.computeBearings(
+            transform, vertices, directions, pointsPerLine, this._viewportCoords);
+        const projections = bearings
+            .map(b => this._spatial.projectToPlane(b, [0, 1, 0]))
+            .map(p => [p[0], p[2]]);
 
-    private _computeHorizontalFov(projectedPoints: number[][]): number {
-        const fovs: number[] = projectedPoints
-            .map(
-                (projectedPoint: number[]): number => {
-                    return this._coordToFov(projectedPoint[0]);
-                });
-
-        const fov: number = Math.min(...fovs);
+        const angles = projections.map(p => Math.atan2(p[0], -p[1]));
+        const fov = 2 * Math.min(...angles);
 
         return fov;
-    }
-
-    private _coordToFov(x: number): number {
-        return this._spatial.radToDeg(2 * Math.atan(x));
     }
 
     private _interpolate(x1: number, x2: number, alpha: number): number {

@@ -230,6 +230,24 @@ export class Spatial {
         return Math.asin(projection / norm);
     }
 
+    /**
+     * Calculates the projection of a vector onto a plane.
+     *
+     * @param {Array<number>} vector - The vector.
+     * @param {Array<number>} planeNormal - Normal of the plane.
+     * @returns {number} Projection of vector onto plane.
+     */
+    public projectToPlane(vector: number[], planeNormal: number[]): number[] {
+        const directionVector: THREE.Vector3 = new THREE.Vector3().fromArray(vector);
+        const normalVector: THREE.Vector3 = new THREE.Vector3().fromArray(planeNormal);
+
+        const normalProjection: number = directionVector.clone().dot(normalVector);
+        const planeProjection: THREE.Vector3 = directionVector
+            .clone().sub(normalVector.clone().multiplyScalar(normalProjection));
+
+        return planeProjection.toArray();
+    }
+
     public azimuthal(direction: number[], up: number[]): number {
         const directionVector: THREE.Vector3 = new THREE.Vector3().fromArray(direction);
         const upVector: THREE.Vector3 = new THREE.Vector3().fromArray(up);
