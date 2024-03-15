@@ -43,8 +43,23 @@ export function computeBearings(
     camera.up.copy(transform.upVector());
     camera.position.copy(new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 0)));
     camera.lookAt(new THREE.Vector3().fromArray(transform.unprojectSfM([0, 0], 10)));
-    camera.updateMatrix();
-    camera.updateMatrixWorld(true);
+
+    return computeCameraBearings(
+        camera,
+        transform,
+        basicVertices,
+        basicDirections,
+        pointsPerLine,
+        viewportCoords);
+}
+
+export function computeCameraBearings(
+    camera: THREE.Camera,
+    transform: Transform,
+    basicVertices: number[][],
+    basicDirections: number[][],
+    pointsPerLine: number,
+    viewportCoords: ViewportCoords): number[][] {
 
     const basicPoints: number[][] = [];
     for (let side: number = 0; side < basicVertices.length; ++side) {
@@ -59,8 +74,10 @@ export function computeBearings(
         }
     }
 
+    camera.updateMatrix();
+    camera.updateMatrixWorld(true);
     const bearings: number[][] = [];
-    for (const [index, basicPoint] of basicPoints.entries()) {
+    for (const basicPoint of basicPoints) {
         const worldPoint = transform.unprojectBasic(basicPoint, 10000);
         const cameraPoint = new THREE.Vector3()
             .fromArray(viewportCoords.worldToCamera(worldPoint, camera));
