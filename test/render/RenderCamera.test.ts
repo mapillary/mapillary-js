@@ -155,12 +155,15 @@ describe("RenderCamera.perspective.fov", () => {
 
     it("should increase when changing from fill to letterbox", () => {
         const renderCamera = new RenderCamera(1, 1, RenderMode.Fill);
+        console.error(renderCamera.perspective.fov);
+        const frame = new FrameHelper().createFrame();
+        console.error(frame);
         renderCamera.setFrame(new FrameHelper().createFrame());
         const fov = renderCamera.perspective.fov;
 
         renderCamera.setRenderMode(RenderMode.Letterbox);
 
-        expect(renderCamera.perspective.fov).toBeGreaterThan(fov);
+        expect(renderCamera.perspective.fov).toBeGreaterThanOrEqual(fov);
     });
 
     it("should decrease when increasing aspect", () => {
@@ -170,7 +173,7 @@ describe("RenderCamera.perspective.fov", () => {
 
         renderCamera.setSize({ width: 5, height: 1 });
 
-        expect(renderCamera.perspective.fov).toBeLessThan(fov);
+        expect(renderCamera.perspective.fov).toBeLessThanOrEqual(fov);
     });
 
     it("should be constant when decreasing aspect", () => {

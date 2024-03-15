@@ -13,7 +13,7 @@ import { State } from "../state/State";
 import { AnimationFrame } from "../state/interfaces/AnimationFrame";
 import { EulerRotation } from "../state/interfaces/EulerRotation";
 import { isSpherical } from "../geo/Geo";
-import { MathUtils, Matrix3, Quaternion, Vector2, Vector3 } from "three";
+import { MathUtils, Vector3 } from "three";
 
 export class RenderCamera {
     private _spatial: Spatial;
@@ -44,8 +44,8 @@ export class RenderCamera {
 
     private _state: State;
 
-    private _currentProjectedPoints: number[][];
-    private _previousProjectedPoints: number[][];
+    private _currentBearings: number[][];
+    private _previousBearings: number[][];
 
     private _currentFov: number;
     private _previousFov: number;
@@ -92,8 +92,8 @@ export class RenderCamera {
 
         this._state = null;
 
-        this._currentProjectedPoints = [];
-        this._previousProjectedPoints = [];
+        this._currentBearings = [];
+        this._previousBearings = [];
 
         this._currentFov = this._initialFov;
         this._previousFov = this._initialFov;
@@ -193,8 +193,7 @@ export class RenderCamera {
                 this.setSize(this._size);
             }
             if (this._state === State.Earth) {
-                const y = this._fovToY(this._perspective.fov, this._zoom);
-                this._stateTransitionFov = this._yToFov(y, 0);
+                this._stateTransitionFov = this._zoomedFovToFov(this._perspective.fov, this._zoom);
             }
 
             this._changed = true;
@@ -206,7 +205,7 @@ export class RenderCamera {
         if (currentImageId !== this._currentImageId || this._changed) {
             this._currentImageId = currentImageId;
             this._currentSpherical = isSpherical(state.currentTransform.cameraType);
-            this._currentProjectedPoints = this._computeProjectedPoints(state.currentTransform);
+            this._currentBearings = this._computeBearings(state.currentTransform);
             this._currentCameraUp.copy(state.currentCamera.up);
             this._currentTransformUp.copy(state.currentTransform.upVector());
             this._currentTransformForward.copy(
@@ -224,7 +223,7 @@ export class RenderCamera {
             this._previousImageId = previousImageId;
             this._previousSpherical =
                 isSpherical(state.previousTransform.cameraType);
-            this._previousProjectedPoints = this._computeProjectedPoints(state.previousTransform);
+            this._previousBearings = this._computeBearings(state.previousTransform);
             this._previousCameraUp.copy(state.previousCamera.up);
             this._previousTransformUp.copy(state.previousTransform.upVector());
             this._previousTransformForward.copy(
@@ -264,8 +263,7 @@ export class RenderCamera {
                     const startFov = this._stateTransitionFov;
                     const endFov = this._focalToFov(state.camera.focal);
                     const fov = MathUtils.lerp(startFov, endFov, sta);
-                    const y = this._fovToY(fov, 0);
-                    this._perspective.fov = this._yToFov(y, zoom);
+                    this._perspective.fov = this._fovToZoomedFov(fov, zoom);
                     break;
                 }
                 case State.Custom:
@@ -350,21 +348,6 @@ export class RenderCamera {
         return elementWidth === 0 ? 0 : elementWidth / elementHeight;
     }
 
-    private _computeUpRotation(up: Vector3, refForward: Vector3, refUp: Vector3): number {
-        const right = new Vector3().crossVectors(refForward, refUp).normalize();
-        const normal = new Vector3().crossVectors(refUp, right).normalize();
-
-        const xzFromNormal = new Quaternion()
-            .setFromUnitVectors(normal, new Vector3(0, 1, 0));
-        const upXz = up.clone().applyQuaternion(xzFromNormal);
-        const refUpXz = refUp.clone().applyQuaternion(xzFromNormal);
-
-        const upRad = Math.acos(new Vector2(upXz.x, upXz.z).normalize().x);
-        const refUpRad = Math.acos(new Vector2(refUpXz.x, refUpXz.z).normalize().x);
-
-        return refUpRad - upRad;
-    }
-
     private _computeCurrentFov(zoom: number): number {
         if (this._perspective.aspect === 0) {
             return 0;
@@ -375,16 +358,12 @@ export class RenderCamera {
         }
 
         return this._currentSpherical ?
-            this._yToFov(1, zoom) :
-            this._computeVerticalFov(
-                this._currentProjectedPoints,
+            this._fovToZoomedFov(90, zoom) :
+            this._computeVerticalBearingFov(
+                this._currentBearings,
                 this._renderMode,
                 zoom,
-                this.perspective.aspect,
-                this._computeUpRotation(
-                    this._currentTransformUp,
-                    this._currentTransformForward,
-                    this._currentCameraUp));
+                this.perspective.aspect);
     }
 
     private _computeFov(): number {
@@ -406,40 +385,25 @@ export class RenderCamera {
         return !this._previousImageId ?
             this._currentFov :
             this._previousSpherical ?
-                this._yToFov(1, zoom) :
-                this._computeVerticalFov(
-                    this._previousProjectedPoints,
+                this._fovToZoomedFov(90, zoom) :
+                this._computeVerticalBearingFov(
+                    this._previousBearings,
                     this._renderMode,
                     zoom,
-                    this.perspective.aspect,
-                    this._computeUpRotation(
-                        this._previousTransformUp,
-                        this._previousTransformForward,
-                        this._previousCameraUp));
+                    this.perspective.aspect);
     }
 
-    private _computeProjectedPoints(transform: Transform): number[][] {
-        const vertices = [[0.5, 0], [0.5, 0], [1, 0.5], [1, 0.5]];
-        const directions = [[-0.5, 0], [0.5, 0], [0, -0.5], [0, 0.5]];
+    private _computeBearings(transform: Transform): number[][] {
+        const vertices = [[0, 0]];
+        const directions = [[1, 0]];
         const pointsPerLine = 25;
 
-        return Geo.computeProjectedPointsSafe(
+        return Geo.computeBearings(
             transform,
             vertices,
             directions,
             pointsPerLine,
             this._viewportCoords);
-    }
-
-    private _computeRequiredVerticalFov(
-        projectedPoint: number[],
-        zoom: number,
-        aspect: number): number {
-        const maxY = Math.max(
-            Math.abs(projectedPoint[0]) / aspect,
-            Math.abs(projectedPoint[1]));
-
-        return this._yToFov(maxY, zoom);
     }
 
     private _computeRotation(camera: Camera): EulerRotation {
@@ -452,32 +416,23 @@ export class RenderCamera {
         return { phi: phi, theta: theta };
     }
 
-    private _computeVerticalFov(
-        projectedPoints: number[][],
+    private _computeVerticalBearingFov(
+        bearings: number[][],
         renderMode: RenderMode,
         zoom: number,
-        aspect: number,
-        theta: number): number {
+        aspect: number): number {
 
-        const sinTheta = Math.sin(theta);
-        const cosTheta = Math.cos(theta);
+        const {_spatial} = this;
 
-        const fovs = projectedPoints
-            .map(
-                ([x, y]: number[]): number => {
-                    const rotatedPoint = [
-                        cosTheta * x - sinTheta * y,
-                        sinTheta * x + cosTheta * y,
-                    ];
-                    return this._computeRequiredVerticalFov(
-                        rotatedPoint,
-                        zoom,
-                        aspect);
-                });
+        const projections = bearings
+            .map(b => _spatial.projectToPlane(b, [1, 0, 0]))
+            .map(p => [p[1], -p[2]]);
 
-        const fovMax = this._yToFov(this._fovToY(125, 0), zoom);
-        const minFov = Math.min(...fovs) * 0.995;
-        const vFovFill = Math.min(minFov, fovMax);
+        const fovs = projections.map(p => 2 * _spatial.radToDeg(Math.abs(Math.atan2(p[0], p[1]))));
+        const vFovMin = fovs.length > 0 ? 0.995 * Math.min(...fovs) : 125;
+        const fovMin = this._fovToZoomedFov(vFovMin, zoom);
+        const fovMax = this._fovToZoomedFov(125, zoom);
+        const vFovFill = Math.min(fovMin, fovMax);
         if (renderMode === RenderMode.Fill) {
             return vFovFill;
         }
@@ -494,23 +449,23 @@ export class RenderCamera {
             vFov *= hFovMax / hFovLetterbox;
         }
 
-        const vFovMax = aspect > 2 ? vFovFill : fovCoeff * vFovFill;
+        const vFovMax = fovCoeff * vFovFill;
         vFov = Math.min(vFov, vFovMax, fovMax);
         vFov = Math.max(vFov, vFovFill);
 
         return vFov;
     }
 
-    private _yToFov(y: number, zoom: number): number {
-        return 2 * Math.atan(y / Math.pow(2, zoom)) * 180 / Math.PI;
+    private _fovToZoomedFov(fov: number, zoom: number): number {
+       return fov / Math.pow(2, zoom);
     }
+
+    private _zoomedFovToFov(zoomedFov: number, zoom: number): number {
+        return Math.pow(2, zoom) * zoomedFov;
+     }
 
     private _focalToFov(focal: number): number {
         return 2 * Math.atan2(1, 2 * focal) * 180 / Math.PI;
-    }
-
-    private _fovToY(fov: number, zoom: number): number {
-        return Math.pow(2, zoom) * Math.tan(Math.PI * fov / 360);
     }
 
     private _interpolateFov(v1: number, v2: number, alpha: number): number {
