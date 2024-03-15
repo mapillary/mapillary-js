@@ -473,9 +473,9 @@ export class BearingComponent extends Component<BearingConfiguration> {
             transform, vertices, directions, pointsPerLine, this._viewportCoords);
         const projections = bearings
             .map(b => this._spatial.projectToPlane(b, [0, 1, 0]))
-            .map(p => [p[0], p[2]]);
+            .map(p => [p[0], -p[2]]);
 
-        const angles = projections.map(p => Math.atan2(p[0], -p[1]));
+        const angles = projections.map(p => Math.abs(Math.atan2(p[0], p[1])));
         const fov = 2 * Math.min(...angles);
 
         return fov;
