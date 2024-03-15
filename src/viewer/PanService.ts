@@ -195,9 +195,7 @@ export class PanService {
                                     0,
                                     2 * Math.PI);
 
-                                const currentProjectedPoints: number[][] = this._computeProjectedPoints(currentTransform);
-
-                                const currentHFov: number = this._computeHorizontalFov(currentProjectedPoints) / 180 * Math.PI;
+                                const currentHFov: number = this._computeHorizontalFov(currentTransform) / 180 * Math.PI;
 
                                 const preferredOverlap: number = Math.PI / 8;
                                 let left: [number, Image, Transform, number] = undefined;
@@ -210,8 +208,7 @@ export class PanService {
                                         reference);
 
                                     const transform: Transform = this._createTransform(a, translation);
-                                    const projectedPoints: number[][] = this._computeProjectedPoints(transform);
-                                    const hFov: number = this._computeHorizontalFov(projectedPoints) / 180 * Math.PI;
+                                    const hFov: number = this._computeHorizontalFov(transform) / 180 * Math.PI;
 
                                     const direction: THREE.Vector3 = this._spatial.viewingDirection(a.rotation);
                                     const azimuthal: number = this._spatial.wrap(
@@ -367,34 +364,20 @@ export class PanService {
                 image.cameraParameters));
     }
 
-    private _computeProjectedPoints(transform: Transform): number[][] {
+    private _computeHorizontalFov(transform: Transform): number {
         const vertices: number[][] = [[1, 0]];
         const directions: number[][] = [[0, 0.5]];
-        const pointsPerLine: number = 20;
+        const pointsPerLine: number = 12;
 
-        return Geo
-            .computeProjectedPoints(
-                transform,
-                vertices,
-                directions,
-                pointsPerLine,
-                this._viewportCoords)
-            .map(([x, y]) => [Math.abs(x), Math.abs(y)]);
-    }
+        const bearings = Geo.computeBearings(
+            transform, vertices, directions, pointsPerLine, this._viewportCoords);
+        const projections = bearings
+            .map(b => this._spatial.projectToPlane(b, [0, 1, 0]))
+            .map(p => [p[0], -p[2]]);
 
-    private _computeHorizontalFov(projectedPoints: number[][]): number {
-        const fovs: number[] = projectedPoints
-            .map(
-                (projectedPoint: number[]): number => {
-                    return this._coordToFov(projectedPoint[0]);
-                });
+        const angles = projections.map(p => Math.abs(Math.atan2(p[0], p[1])));
+        const fov = 2 * Math.max(...angles);
 
-        const fov: number = Math.min(...fovs);
-
-        return fov;
-    }
-
-    private _coordToFov(x: number): number {
-        return 2 * Math.atan(x) * 180 / Math.PI;
+        return this._spatial.radToDeg(fov);
     }
 }
