@@ -1167,7 +1167,7 @@ export type CameraParameters = {
   ...
 };
 export type CameraUniforms = {
-  [key: string]: boolean | number | number[],
+  +[key: string]: boolean | number | number[],
   ...
 };
 
