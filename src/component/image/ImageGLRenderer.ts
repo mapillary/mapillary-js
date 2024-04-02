@@ -209,6 +209,7 @@ export class ImageGLRenderer {
             material.vertexShader = resolveShader(
                 shader.vertex,
                 plane.camera);
+            material.needsUpdate = true;
         }
     }
 
