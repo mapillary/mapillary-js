@@ -112,8 +112,8 @@ export class RenderCamera {
         this._perspective = new THREE.PerspectiveCamera(
             this._initialFov,
             this._computeAspect(elementWidth, elementHeight),
-            1e-3,
-            1e6);
+            1e-1,
+            1e4);
         this._perspective.position.copy(this._camera.position);
         this._perspective.up.copy(this._camera.up);
         this._perspective.lookAt(this._camera.lookat);
