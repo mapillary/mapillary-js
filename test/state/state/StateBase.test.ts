@@ -12,6 +12,7 @@ import { ProjectionService } from "../../../src/viewer/ProjectionService";
 import { ImageCache } from "../../../src/graph/ImageCache";
 import { DataProvider } from "../../helper/ProviderHelper";
 import { TestImage } from "../../helper/TestImage";
+import { S2GeometryProvider } from "../../../src/api/S2GeometryProvider";
 
 class TestStateBase extends StateBase {
     public traverse(): StateBase { return null; }
@@ -42,6 +43,7 @@ let createState: () => IStateBase = (): IStateBase => {
         alpha: 1,
         camera: new Camera(),
         currentIndex: -1,
+        geometry: new S2GeometryProvider(),
         reference: { alt: 0, lat: 0, lng: 0 },
         trajectory: [],
         transitionMode: TransitionMode.Default,

@@ -1,3 +1,4 @@
+import { S2GeometryProvider } from "../../src/api/S2GeometryProvider";
 import { Camera } from "../../src/geo/Camera";
 import { IAnimationState } from "../../src/state/interfaces/IAnimationState";
 import { IStateBase } from "../../src/state/interfaces/IStateBase";
@@ -31,6 +32,7 @@ export function generateStateParams(): IStateBase {
         alpha: 1,
         camera: new Camera(),
         currentIndex: -1,
+        geometry: new S2GeometryProvider(),
         reference: { alt: 0, lat: 0, lng: 0 },
         trajectory: [],
         transitionMode: TransitionMode.Default,

@@ -10,7 +10,6 @@ import { APIWrapper } from "../../src/api/APIWrapper";
 import { Graph } from "../../src/graph/Graph";
 import { GraphMode } from "../../src/graph/GraphMode";
 import { GraphService } from "../../src/graph/GraphService";
-import { IAnimationState } from "../../src/state/interfaces/IAnimationState";
 import { AnimationFrame } from "../../src/state/interfaces/AnimationFrame";
 import { State } from "../../src/state/State";
 import { StateService } from "../../src/state/StateService";
@@ -18,13 +17,14 @@ import { CacheService } from "../../src/viewer/CacheService";
 import { DataProvider } from "../helper/ProviderHelper";
 import { createDefaultState } from "../helper/StateHelper";
 import { StateServiceMockCreator } from "../helper/StateServiceMockCreator";
-import { LngLatAlt } from "../../src/mapillary";
+import { S2GeometryProvider } from "../../src/api/S2GeometryProvider";
+import { LngLatAlt } from "../../src/api/interfaces/LngLatAlt";
 
 describe("CacheService.ctor", () => {
     it("should be defined when constructed", () => {
         const api = new APIWrapper(new DataProvider());
         const graphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
 
         const cacheService = new CacheService(graphService, stateService, api);
 
@@ -36,7 +36,7 @@ describe("CacheService.configure", () => {
     it("should configure without errors", () => {
         const api = new APIWrapper(new DataProvider());
         const graphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
 
         const cacheService = new CacheService(graphService, stateService, api);
 
@@ -50,7 +50,7 @@ describe("CacheService.started", () => {
     it("should not be started", () => {
         const api = new APIWrapper(new DataProvider());
         const graphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
 
         const cacheService = new CacheService(graphService, stateService, api);
 
@@ -60,7 +60,7 @@ describe("CacheService.started", () => {
     it("should be started after calling start", () => {
         const api = new APIWrapper(new DataProvider());
         const graphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
 
         const cacheService = new CacheService(graphService, stateService, api);
 
@@ -72,7 +72,7 @@ describe("CacheService.started", () => {
     it("should not be started after calling stop", () => {
         const api = new APIWrapper(new DataProvider());
         const graphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
 
         const cacheService = new CacheService(graphService, stateService, api);
 
@@ -87,7 +87,7 @@ class TestStateService extends StateService {
     private _overridingCurrentState$: Subject<AnimationFrame>;
 
     constructor(currentState$: Subject<AnimationFrame>) {
-        super(State.Traversing);
+        super(State.Traversing, new S2GeometryProvider());
 
         this._overridingCurrentState$ = currentState$;
     }

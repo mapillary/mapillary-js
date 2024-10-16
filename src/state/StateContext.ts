@@ -9,6 +9,7 @@ import { Transform } from "../geo/Transform";
 import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { Image } from "../graph/Image";
 import { StateTransitionMatrix } from "./StateTransitionMatrix";
+import { IGeometryProvider } from "../api/interfaces/IGeometryProvider";
 
 export class StateContext implements IStateContext {
     private _state: StateBase;
@@ -16,6 +17,7 @@ export class StateContext implements IStateContext {
 
     constructor(
         state: State,
+        geometry: IGeometryProvider,
         transitionMode?: TransitionMode) {
         this._transitions = new StateTransitionMatrix();
         this._state = this._transitions.generate(
@@ -24,6 +26,7 @@ export class StateContext implements IStateContext {
                 alpha: 1,
                 camera: new Camera(),
                 currentIndex: -1,
+                geometry,
                 reference: { alt: 0, lat: 0, lng: 0 },
                 trajectory: [],
                 transitionMode: transitionMode == null ? TransitionMode.Default : transitionMode,

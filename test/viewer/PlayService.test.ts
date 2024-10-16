@@ -28,12 +28,13 @@ import { StateService } from "../../src/state/StateService";
 import { PlayService } from "../../src/viewer/PlayService";
 import { NavigationDirection } from "../../src/graph/edge/NavigationDirection";
 import { DataProvider } from "../helper/ProviderHelper";
+import { S2GeometryProvider } from "../../src/api/S2GeometryProvider";
 
 describe("PlayService.ctor", () => {
     it("should be defined when constructed", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
@@ -43,7 +44,7 @@ describe("PlayService.ctor", () => {
     it("should emit default values", (done: () => void) => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
@@ -67,7 +68,7 @@ describe("PlayService.playing", () => {
     it("should be playing after calling play", (done: () => void) => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
@@ -87,7 +88,7 @@ describe("PlayService.playing", () => {
     it("should not be playing after calling stop", (done: () => void) => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
@@ -123,7 +124,7 @@ describe("PlayService.speed$", () => {
     it("should emit when changing speed", (done: () => void) => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
@@ -142,7 +143,7 @@ describe("PlayService.speed$", () => {
     it("should not emit when setting current speed", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
 
         const playService: PlayService = new PlayService(graphService, stateService);
 
@@ -175,7 +176,7 @@ describe("PlayService.speed$", () => {
     it("should clamp speed values to 0, 1 interval", (done: () => void) => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
 
         const playService: PlayService = new PlayService(graphService, stateService);
 

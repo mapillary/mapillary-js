@@ -95,6 +95,7 @@ export class Navigator {
         this._stateService = stateService ??
             new StateService(
                 cameraControlsToState(cameraControls),
+                this._api.data.geometry,
                 options.transitionMode);
 
         this._cacheService = cacheService ??
