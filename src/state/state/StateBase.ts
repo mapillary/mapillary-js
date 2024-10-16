@@ -9,9 +9,12 @@ import { Spatial } from "../../geo/Spatial";
 import { Transform } from "../../geo/Transform";
 import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
 import { Image } from "../../graph/Image";
+import { IGeometryProvider } from "../../mapillary";
+import { connectedComponent } from "../../api/CellMath";
 
 export abstract class StateBase implements IStateBase {
     protected _spatial: Spatial;
+    protected _geometry: IGeometryProvider;
 
     protected _reference: LngLatAlt;
 
@@ -35,17 +38,22 @@ export abstract class StateBase implements IStateBase {
     protected _motionless: boolean;
 
     private _referenceThreshold: number;
+    private _referenceCellIds: Set<string>;
     private _transitionThreshold: number;
     private _transitionMode: TransitionMode;
 
     constructor(state: IStateBase) {
         this._spatial = new Spatial();
+        this._geometry = state.geometry;
 
         this._referenceThreshold = 250;
         this._transitionThreshold = 62.5;
         this._transitionMode = state.transitionMode;
 
         this._reference = state.reference;
+        this._referenceCellIds = new Set<string>(
+            connectedComponent(
+                this._geometry.lngLatToCellId(this._reference), 3, this._geometry));
 
         this._alpha = state.alpha;
         this._stateTransitionAlpha = 0;
@@ -105,6 +113,10 @@ export abstract class StateBase implements IStateBase {
 
     public get camera(): Camera {
         return this._camera;
+    }
+
+    public get geometry(): IGeometryProvider {
+        return this._geometry;
     }
 
     public get zoom(): number {
@@ -327,8 +339,13 @@ export abstract class StateBase implements IStateBase {
             reference.lng,
             reference.lat);
 
-        // do not reset reference if image is within threshold distance
         if (referenceDistance < this._referenceThreshold) {
+            return false;
+        }
+
+        // do not reset reference if image is within 7 x 7 grid of cells
+        const cellId = this._geometry.lngLatToCellId(currentImage.lngLat);
+        if (this._referenceCellIds.has(cellId)) {
             return false;
         }
 
@@ -353,6 +370,9 @@ export abstract class StateBase implements IStateBase {
         this._reference.lat = currentImage.lngLat.lat;
         this._reference.lng = currentImage.lngLat.lng;
         this._reference.alt = currentImage.computedAltitude;
+        this._referenceCellIds = new Set<string>(
+            connectedComponent(
+                this._geometry.lngLatToCellId(this._reference), 3, this._geometry));
 
         return true;
     }

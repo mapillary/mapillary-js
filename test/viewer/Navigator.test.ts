@@ -30,6 +30,7 @@ import { CancelMapillaryError } from "../../src/error/CancelMapillaryError";
 import { NavigationDirection } from "../../src/graph/edge/NavigationDirection";
 import { DataProvider } from "../helper/ProviderHelper";
 import * as Common from "../../src/util/Common";
+import { S2GeometryProvider } from "../../src/api/S2GeometryProvider";
 
 const createState: () => IAnimationState = (): IAnimationState => {
     return {
@@ -66,7 +67,7 @@ describe("Navigator.ctor", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
         const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         const navigator: Navigator =
@@ -87,7 +88,7 @@ describe("Navigator.moveToKey$", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
         const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         const loadingSpy: jasmine.Spy = spyOn(loadingService, "startLoading").and.stub();
@@ -115,7 +116,7 @@ describe("Navigator.moveToKey$", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
 
         spyOn(loadingService, "startLoading").and.stub();
         const stopLoadingSpy: jasmine.Spy = spyOn(loadingService, "stopLoading").and.stub();
@@ -152,7 +153,7 @@ describe("Navigator.moveToKey$", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
         const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         spyOn(loadingService, "startLoading").and.stub();
@@ -188,7 +189,7 @@ describe("Navigator.moveToKey$", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
         const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         spyOn(loadingService, "startLoading").and.stub();
@@ -220,7 +221,7 @@ describe("Navigator.moveToKey$", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
 
         spyOn(loadingService, "startLoading").and.stub();
         spyOn(loadingService, "stopLoading").and.stub();
@@ -257,7 +258,7 @@ describe("Navigator.moveToKey$", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
 
         spyOn(loadingService, "startLoading").and.stub();
         spyOn(loadingService, "stopLoading").and.stub();
@@ -298,7 +299,7 @@ describe("Navigator.moveToKey$", () => {
             const api: APIWrapper = new APIWrapper(new DataProvider());
             const graphService: GraphService = new GraphService(new Graph(api));
             const loadingService: LoadingService = new LoadingService();
-            const stateService: StateService = new StateService(State.Traversing);
+            const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
             const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
             spyOn(loadingService, "startLoading").and.stub();
@@ -357,7 +358,7 @@ describe("Navigator.movedToKey$", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
         const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         spyOn(loadingService, "startLoading").and.stub();
@@ -404,7 +405,7 @@ class TestStateService extends StateService {
     private _overridingCurrentState$: Subject<AnimationFrame>;
 
     constructor(currentState$: Subject<AnimationFrame>) {
-        super(State.Traversing);
+        super(State.Traversing, new S2GeometryProvider());
 
         this._overridingCurrentState$ = currentState$;
     }
@@ -426,7 +427,7 @@ describe("Navigator.setFilter$", () => {
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
         const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         const clearImagesSpy: jasmine.Spy = spyOn(stateService, "clearImages").and.stub();
@@ -468,7 +469,7 @@ describe("Navigator.setFilter$", () => {
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
         const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         const setFilterSpy: jasmine.Spy = spyOn(graphService, "setFilter$");
@@ -500,7 +501,7 @@ describe("Navigator.setFilter$", () => {
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
         const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         spyOn(loadingService, "startLoading").and.stub();
@@ -667,7 +668,7 @@ describe("Navigator.setToken$", () => {
         const graph: Graph = new Graph(api);
         const graphService: GraphService = new GraphService(graph);
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
         const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         spyOn(cacheService, "start").and.stub();
@@ -798,7 +799,7 @@ describe("Navigator.setToken$", () => {
         const api: APIWrapper = new APIWrapper(new DataProvider());
         const graphService: GraphService = new GraphService(new Graph(api));
         const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateService(State.Traversing);
+        const stateService: StateService = new StateService(State.Traversing, new S2GeometryProvider());
         const cacheService: CacheService = new CacheService(graphService, stateService, api);
 
         spyOn(loadingService, "startLoading").and.stub();

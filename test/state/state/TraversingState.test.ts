@@ -14,6 +14,7 @@ import { ImageCache } from "../../../src/graph/ImageCache";
 import { DataProvider } from "../../helper/ProviderHelper";
 import { ProjectionService } from "../../../src/viewer/ProjectionService";
 import { TestImage } from "../../helper/TestImage";
+import { S2GeometryProvider } from "../../../src/api/S2GeometryProvider";
 
 describe("TraversingState.ctor", () => {
     it("should be defined", () => {
@@ -21,6 +22,7 @@ describe("TraversingState.ctor", () => {
             alpha: 1,
             camera: new Camera(),
             currentIndex: -1,
+            geometry: new S2GeometryProvider(),
             reference: { alt: 0, lat: 0, lng: 0 },
             trajectory: [],
             transitionMode: TransitionMode.Default,
@@ -72,6 +74,7 @@ describe("TraversingState.currentCamera.lookat", () => {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
+            geometry: new S2GeometryProvider(),
             reference: { alt: 0, lat: 0, lng: 0 },
             trajectory: [],
             transitionMode: TransitionMode.Default,
@@ -106,6 +109,7 @@ describe("TraversingState.currentCamera.lookat", () => {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
+            geometry: new S2GeometryProvider(),
             reference: { alt: 0, lat: 0, lng: 0 },
             trajectory: [],
             transitionMode: TransitionMode.Default,
@@ -148,6 +152,7 @@ describe("TraversingState.currentCamera.lookat", () => {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
+            geometry: new S2GeometryProvider(),
             reference: { alt: 0, lat: 0, lng: 0 },
             trajectory: [],
             transitionMode: TransitionMode.Default,
@@ -204,6 +209,7 @@ describe("TraversingState.previousCamera.lookat", () => {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
+            geometry: new S2GeometryProvider(),
             reference: { alt: 0, lat: 0, lng: 0 },
             trajectory: [],
             transitionMode: TransitionMode.Default,
@@ -238,6 +244,7 @@ describe("TraversingState.previousCamera.lookat", () => {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
+            geometry: new S2GeometryProvider(),
             reference: { alt: 0, lat: 0, lng: 0 },
             trajectory: [],
             transitionMode: TransitionMode.Default,

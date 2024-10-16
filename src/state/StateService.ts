@@ -33,6 +33,7 @@ import { Transform } from "../geo/Transform";
 import { LngLatAlt } from "../api/interfaces/LngLatAlt";
 import { SubscriptionHolder } from "../util/SubscriptionHolder";
 import { Clock } from "three";
+import { IGeometryProvider } from "../api/interfaces/IGeometryProvider";
 
 interface IContextOperation {
     (context: IStateContext): IStateContext;
@@ -73,6 +74,7 @@ export class StateService {
 
     constructor(
         initialState: State,
+        geometry: IGeometryProvider,
         transitionMode?: TransitionMode) {
 
         const subs = this._subscriptions;
@@ -90,7 +92,7 @@ export class StateService {
                 (context: IStateContext, operation: IContextOperation): IStateContext => {
                     return operation(context);
                 },
-                new StateContext(initialState, transitionMode)),
+                new StateContext(initialState, geometry, transitionMode)),
             publishReplay(1),
             refCount());
 

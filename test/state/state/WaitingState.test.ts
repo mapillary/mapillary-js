@@ -2,7 +2,6 @@ import * as THREE from "three";
 
 import { ImageHelper } from "../../helper/ImageHelper";
 
-import { Image } from "../../../src/graph/Image";
 import { SpatialImageEnt } from "../../../src/api/ents/SpatialImageEnt";
 import { IStateBase } from "../../../src/state/interfaces/IStateBase";
 import { WaitingState } from "../../../src/state/state/WaitingState";
@@ -12,6 +11,7 @@ import { ImageCache } from "../../../src/graph/ImageCache";
 import { DataProvider } from "../../helper/ProviderHelper";
 import { ProjectionService } from "../../../src/viewer/ProjectionService";
 import { TestImage } from "../../helper/TestImage";
+import { S2GeometryProvider } from "../../../src/api/S2GeometryProvider";
 
 describe("WaitingState.ctor", () => {
     it("should be defined", () => {
@@ -19,6 +19,7 @@ describe("WaitingState.ctor", () => {
             alpha: 1,
             camera: new Camera(),
             currentIndex: -1,
+            geometry: new S2GeometryProvider(),
             reference: { alt: 0, lat: 0, lng: 0 },
             trajectory: [],
             transitionMode: TransitionMode.Default,
@@ -70,6 +71,7 @@ describe("WaitingState.currentCamera.lookat", () => {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
+            geometry: new S2GeometryProvider(),
             reference: { alt: 0, lat: 0, lng: 0 },
             trajectory: [],
             transitionMode: TransitionMode.Default,
@@ -104,6 +106,7 @@ describe("WaitingState.currentCamera.lookat", () => {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
+            geometry: new S2GeometryProvider(),
             reference: { alt: 0, lat: 0, lng: 0 },
             trajectory: [],
             transitionMode: TransitionMode.Default,
@@ -146,6 +149,7 @@ describe("WaitingState.currentCamera.lookat", () => {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
+            geometry: new S2GeometryProvider(),
             reference: { alt: 0, lat: 0, lng: 0 },
             trajectory: [],
             transitionMode: TransitionMode.Default,
@@ -205,6 +209,7 @@ describe("WaitingState.previousCamera.lookat", () => {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
+            geometry: new S2GeometryProvider(),
             reference: { alt: 0, lat: 0, lng: 0 },
             trajectory: [],
             transitionMode: TransitionMode.Default,
@@ -239,6 +244,7 @@ describe("WaitingState.previousCamera.lookat", () => {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
+            geometry: new S2GeometryProvider(),
             reference: { alt: 0, lat: 0, lng: 0 },
             trajectory: [],
             transitionMode: TransitionMode.Default,
@@ -279,6 +285,7 @@ describe("WaitingState.previousCamera.lookat", () => {
             alpha: 1,
             camera: camera,
             currentIndex: -1,
+            geometry: new S2GeometryProvider(),
             reference: { alt: 0, lat: 0, lng: 0 },
             trajectory: [],
             transitionMode: TransitionMode.Default,
