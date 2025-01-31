@@ -15,7 +15,7 @@ export interface ClusterContract {
      * @description The order of the IDs correspond with the order
      * of the color and coordinate arrays.
      */
-    pointIds: (string | number)[];
+    pointIds: string[] | number[];
 
     /**
      * The colors of the reconstruction.

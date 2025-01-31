@@ -74,7 +74,7 @@ describe("GraphConverter.clusterReconstruction", () => {
         // Points
         expect(Object.keys(cluster.pointIds).length).toBe(1);
 
-        const index = cluster.pointIds.indexOf(pointId);
+        const index = (<string[]>cluster.pointIds).indexOf(pointId);
         expect(index).toBeGreaterThanOrEqual(0);
 
         const pointIndex = 3 * index;
