@@ -10,6 +10,7 @@ export type ComponentName =
     | "pointer"
     | "popup"
     | "sequence"
+    | "slider"
     | "spatial"
     | "tag"
     | "zoom";

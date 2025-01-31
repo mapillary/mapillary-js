@@ -54,6 +54,7 @@ ComponentService.register(MarkerComponent);
 ComponentService.register(PointerComponent);
 ComponentService.register(PopupComponent);
 ComponentService.register(SequenceComponent);
+ComponentService.register(SliderComponent);
 ComponentService.register(SpatialComponent);
 ComponentService.register(TagComponent);
 ComponentService.register(ZoomComponent);
@@ -63,6 +64,7 @@ import { ImageFallbackComponent }
     from "./component/fallback/image/ImageFallbackComponent";
 import { NavigationFallbackComponent }
     from "./component/fallback/navigation/NavigationFallbackComponent";
+import { SliderComponent } from "./component/slider/SliderComponent";
 
 ComponentService.register(ImageFallbackComponent);
 ComponentService.register(NavigationFallbackComponent);

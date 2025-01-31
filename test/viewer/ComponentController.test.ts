@@ -60,6 +60,7 @@ class MaC extends CMock { protected static _cn: ComponentName = "marker"; }
 class PtrC extends CMock { protected static _cn: ComponentName = "pointer"; }
 class PC extends CMock { protected static _cn: ComponentName = "popup"; }
 class SeC extends CMock { protected static _cn: ComponentName = "sequence"; }
+class SlC extends CMock { protected static _cn: ComponentName = "slider"; }
 class SpC extends CMock { protected static _cn: ComponentName = "spatial"; }
 class TC extends CMock { protected static _cn: ComponentName = "tag"; }
 class ZC extends CMock { protected static _cn: ComponentName = "zoom"; }
@@ -74,6 +75,7 @@ ComponentService.register(MaC);
 ComponentService.register(PtrC);
 ComponentService.register(PC);
 ComponentService.register(SeC);
+ComponentService.register(SlC);
 ComponentService.register(SpC);
 ComponentService.register(TC);
 ComponentService.register(ZC);

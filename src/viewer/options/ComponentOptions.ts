@@ -5,6 +5,7 @@ import { KeyboardConfiguration } from "../../component/interfaces/KeyboardConfig
 import { MarkerConfiguration } from "../../component/interfaces/MarkerConfiguration";
 import { PointerConfiguration } from "../../component/interfaces/PointerConfiguration";
 import { SequenceConfiguration } from "../../component/interfaces/SequenceConfiguration";
+import { SliderConfiguration } from "../../component/interfaces/SliderConfiguration";
 import { SpatialConfiguration } from "../../component/interfaces/SpatialConfiguration";
 import { TagConfiguration } from "../../component/interfaces/TagConfiguration";
 import { ZoomConfiguration } from "../../component/interfaces/ZoomConfiguration";
@@ -115,6 +116,15 @@ export interface ComponentOptions {
      * @default true
      */
     sequence?: boolean | SequenceConfiguration;
+
+    /**
+     * Show a slider for transitioning between image planes.
+     *
+     * @description Requires WebGL support.
+     *
+     * @default false
+     */
+    slider?: boolean | SliderConfiguration;
 
     /**
      * Enable an interface for showing spatial data in the viewer.
