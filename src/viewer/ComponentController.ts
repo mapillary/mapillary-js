@@ -124,6 +124,7 @@ export class ComponentController {
 
         this._uFalse(options.marker, "marker");
         this._uFalse(options.popup, "popup");
+        this._uFalse(options.slider, "slider");
         this._uFalse(options.spatial, "spatial");
         this._uFalse(options.tag, "tag");
 

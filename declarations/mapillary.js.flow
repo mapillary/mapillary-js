@@ -2431,6 +2431,85 @@ export type SequenceConfiguration = {
   ...
 } & ComponentConfiguration;
 
+/**
+ * Enumeration for slider mode.
+ * @enum {number} *
+ * @readonly
+ * @description Modes for specifying how transitions
+ * between images are performed in slider mode. Only
+ * applicable when the slider component determines
+ * that transitions with motion is possilble. When it
+ * is not, the stationary mode will be applied.
+ */
+declare var SliderConfigurationMode: {|
+  +Motion: 0, // 0
+  +Stationary: 1, // 1
+|};
+/**
+ * Interface for configuration of slider ids.
+ * @interface
+ */
+export interface SliderConfigurationIds {
+  /**
+   * Id for the image plane in the background.
+   */
+  background: string;
+  /**
+   * Id for the image plane in the foreground.
+   */
+  foreground: string;
+}
+/**
+ * Interface for configuration of slider component.
+ * @interface ```js
+ * var viewer = new Viewer({
+ *     ...
+ *     component: {
+ *         slider: {
+ *             initialPosition: 0.5,
+ *             ids: {
+ *                 background: '<background-id>',
+ *                 foreground: '<foreground-id>',
+ *             },
+ *             sliderVisible: true,
+ *         },
+ *     },
+ *     ...
+ * });
+ * ```
+ */
+export type SliderConfiguration = {
+  /**
+   * Initial position of the slider on the interval [0, 1].
+   * @description Configures the initial position of the slider.
+   * The inital position value will be used when the component
+   * is activated.
+   * @default 1
+   */
+  initialPosition?: number,
+  /**
+   * Slider image ids.
+   * @description Configures the component to show the image
+   * planes for the supplied image ids  in the foreground
+   * and the background.
+   */
+  ids?: SliderConfigurationIds,
+  /**
+   * Value indicating whether the slider should be visible.
+   * @description Set the value controlling if the
+   * slider is visible.
+   * @default true
+   */
+  sliderVisible?: boolean,
+  /**
+   * Mode used for image pair transitions.
+   * @description Configures the mode for transitions between
+   * image pairs.
+   */
+  mode?: $Values<typeof SliderConfigurationMode>,
+  ...
+} & ComponentConfiguration;
+
 declare var CameraVisualizationMode: {|
   +Hidden: 0, // 0
   +Homogeneous: 1, // 1
@@ -2723,6 +2802,13 @@ export type ComponentOptions = {
    * @default true
    */
   sequence?: boolean | SequenceConfiguration;
+
+  /**
+   * Show a slider for transitioning between image planes.
+   * @description Requires WebGL support.
+   * @default false
+   */
+  slider?: boolean | SliderConfiguration;
 
   /**
    * Enable an interface for showing spatial data in the viewer.
@@ -3529,6 +3615,7 @@ export type ComponentName =
   | "pointer"
   | "popup"
   | "sequence"
+  | "slider"
   | "spatial"
   | "tag"
   | "zoom";
@@ -4030,6 +4117,10 @@ declare class Viewer implements IEventEmitter, IViewer {
  * @description The camera control mode determines
  * how the camera is controlled when the viewer
  * receives pointer and keyboard input.
+ *
+ * Changing the camera control mode is not possible
+ * when the slider component is active and attempts
+ * to do so will be ignored.
  *
  * @param {$Values<
                 typeof
@@ -6624,6 +6715,45 @@ declare class SequenceComponent extends Component<SequenceConfiguration> {
   _getDefaultConfiguration(): SequenceConfiguration;
 }
 
+/**
+ * @class SliderComponent
+ * @classdesc Component for comparing pairs of images. Renders
+ * a slider for adjusting the curtain of the first image.
+ *
+ * Deactivate the sequence, direction and image plane
+ * components when activating the slider component to avoid
+ * interfering UI elements.
+ *
+ * To retrive and use the slider component
+ * @example ```js
+ * var viewer = new Viewer({ ... });
+ *
+ * viewer.deactivateComponent("image");
+ * viewer.deactivateComponent("direction");
+ * viewer.deactivateComponent("sequence");
+ *
+ * viewer.activateComponent("slider");
+ *
+ * var sliderComponent = viewer.getComponent("slider");
+ * ```
+ */
+declare class SliderComponent extends Component<SliderConfiguration> {
+  static componentName: string;
+
+  /**
+   * @ignore
+   */
+  constructor(
+    name: string,
+    container: Container,
+    navigator: Navigator,
+    viewportCoords?: ViewportCoords
+  ): this;
+  _activate(): void;
+  _deactivate(): void;
+  _getDefaultConfiguration(): SliderConfiguration;
+}
+
 declare class SpatialComponent extends Component<SpatialConfiguration> {
   static componentName: string;
 
@@ -8193,6 +8323,8 @@ declare export {
   Shader,
   ShaderChunk,
   SimpleMarker,
+  SliderComponent,
+  SliderConfigurationMode,
   SpatialComponent,
   SpotTag,
   Tag,
