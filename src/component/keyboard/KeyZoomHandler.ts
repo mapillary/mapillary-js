@@ -57,6 +57,7 @@ export class KeyZoomHandler extends HandlerBase<KeyboardConfiguration> {
                     let delta: number = 0;
                     switch (event.key) {
                         case "+":
+                        case "=":
                             delta = 1;
                             break;
                         case "-":
