@@ -4,7 +4,7 @@ import {
     fetchArrayBuffer,
     readMeshPbf,
     xhrFetch,
-    XMLHttpRequestHeader,
+    XMLHttpRequestHeader
 } from '../Common';
 import { ClusterContract } from '../contracts/ClusterContract';
 import { CoreImagesContract } from '../contracts/CoreImagesContract';
@@ -26,18 +26,19 @@ import { S2GeometryProvider } from '../S2GeometryProvider';
 import {
     GraphClusterContract,
     GraphContract,
-    GraphError,
+    GraphError
 } from './GraphContracts';
 import { GraphConverter, MeshParameters } from './GraphConverter';
 import { GraphDataProviderOptions } from './GraphDataProviderOptions';
 import {
     GraphCoreImageEnt,
     GraphImageEnt,
-    GraphSpatialImageEnt,
+    GraphSpatialImageEnt
 } from './GraphEnts';
 import { GraphQueryCreator } from './GraphQueryCreator';
 
 export class GraphDataProvider extends DataProviderBase {
+    private static readonly DEFAULT_ENDPOINT: string = "https://graph.mapillary.com";
     private readonly _method: "GET";
     private readonly _endpoint: string;
 
@@ -61,7 +62,7 @@ export class GraphDataProvider extends DataProviderBase {
 
         this._method = 'GET';
         const opts = options ?? {};
-        this._endpoint = opts.endpoint ?? "https://graph.mapillary.com";
+        this._endpoint = opts.endpoint ?? GraphDataProvider.DEFAULT_ENDPOINT;
         this._accessToken = opts.accessToken;
     }
 
@@ -90,7 +91,7 @@ export class GraphDataProvider extends DataProviderBase {
 
         const fields = [
             ...this._query.idFields,
-            ...this._query.coreFields,
+            ...this._query.coreFields
         ];
         const query = this._query.imagesS2(cellId, fields);
         const url = new URL(this._query.imagesPath, this._endpoint).href;
@@ -102,7 +103,7 @@ export class GraphDataProvider extends DataProviderBase {
             .then(r => {
                 const result: CoreImagesContract = {
                     cell_id: cellId,
-                    images: [],
+                    images: []
                 };
                 const items = r.data;
                 for (const item of items) {
@@ -127,7 +128,7 @@ export class GraphDataProvider extends DataProviderBase {
         const fields = [
             ...this._query.idFields,
             ...this._query.coreFields,
-            ...this._query.spatialFields,
+            ...this._query.spatialFields
         ];
         const query = this._query.images(imageIds, fields);
         const url = new URL(this._query.imagesPath, this._endpoint).href;
@@ -146,7 +147,7 @@ export class GraphDataProvider extends DataProviderBase {
                     const image = Object.assign({}, spatialImage, coreImage);
                     const contract: EntContract<ImageEnt> = {
                         node: image,
-                        node_id: item.id,
+                        node_id: item.id
                     };
                     result.push(contract);
                 }
@@ -159,7 +160,7 @@ export class GraphDataProvider extends DataProviderBase {
         : Promise<ImageTilesContract> {
 
         const fields = [
-            ...this._query.imageTileFields,
+            ...this._query.imageTileFields
         ];
         const query = this._query.imageTiles(request.z, fields);
         const url = new URL(
@@ -173,7 +174,7 @@ export class GraphDataProvider extends DataProviderBase {
             .then(r => {
                 const result: ImageTilesContract = {
                     node: r.data,
-                    node_id: request.imageId,
+                    node_id: request.imageId
                 };
                 return result;
             });
@@ -207,7 +208,7 @@ export class GraphDataProvider extends DataProviderBase {
             .then(r => {
                 const result: SequenceContract = {
                     id: sequenceId,
-                    image_ids: r.data.map(item => item.id),
+                    image_ids: r.data.map(item => item.id)
                 };
                 return result;
             });
@@ -221,7 +222,7 @@ export class GraphDataProvider extends DataProviderBase {
         const fields = [
             ...this._query.idFields,
             ...this._query.coreFields,
-            ...this._query.spatialFields,
+            ...this._query.spatialFields
         ];
         const query = this._query.images(imageIds, fields);
         const url = new URL(this._query.imagesPath, this._endpoint).href;
@@ -238,7 +239,7 @@ export class GraphDataProvider extends DataProviderBase {
                     this._setMeshParameters(spatialImage);
                     const contract: EntContract<SpatialImageEnt> = {
                         node: spatialImage,
-                        node_id: item.id,
+                        node_id: item.id
                     };
                     result.push(contract);
                 }
@@ -255,14 +256,14 @@ export class GraphDataProvider extends DataProviderBase {
             { name: 'Accept', value: 'application/json' },
             {
                 name: 'Content-Type',
-                value: 'application/x-www-form-urlencoded',
-            },
+                value: 'application/x-www-form-urlencoded'
+            }
         ];
 
         if (this._accessToken) {
             headers.push({
                 name: 'Authorization',
-                value: `OAuth ${this._accessToken}`,
+                value: `OAuth ${this._accessToken}`
             });
         }
         return headers;
