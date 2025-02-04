@@ -44,8 +44,8 @@ export class RenderCamera {
 
     private _state: State;
 
-    private _currentBearings: number[][];
-    private _previousBearings: number[][];
+    private _currentBearings: {x: number[][], y: number[][]};
+    private _previousBearings: {x: number[][], y: number[][]};
 
     private _currentFov: number;
     private _previousFov: number;
@@ -92,8 +92,8 @@ export class RenderCamera {
 
         this._state = null;
 
-        this._currentBearings = [];
-        this._previousBearings = [];
+        this._currentBearings = {x: [], y: []};
+        this._previousBearings = {x: [], y: []};
 
         this._currentFov = this._initialFov;
         this._previousFov = this._initialFov;
@@ -393,17 +393,30 @@ export class RenderCamera {
                     this.perspective.aspect);
     }
 
-    private _computeBearings(transform: Transform): number[][] {
-        const vertices = [[0, 0]];
-        const directions = [[1, 0]];
-        const pointsPerLine = 25;
+    private _computeBearings(transform: Transform): {x: number[][], y: number[][]} {
+        const yVertices = [[0, 0]];
+        const yDirections = [[1, 0]];
+        const yPointsPerLine = 25;
 
-        return Geo.computeBearings(
+        const y = Geo.computeBearings(
             transform,
-            vertices,
-            directions,
-            pointsPerLine,
+            yVertices,
+            yDirections,
+            yPointsPerLine,
             this._viewportCoords);
+
+        const xVertices = [[0, 0]];
+        const xDirections = [[0, 1]];
+        const xPointsPerLine = 25;
+
+        const x = Geo.computeBearings(
+            transform,
+            xVertices,
+            xDirections,
+            xPointsPerLine,
+            this._viewportCoords);
+
+        return {x: x, y: y};
     }
 
     private _computeRotation(camera: Camera): EulerRotation {
@@ -417,18 +430,25 @@ export class RenderCamera {
     }
 
     private _computeVerticalBearingFov(
-        bearings: number[][],
+        bearings: {x: number[][], y: number[][]},
         renderMode: RenderMode,
         zoom: number,
         aspect: number): number {
 
         const {_spatial} = this;
 
-        const projections = bearings
+        const yProjections = bearings.y
             .map(b => _spatial.projectToPlane(b, [1, 0, 0]))
             .map(p => [p[1], -p[2]]);
 
-        const fovs = projections.map(p => 2 * _spatial.radToDeg(Math.abs(Math.atan2(p[0], p[1]))));
+        const xProjections = bearings.x
+            .map(b => _spatial.projectToPlane(b, [0, 1, 0]))
+            .map(p => [p[0], -p[2]]);
+
+        const yFovs = yProjections.map(p => 2 * _spatial.radToDeg(Math.abs(Math.atan2(p[0], p[1]))));
+        const xFovs = xProjections.map(p => 2 * _spatial.radToDeg(Math.abs(Math.atan2(p[0] / aspect, p[1]))));
+        const fovs = [...yFovs, ...xFovs];
+
         const vFovMin = fovs.length > 0 ? 0.995 * Math.min(...fovs) : 125;
         const fovMin = this._fovToZoomedFov(vFovMin, zoom);
         const fovMax = this._fovToZoomedFov(125, zoom);
