@@ -61,6 +61,7 @@ export class KeyZoomHandler extends HandlerBase<KeyboardConfiguration> {
                             delta = 1;
                             break;
                         case "-":
+                        case "_":
                             delta = -1;
                             break;
                         default:
