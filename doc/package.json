@@ -55,7 +55,7 @@
     "eslint-plugin-react": "^7.25.1",
     "eslint-plugin-react-hooks": "^4.2.0",
     "prettier": "^2.3.2",
-    "stylelint": "^13.2.1",
+    "stylelint": "^15.10.1",
     "stylelint-copyright": "^2.0.0-alpha.69",
     "typedoc": "^0.21.9",
     "typedoc-plugin-markdown": "^3.10.4"
