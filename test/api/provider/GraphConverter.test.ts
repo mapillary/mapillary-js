@@ -15,11 +15,36 @@ import {
 
 describe("convertCameraType", () => {
     test("should convert to supported types", () => {
-        expect(convertCameraType("spherical")).toBe("spherical");
-        expect(convertCameraType("equirectangular")).toBe("spherical");
-        expect(convertCameraType("fisheye")).toBe("fisheye");
-        expect(convertCameraType("perspective")).toBe("perspective");
-        expect(convertCameraType("not-supported")).toBe("perspective");
+        const equirectangular = convertCameraType("equirectangular", []);
+        expect(equirectangular.cameraType).toBe("spherical");
+
+        const spherical = convertCameraType("spherical", []);
+        expect(spherical.cameraType).toBe("spherical");
+
+        const fisheye = convertCameraType("fisheye", [0.5]);
+        expect(fisheye.cameraType).toBe("fisheye");
+        expect(fisheye.parameters.length).toBe(1);
+        expect(fisheye.parameters[0]).toBe(0.5);
+
+        const perspective = convertCameraType("perspective", [0.2, 0.3]);
+        expect(perspective.cameraType).toBe("perspective");
+        expect(perspective.parameters.length).toBe(2);
+        expect(perspective.parameters[0]).toBe(0.2);
+        expect(perspective.parameters[1]).toBe(0.3);
+
+        const incorrect = convertCameraType("not-supported", [0.4]);
+        expect(incorrect.cameraType).toBe("perspective");
+        expect(incorrect.parameters.length).toBe(3);
+        expect(incorrect.parameters[0]).toBe(0.85);
+        expect(incorrect.parameters[1]).toBe(0);
+        expect(incorrect.parameters[2]).toBe(0);
+
+        const empty = convertCameraType("", [0.4]);
+        expect(empty.cameraType).toBe("perspective");
+        expect(empty.parameters.length).toBe(3);
+        expect(empty.parameters[0]).toBe(0.85);
+        expect(empty.parameters[1]).toBe(0);
+        expect(empty.parameters[2]).toBe(0);
     });
 });
 
