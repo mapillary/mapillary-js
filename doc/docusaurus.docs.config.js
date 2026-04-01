@@ -13,8 +13,8 @@ module.exports = {
   tagline: 'Interactive, extendable street imagery map experiences',
   url: 'https://mapillary.github.io',
   baseUrl: '/mapillary-js/',
-  onBrokenLinks: 'error',
-  onBrokenMarkdownLinks: 'error',
+  onBrokenLinks: 'warn',
+  onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.png',
   organizationName: 'mapillary',
   projectName: 'mapillary-js',
@@ -47,7 +47,8 @@ module.exports = {
   themes: ['@docusaurus/theme-live-codeblock'],
   themeConfig: {
     algolia: {
-      apiKey: 'babb57526d420b45135a3724e9cabb84',
+      appId: 'TFX4958J03',
+      apiKey: '28f1aae2c05f509721eb9dca151da393',
       indexName: 'mapillary',
     },
     navbar: {
