@@ -219,7 +219,7 @@ export class Navigator {
         this._abortRequest("to reset");
 
         return this._reset$()
-            .pipe(map(() => undefined));
+            .pipe(map((): void => undefined));
     }
 
     public setFilter$(filter: FilterExpression): Observable<void> {

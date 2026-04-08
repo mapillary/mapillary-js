@@ -18,5 +18,15 @@ export default {
   slowTestThreshold: 1,
   testEnvironment: "jsdom",
   testRunner: "jest-jasmine2",
+  transform: {
+    "\\.[jt]sx?$": ["babel-jest", { configFile: "<rootDir>/../../babel.config.json" }],
+  },
+  moduleNameMapper: {
+    "^martinez-polygon-clipping$":
+      "<rootDir>/../../node_modules/martinez-polygon-clipping/dist/martinez.js",
+  },
+  transformIgnorePatterns: [
+    "node_modules/(?!(earcut|pbf|polylabel|tinyqueue|rbush|quickselect|martinez-polygon-clipping|splaytree|robust-predicates)/)",
+  ],
   watchman: false,
 };

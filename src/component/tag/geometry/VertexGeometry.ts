@@ -1,4 +1,4 @@
-import earcut from "earcut";
+import earcut, { flatten } from "earcut";
 import polylabel from "polylabel";
 import * as martinez from "martinez-polygon-clipping";
 import * as THREE from "three";
@@ -204,7 +204,7 @@ export abstract class VertexGeometry extends Geometry {
             points = points.concat(hole3d.slice(0, -1));
         }
 
-        let flattened: { vertices: number[], holes: number[], dimensions: number; } = earcut.flatten(data);
+        let flattened: { vertices: number[], holes: number[], dimensions: number; } = flatten(data);
         let indices: number[] = earcut(flattened.vertices, flattened.holes, flattened.dimensions);
         let triangles: number[] = [];
 
@@ -299,7 +299,9 @@ export abstract class VertexGeometry extends Geometry {
         lookat2d: number[],
         transform: Transform): number[] {
 
-        const intersections: martinez.MultiPolygon = martinez.intersection([points2d, ...holes2d], [bbox2d]) as martinez.MultiPolygon;
+        const intersections: martinez.MultiPolygon = martinez.intersection(
+            [points2d as martinez.Ring, ...holes2d as martinez.Ring[]],
+            [bbox2d as martinez.Ring]) as martinez.MultiPolygon;
         if (!intersections) {
             return [];
         }
