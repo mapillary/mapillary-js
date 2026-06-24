@@ -92,6 +92,11 @@ export class TraversingState extends InteractiveStateBase {
                     this._zoom : 0;
 
             this._desiredLookat = null;
+
+            // Orient the new image before it is rendered this frame so a
+            // motionless (instant) transition lands already facing the
+            // registered direction instead of flashing the carried view.
+            this._applyReorientation();
         }
 
         let animationSpeed: number = this._animationSpeed * delta / 1e-1 * 6;
@@ -150,5 +155,30 @@ export class TraversingState extends InteractiveStateBase {
         this._baseAlpha = 0;
 
         this._motionless = this._motionlessTransition();
+    }
+
+    private _applyReorientation(): void {
+        // Only for instant cuts: a smooth transition should ease into the new
+        // direction, not start already there.
+        if (!this._motionless || this._currentImage == null) {
+            return;
+        }
+        // Only pre-orient (snap) mesh-less images. An image with SfM mesh eases
+        // to the travel direction, and easing must start from the carried view —
+        // pre-snapping it here would lose the ease.
+        if (this._currentImage.mesh != null &&
+            this._currentImage.mesh.vertices.length > 0) {
+            return;
+        }
+        const basic = this._reorientations.get(this._currentImage.id);
+        if (basic == null || !isSpherical(this._currentImage.cameraType)) {
+            return;
+        }
+        this._currentCamera.lookat.fromArray(
+            this.currentTransform.unprojectBasic(basic, this._lookatDepth));
+        const previousTransform = this.previousTransform != null ?
+            this.previousTransform : this.currentTransform;
+        this._previousCamera.lookat.fromArray(
+            previousTransform.unprojectBasic(basic, this._lookatDepth));
     }
 }

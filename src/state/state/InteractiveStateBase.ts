@@ -220,6 +220,24 @@ export abstract class InteractiveStateBase extends StateBase {
         this._currentCamera.lookat.fromArray(lookat);
     }
 
+    public rotateToBasicSmooth(basic: number[]): void {
+        if (this._currentImage == null) {
+            return;
+        }
+
+        this._desiredZoom = this._zoom;
+
+        basic[0] = this._spatial.clamp(basic[0], 0, 1);
+        basic[1] = this._spatial.clamp(basic[1], 0, 1);
+
+        // Eased sibling of rotateToBasic: set _desiredLookat instead of
+        // snapping the current camera, so _updateLookat lerps toward the
+        // target each frame. Stays smooth even when applied after an image
+        // transition has already settled.
+        this._desiredLookat = new THREE.Vector3()
+            .fromArray(this.currentTransform.unprojectBasic(basic, this._lookatDepth));
+    }
+
     public zoomIn(delta: number, reference: number[]): void {
         if (this._currentImage == null) {
             return;
