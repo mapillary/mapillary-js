@@ -76,6 +76,12 @@ export { PopupOptions } from "../component/popup/interfaces/PopupOptions";
 export { Popup } from "../component/popup/popup/Popup";
 export { PopupComponent } from "../component/popup/PopupComponent";
 
+// Reorientation
+export { ReorientationComponent }
+    from "../component/reorientation/ReorientationComponent";
+export { ReorientationConfiguration }
+    from "../component/interfaces/ReorientationConfiguration";
+
 // Sequence
 export { SequenceConfiguration }
     from "../component/interfaces/SequenceConfiguration";

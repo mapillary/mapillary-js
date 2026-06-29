@@ -28,6 +28,7 @@ export class StateContext implements IStateContext {
                 currentIndex: -1,
                 geometry,
                 reference: { alt: 0, lat: 0, lng: 0 },
+                reorientations: new Map<string, number[]>(),
                 trajectory: [],
                 transitionMode: transitionMode == null ? TransitionMode.Default : transitionMode,
                 zoom: 0,
@@ -200,6 +201,18 @@ export class StateContext implements IStateContext {
 
     public rotateToBasic(basic: number[]): void {
         this._state.rotateToBasic(basic);
+    }
+
+    public rotateToBasicSmooth(basic: number[]): void {
+        this._state.rotateToBasicSmooth(basic);
+    }
+
+    public setReorientation(imageId: string, basic: number[]): void {
+        this._state.setReorientation(imageId, basic);
+    }
+
+    public clearReorientations(): void {
+        this._state.clearReorientations();
     }
 
     public move(delta: number): void {

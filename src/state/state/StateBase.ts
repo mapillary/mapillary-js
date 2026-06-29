@@ -37,6 +37,8 @@ export abstract class StateBase implements IStateBase {
 
     protected _motionless: boolean;
 
+    protected _reorientations: Map<string, number[]>;
+
     private _referenceThreshold: number;
     private _referenceCellIds: Set<string>;
     private _transitionThreshold: number;
@@ -49,6 +51,10 @@ export abstract class StateBase implements IStateBase {
         this._referenceThreshold = 250;
         this._transitionThreshold = 62.5;
         this._transitionMode = state.transitionMode;
+
+        // Shared by reference across transitions so a reorientation registered
+        // before navigating is available when the target image becomes current.
+        this._reorientations = state.reorientations || new Map<string, number[]>();
 
         this._reference = state.reference;
         this._referenceCellIds = new Set<string>(
@@ -165,6 +171,18 @@ export abstract class StateBase implements IStateBase {
         return this._transitionMode;
     }
 
+    public get reorientations(): Map<string, number[]> {
+        return this._reorientations;
+    }
+
+    public setReorientation(imageId: string, basic: number[]): void {
+        this._reorientations.set(imageId, basic);
+    }
+
+    public clearReorientations(): void {
+        this._reorientations.clear();
+    }
+
     public move(delta: number): void { /*noop*/ }
 
     public moveTo(position: number): void { /*noop*/ }
@@ -182,6 +200,8 @@ export abstract class StateBase implements IStateBase {
     public rotateBasicWithoutInertia(basicRotation: number[]): void { /*noop*/ }
 
     public rotateToBasic(basic: number[]): void { /*noop*/ }
+
+    public rotateToBasicSmooth(basic: number[]): void { /*noop*/ }
 
     public setSpeed(speed: number): void { /*noop*/ }
 

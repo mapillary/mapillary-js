@@ -59,6 +59,7 @@ class KC extends CMock { protected static _cn: ComponentName = "keyboard"; }
 class MaC extends CMock { protected static _cn: ComponentName = "marker"; }
 class PtrC extends CMock { protected static _cn: ComponentName = "pointer"; }
 class PC extends CMock { protected static _cn: ComponentName = "popup"; }
+class ReC extends CMock { protected static _cn: ComponentName = "reorientation"; }
 class SeC extends CMock { protected static _cn: ComponentName = "sequence"; }
 class SlC extends CMock { protected static _cn: ComponentName = "slider"; }
 class SpC extends CMock { protected static _cn: ComponentName = "spatial"; }
@@ -74,6 +75,7 @@ ComponentService.register(KC);
 ComponentService.register(MaC);
 ComponentService.register(PtrC);
 ComponentService.register(PC);
+ComponentService.register(ReC);
 ComponentService.register(SeC);
 ComponentService.register(SlC);
 ComponentService.register(SpC);

@@ -465,6 +465,19 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.rotateToBasic(basic); });
     }
 
+    public rotateToBasicSmooth(basic: number[]): void {
+        this._inMotionOperation$.next(true);
+        this._invokeContextOperation((context: IStateContext) => { context.rotateToBasicSmooth(basic); });
+    }
+
+    public setReorientation(imageId: string, basic: number[]): void {
+        this._invokeContextOperation((context: IStateContext) => { context.setReorientation(imageId, basic); });
+    }
+
+    public clearReorientations(): void {
+        this._invokeContextOperation((context: IStateContext) => { context.clearReorientations(); });
+    }
+
     public move(delta: number): void {
         this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.move(delta); });

@@ -38,6 +38,8 @@ import { KeyboardComponent } from "./component/keyboard/KeyboardComponent";
 import { MarkerComponent } from "./component/marker/MarkerComponent";
 import { PointerComponent } from "./component/pointer/PointerComponent";
 import { PopupComponent } from "./component/popup/PopupComponent";
+import { ReorientationComponent }
+    from "./component/reorientation/ReorientationComponent";
 import { SequenceComponent } from "./component/sequence/SequenceComponent";
 import { SpatialComponent }
     from "./component/spatial/SpatialComponent";
@@ -53,6 +55,7 @@ ComponentService.register(KeyboardComponent);
 ComponentService.register(MarkerComponent);
 ComponentService.register(PointerComponent);
 ComponentService.register(PopupComponent);
+ComponentService.register(ReorientationComponent);
 ComponentService.register(SequenceComponent);
 ComponentService.register(SliderComponent);
 ComponentService.register(SpatialComponent);

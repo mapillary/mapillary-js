@@ -9,6 +9,7 @@ export type ComponentName =
     | "marker"
     | "pointer"
     | "popup"
+    | "reorientation"
     | "sequence"
     | "slider"
     | "spatial"

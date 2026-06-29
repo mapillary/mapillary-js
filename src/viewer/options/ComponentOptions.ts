@@ -4,6 +4,7 @@ import { DirectionConfiguration } from "../../component/interfaces/DirectionConf
 import { KeyboardConfiguration } from "../../component/interfaces/KeyboardConfiguration";
 import { MarkerConfiguration } from "../../component/interfaces/MarkerConfiguration";
 import { PointerConfiguration } from "../../component/interfaces/PointerConfiguration";
+import { ReorientationConfiguration } from "../../component/interfaces/ReorientationConfiguration";
 import { SequenceConfiguration } from "../../component/interfaces/SequenceConfiguration";
 import { SliderConfiguration } from "../../component/interfaces/SliderConfiguration";
 import { SpatialConfiguration } from "../../component/interfaces/SpatialConfiguration";
@@ -107,6 +108,16 @@ export interface ComponentOptions {
      * @default false
      */
     popup?: boolean;
+
+    /**
+     * Reorient spherical images to face the direction of travel during
+     * navigation.
+     *
+     * @description Requires WebGL support.
+     *
+     * @default true
+     */
+    reorientation?: boolean | ReorientationConfiguration;
 
     /**
      * Show sequence related navigation.
