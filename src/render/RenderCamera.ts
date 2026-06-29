@@ -438,10 +438,12 @@ export class RenderCamera {
         const {_spatial} = this;
 
         const yProjections = bearings.y
+            .filter(b => b[1] > 0)
             .map(b => _spatial.projectToPlane(b, [1, 0, 0]))
             .map(p => [p[1], -p[2]]);
 
         const xProjections = bearings.x
+            .filter(b => b[0] < 0)
             .map(b => _spatial.projectToPlane(b, [0, 1, 0]))
             .map(p => [p[0], -p[2]]);
 

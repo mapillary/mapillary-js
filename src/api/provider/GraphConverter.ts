@@ -20,15 +20,21 @@ export type MeshParameters = {
     perspective: boolean;
 };
 
-export function convertCameraType(graphCameraType: string): string {
-    switch (graphCameraType) {
+type ProjectionModel = {
+    cameraType: string;
+    parameters: number[];
+}
+
+export function convertCameraType(cameraType: string, parameters: number[]): ProjectionModel {
+    switch (cameraType) {
         case "equirectangular":
         case "spherical":
-            return "spherical";
+            return {cameraType: "spherical", parameters};
+        case "perspective":
         case "fisheye":
-            return "fisheye";
+            return {cameraType, parameters};
         default:
-            return "perspective";
+            return {cameraType: "perspective", parameters: [0.85, 0, 0]};
     }
 }
 
@@ -150,8 +156,9 @@ export class GraphConverter {
     public spatialImage(
         source: GraphSpatialImageEnt)
         : SpatialImageEnt {
-        source.camera_type = convertCameraType(source.camera_type);
-        source.camera_parameters = source.camera_parameters ?? [];
+        const {cameraType, parameters} = convertCameraType(source.camera_type, source.camera_parameters);
+        source.camera_type = cameraType;
+        source.camera_parameters = parameters;
         source.merge_id = source.merge_cc ? source.merge_cc.toString() : null;
         source.private = null;
         const thumbUrl = source.camera_type === 'spherical' ?
