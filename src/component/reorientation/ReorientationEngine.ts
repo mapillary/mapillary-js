@@ -32,6 +32,7 @@ export interface ReorientationResult {
     valid: boolean;
     reason?: string;
     nextId?: string;
+    prevId?: string;
     travel?: number;
     basicX?: number;
     dist?: number;
@@ -338,6 +339,7 @@ export class ReorientationEngine {
             const result: ReorientationResult = {
                 valid: true,
                 nextId,
+                prevId: idx > 0 ? ids[idx - 1] : undefined,
                 travel: tb,
                 basicX: bearingToBasicX(tb, cur.cca),
                 dist,
@@ -348,6 +350,16 @@ export class ReorientationEngine {
             };
             this._cache.set(imgId, result);
             this._prefetchNext(result, depth);
+            // Warm the immediate previous image so a "previous" hover can read
+            // its reoriented bearing instead of falling back to the raw compass
+            // angle. Only from the root request (depth === prefetchAhead) and at
+            // depth 0, so it resolves that one image without cascading backward.
+            // Load-bearing for the paths where the component early-returns
+            // before hinting neighbors (no motion, or no compass angle).
+            if (depth === cfg.prefetchAhead && result.prevId != null) {
+                this.precompute(result.prevId, undefined, 0)
+                    .catch(() => { /* ignore prefetch errors */ });
+            }
         });
     }
 

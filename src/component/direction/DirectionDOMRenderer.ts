@@ -259,7 +259,8 @@ export class DirectionDOMRenderer {
                     sphericalEdge.data.worldMotionAzimuth,
                     rotation,
                     this._calculator.outerRadius,
-                    "mapillary-direction-arrow-spherical"));
+                    "mapillary-direction-arrow-spherical",
+                    sphericalEdge.data.direction));
         }
 
         for (let stepEdge of this._stepEdges) {
@@ -307,7 +308,8 @@ export class DirectionDOMRenderer {
                 azimuth,
                 rotation,
                 this._calculator.outerRadius,
-                "mapillary-direction-arrow-step");
+                "mapillary-direction-arrow-step",
+                direction);
         }
 
         return this._createVNodeInactive(key, azimuth, rotation);
@@ -325,6 +327,7 @@ export class DirectionDOMRenderer {
                     rotation,
                     this._calculator.innerRadius,
                     "mapillary-direction-arrow-spherical",
+                    sphericalEdge.data.direction,
                     true));
         }
 
@@ -372,11 +375,12 @@ export class DirectionDOMRenderer {
         rotation: EulerRotation,
         offset: number,
         className: string,
+        direction: NavigationDirection,
         shiftVertically?: boolean): vd.VNode {
 
         let onClick: (e: Event) => void =
             (e: Event): void => {
-                navigator.moveTo$(key)
+                navigator.moveTo$(key, direction)
                     .subscribe(
                         undefined,
                         (error: Error): void => {

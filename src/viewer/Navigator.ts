@@ -58,6 +58,8 @@ export class Navigator {
     private _idRequested$: BehaviorSubject<string>;
     private _movedToId$: BehaviorSubject<string>;
 
+    private _lastMoveDirection: NavigationDirection;
+
     private _request$: ReplaySubject<Image>;
     private _requestSubscription: Subscription;
     private _imageRequestSubscription: Subscription;
@@ -117,6 +119,8 @@ export class Navigator {
         this._idRequested$ = new BehaviorSubject<string>(null);
         this._movedToId$ = new BehaviorSubject<string>(null);
 
+        this._lastMoveDirection = null;
+
         this._request$ = null;
         this._requestSubscription = null;
         this._imageRequestSubscription = null;
@@ -168,8 +172,22 @@ export class Navigator {
         this._stateService.dispose();
     }
 
+    /**
+     * The direction of the most recent {@link moveDir$} navigation, consumed
+     * (reset to null) on read so it attributes to exactly one landing image.
+     * Null for direct id moves (map click, shared link, fresh load) and once
+     * read. Lets the reorientation component tell a spatial step/turn apart
+     * from a non-directional jump, which the direction-blind image stream can't.
+     */
+    public consumeMoveDirection(): NavigationDirection {
+        const direction = this._lastMoveDirection;
+        this._lastMoveDirection = null;
+        return direction;
+    }
+
     public moveDir$(direction: NavigationDirection): Observable<Image> {
         this._abortRequest(`in dir ${NavigationDirection[direction]}`);
+        this._lastMoveDirection = direction;
 
         this._loadingService.startLoading(this._loadingName);
 
@@ -206,8 +224,14 @@ export class Navigator {
         return this._makeRequest$(image$);
     }
 
-    public moveTo$(id: string): Observable<Image> {
+    public moveTo$(
+        id: string,
+        direction: NavigationDirection = null): Observable<Image> {
         this._abortRequest(`to id ${id}`);
+        // Spatial handlers (keyboard, pano/step direction circles) resolve the
+        // edge themselves and move by id, but still know the intended direction;
+        // record it so reorientation can tell a step/turn from a bare jump.
+        this._lastMoveDirection = direction;
 
         this._loadingService.startLoading(this._loadingName);
 
