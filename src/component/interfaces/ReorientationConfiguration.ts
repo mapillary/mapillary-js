@@ -19,6 +19,21 @@ import { ComponentConfiguration } from "./ComponentConfiguration";
  */
 export interface ReorientationConfiguration extends ComponentConfiguration {
     /**
+     * Whether a spatial navigation (the direction component's step, turn and
+     * spherical arrows, and their keyboard equivalents) reorients the landing
+     * image when it stays within the current sequence.
+     *
+     * Crossing into a new sequence with an arrow always keeps the carried view
+     * regardless of this setting: the state layer has already matched the
+     * angle, and reorienting on top of that fights the transition the arrow
+     * just made. Within a sequence the carried view instead drifts off-axis as
+     * the road bends, which is what reorientation corrects.
+     *
+     * @default true
+     */
+    reorientOnSpatialNav?: boolean;
+
+    /**
      * Number of images ahead in the sequence to precompute the
      * reorientation for, so that a step lands on an already resolved
      * bearing and the transition stays smooth.
@@ -41,7 +56,11 @@ export interface ReorientationConfiguration extends ComponentConfiguration {
      * with the travel bearing within {@link lowSpeedTurnMaxDeltaDeg} and
      * the step is longer than this distance in meters.
      *
-     * @default 2
+     * Low enough to accept walking-pace capture, where frames are often only
+     * about a metre apart; the compass agreement above is what separates that
+     * from a stationary camera's GPS drift.
+     *
+     * @default 0.5
      */
     lowSpeedTurnDistanceM?: number;
 

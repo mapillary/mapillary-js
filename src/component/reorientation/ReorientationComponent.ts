@@ -1,3 +1,4 @@
+import { Observable, Subject } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { Component } from "../Component";
@@ -6,6 +7,7 @@ import { ReorientationConfiguration }
     from "../interfaces/ReorientationConfiguration";
 import {
     bearingToBasicX,
+    DEFAULT_REORIENTATION_CONFIGURATION,
     ReorientationEngine,
     ReorientationImage,
     ReorientationProvider,
@@ -23,6 +25,15 @@ import { Navigator } from "../../viewer/Navigator";
 const MIN_REORIENT_DEG = 15;
 
 /**
+ * The heading an image ended up being shown at, once reorientation has decided
+ * whether to turn it. Emitted on {@link ReorientationComponent.settled$}.
+ */
+export interface ReorientationSettledEvent {
+    id: string;
+    bearing: number;
+}
+
+/**
  * @class ReorientationComponent
  *
  * @classdesc Reorients each spherical image to face the direction of travel
@@ -31,13 +42,11 @@ const MIN_REORIENT_DEG = 15;
  * user drags to look around, that manual offset is preserved across the rest
  * of the sequence rather than re-facing forward on every step.
  *
- * Crossing into a new sequence via a spatial move honors the move's intent
- * rather than snapping to travel: a Step* (which by definition keeps the
- * viewing direction) carries the incoming view unchanged, and a Turn* rotates
- * the base to the new sequence's travel while preserving the look-around offset
- * (so the turn happens relative to where the user was looking). Every other way
- * into a new sequence — Next/Prev, map click, shared link, fresh load — resets
- * to travel + horizon as before.
+ * Crossing into a new sequence with a direction arrow keeps the carried view
+ * rather than snapping to travel — the arrow's own transition already matched
+ * the angle — and adopts it as the new sequence's look-around offset. Every
+ * other way into a new sequence — Next/Prev, map click, shared link, fresh
+ * load — resets to travel + horizon.
  *
  * Active by default; disable with `component: { reorientation: false }`.
  *
@@ -63,6 +72,9 @@ export class ReorientationComponent
     // load or a deliberate jump to another capture) can be reoriented even when
     // the landing image's own GPS speed reads as stationary.
     private _lastSeq: string;
+    private _reorientOnSpatialNav: boolean;
+    private _adoptedView: number[];
+    private _settled$ = new Subject<ReorientationSettledEvent>();
 
     // Manual horizontal look-around offset, preserved within a sequence so the
     // engine doesn't yank the view back to the travel direction on every step.
@@ -85,11 +97,18 @@ export class ReorientationComponent
 
         subs.push(this._configuration$.subscribe(
             (configuration: ReorientationConfiguration): void => {
+                this._reorientOnSpatialNav =
+                    configuration.reorientOnSpatialNav ??
+                    DEFAULT_REORIENTATION_CONFIGURATION.reorientOnSpatialNav;
                 this._engine = new ReorientationEngine(
                     this._createProvider(), configuration);
                 this._activeId = null;
                 this._computedBasicX = 0.5;
                 this._lastSeq = null;
+                // NOT _adoptedView: it is host intent that can be handed over
+                // before this fires (activation and configure() both re-run
+                // this), and clearing it here silently drops the view the host
+                // asked to keep.
                 this._resetOffset();
             }));
 
@@ -138,6 +157,19 @@ export class ReorientationComponent
      * reoriented pano, end of sequence, or not yet computed — so callers can
      * fall back to the image's own compass angle.
      */
+    /**
+     * The heading each image settles on, emitted once this component has
+     * decided whether to turn it.
+     *
+     * A host drawing its own indicator cannot infer this: the decision is
+     * asynchronous (it waits on the engine), and when the view is carried
+     * across — any direction arrow, or a turn below the reorientation
+     * threshold — no camera moves, so no bearing event is produced either.
+     */
+    public get settled$(): Observable<ReorientationSettledEvent> {
+        return this._settled$;
+    }
+
     public getReorientedBearing(id: string): number | null {
         const engine = this._engine;
         if (!engine) {
@@ -154,6 +186,50 @@ export class ReorientationComponent
         const offset = result.seq != null && result.seq === this._lastSeq ?
             this._userOffsetX * 360 : 0;
         return ((result.travel + offset) % 360 + 360) % 360;
+    }
+
+    /**
+     * Treat the given basic coordinates as the user's look-around offset rather
+     * than reorienting away from them, and land the current image on them.
+     *
+     * For a view the host already knows about but this component never observed
+     * — a shared link carrying explicit basic coordinates, say — the offset
+     * would otherwise be discarded and the next navigation would snap to the
+     * travel direction. Coordinates are passed in rather than read from the
+     * viewer so the call does not race the host applying them.
+     */
+    public adoptView(basic: number[]): void {
+        this._adoptedView = basic != null && basic.length === 2 ?
+            [basic[0], basic[1]] : null;
+    }
+
+    /**
+     * Whether navigating to the given image with a direction arrow would
+     * reorient it, rather than keeping the view the arrow carries across.
+     *
+     * Lets a host predict the heading the user is about to land on: the
+     * {@link getReorientedBearing} value when this is true, the viewer's
+     * current bearing when it is false. Only an arrow onto the immediate
+     * neighbour within the current sequence reorients — a sideways hop or a
+     * sequence crossing keeps the carried view.
+     */
+    public reorientsOnSpatialNavTo(id: string): boolean {
+        const engine = this._engine;
+        if (!this._reorientOnSpatialNav ||
+            engine == null ||
+            this._activeId == null) {
+            return false;
+        }
+        const from = engine.get(this._activeId);
+        const to = engine.get(id);
+        if (from == null || !from.valid || to == null || !to.valid) {
+            return false;
+        }
+        if (to.seq == null || to.seq !== this._lastSeq) {
+            return false;
+        }
+
+        return from.nextId === id || from.prevId === id;
     }
 
     private _reorient(
@@ -179,6 +255,12 @@ export class ReorientationComponent
                     image.mesh.vertices.length : -1;
                 const hardCut = meshV <= 0;
                 if (!result || !result.valid) {
+                    // An adopted view belongs to the navigation that supplied
+                    // it. A landing image that cannot be reoriented never
+                    // consumes it, and leaving it set would frame whichever
+                    // pano resolves next with a stale look-around offset.
+                    this._adoptedView = null;
+
                     return;
                 }
                 this._computedBasicX = result.basicX;
@@ -191,21 +273,45 @@ export class ReorientationComponent
                     result.seq != null && result.seq !== this._lastSeq;
                 this._lastSeq = result.seq;
 
-                // How we crossed into the new sequence decides what to land on.
-                // Step* means "keep the viewing direction", so carry the incoming
-                // view unchanged (offset seeded from it below, no rotation).
-                // Turn* is a deliberate rotation, so re-base to the new
-                // sequence's travel but keep the look-around offset — the turn
-                // happens relative to the current view. Everything else (Next/
-                // Prev, map click, shared link, fresh load) resets to travel.
-                const carryView = freshSequence && this._isStep(direction);
-                const turnView = freshSequence && this._isTurn(direction);
-                const resetView = freshSequence && !carryView && !turnView;
+                // An arrow move already lands at the heading the user was
+                // looking at, because the state layer carries the view across
+                // the image change. Crossing into a new sequence that way keeps
+                // that view and adopts it as this sequence's look-around offset,
+                // so nothing rotates here and the following in-sequence steps
+                // preserve the framing the user arrived with. Everything else
+                // (Next/Prev, map click, shared link, fresh load) resets to
+                // travel.
+                const spatialNav =
+                    this._isStep(direction) || this._isTurn(direction);
+                const leftAnother = fromId != null && fromId !== id;
+                const fromResult = leftAnother ? engine.get(fromId) : null;
+                const neighbor = fromResult != null &&
+                    (fromResult.nextId === id || fromResult.prevId === id);
+                // An arrow that lands somewhere other than the image next to
+                // the one we left is a sideways hop, not a step along the road:
+                // a parallel pass, or the return leg of a capture that doubles
+                // back, whose travel direction can be the reverse of ours.
+                // Facing its travel would swing the user around, so treat it
+                // like a sequence crossing and keep the carried view.
+                const lateralHop =
+                    spatialNav && leftAnother && fromResult != null && !neighbor;
+                const carryView = spatialNav && (freshSequence || lateralHop);
+                const resetView = freshSequence && !carryView;
 
                 if (freshSequence) {
                     // Drop look-ahead hints from the prior sequence so nothing
                     // carries over; this sequence registers its own as it goes.
                     this._navigator.stateService.clearReorientations();
+                }
+
+                // Within a sequence an arrow step is where reorientation earns
+                // its keep: the carried view drifts off-axis as the road bends.
+                // Opt out to compare against plain carried-view navigation.
+                if (spatialNav && !freshSequence &&
+                    !this._reorientOnSpatialNav) {
+                    this._adoptedView = null;
+
+                    return;
                 }
 
                 // Pitch is tracked deterministically via the offset (the live
@@ -230,10 +336,7 @@ export class ReorientationComponent
                 // the one we left is a jump (map click, URL/pKey change), not a
                 // step: the incoming view says nothing about the new position,
                 // so there is nothing worth preserving.
-                const leftAnother = fromId != null && fromId !== id;
-                const fromResult = leftAnother ? engine.get(fromId) : null;
-                const jump = direction == null && leftAnother &&
-                    fromResult?.nextId !== id && fromResult?.prevId !== id;
+                const jump = direction == null && leftAnother && !neighbor;
 
                 if (!result.moving && !freshSequence && !jump) {
                     // Low motion between adjacent images — preserve the view
@@ -250,18 +353,38 @@ export class ReorientationComponent
                         if (this._activeId !== id || this._engine !== engine) {
                             return;
                         }
+                        // Adopt the host-supplied view as the offset before any
+                        // of the reset/carry decisions above take effect, so a
+                        // shared link's framing becomes the look-around offset
+                        // this sequence preserves. Read the view as those coords
+                        // too, not as whatever the viewer shows right now: the
+                        // host may not have applied them yet, and steering there
+                        // ourselves would animate a rotation the user did not
+                        // ask for. Equal to targetX, so this image never moves.
+                        let viewX = center[0];
+                        if (this._adoptedView != null) {
+                            const adopted = this._adoptedView;
+                            this._adoptedView = null;
+                            viewX = adopted[0];
+                            this._userOffsetX =
+                                wrapDelta(adopted[0] - result.basicX);
+                            this._userOffsetY = adopted[1] - 0.5;
+                            this._ySeeded = true;
+                        }
                         // Seed the held pitch offset once from the loaded view.
                         if (!this._ySeeded) {
                             this._userOffsetY = center[1] - 0.5;
                             this._ySeeded = true;
                         }
-                        // Step* into a new sequence: keep the view the user
-                        // carried in. Seed this sequence's look-around offset
-                        // from that carried view so in-sequence steps preserve
-                        // it; targetX then equals center[0], so nothing rotates.
+                        // Arrow into a new sequence or a sideways hop: keep the
+                        // view the user carried in. Seed the look-around offset
+                        // from that view so following steps preserve it;
+                        // targetX then equals viewX, so nothing rotates. Reads
+                        // viewX rather than center so it agrees with an adopted
+                        // view instead of overwriting the offset just set.
                         if (carryView) {
                             this._userOffsetX =
-                                wrapDelta(center[0] - result.basicX);
+                                wrapDelta(viewX - result.basicX);
                         }
                         const targetY =
                             Math.max(0, Math.min(1, 0.5 + this._userOffsetY));
@@ -273,7 +396,7 @@ export class ReorientationComponent
                         // trip noise (~0.1 ≈ 18°). Gating on it would just snap
                         // back projection drift — the very jitter we're avoiding.
                         const dxDeg =
-                            Math.abs(wrapDelta(targetX - center[0])) * 360;
+                            Math.abs(wrapDelta(targetX - viewX)) * 360;
                         // Reorient if the horizontal move clears the threshold,
                         // or (on a sequence change) the pitch must reset by more
                         // than the threshold to clear a carried look up/down.
@@ -300,8 +423,15 @@ export class ReorientationComponent
                         // absolute bearings: the view a neighbor carries in is
                         // where this image ends up.
                         if (typeof result.cca === "number") {
-                            const endX = move ? targetX : center[0];
+                            const endX = move ? targetX : viewX;
                             const endBearing = result.cca + (endX - 0.5) * 360;
+                            // Carrying the view moves no camera, so a host
+                            // watching bearing events would never learn where
+                            // this image ended up. Tell it outright.
+                            this._settled$.next({
+                                id,
+                                bearing: ((endBearing % 360) + 360) % 360,
+                            });
                             if (result.nextId) {
                                 this._hintNeighbor(
                                     engine, result.nextId, endBearing, targetY);

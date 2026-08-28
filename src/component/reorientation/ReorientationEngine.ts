@@ -44,9 +44,10 @@ export interface ReorientationResult {
 
 export const DEFAULT_REORIENTATION_CONFIGURATION:
     Required<ReorientationConfiguration> = {
+    reorientOnSpatialNav: true,
     prefetchAhead: 3,
     movingSpeedMps: 1,
-    lowSpeedTurnDistanceM: 2,
+    lowSpeedTurnDistanceM: 0.5,
     lowSpeedTurnMaxDeltaDeg: 30,
     outlierMaxDeltaDeg: 90,
     previousContextWindow: 5,
@@ -294,9 +295,20 @@ export class ReorientationEngine {
                 }
             }
 
+            // The outlier test exists to stop a single noisy fix from steering
+            // the view, and noise only reaches it through the low-speed branch
+            // above — two consecutive segments both at sustained speed are real
+            // displacement, so a large bearing change between them is a corner,
+            // not jitter. Rejecting those turned the sharpest corners (and, via
+            // the history window below, the whole stretch after them) into
+            // "not moving", which is exactly where reorientation is wanted.
+            const sustained = speed >= cfg.movingSpeedMps &&
+                prev != null && prev.speed >= cfg.movingSpeedMps;
+
             if (moving) {
                 if (prev && prev.moving) {
-                    if (angleDelta(tb, prev.travel) > cfg.outlierMaxDeltaDeg) {
+                    if (!sustained &&
+                        angleDelta(tb, prev.travel) > cfg.outlierMaxDeltaDeg) {
                         moving = false;
                     }
                 } else {
