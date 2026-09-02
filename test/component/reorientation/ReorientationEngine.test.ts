@@ -65,8 +65,20 @@ function spherical(
     lat: number,
     lng: number,
     cca: number,
-    ts: number): ReorientationImage {
-    return { id, lat, lng, cca, cam: "spherical", seq: "s", ts };
+    ts: number,
+    originalLat?: number,
+    originalLng?: number): ReorientationImage {
+    return {
+        id,
+        lat,
+        lng,
+        originalLat,
+        originalLng,
+        cca,
+        cam: "spherical",
+        seq: "s",
+        ts,
+    };
 }
 
 describe("ReorientationEngine.precompute", () => {
@@ -88,6 +100,21 @@ describe("ReorientationEngine.precompute", () => {
         expect(result.moving).toBe(true);
         expect(result.nextId).toBe("c");
         expect(result.basicX).toBeCloseTo(0.75, 2);
+    });
+
+    it("uses the original track when computed speed is impossible", async () => {
+        const images: Fixture = {
+            a: spherical("a", 0, 0, 90, 1000, 0, 0),
+            b: spherical("b", 0.001, 0, 90, 1040, 0, 0.00006),
+            c: spherical("c", 0.00101, 0, 90, 1080, 0, 0.00012),
+        };
+        const engine = new ReorientationEngine(provider(images, ["a", "b", "c"]));
+
+        await engine.precompute("a");
+        await engine.precompute("b");
+
+        expect(engine.get("a").travel).toBeCloseTo(90, 1);
+        expect(engine.get("b").travel).toBeCloseTo(90, 1);
     });
 
     it("accepts a low-speed step as a turn when compass agrees", async () => {

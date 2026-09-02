@@ -9,6 +9,8 @@ export interface ReorientationImage {
     id: string;
     lat: number;
     lng: number;
+    originalLat?: number;
+    originalLng?: number;
     cca: number;
     cam: string;
     seq: string;
@@ -58,6 +60,7 @@ export const DEFAULT_REORIENTATION_CONFIGURATION:
 const RAD = Math.PI / 180;
 const DEG = 180 / Math.PI;
 const EARTH_RADIUS_METERS = 6371000;
+const MAX_REASONABLE_SPEED_MPS = 100;
 
 function isNum(v: number): boolean {
     return typeof v === "number" && Number.isFinite(v);
@@ -114,6 +117,13 @@ interface PrevContext {
     travel: number;
 }
 
+interface Segment {
+    dist: number;
+    speed: number;
+    speedExcessive: boolean;
+    travel: number;
+}
+
 /**
  * Resolves, for an image in a sequence, the basic-x that frames the
  * direction of travel toward the next image. Motion is detected from GPS
@@ -130,6 +140,7 @@ export class ReorientationEngine {
     private _config: Required<ReorientationConfiguration>;
     private _cache: Map<string, ReorientationResult>;
     private _pending: Map<string, Promise<void>>;
+    private _originalGeometrySequences: Set<string>;
 
     constructor(
         provider: ReorientationProvider,
@@ -141,6 +152,7 @@ export class ReorientationEngine {
         };
         this._cache = new Map<string, ReorientationResult>();
         this._pending = new Map<string, Promise<void>>();
+        this._originalGeometrySequences = new Set<string>();
     }
 
     public get(id: string): ReorientationResult | null {
@@ -225,10 +237,10 @@ export class ReorientationEngine {
         nextId: string,
         depth: number): Promise<void> {
         const cfg = this._config;
-        const dist = haversineDist(cur.lat, cur.lng, nxt.lat, nxt.lng);
-        let tb = bearing(cur.lat, cur.lng, nxt.lat, nxt.lng);
-        const dt = (nxt.ts && cur.ts) ? (nxt.ts - cur.ts) / 1000 : 0;
-        const speed = dt > 0 ? dist / dt : 0;
+        const segment = this._segment(cur, nxt);
+        const dist = segment.dist;
+        let tb = segment.travel;
+        const speed = segment.speed;
         let moving = false;
 
         let prevCtx: PrevContext = null;
@@ -253,33 +265,36 @@ export class ReorientationEngine {
                     if (!hasPosition(prev)) {
                         return null;
                     }
-                    const pDist =
-                        haversineDist(prev.lat, prev.lng, cur.lat, cur.lng);
-                    const pTravel =
-                        bearing(prev.lat, prev.lng, cur.lat, cur.lng);
-                    const pDt = (cur.ts && prev.ts) ?
-                        (cur.ts - prev.ts) / 1000 : 0;
-                    const pSpeed = pDt > 0 ? pDist / pDt : 0;
-                    let pMoving = pSpeed >= cfg.movingSpeedMps;
+                    const previousSegment = this._segment(prev, cur);
+                    let pMoving = previousSegment.speedExcessive ?
+                        previousSegment.dist > cfg.lowSpeedTurnDistanceM :
+                        previousSegment.speed >= cfg.movingSpeedMps;
                     if (!pMoving && isNum(prev.cca)) {
-                        const pDelta = angleDelta(pTravel, prev.cca);
+                        const pDelta =
+                            angleDelta(previousSegment.travel, prev.cca);
                         if (pDelta < cfg.lowSpeedTurnMaxDeltaDeg &&
-                            pDist > cfg.lowSpeedTurnDistanceM) {
+                            previousSegment.dist >
+                                cfg.lowSpeedTurnDistanceM) {
                             pMoving = true;
                         }
                     }
                     return {
                         valid: true,
                         moving: pMoving,
-                        speed: pSpeed,
-                        travel: pTravel,
+                        speed: previousSegment.speed,
+                        travel: previousSegment.travel,
                     };
                 })
                 .catch(() => null);
         }
 
         return prevPromise.then((prev) => {
-            if (speed >= cfg.movingSpeedMps) {
+            if (segment.speedExcessive) {
+                // Video frame timestamps can imply impossible speeds. There is
+                // still real displacement, but it must pass the bearing-outlier
+                // checks below rather than receiving the sustained-speed bypass.
+                moving = dist > cfg.lowSpeedTurnDistanceM;
+            } else if (speed >= cfg.movingSpeedMps) {
                 // On direct jumps there is no prior segment, so only the
                 // first image in a sequence may assume sustained motion.
                 moving = prev ?
@@ -302,8 +317,11 @@ export class ReorientationEngine {
             // not jitter. Rejecting those turned the sharpest corners (and, via
             // the history window below, the whole stretch after them) into
             // "not moving", which is exactly where reorientation is wanted.
-            const sustained = speed >= cfg.movingSpeedMps &&
-                prev != null && prev.speed >= cfg.movingSpeedMps;
+            const sustained = !segment.speedExcessive &&
+                speed >= cfg.movingSpeedMps &&
+                prev != null &&
+                prev.speed >= cfg.movingSpeedMps &&
+                prev.speed <= MAX_REASONABLE_SPEED_MPS;
 
             if (moving) {
                 if (prev && prev.moving) {
@@ -373,6 +391,40 @@ export class ReorientationEngine {
                     .catch(() => { /* ignore prefetch errors */ });
             }
         });
+    }
+
+    private _segment(cur: ReorientationImage, nxt: ReorientationImage): Segment {
+        const dt = (nxt.ts && cur.ts) ? (nxt.ts - cur.ts) / 1000 : 0;
+        let dist = haversineDist(cur.lat, cur.lng, nxt.lat, nxt.lng);
+        let travel = bearing(cur.lat, cur.lng, nxt.lat, nxt.lng);
+        let speed = dt > 0 ? dist / dt : 0;
+
+        // SfM geometry can occasionally be displaced or scrambled while the
+        // original capture track is coherent. An impossible computed speed is
+        // the signal to use that original track for the whole sequence instead
+        // of switching sources again when one noisy segment happens to be short.
+        const hasOriginal =
+            isNum(cur.originalLat) && isNum(cur.originalLng) &&
+            isNum(nxt.originalLat) && isNum(nxt.originalLng);
+        if (hasOriginal && speed > MAX_REASONABLE_SPEED_MPS) {
+            this._originalGeometrySequences.add(cur.seq);
+        }
+        if (hasOriginal && this._originalGeometrySequences.has(cur.seq)) {
+            dist = haversineDist(
+                cur.originalLat, cur.originalLng,
+                nxt.originalLat, nxt.originalLng);
+            travel = bearing(
+                cur.originalLat, cur.originalLng,
+                nxt.originalLat, nxt.originalLng);
+            speed = dt > 0 ? dist / dt : 0;
+        }
+
+        return {
+            dist,
+            speed,
+            speedExcessive: speed > MAX_REASONABLE_SPEED_MPS,
+            travel,
+        };
     }
 
     private _prefetchNext(d: ReorientationResult, depth: number): void {

@@ -524,10 +524,13 @@ export class ReorientationComponent
 
     private _seed(image: Image): ReorientationImage {
         const lngLat = image.lngLat;
+        const originalLngLat = image.originalLngLat;
         return {
             id: image.id,
             lat: lngLat ? lngLat.lat : null,
             lng: lngLat ? lngLat.lng : null,
+            originalLat: originalLngLat ? originalLngLat.lat : null,
+            originalLng: originalLngLat ? originalLngLat.lng : null,
             cca: image.computedCompassAngle,
             cam: image.cameraType,
             seq: image.sequenceId,
