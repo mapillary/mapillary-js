@@ -16,6 +16,11 @@
 
 .mapillary-sequence-stepper {
     transform: translate(-50%, 0);
+    z-index: 1;
+}
+
+.mapillary-sequence-controls {
+    z-index: 1;
 }
 
 .mapillary-sequence-expander-button,

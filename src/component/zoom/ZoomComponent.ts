@@ -13,6 +13,7 @@ import {
 
 import { Component } from "../Component";
 import { ZoomConfiguration } from "../interfaces/ZoomConfiguration";
+import { createTooltipProperties } from "../util/Tooltip";
 
 import { Transform } from "../../geo/Transform";
 import { ViewportCoords } from "../../geo/ViewportCoords";
@@ -67,14 +68,22 @@ export class ZoomComponent extends Component<ZoomConfiguration> {
                         const zoom: number = frame.state.zoom;
 
                         const zoomInIcon: vd.VNode = vd.h("div.mapillary-zoom-in-icon", []);
+                        const zoomInProperties: vd.createProperties = createTooltipProperties("Zoom in", {}, "left");
                         const zoomInButton: vd.VNode = zoom >= 3 || state === State.Waiting ?
-                            vd.h("div.mapillary-zoom-in-button-inactive", [zoomInIcon]) :
-                            vd.h("div.mapillary-zoom-in-button", { onclick: (): void => { this._zoomDelta$.next(1); } }, [zoomInIcon]);
+                            vd.h("div.mapillary-zoom-in-button-inactive", zoomInProperties, [zoomInIcon]) :
+                            vd.h(
+                                "div.mapillary-zoom-in-button",
+                                { ...zoomInProperties, onclick: (): void => { this._zoomDelta$.next(1); } },
+                                [zoomInIcon]);
 
                         const zoomOutIcon: vd.VNode = vd.h("div.mapillary-zoom-out-icon", []);
+                        const zoomOutProperties: vd.createProperties = createTooltipProperties("Zoom out", {}, "left");
                         const zoomOutButton: vd.VNode = zoom <= 0 || state === State.Waiting ?
-                            vd.h("div.mapillary-zoom-out-button-inactive", [zoomOutIcon]) :
-                            vd.h("div.mapillary-zoom-out-button", { onclick: (): void => { this._zoomDelta$.next(-1); } }, [zoomOutIcon]);
+                            vd.h("div.mapillary-zoom-out-button-inactive", zoomOutProperties, [zoomOutIcon]) :
+                            vd.h(
+                                "div.mapillary-zoom-out-button",
+                                { ...zoomOutProperties, onclick: (): void => { this._zoomDelta$.next(-1); } },
+                                [zoomOutIcon]);
 
                         const compact: string = configuration.size === ComponentSize.Small ||
                             configuration.size === ComponentSize.Automatic && size.width < 640 ?
