@@ -77,6 +77,18 @@ describe("EdgeCalculator.computeSphericalEdges", () => {
         expect(sphericalEdges.length).toBe(0);
     });
 
+    it("should have a distant spherical edge when it is a fallback", () => {
+        potentialEdge1.distance = settings.sphericalMaxDistance + 1;
+
+        const sphericalEdges = edgeCalculator.computeSphericalEdges(
+            image,
+            [potentialEdge1],
+            [potentialEdge1.id]);
+
+        expect(sphericalEdges.length).toBe(1);
+        expect(sphericalEdges[0].target).toBe(potentialEdge1.id);
+    });
+
     it("should not have a spherical edge with to short distance", () => {
         potentialEdge1.distance = settings.sphericalMinDistance / 2;
 

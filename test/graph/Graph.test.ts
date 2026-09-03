@@ -1929,6 +1929,17 @@ describe("Graph.cacheSpatialEdges", () => {
         getSequence.complete();
 
         const node = graph.getNode(fullNode.id);
+        const previousEnt = helper.createImageEnt();
+        previousEnt.id = "prev";
+        previousEnt.sequence.id = fullNode.sequence.id;
+        const previous = new Image(previousEnt);
+        previous.makeComplete(previousEnt);
+        const hasNode = graph.hasNode.bind(graph);
+        const getNode = graph.getNode.bind(graph);
+        spyOn(graph, "hasNode").and.callFake(
+            (key: string): boolean => key === previous.id || hasNode(key));
+        spyOn(graph, "getNode").and.callFake(
+            (key: string): Image => key === previous.id ? previous : getNode(key));
 
         spyOn(graphCalculator, "boundingBoxCorners")
             .and.returnValue([
@@ -1951,6 +1962,7 @@ describe("Graph.cacheSpatialEdges", () => {
         graph.cacheSpatialEdges(fullNode.id);
 
         expect(getPotentialSpy.calls.first().args.length).toBe(3);
+        expect(getPotentialSpy.calls.first().args[1]).toEqual([previous]);
         expect(getPotentialSpy.calls.first().args[2].length).toBe(2);
         expect(getPotentialSpy.calls.first().args[2].indexOf("prev")).not.toBe(-1);
         expect(getPotentialSpy.calls.first().args[2].indexOf("next")).not.toBe(-1);

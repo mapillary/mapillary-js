@@ -938,7 +938,10 @@ export class Graph {
             }
         }
 
-        return this._computeSpatialEdges(node, potentialNodes, prevKey, nextKey, []);
+        const fallbackKeys: string[] = [prevKey, nextKey]
+            .filter((fallbackKey: string): boolean => fallbackKey != null);
+
+        return this._computeSpatialEdges(node, potentialNodes, prevKey, nextKey, fallbackKeys);
     }
 
     /**
@@ -961,6 +964,7 @@ export class Graph {
             .filter((fallbackKey: string): boolean => fallbackKey != null);
         const allSpatialNodes: { [key: string]: Image; } = this._requiredSpatialArea[key].all;
         const potentialNodes: Image[] = [];
+        const potentialNodeIds: { [key: string]: boolean; } = {};
         const filter: FilterFunction = this._filter;
 
         for (const spatialNodeKey in allSpatialNodes) {
@@ -971,6 +975,18 @@ export class Graph {
             const spatialNode: Image = allSpatialNodes[spatialNodeKey];
             if (spatialNode.complete && filter(spatialNode)) {
                 potentialNodes.push(spatialNode);
+                potentialNodeIds[spatialNode.id] = true;
+            }
+        }
+
+        for (const fallbackKey of fallbackKeys) {
+            if (potentialNodeIds[fallbackKey] || !this.hasNode(fallbackKey)) {
+                continue;
+            }
+
+            const fallbackNode: Image = this.getNode(fallbackKey);
+            if (fallbackNode.complete && filter(fallbackNode)) {
+                potentialNodes.push(fallbackNode);
             }
         }
 
@@ -1820,7 +1836,7 @@ export class Graph {
             this._edgeCalculator.computeStepEdges(node, potentialEdges, prevKey, nextKey);
 
         edges = edges.concat(this._edgeCalculator.computeTurnEdges(node, potentialEdges));
-        edges = edges.concat(this._edgeCalculator.computeSphericalEdges(node, potentialEdges));
+        edges = edges.concat(this._edgeCalculator.computeSphericalEdges(node, potentialEdges, fallbackKeys));
         edges = edges.concat(this._edgeCalculator.computePerspectiveToSphericalEdges(node, potentialEdges));
         edges = edges.concat(this._edgeCalculator.computeSimilarEdges(node, potentialEdges));
 

@@ -573,9 +573,13 @@ export class EdgeCalculator {
      *
      * @param {Image} node - Source node.
      * @param {Array<PotentialEdge>} potentialEdges - Potential edges.
+     * @param {Array<string>} fallbackIds - Ids allowed beyond the maximum distance.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public computeSphericalEdges(node: Image, potentialEdges: PotentialEdge[]): NavigationEdge[] {
+    public computeSphericalEdges(
+        node: Image,
+        potentialEdges: PotentialEdge[],
+        fallbackIds: string[] = []): NavigationEdge[] {
         if (!node.complete) {
             throw new ArgumentMapillaryError("Image has to be full.");
         }
@@ -589,7 +593,8 @@ export class EdgeCalculator {
         let potentialSteps: [NavigationDirection, PotentialEdge][] = [];
 
         for (let potential of potentialEdges) {
-            if (potential.distance > this._settings.sphericalMaxDistance) {
+            if (potential.distance > this._settings.sphericalMaxDistance &&
+                fallbackIds.indexOf(potential.id) < 0) {
                 continue;
             }
 
