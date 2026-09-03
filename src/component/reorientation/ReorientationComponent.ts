@@ -76,6 +76,12 @@ export class ReorientationComponent
     private _adoptedView: number[];
     private _settled$ = new Subject<ReorientationSettledEvent>();
 
+    // Live viewer bearing, and its value snapshotted at the moment an image
+    // change arrives — see the currentImage$ subscription for why the snapshot
+    // is needed.
+    private _liveBearing: number;
+    private _incomingBearing: number;
+
     // Manual horizontal look-around offset, preserved within a sequence so the
     // engine doesn't yank the view back to the travel direction on every step.
     private _userOffsetX: number;
@@ -121,11 +127,19 @@ export class ReorientationComponent
                 }
                 const fromId = this._activeId;
                 this._activeId = image.id;
+                // Snapshot now, synchronously with the change. By the time the
+                // engine resolves, the transition has already begun moving the
+                // camera, so neither the live bearing nor getCenter() still
+                // describes the view the user carried in.
+                this._incomingBearing = this._liveBearing;
                 // Consume the direction here, synchronously with the landing, so
                 // it attributes to this image and not a later re-emit.
                 const direction = this._navigator.consumeMoveDirection();
                 this._reorient(image, direction, fromId);
             }));
+
+        subs.push(this._container.renderService.bearing$.subscribe(
+            (bearing: number): void => { this._liveBearing = bearing; }));
 
         // A finished drag is a genuine user look-around (our own steering goes
         // through the state, not pointer events), so capture the offset.
@@ -146,18 +160,6 @@ export class ReorientationComponent
     }
 
     /**
-     * The reoriented viewer bearing (degrees clockwise from north) the given
-     * image will be shown at once navigated to: its travel direction plus the
-     * manual look-around offset preserved across the sequence — the exact
-     * heading the reoriented view (and any cone tracking it) ends up at.
-     *
-     * Synchronous: reads only the engine's precomputed cache (populated for the
-     * images around the current one), so there is no network round-trip.
-     * Returns null when there is no valid reorientation for the id — not a
-     * reoriented pano, end of sequence, or not yet computed — so callers can
-     * fall back to the image's own compass angle.
-     */
-    /**
      * The heading each image settles on, emitted once this component has
      * decided whether to turn it.
      *
@@ -170,6 +172,18 @@ export class ReorientationComponent
         return this._settled$;
     }
 
+    /**
+     * The reoriented viewer bearing (degrees clockwise from north) the given
+     * image will be shown at once navigated to: its travel direction plus the
+     * manual look-around offset preserved across the sequence — the exact
+     * heading the reoriented view (and any cone tracking it) ends up at.
+     *
+     * Synchronous: reads only the engine's precomputed cache (populated for the
+     * images around the current one), so there is no network round-trip.
+     * Returns null when there is no valid reorientation for the id — not a
+     * reoriented pano, end of sequence, or not yet computed — so callers can
+     * fall back to the image's own compass angle.
+     */
     public getReorientedBearing(id: string): number | null {
         const engine = this._engine;
         if (!engine) {
@@ -204,32 +218,54 @@ export class ReorientationComponent
     }
 
     /**
-     * Whether navigating to the given image with a direction arrow would
-     * reorient it, rather than keeping the view the arrow carries across.
+     * The heading the given image would be shown at if it were reached right
+     * now with a direction arrow, or null when that cannot be determined
+     * (reorientation absent, nothing cached yet, not a reorientable pano).
      *
-     * Lets a host predict the heading the user is about to land on: the
-     * {@link getReorientedBearing} value when this is true, the viewer's
-     * current bearing when it is false. Only an arrow onto the immediate
-     * neighbour within the current sequence reorients — a sideways hop or a
-     * sequence crossing keeps the carried view.
+     * Mirrors the decision _reorient makes on arrival, including the minimum
+     * turn threshold, so a host can draw a hover indicator that matches where
+     * the view will actually land. The travel direction alone is not that
+     * answer: an arrow carries the view across a sequence boundary or a
+     * sideways hop, and a turn smaller than the threshold is skipped.
      */
-    public reorientsOnSpatialNavTo(id: string): boolean {
+    public predictBearingTo(id: string): number | null {
         const engine = this._engine;
-        if (!this._reorientOnSpatialNav ||
-            engine == null ||
-            this._activeId == null) {
-            return false;
+        if (engine == null ||
+            this._activeId == null ||
+            typeof this._liveBearing !== "number") {
+            return null;
         }
         const from = engine.get(this._activeId);
-        const to = engine.get(id);
-        if (from == null || !from.valid || to == null || !to.valid) {
-            return false;
+        if (from == null || !from.valid) {
+            return null;
         }
-        if (to.seq == null || to.seq !== this._lastSeq) {
-            return false;
+        // Answered before looking the target up: anything that is not the
+        // in-sequence neighbour is a sideways hop or a sequence crossing, both
+        // of which carry the view. The engine only caches within the current
+        // sequence, so those targets are usually absent and requiring them here
+        // would return null for exactly the cases the host most needs.
+        const neighbor = from.nextId === id || from.prevId === id;
+        if (!neighbor || !this._reorientOnSpatialNav) {
+            return this._liveBearing;
         }
 
-        return from.nextId === id || from.prevId === id;
+        const to = engine.get(id);
+        if (to == null || !to.valid ||
+            typeof to.cca !== "number" ||
+            typeof to.travel !== "number") {
+            return null;
+        }
+        if (to.seq == null || to.seq !== this._lastSeq) {
+            return this._liveBearing;
+        }
+
+        const targetX = this._applyOffsetX(to.basicX);
+        const viewX = bearingToBasicX(this._liveBearing, to.cca);
+        const dxDeg = Math.abs(wrapDelta(targetX - viewX)) * 360;
+
+        return dxDeg >= MIN_REORIENT_DEG ?
+            ((((to.cca + (targetX - 0.5) * 360) % 360) + 360) % 360) :
+            this._liveBearing;
     }
 
     private _reorient(
@@ -370,6 +406,17 @@ export class ReorientationComponent
                                 wrapDelta(adopted[0] - result.basicX);
                             this._userOffsetY = adopted[1] - 0.5;
                             this._ySeeded = true;
+                        }
+                        else if (carryView &&
+                            typeof this._incomingBearing === "number" &&
+                            typeof result.cca === "number") {
+                            // Not center[0]: on a sideways hop or a sequence
+                            // crossing the two frames can be ~180 deg apart, and
+                            // the state layer is still settling that when this
+                            // resolves, so the sampled centre lags the carried
+                            // view by however far it has got.
+                            viewX = bearingToBasicX(
+                                this._incomingBearing, result.cca);
                         }
                         // Seed the held pitch offset once from the loaded view.
                         if (!this._ySeeded) {
