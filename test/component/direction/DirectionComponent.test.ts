@@ -2,6 +2,7 @@ import { throwError as observableThrowError, of as observableOf, Subject } from 
 import { DirectionComponent } from "../../../src/component/direction/DirectionComponent";
 import { DirectionDOMRenderer } from "../../../src/component/direction/DirectionDOMRenderer";
 import { ImageCache } from "../../../src/graph/ImageCache";
+import { NavigationEdgeStatus } from "../../../src/graph/interfaces/NavigationEdgeStatus";
 import { Sequence } from "../../../src/graph/Sequence";
 import { Container } from "../../../src/viewer/Container";
 import { Navigator } from "../../../src/viewer/Navigator";
@@ -79,6 +80,8 @@ describe("DirectionComponent.activate", () => {
 
         const sequence: Sequence = new Sequence({ id: "skey", image_ids: [] });
         (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(observableOf<Sequence>(sequence));
+        (<jasmine.Spy>navigatorMock.graphService.cacheSequenceSpatialEdges$).and.returnValue(
+            observableOf({ cached: false, edges: [] }));
 
         const image: Image = new ImageHelper().createImage();
         image.initializeCache(new ImageCache(undefined));
@@ -108,6 +111,8 @@ describe("DirectionComponent.activate", () => {
         const sequence: Sequence = new Sequence({ id: "skey", image_ids: [] });
         const cacheSequence$: Subject<Sequence> = new Subject<Sequence>();
         (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(cacheSequence$);
+        (<jasmine.Spy>navigatorMock.graphService.cacheSequenceSpatialEdges$).and.returnValue(
+            observableOf({ cached: false, edges: [] }));
 
         const image: Image = new ImageHelper().createImage();
         image.initializeCache(new ImageCache(undefined));
@@ -119,6 +124,45 @@ describe("DirectionComponent.activate", () => {
 
         expect(setEdgesSpy.calls.count()).toBe(1);
         expect(setEdgesSpy.calls.argsFor(0)[1]).toBe(sequence);
+    });
+
+    it("should set provisional sequence edges before spatial edges", () => {
+        const containerMock: Container = new ContainerMockCreator().create();
+        const navigatorMock: Navigator = new NavigatorMockCreator().create();
+        const renderer: DirectionDOMRenderer = new DirectionDOMRenderer({ distinguishSequence: true }, { height: 1, width: 1 });
+        const setEdgesSpy: jasmine.Spy = spyOn(renderer, "setEdges").and.stub();
+
+        const directionComponent: DirectionComponent =
+            new DirectionComponent(
+                DirectionComponent.componentName,
+                containerMock,
+                navigatorMock,
+                renderer);
+
+        directionComponent.configure({ distinguishSequence: true });
+        directionComponent.activate();
+
+        const sequence: Sequence = new Sequence({ id: "skey", image_ids: [] });
+        (<jasmine.Spy>navigatorMock.graphService.cacheSequence$).and.returnValue(observableOf<Sequence>(sequence));
+
+        const sequenceEdges$ = new Subject<NavigationEdgeStatus>();
+        (<jasmine.Spy>navigatorMock.graphService.cacheSequenceSpatialEdges$).and.returnValue(sequenceEdges$);
+
+        const image: Image = new ImageHelper().createImage();
+        image.initializeCache(new ImageCache(undefined));
+        (<Subject<Image>>navigatorMock.stateService.currentImage$).next(image);
+
+        const provisional: NavigationEdgeStatus = { cached: false, edges: [] };
+        sequenceEdges$.next(provisional);
+
+        expect(setEdgesSpy.calls.count()).toBe(1);
+        expect(setEdgesSpy.calls.argsFor(0)[0]).toBe(provisional);
+
+        const spatial: NavigationEdgeStatus = { cached: true, edges: [] };
+        image.cacheSpatialEdges(spatial.edges);
+
+        expect(setEdgesSpy.calls.count()).toBe(2);
+        expect(setEdgesSpy.calls.argsFor(1)[0]).toEqual(spatial);
     });
 
     it("should set edges when distinguishing sequence and cache sequence throws", () => {

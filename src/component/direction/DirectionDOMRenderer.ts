@@ -32,6 +32,7 @@ export class DirectionDOMRenderer {
     private _distinguishSequence: boolean;
 
     private _needsRender: boolean;
+    private _edgesCached: boolean;
 
     private _stepEdges: NavigationEdge[];
     private _turnEdges: NavigationEdge[];
@@ -57,6 +58,7 @@ export class DirectionDOMRenderer {
         this._distinguishSequence = false;
 
         this._needsRender = false;
+        this._edgesCached = false;
 
         this._stepEdges = [];
         this._turnEdges = [];
@@ -200,6 +202,7 @@ export class DirectionDOMRenderer {
     }
 
     private _clearEdges(): void {
+        this._edgesCached = false;
         this._stepEdges = [];
         this._turnEdges = [];
         this._sphericalEdges = [];
@@ -207,6 +210,7 @@ export class DirectionDOMRenderer {
     }
 
     private _setEdges(edgeStatus: NavigationEdgeStatus, sequence: Sequence): void {
+        this._edgesCached = edgeStatus.cached;
         this._stepEdges = [];
         this._turnEdges = [];
         this._sphericalEdges = [];
@@ -410,7 +414,9 @@ export class DirectionDOMRenderer {
 
         let onClick: (e: Event) => void =
             (e: Event): void => {
-                navigator.moveDir$(direction)
+                (this._edgesCached ?
+                    navigator.moveDir$(direction) :
+                    navigator.moveTo$(key, direction))
                     .subscribe(
                         undefined,
                         (error: Error): void => {
@@ -438,7 +444,9 @@ export class DirectionDOMRenderer {
 
         let onClick: (e: Event) => void =
             (e: Event): void => {
-                navigator.moveDir$(direction)
+                (this._edgesCached ?
+                    navigator.moveDir$(direction) :
+                    navigator.moveTo$(key, direction))
                     .subscribe(
                         undefined,
                         (error: Error): void => {

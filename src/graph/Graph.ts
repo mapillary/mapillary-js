@@ -44,6 +44,7 @@ import { ImagesContract } from "../api/contracts/ImagesContract";
 import { SequenceContract } from "../api/contracts/SequenceContract";
 import { CoreImagesContract } from "../api/contracts/CoreImagesContract";
 import { CancelMapillaryError } from "../error/CancelMapillaryError";
+import { geodeticToEnu } from "../geo/GeoCoords";
 
 type NodeTiles = {
     cache: string[];
@@ -909,6 +910,38 @@ export class Graph {
     }
 
     /**
+     * Compute spatial edges to the adjacent images in a node's sequence.
+     *
+     * @param {string} key - Key of node.
+     * @returns {Array<NavigationEdge>} Spatial edges to cached adjacent images.
+     * @throws {GraphMapillaryError} When the node or its sequence is not cached.
+     */
+    public getSequenceSpatialEdges(key: string): NavigationEdge[] {
+        const node: Image = this.getNode(key);
+        if (!(node.sequenceId in this._sequences)) {
+            throw new GraphMapillaryError(`Sequence is not cached (${key}), (${node.sequenceId})`);
+        }
+
+        const sequence: Sequence = this._sequences[node.sequenceId].sequence;
+        const prevKey: string = sequence.findPrev(node.id);
+        const nextKey: string = sequence.findNext(node.id);
+        const potentialNodes: Image[] = [];
+
+        for (const candidateKey of [prevKey, nextKey]) {
+            if (candidateKey == null || !this.hasNode(candidateKey)) {
+                continue;
+            }
+
+            const candidate: Image = this.getNode(candidateKey);
+            if (candidate.complete && this._filter(candidate)) {
+                potentialNodes.push(candidate);
+            }
+        }
+
+        return this._computeSpatialEdges(node, potentialNodes, prevKey, nextKey, []);
+    }
+
+    /**
      * Cache spatial edges for a node.
      *
      * @param {string} key - Key of node.
@@ -920,49 +953,29 @@ export class Graph {
             throw new GraphMapillaryError(`Spatial edges already cached (${key}).`);
         }
 
-        let node: Image = this.getNode(key);
-        let sequence: Sequence = this._sequences[node.sequenceId].sequence;
+        const node: Image = this.getNode(key);
+        const sequence: Sequence = this._sequences[node.sequenceId].sequence;
+        const prevKey: string = sequence.findPrev(node.id);
+        const nextKey: string = sequence.findNext(node.id);
+        const fallbackKeys: string[] = [prevKey, nextKey]
+            .filter((fallbackKey: string): boolean => fallbackKey != null);
+        const allSpatialNodes: { [key: string]: Image; } = this._requiredSpatialArea[key].all;
+        const potentialNodes: Image[] = [];
+        const filter: FilterFunction = this._filter;
 
-        let fallbackKeys: string[] = [];
-        let prevKey: string = sequence.findPrev(node.id);
-        if (prevKey != null) {
-            fallbackKeys.push(prevKey);
-        }
-
-        let nextKey: string = sequence.findNext(node.id);
-        if (nextKey != null) {
-            fallbackKeys.push(nextKey);
-        }
-
-        let allSpatialNodes: { [key: string]: Image; } = this._requiredSpatialArea[key].all;
-        let potentialNodes: Image[] = [];
-        let filter: FilterFunction = this._filter;
-        for (let spatialNodeKey in allSpatialNodes) {
+        for (const spatialNodeKey in allSpatialNodes) {
             if (!allSpatialNodes.hasOwnProperty(spatialNodeKey)) {
                 continue;
             }
 
-            let spatialNode: Image = allSpatialNodes[spatialNodeKey];
-
+            const spatialNode: Image = allSpatialNodes[spatialNodeKey];
             if (spatialNode.complete && filter(spatialNode)) {
                 potentialNodes.push(spatialNode);
             }
         }
 
-        let potentialEdges: PotentialEdge[] =
-            this._edgeCalculator.getPotentialEdges(node, potentialNodes, fallbackKeys);
-
-        let edges: NavigationEdge[] =
-            this._edgeCalculator.computeStepEdges(
-                node,
-                potentialEdges,
-                prevKey,
-                nextKey);
-
-        edges = edges.concat(this._edgeCalculator.computeTurnEdges(node, potentialEdges));
-        edges = edges.concat(this._edgeCalculator.computeSphericalEdges(node, potentialEdges));
-        edges = edges.concat(this._edgeCalculator.computePerspectiveToSphericalEdges(node, potentialEdges));
-        edges = edges.concat(this._edgeCalculator.computeSimilarEdges(node, potentialEdges));
+        const edges: NavigationEdge[] =
+            this._computeSpatialEdges(node, potentialNodes, prevKey, nextKey, fallbackKeys);
 
         node.cacheSpatialEdges(edges);
 
@@ -1266,12 +1279,29 @@ export class Graph {
             cacheNodes: {},
         };
 
-        for (let spatialItem of spatialItems) {
-            spatialNodes.all[spatialItem.node.id] = spatialItem.node;
+        for (const spatialItem of spatialItems) {
+            const spatialNode: Image = spatialItem.node;
+            const spatialLngLat: LngLat = spatialNode.lngLat;
+            const enu: number[] = geodeticToEnu(
+                spatialLngLat.lng,
+                spatialLngLat.lat,
+                0,
+                node.lngLat.lng,
+                node.lngLat.lat,
+                0);
+            const horizontalDistanceSquared: number = enu[0] * enu[0] + enu[1] * enu[1];
 
-            if (!spatialItem.node.complete) {
-                spatialNodes.cacheKeys.push(spatialItem.node.id);
-                spatialNodes.cacheNodes[spatialItem.node.id] = spatialItem.node;
+            // Adjacent sequence images remain eligible as distance fallbacks.
+            if (horizontalDistanceSquared > this._tileThreshold * this._tileThreshold &&
+                spatialNode.sequenceId !== node.sequenceId) {
+                continue;
+            }
+
+            spatialNodes.all[spatialNode.id] = spatialNode;
+
+            if (!spatialNode.complete) {
+                spatialNodes.cacheKeys.push(spatialNode.id);
+                spatialNodes.cacheNodes[spatialNode.id] = spatialNode;
             }
         }
 
@@ -1774,6 +1804,27 @@ export class Graph {
      */
     public unsubscribe(): void {
         this._filterSubscription.unsubscribe();
+    }
+
+    private _computeSpatialEdges(
+        node: Image,
+        potentialNodes: Image[],
+        prevKey: string,
+        nextKey: string,
+        fallbackKeys: string[]): NavigationEdge[] {
+
+        const potentialEdges: PotentialEdge[] =
+            this._edgeCalculator.getPotentialEdges(node, potentialNodes, fallbackKeys);
+
+        let edges: NavigationEdge[] =
+            this._edgeCalculator.computeStepEdges(node, potentialEdges, prevKey, nextKey);
+
+        edges = edges.concat(this._edgeCalculator.computeTurnEdges(node, potentialEdges));
+        edges = edges.concat(this._edgeCalculator.computeSphericalEdges(node, potentialEdges));
+        edges = edges.concat(this._edgeCalculator.computePerspectiveToSphericalEdges(node, potentialEdges));
+        edges = edges.concat(this._edgeCalculator.computeSimilarEdges(node, potentialEdges));
+
+        return edges;
     }
 
     private _addNewKeys<T>(keys: { [key: string]: boolean; }, dict: { [key: string]: T; }): void {

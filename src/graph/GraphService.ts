@@ -28,6 +28,7 @@ import { FilterExpression } from "./FilterExpression";
 import { Graph } from "./Graph";
 import { GraphMode } from "./GraphMode";
 import { Image } from "./Image";
+import { NavigationEdgeStatus } from "./interfaces/NavigationEdgeStatus";
 import { Sequence } from "./Sequence";
 
 import { LngLat } from "../api/interfaces/LngLat";
@@ -466,6 +467,61 @@ export class GraphService {
             map(
                 (graph: Graph): Sequence => {
                     return graph.getSequence(sequenceId);
+                }));
+    }
+
+    /**
+     * Cache the adjacent sequence images and compute provisional spatial edges.
+     *
+     * @param {string} id - Id of the source image.
+     * @returns {Observable<NavigationEdgeStatus>} Observable emitting edges to
+     * adjacent sequence images without waiting for the full spatial area.
+     */
+    public cacheSequenceSpatialEdges$(id: string): Observable<NavigationEdgeStatus> {
+        return this._graph$.pipe(
+            first(),
+            mergeMap(
+                (graph: Graph): Observable<Graph> => {
+                    if (graph.isCachingNodeSequence(id) || !graph.hasNodeSequence(id)) {
+                        return graph.cacheNodeSequence$(id);
+                    }
+
+                    return observableOf<Graph>(graph);
+                }),
+            mergeMap(
+                (graph: Graph): Observable<Graph> => {
+                    const node: Image = graph.getNode(id);
+                    const sequence: Sequence = graph.getSequence(node.sequenceId);
+                    const adjacentIds: string[] = [
+                        sequence.findPrev(id),
+                        sequence.findNext(id),
+                    ].filter((adjacentId: string): boolean => adjacentId != null);
+
+                    if (adjacentIds.length === 0) {
+                        return observableOf<Graph>(graph);
+                    }
+
+                    return observableFrom(adjacentIds).pipe(
+                        mergeMap(
+                            (adjacentId: string): Observable<Graph> => {
+                                if (graph.isCachingFull(adjacentId) || !graph.hasNode(adjacentId)) {
+                                    return graph.cacheFull$(adjacentId);
+                                }
+
+                                if (graph.isCachingFill(adjacentId) || !graph.getNode(adjacentId).complete) {
+                                    return graph.cacheFill$(adjacentId);
+                                }
+
+                                return observableOf<Graph>(graph);
+                            }),
+                        takeLast(1));
+                }),
+            map(
+                (graph: Graph): NavigationEdgeStatus => {
+                    return {
+                        cached: false,
+                        edges: graph.getSequenceSpatialEdges(id),
+                    };
                 }));
     }
 
