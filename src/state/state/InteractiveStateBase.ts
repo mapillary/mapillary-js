@@ -322,6 +322,11 @@ export abstract class InteractiveStateBase extends StateBase {
         this._desiredZoom = this._zoom;
     }
 
+    public zoomTo(zoom: number): void {
+        this._desiredZoom = this._spatial.clamp(
+            zoom, this._minZoom, this._maxZoom);
+    }
+
     protected _applyRotation(delta: EulerRotation, camera: Camera): void {
         if (camera == null) {
             return;
@@ -549,9 +554,6 @@ export abstract class InteractiveStateBase extends StateBase {
     }
 
     protected _setDesiredZoom(): void {
-        this._desiredZoom =
-            isSpherical(this._currentImage.cameraType) ||
-                this._previousImage == null ?
-                this._zoom : 0;
+        this._desiredZoom = this._zoom;
     }
 }

@@ -139,6 +139,10 @@ export class StateContext implements IStateContext {
         this._state.setZoom(zoom);
     }
 
+    public zoomTo(zoom: number): void {
+        this._state.zoomTo(zoom);
+    }
+
     public update(delta: number): void {
         this._state.update(delta);
     }

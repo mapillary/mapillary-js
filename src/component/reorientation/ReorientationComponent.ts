@@ -1,5 +1,6 @@
 import { Observable, Subject } from "rxjs";
-import { first } from "rxjs/operators";
+import { filter, first } from "rxjs/operators";
+import * as THREE from "three";
 
 import { Component } from "../Component";
 import { ComponentName } from "../ComponentName";
@@ -17,12 +18,22 @@ import {
 import { Image } from "../../graph/Image";
 import { NavigationDirection } from "../../graph/edge/NavigationDirection";
 import { Sequence } from "../../graph/Sequence";
+import { isSpherical } from "../../geo/Geo";
+import { Transform } from "../../geo/Transform";
+import { ViewportCoords } from "../../geo/ViewportCoords";
+import { RenderCamera } from "../../render/RenderCamera";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 
 // Skip a reorientation when it would move the current view less than this many
 // degrees (on either axis) — small moves are just jitter.
 const MIN_REORIENT_DEG = 15;
+const MAX_HORIZON_CORRECTION_DEG = 60;
+const MAX_REORIENTATION_ROLL_DEG = 30;
+const MAX_PERSPECTIVE_AUTO_ZOOM = 0.75;
+const MAX_PERSPECTIVE_FOV = 125;
+const PERSPECTIVE_EDGE_MARGIN = 1e-3;
+const USER_ZOOM_EPSILON = 1e-2;
 
 /**
  * The heading an image ended up being shown at, once reorientation has decided
@@ -36,17 +47,17 @@ export interface ReorientationSettledEvent {
 /**
  * @class ReorientationComponent
  *
- * @classdesc Reorients each spherical image to face the direction of travel
- * (the great-circle bearing toward the next image in the sequence) as the
- * user navigates, instead of preserving the previous look direction. If the
- * user drags to look around, that manual offset is preserved across the rest
- * of the sequence rather than re-facing forward on every step.
+ * @classdesc Reorients spherical images to face the direction of travel and
+ * levels their horizon. Perspective images keep their heading but are leveled
+ * and fitted so rotation does not expose the image boundary. If the user drags
+ * to look around, that manual offset is preserved across the rest of a
+ * spherical sequence rather than re-facing forward on every step.
  *
- * Crossing into a new sequence with a direction arrow keeps the carried view
- * rather than snapping to travel — the arrow's own transition already matched
- * the angle — and adopts it as the new sequence's look-around offset. Every
- * other way into a new sequence — Next/Prev, map click, shared link, fresh
- * load — resets to travel + horizon.
+ * Crossing into a new spherical sequence with a direction arrow keeps the
+ * carried view rather than snapping to travel — the arrow's own transition
+ * already matched the angle — and adopts it as the new sequence's look-around
+ * offset. Every other way into a new sequence — Next/Prev, map click, shared
+ * link, fresh load — resets to travel + horizon.
  *
  * Active by default; disable with `component: { reorientation: false }`.
  *
@@ -72,9 +83,14 @@ export class ReorientationComponent
     // load or a deliberate jump to another capture) can be reoriented even when
     // the landing image's own GPS speed reads as stationary.
     private _lastSeq: string;
+    private _imageSequence: string;
+    private _sequenceChanged: boolean;
+    private _appliedPerspectiveZoom: number;
+    private _userZoomOverride: boolean;
     private _reorientOnSpatialNav: boolean;
     private _adoptedView: number[];
-    private _settled$ = new Subject<ReorientationSettledEvent>();
+    private _settled$: Subject<ReorientationSettledEvent> =
+        new Subject<ReorientationSettledEvent>();
 
     // Live viewer bearing, and its value snapshotted at the moment an image
     // change arrives — see the currentImage$ subscription for why the snapshot
@@ -86,77 +102,17 @@ export class ReorientationComponent
     // engine doesn't yank the view back to the travel direction on every step.
     private _userOffsetX: number;
 
-    // Vertical look offset from the horizon. Seeded once per activation from the
-    // current view (so a shared link's y / carried pitch is kept) and updated on
-    // drag, then applied deterministically as 0.5 + offset. Re-reading the live
+    // Vertical look offset from the reconstructed horizon. Seeded once per
+    // activation from the current view and updated on drag. Re-reading the live
     // y every image round-trips through the spherical projection and drifts, so
     // it is held, not re-read.
     private _userOffsetY: number;
     private _ySeeded: boolean;
+    private _currentTransform: Transform;
+    private _viewportCoords: ViewportCoords = new ViewportCoords();
 
     constructor(name: string, container: Container, navigator: Navigator) {
         super(name, container, navigator);
-    }
-
-    protected _activate(): void {
-        const subs = this._subscriptions;
-
-        subs.push(this._configuration$.subscribe(
-            (configuration: ReorientationConfiguration): void => {
-                this._reorientOnSpatialNav =
-                    configuration.reorientOnSpatialNav ??
-                    DEFAULT_REORIENTATION_CONFIGURATION.reorientOnSpatialNav;
-                this._engine = new ReorientationEngine(
-                    this._createProvider(), configuration);
-                this._activeId = null;
-                this._computedBasicX = 0.5;
-                this._lastSeq = null;
-                // NOT _adoptedView: it is host intent that can be handed over
-                // before this fires (activation and configure() both re-run
-                // this), and clearing it here silently drops the view the host
-                // asked to keep.
-                this._resetOffset();
-            }));
-
-        // currentImage$ fires reliably on every navigation, including in-app
-        // jumps to another sequence (currentState$ did not deliver those).
-        subs.push(this._navigator.stateService.currentImage$.subscribe(
-            (image: Image): void => {
-                if (!image) {
-                    return;
-                }
-                const fromId = this._activeId;
-                this._activeId = image.id;
-                // Snapshot now, synchronously with the change. By the time the
-                // engine resolves, the transition has already begun moving the
-                // camera, so neither the live bearing nor getCenter() still
-                // describes the view the user carried in.
-                this._incomingBearing = this._liveBearing;
-                // Consume the direction here, synchronously with the landing, so
-                // it attributes to this image and not a later re-emit.
-                const direction = this._navigator.consumeMoveDirection();
-                this._reorient(image, direction, fromId);
-            }));
-
-        subs.push(this._container.renderService.bearing$.subscribe(
-            (bearing: number): void => { this._liveBearing = bearing; }));
-
-        // A finished drag is a genuine user look-around (our own steering goes
-        // through the state, not pointer events), so capture the offset.
-        subs.push(this._container.mouseService.mouseDragEnd$.subscribe(
-            (): void => { this._captureOffset(); }));
-    }
-
-    protected _deactivate(): void {
-        this._subscriptions.unsubscribe();
-        this._engine = null;
-        this._activeId = null;
-        this._lastSeq = null;
-        this._resetOffset();
-    }
-
-    protected _getDefaultConfiguration(): ReorientationConfiguration {
-        return {};
     }
 
     /**
@@ -268,6 +224,92 @@ export class ReorientationComponent
             this._liveBearing;
     }
 
+    protected _activate(): void {
+        const subs = this._subscriptions;
+
+        subs.push(this._configuration$.subscribe(
+            (configuration: ReorientationConfiguration): void => {
+                this._reorientOnSpatialNav =
+                    configuration.reorientOnSpatialNav ??
+                    DEFAULT_REORIENTATION_CONFIGURATION.reorientOnSpatialNav;
+                this._engine = new ReorientationEngine(
+                    this._createProvider(), configuration);
+                this._activeId = null;
+                this._computedBasicX = 0.5;
+                this._lastSeq = null;
+                this._imageSequence = null;
+                this._sequenceChanged = false;
+                this._appliedPerspectiveZoom = 0;
+                this._userZoomOverride = false;
+                // NOT _adoptedView: it is host intent that can be handed over
+                // before this fires (activation and configure() both re-run
+                // this), and clearing it here silently drops the view the host
+                // asked to keep.
+                this._resetOffset();
+            }));
+
+        // currentImage$ fires reliably on every navigation, including in-app
+        // jumps to another sequence (currentState$ did not deliver those).
+        subs.push(this._navigator.stateService.currentImage$.subscribe(
+            (image: Image): void => {
+                if (!image) {
+                    return;
+                }
+                this._currentTransform = new Transform(
+                    image.exifOrientation,
+                    image.width,
+                    image.height,
+                    image.scale,
+                    image.rotation,
+                    [0, 0, 0],
+                    image.image,
+                    image.camera);
+                const fromId = this._activeId;
+                this._sequenceChanged = fromId != null &&
+                    image.sequenceId !== this._imageSequence;
+                if (this._sequenceChanged) {
+                    this._navigator.stateService.setZoom(0);
+                    this._appliedPerspectiveZoom = 0;
+                    this._userZoomOverride = false;
+                }
+                this._activeId = image.id;
+                this._imageSequence = image.sequenceId;
+                // Snapshot now, synchronously with the change. By the time the
+                // engine resolves, the transition has already begun moving the
+                // camera, so neither the live bearing nor getCenter() still
+                // describes the view the user carried in.
+                this._incomingBearing = this._liveBearing;
+                // Consume the direction here, synchronously with the landing, so
+                // it attributes to this image and not a later re-emit.
+                const direction = this._navigator.consumeMoveDirection();
+                this._reorient(image, direction, fromId);
+            }));
+
+        subs.push(this._container.renderService.bearing$.subscribe(
+            (bearing: number): void => { this._liveBearing = bearing; }));
+
+        // A finished drag is a genuine user look-around (our own steering goes
+        // through the state, not pointer events), so capture the offset.
+        subs.push(this._container.mouseService.mouseDragEnd$.subscribe(
+            (): void => { this._captureOffset(); }));
+    }
+
+    protected _deactivate(): void {
+        this._subscriptions.unsubscribe();
+        this._engine = null;
+        this._activeId = null;
+        this._lastSeq = null;
+        this._imageSequence = null;
+        this._sequenceChanged = false;
+        this._appliedPerspectiveZoom = 0;
+        this._userZoomOverride = false;
+        this._resetOffset();
+    }
+
+    protected _getDefaultConfiguration(): ReorientationConfiguration {
+        return {};
+    }
+
     private _reorient(
         image: Image,
         direction: NavigationDirection,
@@ -282,6 +324,10 @@ export class ReorientationComponent
                     return;
                 }
                 const result = engine.get(id);
+                if (!isSpherical(image.cameraType)) {
+                    this._levelPerspective(id);
+                    return;
+                }
                 // Read mesh now (after the precompute delay) so it's loaded:
                 // an image with SfM mesh eases to the travel direction, one
                 // without (disconnected) hard-cuts. The transition type is NOT
@@ -296,9 +342,22 @@ export class ReorientationComponent
                     // consumes it, and leaving it set would frame whichever
                     // pano resolves next with a stale look-around offset.
                     this._adoptedView = null;
+                    this._navigator.stateService.traverse();
 
                     return;
                 }
+                const safetyCenter = this._adoptedView ??
+                    [result.basicX, this._horizonY(result.basicX)];
+                const rollDeg = this._rollDeg(safetyCenter);
+                if (rollDeg == null ||
+                    rollDeg > MAX_REORIENTATION_ROLL_DEG) {
+                    this._navigator.stateService.traverse();
+                    this._navigator.stateService.setCenter(
+                        this._adoptedView ?? [result.basicX, 0.5]);
+                    this._adoptedView = null;
+                    return;
+                }
+                this._navigator.stateService.gravityTraverse();
                 this._computedBasicX = result.basicX;
 
                 // A fresh load or a jump to another capture lands on a new
@@ -404,7 +463,8 @@ export class ReorientationComponent
                             viewX = adopted[0];
                             this._userOffsetX =
                                 wrapDelta(adopted[0] - result.basicX);
-                            this._userOffsetY = adopted[1] - 0.5;
+                            this._userOffsetY =
+                                adopted[1] - this._horizonY(adopted[0]);
                             this._ySeeded = true;
                         }
                         else if (carryView &&
@@ -420,7 +480,8 @@ export class ReorientationComponent
                         }
                         // Seed the held pitch offset once from the loaded view.
                         if (!this._ySeeded) {
-                            this._userOffsetY = center[1] - 0.5;
+                            this._userOffsetY =
+                                center[1] - this._horizonY(center[0]);
                             this._ySeeded = true;
                         }
                         // Arrow into a new sequence or a sideways hop: keep the
@@ -433,21 +494,16 @@ export class ReorientationComponent
                             this._userOffsetX =
                                 wrapDelta(viewX - result.basicX);
                         }
-                        const targetY =
-                            Math.max(0, Math.min(1, 0.5 + this._userOffsetY));
-
                         const targetX = this._applyOffsetX(result.basicX);
+                        const targetY = Math.max(
+                            0,
+                            Math.min(1, this._horizonY(targetX) + this._userOffsetY));
 
-                        // Horizontal only: the pitch is held deterministically,
-                        // so the live y wobbles with spherical-projection round-
-                        // trip noise (~0.1 ≈ 18°). Gating on it would just snap
-                        // back projection drift — the very jitter we're avoiding.
                         const dxDeg =
                             Math.abs(wrapDelta(targetX - viewX)) * 360;
-                        // Reorient if the horizontal move clears the threshold,
-                        // or (on a sequence change) the pitch must reset by more
-                        // than the threshold to clear a carried look up/down.
+                        const dyDeg = Math.abs(targetY - center[1]) * 180;
                         const move = dxDeg >= MIN_REORIENT_DEG ||
+                            dyDeg >= MIN_REORIENT_DEG ||
                             pitchResetDeg >= MIN_REORIENT_DEG;
                         if (move) {
                             if (hardCut) {
@@ -543,6 +599,143 @@ export class ReorientationComponent
             .catch((): void => { /* skip */ });
     }
 
+    private _levelPerspective(id: string): void {
+        if (this._adoptedView != null) {
+            this._navigator.stateService.gravityTraverse();
+            this._adoptedView = null;
+            return;
+        }
+
+        this._navigator.stateService.getCenter().pipe(first()).subscribe(
+            (): void => {
+                if (this._activeId !== id || this._adoptedView != null) {
+                    this._adoptedView = null;
+                    return;
+                }
+                const target = [0.5, this._horizonY(0.5)];
+                this._container.renderService.renderCameraFrame$.pipe(
+                    filter((render: RenderCamera): boolean =>
+                        render.currentImageId === id),
+                    first(),
+                ).subscribe((render: RenderCamera): void => {
+                    if (this._activeId !== id || this._adoptedView != null) {
+                        this._adoptedView = null;
+                        return;
+                    }
+                    const zoom = this._perspectiveAutoZoom(
+                        target, render.unzoomedCurrentFov);
+                    const stateService = this._navigator.stateService;
+                    if (!this._sequenceChanged &&
+                        Math.abs(render.zoom - this._appliedPerspectiveZoom) >
+                            USER_ZOOM_EPSILON) {
+                        this._userZoomOverride = true;
+                    }
+                    if (zoom == null) {
+                        stateService.traverse();
+                        stateService.zoomTo(
+                            this._userZoomOverride ? render.zoom : 0);
+                        this._appliedPerspectiveZoom = 0;
+                        return;
+                    }
+                    stateService.gravityTraverse();
+                    stateService.rotateToBasicSmooth(target);
+                    stateService.zoomTo(
+                        this._userZoomOverride ? render.zoom : zoom);
+                    this._appliedPerspectiveZoom = zoom;
+                });
+            });
+    }
+
+    private _rollDeg(center: number[]): number | null {
+        const transform = this._currentTransform;
+        if (transform == null) {
+            return null;
+        }
+        const origin = new THREE.Vector3().fromArray(
+            transform.unprojectSfM([0, 0], 0));
+        const direction = new THREE.Vector3().fromArray(
+            transform.unprojectBasic(center, 10))
+            .sub(origin)
+            .normalize();
+        const imageUp = transform.upVector()
+            .addScaledVector(direction, -transform.upVector().dot(direction))
+            .normalize();
+        const gravityUp = new THREE.Vector3(0, 0, 1)
+            .addScaledVector(direction, -direction.z)
+            .normalize();
+        const rollDeg = imageUp.angleTo(gravityUp) * 180 / Math.PI;
+        return Number.isFinite(rollDeg) ? rollDeg : null;
+    }
+
+    private _perspectiveAutoZoom(
+        center: number[], baseFov: number): number | null {
+        const transform = this._currentTransform;
+        const element = this._container.container;
+        if (transform == null || element.offsetHeight === 0) {
+            return null;
+        }
+
+        const origin = new THREE.Vector3().fromArray(
+            transform.unprojectSfM([0, 0], 0));
+        const rollDeg = this._rollDeg(center);
+        if (rollDeg == null ||
+            rollDeg > MAX_REORIENTATION_ROLL_DEG) {
+            return null;
+        }
+
+        const camera = new THREE.PerspectiveCamera(
+            60,
+            element.offsetWidth / element.offsetHeight,
+            1e-1,
+            1e4);
+        camera.position.copy(origin);
+
+        const maxFov = (basic: number[], up: THREE.Vector3): number => {
+            camera.up.copy(up);
+            camera.lookAt(new THREE.Vector3().fromArray(
+                transform.unprojectBasic(basic, 10)));
+            camera.updateMatrixWorld(true);
+
+            const fits = (fov: number): boolean => {
+                camera.fov = fov;
+                camera.updateProjectionMatrix();
+                const corners = [
+                    this._viewportCoords.viewportToBasic(
+                        -1, 1, transform, camera),
+                    this._viewportCoords.viewportToBasic(
+                        1, 1, transform, camera),
+                    this._viewportCoords.viewportToBasic(
+                        1, -1, transform, camera),
+                    this._viewportCoords.viewportToBasic(
+                        -1, -1, transform, camera),
+                ];
+                return corners.every((point: number[]): boolean =>
+                    point != null &&
+                    point[0] >= PERSPECTIVE_EDGE_MARGIN &&
+                    point[0] <= 1 - PERSPECTIVE_EDGE_MARGIN &&
+                    point[1] >= PERSPECTIVE_EDGE_MARGIN &&
+                    point[1] <= 1 - PERSPECTIVE_EDGE_MARGIN);
+            };
+
+            let low = 0;
+            let high = MAX_PERSPECTIVE_FOV;
+            for (let i = 0; i < 16; i++) {
+                const middle = (low + high) / 2;
+                if (fits(middle)) {
+                    low = middle;
+                } else {
+                    high = middle;
+                }
+            }
+            return low;
+        };
+
+        const levelFov = maxFov(center, new THREE.Vector3(0, 0, 1));
+        const zoom = Math.max(0, Math.log(baseFov / levelFov) / Math.log(2));
+        return Number.isFinite(zoom) && zoom <= MAX_PERSPECTIVE_AUTO_ZOOM ?
+            zoom : null;
+    }
+
     private _captureOffset(): void {
         const id = this._activeId;
         const engine = this._engine;
@@ -558,9 +751,42 @@ export class ReorientationComponent
                 const basis = result && result.valid ?
                     result.basicX : this._computedBasicX;
                 this._userOffsetX = wrapDelta(center[0] - basis);
-                this._userOffsetY = center[1] - 0.5;
+                this._userOffsetY =
+                    center[1] - this._horizonY(center[0]);
                 this._ySeeded = true;
             });
+    }
+
+    private _horizonY(x: number): number {
+        const transform = this._currentTransform;
+        if (transform == null) {
+            return 0.5;
+        }
+
+        const cameraZ = transform.unprojectSfM([0, 0], 0)[2];
+        let low = 0;
+        let high = 1;
+        let lowZ = transform.unprojectBasic([x, low], 10)[2] - cameraZ;
+        const highZ = transform.unprojectBasic([x, high], 10)[2] - cameraZ;
+        if (lowZ * highZ > 0) {
+            return 0.5;
+        }
+
+        for (let i = 0; i < 32; i++) {
+            const middle = (low + high) / 2;
+            const middleZ =
+                transform.unprojectBasic([x, middle], 10)[2] - cameraZ;
+            if (lowZ * middleZ > 0) {
+                low = middle;
+                lowZ = middleZ;
+            } else {
+                high = middle;
+            }
+        }
+
+        const horizon = (low + high) / 2;
+        return Math.abs(horizon - 0.5) * 180 <=
+            MAX_HORIZON_CORRECTION_DEG ? horizon : 0.5;
     }
 
     private _resetOffset(): void {

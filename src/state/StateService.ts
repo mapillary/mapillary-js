@@ -550,6 +550,11 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.setZoom(zoom); });
     }
 
+    public zoomTo(zoom: number): void {
+        this._inMotionOperation$.next(true);
+        this._invokeContextOperation((context: IStateContext) => { context.zoomTo(zoom); });
+    }
+
     public start(): void {
         this._clock.start();
         if (this._frameId == null) {

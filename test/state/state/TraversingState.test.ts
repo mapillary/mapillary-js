@@ -40,6 +40,10 @@ class TestTraversingState extends TraversingState {
         return this._currentCamera;
     }
 
+    public get desiredZoom(): number {
+        return this._desiredZoom;
+    }
+
     public get previousCamera(): Camera {
         return this._previousCamera;
     }
@@ -55,6 +59,27 @@ function createTestImage(): TestImage {
     image.mesh = { vertices: [], faces: [] };
     return image;
 }
+
+describe("TraversingState.zoomTo", () => {
+    it("should update desired zoom without changing current zoom", () => {
+        const state: IStateBase = {
+            alpha: 1,
+            camera: new Camera(),
+            currentIndex: -1,
+            geometry: new S2GeometryProvider(),
+            reference: { alt: 0, lat: 0, lng: 0 },
+            trajectory: [],
+            transitionMode: TransitionMode.Default,
+            zoom: 1,
+        };
+        const traversingState = new TestTraversingState(state);
+
+        traversingState.zoomTo(0.25);
+
+        expect(traversingState.zoom).toBe(1);
+        expect(traversingState.desiredZoom).toBe(0.25);
+    });
+});
 
 describe("TraversingState.currentCamera.lookat", () => {
     let precision: number = 1e-8;

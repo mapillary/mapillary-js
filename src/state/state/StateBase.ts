@@ -213,6 +213,8 @@ export abstract class StateBase implements IStateBase {
 
     public setZoom(zoom: number): void { /*noop*/ }
 
+    public zoomTo(zoom: number): void { /*noop*/ }
+
     public dolly(delta: number): void { /*noop*/ }
 
     public orbit(rotation: EulerRotation): void { /*noop*/ }

@@ -39,6 +39,7 @@ export interface IStateContext extends IAnimationState {
     getCenter(): number[];
     setCenter(center: number[]): void;
     setZoom(zoom: number): void;
+    zoomTo(zoom: number): void;
 
     setSpeed(speed: number): void;
     setTransitionMode(mode: TransitionMode): void;

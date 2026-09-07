@@ -87,9 +87,7 @@ export class TraversingState extends InteractiveStateBase {
             this._resetTransition();
             this._clearRotation();
 
-            this._desiredZoom =
-                isSpherical(this._currentImage.cameraType) ?
-                    this._zoom : 0;
+            this._desiredZoom = this._zoom;
 
             this._desiredLookat = null;
 
