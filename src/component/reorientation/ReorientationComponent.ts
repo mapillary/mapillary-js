@@ -807,7 +807,7 @@ export class ReorientationComponent
             lng: lngLat ? lngLat.lng : null,
             originalLat: originalLngLat ? originalLngLat.lat : null,
             originalLng: originalLngLat ? originalLngLat.lng : null,
-            cca: image.computedCompassAngle,
+            cca: image.compassAngle,
             cam: image.cameraType,
             seq: image.sequenceId,
             ts: image.capturedAt,
