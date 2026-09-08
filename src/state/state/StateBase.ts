@@ -508,14 +508,19 @@ export abstract class StateBase implements IStateBase {
             return true;
         }
 
+        if (current.clusterId != null &&
+            current.clusterId === previous.clusterId) {
+            return true;
+        }
+
         const distance = this._spatial.distanceFromLngLat(
             current.lngLat.lng,
             current.lngLat.lat,
             previous.lngLat.lng,
             previous.lngLat.lat);
 
-        // Beyond the spatial-navigation range, mesh interpolation magnifies
-        // reconstruction errors into severe zooms and warped intermediate views.
+        // Across reconstruction frames, long-range mesh interpolation magnifies
+        // alignment errors into severe zooms and warped intermediate views.
         return distance <= MAX_CAMERA_TRANSITION_DISTANCE;
     }
 }

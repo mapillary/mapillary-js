@@ -125,6 +125,7 @@ describe("StateBase.motionlessTransition", () => {
         const previousEnt = helper.createImageEnt();
         previousEnt.id = "previous";
         previousEnt.merge_id = "1";
+        previousEnt.cluster = { id: "previous", url: null };
         const previous = new TestImage(previousEnt);
         previous.makeComplete(previousEnt);
         previous.initializeCache(new ImageCache(new DataProvider()));
@@ -137,6 +138,7 @@ describe("StateBase.motionlessTransition", () => {
         const currentEnt = helper.createImageEnt();
         currentEnt.id = "current";
         currentEnt.merge_id = "1";
+        currentEnt.cluster = { id: "current", url: null };
         currentEnt.computed_geometry = { lat: 0, lng: 0.0002 };
         currentEnt.geometry = currentEnt.computed_geometry;
         const current = new TestImage(currentEnt);
@@ -152,6 +154,44 @@ describe("StateBase.motionlessTransition", () => {
         stateBase.set([current]);
 
         expect(stateBase.motionlessTransition()).toBe(true);
+    });
+
+    it("should allow distant transitions within one reconstruction", () => {
+        const stateBase = new TestStateBase(createState());
+        const helper = new ImageHelper();
+
+        const previousEnt = helper.createImageEnt();
+        previousEnt.id = "previous";
+        previousEnt.merge_id = "1";
+        previousEnt.cluster = { id: "same", url: null };
+        const previous = new TestImage(previousEnt);
+        previous.makeComplete(previousEnt);
+        previous.initializeCache(new ImageCache(new DataProvider()));
+        previous.cacheCamera(new ProjectionService());
+        previous.mesh = {
+            vertices: [0, 0, 0, 1, 1, 1, 2, 2, 2],
+            faces: [0, 1, 2],
+        };
+
+        const currentEnt = helper.createImageEnt();
+        currentEnt.id = "current";
+        currentEnt.merge_id = "1";
+        currentEnt.cluster = { id: "same", url: null };
+        currentEnt.computed_geometry = { lat: 0, lng: 0.0002 };
+        currentEnt.geometry = currentEnt.computed_geometry;
+        const current = new TestImage(currentEnt);
+        current.makeComplete(currentEnt);
+        current.initializeCache(new ImageCache(new DataProvider()));
+        current.cacheCamera(new ProjectionService());
+        current.mesh = {
+            vertices: [0, 0, 0, 1, 1, 1, 2, 2, 2],
+            faces: [0, 1, 2],
+        };
+
+        stateBase.set([previous]);
+        stateBase.set([current]);
+
+        expect(stateBase.motionlessTransition()).toBe(false);
     });
 
     it("should be true if camera up vectors diverge", () => {
