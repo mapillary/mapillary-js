@@ -4,6 +4,7 @@ import { Subscription } from "rxjs";
 import { IAnimationState } from "../../state/interfaces/IAnimationState";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { Image } from "../../graph/Image";
+import { Camera } from "../../geo/Camera";
 import { Transform } from "../../geo/Transform";
 import { TextureProvider } from "../../tile/TextureProvider";
 import { MeshFactory } from "../util/MeshFactory";
@@ -27,6 +28,10 @@ export class ImageGLRenderer {
     private _frameId: number;
     private _needsRender: boolean;
 
+    private _motionless: boolean;
+    private _previousCamera: Camera;
+    private _previousPerspective: THREE.PerspectiveCamera;
+
     constructor() {
         this._factory = new MeshFactory();
         this._scene = new MeshScene();
@@ -41,6 +46,10 @@ export class ImageGLRenderer {
 
         this._frameId = 0;
         this._needsRender = false;
+
+        this._motionless = false;
+        this._previousCamera = null;
+        this._previousPerspective = null;
     }
 
     public get frameId(): number {
@@ -177,7 +186,9 @@ export class ImageGLRenderer {
 
         renderer.render(this._scene.scenePeriphery, perspectiveCamera);
         renderer.render(this._scene.scene, perspectiveCamera);
-        renderer.render(this._scene.sceneOld, perspectiveCamera);
+        renderer.render(
+            this._scene.sceneOld,
+            this._getPreviousPerspective(perspectiveCamera));
 
         for (const plane of planes) {
             (<ProjectorShaderMaterial>plane.mesh.material).uniforms.opacity.value = this._alpha;
@@ -197,7 +208,31 @@ export class ImageGLRenderer {
             disposeProvider();
         }
 
+        this._motionless = false;
+        this._previousCamera = null;
+        this._previousPerspective = null;
         this._needsRender = true;
+    }
+
+    private _getPreviousPerspective(
+        perspectiveCamera: THREE.PerspectiveCamera)
+        : THREE.PerspectiveCamera {
+        if (!this._motionless || this._previousCamera == null) {
+            return perspectiveCamera;
+        }
+        if (this._previousPerspective == null) {
+            this._previousPerspective = perspectiveCamera.clone();
+            this._previousPerspective.position.copy(
+                this._previousCamera.position);
+            this._previousPerspective.up.copy(this._previousCamera.up);
+            this._previousPerspective.matrixAutoUpdate = true;
+            this._previousPerspective.lookAt(this._previousCamera.lookat);
+            this._previousPerspective.matrixAutoUpdate = false;
+            this._previousPerspective.updateMatrix();
+            this._previousPerspective.updateMatrixWorld(false);
+        }
+
+        return this._previousPerspective;
     }
 
     private _setShader(shader: GLShader, planes: MeshSceneItem[]): void {
@@ -257,23 +292,21 @@ export class ImageGLRenderer {
         }
 
         if (previousKey != null) {
-            const alignPrevious = state.motionless && state.alpha < 1;
-            if (alignPrevious ||
-                (previousKey !== this._currentKey && previousKey !== this._previousKey)) {
-                // A dissolve needs both images in the destination camera frame;
-                // retaining the source mesh exposes reconstruction gaps and warps.
-                const previousTransform = alignPrevious ?
-                    state.currentTransform : state.previousTransform;
+            const freezePrevious = state.motionless && state.alpha < 1;
+            if (freezePrevious ||
+                (previousKey !== this._currentKey &&
+                    previousKey !== this._previousKey)) {
                 const previousMesh =
                     this._factory.createMesh(
                         state.previousImage,
-                        previousTransform,
-                        shader);
+                        state.previousTransform,
+                        shader,
+                        !freezePrevious);
 
                 const previousPlane: MeshSceneItem = {
                     mesh: previousMesh,
                     imageId: previousKey,
-                    camera: alignPrevious ? state.currentImage.camera : state.previousImage.camera,
+                    camera: state.previousImage.camera,
                 };
                 this._scene.updateImagePlanes([previousPlane]);
             }
@@ -281,6 +314,10 @@ export class ImageGLRenderer {
             this._previousKey = previousKey;
         }
 
+        this._motionless = state.motionless && state.alpha < 1;
+        this._previousCamera = this._motionless ?
+            state.previousCamera.clone() : null;
+        this._previousPerspective = null;
         this._currentKey = currentKey;
         const currentMesh =
             this._factory.createMesh(
