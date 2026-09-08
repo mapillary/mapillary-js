@@ -44,7 +44,6 @@ import { ImagesContract } from "../api/contracts/ImagesContract";
 import { SequenceContract } from "../api/contracts/SequenceContract";
 import { CoreImagesContract } from "../api/contracts/CoreImagesContract";
 import { CancelMapillaryError } from "../error/CancelMapillaryError";
-import { isSpherical } from "../geo/Geo";
 import { geodeticToEnu } from "../geo/GeoCoords";
 
 type NodeTiles = {
@@ -2026,9 +2025,7 @@ export class Graph {
 
         if (fillNode.computed_rotation == null ||
             fillNode.computed_rotation.length !== 3) {
-            const compassAngle = isSpherical(fillNode.camera_type) ?
-                fillNode.compass_angle - 90 : fillNode.compass_angle;
-            fillNode.computed_rotation = this._graphCalculator.rotationFromCompass(compassAngle, fillNode.exif_orientation);
+            fillNode.computed_rotation = this._graphCalculator.rotationFromCompass(fillNode.compass_angle, fillNode.exif_orientation);
         }
 
         node.makeComplete(fillNode);
