@@ -1993,6 +1993,52 @@ describe("Graph.cacheSpatialEdges", () => {
         expect(getPotentialSpy.calls.first().args[2].indexOf(fullNode.id)).toBe(-1);
     });
 
+    it("should target the sequence image nearest the preferred distance", () => {
+        const api = new APIWrapper(new DataProvider());
+        const graph = new Graph(api);
+        const fullNode = helper.createImageEnt();
+        fullNode.camera_type = "spherical";
+
+        spyOn(api.data.geometry, "lngLatToCellId").and.returnValue("cell-id");
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
+
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
+        getImages.next([{ node: fullNode, node_id: fullNode.id }]);
+        getImages.complete();
+
+        graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
+        getSequence.next({
+            id: fullNode.sequence.id,
+            image_ids: ["prev-target", "prev", fullNode.id, "next", "next-target"],
+        });
+        getSequence.complete();
+
+        const adjacentNodes: { [id: string]: Image; } = {};
+        for (const [id, lng] of [["prev", -0.000027], ["next", 0.000027]] as [string, number][]) {
+            const imageEnt = helper.createImageEnt();
+            imageEnt.id = id;
+            imageEnt.sequence.id = fullNode.sequence.id;
+            imageEnt.computed_geometry = { lat: 0, lng };
+            imageEnt.geometry = imageEnt.computed_geometry;
+            const image = new Image(imageEnt);
+            image.makeComplete(imageEnt);
+            adjacentNodes[id] = image;
+        }
+
+        const hasNode = graph.hasNode.bind(graph);
+        const getNode = graph.getNode.bind(graph);
+        spyOn(graph, "hasNode").and.callFake(
+            (key: string): boolean => key in adjacentNodes || hasNode(key));
+        spyOn(graph, "getNode").and.callFake(
+            (key: string): Image => key in adjacentNodes ? adjacentNodes[key] : getNode(key));
+
+        expect(graph.getSequenceSpatialTargetIds(fullNode.id))
+            .toEqual(["prev-target", "next-target"]);
+    });
+
     test("should apply filter", () => {
         const cellId = "cell-id";
         const dataProvider = new DataProvider();

@@ -492,29 +492,18 @@ export class GraphService {
                 (graph: Graph): Observable<Graph> => {
                     const node: Image = graph.getNode(id);
                     const sequence: Sequence = graph.getSequence(node.sequenceId);
-                    const adjacentIds: string[] = [
+                    const adjacentIds = [
                         sequence.findPrev(id),
                         sequence.findNext(id),
                     ].filter((adjacentId: string): boolean => adjacentId != null);
 
-                    if (adjacentIds.length === 0) {
-                        return observableOf<Graph>(graph);
-                    }
-
-                    return observableFrom(adjacentIds).pipe(
-                        mergeMap(
-                            (adjacentId: string): Observable<Graph> => {
-                                if (graph.isCachingFull(adjacentId) || !graph.hasNode(adjacentId)) {
-                                    return graph.cacheFull$(adjacentId);
-                                }
-
-                                if (graph.isCachingFill(adjacentId) || !graph.getNode(adjacentId).complete) {
-                                    return graph.cacheFill$(adjacentId);
-                                }
-
-                                return observableOf<Graph>(graph);
-                            }),
-                        takeLast(1));
+                    return this._cacheFullImages$(graph, adjacentIds);
+                }),
+            mergeMap(
+                (graph: Graph): Observable<Graph> => {
+                    const targetIds = graph.getSequenceSpatialTargetIds(id)
+                        .filter((targetId: string): boolean => targetId != null);
+                    return this._cacheFullImages$(graph, targetIds);
                 }),
             map(
                 (graph: Graph): NavigationEdgeStatus => {
@@ -703,6 +692,27 @@ export class GraphService {
                 (): void => {
                     return undefined;
                 }));
+    }
+
+    private _cacheFullImages$(graph: Graph, ids: string[]): Observable<Graph> {
+        if (ids.length === 0) {
+            return observableOf(graph);
+        }
+
+        return observableFrom(ids).pipe(
+            mergeMap(
+                (id: string): Observable<Graph> => {
+                    if (graph.isCachingFull(id) || !graph.hasNode(id)) {
+                        return graph.cacheFull$(id);
+                    }
+
+                    if (graph.isCachingFill(id) || !graph.getNode(id).complete) {
+                        return graph.cacheFill$(id);
+                    }
+
+                    return observableOf(graph);
+                }),
+            takeLast(1));
     }
 
     private _abortSubjects<T>(subjects: Subject<T>[]): void {

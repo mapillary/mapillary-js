@@ -50,6 +50,15 @@ export class EdgeCalculator {
     }
 
     /**
+     * Returns the preferred navigation distance for an image's camera type.
+     */
+    public getPreferredSpatialDistance(node: Image): number {
+        return isSpherical(node.cameraType) ?
+            this._settings.sphericalPreferredDistance :
+            this._settings.stepPreferredDistance;
+    }
+
+    /**
      * Returns the potential edges to destination nodes for a set
      * of nodes with respect to a source node.
      *

@@ -910,24 +910,36 @@ export class Graph {
     }
 
     /**
-     * Compute spatial edges to the adjacent images in a node's sequence.
-     *
-     * @param {string} key - Key of node.
-     * @returns {Array<NavigationEdge>} Spatial edges to cached adjacent images.
-     * @throws {GraphMapillaryError} When the node or its sequence is not cached.
+     * Get sequence targets near the preferred spatial-navigation distance.
      */
-    public getSequenceSpatialEdges(key: string): NavigationEdge[] {
+    public getSequenceSpatialTargetIds(key: string): string[] {
         const node: Image = this.getNode(key);
         if (!(node.sequenceId in this._sequences)) {
             throw new GraphMapillaryError(`Sequence is not cached (${key}), (${node.sequenceId})`);
         }
 
-        const sequence: Sequence = this._sequences[node.sequenceId].sequence;
-        const prevKey: string = sequence.findPrev(node.id);
-        const nextKey: string = sequence.findNext(node.id);
+        const sequence = this._sequences[node.sequenceId].sequence;
+        return [
+            this._getSequenceSpatialTarget(node, sequence, -1),
+            this._getSequenceSpatialTarget(node, sequence, 1),
+        ];
+    }
+
+    /**
+     * Compute spatial edges to nearby images in a node's sequence.
+     *
+     * @param {string} key - Key of node.
+     * @returns {Array<NavigationEdge>} Spatial edges to cached sequence images.
+     * @throws {GraphMapillaryError} When the node or its sequence is not cached.
+     */
+    public getSequenceSpatialEdges(key: string): NavigationEdge[] {
+        const node: Image = this.getNode(key);
+        const targetKeys = this.getSequenceSpatialTargetIds(key);
+        const prevKey = targetKeys[0];
+        const nextKey = targetKeys[1];
         const potentialNodes: Image[] = [];
 
-        for (const candidateKey of [prevKey, nextKey]) {
+        for (const candidateKey of targetKeys) {
             if (candidateKey == null || !this.hasNode(candidateKey)) {
                 continue;
             }
@@ -938,7 +950,7 @@ export class Graph {
             }
         }
 
-        const fallbackKeys: string[] = [prevKey, nextKey]
+        const fallbackKeys = targetKeys
             .filter((fallbackKey: string): boolean => fallbackKey != null);
 
         return this._computeSpatialEdges(node, potentialNodes, prevKey, nextKey, fallbackKeys);
@@ -957,10 +969,10 @@ export class Graph {
         }
 
         const node: Image = this.getNode(key);
-        const sequence: Sequence = this._sequences[node.sequenceId].sequence;
-        const prevKey: string = sequence.findPrev(node.id);
-        const nextKey: string = sequence.findNext(node.id);
-        const fallbackKeys: string[] = [prevKey, nextKey]
+        const targetKeys = this.getSequenceSpatialTargetIds(key);
+        const prevKey = targetKeys[0];
+        const nextKey = targetKeys[1];
+        const fallbackKeys = targetKeys
             .filter((fallbackKey: string): boolean => fallbackKey != null);
         const allSpatialNodes: { [key: string]: Image; } = this._requiredSpatialArea[key].all;
         const potentialNodes: Image[] = [];
@@ -1820,6 +1832,44 @@ export class Graph {
      */
     public unsubscribe(): void {
         this._filterSubscription.unsubscribe();
+    }
+
+    private _getSequenceSpatialTarget(
+        node: Image,
+        sequence: Sequence,
+        direction: number): string {
+
+        const index = sequence.imageIds.indexOf(node.id);
+        const adjacentIndex = index + direction;
+        if (index < 0 || adjacentIndex < 0 || adjacentIndex >= sequence.imageIds.length) {
+            return null;
+        }
+
+        const adjacentId = sequence.imageIds[adjacentIndex];
+        if (!this.hasNode(adjacentId) || !this.getNode(adjacentId).complete) {
+            return adjacentId;
+        }
+
+        const adjacent = this.getNode(adjacentId);
+        const enu = geodeticToEnu(
+            adjacent.lngLat.lng,
+            adjacent.lngLat.lat,
+            adjacent.computedAltitude,
+            node.lngLat.lng,
+            node.lngLat.lat,
+            node.computedAltitude);
+        const distance = Math.sqrt(enu[0] * enu[0] + enu[1] * enu[1]);
+        if (!Number.isFinite(distance) || distance < 0.1) {
+            return adjacentId;
+        }
+
+        const preferredDistance = this._edgeCalculator.getPreferredSpatialDistance(node);
+        const offset = Math.max(1, Math.min(10, Math.round(preferredDistance / distance)));
+        const targetIndex = Math.max(
+            0,
+            Math.min(sequence.imageIds.length - 1, index + direction * offset));
+
+        return sequence.imageIds[targetIndex];
     }
 
     private _computeSpatialEdges(
