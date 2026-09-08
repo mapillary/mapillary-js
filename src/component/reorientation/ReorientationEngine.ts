@@ -400,14 +400,22 @@ export class ReorientationEngine {
         let speed = dt > 0 ? dist / dt : 0;
 
         // SfM geometry can occasionally be displaced or scrambled while the
-        // original capture track is coherent. An impossible computed speed is
-        // the signal to use that original track for the whole sequence instead
-        // of switching sources again when one noisy segment happens to be short.
+        // original capture track is coherent. Keep one geometry source for the
+        // sequence once the computed track becomes physically implausible.
         const hasOriginal =
             isNum(cur.originalLat) && isNum(cur.originalLng) &&
             isNum(nxt.originalLat) && isNum(nxt.originalLng);
-        if (hasOriginal && speed > MAX_REASONABLE_SPEED_MPS) {
-            this._originalGeometrySequences.add(cur.seq);
+        if (hasOriginal) {
+            const originalTravel = bearing(
+                cur.originalLat, cur.originalLng,
+                nxt.originalLat, nxt.originalLng);
+            const computedHeadingDelta = angleDelta(travel, cur.cca);
+            const originalHeadingDelta = angleDelta(originalTravel, cur.cca);
+            if (speed > MAX_REASONABLE_SPEED_MPS ||
+                (computedHeadingDelta > this._config.outlierMaxDeltaDeg &&
+                    originalHeadingDelta < this._config.lowSpeedTurnMaxDeltaDeg)) {
+                this._originalGeometrySequences.add(cur.seq);
+            }
         }
         if (hasOriginal && this._originalGeometrySequences.has(cur.seq)) {
             dist = haversineDist(

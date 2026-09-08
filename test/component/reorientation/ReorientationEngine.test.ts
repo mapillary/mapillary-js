@@ -117,6 +117,25 @@ describe("ReorientationEngine.precompute", () => {
         expect(engine.get("b").travel).toBeCloseTo(90, 1);
     });
 
+    it("uses the original track when computed geometry reverses", async () => {
+        const images: Fixture = {
+            a: spherical("a", 0, 0, 90, 1000, 0, 0),
+            b: spherical("b", 0, 0.00018, 90, 3000, 0, 0.00018),
+            c: spherical("c", 0, 0.00004, 90, 5000, 0, 0.00036),
+            d: spherical("d", 0, 0.00054, 90, 7000, 0, 0.00054),
+        };
+        const engine = new ReorientationEngine(
+            provider(images, ["a", "b", "c", "d"]));
+
+        await engine.precompute("a");
+        await engine.precompute("b");
+        await engine.precompute("c");
+
+        expect(engine.get("b").travel).toBeCloseTo(90, 1);
+        expect(engine.get("b").basicX).toBeCloseTo(0.5, 2);
+        expect(engine.get("c").travel).toBeCloseTo(90, 1);
+    });
+
     it("accepts a low-speed step as a turn when compass agrees", async () => {
         // ~11 m apart but 100 s apart -> ~0.11 m/s (below movingSpeedMps),
         // yet compass (90) agrees with eastward travel, so it counts.
