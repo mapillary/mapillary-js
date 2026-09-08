@@ -7,6 +7,8 @@ import { isSpherical } from "../../geo/Geo";
 import { isNullImageId } from "../../util/Common";
 import { TransitionMode } from "../TransitionMode";
 
+const FALLBACK_TRANSITION_SPEED = 2.5;
+
 export class TraversingState extends InteractiveStateBase {
 
     private _baseAlpha: number;
@@ -99,7 +101,11 @@ export class TraversingState extends InteractiveStateBase {
         }
 
         let animationSpeed: number = this._animationSpeed * delta / 1e-1 * 6;
-        this._baseAlpha = Math.min(1, this._baseAlpha + this._speedCoefficient * animationSpeed);
+        const transitionSpeed = this._motionless && this.transitionMode !== TransitionMode.Instantaneous ?
+            FALLBACK_TRANSITION_SPEED : 1;
+        this._baseAlpha = Math.min(
+            1,
+            this._baseAlpha + this._speedCoefficient * animationSpeed * transitionSpeed);
         if (this._smoothing) {
             this._alpha = MathUtils.smootherstep(this._baseAlpha, 0, 1);
         } else {

@@ -12,6 +12,7 @@ import { Image } from "../../graph/Image";
 import { IGeometryProvider } from "../../mapillary";
 import { connectedComponent } from "../../api/CellMath";
 
+const MAX_CAMERA_TRANSITION_DISTANCE = 20;
 const MAX_CAMERA_UP_DELTA = Math.PI / 6;
 
 export abstract class StateBase implements IStateBase {
@@ -513,7 +514,8 @@ export abstract class StateBase implements IStateBase {
             previous.lngLat.lng,
             previous.lngLat.lat);
 
-        // 50 km/h moves 28m in 2s
-        return distance < 30;
+        // Beyond the spatial-navigation range, mesh interpolation magnifies
+        // reconstruction errors into severe zooms and warped intermediate views.
+        return distance <= MAX_CAMERA_TRANSITION_DISTANCE;
     }
 }

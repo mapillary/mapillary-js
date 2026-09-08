@@ -337,7 +337,7 @@ describe("TraversingState mesh-less transition", () => {
         traversingState.update(0.1);
 
         expect(traversingState.motionless).toBe(true);
-        expect(traversingState.alpha).toBeGreaterThan(0);
+        expect(traversingState.alpha).toBeGreaterThan(0.2);
         expect(traversingState.alpha).toBeLessThan(1);
         expect(traversingState.camera.position.distanceTo(
             traversingState.currentCamera.position)).toBeCloseTo(0);

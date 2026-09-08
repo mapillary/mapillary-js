@@ -257,17 +257,23 @@ export class ImageGLRenderer {
         }
 
         if (previousKey != null) {
-            if (previousKey !== this._currentKey && previousKey !== this._previousKey) {
+            const alignPrevious = state.motionless && state.alpha < 1;
+            if (alignPrevious ||
+                (previousKey !== this._currentKey && previousKey !== this._previousKey)) {
+                // A dissolve needs both images in the destination camera frame;
+                // retaining the source mesh exposes reconstruction gaps and warps.
+                const previousTransform = alignPrevious ?
+                    state.currentTransform : state.previousTransform;
                 const previousMesh =
                     this._factory.createMesh(
                         state.previousImage,
-                        state.previousTransform,
+                        previousTransform,
                         shader);
 
                 const previousPlane: MeshSceneItem = {
                     mesh: previousMesh,
                     imageId: previousKey,
-                    camera: state.previousImage.camera,
+                    camera: alignPrevious ? state.currentImage.camera : state.previousImage.camera,
                 };
                 this._scene.updateImagePlanes([previousPlane]);
             }
