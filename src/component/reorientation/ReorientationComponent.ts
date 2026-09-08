@@ -355,8 +355,19 @@ export class ReorientationComponent
                 if (rollDeg == null ||
                     rollDeg > MAX_REORIENTATION_ROLL_DEG) {
                     this._navigator.stateService.traverse();
-                    this._navigator.stateService.setCenter(
-                        this._adoptedView ?? [result.basicX, 0.5]);
+                    let fallbackCenter =
+                        this._adoptedView ?? [result.basicX, 0.5];
+                    if (this._adoptedView == null &&
+                        this._isStep(direction) &&
+                        typeof this._incomingBearing === "number" &&
+                        typeof result.cca === "number") {
+                        const carriedX = bearingToBasicX(
+                            this._incomingBearing, result.cca);
+                        fallbackCenter = [carriedX, 0.5];
+                        this._userOffsetX =
+                            wrapDelta(carriedX - result.basicX);
+                    }
+                    this._navigator.stateService.setCenter(fallbackCenter);
                     this._adoptedView = null;
                     return;
                 }
