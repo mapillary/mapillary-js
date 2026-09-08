@@ -2023,7 +2023,8 @@ export class Graph {
             fillNode.computed_altitude = this._defaultAlt;
         }
 
-        if (fillNode.computed_rotation == null) {
+        if (fillNode.computed_rotation == null ||
+            fillNode.computed_rotation.length !== 3) {
             fillNode.computed_rotation = this._graphCalculator.rotationFromCompass(fillNode.compass_angle, fillNode.exif_orientation);
         }
 

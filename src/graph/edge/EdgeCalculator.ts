@@ -65,7 +65,8 @@ export class EdgeCalculator {
             throw new ArgumentMapillaryError("Image has to be full.");
         }
 
-        if (!node.merged) {
+        if (!node.merged &&
+            (fallbackIds.length === 0 || node.rotation.length !== 3)) {
             return [];
         }
 
@@ -77,8 +78,9 @@ export class EdgeCalculator {
         let potentialEdges: PotentialEdge[] = [];
 
         for (let potential of potentialImages) {
-            if (!potential.merged ||
-                potential.id === node.id) {
+            const fallback = fallbackIds.indexOf(potential.id) > -1;
+            if (((!node.merged || !potential.merged) && !fallback) ||
+                potential.id === node.id || potential.rotation.length !== 3) {
                 continue;
             }
 
@@ -130,7 +132,7 @@ export class EdgeCalculator {
                 potential.sequenceId === node.sequenceId;
 
             let sameMergeCC: boolean =
-                potential.mergeId === node.mergeId;
+                node.mergeId != null && potential.mergeId === node.mergeId;
 
             let sameUser: boolean =
                 potential.creatorId === node.creatorId;

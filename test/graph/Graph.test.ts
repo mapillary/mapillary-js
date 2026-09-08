@@ -320,6 +320,30 @@ describe("Graph.cacheFull$", () => {
         expect(graph.getNode(fullNode.id).id).toBe(fullNode.id);
     });
 
+    it("should derive rotation when the API returns an empty vector", (done: Function) => {
+        const api = new APIWrapper(new DataProvider());
+        const calculator = new GraphCalculator();
+        const rotation = [1, 2, 3];
+        const rotationSpy = spyOn(calculator, "rotationFromCompass")
+            .and.returnValue(rotation);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
+        spyOn(api.data.geometry, "lngLatToCellId").and.returnValue("cell-id");
+        const graph = new Graph(api, undefined, undefined, calculator);
+        const fullNode = helper.createImageEnt();
+        fullNode.computed_rotation = [];
+
+        graph.cacheFull$(fullNode.id).subscribe(
+            (g: Graph): void => {
+                expect(rotationSpy).toHaveBeenCalledWith(
+                    fullNode.compass_angle, fullNode.exif_orientation);
+                expect(g.getNode(fullNode.id).rotation).toEqual(rotation);
+                done();
+            });
+        getImages.next([{ node: fullNode, node_id: fullNode.id }]);
+        getImages.complete();
+    });
+
     it("should not make additional calls when fetching same node twice", () => {
         const api = new APIWrapper(new DataProvider());
         const calculator = new GraphCalculator();

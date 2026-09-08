@@ -337,12 +337,15 @@ export class ReorientationComponent
                     image.mesh.vertices.length : -1;
                 const hardCut = meshV <= 0;
                 if (!result || !result.valid) {
-                    // An adopted view belongs to the navigation that supplied
-                    // it. A landing image that cannot be reoriented never
-                    // consumes it, and leaving it set would frame whichever
-                    // pano resolves next with a stale look-around offset.
+                    // Switching out of Gravity can reset a center queued before
+                    // the image loaded, so restore an explicit shared-link view
+                    // after the fallback transition.
+                    const adoptedView = this._adoptedView;
                     this._adoptedView = null;
                     this._navigator.stateService.traverse();
+                    if (adoptedView != null) {
+                        this._navigator.stateService.setCenter(adoptedView);
+                    }
 
                     return;
                 }
