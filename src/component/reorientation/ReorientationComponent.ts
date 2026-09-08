@@ -349,7 +349,7 @@ export class ReorientationComponent
 
                     return;
                 }
-                const safetyCenter = this._adoptedView ??
+                const safetyCenter =
                     [result.basicX, this._horizonY(result.basicX)];
                 const rollDeg = this._rollDeg(safetyCenter);
                 if (rollDeg == null ||
