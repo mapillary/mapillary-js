@@ -12,6 +12,8 @@ import { Image } from "../../graph/Image";
 import { IGeometryProvider } from "../../mapillary";
 import { connectedComponent } from "../../api/CellMath";
 
+const MAX_CAMERA_UP_DELTA = Math.PI / 6;
+
 export abstract class StateBase implements IStateBase {
     protected _spatial: Spatial;
     protected _geometry: IGeometryProvider;
@@ -349,7 +351,8 @@ export abstract class StateBase implements IStateBase {
             this._currentImage.merged &&
             this._previousImage.merged &&
             this._hasStructure() &&
-            this._withinDistance()
+            this._withinDistance() &&
+            this._withinCameraUpDelta()
         );
     }
 
@@ -487,6 +490,13 @@ export abstract class StateBase implements IStateBase {
 
         return current.mesh.vertices.length > 0 &&
             previous.mesh.vertices.length > 0;
+    }
+
+    private _withinCameraUpDelta(): boolean {
+        // Blending camera frames with sharply different up vectors visibly
+        // rolls the scene through an orientation neither image has.
+        return this._previousCamera.up.angleTo(this._currentCamera.up) <=
+            MAX_CAMERA_UP_DELTA;
     }
 
     private _withinDistance(): boolean {

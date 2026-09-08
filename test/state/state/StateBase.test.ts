@@ -118,6 +118,29 @@ describe("StateBase.motionlessTransition", () => {
         expect(stateBase.motionlessTransition()).toBe(false);
     });
 
+    it("should be true if camera up vectors diverge", () => {
+        const state: IStateBase = createState();
+        const stateBase: TestStateBase = new TestStateBase(state);
+
+        const image1 = createCompleteImage() as TestImage;
+        image1.mesh = {
+            vertices: [0, 0, 0, 1, 1, 1, 2, 2, 2],
+            faces: [0, 1, 2],
+        };
+        const image2 = createCompleteImage() as TestImage;
+        image2.mesh = {
+            vertices: [0, 0, 0, 1, 1, 1, 2, 2, 2],
+            faces: [0, 1, 2],
+        };
+
+        stateBase.set([image1]);
+        stateBase.set([image2]);
+        stateBase.previousCamera.up.set(0, 0, 1);
+        stateBase.currentCamera.up.set(0, 1, 0);
+
+        expect(stateBase.motionlessTransition()).toBe(true);
+    });
+
     it("should be true if only previous image has structure", () => {
         const state: IStateBase = createState();
         const stateBase: TestStateBase = new TestStateBase(state);
