@@ -49,11 +49,11 @@ class TestTraversingState extends TraversingState {
     }
 }
 
-function createTestImage(): TestImage {
+function createTestImage(id: string = "key", lng: number = 0): TestImage {
     const image = new TestImage({
-        computed_geometry: { lat: 0, lng: 0 },
-        id: "key",
-        geometry: { lat: 0, lng: 0 },
+        computed_geometry: { lat: 0, lng },
+        id,
+        geometry: { lat: 0, lng },
         sequence: { id: "skey" },
     });
     image.mesh = { vertices: [], faces: [] };
@@ -303,5 +303,53 @@ describe("TraversingState.previousCamera.lookat", () => {
         expect(traversingState.previousCamera.lookat.x).toBeCloseTo(lookat.x, precision);
         expect(traversingState.previousCamera.lookat.y).toBeCloseTo(lookat.y, precision);
         expect(traversingState.previousCamera.lookat.z).toBeCloseTo(lookat.z, precision);
+    });
+});
+
+describe("TraversingState mesh-less transition", () => {
+    function createCachedImage(id: string, lng: number): TestImage {
+        const helper = new ImageHelper();
+        const image = createTestImage(id, lng);
+        image.makeComplete(helper.createSpatialImageEnt());
+        image.initializeCache(new ImageCache(new DataProvider()));
+        image.cacheCamera(new ProjectionService());
+        return image;
+    }
+
+    function createTraversingState(mode: TransitionMode): TestTraversingState {
+        return new TestTraversingState({
+            alpha: 1,
+            camera: new Camera(),
+            currentIndex: -1,
+            geometry: new S2GeometryProvider(),
+            reference: { alt: 0, lat: 0, lng: 0 },
+            trajectory: [],
+            transitionMode: mode,
+            zoom: 0,
+        });
+    }
+
+    it("should cross-fade while snapping the camera", () => {
+        const traversingState = createTraversingState(TransitionMode.Default);
+        traversingState.set([createCachedImage("previous", 0)]);
+        traversingState.set([createCachedImage("current", 0.00001)]);
+
+        traversingState.update(0.1);
+
+        expect(traversingState.motionless).toBe(true);
+        expect(traversingState.alpha).toBeGreaterThan(0);
+        expect(traversingState.alpha).toBeLessThan(1);
+        expect(traversingState.camera.position.distanceTo(
+            traversingState.currentCamera.position)).toBeCloseTo(0);
+    });
+
+    it("should preserve instantaneous transition mode", () => {
+        const traversingState = createTraversingState(TransitionMode.Instantaneous);
+        traversingState.set([createCachedImage("previous", 0)]);
+        traversingState.set([createCachedImage("current", 0.00001)]);
+
+        traversingState.update(0.1);
+
+        expect(traversingState.alpha).toBe(1);
     });
 });

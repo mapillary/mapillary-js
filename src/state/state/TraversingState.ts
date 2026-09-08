@@ -5,6 +5,7 @@ import { IStateBase } from "../interfaces/IStateBase";
 import { Image } from "../../graph/Image";
 import { isSpherical } from "../../geo/Geo";
 import { isNullImageId } from "../../util/Common";
+import { TransitionMode } from "../TransitionMode";
 
 export class TraversingState extends InteractiveStateBase {
 
@@ -92,7 +93,7 @@ export class TraversingState extends InteractiveStateBase {
             this._desiredLookat = null;
 
             // Orient the new image before it is rendered this frame so a
-            // motionless (instant) transition lands already facing the
+            // transition without camera motion lands already facing the
             // registered direction instead of flashing the carried view.
             this._applyReorientation();
         }
@@ -119,11 +120,15 @@ export class TraversingState extends InteractiveStateBase {
         this._updateZoom(animationSpeed);
         this._updateLookat(animationSpeed);
 
-        this._camera.lerpCameras(this._previousCamera, this._currentCamera, this.alpha);
+        // Fallback transitions cannot safely interpolate camera geometry, but
+        // their image alpha can still advance smoothly to produce a dissolve.
+        const cameraAlpha = this._motionless ? Math.ceil(this._alpha) : this._alpha;
+        this._camera.lerpCameras(this._previousCamera, this._currentCamera, cameraAlpha);
     }
 
     protected _getAlpha(): number {
-        return this._motionless ? Math.ceil(this._alpha) : this._alpha;
+        return this._motionless && this.transitionMode === TransitionMode.Instantaneous ?
+            Math.ceil(this._alpha) : this._alpha;
     }
 
     protected _setCurrentCamera(): void {
@@ -156,8 +161,8 @@ export class TraversingState extends InteractiveStateBase {
     }
 
     private _applyReorientation(): void {
-        // Only for instant cuts: a smooth transition should ease into the new
-        // direction, not start already there.
+        // Only for transitions without camera motion: a spatial transition
+        // should ease into the new direction, not start already there.
         if (!this._motionless || this._currentImage == null) {
             return;
         }
