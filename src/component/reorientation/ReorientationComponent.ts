@@ -56,8 +56,8 @@ export interface ReorientationSettledEvent {
  * Crossing into a new spherical sequence with a direction arrow keeps the
  * carried view rather than snapping to travel — the arrow's own transition
  * already matched the angle — and adopts it as the new sequence's look-around
- * offset. Every other way into a new sequence — Next/Prev, map click, shared
- * link, fresh load — resets to travel + horizon.
+ * offset. Every other way into a new sequence — Next/Prev, map click, or a
+ * fresh load without an explicitly adopted view — resets to travel + horizon.
  *
  * Active by default; disable with `component: { reorientation: false }`.
  *
@@ -89,6 +89,7 @@ export class ReorientationComponent
     private _userZoomOverride: boolean;
     private _reorientOnSpatialNav: boolean;
     private _adoptedView: number[];
+    private _adoptedSequence: string;
     private _settled$: Subject<ReorientationSettledEvent> =
         new Subject<ReorientationSettledEvent>();
 
@@ -171,6 +172,8 @@ export class ReorientationComponent
     public adoptView(basic: number[]): void {
         this._adoptedView = basic != null && basic.length === 2 ?
             [basic[0], basic[1]] : null;
+        this._adoptedSequence = this._adoptedView != null ?
+            this._imageSequence : null;
     }
 
     /**
@@ -265,6 +268,10 @@ export class ReorientationComponent
                     image.image,
                     image.camera);
                 const fromId = this._activeId;
+                if (this._adoptedView != null &&
+                    this._adoptedSequence == null) {
+                    this._adoptedSequence = image.sequenceId;
+                }
                 this._sequenceChanged = fromId != null &&
                     image.sequenceId !== this._imageSequence;
                 if (this._sequenceChanged) {
@@ -324,6 +331,11 @@ export class ReorientationComponent
                     return;
                 }
                 const result = engine.get(id);
+                if (this._adoptedView != null &&
+                    this._adoptedSequence != null &&
+                    image.sequenceId !== this._adoptedSequence) {
+                    this._clearAdoptedView();
+                }
                 if (!isSpherical(image.cameraType)) {
                     this._levelPerspective(id);
                     return;
@@ -339,9 +351,10 @@ export class ReorientationComponent
                 if (!result || !result.valid) {
                     // Switching out of Gravity can reset a center queued before
                     // the image loaded, so restore an explicit shared-link view
-                    // after the fallback transition.
+                    // after the fallback transition. Keep it pending because an
+                    // endpoint has no travel result from which to derive the
+                    // offset that its first valid same-sequence neighbor needs.
                     const adoptedView = this._adoptedView;
-                    this._adoptedView = null;
                     this._navigator.stateService.traverse();
                     if (adoptedView != null) {
                         this._navigator.stateService.setCenter(adoptedView);
@@ -368,7 +381,7 @@ export class ReorientationComponent
                             wrapDelta(carriedX - result.basicX);
                     }
                     this._navigator.stateService.setCenter(fallbackCenter);
-                    this._adoptedView = null;
+                    this._clearAdoptedView();
                     return;
                 }
                 this._navigator.stateService.gravityTraverse();
@@ -418,7 +431,7 @@ export class ReorientationComponent
                 // Opt out to compare against plain carried-view navigation.
                 if (spatialNav && !freshSequence &&
                     !this._reorientOnSpatialNav) {
-                    this._adoptedView = null;
+                    this._clearAdoptedView();
 
                     return;
                 }
@@ -473,7 +486,7 @@ export class ReorientationComponent
                         let viewX = center[0];
                         if (this._adoptedView != null) {
                             const adopted = this._adoptedView;
-                            this._adoptedView = null;
+                            this._clearAdoptedView();
                             viewX = adopted[0];
                             this._userOffsetX =
                                 wrapDelta(adopted[0] - result.basicX);
@@ -567,6 +580,11 @@ export class ReorientationComponent
         return ((basicX + this._userOffsetX) % 1 + 1) % 1;
     }
 
+    private _clearAdoptedView(): void {
+        this._adoptedView = null;
+        this._adoptedSequence = null;
+    }
+
     // Spherical is the pano-to-pano step, so it counts as one here.
     private _isStep(direction: NavigationDirection): boolean {
         return direction === NavigationDirection.StepLeft ||
@@ -616,14 +634,14 @@ export class ReorientationComponent
     private _levelPerspective(id: string): void {
         if (this._adoptedView != null) {
             this._navigator.stateService.gravityTraverse();
-            this._adoptedView = null;
+            this._clearAdoptedView();
             return;
         }
 
         this._navigator.stateService.getCenter().pipe(first()).subscribe(
             (): void => {
                 if (this._activeId !== id || this._adoptedView != null) {
-                    this._adoptedView = null;
+                    this._clearAdoptedView();
                     return;
                 }
                 const target = [0.5, this._horizonY(0.5)];
@@ -633,7 +651,7 @@ export class ReorientationComponent
                     first(),
                 ).subscribe((render: RenderCamera): void => {
                     if (this._activeId !== id || this._adoptedView != null) {
-                        this._adoptedView = null;
+                        this._clearAdoptedView();
                         return;
                     }
                     const zoom = this._perspectiveAutoZoom(
