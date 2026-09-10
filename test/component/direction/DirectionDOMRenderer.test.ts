@@ -231,14 +231,19 @@ describe("DirectionDOMRenderer.needsRender", () => {
 });
 
 describe("DirectionDOMRenderer.render", () => {
-    it("should place spherical sequence arrows in front and back", () => {
+    it("should align unmerged spherical sequence arrows with the panorama", () => {
         let configuration: DirectionConfiguration = {
             distinguishSequence: true,
             maxWidth: 200,
             minWidth: 100,
         };
         let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
-        let image: Image = new ImageHelper().createImage("spherical");
+        const imageEnt = new ImageHelper().createImageEnt();
+        imageEnt.camera_type = "spherical";
+        imageEnt.compass_angle = 180;
+        imageEnt.computed_compass_angle = null;
+        let image: Image = new Image(imageEnt);
+        image.makeComplete(imageEnt);
         let sequence: Sequence = new Sequence({
             id: image.sequenceId,
             image_ids: ["previous", image.id, "next"],
@@ -247,7 +252,7 @@ describe("DirectionDOMRenderer.render", () => {
             {
                 data: {
                     direction: NavigationDirection.Spherical,
-                    worldMotionAzimuth: Math.PI / 2,
+                    worldMotionAzimuth: -Math.PI / 2,
                 },
                 source: image.id,
                 target: "next",
@@ -255,7 +260,7 @@ describe("DirectionDOMRenderer.render", () => {
             {
                 data: {
                     direction: NavigationDirection.Spherical,
-                    worldMotionAzimuth: -Math.PI / 2,
+                    worldMotionAzimuth: Math.PI / 2,
                 },
                 source: image.id,
                 target: "previous",
@@ -275,8 +280,7 @@ describe("DirectionDOMRenderer.render", () => {
         renderer.setEdges({ cached: true, edges }, sequence);
 
         let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
-        renderCamera.camera.up.fromArray([0, 0, 1]);
-        renderCamera.camera.lookat.fromArray([1, 1, 0]);
+        (<any>renderCamera)._rotation = { phi: -Math.PI, theta: 0 };
         renderer.setRenderCamera(renderCamera);
 
         let navigator: Navigator = new Navigator({ container: "containerid" });
@@ -287,6 +291,21 @@ describe("DirectionDOMRenderer.render", () => {
         expect(arrows[1].properties.attributes["data-id"]).toBe("previous");
         expect(arrows[1].properties.style.transform).toContain("rotate(-180deg)");
         expect(arrows[2].properties.attributes["data-id"]).toBe("spatial");
-        expect(arrows[2].properties.style.transform).toContain("rotate(-90deg)");
+        expect(arrows[2].properties.style.transform).toContain("rotate(-270deg)");
+
+        (<any>renderCamera)._rotation = { phi: -Math.PI / 2, theta: 0 };
+        renderer.setRenderCamera(renderCamera);
+        arrows = <any[]>renderer.render(navigator).children;
+
+        expect(arrows[0].properties.style.transform).toContain("rotate(90deg)");
+        expect(arrows[1].properties.style.transform).toContain("rotate(-90deg)");
+        expect(arrows[2].properties.style.transform).toContain("rotate(-180deg)");
+
+        renderer.setImage(image);
+        renderer.setEdges({ cached: true, edges }, sequence);
+        arrows = <any[]>renderer.render(navigator).children;
+
+        expect(arrows[0].properties.style.transform).toContain("rotate(90deg)");
+        expect(arrows[1].properties.style.transform).toContain("rotate(-90deg)");
     });
 });

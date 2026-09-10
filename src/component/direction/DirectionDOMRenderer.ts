@@ -38,7 +38,7 @@ export class DirectionDOMRenderer {
     private _turnEdges: NavigationEdge[];
     private _sphericalEdges: NavigationEdge[];
     private _sequenceEdgeKeys: string[];
-    private _sequenceEdgeDirections: { [key: string]: NavigationDirection };
+    private _sequenceAzimuthOffset: number;
 
     private _stepDirections: NavigationDirection[];
     private _turnDirections: NavigationDirection[];
@@ -65,7 +65,7 @@ export class DirectionDOMRenderer {
         this._turnEdges = [];
         this._sphericalEdges = [];
         this._sequenceEdgeKeys = [];
-        this._sequenceEdgeDirections = {};
+        this._sequenceAzimuthOffset = 0;
 
         this._stepDirections = [
             NavigationDirection.StepForward,
@@ -137,6 +137,11 @@ export class DirectionDOMRenderer {
      */
     public setImage(image: Image): void {
         this._image = image;
+        this._sequenceAzimuthOffset = image != null &&
+            isSpherical(image.cameraType) &&
+            !Number.isFinite(image.computedCompassAngle) &&
+            Number.isFinite(image.compassAngle) ?
+            this._spatial.degToRad(90 - image.compassAngle) : 0;
         this._clearEdges();
 
         this._setNeedsRender();
@@ -209,7 +214,6 @@ export class DirectionDOMRenderer {
         this._turnEdges = [];
         this._sphericalEdges = [];
         this._sequenceEdgeKeys = [];
-        this._sequenceEdgeDirections = {};
     }
 
     private _setEdges(edgeStatus: NavigationEdgeStatus, sequence: Sequence): void {
@@ -218,7 +222,6 @@ export class DirectionDOMRenderer {
         this._turnEdges = [];
         this._sphericalEdges = [];
         this._sequenceEdgeKeys = [];
-        this._sequenceEdgeDirections = {};
 
         for (let edge of edgeStatus.edges) {
             let direction: NavigationDirection = edge.data.direction;
@@ -242,7 +245,6 @@ export class DirectionDOMRenderer {
             let edges: NavigationEdge[] = this._sphericalEdges
                 .concat(this._stepEdges)
                 .concat(this._turnEdges);
-            const imageIndex: number = this._image == null ? -1 : sequence.imageIds.indexOf(this._image.id);
 
             for (let edge of edges) {
                 let edgeKey: string = edge.target;
@@ -252,10 +254,6 @@ export class DirectionDOMRenderer {
                 }
 
                 this._sequenceEdgeKeys.push(edgeKey);
-                if (imageIndex > -1 && edgeIndex !== imageIndex) {
-                    this._sequenceEdgeDirections[edgeKey] = edgeIndex < imageIndex ?
-                        NavigationDirection.Prev : NavigationDirection.Next;
-                }
             }
         }
     }
@@ -264,17 +262,11 @@ export class DirectionDOMRenderer {
         let arrows: vd.VNode[] = [];
 
         for (let sphericalEdge of this._sphericalEdges) {
-            const sequenceDirection: NavigationDirection =
-                this._sequenceEdgeDirections[sphericalEdge.target];
-            const azimuth: number = sequenceDirection == null ?
-                sphericalEdge.data.worldMotionAzimuth :
-                rotation.phi + (sequenceDirection === NavigationDirection.Prev ? Math.PI : 0);
-
             arrows.push(
                 this._createVNodeByKey(
                     navigator,
                     sphericalEdge.target,
-                    azimuth,
+                    this._getSphericalEdgeAzimuth(sphericalEdge),
                     rotation,
                     this._calculator.outerRadius,
                     "mapillary-direction-arrow-spherical",
@@ -286,12 +278,20 @@ export class DirectionDOMRenderer {
                 this._createSphericalToPerspectiveArrow(
                     navigator,
                     stepEdge.target,
-                    stepEdge.data.worldMotionAzimuth,
+                    this._getSphericalEdgeAzimuth(stepEdge),
                     rotation,
                     stepEdge.data.direction));
         }
 
         return arrows;
+    }
+
+    private _getSphericalEdgeAzimuth(edge: NavigationEdge): number {
+        const sequenceEdge = this._sequenceEdgeKeys.indexOf(edge.target) > -1;
+        // Unmerged equirectangular captures are world-aligned at their east
+        // axis even when their compass field describes vehicle travel.
+        return edge.data.worldMotionAzimuth +
+            (sequenceEdge ? this._sequenceAzimuthOffset : 0);
     }
 
     private _createSphericalToPerspectiveArrow(
