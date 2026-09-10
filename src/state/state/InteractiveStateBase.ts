@@ -195,6 +195,9 @@ export abstract class InteractiveStateBase extends StateBase {
         this._desiredLookat = null;
         this._requestedRotationDelta = null;
         this._requestedBasicRotation = null;
+        this._requestedBasicRotationUnbounded = null;
+        this._rotationDelta.reset();
+        this._basicRotation = [0, 0];
 
         const threshold: number = 0.05 / Math.pow(2, this._zoom);
 

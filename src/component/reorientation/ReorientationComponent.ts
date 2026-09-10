@@ -383,6 +383,20 @@ export class ReorientationComponent
                 const fromResult = leftAnother ? engine.get(fromId) : null;
                 const neighbor = fromResult != null &&
                     (fromResult.nextId === id || fromResult.prevId === id);
+                // Drag inertia can keep changing the view after mouseDragEnd$.
+                // For top Next/Previous, use the bearing at navigation time so
+                // the held offset cannot lag behind the view the user just set.
+                if ((direction === NavigationDirection.Next ||
+                    direction === NavigationDirection.Prev) && neighbor &&
+                    fromResult.valid &&
+                    typeof fromResult.cca === "number" &&
+                    typeof fromResult.basicX === "number" &&
+                    typeof this._incomingBearing === "number") {
+                    const incomingX = bearingToBasicX(
+                        this._incomingBearing, fromResult.cca);
+                    this._userOffsetX =
+                        wrapDelta(incomingX - fromResult.basicX);
+                }
                 // An arrow that lands somewhere other than the image next to
                 // the one we left is a sideways hop, not a step along the road:
                 // a parallel pass, or the return leg of a capture that doubles

@@ -189,6 +189,13 @@ export class Navigator {
         this._abortRequest(`in dir ${NavigationDirection[direction]}`);
         this._lastMoveDirection = direction;
 
+        // Sequence navigation commits the current framing; drag momentum must
+        // not keep rotating the newly loaded image.
+        if (direction === NavigationDirection.Next ||
+            direction === NavigationDirection.Prev) {
+            this.stateService.rotateBasicWithoutInertia([0, 0]);
+        }
+
         this._loadingService.startLoading(this._loadingName);
 
         const image$ = this.stateService.currentImage$.pipe(
