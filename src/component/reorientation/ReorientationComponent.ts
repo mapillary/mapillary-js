@@ -160,6 +160,22 @@ export class ReorientationComponent
     }
 
     /**
+     * The GPS-derived direction of travel for an image, independent of its
+     * compass orientation and the viewer's look-around offset.
+     *
+     * Returns null until the reorientation engine has resolved the image or
+     * when the sequence cannot provide a valid neighboring segment.
+     */
+    public getTravelBearing(id: string): number | null {
+        const result = this._engine == null ? null : this._engine.get(id);
+        if (!result || !result.valid || typeof result.travel !== "number") {
+            return null;
+        }
+
+        return ((result.travel % 360) + 360) % 360;
+    }
+
+    /**
      * Treat the given basic coordinates as the user's look-around offset rather
      * than reorienting away from them, and land the current image on them.
      *
