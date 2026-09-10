@@ -98,6 +98,7 @@ export class ReorientationComponent
     // is needed.
     private _liveBearing: number;
     private _incomingBearing: number;
+    private _dragging: boolean = false;
 
     // Manual horizontal look-around offset, preserved within a sequence so the
     // engine doesn't yank the view back to the travel direction on every step.
@@ -305,16 +306,27 @@ export class ReorientationComponent
                 // Consume the direction here, synchronously with the landing, so
                 // it attributes to this image and not a later re-emit.
                 const direction = this._navigator.consumeMoveDirection();
-                this._reorient(image, direction, fromId);
+                this._reorient(image, direction, fromId, this._dragging);
             }));
 
         subs.push(this._container.renderService.bearing$.subscribe(
             (bearing: number): void => { this._liveBearing = bearing; }));
 
+        subs.push(this._container.mouseService.mouseDragStart$.subscribe(
+            (): void => { this._dragging = true; }));
+
         // A finished drag is a genuine user look-around (our own steering goes
-        // through the state, not pointer events), so capture the offset.
+        // through the state, not pointer events), so capture the offset. During
+        // playback, stop residual momentum from spilling into later images.
         subs.push(this._container.mouseService.mouseDragEnd$.subscribe(
-            (): void => { this._captureOffset(); }));
+            (): void => {
+                if (this._navigator.playService.playing) {
+                    this._navigator.stateService
+                        .rotateBasicWithoutInertia([0, 0]);
+                }
+                this._dragging = false;
+                this._captureOffset();
+            }));
     }
 
     protected _deactivate(): void {
@@ -326,6 +338,7 @@ export class ReorientationComponent
         this._sequenceChanged = false;
         this._appliedPerspectiveZoom = 0;
         this._userZoomOverride = false;
+        this._dragging = false;
         this._resetOffset();
     }
 
@@ -336,7 +349,8 @@ export class ReorientationComponent
     private _reorient(
         image: Image,
         direction: NavigationDirection,
-        fromId: string): void {
+        fromId: string,
+        draggingAtNavigation: boolean): void {
         const id = image.id;
         const seed = this._seed(image);
         const engine = this._engine;
@@ -383,11 +397,11 @@ export class ReorientationComponent
                 const fromResult = leftAnother ? engine.get(fromId) : null;
                 const neighbor = fromResult != null &&
                     (fromResult.nextId === id || fromResult.prevId === id);
-                // Drag inertia can keep changing the view after mouseDragEnd$.
-                // For top Next/Previous, use the bearing at navigation time so
-                // the held offset cannot lag behind the view the user just set.
+                // The held offset can lag during drag inertia or when playback
+                // crosses an image mid-drag, so use the bearing at navigation.
                 if ((direction === NavigationDirection.Next ||
-                    direction === NavigationDirection.Prev) && neighbor &&
+                    direction === NavigationDirection.Prev ||
+                    (draggingAtNavigation && this._dragging)) && neighbor &&
                     fromResult.valid &&
                     typeof fromResult.cca === "number" &&
                     typeof fromResult.basicX === "number" &&
@@ -465,6 +479,10 @@ export class ReorientationComponent
                 }
                 this._navigator.stateService.gravityTraverse();
                 this._computedBasicX = result.basicX;
+
+                if (draggingAtNavigation && this._dragging && neighbor) {
+                    return;
+                }
 
                 // Within a sequence an arrow step is where reorientation earns
                 // its keep: the carried view drifts off-axis as the road bends.
