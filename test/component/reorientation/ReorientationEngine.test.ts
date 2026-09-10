@@ -117,6 +117,7 @@ describe("ReorientationEngine.precompute", () => {
 
         expect(result.travel).toBeCloseTo(180, 1);
         expect(result.cca).toBeCloseTo(180, 1);
+        expect(result.viewCompassAngle).toBeCloseTo(90, 1);
         expect(result.basicX).toBeCloseTo(0.75, 2);
     });
 

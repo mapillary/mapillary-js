@@ -12,6 +12,7 @@ import {
     ReorientationEngine,
     ReorientationImage,
     ReorientationProvider,
+    ReorientationResult,
     wrapDelta,
 } from "./ReorientationEngine";
 
@@ -214,9 +215,12 @@ export class ReorientationComponent
             return null;
         }
         const from = engine.get(this._activeId);
-        if (from == null || !from.valid) {
+        if (from == null || !from.valid ||
+            typeof from.cca !== "number" ||
+            typeof from.viewCompassAngle !== "number") {
             return null;
         }
+        const liveBearing = this._mapBearing(from, this._liveBearing);
         // Answered before looking the target up: anything that is not the
         // in-sequence neighbour is a sideways hop or a sequence crossing, both
         // of which carry the view. The engine only caches within the current
@@ -224,26 +228,26 @@ export class ReorientationComponent
         // would return null for exactly the cases the host most needs.
         const neighbor = from.nextId === id || from.prevId === id;
         if (!neighbor || !this._reorientOnSpatialNav) {
-            return this._liveBearing;
+            return liveBearing;
         }
 
         const to = engine.get(id);
         if (to == null || !to.valid ||
-            typeof to.cca !== "number" ||
+            typeof to.viewCompassAngle !== "number" ||
             typeof to.travel !== "number") {
             return null;
         }
         if (to.seq == null || to.seq !== this._lastSeq) {
-            return this._liveBearing;
+            return liveBearing;
         }
 
         const targetX = this._applyOffsetX(to.basicX);
-        const viewX = bearingToBasicX(this._liveBearing, to.cca);
+        const viewX = bearingToBasicX(liveBearing, to.viewCompassAngle);
         const dxDeg = Math.abs(wrapDelta(targetX - viewX)) * 360;
 
         return dxDeg >= MIN_REORIENT_DEG ?
-            ((((to.cca + (targetX - 0.5) * 360) % 360) + 360) % 360) :
-            this._liveBearing;
+            this._bearingForView(to, targetX) :
+            liveBearing;
     }
 
     protected _activate(): void {
@@ -626,15 +630,15 @@ export class ReorientationComponent
                         // offset) no longer matches. Cross-image, so reason in
                         // absolute bearings: the view a neighbor carries in is
                         // where this image ends up.
-                        if (typeof result.cca === "number") {
+                        if (typeof result.viewCompassAngle === "number") {
                             const endX = move ? targetX : viewX;
-                            const endBearing = result.cca + (endX - 0.5) * 360;
+                            const endBearing = this._bearingForView(result, endX);
                             // Carrying the view moves no camera, so a host
                             // watching bearing events would never learn where
                             // this image ended up. Tell it outright.
                             this._settled$.next({
                                 id,
-                                bearing: ((endBearing % 360) + 360) % 360,
+                                bearing: endBearing,
                             });
                             if (result.nextId) {
                                 this._hintNeighbor(
@@ -652,6 +656,19 @@ export class ReorientationComponent
 
     private _applyOffsetX(basicX: number): number {
         return ((basicX + this._userOffsetX) % 1 + 1) % 1;
+    }
+
+    private _bearingForView(
+        result: ReorientationResult,
+        basicX: number): number {
+        const bearing = result.viewCompassAngle + (basicX - 0.5) * 360;
+        return ((bearing % 360) + 360) % 360;
+    }
+
+    private _mapBearing(
+        result: ReorientationResult,
+        bearing: number): number {
+        return ((bearing + result.viewCompassAngle - result.cca) % 360 + 360) % 360;
     }
 
     private _clearAdoptedView(): void {
@@ -691,11 +708,13 @@ export class ReorientationComponent
                     return;
                 }
                 const nr = engine.get(id);
-                if (!nr || !nr.valid || typeof nr.cca !== "number") {
+                if (!nr || !nr.valid ||
+                    typeof nr.viewCompassAngle !== "number") {
                     return;
                 }
                 const nTargetX = this._applyOffsetX(nr.basicX);
-                const nCarriedX = bearingToBasicX(endBearing, nr.cca);
+                const nCarriedX = bearingToBasicX(
+                    endBearing, nr.viewCompassAngle);
                 const nDx = Math.abs(wrapDelta(nTargetX - nCarriedX)) * 360;
                 if (nDx >= MIN_REORIENT_DEG) {
                     this._navigator.stateService

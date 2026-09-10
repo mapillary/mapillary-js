@@ -41,6 +41,7 @@ export interface ReorientationResult {
     basicX?: number;
     dist?: number;
     cca?: number;
+    viewCompassAngle?: number;
     speed?: number;
     moving?: boolean;
     seq?: string;
@@ -368,16 +369,17 @@ export class ReorientationEngine {
                 }
             }
 
+            const viewCompassAngle = isNum(cur.viewCompassAngle) ?
+                cur.viewCompassAngle : cur.cca;
             const result: ReorientationResult = {
                 valid: true,
                 nextId,
                 prevId: idx > 0 ? ids[idx - 1] : undefined,
                 travel: tb,
-                basicX: bearingToBasicX(
-                    tb,
-                    isNum(cur.viewCompassAngle) ? cur.viewCompassAngle : cur.cca),
+                basicX: bearingToBasicX(tb, viewCompassAngle),
                 dist,
                 cca: cur.cca,
+                viewCompassAngle,
                 speed,
                 moving,
                 seq: cur.seq,
