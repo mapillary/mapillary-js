@@ -105,7 +105,8 @@ export class SequenceDOMRenderer {
                 filter(
                     (touchEvent: TouchEvent): boolean => {
                         return touchEvent.touches.length === 0;
-                    })))
+                    })),
+            this._container.touchService.touchCancel$)
             .subscribe(
                 (): void => {
                     if (this._changingSpeed) {
