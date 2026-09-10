@@ -370,14 +370,13 @@ export class ReorientationComponent
                     this._levelPerspective(id);
                     return;
                 }
-                // Read mesh now (after the precompute delay) so it's loaded:
-                // an image with SfM mesh eases to the travel direction, one
-                // without (disconnected) hard-cuts. The transition type is NOT
-                // used — an SfM image eases however you arrive (fresh URL,
-                // in-sequence step, or feed-click jump).
+                // A disconnected image still hard-cuts after navigation so its
+                // image change is not followed by a distracting pan. On initial
+                // load there is no preceding image cut, so use the same smooth
+                // orientation as a reconstructed image.
                 const meshV = image.mesh && image.mesh.vertices ?
                     image.mesh.vertices.length : -1;
-                const hardCut = meshV <= 0;
+                const hardCut = meshV <= 0 && fromId != null;
                 const sequenceId = result?.seq ?? image.sequenceId;
                 const freshSequence =
                     sequenceId != null && sequenceId !== this._lastSeq;
