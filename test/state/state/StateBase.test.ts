@@ -118,6 +118,38 @@ describe("StateBase.motionlessTransition", () => {
         expect(stateBase.motionlessTransition()).toBe(false);
     });
 
+    it("should be true for placeholder cube meshes", () => {
+        const state: IStateBase = createState();
+        const stateBase: TestStateBase = new TestStateBase(state);
+        const helper: ImageHelper = new ImageHelper();
+        const vertices = [
+            -1, -1, -1, -1, -1, 1, -1, 1, -1, -1, 1, 1,
+            1, -1, -1, 1, -1, 1, 1, 1, -1, 1, 1, 1,
+        ];
+        const faces = new Array(36).fill(0);
+
+        const imageEnt1: ImageEnt = helper.createImageEnt();
+        imageEnt1.merge_id = "1";
+        const image1 = new TestImage(imageEnt1);
+        image1.makeComplete(imageEnt1);
+        image1.initializeCache(new ImageCache(new DataProvider()));
+        image1.cacheCamera(new ProjectionService());
+        image1.mesh = { vertices, faces };
+
+        const imageEnt2: ImageEnt = helper.createImageEnt();
+        imageEnt2.merge_id = "1";
+        const image2 = new TestImage(imageEnt2);
+        image2.makeComplete(imageEnt2);
+        image2.initializeCache(new ImageCache(new DataProvider()));
+        image2.cacheCamera(new ProjectionService());
+        image2.mesh = { vertices, faces };
+
+        stateBase.set([image1]);
+        stateBase.set([image2]);
+
+        expect(stateBase.motionlessTransition()).toBe(true);
+    });
+
     it("should be true beyond the spatial navigation range", () => {
         const stateBase = new TestStateBase(createState());
         const helper = new ImageHelper();

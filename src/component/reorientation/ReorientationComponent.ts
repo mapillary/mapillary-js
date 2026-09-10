@@ -22,6 +22,7 @@ import { isSpherical } from "../../geo/Geo";
 import { Transform } from "../../geo/Transform";
 import { ViewportCoords } from "../../geo/ViewportCoords";
 import { RenderCamera } from "../../render/RenderCamera";
+import { hasReconstructionMesh } from "../../util/Mesh";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 
@@ -99,6 +100,7 @@ export class ReorientationComponent
     private _liveBearing: number;
     private _incomingBearing: number;
     private _dragging: boolean = false;
+    private _userViewChanged: boolean = false;
 
     // Manual horizontal look-around offset, preserved within a sequence so the
     // engine doesn't yank the view back to the travel direction on every step.
@@ -261,6 +263,7 @@ export class ReorientationComponent
                 this._sequenceChanged = false;
                 this._appliedPerspectiveZoom = 0;
                 this._userZoomOverride = false;
+                this._userViewChanged = false;
                 // NOT _adoptedView: it is host intent that can be handed over
                 // before this fires (activation and configure() both re-run
                 // this), and clearing it here silently drops the view the host
@@ -306,7 +309,16 @@ export class ReorientationComponent
                 // Consume the direction here, synchronously with the landing, so
                 // it attributes to this image and not a later re-emit.
                 const direction = this._navigator.consumeMoveDirection();
-                this._reorient(image, direction, fromId, this._dragging);
+                const commitSequenceView = this._userViewChanged &&
+                    (direction === NavigationDirection.Next ||
+                        direction === NavigationDirection.Prev);
+                this._userViewChanged = false;
+                this._reorient(
+                    image,
+                    direction,
+                    fromId,
+                    this._dragging,
+                    commitSequenceView);
             }));
 
         subs.push(this._container.renderService.bearing$.subscribe(
@@ -325,6 +337,7 @@ export class ReorientationComponent
                         .rotateBasicWithoutInertia([0, 0]);
                 }
                 this._dragging = false;
+                this._userViewChanged = true;
                 this._captureOffset();
             }));
     }
@@ -339,6 +352,7 @@ export class ReorientationComponent
         this._appliedPerspectiveZoom = 0;
         this._userZoomOverride = false;
         this._dragging = false;
+        this._userViewChanged = false;
         this._resetOffset();
     }
 
@@ -350,7 +364,8 @@ export class ReorientationComponent
         image: Image,
         direction: NavigationDirection,
         fromId: string,
-        draggingAtNavigation: boolean): void {
+        draggingAtNavigation: boolean,
+        commitSequenceView: boolean): void {
         const id = image.id;
         const seed = this._seed(image);
         const engine = this._engine;
@@ -374,9 +389,11 @@ export class ReorientationComponent
                 // image change is not followed by a distracting pan. On initial
                 // load there is no preceding image cut, so use the same smooth
                 // orientation as a reconstructed image.
-                const meshV = image.mesh && image.mesh.vertices ?
-                    image.mesh.vertices.length : -1;
-                const hardCut = meshV <= 0 && fromId != null;
+                const hasReconstruction =
+                    hasReconstructionMesh(image.mesh);
+                const hardCut = !hasReconstruction && fromId != null;
+                const horizonY = (x: number): number =>
+                    hasReconstruction ? this._horizonY(x) : 0.5;
                 const sequenceId = result?.seq ?? image.sequenceId;
                 const freshSequence =
                     sequenceId != null && sequenceId !== this._lastSeq;
@@ -396,10 +413,9 @@ export class ReorientationComponent
                 const fromResult = leftAnother ? engine.get(fromId) : null;
                 const neighbor = fromResult != null &&
                     (fromResult.nextId === id || fromResult.prevId === id);
-                // The held offset can lag during drag inertia or when playback
-                // crosses an image mid-drag, so use the bearing at navigation.
-                if ((direction === NavigationDirection.Next ||
-                    direction === NavigationDirection.Prev ||
+                // A user's drag can keep moving after mouse-up, but automatic
+                // camera movement must not become a persistent look offset.
+                if ((commitSequenceView ||
                     (draggingAtNavigation && this._dragging)) && neighbor &&
                     fromResult.valid &&
                     typeof fromResult.cca === "number" &&
@@ -451,9 +467,9 @@ export class ReorientationComponent
 
                     return;
                 }
-                const safetyCenter =
-                    [result.basicX, this._horizonY(result.basicX)];
-                const rollDeg = this._rollDeg(safetyCenter);
+                const safetyCenter = [result.basicX, horizonY(result.basicX)];
+                const rollDeg = hasReconstruction ?
+                    this._rollDeg(safetyCenter) : 0;
                 if (rollDeg == null ||
                     rollDeg > MAX_REORIENTATION_ROLL_DEG) {
                     this._navigator.stateService.traverse();
@@ -476,8 +492,16 @@ export class ReorientationComponent
                     this._clearAdoptedView();
                     return;
                 }
-                this._navigator.stateService.gravityTraverse();
+                if (hasReconstruction) {
+                    this._navigator.stateService.gravityTraverse();
+                } else {
+                    this._navigator.stateService.traverse();
+                }
                 this._computedBasicX = result.basicX;
+                if (!hasReconstruction && !this._ySeeded) {
+                    this._userOffsetY = 0;
+                    this._ySeeded = true;
+                }
 
                 if (draggingAtNavigation && this._dragging && neighbor) {
                     return;
@@ -542,7 +566,7 @@ export class ReorientationComponent
                             this._userOffsetX =
                                 wrapDelta(adopted[0] - result.basicX);
                             this._userOffsetY =
-                                adopted[1] - this._horizonY(adopted[0]);
+                                adopted[1] - horizonY(adopted[0]);
                             this._ySeeded = true;
                         }
                         else if (carryView &&
@@ -558,8 +582,7 @@ export class ReorientationComponent
                         }
                         // Seed the held pitch offset once from the loaded view.
                         if (!this._ySeeded) {
-                            this._userOffsetY =
-                                center[1] - this._horizonY(center[0]);
+                            this._userOffsetY = center[1] - horizonY(center[0]);
                             this._ySeeded = true;
                         }
                         // Arrow into a new sequence or a sideways hop: keep the
@@ -575,7 +598,7 @@ export class ReorientationComponent
                         const targetX = this._applyOffsetX(result.basicX);
                         const targetY = Math.max(
                             0,
-                            Math.min(1, this._horizonY(targetX) + this._userOffsetY));
+                            Math.min(1, horizonY(targetX) + this._userOffsetY));
 
                         const dxDeg =
                             Math.abs(wrapDelta(targetX - viewX)) * 360;
@@ -881,17 +904,27 @@ export class ReorientationComponent
     private _seed(image: Image): ReorientationImage {
         const lngLat = image.lngLat;
         const originalLngLat = image.originalLngLat;
+        const hasComputedCompass =
+            Number.isFinite(image.computedCompassAngle);
+        const hasReconstruction = hasReconstructionMesh(image.mesh);
+        // Placeholder geometry can carry a computed pose that is wildly
+        // inconsistent between neighboring frames. Its raw capture heading is
+        // the stable center axis of the underlying panorama.
+        const useOriginalCompass = !hasReconstruction &&
+            hasComputedCompass &&
+            Number.isFinite(image.originalCompassAngle);
         return {
             id: image.id,
             lat: lngLat ? lngLat.lat : null,
             lng: lngLat ? lngLat.lng : null,
             originalLat: originalLngLat ? originalLngLat.lat : null,
             originalLng: originalLngLat ? originalLngLat.lng : null,
-            cca: image.compassAngle,
+            cca: useOriginalCompass ?
+                image.originalCompassAngle : image.compassAngle,
             // Unmerged equirectangular pixels use an east-facing axis; their
             // raw compass describes travel rather than the panorama center.
             viewCompassAngle: isSpherical(image.cameraType) &&
-              !Number.isFinite(image.computedCompassAngle) ? 90 : undefined,
+              !hasComputedCompass ? 90 : undefined,
             cam: image.cameraType,
             seq: image.sequenceId,
             ts: image.capturedAt,

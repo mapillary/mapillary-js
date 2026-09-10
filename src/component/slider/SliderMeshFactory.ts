@@ -4,7 +4,7 @@ import { SliderShaders } from "./SliderShaders";
 
 import { Image } from "../../graph/Image";
 import { isFisheye, isSpherical } from "../../geo/Geo";
-import { isDefaultCubeMesh } from "../../util/Mesh";
+import { hasReconstructionMesh } from "../../util/Mesh";
 import { SliderTransform } from "./SliderTransform";
 
 export class SliderMeshFactory {
@@ -333,9 +333,7 @@ export class SliderMeshFactory {
     }
 
     private _useMesh(transform: SliderTransform, image: Image): boolean {
-        return image.mesh.vertices.length > 0 &&
-            !isDefaultCubeMesh(image.mesh) &&
-            transform.hasValidScale;
+        return hasReconstructionMesh(image.mesh) && transform.hasValidScale;
     }
 
     private _getImageSphereGeo(transform: SliderTransform, image: Image): THREE.BufferGeometry {

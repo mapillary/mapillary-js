@@ -10,6 +10,7 @@ import { Transform } from "../../geo/Transform";
 import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
 import { Image } from "../../graph/Image";
 import { IGeometryProvider } from "../../mapillary";
+import { hasReconstructionMesh } from "../../util/Mesh";
 import { connectedComponent } from "../../api/CellMath";
 
 const MAX_CAMERA_TRANSITION_DISTANCE = 20;
@@ -489,8 +490,8 @@ export abstract class StateBase implements IStateBase {
         const current = this._currentImage;
         const previous = this._previousImage;
 
-        return current.mesh.vertices.length > 0 &&
-            previous.mesh.vertices.length > 0;
+        return hasReconstructionMesh(current.mesh) &&
+            hasReconstructionMesh(previous.mesh);
     }
 
     private _withinCameraUpDelta(): boolean {

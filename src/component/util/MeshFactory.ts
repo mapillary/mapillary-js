@@ -8,7 +8,7 @@ import { Camera } from "../../geometry/Camera";
 
 import { resolveShader } from "../../shader/Resolver";
 import { GLShader } from "../../shader/Shader";
-import { isDefaultCubeMesh } from "../../util/Mesh";
+import { hasReconstructionMesh } from "../../util/Mesh";
 
 function makeCameraUniforms(camera: Camera): { [key: string]: IUniform; } {
     const cameraUniforms: { [key: string]: IUniform; } = {};
@@ -158,9 +158,7 @@ export class MeshFactory {
     }
 
     private _useMesh(transform: Transform, image: Image): boolean {
-        return image.mesh.vertices.length > 0 &&
-            !isDefaultCubeMesh(image.mesh) &&
-            transform.hasValidScale;
+        return hasReconstructionMesh(image.mesh) && transform.hasValidScale;
     }
 
     private _getImageSphereGeo(transform: Transform, image: Image): THREE.BufferGeometry {

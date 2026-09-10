@@ -5,6 +5,7 @@ import { IStateBase } from "../interfaces/IStateBase";
 import { Image } from "../../graph/Image";
 import { isSpherical } from "../../geo/Geo";
 import { isNullImageId } from "../../util/Common";
+import { hasReconstructionMesh } from "../../util/Mesh";
 import { TransitionMode } from "../TransitionMode";
 
 const FALLBACK_TRANSITION_SPEED = 2.5;
@@ -172,11 +173,9 @@ export class TraversingState extends InteractiveStateBase {
         if (!this._motionless || this._currentImage == null) {
             return;
         }
-        // Only pre-orient (snap) mesh-less images. An image with SfM mesh eases
-        // to the travel direction, and easing must start from the carried view —
-        // pre-snapping it here would lose the ease.
-        if (this._currentImage.mesh != null &&
-            this._currentImage.mesh.vertices.length > 0) {
+        // Only pre-orient (snap) images without real SfM structure. An image
+        // with reconstructed geometry eases from the carried view instead.
+        if (hasReconstructionMesh(this._currentImage.mesh)) {
             return;
         }
         const basic = this._reorientations.get(this._currentImage.id);
