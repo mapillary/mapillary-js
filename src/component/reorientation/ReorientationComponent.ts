@@ -871,6 +871,10 @@ export class ReorientationComponent
             originalLat: originalLngLat ? originalLngLat.lat : null,
             originalLng: originalLngLat ? originalLngLat.lng : null,
             cca: image.compassAngle,
+            // Unmerged equirectangular pixels use an east-facing axis; their
+            // raw compass describes travel rather than the panorama center.
+            viewCompassAngle: isSpherical(image.cameraType) &&
+              !Number.isFinite(image.computedCompassAngle) ? 90 : undefined,
             cam: image.cameraType,
             seq: image.sequenceId,
             ts: image.capturedAt,

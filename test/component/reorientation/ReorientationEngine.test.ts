@@ -67,7 +67,8 @@ function spherical(
     cca: number,
     ts: number,
     originalLat?: number,
-    originalLng?: number): ReorientationImage {
+    originalLng?: number,
+    viewCompassAngle?: number): ReorientationImage {
     return {
         id,
         lat,
@@ -75,6 +76,7 @@ function spherical(
         originalLat,
         originalLng,
         cca,
+        viewCompassAngle,
         cam: "spherical",
         seq: "s",
         ts,
@@ -99,6 +101,22 @@ describe("ReorientationEngine.precompute", () => {
         expect(result.valid).toBe(true);
         expect(result.moving).toBe(true);
         expect(result.nextId).toBe("c");
+        expect(result.basicX).toBeCloseTo(0.75, 2);
+    });
+
+    it("frames travel against a distinct panorama-view axis", async () => {
+        const images: Fixture = {
+            a: spherical("a", 0.0002, 0, 180, 1000, undefined, undefined, 90),
+            b: spherical("b", 0.0001, 0, 180, 2000, undefined, undefined, 90),
+            c: spherical("c", 0, 0, 180, 3000, undefined, undefined, 90),
+        };
+        const engine = new ReorientationEngine(provider(images, ["a", "b", "c"]));
+
+        await engine.precompute("b");
+        const result = engine.get("b");
+
+        expect(result.travel).toBeCloseTo(180, 1);
+        expect(result.cca).toBeCloseTo(180, 1);
         expect(result.basicX).toBeCloseTo(0.75, 2);
     });
 

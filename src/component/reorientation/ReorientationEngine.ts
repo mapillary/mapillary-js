@@ -12,6 +12,8 @@ export interface ReorientationImage {
     originalLat?: number;
     originalLng?: number;
     cca: number;
+    /** World bearing represented by basic x=0.5 when it differs from CCA. */
+    viewCompassAngle?: number;
     cam: string;
     seq: string;
     ts: number;
@@ -371,7 +373,9 @@ export class ReorientationEngine {
                 nextId,
                 prevId: idx > 0 ? ids[idx - 1] : undefined,
                 travel: tb,
-                basicX: bearingToBasicX(tb, cur.cca),
+                basicX: bearingToBasicX(
+                    tb,
+                    isNum(cur.viewCompassAngle) ? cur.viewCompassAngle : cur.cca),
                 dist,
                 cca: cur.cca,
                 speed,
