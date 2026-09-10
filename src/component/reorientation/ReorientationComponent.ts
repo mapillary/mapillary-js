@@ -364,52 +364,10 @@ export class ReorientationComponent
                 const meshV = image.mesh && image.mesh.vertices ?
                     image.mesh.vertices.length : -1;
                 const hardCut = meshV <= 0;
-                if (!result || !result.valid) {
-                    // Switching out of Gravity can reset a center queued before
-                    // the image loaded, so restore an explicit shared-link view
-                    // after the fallback transition. Keep it pending because an
-                    // endpoint has no travel result from which to derive the
-                    // offset that its first valid same-sequence neighbor needs.
-                    const adoptedView = this._adoptedView;
-                    this._navigator.stateService.traverse();
-                    if (adoptedView != null) {
-                        this._navigator.stateService.setCenter(adoptedView);
-                    }
-
-                    return;
-                }
-                const safetyCenter =
-                    [result.basicX, this._horizonY(result.basicX)];
-                const rollDeg = this._rollDeg(safetyCenter);
-                if (rollDeg == null ||
-                    rollDeg > MAX_REORIENTATION_ROLL_DEG) {
-                    this._navigator.stateService.traverse();
-                    let fallbackCenter =
-                        this._adoptedView ?? [result.basicX, 0.5];
-                    if (this._adoptedView == null &&
-                        this._isStep(direction) &&
-                        typeof this._incomingBearing === "number" &&
-                        typeof result.cca === "number") {
-                        const carriedX = bearingToBasicX(
-                            this._incomingBearing, result.cca);
-                        fallbackCenter = [carriedX, 0.5];
-                        this._userOffsetX =
-                            wrapDelta(carriedX - result.basicX);
-                    }
-                    this._navigator.stateService.setCenter(fallbackCenter);
-                    this._clearAdoptedView();
-                    return;
-                }
-                this._navigator.stateService.gravityTraverse();
-                this._computedBasicX = result.basicX;
-
-                // A fresh load or a jump to another capture lands on a new
-                // sequence; reorient it even if the landing image's GPS speed
-                // reads as stationary. Within a sequence, preserve the view when
-                // not moving rather than spinning on jitter.
+                const sequenceId = result?.seq ?? image.sequenceId;
                 const freshSequence =
-                    result.seq != null && result.seq !== this._lastSeq;
-                this._lastSeq = result.seq;
+                    sequenceId != null && sequenceId !== this._lastSeq;
+                this._lastSeq = sequenceId;
 
                 // An arrow move already lands at the heading the user was
                 // looking at, because the state layer carries the view across
@@ -434,13 +392,65 @@ export class ReorientationComponent
                 const lateralHop =
                     spatialNav && leftAnother && fromResult != null && !neighbor;
                 const carryView = spatialNav && (freshSequence || lateralHop);
-                const resetView = freshSequence && !carryView;
+                // A directionless landing on an image that isn't a neighbour of
+                // the one we left is a jump (map click, URL/pKey change), not a
+                // step: the incoming view says nothing about the new position,
+                // so there is nothing worth preserving.
+                const jump = direction == null && leftAnother && !neighbor;
+                const resetView = (freshSequence || jump) && !carryView;
 
                 if (freshSequence) {
                     // Drop look-ahead hints from the prior sequence so nothing
                     // carries over; this sequence registers its own as it goes.
                     this._navigator.stateService.clearReorientations();
                 }
+
+                if (!result || !result.valid) {
+                    // Switching out of Gravity can reset a center queued before
+                    // the image loaded, so restore an explicit shared-link view
+                    // after the fallback transition. Keep it pending because an
+                    // endpoint has no travel result from which to derive the
+                    // offset that its first valid same-sequence neighbor needs.
+                    const adoptedView = this._adoptedView;
+                    this._navigator.stateService.traverse();
+                    if (resetView) {
+                        this._resetOffset();
+                    }
+                    if (adoptedView != null) {
+                        this._navigator.stateService.setCenter(adoptedView);
+                    } else if (resetView) {
+                        this._navigator.stateService.setCenter([0.5, 0.5]);
+                    }
+
+                    return;
+                }
+                const safetyCenter =
+                    [result.basicX, this._horizonY(result.basicX)];
+                const rollDeg = this._rollDeg(safetyCenter);
+                if (rollDeg == null ||
+                    rollDeg > MAX_REORIENTATION_ROLL_DEG) {
+                    this._navigator.stateService.traverse();
+                    if (resetView) {
+                        this._resetOffset();
+                    }
+                    let fallbackCenter =
+                        this._adoptedView ?? [result.basicX, 0.5];
+                    if (this._adoptedView == null &&
+                        this._isStep(direction) &&
+                        typeof this._incomingBearing === "number" &&
+                        typeof result.cca === "number") {
+                        const carriedX = bearingToBasicX(
+                            this._incomingBearing, result.cca);
+                        fallbackCenter = [carriedX, 0.5];
+                        this._userOffsetX =
+                            wrapDelta(carriedX - result.basicX);
+                    }
+                    this._navigator.stateService.setCenter(fallbackCenter);
+                    this._clearAdoptedView();
+                    return;
+                }
+                this._navigator.stateService.gravityTraverse();
+                this._computedBasicX = result.basicX;
 
                 // Within a sequence an arrow step is where reorientation earns
                 // its keep: the carried view drifts off-axis as the road bends.
@@ -470,12 +480,6 @@ export class ReorientationComponent
                     this._userOffsetY = 0;
                     this._ySeeded = true;
                 }
-                // A directionless landing on an image that isn't a neighbour of
-                // the one we left is a jump (map click, URL/pKey change), not a
-                // step: the incoming view says nothing about the new position,
-                // so there is nothing worth preserving.
-                const jump = direction == null && leftAnother && !neighbor;
-
                 if (!result.moving && !freshSequence && !jump) {
                     // Low motion between adjacent images — preserve the view
                     // rather than spin on stationary GPS jitter.
