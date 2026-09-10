@@ -5,6 +5,9 @@ import { ImageHelper } from "../../helper/ImageHelper";
 
 import { Navigator } from "../../../src/viewer/Navigator";
 import { Image } from "../../../src/graph/Image";
+import { Sequence } from "../../../src/graph/Sequence";
+import { NavigationDirection } from "../../../src/graph/edge/NavigationDirection";
+import { NavigationEdge } from "../../../src/graph/edge/interfaces/NavigationEdge";
 import { DirectionDOMRenderer } from "../../../src/component/direction/DirectionDOMRenderer";
 import { DirectionConfiguration } from "../../../src/component/interfaces/DirectionConfiguration";
 import { RenderCamera } from "../../../src/render/RenderCamera";
@@ -224,5 +227,66 @@ describe("DirectionDOMRenderer.needsRender", () => {
         renderer.resize({ height: 1, width: 1 });
 
         expect(renderer.needsRender).toBe(true);
+    });
+});
+
+describe("DirectionDOMRenderer.render", () => {
+    it("should place spherical sequence arrows in front and back", () => {
+        let configuration: DirectionConfiguration = {
+            distinguishSequence: true,
+            maxWidth: 200,
+            minWidth: 100,
+        };
+        let renderer: DirectionDOMRenderer = new DirectionDOMRenderer(configuration, { height: 1, width: 1 });
+        let image: Image = new ImageHelper().createImage("spherical");
+        let sequence: Sequence = new Sequence({
+            id: image.sequenceId,
+            image_ids: ["previous", image.id, "next"],
+        });
+        let edges: NavigationEdge[] = [
+            {
+                data: {
+                    direction: NavigationDirection.Spherical,
+                    worldMotionAzimuth: Math.PI / 2,
+                },
+                source: image.id,
+                target: "next",
+            },
+            {
+                data: {
+                    direction: NavigationDirection.Spherical,
+                    worldMotionAzimuth: -Math.PI / 2,
+                },
+                source: image.id,
+                target: "previous",
+            },
+            {
+                data: {
+                    direction: NavigationDirection.Spherical,
+                    worldMotionAzimuth: Math.PI / 2,
+                },
+                source: image.id,
+                target: "spatial",
+            },
+        ];
+
+        renderer.setConfiguration(configuration);
+        renderer.setImage(image);
+        renderer.setEdges({ cached: true, edges }, sequence);
+
+        let renderCamera: RenderCamera = new RenderCamera(1, 1, RenderMode.Fill);
+        renderCamera.camera.up.fromArray([0, 0, 1]);
+        renderCamera.camera.lookat.fromArray([1, 1, 0]);
+        renderer.setRenderCamera(renderCamera);
+
+        let navigator: Navigator = new Navigator({ container: "containerid" });
+        let arrows: any[] = <any[]>renderer.render(navigator).children;
+
+        expect(arrows[0].properties.attributes["data-id"]).toBe("next");
+        expect(arrows[0].properties.style.transform).toContain("rotate(0deg)");
+        expect(arrows[1].properties.attributes["data-id"]).toBe("previous");
+        expect(arrows[1].properties.style.transform).toContain("rotate(-180deg)");
+        expect(arrows[2].properties.attributes["data-id"]).toBe("spatial");
+        expect(arrows[2].properties.style.transform).toContain("rotate(-90deg)");
     });
 });
