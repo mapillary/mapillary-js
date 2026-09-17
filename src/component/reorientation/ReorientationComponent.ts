@@ -31,7 +31,7 @@ import { Navigator } from "../../viewer/Navigator";
 // degrees (on either axis) — small moves are just jitter.
 const MIN_REORIENT_DEG = 15;
 const MAX_HORIZON_CORRECTION_DEG = 75;
-const MAX_REORIENTATION_ROLL_DEG = 30;
+const MAX_REORIENTATION_ROLL_DEG = 45;
 const MAX_PERSPECTIVE_AUTO_ZOOM = 0.75;
 const MAX_PERSPECTIVE_FOV = 125;
 const PERSPECTIVE_EDGE_MARGIN = 1e-3;
