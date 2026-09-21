@@ -278,6 +278,10 @@ export class ReorientationComponent
     protected _activate(): void {
         const subs = this._subscriptions;
 
+        this._navigator.setMovePreparer(
+            (id: string, direction: NavigationDirection): Promise<void> =>
+                this._prepareMove(id, direction));
+
         subs.push(this._configuration$.subscribe(
             (configuration: ReorientationConfiguration): void => {
                 this._automaticHorizonLeveling =
@@ -378,6 +382,7 @@ export class ReorientationComponent
 
     protected _deactivate(): void {
         this._subscriptions.unsubscribe();
+        this._navigator.setMovePreparer(null);
         this._engine = null;
         this._activeId = null;
         this._lastSeq = null;
@@ -692,6 +697,55 @@ export class ReorientationComponent
             .catch((): void => { /* skip images we can't resolve */ });
     }
 
+    private _prepareMove(
+        id: string,
+        direction: NavigationDirection): Promise<void> {
+        if (direction !== NavigationDirection.Next &&
+            direction !== NavigationDirection.Prev) {
+            return Promise.resolve();
+        }
+        const engine = this._engine;
+        const activeId = this._activeId;
+        if (engine == null || activeId == null || !this._reorientToFront) {
+            return Promise.resolve();
+        }
+
+        // A sequence button can become clickable before the first image's
+        // async orientation metadata is ready. Wait for both sides so the
+        // target hint exists before StateService makes that image visible.
+        return Promise.all([
+            engine.precompute(activeId, undefined, 0),
+            engine.precompute(id, undefined, 0),
+        ]).then((): Promise<void> => {
+            if (this._engine !== engine || this._activeId !== activeId) {
+                return Promise.resolve();
+            }
+            const active = engine.get(activeId);
+            if (active == null || !active.valid ||
+                typeof active.basicX !== "number" ||
+                typeof active.viewCompassAngle !== "number") {
+                return Promise.resolve();
+            }
+            const endBearing = this._adoptedView != null ?
+                this._bearingForView(active, this._adoptedView[0]) :
+                (typeof this._liveBearing === "number" ?
+                    this._mapBearing(active, this._liveBearing) :
+                    this._bearingForView(
+                        active, this._applyOffsetX(active.basicX)));
+
+            return new Promise<void>((resolve: () => void): void => {
+                this._navigator.stateService.getCenter().pipe(first()).subscribe(
+                    (center: number[]): void => {
+                        const targetY = this._adoptedView != null ?
+                            this._adoptedView[1] : center[1];
+                        this._hintNeighbor(
+                            engine, id, endBearing, targetY).then(resolve);
+                    },
+                    (): void => resolve());
+            });
+        }).catch((): void => { /* navigation proceeds without a hint */ });
+    }
+
     private _applyOffsetX(basicX: number): number {
         return ((basicX + this._userOffsetX) % 1 + 1) % 1;
     }
@@ -736,14 +790,14 @@ export class ReorientationComponent
         engine: ReorientationEngine,
         id: string,
         endBearing: number,
-        targetY: number): void {
+        targetY: number): Promise<void> {
         if (!this._reorientToFront) {
-            return;
+            return Promise.resolve();
         }
         // Depth 0: we only need this neighbor's own result cached, not another
         // forward prefetch cascade (the current image's _reorient already warms
         // ahead). Avoids re-walking the already-scheduled chain per navigation.
-        engine.precompute(id, undefined, 0)
+        return engine.precompute(id, undefined, 0)
             .then((): void => {
                 if (this._engine !== engine) {
                     return;

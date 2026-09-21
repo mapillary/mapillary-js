@@ -59,6 +59,8 @@ export class Navigator {
     private _movedToId$: BehaviorSubject<string>;
 
     private _lastMoveDirection: NavigationDirection;
+    private _movePreparer:
+        (id: string, direction: NavigationDirection) => Promise<void>;
 
     private _request$: ReplaySubject<Image>;
     private _requestSubscription: Subscription;
@@ -120,6 +122,7 @@ export class Navigator {
         this._movedToId$ = new BehaviorSubject<string>(null);
 
         this._lastMoveDirection = null;
+        this._movePreparer = null;
 
         this._request$ = null;
         this._requestSubscription = null;
@@ -185,6 +188,12 @@ export class Navigator {
         return direction;
     }
 
+    /** Wait for a component to prepare target state before an image is shown. */
+    public setMovePreparer(
+        preparer: (id: string, direction: NavigationDirection) => Promise<void>): void {
+        this._movePreparer = preparer;
+    }
+
     public moveDir$(direction: NavigationDirection): Observable<Image> {
         this._abortRequest(`in dir ${NavigationDirection[direction]}`);
         this._lastMoveDirection = direction;
@@ -225,7 +234,9 @@ export class Navigator {
                         return observableThrowError(new Error(`Direction (${direction}) does not exist for current image.`));
                     }
 
-                    return this._moveTo$(directionId);
+                    return this._prepareMove$(directionId, direction).pipe(
+                        mergeMap((): Observable<Image> =>
+                            this._moveTo$(directionId)));
                 }));
 
         return this._makeRequest$(image$);
@@ -365,6 +376,15 @@ export class Navigator {
                 });
 
         return request$;
+    }
+
+    private _prepareMove$(
+        id: string,
+        direction: NavigationDirection): Observable<void> {
+        const preparation = this._movePreparer == null ?
+            Promise.resolve() :
+            this._movePreparer(id, direction).catch((): void => undefined);
+        return observableFrom(preparation);
     }
 
     private _moveTo$(id: string): Observable<Image> {
