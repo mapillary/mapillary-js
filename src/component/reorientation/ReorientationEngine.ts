@@ -52,6 +52,8 @@ export interface ReorientationResult {
 
 export const DEFAULT_REORIENTATION_CONFIGURATION:
     Required<ReorientationConfiguration> = {
+    automaticHorizonLeveling: true,
+    reorientToFront: true,
     reorientOnSpatialNav: true,
     prefetchAhead: 3,
     movingSpeedMps: 1,

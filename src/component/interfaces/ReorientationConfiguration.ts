@@ -19,6 +19,20 @@ import { ComponentConfiguration } from "./ComponentConfiguration";
  */
 export interface ReorientationConfiguration extends ComponentConfiguration {
     /**
+     * Whether reconstructed images are automatically leveled to the horizon.
+     *
+     * @default true
+     */
+    automaticHorizonLeveling?: boolean;
+
+    /**
+     * Whether spherical images automatically face their direction of travel.
+     *
+     * @default true
+     */
+    reorientToFront?: boolean;
+
+    /**
      * Whether a spatial navigation (the direction component's step, turn and
      * spherical arrows, and their keyboard equivalents) reorients the landing
      * image when it stays within the current sequence.

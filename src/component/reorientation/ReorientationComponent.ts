@@ -89,6 +89,8 @@ export class ReorientationComponent
     private _sequenceChanged: boolean;
     private _appliedPerspectiveZoom: number;
     private _userZoomOverride: boolean;
+    private _automaticHorizonLeveling: boolean;
+    private _reorientToFront: boolean;
     private _reorientOnSpatialNav: boolean;
     private _adoptedView: number[];
     private _adoptedSequence: string;
@@ -154,6 +156,15 @@ export class ReorientationComponent
         if (!result || !result.valid || typeof result.travel !== "number") {
             return null;
         }
+        if (!this._reorientToFront &&
+            result.seq != null && result.seq === this._lastSeq) {
+            const active = this._engine.get(this._activeId);
+            if (active?.valid &&
+                typeof active.viewCompassAngle === "number" &&
+                typeof this._liveBearing === "number") {
+                return this._mapBearing(active, this._liveBearing);
+            }
+        }
         // The look-around offset belongs to the active sequence and is reset on
         // a cross-sequence jump, so apply it only to same-sequence ids —
         // otherwise the hover cone predicts travel+offset while the actual
@@ -161,6 +172,19 @@ export class ReorientationComponent
         const offset = result.seq != null && result.seq === this._lastSeq ?
             this._userOffsetX * 360 : 0;
         return ((result.travel + offset) % 360 + 360) % 360;
+    }
+
+    /** Resolve an uncached image before returning its predicted view bearing. */
+    public getReorientedBearingAsync(id: string): Promise<number | null> {
+        const engine = this._engine;
+        if (engine == null) {
+            return Promise.resolve(null);
+        }
+
+        return engine.precompute(id, undefined, 0)
+            .then((): number | null =>
+                this._engine === engine ? this.getReorientedBearing(id) : null)
+            .catch((): null => null);
     }
 
     /**
@@ -227,7 +251,8 @@ export class ReorientationComponent
         // sequence, so those targets are usually absent and requiring them here
         // would return null for exactly the cases the host most needs.
         const neighbor = from.nextId === id || from.prevId === id;
-        if (!neighbor || !this._reorientOnSpatialNav) {
+        if (!neighbor || !this._reorientToFront ||
+            !this._reorientOnSpatialNav) {
             return liveBearing;
         }
 
@@ -255,6 +280,11 @@ export class ReorientationComponent
 
         subs.push(this._configuration$.subscribe(
             (configuration: ReorientationConfiguration): void => {
+                this._automaticHorizonLeveling =
+                    configuration.automaticHorizonLeveling ??
+                    DEFAULT_REORIENTATION_CONFIGURATION.automaticHorizonLeveling;
+                this._reorientToFront = configuration.reorientToFront ??
+                    DEFAULT_REORIENTATION_CONFIGURATION.reorientToFront;
                 this._reorientOnSpatialNav =
                     configuration.reorientOnSpatialNav ??
                     DEFAULT_REORIENTATION_CONFIGURATION.reorientOnSpatialNav;
@@ -398,7 +428,8 @@ export class ReorientationComponent
                     result?.computedCompassOutlier !== true;
                 const hardCut = !hasReconstruction && fromId != null;
                 const horizonY = (x: number): number =>
-                    hasReconstruction ? this._horizonY(x) : 0.5;
+                    hasReconstruction && this._automaticHorizonLeveling ?
+                        this._horizonY(x) : 0.5;
                 const sequenceId = result?.seq ?? image.sequenceId;
                 const freshSequence =
                     sequenceId != null && sequenceId !== this._lastSeq;
@@ -409,9 +440,9 @@ export class ReorientationComponent
                 // the image change. Crossing into a new sequence that way keeps
                 // that view and adopts it as this sequence's look-around offset,
                 // so nothing rotates here and the following in-sequence steps
-                // preserve the framing the user arrived with. Everything else
-                // (Next/Prev, map click, shared link, fresh load) resets to
-                // travel.
+                // preserve the framing the user arrived with. A direct jump
+                // within the same sequence preserves that manual offset too;
+                // entering another sequence resets to travel.
                 const spatialNav =
                     this._isStep(direction) || this._isTurn(direction);
                 const leftAnother = fromId != null && fromId !== id;
@@ -440,12 +471,11 @@ export class ReorientationComponent
                 const lateralHop =
                     spatialNav && leftAnother && fromResult != null && !neighbor;
                 const carryView = spatialNav && (freshSequence || lateralHop);
-                // A directionless landing on an image that isn't a neighbour of
-                // the one we left is a jump (map click, URL/pKey change), not a
-                // step: the incoming view says nothing about the new position,
-                // so there is nothing worth preserving.
+                // A directionless non-neighbor landing is a map/pKey jump. It
+                // still bypasses the low-motion guard, while resetView below
+                // distinguishes a same-capture jump from a new capture.
                 const jump = direction == null && leftAnother && !neighbor;
-                const resetView = (freshSequence || jump) && !carryView;
+                const resetView = freshSequence && !carryView;
 
                 if (freshSequence) {
                     // Drop look-ahead hints from the prior sequence so nothing
@@ -473,7 +503,8 @@ export class ReorientationComponent
                     return;
                 }
                 const safetyCenter = [result.basicX, horizonY(result.basicX)];
-                const rollDeg = hasReconstruction ?
+                const rollDeg = hasReconstruction &&
+                    this._automaticHorizonLeveling ?
                     this._rollDeg(safetyCenter) : 0;
                 if (rollDeg == null ||
                     rollDeg > MAX_REORIENTATION_ROLL_DEG) {
@@ -497,13 +528,14 @@ export class ReorientationComponent
                     this._clearAdoptedView();
                     return;
                 }
-                if (hasReconstruction) {
+                if (hasReconstruction && this._automaticHorizonLeveling) {
                     this._navigator.stateService.gravityTraverse();
                 } else {
                     this._navigator.stateService.traverse();
                 }
                 this._computedBasicX = result.basicX;
-                if (!hasReconstruction && !this._ySeeded) {
+                if ((!hasReconstruction || !this._automaticHorizonLeveling) &&
+                    !this._ySeeded) {
                     this._userOffsetY = 0;
                     this._ySeeded = true;
                 }
@@ -535,9 +567,12 @@ export class ReorientationComponent
                     // start fresh at travel direction + horizon. A cross-sequence
                     // jump carries the prior image's view, which would otherwise
                     // persist the previous sequence's pitch (e.g. "looking down").
-                    pitchResetDeg = Math.abs(this._userOffsetY) * 180;
+                    pitchResetDeg = this._automaticHorizonLeveling ?
+                        Math.abs(this._userOffsetY) * 180 : 0;
                     this._userOffsetX = 0;
-                    this._userOffsetY = 0;
+                    if (this._automaticHorizonLeveling) {
+                        this._userOffsetY = 0;
+                    }
                     this._ySeeded = true;
                 }
                 if (!result.moving && !freshSequence && !jump) {
@@ -600,10 +635,12 @@ export class ReorientationComponent
                             this._userOffsetX =
                                 wrapDelta(viewX - result.basicX);
                         }
-                        const targetX = this._applyOffsetX(result.basicX);
-                        const targetY = Math.max(
-                            0,
-                            Math.min(1, horizonY(targetX) + this._userOffsetY));
+                        const targetX = this._reorientToFront ?
+                            this._applyOffsetX(result.basicX) : viewX;
+                        const targetY = this._automaticHorizonLeveling ?
+                            Math.max(0, Math.min(
+                                1, horizonY(targetX) + this._userOffsetY)) :
+                            center[1];
 
                         const dxDeg =
                             Math.abs(wrapDelta(targetX - viewX)) * 360;
@@ -700,6 +737,9 @@ export class ReorientationComponent
         id: string,
         endBearing: number,
         targetY: number): void {
+        if (!this._reorientToFront) {
+            return;
+        }
         // Depth 0: we only need this neighbor's own result cached, not another
         // forward prefetch cascade (the current image's _reorient already warms
         // ahead). Avoids re-walking the already-scheduled chain per navigation.
@@ -728,6 +768,10 @@ export class ReorientationComponent
     }
 
     private _levelPerspective(id: string): void {
+        if (!this._automaticHorizonLeveling) {
+            this._clearAdoptedView();
+            return;
+        }
         if (this._adoptedView != null) {
             this._navigator.stateService.gravityTraverse();
             this._clearAdoptedView();
