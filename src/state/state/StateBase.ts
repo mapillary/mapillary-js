@@ -2,7 +2,7 @@ import * as Geo from "../../geo/Geo";
 
 import { TransitionMode } from "../TransitionMode";
 import { EulerRotation } from "../interfaces/EulerRotation";
-import { IStateBase } from "../interfaces/IStateBase";
+import { IStateBase, ReorientationHint } from "../interfaces/IStateBase";
 import { ArgumentMapillaryError } from "../../error/ArgumentMapillaryError";
 import { Camera } from "../../geo/Camera";
 import { Spatial } from "../../geo/Spatial";
@@ -41,7 +41,7 @@ export abstract class StateBase implements IStateBase {
 
     protected _motionless: boolean;
 
-    protected _reorientations: Map<string, number[]>;
+    protected _reorientations: Map<string, ReorientationHint>;
 
     private _referenceThreshold: number;
     private _referenceCellIds: Set<string>;
@@ -58,7 +58,8 @@ export abstract class StateBase implements IStateBase {
 
         // Shared by reference across transitions so a reorientation registered
         // before navigating is available when the target image becomes current.
-        this._reorientations = state.reorientations || new Map<string, number[]>();
+        this._reorientations = state.reorientations ||
+            new Map<string, ReorientationHint>();
 
         this._reference = state.reference;
         this._referenceCellIds = new Set<string>(
@@ -175,12 +176,16 @@ export abstract class StateBase implements IStateBase {
         return this._transitionMode;
     }
 
-    public get reorientations(): Map<string, number[]> {
+    public get reorientations(): Map<string, ReorientationHint> {
         return this._reorientations;
     }
 
-    public setReorientation(imageId: string, basic: number[]): void {
-        this._reorientations.set(imageId, basic);
+    public setReorientation(
+        imageId: string,
+        basic: number[],
+        forceOnReconstruction: boolean = false): void {
+        this._reorientations.set(
+            imageId, { basic, forceOnReconstruction });
     }
 
     public clearReorientations(): void {

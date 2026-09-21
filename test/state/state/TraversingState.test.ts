@@ -307,10 +307,15 @@ describe("TraversingState.previousCamera.lookat", () => {
 });
 
 describe("TraversingState mesh-less transition", () => {
-    function createCachedImage(id: string, lng: number): TestImage {
+    function createCachedImage(
+        id: string,
+        lng: number,
+        spherical: boolean = false): TestImage {
         const helper = new ImageHelper();
         const image = createTestImage(id, lng);
-        image.makeComplete(helper.createSpatialImageEnt());
+        const spatialImage = helper.createSpatialImageEnt();
+        spatialImage.camera_type = spherical ? "spherical" : "perspective";
+        image.makeComplete(spatialImage);
         image.initializeCache(new ImageCache(new DataProvider()));
         image.cacheCamera(new ProjectionService());
         return image;
@@ -351,5 +356,29 @@ describe("TraversingState mesh-less transition", () => {
         traversingState.update(0.1);
 
         expect(traversingState.alpha).toBe(1);
+    });
+
+    it("should force a reorientation hint onto rejected reconstruction", () => {
+        const current = createCachedImage("current", 0, true);
+        current.mesh = {
+            vertices: [0, 0, 1, 1, 0, 1, 0, 1, 1],
+            faces: [0, 1, 2],
+        };
+        const unforced = createTraversingState(TransitionMode.Default);
+        unforced.setReorientation("current", [0.25, 0.5]);
+        unforced.set([current]);
+        const originalLookat = unforced.currentCamera.lookat.clone();
+
+        const forced = createTraversingState(TransitionMode.Default);
+        forced.setReorientation("current", [0.25, 0.5], true);
+        forced.set([current]);
+
+        expect(forced.motionless).toBe(true);
+        expect(forced.currentCamera.lookat.equals(originalLookat)).toBe(false);
+        const expected = new THREE.Vector3().fromArray(
+            forced.currentTransform.unprojectBasic(
+                [0.25, 0.5], (forced as any)._lookatDepth));
+        expect(forced.currentCamera.lookat.distanceTo(expected))
+            .toBeCloseTo(0, 8);
     });
 });

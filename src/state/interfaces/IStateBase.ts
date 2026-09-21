@@ -4,6 +4,11 @@ import { TransitionMode } from "../TransitionMode";
 import { Image } from "../../graph/Image";
 import { IGeometryProvider } from "../../mapillary";
 
+export interface ReorientationHint {
+    basic: number[];
+    forceOnReconstruction: boolean;
+}
+
 export interface IStateBase {
     alpha: number;
     camera: Camera;
@@ -14,7 +19,7 @@ export interface IStateBase {
     // current on a motionless (instant) transition so it renders already
     // oriented instead of flashing the carried view for one frame. Shared by
     // reference across state transitions.
-    reorientations?: Map<string, number[]>;
+    reorientations?: Map<string, ReorientationHint>;
     trajectory: Image[];
     transitionMode: TransitionMode;
     zoom: number;

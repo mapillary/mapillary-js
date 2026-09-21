@@ -718,8 +718,10 @@ export class ReorientationComponent
                     endBearing, nr.viewCompassAngle);
                 const nDx = Math.abs(wrapDelta(nTargetX - nCarriedX)) * 360;
                 if (nDx >= MIN_REORIENT_DEG) {
-                    this._navigator.stateService
-                        .setReorientation(id, [nTargetX, targetY]);
+                    this._navigator.stateService.setReorientation(
+                        id,
+                        [nTargetX, targetY],
+                        nr.computedCompassOutlier === true);
                 }
             })
             .catch((): void => { /* skip */ });
