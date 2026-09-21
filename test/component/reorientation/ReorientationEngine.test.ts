@@ -184,8 +184,44 @@ describe("ReorientationEngine.precompute", () => {
         const result = engine.get("b");
 
         expect(result.computedCompassOutlier).toBe(false);
+        expect(result.reconstructionDiscontinuity).toBe(false);
         expect(result.viewCompassAngle).toBeCloseTo(270, 1);
         expect(result.basicX).toBeCloseTo(0, 2);
+    });
+
+    it("rejects an abrupt reconstructed calibration change", async () => {
+        const previous = spherical("a", 0, -0.0001, 90, 1000);
+        previous.computedCca = 90;
+        previous.originalCca = 90;
+        const current = spherical("b", 0, 0, 270, 2000);
+        current.computedCca = 270;
+        current.originalCca = 90;
+        const next = spherical("c", 0, 0.0001, 270, 3000);
+        next.computedCca = 270;
+        next.originalCca = 90;
+        const following = spherical("d", 0, 0.0002, 270, 4000);
+        following.computedCca = 270;
+        following.originalCca = 90;
+        const images: Fixture = {
+            a: previous,
+            b: current,
+            c: next,
+            d: following,
+        };
+        const engine = new ReorientationEngine(
+            provider(images, ["a", "b", "c", "d"]));
+
+        await engine.precompute("b");
+        await engine.precompute("c");
+        const result = engine.get("b");
+        const continued = engine.get("c");
+
+        expect(result.computedCompassOutlier).toBe(true);
+        expect(result.reconstructionDiscontinuity).toBe(true);
+        expect(result.viewCompassAngle).toBeCloseTo(90, 1);
+        expect(result.basicX).toBeCloseTo(0.5, 2);
+        expect(continued.computedCompassOutlier).toBe(true);
+        expect(continued.reconstructionDiscontinuity).toBe(false);
     });
 
     it("uses the original track when computed speed is impossible", async () => {

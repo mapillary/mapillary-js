@@ -757,16 +757,17 @@ export class ReorientationComponent
                 const nCarriedX = bearingToBasicX(
                     endBearing, nr.viewCompassAngle);
                 const nDx = Math.abs(wrapDelta(nTargetX - nCarriedX)) * 360;
-                const rejectedReconstruction =
-                    nr.computedCompassOutlier === true;
-                // Even when the final world bearings nearly match, the rejected
-                // pose can map that bearing to a very different basic x for its
-                // first frame. Force the fallback cut before it can render.
-                if (rejectedReconstruction || nDx >= MIN_REORIENT_DEG) {
+                const unsafeTransition =
+                    nr.computedCompassOutlier === true ||
+                    nr.reconstructionDiscontinuity === true;
+                // Even when the final world bearings nearly match, a rejected
+                // or discontinuous pose can map that bearing to a very different
+                // basic x for its first frame. Cut before it can render.
+                if (unsafeTransition || nDx >= MIN_REORIENT_DEG) {
                     this._navigator.stateService.setReorientation(
                         id,
                         [nTargetX, targetY],
-                        rejectedReconstruction);
+                        unsafeTransition);
                 }
             })
             .catch((): void => { /* skip */ });

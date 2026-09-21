@@ -45,6 +45,8 @@ export interface ReorientationResult {
     cca?: number;
     viewCompassAngle?: number;
     computedCompassOutlier?: boolean;
+    reconstructionDiscontinuity?: boolean;
+    computedCompassOffset?: number;
     speed?: number;
     moving?: boolean;
     seq?: string;
@@ -125,6 +127,8 @@ interface PrevContext {
     moving: boolean;
     speed: number;
     travel: number;
+    compassOffset?: number;
+    computedCompassOutlier?: boolean;
 }
 
 interface Segment {
@@ -263,6 +267,8 @@ export class ReorientationEngine {
                     moving: pd.moving,
                     speed: pd.speed,
                     travel: pd.travel,
+                    compassOffset: pd.computedCompassOffset,
+                    computedCompassOutlier: pd.computedCompassOutlier,
                 };
                 break;
             }
@@ -288,11 +294,16 @@ export class ReorientationEngine {
                             pMoving = true;
                         }
                     }
+                    const compassOffset =
+                        isNum(prev.computedCca) && isNum(prev.originalCca) ?
+                            (prev.computedCca - prev.originalCca + 360) % 360 :
+                            undefined;
                     return {
                         valid: true,
                         moving: pMoving,
                         speed: previousSegment.speed,
                         travel: previousSegment.travel,
+                        compassOffset,
                     };
                 })
                 .catch(() => null);
@@ -376,23 +387,36 @@ export class ReorientationEngine {
                 }
             }
 
-            const hasCompassCalibration =
-                isNum(cur.computedCca) &&
-                isNum(cur.originalCca) &&
-                isNum(nxt.computedCca) &&
-                isNum(nxt.originalCca);
-            const currentCompassOffset = hasCompassCalibration ?
+            const hasCurrentCompassCalibration =
+                isNum(cur.computedCca) && isNum(cur.originalCca);
+            const hasNextCompassCalibration =
+                isNum(nxt.computedCca) && isNum(nxt.originalCca);
+            const currentCompassOffset = hasCurrentCompassCalibration ?
                 (cur.computedCca - cur.originalCca + 360) % 360 : 0;
-            const nextCompassOffset = hasCompassCalibration ?
+            const nextCompassOffset = hasNextCompassCalibration ?
                 (nxt.computedCca - nxt.originalCca + 360) % 360 : 0;
+            const reconstructionDiscontinuity =
+                hasCurrentCompassCalibration &&
+                prev?.compassOffset != null &&
+                angleDelta(currentCompassOffset, prev.compassOffset) >
+                    MAX_COMPUTED_COMPASS_DELTA_DEG;
+            const continuesRejectedCalibration =
+                hasCurrentCompassCalibration &&
+                prev?.computedCompassOutlier === true &&
+                prev.compassOffset != null &&
+                angleDelta(currentCompassOffset, prev.compassOffset) <=
+                    MAX_COMPUTED_COMPASS_DELTA_DEG;
             const computedCompassOutlier =
-                hasCompassCalibration &&
+                hasCurrentCompassCalibration &&
                 angleDelta(cur.computedCca, cur.originalCca) >
                     MAX_COMPUTED_COMPASS_DELTA_DEG &&
-                angleDelta(currentCompassOffset, nextCompassOffset) >
-                    MAX_COMPUTED_COMPASS_DELTA_DEG &&
                 angleDelta(tb, cur.originalCca) <
-                    cfg.lowSpeedTurnMaxDeltaDeg;
+                    cfg.lowSpeedTurnMaxDeltaDeg &&
+                ((hasNextCompassCalibration &&
+                    angleDelta(currentCompassOffset, nextCompassOffset) >
+                        MAX_COMPUTED_COMPASS_DELTA_DEG) ||
+                    reconstructionDiscontinuity ||
+                    continuesRejectedCalibration);
             const viewCompassAngle = computedCompassOutlier ?
                 cur.originalCca :
                 (isNum(cur.viewCompassAngle) ? cur.viewCompassAngle : cur.cca);
@@ -406,6 +430,9 @@ export class ReorientationEngine {
                 cca: cur.cca,
                 viewCompassAngle,
                 computedCompassOutlier,
+                reconstructionDiscontinuity,
+                computedCompassOffset: hasCurrentCompassCalibration ?
+                    currentCompassOffset : undefined,
                 speed,
                 moving,
                 seq: cur.seq,
