@@ -68,6 +68,7 @@ const DEG = 180 / Math.PI;
 const EARTH_RADIUS_METERS = 6371000;
 const MAX_REASONABLE_SPEED_MPS = 100;
 const MAX_COMPUTED_COMPASS_DELTA_DEG = 45;
+const MAX_COMPUTED_POSITION_HEADING_DELTA_DEG = 45;
 
 function isNum(v: number): boolean {
     return typeof v === "number" && Number.isFinite(v);
@@ -441,7 +442,8 @@ export class ReorientationEngine {
             const computedHeadingDelta = angleDelta(travel, cur.cca);
             const originalHeadingDelta = angleDelta(originalTravel, cur.cca);
             if (speed > MAX_REASONABLE_SPEED_MPS ||
-                (computedHeadingDelta > this._config.outlierMaxDeltaDeg &&
+                (computedHeadingDelta >
+                    MAX_COMPUTED_POSITION_HEADING_DELTA_DEG &&
                     originalHeadingDelta < this._config.lowSpeedTurnMaxDeltaDeg)) {
                 this._originalGeometrySequences.add(cur.seq);
             }

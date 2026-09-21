@@ -222,6 +222,19 @@ describe("ReorientationEngine.precompute", () => {
         expect(engine.get("c").travel).toBeCloseTo(90, 1);
     });
 
+    it("uses the original track when computed geometry points sideways", async () => {
+        const images: Fixture = {
+            a: spherical("a", 0, 0, 90, 1000, 0, 0),
+            b: spherical("b", -0.0000819, 0.0000574, 90, 3000, 0, 0.0001),
+        };
+        const engine = new ReorientationEngine(provider(images, ["a", "b"]));
+
+        await engine.precompute("a");
+
+        expect(engine.get("a").travel).toBeCloseTo(90, 1);
+        expect(engine.get("a").basicX).toBeCloseTo(0.5, 2);
+    });
+
     it("accepts a low-speed step as a turn when compass agrees", async () => {
         // ~11 m apart but 100 s apart -> ~0.11 m/s (below movingSpeedMps),
         // yet compass (90) agrees with eastward travel, so it counts.
