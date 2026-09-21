@@ -121,6 +121,73 @@ describe("ReorientationEngine.precompute", () => {
         expect(result.basicX).toBeCloseTo(0.75, 2);
     });
 
+    it("uses raw compass when reconstructed heading conflicts with travel", async () => {
+        const current = spherical("b", 0, 0, 0, 2000);
+        current.computedCca = 0;
+        current.originalCca = 90;
+        const next = spherical("c", 0, 0.0001, 90, 3000);
+        next.computedCca = 90;
+        next.originalCca = 90;
+        const images: Fixture = {
+            a: spherical("a", 0, -0.0001, 90, 1000),
+            b: current,
+            c: next,
+        };
+        const engine = new ReorientationEngine(provider(images, ["a", "b", "c"]));
+
+        await engine.precompute("b");
+        const result = engine.get("b");
+
+        expect(result.computedCompassOutlier).toBe(true);
+        expect(result.cca).toBeCloseTo(0, 1);
+        expect(result.viewCompassAngle).toBeCloseTo(90, 1);
+        expect(result.basicX).toBeCloseTo(0.5, 2);
+    });
+
+    it("keeps reconstructed heading when raw compass conflicts with travel", async () => {
+        const current = spherical("b", 0, 0, 0, 2000);
+        current.computedCca = 0;
+        current.originalCca = 180;
+        const next = spherical("c", 0, 0.0001, 90, 3000);
+        next.computedCca = 90;
+        next.originalCca = 90;
+        const images: Fixture = {
+            a: spherical("a", 0, -0.0001, 90, 1000),
+            b: current,
+            c: next,
+        };
+        const engine = new ReorientationEngine(provider(images, ["a", "b", "c"]));
+
+        await engine.precompute("b");
+        const result = engine.get("b");
+
+        expect(result.computedCompassOutlier).toBe(false);
+        expect(result.viewCompassAngle).toBeCloseTo(0, 1);
+        expect(result.basicX).toBeCloseTo(0.75, 2);
+    });
+
+    it("keeps a stable reconstructed-to-raw compass calibration", async () => {
+        const current = spherical("b", 0, 0, 270, 2000);
+        current.computedCca = 270;
+        current.originalCca = 90;
+        const next = spherical("c", 0, 0.0001, 270, 3000);
+        next.computedCca = 270;
+        next.originalCca = 90;
+        const images: Fixture = {
+            a: spherical("a", 0, -0.0001, 270, 1000),
+            b: current,
+            c: next,
+        };
+        const engine = new ReorientationEngine(provider(images, ["a", "b", "c"]));
+
+        await engine.precompute("b");
+        const result = engine.get("b");
+
+        expect(result.computedCompassOutlier).toBe(false);
+        expect(result.viewCompassAngle).toBeCloseTo(270, 1);
+        expect(result.basicX).toBeCloseTo(0, 2);
+    });
+
     it("uses the original track when computed speed is impossible", async () => {
         const images: Fixture = {
             a: spherical("a", 0, 0, 90, 1000, 0, 0),

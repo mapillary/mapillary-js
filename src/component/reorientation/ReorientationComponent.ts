@@ -394,7 +394,8 @@ export class ReorientationComponent
                 // load there is no preceding image cut, so use the same smooth
                 // orientation as a reconstructed image.
                 const hasReconstruction =
-                    hasReconstructionMesh(image.mesh);
+                    hasReconstructionMesh(image.mesh) &&
+                    result?.computedCompassOutlier !== true;
                 const hardCut = !hasReconstruction && fromId != null;
                 const horizonY = (x: number): number =>
                     hasReconstruction ? this._horizonY(x) : 0.5;
@@ -940,6 +941,10 @@ export class ReorientationComponent
             originalLng: originalLngLat ? originalLngLat.lng : null,
             cca: useOriginalCompass ?
                 image.originalCompassAngle : image.compassAngle,
+            computedCca: hasComputedCompass ?
+                image.computedCompassAngle : undefined,
+            originalCca: Number.isFinite(image.originalCompassAngle) ?
+                image.originalCompassAngle : undefined,
             // Unmerged equirectangular pixels use an east-facing axis; their
             // raw compass describes travel rather than the panorama center.
             viewCompassAngle: isSpherical(image.cameraType) &&

@@ -12,6 +12,8 @@ export interface ReorientationImage {
     originalLat?: number;
     originalLng?: number;
     cca: number;
+    computedCca?: number;
+    originalCca?: number;
     /** World bearing represented by basic x=0.5 when it differs from CCA. */
     viewCompassAngle?: number;
     cam: string;
@@ -42,6 +44,7 @@ export interface ReorientationResult {
     dist?: number;
     cca?: number;
     viewCompassAngle?: number;
+    computedCompassOutlier?: boolean;
     speed?: number;
     moving?: boolean;
     seq?: string;
@@ -64,6 +67,7 @@ const RAD = Math.PI / 180;
 const DEG = 180 / Math.PI;
 const EARTH_RADIUS_METERS = 6371000;
 const MAX_REASONABLE_SPEED_MPS = 100;
+const MAX_COMPUTED_COMPASS_DELTA_DEG = 45;
 
 function isNum(v: number): boolean {
     return typeof v === "number" && Number.isFinite(v);
@@ -369,8 +373,26 @@ export class ReorientationEngine {
                 }
             }
 
-            const viewCompassAngle = isNum(cur.viewCompassAngle) ?
-                cur.viewCompassAngle : cur.cca;
+            const hasCompassCalibration =
+                isNum(cur.computedCca) &&
+                isNum(cur.originalCca) &&
+                isNum(nxt.computedCca) &&
+                isNum(nxt.originalCca);
+            const currentCompassOffset = hasCompassCalibration ?
+                (cur.computedCca - cur.originalCca + 360) % 360 : 0;
+            const nextCompassOffset = hasCompassCalibration ?
+                (nxt.computedCca - nxt.originalCca + 360) % 360 : 0;
+            const computedCompassOutlier =
+                hasCompassCalibration &&
+                angleDelta(cur.computedCca, cur.originalCca) >
+                    MAX_COMPUTED_COMPASS_DELTA_DEG &&
+                angleDelta(currentCompassOffset, nextCompassOffset) >
+                    MAX_COMPUTED_COMPASS_DELTA_DEG &&
+                angleDelta(tb, cur.originalCca) <
+                    cfg.lowSpeedTurnMaxDeltaDeg;
+            const viewCompassAngle = computedCompassOutlier ?
+                cur.originalCca :
+                (isNum(cur.viewCompassAngle) ? cur.viewCompassAngle : cur.cca);
             const result: ReorientationResult = {
                 valid: true,
                 nextId,
@@ -380,6 +402,7 @@ export class ReorientationEngine {
                 dist,
                 cca: cur.cca,
                 viewCompassAngle,
+                computedCompassOutlier,
                 speed,
                 moving,
                 seq: cur.seq,
