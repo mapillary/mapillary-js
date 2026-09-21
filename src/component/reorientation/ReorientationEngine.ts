@@ -442,7 +442,10 @@ export class ReorientationEngine {
                 cur.originalLat, cur.originalLng,
                 nxt.originalLat, nxt.originalLng);
             const computedHeadingDelta = angleDelta(travel, cur.cca);
-            const originalHeadingDelta = angleDelta(originalTravel, cur.cca);
+            const originalHeading = isNum(cur.originalCca) ?
+                cur.originalCca : cur.cca;
+            const originalHeadingDelta =
+                angleDelta(originalTravel, originalHeading);
             if (speed > MAX_REASONABLE_SPEED_MPS ||
                 (computedHeadingDelta >
                     MAX_COMPUTED_POSITION_HEADING_DELTA_DEG &&
