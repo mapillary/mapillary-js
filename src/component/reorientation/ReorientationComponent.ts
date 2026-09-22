@@ -147,6 +147,7 @@ export class ReorientationComponent
     // baseline or their correct neighbors would be rejected instead.
     private _levelRollDeg: number;
     private _levelPitchDeg: number;
+    private _levelAccepted: boolean;
     private _currentTransform: Transform;
     private _viewportCoords: ViewportCoords = new ViewportCoords();
 
@@ -357,6 +358,7 @@ export class ReorientationComponent
                     [0, 0, 0],
                     image.image,
                     image.camera);
+                this._levelAccepted = false;
                 const fromId = this._activeId;
                 if (this._adoptedView != null &&
                     this._adoptedSequence == null) {
@@ -530,6 +532,7 @@ export class ReorientationComponent
                 }
 
                 if (!result || !result.valid) {
+                    this._levelAccepted = false;
                     // Switching out of Gravity can reset a center queued before
                     // the image loaded, so restore an explicit shared-link view
                     // after the fallback transition. Keep it pending because an
@@ -555,6 +558,7 @@ export class ReorientationComponent
                     this._rollDeg(safetyCenter) : 0;
                 if (rollDeg == null ||
                     rollDeg > MAX_REORIENTATION_ROLL_DEG) {
+                    this._levelAccepted = false;
                     this._navigator.stateService.traverse();
                     if (resetView) {
                         this._resetOffset();
@@ -578,6 +582,7 @@ export class ReorientationComponent
                 if (levelingActive && !this._acceptLevel(rollDeg, horizonRow)) {
                     levelingActive = false;
                 }
+                this._levelAccepted = levelingActive;
                 if (levelingActive) {
                     this._navigator.stateService.gravityTraverse();
                 } else {
@@ -1045,9 +1050,13 @@ export class ReorientationComponent
                     result.basicX : this._computedBasicX;
                 this._userOffsetX = wrapDelta(center[0] - basis);
                 this._userOffsetY =
-                    center[1] - this._horizonY(center[0]);
+                    center[1] - this._levelRow(center[0]);
                 this._ySeeded = true;
             });
+    }
+
+    private _levelRow(x: number): number {
+        return this._levelAccepted ? this._horizonY(x) : 0.5;
     }
 
     private _horizonY(x: number): number {
@@ -1092,6 +1101,7 @@ export class ReorientationComponent
         this._ySeeded = false;
         this._levelRollDeg = null;
         this._levelPitchDeg = null;
+        this._levelAccepted = false;
     }
 
     private _seed(image: Image): ReorientationImage {
