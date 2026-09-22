@@ -32,10 +32,38 @@ import { Navigator } from "../../viewer/Navigator";
 const MIN_REORIENT_DEG = 15;
 const MAX_HORIZON_CORRECTION_DEG = 75;
 const MAX_REORIENTATION_ROLL_DEG = 45;
+// Abrupt roll or pitch changes between neighboring captures are reconstruction
+// errors, not plausible camera motion, so their horizon is not worth using.
+const MAX_LEVEL_ROLL_DELTA_DEG = 15;
+const MAX_LEVEL_PITCH_DELTA_DEG = 15;
 const MAX_PERSPECTIVE_AUTO_ZOOM = 0.75;
 const MAX_PERSPECTIVE_FOV = 125;
 const PERSPECTIVE_EDGE_MARGIN = 1e-3;
 const USER_ZOOM_EPSILON = 1e-2;
+
+/** Pitch correction, in degrees, that levelling to a horizon row implies. */
+export function horizonPitchDeg(horizonY: number): number {
+    return (0.5 - horizonY) * 180;
+}
+
+/**
+ * Whether a reconstructed pose is plausible enough to level to. Judged on its
+ * roll, and — once the sequence has an accepted pose to compare against — on
+ * how far its pitch has moved since that pose. Roll is unsigned, as
+ * {@link ReorientationComponent._rollDeg} reports it.
+ */
+export function isLevelPlausible(
+    rollDeg: number,
+    pitchDeg: number,
+    baselineRollDeg: number,
+    baselinePitchDeg: number): boolean {
+    if (!Number.isFinite(rollDeg) || !Number.isFinite(pitchDeg)) {
+        return false;
+    }
+    return baselineRollDeg == null || baselinePitchDeg == null ||
+        Math.abs(rollDeg - baselineRollDeg) <= MAX_LEVEL_ROLL_DELTA_DEG &&
+        Math.abs(pitchDeg - baselinePitchDeg) <= MAX_LEVEL_PITCH_DELTA_DEG;
+}
 
 /**
  * The heading an image ended up being shown at, once reorientation has decided
@@ -115,6 +143,10 @@ export class ReorientationComponent
     // it is held, not re-read.
     private _userOffsetY: number;
     private _ySeeded: boolean;
+    // Last accepted reconstructed pose. Rejected poses must not shift this
+    // baseline or their correct neighbors would be rejected instead.
+    private _levelRollDeg: number;
+    private _levelPitchDeg: number;
     private _currentTransform: Transform;
     private _viewportCoords: ViewportCoords = new ViewportCoords();
 
@@ -432,9 +464,10 @@ export class ReorientationComponent
                     hasReconstructionMesh(image.mesh) &&
                     result?.computedCompassOutlier !== true;
                 const hardCut = !hasReconstruction && fromId != null;
+                let levelingActive =
+                    hasReconstruction && this._automaticHorizonLeveling;
                 const horizonY = (x: number): number =>
-                    hasReconstruction && this._automaticHorizonLeveling ?
-                        this._horizonY(x) : 0.5;
+                    levelingActive ? this._horizonY(x) : 0.5;
                 const sequenceId = result?.seq ?? image.sequenceId;
                 const freshSequence =
                     sequenceId != null && sequenceId !== this._lastSeq;
@@ -487,6 +520,14 @@ export class ReorientationComponent
                     // carries over; this sequence registers its own as it goes.
                     this._navigator.stateService.clearReorientations();
                 }
+                // Comparing pitch against the previous image only means
+                // something between adjacent images. A jump lands anywhere in
+                // the capture, where a different pitch is the terrain rather
+                // than a bad pose, so it starts the comparison over.
+                if (freshSequence || !neighbor) {
+                    this._levelRollDeg = null;
+                    this._levelPitchDeg = null;
+                }
 
                 if (!result || !result.valid) {
                     // Switching out of Gravity can reset a center queued before
@@ -507,9 +548,10 @@ export class ReorientationComponent
 
                     return;
                 }
-                const safetyCenter = [result.basicX, horizonY(result.basicX)];
-                const rollDeg = hasReconstruction &&
-                    this._automaticHorizonLeveling ?
+                const horizonRow = levelingActive ?
+                    this._horizonRow(result.basicX) : null;
+                const safetyCenter = [result.basicX, horizonRow ?? 0.5];
+                const rollDeg = levelingActive ?
                     this._rollDeg(safetyCenter) : 0;
                 if (rollDeg == null ||
                     rollDeg > MAX_REORIENTATION_ROLL_DEG) {
@@ -533,14 +575,16 @@ export class ReorientationComponent
                     this._clearAdoptedView();
                     return;
                 }
-                if (hasReconstruction && this._automaticHorizonLeveling) {
+                if (levelingActive && !this._acceptLevel(rollDeg, horizonRow)) {
+                    levelingActive = false;
+                }
+                if (levelingActive) {
                     this._navigator.stateService.gravityTraverse();
                 } else {
                     this._navigator.stateService.traverse();
                 }
                 this._computedBasicX = result.basicX;
-                if ((!hasReconstruction || !this._automaticHorizonLeveling) &&
-                    !this._ySeeded) {
+                if (!levelingActive && !this._ySeeded) {
                     this._userOffsetY = 0;
                     this._ySeeded = true;
                 }
@@ -878,6 +922,23 @@ export class ReorientationComponent
             });
     }
 
+    private _acceptLevel(rollDeg: number, horizonRow: number): boolean {
+        if (horizonRow == null) {
+            return false;
+        }
+        const pitchDeg = horizonPitchDeg(horizonRow);
+        if (!isLevelPlausible(
+            rollDeg,
+            pitchDeg,
+            this._levelRollDeg,
+            this._levelPitchDeg)) {
+            return false;
+        }
+        this._levelRollDeg = rollDeg;
+        this._levelPitchDeg = pitchDeg;
+        return true;
+    }
+
     private _rollDeg(center: number[]): number | null {
         const transform = this._currentTransform;
         if (transform == null) {
@@ -990,9 +1051,13 @@ export class ReorientationComponent
     }
 
     private _horizonY(x: number): number {
+        return this._horizonRow(x) ?? 0.5;
+    }
+
+    private _horizonRow(x: number): number | null {
         const transform = this._currentTransform;
         if (transform == null) {
-            return 0.5;
+            return null;
         }
 
         const cameraZ = transform.unprojectSfM([0, 0], 0)[2];
@@ -1001,7 +1066,7 @@ export class ReorientationComponent
         let lowZ = transform.unprojectBasic([x, low], 10)[2] - cameraZ;
         const highZ = transform.unprojectBasic([x, high], 10)[2] - cameraZ;
         if (lowZ * highZ > 0) {
-            return 0.5;
+            return null;
         }
 
         for (let i = 0; i < 32; i++) {
@@ -1018,13 +1083,15 @@ export class ReorientationComponent
 
         const horizon = (low + high) / 2;
         return Math.abs(horizon - 0.5) * 180 <=
-            MAX_HORIZON_CORRECTION_DEG ? horizon : 0.5;
+            MAX_HORIZON_CORRECTION_DEG ? horizon : null;
     }
 
     private _resetOffset(): void {
         this._userOffsetX = 0;
         this._userOffsetY = 0;
         this._ySeeded = false;
+        this._levelRollDeg = null;
+        this._levelPitchDeg = null;
     }
 
     private _seed(image: Image): ReorientationImage {
