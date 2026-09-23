@@ -40,6 +40,7 @@ export interface ReorientationResult {
     nextId?: string;
     prevId?: string;
     travel?: number;
+    computedTravel?: number;
     basicX?: number;
     dist?: number;
     cca?: number;
@@ -127,6 +128,7 @@ interface PrevContext {
     moving: boolean;
     speed: number;
     travel: number;
+    computedTravel?: number;
     compassOffset?: number;
     computedCompassOutlier?: boolean;
 }
@@ -136,6 +138,9 @@ interface Segment {
     speed: number;
     speedExcessive: boolean;
     travel: number;
+    computedSpeed: number;
+    computedTravel: number;
+    originalTravel?: number;
 }
 
 /**
@@ -251,10 +256,7 @@ export class ReorientationEngine {
         nextId: string,
         depth: number): Promise<void> {
         const cfg = this._config;
-        const segment = this._segment(cur, nxt);
-        const dist = segment.dist;
-        let tb = segment.travel;
-        const speed = segment.speed;
+        let segment = this._segment(cur, nxt);
         let moving = false;
 
         let prevCtx: PrevContext = null;
@@ -267,6 +269,7 @@ export class ReorientationEngine {
                     moving: pd.moving,
                     speed: pd.speed,
                     travel: pd.travel,
+                    computedTravel: pd.computedTravel,
                     compassOffset: pd.computedCompassOffset,
                     computedCompassOutlier: pd.computedCompassOutlier,
                 };
@@ -303,6 +306,7 @@ export class ReorientationEngine {
                         moving: pMoving,
                         speed: previousSegment.speed,
                         travel: previousSegment.travel,
+                        computedTravel: previousSegment.computedTravel,
                         compassOffset,
                     };
                 })
@@ -310,6 +314,14 @@ export class ReorientationEngine {
         }
 
         return prevPromise.then((prev) => {
+            if (this._shouldUseOriginalGeometry(cur, segment, prev)) {
+                this._originalGeometrySequences.add(cur.seq);
+                segment = this._segment(cur, nxt);
+            }
+            const dist = segment.dist;
+            let tb = segment.travel;
+            const speed = segment.speed;
+
             if (segment.speedExcessive) {
                 // Video frame timestamps can imply impossible speeds. There is
                 // still real displacement, but it must pass the bearing-outlier
@@ -425,6 +437,7 @@ export class ReorientationEngine {
                 nextId,
                 prevId: idx > 0 ? ids[idx - 1] : undefined,
                 travel: tb,
+                computedTravel: segment.computedTravel,
                 basicX: bearingToBasicX(tb, viewCompassAngle),
                 dist,
                 cca: cur.cca,
@@ -454,48 +467,63 @@ export class ReorientationEngine {
 
     private _segment(cur: ReorientationImage, nxt: ReorientationImage): Segment {
         const dt = (nxt.ts && cur.ts) ? (nxt.ts - cur.ts) / 1000 : 0;
-        let dist = haversineDist(cur.lat, cur.lng, nxt.lat, nxt.lng);
-        let travel = bearing(cur.lat, cur.lng, nxt.lat, nxt.lng);
-        let speed = dt > 0 ? dist / dt : 0;
-
-        // SfM geometry can occasionally be displaced or scrambled while the
-        // original capture track is coherent. Keep one geometry source for the
-        // sequence once the computed track becomes physically implausible.
+        const computedDist = haversineDist(cur.lat, cur.lng, nxt.lat, nxt.lng);
+        const computedTravel = bearing(cur.lat, cur.lng, nxt.lat, nxt.lng);
+        const computedSpeed = dt > 0 ? computedDist / dt : 0;
         const hasOriginal =
             isNum(cur.originalLat) && isNum(cur.originalLng) &&
             isNum(nxt.originalLat) && isNum(nxt.originalLng);
-        if (hasOriginal) {
-            const originalTravel = bearing(
-                cur.originalLat, cur.originalLng,
-                nxt.originalLat, nxt.originalLng);
-            const computedHeadingDelta = angleDelta(travel, cur.cca);
-            const originalHeading = isNum(cur.originalCca) ?
-                cur.originalCca : cur.cca;
-            const originalHeadingDelta =
-                angleDelta(originalTravel, originalHeading);
-            if (speed > MAX_REASONABLE_SPEED_MPS ||
-                (computedHeadingDelta >
-                    MAX_COMPUTED_POSITION_HEADING_DELTA_DEG &&
-                    originalHeadingDelta < this._config.lowSpeedTurnMaxDeltaDeg)) {
-                this._originalGeometrySequences.add(cur.seq);
-            }
-        }
-        if (hasOriginal && this._originalGeometrySequences.has(cur.seq)) {
-            dist = haversineDist(
-                cur.originalLat, cur.originalLng,
-                nxt.originalLat, nxt.originalLng);
-            travel = bearing(
-                cur.originalLat, cur.originalLng,
-                nxt.originalLat, nxt.originalLng);
-            speed = dt > 0 ? dist / dt : 0;
-        }
+        const originalDist = hasOriginal ? haversineDist(
+            cur.originalLat, cur.originalLng,
+            nxt.originalLat, nxt.originalLng) : undefined;
+        const originalTravel = hasOriginal ? bearing(
+            cur.originalLat, cur.originalLng,
+            nxt.originalLat, nxt.originalLng) : undefined;
+        const useOriginal = hasOriginal &&
+            this._originalGeometrySequences.has(cur.seq);
+        const dist = useOriginal ? originalDist : computedDist;
+        const travel = useOriginal ? originalTravel : computedTravel;
+        const speed = dt > 0 ? dist / dt : 0;
 
         return {
             dist,
             speed,
             speedExcessive: speed > MAX_REASONABLE_SPEED_MPS,
             travel,
+            computedSpeed,
+            computedTravel,
+            originalTravel,
         };
+    }
+
+    private _shouldUseOriginalGeometry(
+        cur: ReorientationImage,
+        segment: Segment,
+        prev: PrevContext): boolean {
+        if (!isNum(segment.originalTravel)) {
+            return false;
+        }
+        if (segment.computedSpeed > MAX_REASONABLE_SPEED_MPS) {
+            return true;
+        }
+
+        const originalHeading = isNum(cur.originalCca) ?
+            cur.originalCca : cur.cca;
+        const headingFavorsOriginal =
+            angleDelta(segment.computedTravel, cur.cca) >
+                MAX_COMPUTED_POSITION_HEADING_DELTA_DEG &&
+            angleDelta(segment.originalTravel, originalHeading) <
+                this._config.lowSpeedTurnMaxDeltaDeg;
+        if (!headingFavorsOriginal) {
+            return false;
+        }
+
+        // Raw GPS heading often agrees with raw compass by construction. Only
+        // prefer it when the computed track also breaks continuity; otherwise
+        // a smooth reconstructed track can be replaced by a noisy raw one.
+        return prev?.computedTravel == null ||
+            angleDelta(segment.computedTravel, prev.computedTravel) >
+                MAX_COMPUTED_POSITION_HEADING_DELTA_DEG;
     }
 
     private _prefetchNext(d: ReorientationResult, depth: number): void {

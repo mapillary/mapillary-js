@@ -271,6 +271,32 @@ describe("ReorientationEngine.precompute", () => {
         expect(engine.get("a").basicX).toBeCloseTo(0.5, 2);
     });
 
+    it("keeps a coherent computed track when raw positions zigzag", async () => {
+        const previous = spherical(
+            "a", 47.359316158503, 8.522159587028, 148.26818781405,
+            1768975532063, 47.359348856991, 8.5221314103916);
+        previous.computedCca = 148.26818781405;
+        previous.originalCca = 210.92003060148;
+        const current = spherical(
+            "b", 47.359301627069, 8.5221372232107, 148.10483449986,
+            1768975533663, 47.359324640976, 8.5221127109815);
+        current.computedCca = 148.10483449986;
+        current.originalCca = 208.06971887641;
+        const next = spherical(
+            "c", 47.359291658286, 8.5221209467221, 147.99487211037,
+            1768975534743, 47.359297753971, 8.522101362013);
+        next.computedCca = 147.99487211037;
+        next.originalCca = 163.10847738317;
+        const engine = new ReorientationEngine(provider(
+            { a: previous, b: current, c: next }, ["a", "b", "c"]));
+
+        await engine.precompute("b");
+        const result = engine.get("b");
+
+        expect(result.travel).toBeCloseTo(227.9, 1);
+        expect(result.basicX).toBeCloseTo(0.72, 2);
+    });
+
     it("uses raw track and compass when both computed values jump", async () => {
         const current = spherical("b", 0, 0.00018, 0, 3000, 0, 0.00018);
         current.computedCca = 0;
