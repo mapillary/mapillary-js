@@ -132,6 +132,7 @@ export class ReorientationComponent
     private _incomingBearing: number;
     private _dragging: boolean = false;
     private _userViewChanged: boolean = false;
+    private _userViewRevision: number = 0;
 
     // Manual horizontal look-around offset, preserved within a sequence so the
     // engine doesn't yank the view back to the travel direction on every step.
@@ -386,28 +387,25 @@ export class ReorientationComponent
                     direction,
                     fromId,
                     this._dragging,
-                    commitSequenceView);
+                    commitSequenceView,
+                    this._userViewRevision);
             }));
 
         subs.push(this._container.renderService.bearing$.subscribe(
             (bearing: number): void => { this._liveBearing = bearing; }));
 
         subs.push(this._container.mouseService.mouseDragStart$.subscribe(
-            (): void => { this._dragging = true; }));
+            (): void => { this._startUserViewChange(); }));
+        subs.push(this._container.touchService.singleTouchDragStart$.subscribe(
+            (): void => { this._startUserViewChange(); }));
 
         // A finished drag is a genuine user look-around (our own steering goes
         // through the state, not pointer events), so capture the offset. During
         // playback, stop residual momentum from spilling into later images.
         subs.push(this._container.mouseService.mouseDragEnd$.subscribe(
-            (): void => {
-                if (this._navigator.playService.playing) {
-                    this._navigator.stateService
-                        .rotateBasicWithoutInertia([0, 0]);
-                }
-                this._dragging = false;
-                this._userViewChanged = true;
-                this._captureOffset();
-            }));
+            (): void => { this._finishUserViewChange(); }));
+        subs.push(this._container.touchService.singleTouchDragEnd$.subscribe(
+            (): void => { this._finishUserViewChange(); }));
     }
 
     protected _deactivate(): void {
@@ -433,7 +431,8 @@ export class ReorientationComponent
         direction: NavigationDirection,
         fromId: string,
         draggingAtNavigation: boolean,
-        commitSequenceView: boolean): void {
+        commitSequenceView: boolean,
+        userViewRevision: number): void {
         const id = image.id;
         const seed = this._seed(image);
         const engine = this._engine;
@@ -448,6 +447,25 @@ export class ReorientationComponent
                     this._adoptedSequence != null &&
                     image.sequenceId !== this._adoptedSequence) {
                     this._clearAdoptedView();
+                }
+                const sequenceId = result?.seq ?? image.sequenceId;
+                const freshSequence =
+                    sequenceId != null && sequenceId !== this._lastSeq;
+                if (this._dragging || this._userViewChanged ||
+                    this._userViewRevision !== userViewRevision) {
+                    if (freshSequence) {
+                        this._navigator.stateService.clearReorientations();
+                        this._resetOffset();
+                    }
+                    this._lastSeq = sequenceId;
+                    if (result?.valid) {
+                        this._computedBasicX = result.basicX;
+                    }
+                    this._clearAdoptedView();
+                    if (!this._dragging) {
+                        this._captureOffset();
+                    }
+                    return;
                 }
                 if (!isSpherical(image.cameraType)) {
                     this._levelPerspective(id);
@@ -465,9 +483,6 @@ export class ReorientationComponent
                     hasReconstruction && this._automaticHorizonLeveling;
                 const horizonY = (x: number): number =>
                     levelingActive ? this._horizonY(x) : 0.5;
-                const sequenceId = result?.seq ?? image.sequenceId;
-                const freshSequence =
-                    sequenceId != null && sequenceId !== this._lastSeq;
                 this._lastSeq = sequenceId;
 
                 // An arrow move already lands at the heading the user was
@@ -741,6 +756,21 @@ export class ReorientationComponent
             .catch((): void => { /* skip images we can't resolve */ });
     }
 
+    private _startUserViewChange(): void {
+        this._dragging = true;
+        this._userViewRevision++;
+        this._navigator.stateService.clearReorientations();
+    }
+
+    private _finishUserViewChange(): void {
+        if (this._navigator.playService.playing) {
+            this._navigator.stateService.rotateBasicWithoutInertia([0, 0]);
+        }
+        this._dragging = false;
+        this._userViewChanged = true;
+        this._captureOffset();
+    }
+
     private _applyOffsetX(basicX: number): number {
         return ((basicX + this._userOffsetX) % 1 + 1) % 1;
     }
@@ -789,12 +819,14 @@ export class ReorientationComponent
         if (!this._reorientToFront) {
             return Promise.resolve();
         }
+        const userViewRevision = this._userViewRevision;
         // Depth 0: we only need this neighbor's own result cached, not another
         // forward prefetch cascade (the current image's _reorient already warms
         // ahead). Avoids re-walking the already-scheduled chain per navigation.
         return engine.precompute(id, undefined, 0)
             .then((): void => {
-                if (this._engine !== engine) {
+                if (this._engine !== engine ||
+                    this._userViewRevision !== userViewRevision) {
                     return;
                 }
                 const nr = engine.get(id);
@@ -835,7 +867,8 @@ export class ReorientationComponent
 
         this._navigator.stateService.getCenter().pipe(first()).subscribe(
             (): void => {
-                if (this._activeId !== id || this._adoptedView != null) {
+                if (this._activeId !== id || this._adoptedView != null ||
+                    this._dragging || this._userViewChanged) {
                     this._clearAdoptedView();
                     return;
                 }
@@ -845,7 +878,8 @@ export class ReorientationComponent
                         render.currentImageId === id),
                     first(),
                 ).subscribe((render: RenderCamera): void => {
-                    if (this._activeId !== id || this._adoptedView != null) {
+                    if (this._activeId !== id || this._adoptedView != null ||
+                        this._dragging || this._userViewChanged) {
                         this._clearAdoptedView();
                         return;
                     }
