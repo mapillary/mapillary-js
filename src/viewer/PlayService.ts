@@ -2,7 +2,6 @@ import {
     combineLatest as observableCombineLatest,
     empty as observableEmpty,
     from as observableFrom,
-    merge as observableMerge,
     of as observableOf,
     zip as observableZip,
     Observable,
@@ -129,12 +128,18 @@ export class PlayService {
         const stateSpeed: number = this._setSpeed(this._speed);
         this._stateService.setSpeed(stateSpeed);
 
-        this._graphModeSubscription = this._speed$.pipe(
-            map(
-                (speed: number): GraphMode => {
-                    return speed > PlayService.sequenceSpeed ? GraphMode.Sequence : GraphMode.Spatial;
-                }),
-            distinctUntilChanged())
+        this._graphModeSubscription = observableCombineLatest(
+            this._speed$,
+            this._direction$).pipe(
+                map(
+                    ([speed, direction]: [number, NavigationDirection]): GraphMode => {
+                        const sequenceDirection =
+                            direction === NavigationDirection.Next ||
+                            direction === NavigationDirection.Prev;
+                        return sequenceDirection || speed > PlayService.sequenceSpeed ?
+                            GraphMode.Sequence : GraphMode.Spatial;
+                    }),
+                distinctUntilChanged())
             .subscribe(
                 (mode: GraphMode): void => {
                     this._graphService.setGraphMode(mode);
@@ -151,10 +156,9 @@ export class PlayService {
                     ([sequenceId]: [string, string]): string => {
                         return sequenceId;
                     })),
-            this._graphService.graphMode$,
             this._direction$).pipe(
                 switchMap(
-                    ([[sequenceId, imageId], mode, direction]: [[string, string], GraphMode, NavigationDirection]):
+                    ([[sequenceId], direction]: [[string, string], NavigationDirection]):
                         Observable<[Sequence, NavigationDirection]> => {
 
                         if (direction !== NavigationDirection.Next && direction !== NavigationDirection.Prev) {
@@ -171,29 +175,8 @@ export class PlayService {
                                         return observableOf(undefined);
                                     }));
 
-                        // Caching all images of the sequence is a batching
-                        // optimization for the sequence graph mode. It must
-                        // run alongside image caching instead of gating it:
-                        // it only completes once every batch has been
-                        // retrieved, which for long sequences takes long
-                        // enough to starve playback of images while running.
-                        const sequenceImages$: Observable<Sequence> =
-                            mode === GraphMode.Sequence ?
-                                this._graphService
-                                    .cacheSequenceImages$(sequenceId, imageId)
-                                    .pipe(
-                                        retry(3),
-                                        catchError(
-                                            (error: Error): Observable<Sequence> => {
-                                                console.error(error);
-
-                                                return observableEmpty();
-                                            })) :
-                                observableEmpty();
-
                         return observableCombineLatest(
-                            observableMerge(sequence$, sequenceImages$).pipe(
-                                distinctUntilChanged()),
+                            sequence$,
                             observableOf(direction));
                     }),
                 switchMap(

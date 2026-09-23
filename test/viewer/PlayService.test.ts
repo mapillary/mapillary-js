@@ -242,6 +242,7 @@ describe("PlayService.play", () => {
 
         const setGraphModeSpy: jasmine.Spy = spyOn(graphService, "setGraphMode").and.stub();
 
+        playService.setDirection(NavigationDirection.TurnLeft);
         playService.setSpeed(0);
 
         playService.play();
@@ -253,6 +254,21 @@ describe("PlayService.play", () => {
         expect(setGraphModeSpy.calls.argsFor(0)[0]).toBe(GraphMode.Spatial);
         expect(setGraphModeSpy.calls.argsFor(1)[0]).toBe(GraphMode.Sequence);
         expect(setGraphModeSpy.calls.argsFor(2)[0]).toBe(GraphMode.Spatial);
+    });
+
+    it("should keep sequence graph mode for sequence playback", () => {
+        const playService: PlayService = new PlayService(graphService, stateService);
+
+        const setGraphModeSpy: jasmine.Spy = spyOn(graphService, "setGraphMode").and.stub();
+
+        playService.setDirection(NavigationDirection.Next);
+        playService.setSpeed(0);
+        playService.play();
+        playService.setSpeed(1);
+        playService.setSpeed(0);
+
+        expect(setGraphModeSpy.calls.count()).toBe(1);
+        expect(setGraphModeSpy.calls.argsFor(0)[0]).toBe(GraphMode.Sequence);
     });
 
     it("should stop immediately if image does not have an edge in current direction and no bridge", () => {
@@ -520,10 +536,9 @@ describe("PlayService.play", () => {
         expect(stopSpy.calls.count()).toBe(1);
     });
 
-    it("should cache sequence when in spatial graph mode", () => {
+    it("should cache sequence metadata at low speed", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
         playService.setDirection(NavigationDirection.Next);
-        // Set speed to zero so that graph mode is set to spatial when calling play
         playService.setSpeed(0);
 
         const cacheSequenceSpy: jasmine.Spy = spyOn(graphService, "cacheSequence$");
@@ -547,7 +562,7 @@ describe("PlayService.play", () => {
         playService.stop();
     });
 
-    it("should cache sequence images when in sequence graph mode", () => {
+    it("should not eagerly cache all sequence images", () => {
         const playService: PlayService = new PlayService(graphService, stateService);
         playService.setDirection(NavigationDirection.Next);
         // Set speed to one so that graph mode is set to sequence when calling play
@@ -566,10 +581,10 @@ describe("PlayService.play", () => {
         const currentImageSubject: Subject<Image> = <Subject<Image>>stateService.currentImage$;
         currentImageSubject.next(currentImage);
 
-        expect(cacheSequenceSpy.calls.count()).toBe(0);
+        expect(cacheSequenceSpy.calls.count()).toBe(1);
+        expect(cacheSequenceSpy.calls.argsFor(0)[0]).toBe(currentImage.sequenceId);
 
-        expect(cacheSequenceImagesSpy.calls.count()).toBe(1);
-        expect(cacheSequenceImagesSpy.calls.argsFor(0)[0]).toBe(currentImage.sequenceId);
+        expect(cacheSequenceImagesSpy.calls.count()).toBe(0);
 
         playService.stop();
     });
