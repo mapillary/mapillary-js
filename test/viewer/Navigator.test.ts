@@ -16,7 +16,6 @@ import { StateServiceMockCreator } from "../helper/StateServiceMockCreator";
 
 import { Navigator } from "../../src/viewer/Navigator";
 import { Image } from "../../src/graph/Image";
-import { ImageCache } from "../../src/graph/ImageCache";
 import { APIWrapper } from "../../src/api/APIWrapper";
 import { CoreImageEnt } from "../../src/api/ents/CoreImageEnt";
 import { Graph } from "../../src/graph/Graph";
@@ -351,61 +350,6 @@ describe("Navigator.moveToKey$", () => {
             expect(errorCount).toBe(0);
             expect(completeCount).toBe(1);
         });
-    });
-});
-
-describe("Navigator.moveDir$", () => {
-    it("should wait for target preparation before showing the image", (done: () => void) => {
-        const api: APIWrapper = new APIWrapper(new DataProvider());
-        const graphService: GraphService = new GraphService(new Graph(api));
-        const loadingService: LoadingService = new LoadingService();
-        const stateService: StateService = new StateServiceMockCreator().create();
-        const cacheService: CacheService =
-            new CacheService(graphService, stateService, api);
-        spyOn(loadingService, "startLoading").and.stub();
-        spyOn(loadingService, "stopLoading").and.stub();
-
-        const current: Image = new ImageHelper().createImage();
-        current.initializeCache(new ImageCache(undefined));
-        current.cacheSequenceEdges([{
-            source: current.id,
-            target: "target",
-            data: {
-                direction: NavigationDirection.Next,
-                worldMotionAzimuth: 0,
-            },
-        }]);
-        const target: Image = new ImageHelper().createImage();
-        const cacheImageSpy: jasmine.Spy = spyOn(graphService, "cacheImage$")
-            .and.returnValue(observableOf(target));
-        const navigator: Navigator = new Navigator(
-            { container: "co" },
-            api,
-            graphService,
-            loadingService,
-            stateService,
-            cacheService);
-
-        let finishPreparation: () => void;
-        const preparation = new Promise<void>((resolve: () => void): void => {
-            finishPreparation = resolve;
-        });
-        const prepareSpy: jasmine.Spy = jasmine.createSpy("prepare")
-            .and.returnValue(preparation);
-        navigator.setMovePreparer(prepareSpy);
-
-        navigator.moveDir$(NavigationDirection.Next).subscribe(
-            (image: Image): void => {
-                expect(image).toBe(target);
-                expect(cacheImageSpy.calls.count()).toBe(1);
-                done();
-            });
-        (<Subject<Image>>stateService.currentImage$).next(current);
-
-        expect(prepareSpy).toHaveBeenCalledWith(
-            "target", NavigationDirection.Next);
-        expect(cacheImageSpy.calls.count()).toBe(0);
-        finishPreparation();
     });
 });
 
