@@ -261,6 +261,37 @@ describe("Graph.cacheBoundingBox$", () => {
     });
 });
 
+describe("Graph.cacheFullImages$", () => {
+    it("should fetch multiple images in one request", (done: Function) => {
+        const api = new APIWrapper(new DataProvider());
+        const calculator = new GraphCalculator();
+        const getImages = new Subject<ImagesContract>();
+        const getImagesSpy = spyOn(api, "getImages$")
+            .and.returnValue(getImages);
+        spyOn(api.data.geometry, "lngLatToCellId").and.returnValue("cell-id");
+        const graph = new Graph(api, undefined, undefined, calculator);
+        const firstNode = new ImageHelper().createImageEnt();
+        const secondNode = new ImageHelper().createImageEnt();
+        secondNode.id = `${firstNode.id}-2`;
+
+        graph.cacheFullImages$([firstNode.id, secondNode.id]).subscribe(
+            (result: Graph): void => {
+                expect(result.getNode(firstNode.id).complete).toBe(true);
+                expect(result.getNode(secondNode.id).complete).toBe(true);
+                expect(getImagesSpy).toHaveBeenCalledWith(
+                    [firstNode.id, secondNode.id]);
+                expect(getImagesSpy.calls.count()).toBe(1);
+                done();
+            });
+
+        getImages.next([
+            { node: firstNode, node_id: firstNode.id },
+            { node: secondNode, node_id: secondNode.id },
+        ]);
+        getImages.complete();
+    });
+});
+
 describe("Graph.cacheFull$", () => {
     let helper: ImageHelper;
 

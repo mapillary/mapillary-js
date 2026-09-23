@@ -202,6 +202,26 @@ export class GraphService {
     }
 
     /** Retrieve full image metadata without caching render assets or edges. */
+    public cacheImagesMetadata$(ids: string[]): Observable<Image[]> {
+        return this._graph$.pipe(
+            first(),
+            mergeMap(
+                (graph: Graph): Observable<Graph> => {
+                    return graph.cacheFullImages$(ids);
+                }),
+            map(
+                (graph: Graph): Image[] => {
+                    return ids.map((id: string): Image => {
+                        if (!graph.hasNode(id)) {
+                            throw new GraphMapillaryError(
+                                `Failed to cache image metadata (${id})`);
+                        }
+                        return graph.getNode(id);
+                    });
+                }));
+    }
+
+    /** Retrieve full image metadata without caching render assets or edges. */
     public cacheImageMetadata$(id: string): Observable<Image> {
         return this._graph$.pipe(
             first(),

@@ -560,6 +560,55 @@ export class Graph {
     }
 
     /**
+     * Retrieve and cache full node properties for multiple images in one request.
+     *
+     * @param {string[]} keys - Keys of nodes to fill.
+     * @returns {Observable<Graph>} Observable emitting the graph
+     * when all nodes have been updated.
+     */
+    public cacheFullImages$(keys: string[]): Observable<Graph> {
+        const streams = new Set<Observable<Graph>>();
+        const uncached: string[] = [];
+        for (const key of Array.from(new Set(keys))) {
+            if (key in this._cachingFull$) {
+                streams.add(this._cachingFull$[key]);
+            } else if (key in this._cachingFill$) {
+                streams.add(this._cachingFill$[key]);
+            } else if (!this.hasNode(key)) {
+                uncached.push(key);
+            } else if (!this.getNode(key).complete) {
+                streams.add(this.cacheFill$(key));
+            }
+        }
+
+        if (uncached.length > 0) {
+            const batch$ = this._api.getImages$(uncached).pipe(
+                tap((items: ImagesContract): void => {
+                    this._storeFullImages(items);
+                }),
+                map((): Graph => this),
+                finalize((): void => {
+                    for (const key of uncached) {
+                        if (this._cachingFull$[key] === batch$) {
+                            delete this._cachingFull$[key];
+                        }
+                    }
+                    this._changed$.next(this);
+                }),
+                publishReplay(1),
+                refCount());
+            for (const key of uncached) {
+                this._cachingFull$[key] = batch$;
+            }
+            streams.add(batch$);
+        }
+
+        return streams.size > 0 ?
+            observableMerge(...Array.from(streams)).pipe(last()) :
+            observableOf(this);
+    }
+
+    /**
      * Retrieve and cache full node properties.
      *
      * @param {string} key - Key of node to fill.
@@ -578,44 +627,9 @@ export class Graph {
         }
 
         this._cachingFull$[key] = this._api.getImages$([key]).pipe(
-            tap(
-                (items: ImagesContract): void => {
-                    for (const item of items) {
-                        if (!item.node) {
-                            throw new GraphMapillaryError(
-                                `Image does not exist (${key}, ${item.node}).`);
-                        }
-
-                        const id = item.node_id;
-                        if (this.hasNode(id)) {
-                            const node = this.getNode(key);
-                            if (!node.complete) {
-                                this._makeFull(node, item.node);
-                            }
-                        } else {
-                            if (item.node.sequence.id == null) {
-                                throw new GraphMapillaryError(
-                                    `Image has no sequence key (${key}).`);
-                            }
-
-                            let node: Image = null;
-                            if (this._preDeletedNodes.has(id)) {
-                                node = this._unDeleteNode(id);
-                            } else {
-                                node = new Image(item.node);
-                            }
-                            this._makeFull(node, item.node);
-
-                            const lngLat = this._getNodeLngLat(node);
-                            const cellId = this._api.data.geometry
-                                .lngLatToCellId(lngLat);
-                            this._preStore(cellId, node);
-                            this._setNode(node);
-
-                            delete this._cachingFull$[id];
-                        }
-                    }
-                }),
+            tap((items: ImagesContract): void => {
+                this._storeFullImages(items, key);
+            }),
             map((): Graph => this),
             finalize(
                 (): void => {
@@ -2065,6 +2079,38 @@ export class Graph {
         clusterNodes.delete(node.id);
         if (!clusterNodes.size) {
             this._clusterNodes.delete(clusterId);
+        }
+    }
+
+    private _storeFullImages(items: ImagesContract, errorKey?: string): void {
+        for (const item of items) {
+            const key = errorKey ?? item.node_id;
+            if (!item.node) {
+                throw new GraphMapillaryError(
+                    `Image does not exist (${key}, ${item.node}).`);
+            }
+
+            const id = item.node_id;
+            if (this.hasNode(id)) {
+                const existingNode = this.getNode(id);
+                if (!existingNode.complete) {
+                    this._makeFull(existingNode, item.node);
+                }
+                continue;
+            }
+            if (item.node.sequence.id == null) {
+                throw new GraphMapillaryError(
+                    `Image has no sequence key (${key}).`);
+            }
+
+            const node = this._preDeletedNodes.has(id) ?
+                this._unDeleteNode(id) : new Image(item.node);
+            this._makeFull(node, item.node);
+            const lngLat = this._getNodeLngLat(node);
+            const cellId = this._api.data.geometry.lngLatToCellId(lngLat);
+            this._preStore(cellId, node);
+            this._setNode(node);
+            delete this._cachingFull$[id];
         }
     }
 

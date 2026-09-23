@@ -27,6 +27,7 @@ export interface ReorientationImage {
  */
 export interface ReorientationProvider {
     fetchImage(id: string): Promise<ReorientationImage>;
+    fetchImages?(ids: string[]): Promise<ReorientationImage[]>;
     fetchSeqIds(seqId: string): Promise<string[]>;
     cacheImage?(image: ReorientationImage): void;
 }
@@ -187,21 +188,28 @@ export class ReorientationEngine {
         if (depth == null) {
             depth = cfg.prefetchAhead;
         }
-        if (this._cache.has(imgId)) {
-            this._prefetchNext(this._cache.get(imgId), depth);
-            return Promise.resolve();
+        if (seed && isNum(seed.lat) && isNum(seed.lng) &&
+            typeof this._provider.cacheImage === "function") {
+            this._provider.cacheImage(seed);
+        }
+        const cached = this._cache.get(imgId);
+        if (cached != null) {
+            const seedChanged = seed != null &&
+                (cached.cca !== seed.cca ||
+                    cached.viewCompassAngle !== seed.viewCompassAngle);
+            if (!seedChanged) {
+                this._prefetchNext(cached, depth);
+                return Promise.resolve();
+            }
+            this._cache.delete(imgId);
         }
         if (this._pending.has(imgId)) {
-            return this._pending.get(imgId).then(() => {
-                this._prefetchNext(this._cache.get(imgId), depth);
-            });
+            return this._pending.get(imgId).then(() =>
+                this.precompute(imgId, seed, depth));
         }
 
         let p: Promise<ReorientationImage>;
         if (seed && isNum(seed.lat) && isNum(seed.lng)) {
-            if (typeof this._provider.cacheImage === "function") {
-                this._provider.cacheImage(seed);
-            }
             p = Promise.resolve(seed);
         } else {
             p = this._provider.fetchImage(imgId);
@@ -237,13 +245,29 @@ export class ReorientationEngine {
                     return;
                 }
                 const nextId = ids[idx + 1];
-                return this._provider.fetchImage(nextId).then((nxt) => {
-                    if (!hasPosition(nxt)) {
-                        this._invalid(imgId, "Next image missing geometry");
-                        return;
+                let warm: Promise<ReorientationImage[]> = Promise.resolve([]);
+                if (this._provider.fetchImages != null) {
+                    const requiredIds = [ids[idx - 1], nextId]
+                        .filter((id: string): boolean => id != null);
+                    warm = this._provider.fetchImages(requiredIds)
+                        .catch((): ReorientationImage[] => []);
+                    const aheadIds = ids.slice(
+                        idx + 2, Math.min(ids.length, idx + depth + 2));
+                    if (aheadIds.length > 0) {
+                        this._provider.fetchImages(aheadIds)
+                            .catch((): ReorientationImage[] => []);
                     }
-                    return this._decide(imgId, cur, nxt, ids, idx, nextId, depth);
-                });
+                }
+                return warm
+                    .then(() => this._provider.fetchImage(nextId))
+                    .then((nxt) => {
+                        if (!hasPosition(nxt)) {
+                            this._invalid(imgId, "Next image missing geometry");
+                            return;
+                        }
+                        return this._decide(
+                            imgId, cur, nxt, ids, idx, nextId, depth);
+                    });
             });
     }
 

@@ -665,6 +665,37 @@ class TestNode extends Image {
     }
 }
 
+describe("GraphService.cacheImagesMetadata$", () => {
+    it("should cache image metadata as one graph batch", (done: Function) => {
+        const api: APIWrapper = new APIWrapper(new DataProvider());
+        const graph: Graph = new Graph(api);
+        const cacheFullImages$: Subject<Graph> = new Subject<Graph>();
+        const cacheSpy = spyOn(graph, "cacheFullImages$")
+            .and.returnValue(cacheFullImages$);
+        const firstImage: TestNode = new TestNode(
+            new ImageHelper().createCoreImageEnt());
+        const secondEnt = new ImageHelper().createCoreImageEnt();
+        secondEnt.id = `${firstImage.id}-2`;
+        const secondImage: TestNode = new TestNode(secondEnt);
+        spyOn(graph, "hasNode").and.returnValue(true);
+        spyOn(graph, "getNode").and.callFake((id: string): Image =>
+            id === firstImage.id ? firstImage : secondImage);
+        const graphService: GraphService = new GraphService(graph);
+
+        graphService.cacheImagesMetadata$(
+            [firstImage.id, secondImage.id]).subscribe(
+            (images: Image[]): void => {
+                expect(images).toEqual([firstImage, secondImage]);
+                expect(cacheSpy).toHaveBeenCalledWith(
+                    [firstImage.id, secondImage.id]);
+                done();
+            });
+
+        cacheFullImages$.next(graph);
+        cacheFullImages$.complete();
+    });
+});
+
 describe("GraphService.cacheImageMetadata$", () => {
     it("should cache metadata without caching render assets", (done: Function) => {
         const api: APIWrapper = new APIWrapper(new DataProvider());

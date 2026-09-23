@@ -57,6 +57,9 @@ function provider(images: Fixture, seqIds: string[]): ReorientationProvider {
         },
         fetchSeqIds: (_seqId: string): Promise<string[]> =>
             Promise.resolve(seqIds.slice()),
+        cacheImage: (image: ReorientationImage): void => {
+            images[image.id] = image;
+        },
     };
 }
 
@@ -84,6 +87,44 @@ function spherical(
 }
 
 describe("ReorientationEngine.precompute", () => {
+    it("warms the configured sequence window in one batch", async () => {
+        const images: Fixture = {
+            a: spherical("a", 0, -0.0001, 0, 1000),
+            b: spherical("b", 0, 0, 0, 2000),
+            c: spherical("c", 0, 0.0001, 0, 3000),
+            d: spherical("d", 0, 0.0002, 0, 4000),
+            e: spherical("e", 0, 0.0003, 0, 5000),
+        };
+        const dataProvider = provider(images, ["a", "b", "c", "d", "e"]);
+        dataProvider.fetchImages = jasmine.createSpy("fetchImages")
+            .and.callFake((ids: string[]): Promise<ReorientationImage[]> =>
+                Promise.resolve(ids.map(id => images[id])));
+        const engine = new ReorientationEngine(dataProvider);
+
+        await engine.precompute("b", images.b, 2);
+
+        expect(dataProvider.fetchImages).toHaveBeenCalledWith(["a", "c"]);
+        expect(dataProvider.fetchImages).toHaveBeenCalledWith(["d", "e"]);
+        expect(engine.get("b").valid).toBe(true);
+    });
+
+    it("recomputes provisional metadata when the loaded seed changes", async () => {
+        const images: Fixture = {
+            a: spherical("a", 0, -0.0001, 0, 1000),
+            b: spherical("b", 0, 0, 0, 2000),
+            c: spherical("c", 0, 0.0001, 0, 3000),
+        };
+        const engine = new ReorientationEngine(provider(images, ["a", "b", "c"]));
+        await engine.precompute("b", images.b, 0);
+        expect(engine.get("b").basicX).toBeCloseTo(0.75, 2);
+
+        const loaded = { ...images.b, cca: 90, viewCompassAngle: 90 };
+        await engine.precompute("b", loaded, 0);
+
+        expect(engine.get("b").cca).toBe(90);
+        expect(engine.get("b").basicX).toBeCloseTo(0.5, 2);
+    });
+
     it("frames the travel direction for a moving image", async () => {
         // Straight eastward run, ~11 m apart, 1 s apart -> ~11 m/s, facing
         // north (cca 0) so travel east maps to basic-x 0.75. (capturedAt is an

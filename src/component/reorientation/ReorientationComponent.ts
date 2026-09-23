@@ -1089,7 +1089,11 @@ export class ReorientationComponent
         const originalLngLat = image.originalLngLat;
         const hasComputedCompass =
             Number.isFinite(image.computedCompassAngle);
-        const hasReconstruction = hasReconstructionMesh(image.mesh);
+        // Lookahead metadata has no loaded mesh. Its computed pose is
+        // provisional and is replaced by the real mesh classification when the
+        // image becomes current.
+        const hasReconstruction = image.hasInitializedCache() ?
+            hasReconstructionMesh(image.mesh) : hasComputedCompass;
         // Placeholder geometry can carry a computed pose that is wildly
         // inconsistent between neighboring frames. Its raw capture heading is
         // the stable center axis of the underlying panorama.
@@ -1121,23 +1125,52 @@ export class ReorientationComponent
     private _createProvider(): ReorientationProvider {
         const graphService = this._navigator.graphService;
         const imageCache = new Map<string, ReorientationImage>();
+        const imagePending = new Map<string, Promise<ReorientationImage>>();
+        const fetchImages = (ids: string[]): Promise<ReorientationImage[]> => {
+            const normalized = ids.map(String);
+            const missing = Array.from(new Set(normalized)).filter(
+                (id: string): boolean =>
+                    !imageCache.has(id) && !imagePending.has(id));
+            if (missing.length > 0) {
+                const batch = new Promise<Image[]>((resolve, reject) => {
+                    graphService.cacheImagesMetadata$(missing)
+                        .pipe(first())
+                        .subscribe(resolve, reject);
+                }).then((images: Image[]): void => {
+                    for (const image of images) {
+                        imageCache.set(image.id, this._seed(image));
+                    }
+                });
+                for (const id of missing) {
+                    const pending = batch
+                        .then((): ReorientationImage => {
+                            const image = imageCache.get(id);
+                            if (image == null) {
+                                throw new Error(`Missing image metadata (${id})`);
+                            }
+                            imagePending.delete(id);
+                            return image;
+                        })
+                        .catch((error: Error): Promise<ReorientationImage> => {
+                            imagePending.delete(id);
+                            return Promise.reject(error);
+                        });
+                    imagePending.set(id, pending);
+                }
+            }
+            return Promise.all(normalized.map(
+                (id: string): Promise<ReorientationImage> =>
+                    imageCache.has(id) ?
+                        Promise.resolve(imageCache.get(id)) :
+                        imagePending.get(id)));
+        };
         return {
             fetchImage: (id: string): Promise<ReorientationImage> => {
-                id = String(id);
-                const cached = imageCache.get(id);
-                if (cached) {
-                    return Promise.resolve(cached);
-                }
-                return new Promise<ReorientationImage>((resolve, reject) => {
-                    graphService.cacheImageMetadata$(id).pipe(first()).subscribe(
-                        (image: Image): void => {
-                            const o = this._seed(image);
-                            imageCache.set(id, o);
-                            resolve(o);
-                        },
-                        (e: Error): void => reject(e));
-                });
+                return fetchImages([id]).then(
+                    (images: ReorientationImage[]): ReorientationImage =>
+                        images[0]);
             },
+            fetchImages,
             cacheImage: (image: ReorientationImage): void => {
                 if (image && image.id != null) {
                     imageCache.set(String(image.id), image);
