@@ -46,6 +46,8 @@ import { CoreImagesContract } from "../api/contracts/CoreImagesContract";
 import { CancelMapillaryError } from "../error/CancelMapillaryError";
 import { geodeticToEnu } from "../geo/GeoCoords";
 
+const MAX_GRAPH_IMAGE_BATCH_SIZE = 120;
+
 type NodeTiles = {
     cache: string[];
     caching: string[];
@@ -462,9 +464,9 @@ export class Graph {
                 }
 
                 const coreNodeBatches: string[][] = [];
-                const batchSize: number = 200;
                 while (coreNodes.length > 0) {
-                    coreNodeBatches.push(coreNodes.splice(0, batchSize));
+                    coreNodeBatches.push(
+                        coreNodes.splice(0, MAX_GRAPH_IMAGE_BATCH_SIZE));
                 }
 
                 const fullNodes$ = observableOf(fullNodes);
@@ -743,9 +745,8 @@ export class Graph {
             batches.push(keys.splice(startIndex, referenceBatchSize));
         }
 
-        const batchSize: number = 200;
         while (keys.length > 0) {
-            batches.push(keys.splice(0, batchSize));
+            batches.push(keys.splice(0, MAX_GRAPH_IMAGE_BATCH_SIZE));
         }
 
         let batchesToCache: number = batches.length;
