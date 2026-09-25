@@ -15,6 +15,7 @@ import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { SequenceConfiguration } from "../interfaces/SequenceConfiguration";
+import { createTooltipProperties } from "../util/Tooltip";
 import { SequenceMode } from "./SequenceMode";
 import { SequenceComponent } from "./SequenceComponent";
 
@@ -305,19 +306,27 @@ export class SequenceDOMRenderer {
             NavigationDirection.Prev : NavigationDirection.Next;
 
         const playing: boolean = configuration.playing;
-        const switchButtonProperties: vd.createProperties = {
-            onclick: (): void => {
-                if (!playing) {
-                    component.configure({ direction });
-                }
-            },
-        };
+        const switchButtonProperties: vd.createProperties = createTooltipProperties(
+            "Reverse direction",
+            {
+                onclick: (): void => {
+                    if (!playing) {
+                        component.configure({ direction });
+                    }
+                },
+            });
         const switchButtonClassName: string = configuration.playing ? ".mapillary-sequence-switch-button-inactive" : ".mapillary-sequence-switch-button";
         const switchButton: vd.VNode = vd.h("div" + switchButtonClassName, switchButtonProperties, [switchIcon]);
         const slowIcon: vd.VNode = vd.h("div.mapillary-sequence-slow-icon.mapillary-sequence-icon-visible", []);
-        const slowContainer: vd.VNode = vd.h("div.mapillary-sequence-slow-container", [slowIcon]);
+        const slowContainer: vd.VNode = vd.h(
+            "div.mapillary-sequence-slow-container",
+            createTooltipProperties("Slower"),
+            [slowIcon]);
         const fastIcon: vd.VNode = vd.h("div.mapillary-sequence-fast-icon.mapillary-sequence-icon-visible", []);
-        const fastContainer: vd.VNode = vd.h("div.mapillary-sequence-fast-container", [fastIcon]);
+        const fastContainer: vd.VNode = vd.h(
+            "div.mapillary-sequence-fast-container",
+            createTooltipProperties("Faster"),
+            [fastIcon]);
         const closeIcon: vd.VNode = vd.h("div.mapillary-sequence-close-icon.mapillary-sequence-icon-visible", []);
         const closeButtonProperties: vd.createProperties = {
             onclick: (): void => {
@@ -352,7 +361,9 @@ export class SequenceDOMRenderer {
             (): void => { component.stop(); } :
             canPlay ? (): void => { component.play(); } : null;
 
-        let buttonProperties: vd.createProperties = { onclick: onclick };
+        let buttonProperties: vd.createProperties = createTooltipProperties(
+            configuration.playing ? "Stop" : "Play",
+            { onclick });
 
         let iconProperties: vd.createProperties = {};
         if (configuration.direction === NavigationDirection.Prev) {
@@ -374,45 +385,51 @@ export class SequenceDOMRenderer {
 
     private _createSequenceControls(containerWidth: number): vd.VNode {
         const borderRadius: number = Math.round(8 / this._stepperDefaultWidth * containerWidth);
-        const expanderProperties: vd.createProperties = {
-            onclick: (): void => {
-                this._expandControls = !this._expandControls;
-                this._mode = SequenceMode.Default;
-                this._notifyChanged$.next(this);
-            },
-            style: {
-                "border-bottom-right-radius": `${borderRadius}px`,
-                "border-top-right-radius": `${borderRadius}px`,
-            },
-        };
+        const expanderProperties: vd.createProperties = createTooltipProperties(
+            "Options",
+            {
+                onclick: (): void => {
+                    this._expandControls = !this._expandControls;
+                    this._mode = SequenceMode.Default;
+                    this._notifyChanged$.next(this);
+                },
+                style: {
+                    "border-bottom-right-radius": `${borderRadius}px`,
+                    "border-top-right-radius": `${borderRadius}px`,
+                },
+            });
         const expanderBar: vd.VNode = vd.h("div.mapillary-sequence-expander-bar", []);
         const expander: vd.VNode = vd.h("div.mapillary-sequence-expander-button", expanderProperties, [expanderBar]);
 
         const fastIconClassName: string = this._mode === SequenceMode.Playback ?
             ".mapillary-sequence-fast-icon-gray.mapillary-sequence-icon-visible" : ".mapillary-sequence-fast-icon";
         const fastIcon: vd.VNode = vd.h("div" + fastIconClassName, []);
-        const playbackProperties: vd.createProperties = {
-            onclick: (): void => {
-                this._mode = this._mode === SequenceMode.Playback ?
-                    SequenceMode.Default :
-                    SequenceMode.Playback;
-                this._notifyChanged$.next(this);
-            },
-        };
+        const playbackProperties: vd.createProperties = createTooltipProperties(
+            "Playback speed",
+            {
+                onclick: (): void => {
+                    this._mode = this._mode === SequenceMode.Playback ?
+                        SequenceMode.Default :
+                        SequenceMode.Playback;
+                    this._notifyChanged$.next(this);
+                },
+            });
 
         const playback: vd.VNode = vd.h("div.mapillary-sequence-playback-button", playbackProperties, [fastIcon]);
 
         const timelineIconClassName: string = this._mode === SequenceMode.Timeline ?
             ".mapillary-sequence-timeline-icon-gray.mapillary-sequence-icon-visible" : ".mapillary-sequence-timeline-icon";
         const timelineIcon: vd.VNode = vd.h("div" + timelineIconClassName, []);
-        const timelineProperties: vd.createProperties = {
-            onclick: (): void => {
-                this._mode = this._mode === SequenceMode.Timeline ?
-                    SequenceMode.Default :
-                    SequenceMode.Timeline;
-                this._notifyChanged$.next(this);
-            },
-        };
+        const timelineProperties: vd.createProperties = createTooltipProperties(
+            "Navigate capture",
+            {
+                onclick: (): void => {
+                    this._mode = this._mode === SequenceMode.Timeline ?
+                        SequenceMode.Default :
+                        SequenceMode.Timeline;
+                    this._notifyChanged$.next(this);
+                },
+            });
 
         const timeline: vd.VNode = vd.h("div.mapillary-sequence-timeline-button", timelineProperties, [timelineIcon]);
 
@@ -437,44 +454,48 @@ export class SequenceDOMRenderer {
         configuration: SequenceConfiguration,
         navigator: Navigator): vd.VNode[] {
 
-        let nextProperties: vd.createProperties = {
-            onclick: nextId != null ?
-                (): void => {
-                    navigator.moveDir$(NavigationDirection.Next)
-                        .subscribe(
-                            undefined,
-                            (error: Error): void => {
-                                if (!(error instanceof CancelMapillaryError)) {
-                                    console.error(error);
-                                }
-                            });
-                } :
-                null,
-            onpointerenter: (): void => { this._mouseEnterDirection$.next(NavigationDirection.Next); },
-            onpointerleave: (): void => { this._mouseLeaveDirection$.next(NavigationDirection.Next); },
-        };
+        let nextProperties: vd.createProperties = createTooltipProperties(
+            "Next",
+            {
+                onclick: nextId != null ?
+                    (): void => {
+                        navigator.moveDir$(NavigationDirection.Next)
+                            .subscribe(
+                                undefined,
+                                (error: Error): void => {
+                                    if (!(error instanceof CancelMapillaryError)) {
+                                        console.error(error);
+                                    }
+                                });
+                    } :
+                    null,
+                onpointerenter: (): void => { this._mouseEnterDirection$.next(NavigationDirection.Next); },
+                onpointerleave: (): void => { this._mouseLeaveDirection$.next(NavigationDirection.Next); },
+            });
 
         const borderRadius: number = Math.round(8 / this._stepperDefaultWidth * containerWidth);
-        let prevProperties: vd.createProperties = {
-            onclick: prevId != null ?
-                (): void => {
-                    navigator.moveDir$(NavigationDirection.Prev)
-                        .subscribe(
-                            undefined,
-                            (error: Error): void => {
-                                if (!(error instanceof CancelMapillaryError)) {
-                                    console.error(error);
-                                }
-                            });
-                } :
-                null,
-            onpointerenter: (): void => { this._mouseEnterDirection$.next(NavigationDirection.Prev); },
-            onpointerleave: (): void => { this._mouseLeaveDirection$.next(NavigationDirection.Prev); },
-            style: {
-                "border-bottom-left-radius": `${borderRadius}px`,
-                "border-top-left-radius": `${borderRadius}px`,
-            },
-        };
+        let prevProperties: vd.createProperties = createTooltipProperties(
+            "Previous",
+            {
+                onclick: prevId != null ?
+                    (): void => {
+                        navigator.moveDir$(NavigationDirection.Prev)
+                            .subscribe(
+                                undefined,
+                                (error: Error): void => {
+                                    if (!(error instanceof CancelMapillaryError)) {
+                                        console.error(error);
+                                    }
+                                });
+                    } :
+                    null,
+                onpointerenter: (): void => { this._mouseEnterDirection$.next(NavigationDirection.Prev); },
+                onpointerleave: (): void => { this._mouseLeaveDirection$.next(NavigationDirection.Prev); },
+                style: {
+                    "border-bottom-left-radius": `${borderRadius}px`,
+                    "border-top-left-radius": `${borderRadius}px`,
+                },
+            });
 
         let nextClass: string = this._getStepClassName(NavigationDirection.Next, nextId, configuration.highlightId);
         let prevClass: string = this._getStepClassName(NavigationDirection.Prev, prevId, configuration.highlightId);

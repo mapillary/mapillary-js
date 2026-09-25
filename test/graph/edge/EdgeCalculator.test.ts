@@ -80,6 +80,43 @@ describe("EdgeCalculator.getPotentialEdges", () => {
         expect(potentialEdges.length).toBe(0);
     });
 
+    it("should return an unmerged fallback edge", () => {
+        let key = "key";
+        let edgeKey = "edgeKey";
+        let sequenceKey = "skey";
+
+        let lla: LngLatAlt = { alt: 0, lat: 0, lng: 0 };
+        let image = helper.createCompleteImage(
+            key,
+            lla,
+            sequenceKey,
+            [0, -Math.PI / 2, 0],
+            null,
+            "spherical");
+        let geodetic = GeoCoords.enuToGeodetic(
+            10,
+            0,
+            0,
+            lla.lng,
+            lla.lat,
+            lla.alt);
+        let edgeImage = helper.createCompleteImage(
+            edgeKey,
+            { alt: geodetic[2], lat: geodetic[1], lng: geodetic[0] },
+            sequenceKey,
+            [0, -Math.PI / 2, 0],
+            null,
+            "spherical");
+
+        let potentialEdges =
+            edgeCalculator.getPotentialEdges(image, [edgeImage], [edgeKey]);
+
+        expect(potentialEdges.length).toBe(1);
+        expect(potentialEdges[0].id).toBe(edgeKey);
+        expect(potentialEdges[0].sameMergeCC).toBe(false);
+        expect(potentialEdges[0].sameSequence).toBe(true);
+    });
+
     it("should return a potential edge", () => {
         let key = "key";
         let edgeKey = "edgeKey";

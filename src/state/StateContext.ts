@@ -2,6 +2,7 @@ import { State } from "./State";
 import { TransitionMode } from "./TransitionMode";
 import { EulerRotation } from "./interfaces/EulerRotation";
 import { IStateContext } from "./interfaces/IStateContext";
+import { ReorientationHint } from "./interfaces/IStateBase";
 import { StateBase } from "./state/StateBase";
 
 import { Camera } from "../geo/Camera";
@@ -28,7 +29,7 @@ export class StateContext implements IStateContext {
                 currentIndex: -1,
                 geometry,
                 reference: { alt: 0, lat: 0, lng: 0 },
-                reorientations: new Map<string, number[]>(),
+                reorientations: new Map<string, ReorientationHint>(),
                 trajectory: [],
                 transitionMode: transitionMode == null ? TransitionMode.Default : transitionMode,
                 zoom: 0,
@@ -139,6 +140,10 @@ export class StateContext implements IStateContext {
         this._state.setZoom(zoom);
     }
 
+    public zoomTo(zoom: number): void {
+        this._state.zoomTo(zoom);
+    }
+
     public update(delta: number): void {
         this._state.update(delta);
     }
@@ -207,8 +212,12 @@ export class StateContext implements IStateContext {
         this._state.rotateToBasicSmooth(basic);
     }
 
-    public setReorientation(imageId: string, basic: number[]): void {
-        this._state.setReorientation(imageId, basic);
+    public setReorientation(
+        imageId: string,
+        basic: number[],
+        forceOnReconstruction: boolean = false): void {
+        this._state.setReorientation(
+            imageId, basic, forceOnReconstruction);
     }
 
     public clearReorientations(): void {

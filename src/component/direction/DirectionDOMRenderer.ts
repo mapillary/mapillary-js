@@ -32,11 +32,13 @@ export class DirectionDOMRenderer {
     private _distinguishSequence: boolean;
 
     private _needsRender: boolean;
+    private _edgesCached: boolean;
 
     private _stepEdges: NavigationEdge[];
     private _turnEdges: NavigationEdge[];
     private _sphericalEdges: NavigationEdge[];
     private _sequenceEdgeKeys: string[];
+    private _sequenceAzimuthOffset: number;
 
     private _stepDirections: NavigationDirection[];
     private _turnDirections: NavigationDirection[];
@@ -57,11 +59,13 @@ export class DirectionDOMRenderer {
         this._distinguishSequence = false;
 
         this._needsRender = false;
+        this._edgesCached = false;
 
         this._stepEdges = [];
         this._turnEdges = [];
         this._sphericalEdges = [];
         this._sequenceEdgeKeys = [];
+        this._sequenceAzimuthOffset = 0;
 
         this._stepDirections = [
             NavigationDirection.StepForward,
@@ -133,6 +137,11 @@ export class DirectionDOMRenderer {
      */
     public setImage(image: Image): void {
         this._image = image;
+        this._sequenceAzimuthOffset = image != null &&
+            isSpherical(image.cameraType) &&
+            !Number.isFinite(image.computedCompassAngle) &&
+            Number.isFinite(image.compassAngle) ?
+            this._spatial.degToRad(90 - image.compassAngle) : 0;
         this._clearEdges();
 
         this._setNeedsRender();
@@ -200,6 +209,7 @@ export class DirectionDOMRenderer {
     }
 
     private _clearEdges(): void {
+        this._edgesCached = false;
         this._stepEdges = [];
         this._turnEdges = [];
         this._sphericalEdges = [];
@@ -207,6 +217,7 @@ export class DirectionDOMRenderer {
     }
 
     private _setEdges(edgeStatus: NavigationEdgeStatus, sequence: Sequence): void {
+        this._edgesCached = edgeStatus.cached;
         this._stepEdges = [];
         this._turnEdges = [];
         this._sphericalEdges = [];
@@ -237,13 +248,12 @@ export class DirectionDOMRenderer {
 
             for (let edge of edges) {
                 let edgeKey: string = edge.target;
-
-                for (let sequenceKey of sequence.imageIds) {
-                    if (sequenceKey === edgeKey) {
-                        this._sequenceEdgeKeys.push(edgeKey);
-                        break;
-                    }
+                const edgeIndex: number = sequence.imageIds.indexOf(edgeKey);
+                if (edgeIndex < 0) {
+                    continue;
                 }
+
+                this._sequenceEdgeKeys.push(edgeKey);
             }
         }
     }
@@ -256,10 +266,11 @@ export class DirectionDOMRenderer {
                 this._createVNodeByKey(
                     navigator,
                     sphericalEdge.target,
-                    sphericalEdge.data.worldMotionAzimuth,
+                    this._getSphericalEdgeAzimuth(sphericalEdge),
                     rotation,
                     this._calculator.outerRadius,
-                    "mapillary-direction-arrow-spherical"));
+                    "mapillary-direction-arrow-spherical",
+                    sphericalEdge.data.direction));
         }
 
         for (let stepEdge of this._stepEdges) {
@@ -267,12 +278,20 @@ export class DirectionDOMRenderer {
                 this._createSphericalToPerspectiveArrow(
                     navigator,
                     stepEdge.target,
-                    stepEdge.data.worldMotionAzimuth,
+                    this._getSphericalEdgeAzimuth(stepEdge),
                     rotation,
                     stepEdge.data.direction));
         }
 
         return arrows;
+    }
+
+    private _getSphericalEdgeAzimuth(edge: NavigationEdge): number {
+        const sequenceEdge = this._sequenceEdgeKeys.indexOf(edge.target) > -1;
+        // Unmerged equirectangular captures are world-aligned at their east
+        // axis even when their compass field describes vehicle travel.
+        return edge.data.worldMotionAzimuth +
+            (sequenceEdge ? this._sequenceAzimuthOffset : 0);
     }
 
     private _createSphericalToPerspectiveArrow(
@@ -307,7 +326,8 @@ export class DirectionDOMRenderer {
                 azimuth,
                 rotation,
                 this._calculator.outerRadius,
-                "mapillary-direction-arrow-step");
+                "mapillary-direction-arrow-step",
+                direction);
         }
 
         return this._createVNodeInactive(key, azimuth, rotation);
@@ -325,6 +345,7 @@ export class DirectionDOMRenderer {
                     rotation,
                     this._calculator.innerRadius,
                     "mapillary-direction-arrow-spherical",
+                    sphericalEdge.data.direction,
                     true));
         }
 
@@ -372,11 +393,12 @@ export class DirectionDOMRenderer {
         rotation: EulerRotation,
         offset: number,
         className: string,
+        direction: NavigationDirection,
         shiftVertically?: boolean): vd.VNode {
 
         let onClick: (e: Event) => void =
             (e: Event): void => {
-                navigator.moveTo$(key)
+                navigator.moveTo$(key, direction)
                     .subscribe(
                         undefined,
                         (error: Error): void => {
@@ -406,7 +428,9 @@ export class DirectionDOMRenderer {
 
         let onClick: (e: Event) => void =
             (e: Event): void => {
-                navigator.moveDir$(direction)
+                (this._edgesCached ?
+                    navigator.moveDir$(direction) :
+                    navigator.moveTo$(key, direction))
                     .subscribe(
                         undefined,
                         (error: Error): void => {
@@ -434,7 +458,9 @@ export class DirectionDOMRenderer {
 
         let onClick: (e: Event) => void =
             (e: Event): void => {
-                navigator.moveDir$(direction)
+                (this._edgesCached ?
+                    navigator.moveDir$(direction) :
+                    navigator.moveTo$(key, direction))
                     .subscribe(
                         undefined,
                         (error: Error): void => {

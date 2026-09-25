@@ -9,7 +9,13 @@ export interface ReorientationImage {
     id: string;
     lat: number;
     lng: number;
+    originalLat?: number;
+    originalLng?: number;
     cca: number;
+    computedCca?: number;
+    originalCca?: number;
+    /** World bearing represented by basic x=0.5 when it differs from CCA. */
+    viewCompassAngle?: number;
     cam: string;
     seq: string;
     ts: number;
@@ -21,6 +27,7 @@ export interface ReorientationImage {
  */
 export interface ReorientationProvider {
     fetchImage(id: string): Promise<ReorientationImage>;
+    fetchImages?(ids: string[]): Promise<ReorientationImage[]>;
     fetchSeqIds(seqId: string): Promise<string[]>;
     cacheImage?(image: ReorientationImage): void;
 }
@@ -32,10 +39,16 @@ export interface ReorientationResult {
     valid: boolean;
     reason?: string;
     nextId?: string;
+    prevId?: string;
     travel?: number;
+    computedTravel?: number;
     basicX?: number;
     dist?: number;
     cca?: number;
+    viewCompassAngle?: number;
+    computedCompassOutlier?: boolean;
+    reconstructionDiscontinuity?: boolean;
+    computedCompassOffset?: number;
     speed?: number;
     moving?: boolean;
     seq?: string;
@@ -43,9 +56,12 @@ export interface ReorientationResult {
 
 export const DEFAULT_REORIENTATION_CONFIGURATION:
     Required<ReorientationConfiguration> = {
+    automaticHorizonLeveling: true,
+    reorientToFront: true,
+    reorientOnSpatialNav: true,
     prefetchAhead: 3,
     movingSpeedMps: 1,
-    lowSpeedTurnDistanceM: 2,
+    lowSpeedTurnDistanceM: 0.5,
     lowSpeedTurnMaxDeltaDeg: 30,
     outlierMaxDeltaDeg: 90,
     previousContextWindow: 5,
@@ -56,6 +72,9 @@ export const DEFAULT_REORIENTATION_CONFIGURATION:
 const RAD = Math.PI / 180;
 const DEG = 180 / Math.PI;
 const EARTH_RADIUS_METERS = 6371000;
+const MAX_REASONABLE_SPEED_MPS = 100;
+const MAX_COMPUTED_COMPASS_DELTA_DEG = 45;
+const MAX_COMPUTED_POSITION_HEADING_DELTA_DEG = 45;
 
 function isNum(v: number): boolean {
     return typeof v === "number" && Number.isFinite(v);
@@ -110,6 +129,19 @@ interface PrevContext {
     moving: boolean;
     speed: number;
     travel: number;
+    computedTravel?: number;
+    compassOffset?: number;
+    computedCompassOutlier?: boolean;
+}
+
+interface Segment {
+    dist: number;
+    speed: number;
+    speedExcessive: boolean;
+    travel: number;
+    computedSpeed: number;
+    computedTravel: number;
+    originalTravel?: number;
 }
 
 /**
@@ -128,6 +160,7 @@ export class ReorientationEngine {
     private _config: Required<ReorientationConfiguration>;
     private _cache: Map<string, ReorientationResult>;
     private _pending: Map<string, Promise<void>>;
+    private _originalGeometrySequences: Set<string>;
 
     constructor(
         provider: ReorientationProvider,
@@ -139,6 +172,7 @@ export class ReorientationEngine {
         };
         this._cache = new Map<string, ReorientationResult>();
         this._pending = new Map<string, Promise<void>>();
+        this._originalGeometrySequences = new Set<string>();
     }
 
     public get(id: string): ReorientationResult | null {
@@ -154,21 +188,28 @@ export class ReorientationEngine {
         if (depth == null) {
             depth = cfg.prefetchAhead;
         }
-        if (this._cache.has(imgId)) {
-            this._prefetchNext(this._cache.get(imgId), depth);
-            return Promise.resolve();
+        if (seed && isNum(seed.lat) && isNum(seed.lng) &&
+            typeof this._provider.cacheImage === "function") {
+            this._provider.cacheImage(seed);
+        }
+        const cached = this._cache.get(imgId);
+        if (cached != null) {
+            const seedChanged = seed != null &&
+                (cached.cca !== seed.cca ||
+                    cached.viewCompassAngle !== seed.viewCompassAngle);
+            if (!seedChanged) {
+                this._prefetchNext(cached, depth);
+                return Promise.resolve();
+            }
+            this._cache.delete(imgId);
         }
         if (this._pending.has(imgId)) {
-            return this._pending.get(imgId).then(() => {
-                this._prefetchNext(this._cache.get(imgId), depth);
-            });
+            return this._pending.get(imgId).then(() =>
+                this.precompute(imgId, seed, depth));
         }
 
         let p: Promise<ReorientationImage>;
         if (seed && isNum(seed.lat) && isNum(seed.lng)) {
-            if (typeof this._provider.cacheImage === "function") {
-                this._provider.cacheImage(seed);
-            }
             p = Promise.resolve(seed);
         } else {
             p = this._provider.fetchImage(imgId);
@@ -204,13 +245,29 @@ export class ReorientationEngine {
                     return;
                 }
                 const nextId = ids[idx + 1];
-                return this._provider.fetchImage(nextId).then((nxt) => {
-                    if (!hasPosition(nxt)) {
-                        this._invalid(imgId, "Next image missing geometry");
-                        return;
+                let warm: Promise<ReorientationImage[]> = Promise.resolve([]);
+                if (this._provider.fetchImages != null) {
+                    const requiredIds = [ids[idx - 1], nextId]
+                        .filter((id: string): boolean => id != null);
+                    warm = this._provider.fetchImages(requiredIds)
+                        .catch((): ReorientationImage[] => []);
+                    const aheadIds = ids.slice(
+                        idx + 2, Math.min(ids.length, idx + depth + 2));
+                    if (aheadIds.length > 0) {
+                        this._provider.fetchImages(aheadIds)
+                            .catch((): ReorientationImage[] => []);
                     }
-                    return this._decide(imgId, cur, nxt, ids, idx, nextId, depth);
-                });
+                }
+                return warm
+                    .then(() => this._provider.fetchImage(nextId))
+                    .then((nxt) => {
+                        if (!hasPosition(nxt)) {
+                            this._invalid(imgId, "Next image missing geometry");
+                            return;
+                        }
+                        return this._decide(
+                            imgId, cur, nxt, ids, idx, nextId, depth);
+                    });
             });
     }
 
@@ -223,10 +280,7 @@ export class ReorientationEngine {
         nextId: string,
         depth: number): Promise<void> {
         const cfg = this._config;
-        const dist = haversineDist(cur.lat, cur.lng, nxt.lat, nxt.lng);
-        let tb = bearing(cur.lat, cur.lng, nxt.lat, nxt.lng);
-        const dt = (nxt.ts && cur.ts) ? (nxt.ts - cur.ts) / 1000 : 0;
-        const speed = dt > 0 ? dist / dt : 0;
+        let segment = this._segment(cur, nxt);
         let moving = false;
 
         let prevCtx: PrevContext = null;
@@ -239,6 +293,9 @@ export class ReorientationEngine {
                     moving: pd.moving,
                     speed: pd.speed,
                     travel: pd.travel,
+                    computedTravel: pd.computedTravel,
+                    compassOffset: pd.computedCompassOffset,
+                    computedCompassOutlier: pd.computedCompassOutlier,
                 };
                 break;
             }
@@ -251,33 +308,50 @@ export class ReorientationEngine {
                     if (!hasPosition(prev)) {
                         return null;
                     }
-                    const pDist =
-                        haversineDist(prev.lat, prev.lng, cur.lat, cur.lng);
-                    const pTravel =
-                        bearing(prev.lat, prev.lng, cur.lat, cur.lng);
-                    const pDt = (cur.ts && prev.ts) ?
-                        (cur.ts - prev.ts) / 1000 : 0;
-                    const pSpeed = pDt > 0 ? pDist / pDt : 0;
-                    let pMoving = pSpeed >= cfg.movingSpeedMps;
+                    const previousSegment = this._segment(prev, cur);
+                    let pMoving = previousSegment.speedExcessive ?
+                        previousSegment.dist > cfg.lowSpeedTurnDistanceM :
+                        previousSegment.speed >= cfg.movingSpeedMps;
                     if (!pMoving && isNum(prev.cca)) {
-                        const pDelta = angleDelta(pTravel, prev.cca);
+                        const pDelta =
+                            angleDelta(previousSegment.travel, prev.cca);
                         if (pDelta < cfg.lowSpeedTurnMaxDeltaDeg &&
-                            pDist > cfg.lowSpeedTurnDistanceM) {
+                            previousSegment.dist >
+                                cfg.lowSpeedTurnDistanceM) {
                             pMoving = true;
                         }
                     }
+                    const compassOffset =
+                        isNum(prev.computedCca) && isNum(prev.originalCca) ?
+                            (prev.computedCca - prev.originalCca + 360) % 360 :
+                            undefined;
                     return {
                         valid: true,
                         moving: pMoving,
-                        speed: pSpeed,
-                        travel: pTravel,
+                        speed: previousSegment.speed,
+                        travel: previousSegment.travel,
+                        computedTravel: previousSegment.computedTravel,
+                        compassOffset,
                     };
                 })
                 .catch(() => null);
         }
 
         return prevPromise.then((prev) => {
-            if (speed >= cfg.movingSpeedMps) {
+            if (this._shouldUseOriginalGeometry(cur, segment, prev)) {
+                this._originalGeometrySequences.add(cur.seq);
+                segment = this._segment(cur, nxt);
+            }
+            const dist = segment.dist;
+            let tb = segment.travel;
+            const speed = segment.speed;
+
+            if (segment.speedExcessive) {
+                // Video frame timestamps can imply impossible speeds. There is
+                // still real displacement, but it must pass the bearing-outlier
+                // checks below rather than receiving the sustained-speed bypass.
+                moving = dist > cfg.lowSpeedTurnDistanceM;
+            } else if (speed >= cfg.movingSpeedMps) {
                 // On direct jumps there is no prior segment, so only the
                 // first image in a sequence may assume sustained motion.
                 moving = prev ?
@@ -293,9 +367,23 @@ export class ReorientationEngine {
                 }
             }
 
+            // The outlier test exists to stop a single noisy fix from steering
+            // the view, and noise only reaches it through the low-speed branch
+            // above — two consecutive segments both at sustained speed are real
+            // displacement, so a large bearing change between them is a corner,
+            // not jitter. Rejecting those turned the sharpest corners (and, via
+            // the history window below, the whole stretch after them) into
+            // "not moving", which is exactly where reorientation is wanted.
+            const sustained = !segment.speedExcessive &&
+                speed >= cfg.movingSpeedMps &&
+                prev != null &&
+                prev.speed >= cfg.movingSpeedMps &&
+                prev.speed <= MAX_REASONABLE_SPEED_MPS;
+
             if (moving) {
                 if (prev && prev.moving) {
-                    if (angleDelta(tb, prev.travel) > cfg.outlierMaxDeltaDeg) {
+                    if (!sustained &&
+                        angleDelta(tb, prev.travel) > cfg.outlierMaxDeltaDeg) {
                         moving = false;
                     }
                 } else {
@@ -335,20 +423,131 @@ export class ReorientationEngine {
                 }
             }
 
+            const hasCurrentCompassCalibration =
+                isNum(cur.computedCca) && isNum(cur.originalCca);
+            const hasNextCompassCalibration =
+                isNum(nxt.computedCca) && isNum(nxt.originalCca);
+            const currentCompassOffset = hasCurrentCompassCalibration ?
+                (cur.computedCca - cur.originalCca + 360) % 360 : 0;
+            const nextCompassOffset = hasNextCompassCalibration ?
+                (nxt.computedCca - nxt.originalCca + 360) % 360 : 0;
+            const reconstructionDiscontinuity =
+                hasCurrentCompassCalibration &&
+                prev?.compassOffset != null &&
+                angleDelta(currentCompassOffset, prev.compassOffset) >
+                    MAX_COMPUTED_COMPASS_DELTA_DEG;
+            const continuesRejectedCalibration =
+                hasCurrentCompassCalibration &&
+                prev?.computedCompassOutlier === true &&
+                prev.compassOffset != null &&
+                angleDelta(currentCompassOffset, prev.compassOffset) <=
+                    MAX_COMPUTED_COMPASS_DELTA_DEG;
+            const computedCompassOutlier =
+                hasCurrentCompassCalibration &&
+                angleDelta(cur.computedCca, cur.originalCca) >
+                    MAX_COMPUTED_COMPASS_DELTA_DEG &&
+                angleDelta(tb, cur.originalCca) <
+                    cfg.lowSpeedTurnMaxDeltaDeg &&
+                ((hasNextCompassCalibration &&
+                    angleDelta(currentCompassOffset, nextCompassOffset) >
+                        MAX_COMPUTED_COMPASS_DELTA_DEG) ||
+                    reconstructionDiscontinuity ||
+                    continuesRejectedCalibration);
+            const viewCompassAngle = computedCompassOutlier ?
+                cur.originalCca :
+                (isNum(cur.viewCompassAngle) ? cur.viewCompassAngle : cur.cca);
             const result: ReorientationResult = {
                 valid: true,
                 nextId,
+                prevId: idx > 0 ? ids[idx - 1] : undefined,
                 travel: tb,
-                basicX: bearingToBasicX(tb, cur.cca),
+                computedTravel: segment.computedTravel,
+                basicX: bearingToBasicX(tb, viewCompassAngle),
                 dist,
                 cca: cur.cca,
+                viewCompassAngle,
+                computedCompassOutlier,
+                reconstructionDiscontinuity,
+                computedCompassOffset: hasCurrentCompassCalibration ?
+                    currentCompassOffset : undefined,
                 speed,
                 moving,
                 seq: cur.seq,
             };
             this._cache.set(imgId, result);
             this._prefetchNext(result, depth);
+            // Warm the immediate previous image so a "previous" hover can read
+            // its reoriented bearing instead of falling back to the raw compass
+            // angle. Only from the root request (depth === prefetchAhead) and at
+            // depth 0, so it resolves that one image without cascading backward.
+            // Load-bearing for the paths where the component early-returns
+            // before hinting neighbors (no motion, or no compass angle).
+            if (depth === cfg.prefetchAhead && result.prevId != null) {
+                this.precompute(result.prevId, undefined, 0)
+                    .catch(() => { /* ignore prefetch errors */ });
+            }
         });
+    }
+
+    private _segment(cur: ReorientationImage, nxt: ReorientationImage): Segment {
+        const dt = (nxt.ts && cur.ts) ? (nxt.ts - cur.ts) / 1000 : 0;
+        const computedDist = haversineDist(cur.lat, cur.lng, nxt.lat, nxt.lng);
+        const computedTravel = bearing(cur.lat, cur.lng, nxt.lat, nxt.lng);
+        const computedSpeed = dt > 0 ? computedDist / dt : 0;
+        const hasOriginal =
+            isNum(cur.originalLat) && isNum(cur.originalLng) &&
+            isNum(nxt.originalLat) && isNum(nxt.originalLng);
+        const originalDist = hasOriginal ? haversineDist(
+            cur.originalLat, cur.originalLng,
+            nxt.originalLat, nxt.originalLng) : undefined;
+        const originalTravel = hasOriginal ? bearing(
+            cur.originalLat, cur.originalLng,
+            nxt.originalLat, nxt.originalLng) : undefined;
+        const useOriginal = hasOriginal &&
+            this._originalGeometrySequences.has(cur.seq);
+        const dist = useOriginal ? originalDist : computedDist;
+        const travel = useOriginal ? originalTravel : computedTravel;
+        const speed = dt > 0 ? dist / dt : 0;
+
+        return {
+            dist,
+            speed,
+            speedExcessive: speed > MAX_REASONABLE_SPEED_MPS,
+            travel,
+            computedSpeed,
+            computedTravel,
+            originalTravel,
+        };
+    }
+
+    private _shouldUseOriginalGeometry(
+        cur: ReorientationImage,
+        segment: Segment,
+        prev: PrevContext): boolean {
+        if (!isNum(segment.originalTravel)) {
+            return false;
+        }
+        if (segment.computedSpeed > MAX_REASONABLE_SPEED_MPS) {
+            return true;
+        }
+
+        const originalHeading = isNum(cur.originalCca) ?
+            cur.originalCca : cur.cca;
+        const headingFavorsOriginal =
+            angleDelta(segment.computedTravel, cur.cca) >
+                MAX_COMPUTED_POSITION_HEADING_DELTA_DEG &&
+            angleDelta(segment.originalTravel, originalHeading) <
+                this._config.lowSpeedTurnMaxDeltaDeg;
+        if (!headingFavorsOriginal) {
+            return false;
+        }
+
+        // Raw GPS heading often agrees with raw compass by construction. Only
+        // prefer it when the computed track also breaks continuity; otherwise
+        // a smooth reconstructed track can be replaced by a noisy raw one.
+        return prev?.computedTravel == null ||
+            angleDelta(segment.computedTravel, prev.computedTravel) >
+                MAX_COMPUTED_POSITION_HEADING_DELTA_DEG;
     }
 
     private _prefetchNext(d: ReorientationResult, depth: number): void {

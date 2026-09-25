@@ -2,7 +2,7 @@ import * as Geo from "../../geo/Geo";
 
 import { TransitionMode } from "../TransitionMode";
 import { EulerRotation } from "../interfaces/EulerRotation";
-import { IStateBase } from "../interfaces/IStateBase";
+import { IStateBase, ReorientationHint } from "../interfaces/IStateBase";
 import { ArgumentMapillaryError } from "../../error/ArgumentMapillaryError";
 import { Camera } from "../../geo/Camera";
 import { Spatial } from "../../geo/Spatial";
@@ -10,7 +10,11 @@ import { Transform } from "../../geo/Transform";
 import { LngLatAlt } from "../../api/interfaces/LngLatAlt";
 import { Image } from "../../graph/Image";
 import { IGeometryProvider } from "../../mapillary";
+import { hasReconstructionMesh } from "../../util/Mesh";
 import { connectedComponent } from "../../api/CellMath";
+
+const MAX_CAMERA_TRANSITION_DISTANCE = 20;
+const MAX_CAMERA_UP_DELTA = Math.PI / 6;
 
 export abstract class StateBase implements IStateBase {
     protected _spatial: Spatial;
@@ -37,7 +41,7 @@ export abstract class StateBase implements IStateBase {
 
     protected _motionless: boolean;
 
-    protected _reorientations: Map<string, number[]>;
+    protected _reorientations: Map<string, ReorientationHint>;
 
     private _referenceThreshold: number;
     private _referenceCellIds: Set<string>;
@@ -54,7 +58,8 @@ export abstract class StateBase implements IStateBase {
 
         // Shared by reference across transitions so a reorientation registered
         // before navigating is available when the target image becomes current.
-        this._reorientations = state.reorientations || new Map<string, number[]>();
+        this._reorientations = state.reorientations ||
+            new Map<string, ReorientationHint>();
 
         this._reference = state.reference;
         this._referenceCellIds = new Set<string>(
@@ -171,12 +176,16 @@ export abstract class StateBase implements IStateBase {
         return this._transitionMode;
     }
 
-    public get reorientations(): Map<string, number[]> {
+    public get reorientations(): Map<string, ReorientationHint> {
         return this._reorientations;
     }
 
-    public setReorientation(imageId: string, basic: number[]): void {
-        this._reorientations.set(imageId, basic);
+    public setReorientation(
+        imageId: string,
+        basic: number[],
+        forceOnReconstruction: boolean = false): void {
+        this._reorientations.set(
+            imageId, { basic, forceOnReconstruction });
     }
 
     public clearReorientations(): void {
@@ -212,6 +221,8 @@ export abstract class StateBase implements IStateBase {
     public setCenter(center: number[]): void { /*noop*/ }
 
     public setZoom(zoom: number): void { /*noop*/ }
+
+    public zoomTo(zoom: number): void { /*noop*/ }
 
     public dolly(delta: number): void { /*noop*/ }
 
@@ -347,7 +358,8 @@ export abstract class StateBase implements IStateBase {
             this._currentImage.merged &&
             this._previousImage.merged &&
             this._hasStructure() &&
-            this._withinDistance()
+            this._withinDistance() &&
+            this._withinCameraUpDelta()
         );
     }
 
@@ -483,8 +495,15 @@ export abstract class StateBase implements IStateBase {
         const current = this._currentImage;
         const previous = this._previousImage;
 
-        return current.mesh.vertices.length > 0 &&
-            previous.mesh.vertices.length > 0;
+        return hasReconstructionMesh(current.mesh) &&
+            hasReconstructionMesh(previous.mesh);
+    }
+
+    private _withinCameraUpDelta(): boolean {
+        // Blending camera frames with sharply different up vectors visibly
+        // rolls the scene through an orientation neither image has.
+        return this._previousCamera.up.angleTo(this._currentCamera.up) <=
+            MAX_CAMERA_UP_DELTA;
     }
 
     private _withinDistance(): boolean {
@@ -495,13 +514,19 @@ export abstract class StateBase implements IStateBase {
             return true;
         }
 
+        if (current.clusterId != null &&
+            current.clusterId === previous.clusterId) {
+            return true;
+        }
+
         const distance = this._spatial.distanceFromLngLat(
             current.lngLat.lng,
             current.lngLat.lat,
             previous.lngLat.lng,
             previous.lngLat.lat);
 
-        // 50 km/h moves 28m in 2s
-        return distance < 30;
+        // Across reconstruction frames, long-range mesh interpolation magnifies
+        // alignment errors into severe zooms and warped intermediate views.
+        return distance <= MAX_CAMERA_TRANSITION_DISTANCE;
     }
 }

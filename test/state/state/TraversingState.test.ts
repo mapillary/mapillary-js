@@ -40,21 +40,46 @@ class TestTraversingState extends TraversingState {
         return this._currentCamera;
     }
 
+    public get desiredZoom(): number {
+        return this._desiredZoom;
+    }
+
     public get previousCamera(): Camera {
         return this._previousCamera;
     }
 }
 
-function createTestImage(): TestImage {
+function createTestImage(id: string = "key", lng: number = 0): TestImage {
     const image = new TestImage({
-        computed_geometry: { lat: 0, lng: 0 },
-        id: "key",
-        geometry: { lat: 0, lng: 0 },
+        computed_geometry: { lat: 0, lng },
+        id,
+        geometry: { lat: 0, lng },
         sequence: { id: "skey" },
     });
     image.mesh = { vertices: [], faces: [] };
     return image;
 }
+
+describe("TraversingState.zoomTo", () => {
+    it("should update desired zoom without changing current zoom", () => {
+        const state: IStateBase = {
+            alpha: 1,
+            camera: new Camera(),
+            currentIndex: -1,
+            geometry: new S2GeometryProvider(),
+            reference: { alt: 0, lat: 0, lng: 0 },
+            trajectory: [],
+            transitionMode: TransitionMode.Default,
+            zoom: 1,
+        };
+        const traversingState = new TestTraversingState(state);
+
+        traversingState.zoomTo(0.25);
+
+        expect(traversingState.zoom).toBe(1);
+        expect(traversingState.desiredZoom).toBe(0.25);
+    });
+});
 
 describe("TraversingState.currentCamera.lookat", () => {
     let precision: number = 1e-8;
@@ -278,5 +303,82 @@ describe("TraversingState.previousCamera.lookat", () => {
         expect(traversingState.previousCamera.lookat.x).toBeCloseTo(lookat.x, precision);
         expect(traversingState.previousCamera.lookat.y).toBeCloseTo(lookat.y, precision);
         expect(traversingState.previousCamera.lookat.z).toBeCloseTo(lookat.z, precision);
+    });
+});
+
+describe("TraversingState mesh-less transition", () => {
+    function createCachedImage(
+        id: string,
+        lng: number,
+        spherical: boolean = false): TestImage {
+        const helper = new ImageHelper();
+        const image = createTestImage(id, lng);
+        const spatialImage = helper.createSpatialImageEnt();
+        spatialImage.camera_type = spherical ? "spherical" : "perspective";
+        image.makeComplete(spatialImage);
+        image.initializeCache(new ImageCache(new DataProvider()));
+        image.cacheCamera(new ProjectionService());
+        return image;
+    }
+
+    function createTraversingState(mode: TransitionMode): TestTraversingState {
+        return new TestTraversingState({
+            alpha: 1,
+            camera: new Camera(),
+            currentIndex: -1,
+            geometry: new S2GeometryProvider(),
+            reference: { alt: 0, lat: 0, lng: 0 },
+            trajectory: [],
+            transitionMode: mode,
+            zoom: 0,
+        });
+    }
+
+    it("should cross-fade while snapping the camera", () => {
+        const traversingState = createTraversingState(TransitionMode.Default);
+        traversingState.set([createCachedImage("previous", 0)]);
+        traversingState.set([createCachedImage("current", 0.00001)]);
+
+        traversingState.update(0.1);
+
+        expect(traversingState.motionless).toBe(true);
+        expect(traversingState.alpha).toBeGreaterThan(0.2);
+        expect(traversingState.alpha).toBeLessThan(1);
+        expect(traversingState.camera.position.distanceTo(
+            traversingState.currentCamera.position)).toBeCloseTo(0);
+    });
+
+    it("should preserve instantaneous transition mode", () => {
+        const traversingState = createTraversingState(TransitionMode.Instantaneous);
+        traversingState.set([createCachedImage("previous", 0)]);
+        traversingState.set([createCachedImage("current", 0.00001)]);
+
+        traversingState.update(0.1);
+
+        expect(traversingState.alpha).toBe(1);
+    });
+
+    it("should force a reorientation hint onto rejected reconstruction", () => {
+        const current = createCachedImage("current", 0, true);
+        current.mesh = {
+            vertices: [0, 0, 1, 1, 0, 1, 0, 1, 1],
+            faces: [0, 1, 2],
+        };
+        const unforced = createTraversingState(TransitionMode.Default);
+        unforced.setReorientation("current", [0.25, 0.5]);
+        unforced.set([current]);
+        const originalLookat = unforced.currentCamera.lookat.clone();
+
+        const forced = createTraversingState(TransitionMode.Default);
+        forced.setReorientation("current", [0.25, 0.5], true);
+        forced.set([current]);
+
+        expect(forced.motionless).toBe(true);
+        expect(forced.currentCamera.lookat.equals(originalLookat)).toBe(false);
+        const expected = new THREE.Vector3().fromArray(
+            forced.currentTransform.unprojectBasic(
+                [0.25, 0.5], (forced as any)._lookatDepth));
+        expect(forced.currentCamera.lookat.distanceTo(expected))
+            .toBeCloseTo(0, 8);
     });
 });

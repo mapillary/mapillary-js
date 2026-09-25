@@ -136,6 +136,10 @@ export class RenderCamera {
         return this._frameId === this._changedForFrame;
     }
 
+    public get currentImageId(): string {
+        return this._currentImageId;
+    }
+
     public get frameId(): number {
         return this._frameId;
     }
@@ -154,6 +158,10 @@ export class RenderCamera {
 
     public get zoom(): number {
         return this._zoom;
+    }
+
+    public get unzoomedCurrentFov(): number {
+        return this._computeCurrentFov(0);
     }
 
     public get size(): ViewportSize {

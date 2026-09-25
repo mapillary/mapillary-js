@@ -44,6 +44,9 @@ import { ImagesContract } from "../api/contracts/ImagesContract";
 import { SequenceContract } from "../api/contracts/SequenceContract";
 import { CoreImagesContract } from "../api/contracts/CoreImagesContract";
 import { CancelMapillaryError } from "../error/CancelMapillaryError";
+import { geodeticToEnu } from "../geo/GeoCoords";
+
+const MAX_GRAPH_IMAGE_BATCH_SIZE = 120;
 
 type NodeTiles = {
     cache: string[];
@@ -461,9 +464,9 @@ export class Graph {
                 }
 
                 const coreNodeBatches: string[][] = [];
-                const batchSize: number = 200;
                 while (coreNodes.length > 0) {
-                    coreNodeBatches.push(coreNodes.splice(0, batchSize));
+                    coreNodeBatches.push(
+                        coreNodes.splice(0, MAX_GRAPH_IMAGE_BATCH_SIZE));
                 }
 
                 const fullNodes$ = observableOf(fullNodes);
@@ -559,6 +562,56 @@ export class Graph {
     }
 
     /**
+     * Retrieve and cache full node properties for multiple images in one request.
+     *
+     * @param {string[]} keys - Keys of nodes to fill.
+     * @returns {Observable<Graph>} Observable emitting the graph
+     * when all nodes have been updated.
+     */
+    public cacheFullImages$(keys: string[]): Observable<Graph> {
+        const streams = new Set<Observable<Graph>>();
+        const uncached: string[] = [];
+        for (const key of Array.from(new Set(keys))) {
+            if (key in this._cachingFull$) {
+                streams.add(this._cachingFull$[key]);
+            } else if (key in this._cachingFill$) {
+                streams.add(this._cachingFill$[key]);
+            } else if (!this.hasNode(key)) {
+                uncached.push(key);
+            } else if (!this.getNode(key).complete) {
+                streams.add(this.cacheFill$(key));
+            }
+        }
+
+        while (uncached.length > 0) {
+            const batchKeys = uncached.splice(0, MAX_GRAPH_IMAGE_BATCH_SIZE);
+            const batch$ = this._api.getImages$(batchKeys).pipe(
+                tap((items: ImagesContract): void => {
+                    this._storeFullImages(items);
+                }),
+                map((): Graph => this),
+                finalize((): void => {
+                    for (const key of batchKeys) {
+                        if (this._cachingFull$[key] === batch$) {
+                            delete this._cachingFull$[key];
+                        }
+                    }
+                    this._changed$.next(this);
+                }),
+                publishReplay(1),
+                refCount());
+            for (const key of batchKeys) {
+                this._cachingFull$[key] = batch$;
+            }
+            streams.add(batch$);
+        }
+
+        return streams.size > 0 ?
+            observableMerge(...Array.from(streams)).pipe(last()) :
+            observableOf(this);
+    }
+
+    /**
      * Retrieve and cache full node properties.
      *
      * @param {string} key - Key of node to fill.
@@ -577,44 +630,9 @@ export class Graph {
         }
 
         this._cachingFull$[key] = this._api.getImages$([key]).pipe(
-            tap(
-                (items: ImagesContract): void => {
-                    for (const item of items) {
-                        if (!item.node) {
-                            throw new GraphMapillaryError(
-                                `Image does not exist (${key}, ${item.node}).`);
-                        }
-
-                        const id = item.node_id;
-                        if (this.hasNode(id)) {
-                            const node = this.getNode(key);
-                            if (!node.complete) {
-                                this._makeFull(node, item.node);
-                            }
-                        } else {
-                            if (item.node.sequence.id == null) {
-                                throw new GraphMapillaryError(
-                                    `Image has no sequence key (${key}).`);
-                            }
-
-                            let node: Image = null;
-                            if (this._preDeletedNodes.has(id)) {
-                                node = this._unDeleteNode(id);
-                            } else {
-                                node = new Image(item.node);
-                            }
-                            this._makeFull(node, item.node);
-
-                            const lngLat = this._getNodeLngLat(node);
-                            const cellId = this._api.data.geometry
-                                .lngLatToCellId(lngLat);
-                            this._preStore(cellId, node);
-                            this._setNode(node);
-
-                            delete this._cachingFull$[id];
-                        }
-                    }
-                }),
+            tap((items: ImagesContract): void => {
+                this._storeFullImages(items, key);
+            }),
             map((): Graph => this),
             finalize(
                 (): void => {
@@ -728,9 +746,8 @@ export class Graph {
             batches.push(keys.splice(startIndex, referenceBatchSize));
         }
 
-        const batchSize: number = 200;
         while (keys.length > 0) {
-            batches.push(keys.splice(0, batchSize));
+            batches.push(keys.splice(0, MAX_GRAPH_IMAGE_BATCH_SIZE));
         }
 
         let batchesToCache: number = batches.length;
@@ -909,6 +926,53 @@ export class Graph {
     }
 
     /**
+     * Get sequence targets near the preferred spatial-navigation distance.
+     */
+    public getSequenceSpatialTargetIds(key: string): string[] {
+        const node: Image = this.getNode(key);
+        if (!(node.sequenceId in this._sequences)) {
+            throw new GraphMapillaryError(`Sequence is not cached (${key}), (${node.sequenceId})`);
+        }
+
+        const sequence = this._sequences[node.sequenceId].sequence;
+        return [
+            this._getSequenceSpatialTarget(node, sequence, -1),
+            this._getSequenceSpatialTarget(node, sequence, 1),
+        ];
+    }
+
+    /**
+     * Compute spatial edges to nearby images in a node's sequence.
+     *
+     * @param {string} key - Key of node.
+     * @returns {Array<NavigationEdge>} Spatial edges to cached sequence images.
+     * @throws {GraphMapillaryError} When the node or its sequence is not cached.
+     */
+    public getSequenceSpatialEdges(key: string): NavigationEdge[] {
+        const node: Image = this.getNode(key);
+        const targetKeys = this.getSequenceSpatialTargetIds(key);
+        const prevKey = targetKeys[0];
+        const nextKey = targetKeys[1];
+        const potentialNodes: Image[] = [];
+
+        for (const candidateKey of targetKeys) {
+            if (candidateKey == null || !this.hasNode(candidateKey)) {
+                continue;
+            }
+
+            const candidate: Image = this.getNode(candidateKey);
+            if (candidate.complete && this._filter(candidate)) {
+                potentialNodes.push(candidate);
+            }
+        }
+
+        const fallbackKeys = targetKeys
+            .filter((fallbackKey: string): boolean => fallbackKey != null);
+
+        return this._computeSpatialEdges(node, potentialNodes, prevKey, nextKey, fallbackKeys);
+    }
+
+    /**
      * Cache spatial edges for a node.
      *
      * @param {string} key - Key of node.
@@ -920,49 +984,42 @@ export class Graph {
             throw new GraphMapillaryError(`Spatial edges already cached (${key}).`);
         }
 
-        let node: Image = this.getNode(key);
-        let sequence: Sequence = this._sequences[node.sequenceId].sequence;
+        const node: Image = this.getNode(key);
+        const targetKeys = this.getSequenceSpatialTargetIds(key);
+        const prevKey = targetKeys[0];
+        const nextKey = targetKeys[1];
+        const fallbackKeys = targetKeys
+            .filter((fallbackKey: string): boolean => fallbackKey != null);
+        const allSpatialNodes: { [key: string]: Image; } = this._requiredSpatialArea[key].all;
+        const potentialNodes: Image[] = [];
+        const potentialNodeIds: { [key: string]: boolean; } = {};
+        const filter: FilterFunction = this._filter;
 
-        let fallbackKeys: string[] = [];
-        let prevKey: string = sequence.findPrev(node.id);
-        if (prevKey != null) {
-            fallbackKeys.push(prevKey);
-        }
-
-        let nextKey: string = sequence.findNext(node.id);
-        if (nextKey != null) {
-            fallbackKeys.push(nextKey);
-        }
-
-        let allSpatialNodes: { [key: string]: Image; } = this._requiredSpatialArea[key].all;
-        let potentialNodes: Image[] = [];
-        let filter: FilterFunction = this._filter;
-        for (let spatialNodeKey in allSpatialNodes) {
+        for (const spatialNodeKey in allSpatialNodes) {
             if (!allSpatialNodes.hasOwnProperty(spatialNodeKey)) {
                 continue;
             }
 
-            let spatialNode: Image = allSpatialNodes[spatialNodeKey];
-
+            const spatialNode: Image = allSpatialNodes[spatialNodeKey];
             if (spatialNode.complete && filter(spatialNode)) {
                 potentialNodes.push(spatialNode);
+                potentialNodeIds[spatialNode.id] = true;
             }
         }
 
-        let potentialEdges: PotentialEdge[] =
-            this._edgeCalculator.getPotentialEdges(node, potentialNodes, fallbackKeys);
+        for (const fallbackKey of fallbackKeys) {
+            if (potentialNodeIds[fallbackKey] || !this.hasNode(fallbackKey)) {
+                continue;
+            }
 
-        let edges: NavigationEdge[] =
-            this._edgeCalculator.computeStepEdges(
-                node,
-                potentialEdges,
-                prevKey,
-                nextKey);
+            const fallbackNode: Image = this.getNode(fallbackKey);
+            if (fallbackNode.complete && filter(fallbackNode)) {
+                potentialNodes.push(fallbackNode);
+            }
+        }
 
-        edges = edges.concat(this._edgeCalculator.computeTurnEdges(node, potentialEdges));
-        edges = edges.concat(this._edgeCalculator.computeSphericalEdges(node, potentialEdges));
-        edges = edges.concat(this._edgeCalculator.computePerspectiveToSphericalEdges(node, potentialEdges));
-        edges = edges.concat(this._edgeCalculator.computeSimilarEdges(node, potentialEdges));
+        const edges: NavigationEdge[] =
+            this._computeSpatialEdges(node, potentialNodes, prevKey, nextKey, fallbackKeys);
 
         node.cacheSpatialEdges(edges);
 
@@ -1266,12 +1323,29 @@ export class Graph {
             cacheNodes: {},
         };
 
-        for (let spatialItem of spatialItems) {
-            spatialNodes.all[spatialItem.node.id] = spatialItem.node;
+        for (const spatialItem of spatialItems) {
+            const spatialNode: Image = spatialItem.node;
+            const spatialLngLat: LngLat = spatialNode.lngLat;
+            const enu: number[] = geodeticToEnu(
+                spatialLngLat.lng,
+                spatialLngLat.lat,
+                0,
+                node.lngLat.lng,
+                node.lngLat.lat,
+                0);
+            const horizontalDistanceSquared: number = enu[0] * enu[0] + enu[1] * enu[1];
 
-            if (!spatialItem.node.complete) {
-                spatialNodes.cacheKeys.push(spatialItem.node.id);
-                spatialNodes.cacheNodes[spatialItem.node.id] = spatialItem.node;
+            // Adjacent sequence images remain eligible as distance fallbacks.
+            if (horizontalDistanceSquared > this._tileThreshold * this._tileThreshold &&
+                spatialNode.sequenceId !== node.sequenceId) {
+                continue;
+            }
+
+            spatialNodes.all[spatialNode.id] = spatialNode;
+
+            if (!spatialNode.complete) {
+                spatialNodes.cacheKeys.push(spatialNode.id);
+                spatialNodes.cacheNodes[spatialNode.id] = spatialNode;
             }
         }
 
@@ -1776,6 +1850,65 @@ export class Graph {
         this._filterSubscription.unsubscribe();
     }
 
+    private _getSequenceSpatialTarget(
+        node: Image,
+        sequence: Sequence,
+        direction: number): string {
+
+        const index = sequence.imageIds.indexOf(node.id);
+        const adjacentIndex = index + direction;
+        if (index < 0 || adjacentIndex < 0 || adjacentIndex >= sequence.imageIds.length) {
+            return null;
+        }
+
+        const adjacentId = sequence.imageIds[adjacentIndex];
+        if (!this.hasNode(adjacentId) || !this.getNode(adjacentId).complete) {
+            return adjacentId;
+        }
+
+        const adjacent = this.getNode(adjacentId);
+        const enu = geodeticToEnu(
+            adjacent.lngLat.lng,
+            adjacent.lngLat.lat,
+            adjacent.computedAltitude,
+            node.lngLat.lng,
+            node.lngLat.lat,
+            node.computedAltitude);
+        const distance = Math.sqrt(enu[0] * enu[0] + enu[1] * enu[1]);
+        if (!Number.isFinite(distance) || distance < 0.1) {
+            return adjacentId;
+        }
+
+        const preferredDistance = this._edgeCalculator.getPreferredSpatialDistance(node);
+        const offset = Math.max(1, Math.min(10, Math.round(preferredDistance / distance)));
+        const targetIndex = Math.max(
+            0,
+            Math.min(sequence.imageIds.length - 1, index + direction * offset));
+
+        return sequence.imageIds[targetIndex];
+    }
+
+    private _computeSpatialEdges(
+        node: Image,
+        potentialNodes: Image[],
+        prevKey: string,
+        nextKey: string,
+        fallbackKeys: string[]): NavigationEdge[] {
+
+        const potentialEdges: PotentialEdge[] =
+            this._edgeCalculator.getPotentialEdges(node, potentialNodes, fallbackKeys);
+
+        let edges: NavigationEdge[] =
+            this._edgeCalculator.computeStepEdges(node, potentialEdges, prevKey, nextKey);
+
+        edges = edges.concat(this._edgeCalculator.computeTurnEdges(node, potentialEdges));
+        edges = edges.concat(this._edgeCalculator.computeSphericalEdges(node, potentialEdges, fallbackKeys));
+        edges = edges.concat(this._edgeCalculator.computePerspectiveToSphericalEdges(node, potentialEdges));
+        edges = edges.concat(this._edgeCalculator.computeSimilarEdges(node, potentialEdges));
+
+        return edges;
+    }
+
     private _addNewKeys<T>(keys: { [key: string]: boolean; }, dict: { [key: string]: T; }): void {
         for (let key in dict) {
             if (!dict.hasOwnProperty(key) || !this.hasNode(key)) {
@@ -1951,12 +2084,45 @@ export class Graph {
         }
     }
 
+    private _storeFullImages(items: ImagesContract, errorKey?: string): void {
+        for (const item of items) {
+            const key = errorKey ?? item.node_id;
+            if (!item.node) {
+                throw new GraphMapillaryError(
+                    `Image does not exist (${key}, ${item.node}).`);
+            }
+
+            const id = item.node_id;
+            if (this.hasNode(id)) {
+                const existingNode = this.getNode(id);
+                if (!existingNode.complete) {
+                    this._makeFull(existingNode, item.node);
+                }
+                continue;
+            }
+            if (item.node.sequence.id == null) {
+                throw new GraphMapillaryError(
+                    `Image has no sequence key (${key}).`);
+            }
+
+            const node = this._preDeletedNodes.has(id) ?
+                this._unDeleteNode(id) : new Image(item.node);
+            this._makeFull(node, item.node);
+            const lngLat = this._getNodeLngLat(node);
+            const cellId = this._api.data.geometry.lngLatToCellId(lngLat);
+            this._preStore(cellId, node);
+            this._setNode(node);
+            delete this._cachingFull$[id];
+        }
+    }
+
     private _makeFull(node: Image, fillNode: SpatialImageEnt): void {
         if (fillNode.computed_altitude == null) {
             fillNode.computed_altitude = this._defaultAlt;
         }
 
-        if (fillNode.computed_rotation == null) {
+        if (fillNode.computed_rotation == null ||
+            fillNode.computed_rotation.length !== 3) {
             fillNode.computed_rotation = this._graphCalculator.rotationFromCompass(fillNode.compass_angle, fillNode.exif_orientation);
         }
 

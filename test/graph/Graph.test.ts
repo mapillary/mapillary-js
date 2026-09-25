@@ -261,6 +261,64 @@ describe("Graph.cacheBoundingBox$", () => {
     });
 });
 
+describe("Graph.cacheFullImages$", () => {
+    it("should fetch multiple images in one request", (done: Function) => {
+        const api = new APIWrapper(new DataProvider());
+        const calculator = new GraphCalculator();
+        const getImages = new Subject<ImagesContract>();
+        const getImagesSpy = spyOn(api, "getImages$")
+            .and.returnValue(getImages);
+        spyOn(api.data.geometry, "lngLatToCellId").and.returnValue("cell-id");
+        const graph = new Graph(api, undefined, undefined, calculator);
+        const firstNode = new ImageHelper().createImageEnt();
+        const secondNode = new ImageHelper().createImageEnt();
+        secondNode.id = `${firstNode.id}-2`;
+
+        graph.cacheFullImages$([firstNode.id, secondNode.id]).subscribe(
+            (result: Graph): void => {
+                expect(result.getNode(firstNode.id).complete).toBe(true);
+                expect(result.getNode(secondNode.id).complete).toBe(true);
+                expect(getImagesSpy).toHaveBeenCalledWith(
+                    [firstNode.id, secondNode.id]);
+                expect(getImagesSpy.calls.count()).toBe(1);
+                done();
+            });
+
+        getImages.next([
+            { node: firstNode, node_id: firstNode.id },
+            { node: secondNode, node_id: secondNode.id },
+        ]);
+        getImages.complete();
+    });
+
+    it("should limit requests to 120 images", (done: Function) => {
+        const api = new APIWrapper(new DataProvider());
+        const calculator = new GraphCalculator();
+        const nodes = Array(121).fill(undefined).map((_, index: number) => {
+            const node = new ImageHelper().createImageEnt();
+            node.id = `image-${index}`;
+            return node;
+        });
+        const getImagesSpy = spyOn(api, "getImages$")
+            .and.callFake((ids: string[]): Observable<ImagesContract> =>
+                observableOf(ids.map((id: string) => {
+                    const node = nodes.find(
+                        (candidate: ImageEnt): boolean => candidate.id === id);
+                    return { node, node_id: id };
+                })));
+        spyOn(api.data.geometry, "lngLatToCellId").and.returnValue("cell-id");
+        const graph = new Graph(api, undefined, undefined, calculator);
+
+        graph.cacheFullImages$(nodes.map((node: ImageEnt) => node.id)).subscribe(
+            (): void => {
+                expect(getImagesSpy.calls.count()).toBe(2);
+                expect(getImagesSpy.calls.argsFor(0)[0].length).toBe(120);
+                expect(getImagesSpy.calls.argsFor(1)[0].length).toBe(1);
+                done();
+            });
+    });
+});
+
 describe("Graph.cacheFull$", () => {
     let helper: ImageHelper;
 
@@ -318,6 +376,30 @@ describe("Graph.cacheFull$", () => {
         expect(graph.hasNode(fullNode.id)).toBe(true);
         expect(graph.getNode(fullNode.id)).toBeDefined();
         expect(graph.getNode(fullNode.id).id).toBe(fullNode.id);
+    });
+
+    it("should derive rotation when the API returns an empty vector", (done: Function) => {
+        const api = new APIWrapper(new DataProvider());
+        const calculator = new GraphCalculator();
+        const rotation = [1, 2, 3];
+        const rotationSpy = spyOn(calculator, "rotationFromCompass")
+            .and.returnValue(rotation);
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
+        spyOn(api.data.geometry, "lngLatToCellId").and.returnValue("cell-id");
+        const graph = new Graph(api, undefined, undefined, calculator);
+        const fullNode = helper.createImageEnt();
+        fullNode.computed_rotation = [];
+
+        graph.cacheFull$(fullNode.id).subscribe(
+            (g: Graph): void => {
+                expect(rotationSpy).toHaveBeenCalledWith(
+                    fullNode.compass_angle, fullNode.exif_orientation);
+                expect(g.getNode(fullNode.id).rotation).toEqual(rotation);
+                done();
+            });
+        getImages.next([{ node: fullNode, node_id: fullNode.id }]);
+        getImages.complete();
     });
 
     it("should not make additional calls when fetching same node twice", () => {
@@ -1475,7 +1557,7 @@ describe("Graph.cacheSequenceNodes$", () => {
         expect(graph.hasNode(nodeKey)).toBe(false);
     });
 
-    it("should start caching in with single batch when lass than or equal to 200 nodes", () => {
+    it("should start caching with a single batch for at most 120 nodes", () => {
         const api = new APIWrapper(new DataProvider());
         const graphCalculator = new GraphCalculator();
         const edgeCalculator = new EdgeCalculator();
@@ -1495,7 +1577,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const result: SequenceContract = {
             id: sequenceId,
-            image_ids: Array(200)
+            image_ids: Array(120)
                 .fill(undefined)
                 .map((_, i) => i.toString())
         };
@@ -1507,15 +1589,15 @@ describe("Graph.cacheSequenceNodes$", () => {
         expect(graph.isCachingSequenceNodes(sequenceId)).toBe(true);
 
         expect(imageByKeySpy.calls.count()).toBe(1);
-        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(200);
+        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(120);
         expect(
             imageByKeySpy.calls.allArgs()
                 .map((args: string[][]): number => { return args[0].length; })
                 .reduce((acc: number, cur: number): number => { return acc + cur; }, 0))
-            .toBe(200);
+            .toBe(120);
     });
 
-    it("should start caching in batches when more than 200 nodes", () => {
+    it("should start caching in batches when more than 120 nodes", () => {
         const api = new APIWrapper(new DataProvider());
         const graphCalculator = new GraphCalculator();
         const edgeCalculator = new EdgeCalculator();
@@ -1535,7 +1617,7 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         const result: SequenceContract = {
             id: sequenceId,
-            image_ids: Array(201)
+            image_ids: Array(121)
                 .fill(undefined)
                 .map((_, i) => i.toString()),
         };
@@ -1547,13 +1629,13 @@ describe("Graph.cacheSequenceNodes$", () => {
         expect(graph.isCachingSequenceNodes(sequenceId)).toBe(true);
 
         expect(imageByKeySpy.calls.count()).toBe(2);
-        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(200);
+        expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(120);
         expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(1);
         expect(
             imageByKeySpy.calls.allArgs()
                 .map((args: string[][]): number => { return args[0].length; })
                 .reduce((acc: number, cur: number): number => { return acc + cur; }, 0))
-            .toBe(201);
+            .toBe(121);
     });
 
     it("should start caching prioritized batch when reference node key is specified at start", () => {
@@ -1591,11 +1673,12 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.isCachingSequenceNodes(sequenceId)).toBe(true);
 
-        expect(imageByKeySpy.calls.count()).toBe(3);
+        expect(imageByKeySpy.calls.count()).toBe(4);
         expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(50);
         expect(imageByKeySpy.calls.argsFor(0)[0][0]).toBe(referenceNodeKey);
-        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(200);
-        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(400 - 200 - 50);
+        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(120);
+        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(120);
+        expect(imageByKeySpy.calls.argsFor(3)[0].length).toBe(400 - 2 * 120 - 50);
         expect(
             imageByKeySpy.calls.allArgs()
                 .map((args: string[][]): number => { return args[0].length; })
@@ -1638,12 +1721,13 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.isCachingSequenceNodes(sequenceId)).toBe(true);
 
-        expect(imageByKeySpy.calls.count()).toBe(3);
+        expect(imageByKeySpy.calls.count()).toBe(4);
         expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(50);
         expect(imageByKeySpy.calls.argsFor(0)[0][0]).toBe((400 - 50).toString());
         expect(imageByKeySpy.calls.argsFor(0)[0][49]).toBe(referenceNodeKey);
-        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(200);
-        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(400 - 200 - 50);
+        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(120);
+        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(120);
+        expect(imageByKeySpy.calls.argsFor(3)[0].length).toBe(400 - 2 * 120 - 50);
         expect(
             imageByKeySpy.calls.allArgs()
                 .map((args: string[][]): number => { return args[0].length; })
@@ -1686,13 +1770,14 @@ describe("Graph.cacheSequenceNodes$", () => {
 
         expect(graph.isCachingSequenceNodes(sequenceId)).toBe(true);
 
-        expect(imageByKeySpy.calls.count()).toBe(3);
+        expect(imageByKeySpy.calls.count()).toBe(4);
         expect(imageByKeySpy.calls.argsFor(0)[0].length).toBe(50);
         expect(imageByKeySpy.calls.argsFor(0)[0][0]).toBe((200 - 25).toString());
         expect(imageByKeySpy.calls.argsFor(0)[0][25]).toBe(referenceNodeKey);
         expect(imageByKeySpy.calls.argsFor(0)[0][49]).toBe((200 + 24).toString());
-        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(200);
-        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(400 - 200 - 50);
+        expect(imageByKeySpy.calls.argsFor(1)[0].length).toBe(120);
+        expect(imageByKeySpy.calls.argsFor(2)[0].length).toBe(120);
+        expect(imageByKeySpy.calls.argsFor(3)[0].length).toBe(400 - 2 * 120 - 50);
         expect(
             imageByKeySpy.calls.allArgs()
                 .map((args: string[][]): number => { return args[0].length; })
@@ -1929,6 +2014,17 @@ describe("Graph.cacheSpatialEdges", () => {
         getSequence.complete();
 
         const node = graph.getNode(fullNode.id);
+        const previousEnt = helper.createImageEnt();
+        previousEnt.id = "prev";
+        previousEnt.sequence.id = fullNode.sequence.id;
+        const previous = new Image(previousEnt);
+        previous.makeComplete(previousEnt);
+        const hasNode = graph.hasNode.bind(graph);
+        const getNode = graph.getNode.bind(graph);
+        spyOn(graph, "hasNode").and.callFake(
+            (key: string): boolean => key === previous.id || hasNode(key));
+        spyOn(graph, "getNode").and.callFake(
+            (key: string): Image => key === previous.id ? previous : getNode(key));
 
         spyOn(graphCalculator, "boundingBoxCorners")
             .and.returnValue([
@@ -1951,10 +2047,57 @@ describe("Graph.cacheSpatialEdges", () => {
         graph.cacheSpatialEdges(fullNode.id);
 
         expect(getPotentialSpy.calls.first().args.length).toBe(3);
+        expect(getPotentialSpy.calls.first().args[1]).toEqual([previous]);
         expect(getPotentialSpy.calls.first().args[2].length).toBe(2);
         expect(getPotentialSpy.calls.first().args[2].indexOf("prev")).not.toBe(-1);
         expect(getPotentialSpy.calls.first().args[2].indexOf("next")).not.toBe(-1);
         expect(getPotentialSpy.calls.first().args[2].indexOf(fullNode.id)).toBe(-1);
+    });
+
+    it("should target the sequence image nearest the preferred distance", () => {
+        const api = new APIWrapper(new DataProvider());
+        const graph = new Graph(api);
+        const fullNode = helper.createImageEnt();
+        fullNode.camera_type = "spherical";
+
+        spyOn(api.data.geometry, "lngLatToCellId").and.returnValue("cell-id");
+        const getImages = new Subject<ImagesContract>();
+        spyOn(api, "getImages$").and.returnValue(getImages);
+        const getSequence = new Subject<SequenceContract>();
+        spyOn(api, "getSequence$").and.returnValue(getSequence);
+
+        graph.cacheFull$(fullNode.id).subscribe(() => { /*noop*/ });
+        getImages.next([{ node: fullNode, node_id: fullNode.id }]);
+        getImages.complete();
+
+        graph.cacheNodeSequence$(fullNode.id).subscribe(() => { /*noop*/ });
+        getSequence.next({
+            id: fullNode.sequence.id,
+            image_ids: ["prev-target", "prev", fullNode.id, "next", "next-target"],
+        });
+        getSequence.complete();
+
+        const adjacentNodes: { [id: string]: Image; } = {};
+        for (const [id, lng] of [["prev", -0.000027], ["next", 0.000027]] as [string, number][]) {
+            const imageEnt = helper.createImageEnt();
+            imageEnt.id = id;
+            imageEnt.sequence.id = fullNode.sequence.id;
+            imageEnt.computed_geometry = { lat: 0, lng };
+            imageEnt.geometry = imageEnt.computed_geometry;
+            const image = new Image(imageEnt);
+            image.makeComplete(imageEnt);
+            adjacentNodes[id] = image;
+        }
+
+        const hasNode = graph.hasNode.bind(graph);
+        const getNode = graph.getNode.bind(graph);
+        spyOn(graph, "hasNode").and.callFake(
+            (key: string): boolean => key in adjacentNodes || hasNode(key));
+        spyOn(graph, "getNode").and.callFake(
+            (key: string): Image => key in adjacentNodes ? adjacentNodes[key] : getNode(key));
+
+        expect(graph.getSequenceSpatialTargetIds(fullNode.id))
+            .toEqual(["prev-target", "next-target"]);
     });
 
     test("should apply filter", () => {

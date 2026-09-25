@@ -198,6 +198,19 @@ describe("RenderCamera.perspective.fov", () => {
 
         expect(renderCamera.perspective.fov).toBeLessThan(fov);
     });
+
+    it("should expose the current image and unzoomed field of view", () => {
+        const renderCamera = new RenderCamera(1, 1, RenderMode.Fill);
+        const frame: AnimationFrame = new FrameHelper().createFrame();
+        renderCamera.setFrame(frame);
+        const unzoomedFov = renderCamera.unzoomedCurrentFov;
+
+        frame.state.zoom = 1;
+        renderCamera.setFrame(frame);
+
+        expect(renderCamera.currentImageId).toBe(frame.state.currentImage.id);
+        expect(renderCamera.unzoomedCurrentFov).toBe(unzoomedFov);
+    });
 });
 
 describe("RenderCamera.setProjectionMatrix", () => {

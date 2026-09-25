@@ -128,12 +128,18 @@ export class PlayService {
         const stateSpeed: number = this._setSpeed(this._speed);
         this._stateService.setSpeed(stateSpeed);
 
-        this._graphModeSubscription = this._speed$.pipe(
-            map(
-                (speed: number): GraphMode => {
-                    return speed > PlayService.sequenceSpeed ? GraphMode.Sequence : GraphMode.Spatial;
-                }),
-            distinctUntilChanged())
+        this._graphModeSubscription = observableCombineLatest(
+            this._speed$,
+            this._direction$).pipe(
+                map(
+                    ([speed, direction]: [number, NavigationDirection]): GraphMode => {
+                        const sequenceDirection =
+                            direction === NavigationDirection.Next ||
+                            direction === NavigationDirection.Prev;
+                        return sequenceDirection || speed > PlayService.sequenceSpeed ?
+                            GraphMode.Sequence : GraphMode.Spatial;
+                    }),
+                distinctUntilChanged())
             .subscribe(
                 (mode: GraphMode): void => {
                     this._graphService.setGraphMode(mode);
@@ -150,19 +156,17 @@ export class PlayService {
                     ([sequenceId]: [string, string]): string => {
                         return sequenceId;
                     })),
-            this._graphService.graphMode$,
             this._direction$).pipe(
                 switchMap(
-                    ([[sequenceId, imageId], mode, direction]: [[string, string], GraphMode, NavigationDirection]):
+                    ([[sequenceId], direction]: [[string, string], NavigationDirection]):
                         Observable<[Sequence, NavigationDirection]> => {
 
                         if (direction !== NavigationDirection.Next && direction !== NavigationDirection.Prev) {
                             return observableOf<[Sequence, NavigationDirection]>([undefined, direction]);
                         }
 
-                        const sequence$: Observable<Sequence> = (mode === GraphMode.Sequence ?
-                            this._graphService.cacheSequenceImages$(sequenceId, imageId) :
-                            this._graphService.cacheSequence$(sequenceId)).pipe(
+                        const sequence$: Observable<Sequence> = this._graphService
+                            .cacheSequence$(sequenceId).pipe(
                                 retry(3),
                                 catchError(
                                     (error: Error): Observable<Sequence> => {
@@ -186,6 +190,21 @@ export class PlayService {
                             imageIds.reverse();
                         }
 
+                        // Positions are resolved on every animation frame,
+                        // linear lookups would scale with the sequence length.
+                        const imageIndices: Map<string, number> =
+                            new Map<string, number>();
+                        for (let i: number = 0; i < imageIds.length; i++) {
+                            imageIndices.set(imageIds[i], i);
+                        }
+
+                        const indexOf: (id: string) => number =
+                            (id: string): number => {
+                                const index: number = imageIndices.get(id);
+
+                                return index === undefined ? -1 : index;
+                            };
+
                         return this._stateService.currentState$.pipe(
                             map(
                                 (frame: AnimationFrame): [string, number] => {
@@ -197,8 +216,12 @@ export class PlayService {
                                     [lastTrajectoryKey, imagesAhead]: [string, number]):
                                     [string, string[]] => {
 
-                                    if (lastRequestKey === undefined) {
-                                        lastRequestKey = lastTrajectoryKey;
+                                    // The trajectory reaches beyond the
+                                    // sequence when traversing into another
+                                    // one, there is nothing to request here.
+                                    const current: number = indexOf(lastTrajectoryKey);
+                                    if (current === -1) {
+                                        return [lastRequestKey, []];
                                     }
 
                                     const lastIndex: number = imageIds.length - 1;
@@ -206,8 +229,12 @@ export class PlayService {
                                         return [lastRequestKey, []];
                                     }
 
-                                    const current: number = imageIds.indexOf(lastTrajectoryKey);
-                                    const start: number = imageIds.indexOf(lastRequestKey) + 1;
+                                    const lastRequestIndex: number =
+                                        lastRequestKey === undefined ?
+                                            -1 : indexOf(lastRequestKey);
+                                    const start: number =
+                                        (lastRequestIndex === -1 ?
+                                            current : lastRequestIndex) + 1;
                                     const end: number = Math.min(lastIndex, current + this._imagesAhead - imagesAhead) + 1;
 
                                     if (end <= start) {

@@ -5,6 +5,10 @@ import { IStateBase } from "../interfaces/IStateBase";
 import { Image } from "../../graph/Image";
 import { isSpherical } from "../../geo/Geo";
 import { isNullImageId } from "../../util/Common";
+import { hasReconstructionMesh } from "../../util/Mesh";
+import { TransitionMode } from "../TransitionMode";
+
+const FALLBACK_TRANSITION_SPEED = 2.5;
 
 export class TraversingState extends InteractiveStateBase {
 
@@ -66,6 +70,7 @@ export class TraversingState extends InteractiveStateBase {
 
         this._setDesiredCenter();
         this._setDesiredZoom();
+        this._applyReorientation();
 
         if (this._trajectory.length < 3) {
             this._smoothing = true;
@@ -87,20 +92,22 @@ export class TraversingState extends InteractiveStateBase {
             this._resetTransition();
             this._clearRotation();
 
-            this._desiredZoom =
-                isSpherical(this._currentImage.cameraType) ?
-                    this._zoom : 0;
+            this._desiredZoom = this._zoom;
 
             this._desiredLookat = null;
 
             // Orient the new image before it is rendered this frame so a
-            // motionless (instant) transition lands already facing the
+            // transition without camera motion lands already facing the
             // registered direction instead of flashing the carried view.
             this._applyReorientation();
         }
 
         let animationSpeed: number = this._animationSpeed * delta / 1e-1 * 6;
-        this._baseAlpha = Math.min(1, this._baseAlpha + this._speedCoefficient * animationSpeed);
+        const transitionSpeed = this._motionless && this.transitionMode !== TransitionMode.Instantaneous ?
+            FALLBACK_TRANSITION_SPEED : 1;
+        this._baseAlpha = Math.min(
+            1,
+            this._baseAlpha + this._speedCoefficient * animationSpeed * transitionSpeed);
         if (this._smoothing) {
             this._alpha = MathUtils.smootherstep(this._baseAlpha, 0, 1);
         } else {
@@ -121,11 +128,15 @@ export class TraversingState extends InteractiveStateBase {
         this._updateZoom(animationSpeed);
         this._updateLookat(animationSpeed);
 
-        this._camera.lerpCameras(this._previousCamera, this._currentCamera, this.alpha);
+        // Fallback transitions cannot safely interpolate camera geometry, but
+        // their image alpha can still advance smoothly to produce a dissolve.
+        const cameraAlpha = this._motionless ? Math.ceil(this._alpha) : this._alpha;
+        this._camera.lerpCameras(this._previousCamera, this._currentCamera, cameraAlpha);
     }
 
     protected _getAlpha(): number {
-        return this._motionless ? Math.ceil(this._alpha) : this._alpha;
+        return this._motionless && this.transitionMode === TransitionMode.Instantaneous ?
+            Math.ceil(this._alpha) : this._alpha;
     }
 
     protected _setCurrentCamera(): void {
@@ -158,27 +169,29 @@ export class TraversingState extends InteractiveStateBase {
     }
 
     private _applyReorientation(): void {
-        // Only for instant cuts: a smooth transition should ease into the new
-        // direction, not start already there.
-        if (!this._motionless || this._currentImage == null) {
+        if (this._currentImage == null) {
             return;
         }
-        // Only pre-orient (snap) mesh-less images. An image with SfM mesh eases
-        // to the travel direction, and easing must start from the carried view —
-        // pre-snapping it here would lose the ease.
-        if (this._currentImage.mesh != null &&
-            this._currentImage.mesh.vertices.length > 0) {
+        const reorientation = this._reorientations.get(this._currentImage.id);
+        if (reorientation == null ||
+            !isSpherical(this._currentImage.cameraType)) {
             return;
         }
-        const basic = this._reorientations.get(this._currentImage.id);
-        if (basic == null || !isSpherical(this._currentImage.cameraType)) {
+        // A forced hint means the reconstruction was rejected. Convert that
+        // transition to a fallback cut so the known-bad pose never renders.
+        if (reorientation.forceOnReconstruction) {
+            this._motionless = true;
+        } else if (!this._motionless ||
+            hasReconstructionMesh(this._currentImage.mesh)) {
             return;
         }
         this._currentCamera.lookat.fromArray(
-            this.currentTransform.unprojectBasic(basic, this._lookatDepth));
+            this.currentTransform.unprojectBasic(
+                reorientation.basic, this._lookatDepth));
         const previousTransform = this.previousTransform != null ?
             this.previousTransform : this.currentTransform;
         this._previousCamera.lookat.fromArray(
-            previousTransform.unprojectBasic(basic, this._lookatDepth));
+            previousTransform.unprojectBasic(
+                reorientation.basic, this._lookatDepth));
     }
 }

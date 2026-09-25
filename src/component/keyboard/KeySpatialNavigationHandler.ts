@@ -136,7 +136,7 @@ export class KeySpatialNavigationHandler extends HandlerBase<KeyboardConfigurati
                         return;
                     }
 
-                    this._moveTo(toKey);
+                    this._moveTo(toKey, direction);
                 }
             });
     }
@@ -152,14 +152,14 @@ export class KeySpatialNavigationHandler extends HandlerBase<KeyboardConfigurati
     private _moveDir(direction: NavigationDirection, edgeStatus: NavigationEdgeStatus): void {
         for (const edge of edgeStatus.edges) {
             if (edge.data.direction === direction) {
-                this._moveTo(edge.target);
+                this._moveTo(edge.target, direction);
                 return;
             }
         }
     }
 
-    private _moveTo(id: string): void {
-        this._navigator.moveTo$(id)
+    private _moveTo(id: string, direction: NavigationDirection): void {
+        this._navigator.moveTo$(id, direction)
             .subscribe(
                 undefined,
                 (error: Error): void => {
