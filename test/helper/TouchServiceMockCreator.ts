@@ -18,6 +18,7 @@ export class TouchServiceMockCreator extends MockCreatorBase<TouchService> {
         this._mockProperty(mock, "singleTouchDrag$", new Subject<TouchEvent>());
         this._mockProperty(mock, "singleTouchDragEnd$", new Subject<TouchEvent>());
         this._mockProperty(mock, "touchEnd$", new Subject<TouchEvent>());
+        this._mockProperty(mock, "touchCancel$", new Subject<TouchEvent>());
         this._mockProperty(mock, "touchMove$", new Subject<TouchEvent>());
         this._mockProperty(mock, "touchStart$", new Subject<TouchEvent>());
 

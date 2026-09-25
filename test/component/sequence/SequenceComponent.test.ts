@@ -99,6 +99,27 @@ describe("SequenceComponent.activate", () => {
         expect(setGraphModeSpy.calls.argsFor(0)[0]).toBe(GraphMode.Spatial);
     });
 
+    it("should reset changing position to spatial on touchcancel (Android gesture takeover)", () => {
+        const setGraphModeSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.graphService.setGraphMode;
+
+        const touchCancelSubject$: Subject<TouchEvent> =
+            <Subject<TouchEvent>>containerMock.touchService.touchCancel$;
+
+        const component: SequenceComponent = createComponent();
+        component.activate();
+
+        // Simulate a scrubber drag that latches the renderer's changing-position
+        // flag (the state the touchcancel handler checks).
+        (<any>renderer)._setChangingPosition(true);
+        expect(setGraphModeSpy.calls.mostRecent().args[0]).toBe(GraphMode.Sequence);
+
+        // A touchcancel (gesture takeover / notification shade / second finger)
+        // must be treated like a terminal release and restore Spatial mode.
+        touchCancelSubject$.next({ touches: [] } as unknown as TouchEvent);
+
+        expect(setGraphModeSpy.calls.mostRecent().args[0]).toBe(GraphMode.Spatial);
+    });
+
     it("should stop play when changing position", () => {
         const stopSpy: jasmine.Spy = <jasmine.Spy>navigatorMock.playService.stop;
 
