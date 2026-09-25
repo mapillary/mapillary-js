@@ -5,6 +5,10 @@
     -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
+.mapillary-canvas:focus {
+    outline: none;
+}
+
 .mapillary-interactive {
     cursor: grab;
 }

@@ -1,0 +1,65 @@
+.mapillary-viewer [data-mapillary-tooltip] {
+    position: relative;
+}
+
+.mapillary-viewer [data-mapillary-tooltip]::before,
+.mapillary-viewer [data-mapillary-tooltip]::after {
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity 0.2s ease-in-out;
+    visibility: hidden;
+}
+
+.mapillary-viewer [data-mapillary-tooltip]::before {
+    background-color: #212b36;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px 3px rgba(0, 0, 0, 0.15), 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+    color: white;
+    content: attr(data-mapillary-tooltip);
+    font-family: "Source Sans Pro", sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    left: 50%;
+    line-height: 18px;
+    max-width: 240px;
+    padding: 4px 8px;
+    text-align: center;
+    top: calc(100% + 8px);
+    transform: translateX(-50%);
+    white-space: nowrap;
+    z-index: 1001;
+}
+
+.mapillary-viewer [data-mapillary-tooltip]::after {
+    background-color: #212b36;
+    border-radius: 2px;
+    content: "";
+    height: 8px;
+    left: calc(50% - 4px);
+    top: calc(100% + 4px);
+    transform: rotate(45deg);
+    width: 8px;
+    z-index: 1000;
+}
+
+.mapillary-viewer [data-mapillary-tooltip-position="left"]::before {
+    left: auto;
+    right: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.mapillary-viewer [data-mapillary-tooltip-position="left"]::after {
+    left: auto;
+    right: calc(100% + 4px);
+    top: calc(50% - 4px);
+}
+
+@media (hover: hover) {
+    .mapillary-viewer [data-mapillary-tooltip]:hover:not([data-mapillary-tooltip-dismissed])::before,
+    .mapillary-viewer [data-mapillary-tooltip]:hover:not([data-mapillary-tooltip-dismissed])::after {
+        opacity: 1;
+        visibility: visible;
+    }
+}

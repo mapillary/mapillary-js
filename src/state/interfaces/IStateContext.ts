@@ -30,7 +30,10 @@ export interface IStateContext extends IAnimationState {
     rotateBasicWithoutInertia(basicRotation: number[]): void;
     rotateToBasic(basic: number[]): void;
     rotateToBasicSmooth(basic: number[]): void;
-    setReorientation(imageId: string, basic: number[]): void;
+    setReorientation(
+        imageId: string,
+        basic: number[],
+        forceOnReconstruction?: boolean): void;
     clearReorientations(): void;
     move(delta: number): void;
     moveTo(position: number): void;
@@ -39,6 +42,7 @@ export interface IStateContext extends IAnimationState {
     getCenter(): number[];
     setCenter(center: number[]): void;
     setZoom(zoom: number): void;
+    zoomTo(zoom: number): void;
 
     setSpeed(speed: number): void;
     setTransitionMode(mode: TransitionMode): void;

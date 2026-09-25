@@ -8,6 +8,7 @@ import { Camera } from "../../geometry/Camera";
 
 import { resolveShader } from "../../shader/Resolver";
 import { GLShader } from "../../shader/Shader";
+import { hasReconstructionMesh } from "../../util/Mesh";
 
 function makeCameraUniforms(camera: Camera): { [key: string]: IUniform; } {
     const cameraUniforms: { [key: string]: IUniform; } = {};
@@ -69,7 +70,11 @@ export class MeshFactory {
         this._imageSphereRadius = imageSphereRadius != null ? imageSphereRadius : 200;
     }
 
-    public createMesh(image: Image, transform: Transform, shader: GLShader): THREE.Mesh {
+    public createMesh(
+        image: Image,
+        transform: Transform,
+        shader: GLShader,
+        useMesh: boolean = true): THREE.Mesh {
         const texture = this._createTexture(image.image);
         const materialParameters =
             this._createMaterialParameters(
@@ -78,6 +83,14 @@ export class MeshFactory {
                 shader);
         const material = new THREE.ShaderMaterial(materialParameters);
 
+        if (!useMesh) {
+            const geometry = isSpherical(transform.cameraType) ?
+                this._getFlatImageSphereGeo(transform) :
+                isFisheye(transform.cameraType) ?
+                    this._getRegularFlatImagePlaneGeoFisheye(transform) :
+                    this._getRegularFlatImagePlaneGeo(transform);
+            return new THREE.Mesh(geometry, material);
+        }
         if (isSpherical(transform.cameraType)) {
             return this._createImageSphere(image, transform, material);
         } else if (isFisheye(transform.cameraType)) {
@@ -145,7 +158,7 @@ export class MeshFactory {
     }
 
     private _useMesh(transform: Transform, image: Image): boolean {
-        return image.mesh.vertices.length && transform.hasValidScale;
+        return hasReconstructionMesh(image.mesh) && transform.hasValidScale;
     }
 
     private _getImageSphereGeo(transform: Transform, image: Image): THREE.BufferGeometry {

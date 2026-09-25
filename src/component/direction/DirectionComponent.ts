@@ -1,6 +1,7 @@
 import * as vd from "virtual-dom";
 import {
     combineLatest as observableCombineLatest,
+    concat as observableConcat,
     of as observableOf,
     Observable,
     Subject,
@@ -13,6 +14,7 @@ import {
     share,
     startWith,
     switchMap,
+    takeUntil,
     tap,
     withLatestFrom,
 } from "rxjs/operators";
@@ -151,18 +153,60 @@ export class DirectionComponent extends Component<DirectionConfiguration> {
             withLatestFrom(this._configuration$),
             switchMap(
                 ([image, configuration]: [Image, DirectionConfiguration]): Observable<[NavigationEdgeStatus, Sequence]> => {
-                    return observableCombineLatest(
-                        image.spatialEdges$,
-                        configuration.distinguishSequence ?
-                            this._navigator.graphService
-                                .cacheSequence$(image.sequenceId).pipe(
-                                    catchError(
-                                        (error: Error): Observable<Sequence> => {
-                                            console.error(`Failed to cache sequence (${image.sequenceId})`, error);
+                    if (!configuration.distinguishSequence) {
+                        return image.spatialEdges$.pipe(
+                            map(
+                                (edgeStatus: NavigationEdgeStatus): [NavigationEdgeStatus, Sequence] => {
+                                    return [edgeStatus, null];
+                                }));
+                    }
 
-                                            return observableOf<Sequence>(null);
-                                        })) :
-                            observableOf<Sequence>(null));
+                    return this._navigator.graphService
+                        .cacheSequence$(image.sequenceId).pipe(
+                            catchError(
+                                (error: Error): Observable<Sequence> => {
+                                    console.error(`Failed to cache sequence (${image.sequenceId})`, error);
+
+                                    return observableOf<Sequence>(null);
+                                }),
+                            switchMap(
+                                (sequence: Sequence): Observable<[NavigationEdgeStatus, Sequence]> => {
+                                    if (sequence == null) {
+                                        return image.spatialEdges$.pipe(
+                                            map(
+                                                (edgeStatus: NavigationEdgeStatus):
+                                                    [NavigationEdgeStatus, Sequence] => {
+                                                    return [edgeStatus, null];
+                                                }));
+                                    }
+
+                                    const spatialEdges$ = image.spatialEdges$.pipe(
+                                        filter(
+                                            (edgeStatus: NavigationEdgeStatus): boolean => {
+                                                return edgeStatus.cached;
+                                            }));
+                                    const sequenceEdges$ = this._navigator.graphService
+                                        .cacheSequenceSpatialEdges$(image.id).pipe(
+                                            takeUntil(spatialEdges$),
+                                            catchError(
+                                                (error: Error): Observable<NavigationEdgeStatus> => {
+                                                    console.error(
+                                                        `Failed to cache sequence spatial edges (${image.id})`,
+                                                        error);
+
+                                                    return observableOf<NavigationEdgeStatus>({
+                                                        cached: false,
+                                                        edges: [],
+                                                    });
+                                                }));
+
+                                    return observableConcat(sequenceEdges$, spatialEdges$).pipe(
+                                        map(
+                                            (edgeStatus: NavigationEdgeStatus):
+                                                [NavigationEdgeStatus, Sequence] => {
+                                                return [edgeStatus, sequence];
+                                            }));
+                                }));
                 }))
             .subscribe(
                 ([edgeStatus, sequence]: [NavigationEdgeStatus, Sequence]): void => {

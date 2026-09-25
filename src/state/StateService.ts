@@ -470,8 +470,15 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.rotateToBasicSmooth(basic); });
     }
 
-    public setReorientation(imageId: string, basic: number[]): void {
-        this._invokeContextOperation((context: IStateContext) => { context.setReorientation(imageId, basic); });
+    public setReorientation(
+        imageId: string,
+        basic: number[],
+        forceOnReconstruction: boolean = false): void {
+        this._invokeContextOperation(
+            (context: IStateContext) => {
+                context.setReorientation(
+                    imageId, basic, forceOnReconstruction);
+            });
     }
 
     public clearReorientations(): void {
@@ -548,6 +555,11 @@ export class StateService {
     public setZoom(zoom: number): void {
         this._inMotionOperation$.next(true);
         this._invokeContextOperation((context: IStateContext) => { context.setZoom(zoom); });
+    }
+
+    public zoomTo(zoom: number): void {
+        this._inMotionOperation$.next(true);
+        this._invokeContextOperation((context: IStateContext) => { context.zoomTo(zoom); });
     }
 
     public start(): void {

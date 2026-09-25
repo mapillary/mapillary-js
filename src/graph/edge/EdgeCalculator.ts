@@ -50,6 +50,15 @@ export class EdgeCalculator {
     }
 
     /**
+     * Returns the preferred navigation distance for an image's camera type.
+     */
+    public getPreferredSpatialDistance(node: Image): number {
+        return isSpherical(node.cameraType) ?
+            this._settings.sphericalPreferredDistance :
+            this._settings.stepPreferredDistance;
+    }
+
+    /**
      * Returns the potential edges to destination nodes for a set
      * of nodes with respect to a source node.
      *
@@ -65,7 +74,8 @@ export class EdgeCalculator {
             throw new ArgumentMapillaryError("Image has to be full.");
         }
 
-        if (!node.merged) {
+        if (!node.merged &&
+            (fallbackIds.length === 0 || node.rotation.length !== 3)) {
             return [];
         }
 
@@ -77,8 +87,9 @@ export class EdgeCalculator {
         let potentialEdges: PotentialEdge[] = [];
 
         for (let potential of potentialImages) {
-            if (!potential.merged ||
-                potential.id === node.id) {
+            const fallback = fallbackIds.indexOf(potential.id) > -1;
+            if (((!node.merged || !potential.merged) && !fallback) ||
+                potential.id === node.id || potential.rotation.length !== 3) {
                 continue;
             }
 
@@ -130,7 +141,7 @@ export class EdgeCalculator {
                 potential.sequenceId === node.sequenceId;
 
             let sameMergeCC: boolean =
-                potential.mergeId === node.mergeId;
+                node.mergeId != null && potential.mergeId === node.mergeId;
 
             let sameUser: boolean =
                 potential.creatorId === node.creatorId;
@@ -573,9 +584,13 @@ export class EdgeCalculator {
      *
      * @param {Image} node - Source node.
      * @param {Array<PotentialEdge>} potentialEdges - Potential edges.
+     * @param {Array<string>} fallbackIds - Ids allowed beyond the maximum distance.
      * @throws {ArgumentMapillaryError} If node is not full.
      */
-    public computeSphericalEdges(node: Image, potentialEdges: PotentialEdge[]): NavigationEdge[] {
+    public computeSphericalEdges(
+        node: Image,
+        potentialEdges: PotentialEdge[],
+        fallbackIds: string[] = []): NavigationEdge[] {
         if (!node.complete) {
             throw new ArgumentMapillaryError("Image has to be full.");
         }
@@ -589,7 +604,8 @@ export class EdgeCalculator {
         let potentialSteps: [NavigationDirection, PotentialEdge][] = [];
 
         for (let potential of potentialEdges) {
-            if (potential.distance > this._settings.sphericalMaxDistance) {
+            if (potential.distance > this._settings.sphericalMaxDistance &&
+                fallbackIds.indexOf(potential.id) < 0) {
                 continue;
             }
 
