@@ -583,14 +583,15 @@ export class Graph {
             }
         }
 
-        if (uncached.length > 0) {
-            const batch$ = this._api.getImages$(uncached).pipe(
+        while (uncached.length > 0) {
+            const batchKeys = uncached.splice(0, MAX_GRAPH_IMAGE_BATCH_SIZE);
+            const batch$ = this._api.getImages$(batchKeys).pipe(
                 tap((items: ImagesContract): void => {
                     this._storeFullImages(items);
                 }),
                 map((): Graph => this),
                 finalize((): void => {
-                    for (const key of uncached) {
+                    for (const key of batchKeys) {
                         if (this._cachingFull$[key] === batch$) {
                             delete this._cachingFull$[key];
                         }
@@ -599,7 +600,7 @@ export class Graph {
                 }),
                 publishReplay(1),
                 refCount());
-            for (const key of uncached) {
+            for (const key of batchKeys) {
                 this._cachingFull$[key] = batch$;
             }
             streams.add(batch$);

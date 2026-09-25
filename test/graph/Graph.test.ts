@@ -290,6 +290,33 @@ describe("Graph.cacheFullImages$", () => {
         ]);
         getImages.complete();
     });
+
+    it("should limit requests to 120 images", (done: Function) => {
+        const api = new APIWrapper(new DataProvider());
+        const calculator = new GraphCalculator();
+        const nodes = Array(121).fill(undefined).map((_, index: number) => {
+            const node = new ImageHelper().createImageEnt();
+            node.id = `image-${index}`;
+            return node;
+        });
+        const getImagesSpy = spyOn(api, "getImages$")
+            .and.callFake((ids: string[]): Observable<ImagesContract> =>
+                observableOf(ids.map((id: string) => {
+                    const node = nodes.find(
+                        (candidate: ImageEnt): boolean => candidate.id === id);
+                    return { node, node_id: id };
+                })));
+        spyOn(api.data.geometry, "lngLatToCellId").and.returnValue("cell-id");
+        const graph = new Graph(api, undefined, undefined, calculator);
+
+        graph.cacheFullImages$(nodes.map((node: ImageEnt) => node.id)).subscribe(
+            (): void => {
+                expect(getImagesSpy.calls.count()).toBe(2);
+                expect(getImagesSpy.calls.argsFor(0)[0].length).toBe(120);
+                expect(getImagesSpy.calls.argsFor(1)[0].length).toBe(1);
+                done();
+            });
+    });
 });
 
 describe("Graph.cacheFull$", () => {

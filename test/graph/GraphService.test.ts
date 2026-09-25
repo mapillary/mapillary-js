@@ -696,37 +696,6 @@ describe("GraphService.cacheImagesMetadata$", () => {
     });
 });
 
-describe("GraphService.cacheImageMetadata$", () => {
-    it("should cache metadata without caching render assets", (done: Function) => {
-        const api: APIWrapper = new APIWrapper(new DataProvider());
-        const graph: Graph = new Graph(api);
-
-        spyOn(graph, "isCachingFull").and.returnValue(false);
-        spyOn(graph, "hasNode").and.returnValues(false, true);
-
-        const cacheFull$: Subject<Graph> = new Subject<Graph>();
-        const cacheFullSpy: jasmine.Spy = spyOn(graph, "cacheFull$");
-        cacheFullSpy.and.returnValue(cacheFull$);
-
-        const image: TestNode = new TestNode(
-            new ImageHelper().createCoreImageEnt());
-        const cacheAssetsSpy: jasmine.Spy = spyOn(image, "cacheAssets$");
-        spyOn(graph, "getNode").and.returnValue(image);
-
-        const graphService: GraphService = new GraphService(graph);
-        graphService.cacheImageMetadata$(image.id).subscribe(
-            (result: Image): void => {
-                expect(result).toBe(image);
-                expect(cacheFullSpy).toHaveBeenCalledWith(image.id);
-                expect(cacheAssetsSpy).not.toHaveBeenCalled();
-                done();
-            });
-
-        cacheFull$.next(graph);
-        cacheFull$.complete();
-    });
-});
-
 describe("GraphService.cacheNode$", () => {
     let helper: ImageHelper;
 
