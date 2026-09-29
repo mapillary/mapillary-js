@@ -1,0 +1,87 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Release tag to publish (for example, v5.0.0-beta.6)
+        required: true
+        type: string
+
+concurrency:
+  group: npm-publish-${{ inputs.release_tag }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+          registry-url: https://registry.npmjs.org
+
+      - name: Set up release tools
+        run: npm install --global npm@11.6.2 yarn@1.22.22
+
+      - name: Validate release
+        id: release
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+
+          version="$(node -p "require('./package.json').version")"
+          if [[ "${RELEASE_TAG}" != "v${version}" ]]; then
+            echo "::error::Tag ${RELEASE_TAG} does not match package version ${version}."
+            exit 1
+          fi
+
+          tag_commit="$(git rev-parse "refs/tags/${RELEASE_TAG}^{commit}")"
+          if [[ "$(git rev-parse HEAD)" != "${tag_commit}" ]]; then
+            echo "::error::${RELEASE_TAG} is not the checked-out release tag."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "${tag_commit}" origin/main; then
+            echo "::error::${RELEASE_TAG} is not on the main branch."
+            exit 1
+          fi
+
+          case "${version}" in
+            *-alpha*)
+              echo "::error::Alpha releases must not be published."
+              exit 1
+              ;;
+            *-*)
+              npm_tag="next"
+              ;;
+            *)
+              npm_tag="latest"
+              ;;
+          esac
+
+          echo "npm_tag=${npm_tag}" >> "${GITHUB_OUTPUT}"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
+
+      - name: Set up project
+        run: yarn setup
+
+      - name: Test
+        run: yarn test
+
+      - name: Publish
+        env:
+          NPM_TAG: ${{ steps.release.outputs.npm_tag }}
+        run: npm publish --provenance --tag "${NPM_TAG}"
