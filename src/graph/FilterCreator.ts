@@ -1,8 +1,7 @@
 import { Image } from "./Image";
 import {
     FilterExpression,
-    FilterOperator,
-    FilterValue,
+    FilterKey,
 } from "./FilterExpression";
 
 import { Func } from "../util/Func";
@@ -42,63 +41,66 @@ export class FilterCreator {
      * indicates whether the image passed the test or not.
      */
     public createFilter(filter: FilterExpression): FilterFunction {
-        return <FilterFunction>new Function("node", "return " + this._compile(filter) + ";");
-    }
-
-    private _compile(filter: FilterExpression): string {
         if (filter == null || filter.length <= 1) {
-            return "true";
+            return () => true;
         }
 
-        const operator: FilterOperator = <FilterOperator>filter[0];
-        const operation: string =
-            operator === "==" ? this._compileComparisonOp("===", <string>filter[1], filter[2], false) :
-                operator === "!=" ? this._compileComparisonOp("!==", <string>filter[1], filter[2], false) :
-                    operator === ">" ||
-                        operator === ">=" ||
-                        operator === "<" ||
-                        operator === "<=" ? this._compileComparisonOp(operator, <string>filter[1], filter[2], true) :
-                        operator === "in" ?
-                            this._compileInOp<FilterValue>(<string>filter[1], <FilterValue[]>filter.slice(2)) :
-                            operator === "!in" ?
-                                this._compileNegation(
-                                    this._compileInOp<FilterValue>(<string>filter[1], <FilterValue[]>filter.slice(2))) :
-                                operator === "all" ? this._compileLogicalOp(<FilterExpression[]>filter.slice(1), "&&") :
-                                    "true";
-
-        return "(" + operation + ")";
+        switch (filter[0]) {
+            case "==":
+                return this._compileComparisonOp((a, b) => a === b, filter[1], filter[2], false);
+            case "!=":
+                return this._compileComparisonOp((a, b) => a !== b, filter[1], filter[2], false);
+            case ">":
+                return this._compileComparisonOp((a, b) => a > b, filter[1], filter[2], true);
+            case ">=":
+                return this._compileComparisonOp((a, b) => a >= b, filter[1], filter[2], true);
+            case "<":
+                return this._compileComparisonOp((a, b) => a < b, filter[1], filter[2], true);
+            case "<=":
+                return this._compileComparisonOp((a, b) => a <= b, filter[1], filter[2], true);
+            case "in": {
+                const [, property, ...values] = filter;
+                return this._compileInOp(property, new Set(values));
+            }
+            case "!in": {
+                const [, property, ...values] = filter;
+                return this._compileNegation(this._compileInOp(property, new Set(values)));
+            }
+            case "all": {
+                const [, ...filters] = filter;
+                return this._compileLogicalOpAnd(filters);
+            }
+            default:
+                // tslint:disable-next-line:no-unused-expression
+                filter satisfies never; // exhaustivity check
+                return () => true;
+        }
     }
 
-    private _compare<T>(a: T, b: T): number {
-        return a < b ? -1 : a > b ? 1 : 0;
+    private _compileComparisonOp<T>(
+        operator: (a: T, b: T) => boolean,
+        property: FilterKey,
+        right: T,
+        checkType: boolean,
+    ): FilterFunction {
+        return x => {
+            const left = <T>x[property];
+            return (checkType ? typeof left === typeof right : true) && operator(left, right)
+        };
     }
 
-    private _compileComparisonOp<T>(operator: string, property: string, value: T, checkType: boolean): string {
-        const left: string = this._compilePropertyReference(property);
-        const right: string = JSON.stringify(value);
-
-        return (checkType ? "typeof " + left + "===typeof " + right + "&&" : "") + left + operator + right;
+    private _compileInOp<T>(property: FilterKey, values: Set<T>): FilterFunction {
+        return (x) => values.has(<T>x[property]);
     }
 
-    private _compileInOp<T>(property: string, values: T[]): string {
-        const compare: (a: T, b: T) => number = this._compare;
-        const left: string = JSON.stringify(values.sort(compare));
-        const right: string = this._compilePropertyReference(property);
-
-        return left + ".indexOf(" + right + ")!==-1";
+    private _compileLogicalOpAnd(
+        filters: FilterExpression[],
+    ): FilterFunction {
+        const functions = filters.map(filter => this.createFilter(filter));
+        return x => functions.every(f => f(x));
     }
 
-    private _compileLogicalOp(filters: FilterExpression[], operator: string): string {
-        const compile: (filter: FilterExpression) => string = this._compile.bind(this);
-
-        return filters.map<string>(compile).join(operator);
-    }
-
-    private _compileNegation(expression: string): string {
-        return "!(" + expression + ")";
-    }
-
-    private _compilePropertyReference(property: string): string {
-        return "node[" + JSON.stringify(property) + "]";
+    private _compileNegation(f: FilterFunction): FilterFunction {
+        return (x) => !f(x);
     }
 }
