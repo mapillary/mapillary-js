@@ -60,11 +60,11 @@ export class FilterCreator {
                 return this._compileComparisonOp((a, b) => a <= b, filter[1], filter[2], true);
             case "in": {
                 const [, property, ...values] = filter;
-                return this._compileInOp(property, new Set(values));
+                return this._compileInOp(property, values);
             }
             case "!in": {
                 const [, property, ...values] = filter;
-                return this._compileNegation(this._compileInOp(property, new Set(values)));
+                return this._compileNegation(this._compileInOp(property, values));
             }
             case "all": {
                 const [, ...filters] = filter;
@@ -78,19 +78,21 @@ export class FilterCreator {
     }
 
     private _compileComparisonOp<T>(
-        operator: (a: T, b: T) => boolean,
+        operator: (a: T | null, b: T | null) => boolean,
         property: FilterKey,
         right: T,
         checkType: boolean,
     ): FilterFunction {
-        return x => {
-            const left = <T>x[property];
-            return (checkType ? typeof left === typeof right : true) && operator(left, right)
+        const normalizedRight: T | null = this._normalizeValue(right);
+        return (x: Image): boolean => {
+            const left: T = <T>x[property];
+            return (checkType ? typeof left === typeof normalizedRight : true) && operator(left, normalizedRight);
         };
     }
 
-    private _compileInOp<T>(property: FilterKey, values: Set<T>): FilterFunction {
-        return (x) => values.has(<T>x[property]);
+    private _compileInOp<T>(property: FilterKey, values: T[]): FilterFunction {
+        const normalizedValues: Set<T | null> = new Set(values.map((value: T): T | null => this._normalizeValue(value)));
+        return (x: Image): boolean => normalizedValues.has(<T>x[property]);
     }
 
     private _compileLogicalOpAnd(
@@ -102,5 +104,9 @@ export class FilterCreator {
 
     private _compileNegation(f: FilterFunction): FilterFunction {
         return (x) => !f(x);
+    }
+
+    private _normalizeValue<T>(value: T): T | null {
+        return typeof value === "number" && !Number.isFinite(value) ? null : value;
     }
 }
