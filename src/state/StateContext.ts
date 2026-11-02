@@ -236,6 +236,10 @@ export class StateContext implements IStateContext {
         this._state.zoomIn(delta, reference);
     }
 
+    public stepZoom(steps: number, reference: number[]): void {
+        this._state.stepZoom(steps, reference);
+    }
+
     public setSpeed(speed: number): void {
         this._state.setSpeed(speed);
     }

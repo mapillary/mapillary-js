@@ -123,7 +123,7 @@ export class ZoomComponent extends Component<ZoomConfiguration> {
                     const unprojected: THREE.Vector3 = this._viewportCoords.unprojectFromViewport(0, 0, render.perspective);
                     const reference: number[] = transform.projectBasic(unprojected.toArray());
 
-                    this._navigator.stateService.zoomIn(zoomDelta, reference);
+                    this._navigator.stateService.stepZoom(zoomDelta, reference);
                 }));
     }
 

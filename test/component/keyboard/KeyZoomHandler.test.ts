@@ -115,7 +115,7 @@ describe("KeyZoomHandler.enable", () => {
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
         expect(preventDefaultSpyMeta.calls.count()).toBe(0);
 
-        const zoomInSpy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
+        const zoomInSpy = <jasmine.Spy>navigatorMock.stateService.stepZoom;
         expect(zoomInSpy.calls.count()).toBe(0);
     });
 
@@ -153,7 +153,7 @@ describe("KeyZoomHandler.enable", () => {
             .next(keyboardEvent);
         expect(preventDefaultSpyShift.calls.count()).toBe(1);
 
-        const zoomInSpy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
+        const zoomInSpy = <jasmine.Spy>navigatorMock.stateService.stepZoom;
         expect(zoomInSpy.calls.count()).toBe(1);
     });
 
@@ -218,7 +218,7 @@ describe("KeyZoomHandler.enable", () => {
         const keyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "+" });
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
 
-        const zoomInSpy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
+        const zoomInSpy = <jasmine.Spy>navigatorMock.stateService.stepZoom;
         expect(zoomInSpy.calls.count()).toBe(1);
         expect(zoomInSpy.calls.first().args[0]).toBe(1);
     });
@@ -252,7 +252,7 @@ describe("KeyZoomHandler.enable", () => {
         const keyboardEvent = EventHelper.createKeyboardEvent("keydown", { key: "-" });
         (<Subject<KeyboardEvent>>containerMock.keyboardService.keyDown$).next(keyboardEvent);
 
-        const zoomInSpy = <jasmine.Spy>navigatorMock.stateService.zoomIn;
+        const zoomInSpy = <jasmine.Spy>navigatorMock.stateService.stepZoom;
         expect(zoomInSpy.calls.count()).toBe(1);
         expect(zoomInSpy.calls.first().args[0]).toBe(-1);
     });

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { stepZoom } from "../ZoomSteps";
 
 import { StateBase } from "./StateBase";
 
@@ -239,6 +240,16 @@ export abstract class InteractiveStateBase extends StateBase {
         // transition has already settled.
         this._desiredLookat = new THREE.Vector3()
             .fromArray(this.currentTransform.unprojectBasic(basic, this._lookatDepth));
+    }
+
+    public stepZoom(steps: number, reference: number[]): void {
+        if (this._currentImage == null) {
+            return;
+        }
+
+        const target: number =
+            stepZoom(this._desiredZoom, steps, this._minZoom, this._maxZoom);
+        this.zoomIn(target - this._desiredZoom, reference);
     }
 
     public zoomIn(delta: number, reference: number[]): void {
