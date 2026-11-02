@@ -41,7 +41,35 @@ export function translatedSliderPerspective(
  * settled view (not animation frames). One pair's geometry and at most eight
  * projection/viewport decisions are retained; manual 2D/3D reuses them.
  */
+interface SliderMotionLimits {
+    relaxed: boolean;
+    sameMerge: boolean;
+    maxBaseline: number;
+    minParallaxCosine: number;
+    minCoverage: number;
+    maxDepthRatio: number;
+}
+
+const STRICT_LIMITS: SliderMotionLimits = {
+    relaxed: false, sameMerge: true, maxBaseline: 2, minParallaxCosine: Math.cos(Math.PI / 18), minCoverage: 1,
+    maxDepthRatio: Infinity,
+};
+// Time Travel candidates usually come from different merged
+// reconstructions (one per capture), so only computed geo-poses relate them.
+// Accept those up to the Time Travel matching radius, tolerating seams.
+// Independent reconstructions of the SAME place must agree on where the
+// surfaces are; unrelated frames (e.g. a garage under a street) do not.
+const RELAXED_LIMITS: SliderMotionLimits = {
+    relaxed: true, sameMerge: false, maxBaseline: 12, minParallaxCosine: Math.cos(35 * Math.PI / 180), minCoverage: 0.5,
+    maxDepthRatio: 2,
+};
+
+export function sliderMotionLimits(configuration: SliderConfiguration): SliderMotionLimits {
+    return configuration.automaticMotionPolicy === "relaxed" ? RELAXED_LIMITS : STRICT_LIMITS;
+}
+
 export class SliderAutomaticMotion {
+    private _limits: SliderMotionLimits = STRICT_LIMITS;
     private _factory = new SliderMeshFactory();
     private _pair: string;
     private _meshes: object[] = [];
@@ -69,6 +97,8 @@ export class SliderAutomaticMotion {
                 !perspective || !size || ![size.width, size.height].every(n => Number.isFinite(n) && n > 0)) {
                 return SliderConfigurationMode.Stationary;
             }
+            const limits = sliderMotionLimits(configuration);
+            if (limits !== this._limits) { this.dispose(); this._limits = limits; }
             if (!this._prepare(state)) {
                 return SliderConfigurationMode.Stationary;
             }
@@ -113,8 +143,9 @@ export class SliderAutomaticMotion {
         // unrelated reconstruction frames together (e.g. parking under a street).
         // Ray/photo hits only test local coverage, not global pose coherence.
         // Require the same nonempty aligned component BEFORE using any meshes.
-        if (typeof mergeId !== "string" || mergeId.trim().length === 0 ||
-            mergeId !== pairImages[1].mergeId) { return false; }
+        const limits = this._limits;
+        if (limits.sameMerge && (typeof mergeId !== "string" || mergeId.trim().length === 0 ||
+            mergeId !== pairImages[1].mergeId)) { return false; }
         const images = pairImages.map(sliderReconstructionImage);
         const transforms = [state.previousTransform, state.currentTransform];
         if (images.some(i => i.cameraType !== "perspective" || i.merged !== true) ||
@@ -145,7 +176,7 @@ export class SliderAutomaticMotion {
         // Automatic opt-in only: sparse clamped meshes can have ample photo
         // coverage yet stretch badly across a large baseline. No cluster
         // exception to this conservative quality cap; legacy motion is unchanged.
-        if (!Number.isFinite(distance) || distance > 2 ||
+        if (!Number.isFinite(distance) || distance > limits.maxBaseline ||
             ups.some(u => !u.toArray().every(Number.isFinite) || u.lengthSq() < 0.99) ||
             ups[0].angleTo(ups[1]) > Math.PI / 6) { return false; }
         for (let n = 0; n < 2; n++) {
@@ -186,40 +217,60 @@ export class SliderAutomaticMotion {
         const stops = Math.max(8, Math.ceil(this._origins[0].distanceTo(this._origins[1]) / 2));
         const ray = new THREE.Raycaster();
         const intersection = new THREE.Vector3();
+        const limits = this._limits;
+        const required = Math.ceil(49 * limits.minCoverage);
         for (let stop = 0; stop <= stops; stop++) {
             const camera = translatedSliderPerspective(live, this._origins[0], this._origins[1], stop / stops);
+            let covered = 0;
             for (let y = 0; y < 7; y++) {
                 for (let x = 0; x < 7; x++) {
-                    ray.setFromCamera(new THREE.Vector2(1.01 * (x / 3 - 1), 1.01 * (y / 3 - 1)), camera);
-                    if (!ray.ray.direction.toArray().every(Number.isFinite)) { return false; }
-                    for (let meshIndex = 0; meshIndex < this._triangles.length; meshIndex++) {
-                        const triangles = this._triangles[meshIndex];
-                        let nearest = Infinity;
-                        let hit: THREE.Vector3 = null;
-                        for (const triangle of triangles) {
-                            if (ray.ray.intersectTriangle(triangle.a, triangle.b, triangle.c, false, intersection)) {
-                                const distance = intersection.distanceTo(camera.position);
-                                if (distance < nearest) { nearest = distance; hit = intersection.clone(); }
-                            }
-                        }
-                        // Also respect clipping; never count a clipped surface.
-                        if (!hit || this._transforms.some(t => !this._insidePhoto(hit, t))) { return false; }
-                        const nativeRay = hit.clone().sub(this._origins[meshIndex]);
-                        const translatedRay = hit.clone().sub(camera.position);
-                        const denominator = nativeRay.length() * translatedRay.length();
-                        const parallaxCosine = nativeRay.dot(translatedRay) / denominator;
-                        // Coverage alone does not rule out severe stretching of
-                        // sparse reconstruction triangles. Bound reprojection
-                        // parallax relative to this mesh's own photo origin.
-                        // This conservative heuristic is NOT a quality proof.
-                        if (!(denominator > 1e-8) || !Number.isFinite(parallaxCosine) ||
-                            parallaxCosine < Math.cos(Math.PI / 18)) { return false; }
-                        const depth = hit.clone().applyMatrix4(camera.matrixWorldInverse).z;
-                        if (-depth < camera.near || -depth > camera.far) { return false; }
-                    }
+                    if (this._rayCovered(ray, intersection, camera, x, y, limits)) { covered++; }
+                    else if (limits.minCoverage >= 1) { return false; }
                 }
             }
+            if (covered < required) { return false; }
         }
+        return true;
+    }
+
+    private _rayCovered(
+        ray: THREE.Raycaster,
+        intersection: THREE.Vector3,
+        camera: THREE.PerspectiveCamera,
+        x: number,
+        y: number,
+        limits: SliderMotionLimits): boolean {
+        ray.setFromCamera(new THREE.Vector2(1.01 * (x / 3 - 1), 1.01 * (y / 3 - 1)), camera);
+        if (!ray.ray.direction.toArray().every(Number.isFinite)) { throw new Error("Invalid slider ray"); }
+        const depths: number[] = [];
+        for (let meshIndex = 0; meshIndex < this._triangles.length; meshIndex++) {
+            const triangles = this._triangles[meshIndex];
+            let nearest = Infinity;
+            let hit: THREE.Vector3 = null;
+            for (const triangle of triangles) {
+                if (ray.ray.intersectTriangle(triangle.a, triangle.b, triangle.c, false, intersection)) {
+                    const distance = intersection.distanceTo(camera.position);
+                    if (distance < nearest) { nearest = distance; hit = intersection.clone(); }
+                }
+            }
+            // Also respect clipping; never count a clipped surface.
+            if (!hit || this._transforms.some(t => !this._insidePhoto(hit, t))) { return false; }
+            const nativeRay = hit.clone().sub(this._origins[meshIndex]);
+            const translatedRay = hit.clone().sub(camera.position);
+            const denominator = nativeRay.length() * translatedRay.length();
+            const parallaxCosine = nativeRay.dot(translatedRay) / denominator;
+            // Coverage alone does not rule out severe stretching of
+            // sparse reconstruction triangles. Bound reprojection
+            // parallax relative to this mesh's own photo origin.
+            // This conservative heuristic is NOT a quality proof.
+            if (!(denominator > 1e-8) || !Number.isFinite(parallaxCosine) ||
+                parallaxCosine < limits.minParallaxCosine) { return false; }
+            const depth = hit.clone().applyMatrix4(camera.matrixWorldInverse).z;
+            if (-depth < camera.near || -depth > camera.far) { return false; }
+            depths.push(nearest);
+        }
+        if (Number.isFinite(limits.maxDepthRatio) &&
+            Math.max(...depths) > limits.maxDepthRatio * Math.min(...depths)) { return false; }
         return true;
     }
 

@@ -371,6 +371,14 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 return glRenderer;
             }))
             .subscribe(this._glRendererOperation$));
+        subs.push(this._configuration$.pipe(
+            map((configuration: SliderConfiguration): number => configuration.viewScale ?? 1),
+            distinctUntilChanged(),
+            map((scale: number): GLRendererOperation => (glRenderer): SliderGLRenderer => {
+                glRenderer.updateViewScale(scale);
+                return glRenderer;
+            }))
+            .subscribe(this._glRendererOperation$));
         subs.push(decision$.pipe(
             map((decision): GLRendererOperation => (glRenderer): SliderGLRenderer => {
                 const c = decision.configuration;
@@ -851,6 +859,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
         return {
             viewAligned: false,
             automaticMotion: false,
+            automaticMotionPolicy: "strict",
             initialPosition: 1,
             mode: SliderConfigurationMode.Motion,
             sliderVisible: true,

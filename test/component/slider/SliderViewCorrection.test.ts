@@ -134,6 +134,53 @@ describe("Slider view-aligned image-based correction", () => {
         expect(r._getPreviousPerspective(live).matrix.elements).toEqual(before.elements);
         r.dispose();
     });
+    it("aligns panorama look-around by the correction instead of the compass heading", () => {
+        for (const gravityAligned of [false, true]) {
+            for (const mode of [SliderConfigurationMode.Motion, SliderConfigurationMode.Stationary]) {
+                const r = new SliderGLRenderer() as any;
+                const f = frame("spherical", "spherical");
+                f.state.currentImage.compassAngle = 10;
+                f.state.previousImage.compassAngle = 70;
+                r.update(f, mode, gravityAligned, false);
+                expect(r.disabled).toBe(false);
+                const live = liveCamera();
+                const uncorrected = r._getPreviousPerspective(live).quaternion.clone();
+                const correction = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.02, -0.03, 0.04));
+                r._needsRender = false;
+                r.updateViewCorrection(correction.toArray());
+                expect(r.needsRender).toBe(true);
+                const current = r._getCurrentPerspective(live);
+                const previous = r._getPreviousPerspective(live);
+                // Shares the (possibly levelled) live view; only rotated by C^-1.
+                expect(previous.position.toArray()).toEqual(current.position.toArray());
+                expect(previous.projectionMatrix.elements).toEqual(live.projectionMatrix.elements);
+                const ray = new THREE.Vector3(-0.3, 0.1, -1).normalize();
+                const liveRay = ray.clone().applyQuaternion(current.quaternion);
+                const backgroundRay = ray.clone().applyQuaternion(previous.quaternion);
+                expect(backgroundRay.applyQuaternion(correction).distanceTo(liveRay)).toBeCloseTo(0, 10);
+                // Follows the live view as it moves.
+                live.lookAt(-3, 1, 4);
+                live.updateMatrixWorld(true);
+                const moved = r._getCurrentPerspective(live).quaternion.clone();
+                expect(r._getPreviousPerspective(live).quaternion.angleTo(
+                    correction.clone().invert().multiply(moved))).toBeCloseTo(0, 10);
+                // Clearing restores the existing behaviour exactly.
+                live.copy(liveCamera());
+                r.updateViewCorrection(null);
+                expect(r._getPreviousPerspective(live).quaternion.angleTo(uncorrected)).toBeCloseTo(0, 10);
+                r.dispose();
+            }
+        }
+    });
+    it("leaves mixed panorama/photo look-around untouched", () => {
+        const r = new SliderGLRenderer() as any;
+        r.update(frame("perspective", "spherical"), SliderConfigurationMode.Stationary, false, false);
+        const live = liveCamera();
+        const before = r._getPreviousPerspective(live).quaternion.clone();
+        r.updateViewCorrection(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0.05)).toArray());
+        expect(r._getPreviousPerspective(live).quaternion.angleTo(before)).toBeCloseTo(0, 10);
+        r.dispose();
+    });
     it("propagates configuration changes to the renderer once per distinct value", () => {
         const spy = spyOn(SliderGLRenderer.prototype, "updateViewCorrection").and.callThrough();
         const f = componentFixture();

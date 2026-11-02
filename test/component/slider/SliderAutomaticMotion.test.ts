@@ -117,6 +117,70 @@ describe("Slider automatic motion safety", () => {
             s.dispose();
         });
     }
+    describe("relaxed policy", () => {
+        function relaxed(): any {
+            const f = fixture();
+            f.configuration.automaticMotionPolicy = "relaxed";
+            const wide = (i: any) => { i.mesh.vertices = i.mesh.vertices.map((v: number, n: number) => n % 3 === 2 ? v : 3 * v); };
+            wide(f.state.previousImage); wide(f.state.currentImage);
+            return f;
+        }
+        it("accepts different merged reconstructions that strict rejects", () => {
+            const f = relaxed(); const s = new SliderAutomaticMotion();
+            f.state.previousImage.mergeId = "1278340129";
+            f.state.currentImage.mergeId = "1085082133386200";
+            expect(resolve(s, f)).toBe(Mode.Motion);
+            f.configuration.automaticMotionPolicy = "strict";
+            expect(resolve(s, f)).toBe(Mode.Stationary);
+            f.configuration.automaticMotionPolicy = "relaxed";
+            expect(resolve(s, f)).toBe(Mode.Motion);
+            s.dispose();
+        });
+        it("accepts baselines up to the 12m Time Travel radius and rejects beyond", () => {
+            const f = relaxed(); const s = new SliderAutomaticMotion();
+            f.state.currentImage.mergeId = "other-merge";
+            // A distant facade keeps both photos overlapping across 12m.
+            const far = (i: any) => { i.mesh.vertices = i.mesh.vertices.map((v: number) => 3 * v); };
+            far(f.state.previousImage); far(f.state.currentImage);
+            for (const baseline of [2.01, 5, 7, 12]) {
+                f.state.currentTransform = transform(f.state.currentImage, baseline);
+                expect(resolve(s, f)).toBe(Mode.Motion);
+            }
+            f.state.currentTransform = transform(f.state.currentImage, 12.01);
+            expect(resolve(s, f)).toBe(Mode.Stationary);
+            s.dispose();
+        });
+        it("still fails closed without meshes, merged poses, perspective cameras or coverage", () => {
+            const cases: Array<(f: any) => void> = [
+                f => { f.state.previousImage.merged = false; },
+                f => { f.state.currentImage.mesh = null; },
+                f => { f.state.currentImage.cameraType = "spherical"; },
+                f => { f.state.previousImage.mesh.faces = [0, 0, 0]; },
+                f => { f.camera.lookAt(20, 0, 2); f.camera.updateMatrix(); f.camera.updateMatrixWorld(true); },
+            ];
+            for (const apply of cases) {
+                const f = relaxed(); const s = new SliderAutomaticMotion();
+                apply(f);
+                expect(resolve(s, f)).toBe(Mode.Stationary);
+                s.dispose();
+            }
+        });
+        it("rejects reconstructions that disagree on surface depth (e.g. a garage under a street)", () => {
+            const f = relaxed(); const s = new SliderAutomaticMotion();
+            f.state.currentImage.mergeId = "other-merge";
+            expect(resolve(s, f)).toBe(Mode.Motion);
+            f.state.currentImage.mesh = { ...f.state.currentImage.mesh,
+                vertices: f.state.currentImage.mesh.vertices.map((v: number, n: number) => n % 3 === 2 ? 50 : 2.5 * v) };
+            expect(resolve(s, f)).toBe(Mode.Stationary);
+            s.dispose();
+        });
+        it("keeps explicit Stationary as manual 2D", () => {
+            const f = relaxed(); const s = new SliderAutomaticMotion();
+            f.configuration.mode = Mode.Stationary;
+            expect(resolve(s, f)).toBe(Mode.Stationary);
+            s.dispose();
+        });
+    });
     it("permits covered small baselines but rejects 7m even with the same cluster and merge component", () => {
         const f = fixture(); const s = new SliderAutomaticMotion();
         for (const baseline of [0, 0.5, 1, 2]) {

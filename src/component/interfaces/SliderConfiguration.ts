@@ -107,12 +107,40 @@ export interface SliderConfiguration extends ComponentConfiguration {
      * @description World-frame rotation quaternion [x, y, z, w] that maps the
      * background's reconstructed viewing rays onto the foreground's, e.g.
      * estimated by matching both photos. Applies to viewAligned Stationary
-     * rendering only and replaces the roll safeguard while set. Invalid
-     * values are ignored.
+     * rendering, where it replaces the roll safeguard while set, and to
+     * panorama-to-panorama look-around, where it replaces the compass
+     * heading alignment while set. Invalid values are ignored.
      *
      * @default undefined
      */
     viewCorrection?: number[];
+    /**
+     * Widening of a panorama background in viewAligned rendering.
+     *
+     * @description Ratio applied to the background's tan(fov / 2) relative
+     * to the live view, about the view centre. A comparison panorama
+     * captured ahead of the original along the view shows the subject
+     * larger; widening it (>1) shows the subject at the original's size,
+     * and narrowing (<1) compensates one captured behind. Applies only to
+     * viewAligned pairs whose background is a panorama; values outside
+     * [0.25, 4] are ignored (1).
+     *
+     * @default 1
+     */
+    viewScale?: number;
+    /**
+     * Gate policy for automaticMotion.
+     *
+     * @description "strict" (default) requires one shared merge component,
+     * <=2m baseline, <=10-degree parallax and full sampled coverage.
+     * "relaxed" also accepts pairs from different merged
+     * reconstructions placed by their computed geo-poses, with <=12m
+     * baseline, <=35-degree parallax, and per stop >=50% of sampled rays
+     * inside both photos with both meshes agreeing on depth within 2x.
+     * Expect registration seams and some warping in relaxed mode.
+     * @default "strict"
+     */
+    automaticMotionPolicy?: "strict" | "relaxed";
     /**
      * Clip the foreground at a fraction of the visible viewport width.
      *

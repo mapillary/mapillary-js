@@ -41,6 +41,7 @@ export class SliderGLRenderer {
     private _currentGravityAligned: boolean;
     private _previousGravityAligned: boolean;
     private _previousSpherical: boolean;
+    private _currentSpherical: boolean = false;
     private _currentPerspective: THREE.PerspectiveCamera;
     private _currentCamera: Camera;
     private _previousCamera: Camera;
@@ -52,6 +53,7 @@ export class SliderGLRenderer {
     private _previousPerspective: THREE.PerspectiveCamera;
     private _previousRotation: THREE.Quaternion;
     private _viewCorrection: THREE.Quaternion = null;
+    private _viewScale: number = 1;
     private _headingRotation: THREE.Quaternion;
     private _currentProviderDisposers: { [key: string]: () => void };
     private _previousProviderDisposers: { [key: string]: () => void };
@@ -122,14 +124,6 @@ export class SliderGLRenderer {
             this._needsRender = true;
         }
     }
-    /** Soft-edge half width at the curtain (fraction of viewport width); 0 is a hard split. */
-    public updateCurtainFeather(feather: number): void {
-        const next = sliderCurtainFeather(feather);
-        if (next === this._curtainFeather) { return; }
-        this._curtainFeather = next;
-        this._updateCurtain();
-        this._needsRender = true;
-    }
     /** Image-based background orientation refinement; null clears it. */
     public updateViewCorrection(correction: number[]): void {
         const valid = Array.isArray(correction) && correction.length === 4 &&
@@ -141,6 +135,25 @@ export class SliderGLRenderer {
             return;
         }
         this._viewCorrection = next;
+        if (!this._viewAligned) {
+            // The panorama look-around camera is cached; rebuild it.
+            this._previousPerspective = null;
+        }
+        this._needsRender = true;
+    }
+    /** View-aligned panorama background widening (tan ratio); 1 clears it. */
+    public updateViewScale(scale: number): void {
+        const next = Number.isFinite(scale) && scale >= 0.25 && scale <= 4 ? scale : 1;
+        if (next === this._viewScale) { return; }
+        this._viewScale = next;
+        this._needsRender = true;
+    }
+    /** Soft-edge half width at the curtain (fraction of viewport width); 0 is a hard split. */
+    public updateCurtainFeather(feather: number): void {
+        const next = sliderCurtainFeather(feather);
+        if (next === this._curtainFeather) { return; }
+        this._curtainFeather = next;
+        this._updateCurtain();
         this._needsRender = true;
     }
     public updateCurtain(curtain: number, screenSpace: boolean = false): void {
@@ -302,6 +315,36 @@ export class SliderGLRenderer {
                 }
                 this._previousPerspective.updateMatrix();
             }
+            if (this._previousSpherical && this._viewScale !== 1) {
+                // Same view centre, wider (narrower) panorama view: scale the
+                // live projection exactly, keeping any view offset.
+                const s = this._viewScale;
+                const e = this._previousPerspective.projectionMatrix.elements;
+                e[0] /= s;
+                e[5] /= s;
+                this._previousPerspective.projectionMatrixInverse
+                    .copy(this._previousPerspective.projectionMatrix).invert();
+                this._previousPerspective.zoom = current.zoom / s;
+            }
+            this._previousPerspective.updateMatrixWorld(false);
+            return this._previousPerspective;
+        }
+        if (this._viewCorrection != null && this._currentSpherical && this._previousSpherical) {
+            // Panorama look-around with an image-based correction: both
+            // spheres are centred on the live camera, and the correction
+            // already relates their pixels, so neither the compass heading
+            // nor the reconstructed up axes are needed. Show the background
+            // content whose corrected world ray C * r is this pixel's live ray r.
+            const current = this._getCurrentPerspective(perspectiveCamera);
+            if (this._previousPerspective == null) {
+                this._previousPerspective = current.clone();
+            } else {
+                this._previousPerspective.copy(current);
+            }
+            this._previousPerspective.position.copy(current.position);
+            this._previousPerspective.quaternion.premultiply(
+                this._viewCorrection.clone().invert());
+            this._previousPerspective.updateMatrix();
             this._previousPerspective.updateMatrixWorld(false);
             return this._previousPerspective;
         }
@@ -478,6 +521,8 @@ export class SliderGLRenderer {
             canLevelSliderImage(state.currentImage, state.currentTransform);
         this._previousSpherical = state.previousImage != null &&
             isSpherical(state.previousImage.cameraType);
+        this._currentSpherical = state.currentImage != null &&
+            isSpherical(state.currentImage.cameraType);
         this._previousGravityAligned = gravityAligned &&
             state.previousImage != null &&
             canLevelSliderImage(state.previousImage, state.previousTransform);
