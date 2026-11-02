@@ -556,22 +556,73 @@ export class ReorientationComponent
                 }
 
                 if (!result || !result.valid) {
-                    this._levelAccepted = false;
-                    // Switching out of Gravity can reset a center queued before
-                    // the image loaded, so restore an explicit shared-link view
-                    // after the fallback transition. Keep it pending because an
-                    // endpoint has no travel result from which to derive the
-                    // offset that its first valid same-sequence neighbor needs.
+                    // Travel can be unavailable even when the reconstruction
+                    // still provides a valid gravity frame.
                     const adoptedView = this._adoptedView;
-                    this._navigator.stateService.traverse();
+                    const fallback = (): void => {
+                        this._levelAccepted = false;
+                        this._navigator.stateService.traverse();
+                        if (adoptedView != null) {
+                            this._navigator.stateService.setCenter(adoptedView);
+                        } else if (resetView) {
+                            this._navigator.stateService.setCenter([0.5, 0.5]);
+                        }
+                    };
                     if (resetView) {
                         this._resetOffset();
                     }
-                    if (adoptedView != null) {
-                        this._navigator.stateService.setCenter(adoptedView);
-                    } else if (resetView) {
-                        this._navigator.stateService.setCenter([0.5, 0.5]);
+                    if (!levelingActive) {
+                        fallback();
+                        return;
                     }
+                    this._navigator.stateService.getCenter().pipe(first())
+                        .subscribe((center: number[]): void => {
+                            if (this._activeId !== id ||
+                                this._engine !== engine) {
+                                return;
+                            }
+                            const viewX = adoptedView?.[0] ?? settledViewX(
+                                direction,
+                                this._incomingBearing,
+                                image.compassAngle,
+                                center[0]);
+                            const endpointHorizonRow =
+                                this._horizonRow(viewX);
+                            const endpointRollDeg =
+                                endpointHorizonRow == null ? null :
+                                    this._rollDeg([
+                                        viewX,
+                                        endpointHorizonRow,
+                                    ]);
+                            if (endpointHorizonRow == null ||
+                                endpointRollDeg == null ||
+                                endpointRollDeg >
+                                    MAX_REORIENTATION_ROLL_DEG ||
+                                !this._acceptLevel(
+                                    endpointRollDeg,
+                                    endpointHorizonRow)) {
+                                fallback();
+                                return;
+                            }
+                            this._levelAccepted = true;
+                            this._computedBasicX = viewX;
+                            this._navigator.stateService.gravityTraverse();
+                            if (adoptedView != null) {
+                                this._navigator.stateService
+                                    .setCenter(adoptedView);
+                                return;
+                            }
+                            if (!this._ySeeded) {
+                                this._userOffsetY = resetView ? 0 :
+                                    center[1] - this._horizonY(center[0]);
+                                this._ySeeded = true;
+                            }
+                            const targetY = Math.max(0, Math.min(
+                                1,
+                                endpointHorizonRow + this._userOffsetY));
+                            this._navigator.stateService
+                                .setCenter([viewX, targetY]);
+                        });
 
                     return;
                 }
