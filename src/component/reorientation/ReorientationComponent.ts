@@ -32,6 +32,7 @@ import { Navigator } from "../../viewer/Navigator";
 const MIN_REORIENT_DEG = 15;
 const MAX_HORIZON_CORRECTION_DEG = 75;
 const MAX_REORIENTATION_ROLL_DEG = 45;
+const MIN_PERSPECTIVE_LEVEL_ROLL_DEG = 7;
 // Abrupt roll or pitch changes between neighboring captures are reconstruction
 // errors, not plausible camera motion, so their horizon is not worth using.
 const MAX_LEVEL_ROLL_DELTA_DEG = 15;
@@ -44,6 +45,16 @@ const USER_ZOOM_EPSILON = 1e-2;
 /** Pitch correction, in degrees, that levelling to a horizon row implies. */
 export function horizonPitchDeg(horizonY: number): number {
     return (0.5 - horizonY) * 180;
+}
+
+/**
+ * Small perspective corrections are indistinguishable from a tilted SfM frame
+ * without an independent gravity signal, so the raw camera frame is safer.
+ */
+export function shouldLevelPerspective(rollDeg: number): boolean {
+    return Number.isFinite(rollDeg) &&
+        rollDeg >= MIN_PERSPECTIVE_LEVEL_ROLL_DEG &&
+        rollDeg <= MAX_REORIENTATION_ROLL_DEG;
 }
 
 /**
@@ -203,6 +214,13 @@ export class ReorientationComponent
         const result = engine.get(id);
         if (!result || !result.valid || typeof result.travel !== "number") {
             return null;
+        }
+        if (result.cam === "perspective") {
+            if (id === this._activeId && typeof this._liveBearing === "number") {
+                return this._mapBearing(result, this._liveBearing);
+            }
+            return typeof result.viewCompassAngle === "number" ?
+                result.viewCompassAngle : null;
         }
         if (!this._reorientToFront &&
             result.seq != null && result.seq === this._lastSeq) {
@@ -482,7 +500,12 @@ export class ReorientationComponent
                     return;
                 }
                 if (!isSpherical(image.cameraType)) {
-                    this._levelPerspective(id);
+                    if (freshSequence) {
+                        this._levelRollDeg = null;
+                        this._levelPitchDeg = null;
+                    }
+                    this._lastSeq = sequenceId;
+                    this._levelPerspective(id, result);
                     return;
                 }
                 // A disconnected image still hard-cuts after navigation so its
@@ -923,55 +946,89 @@ export class ReorientationComponent
             .catch((): void => { /* skip */ });
     }
 
-    private _levelPerspective(id: string): void {
-        if (!this._automaticHorizonLeveling) {
+    private _levelPerspective(
+        id: string,
+        result: ReorientationResult): void {
+        const adoptedView = this._adoptedView;
+        const stateService = this._navigator.stateService;
+        const settle = (): void => {
+            const bearing = this.getReorientedBearing(id);
+            if (typeof bearing === "number") {
+                this._settled$.next({ id, bearing });
+            }
+        };
+        const fallback = (render?: RenderCamera): void => {
+            this._levelAccepted = false;
+            stateService.traverse();
+            if (adoptedView != null) {
+                stateService.setCenter(adoptedView);
+            } else if (render != null) {
+                stateService.zoomTo(
+                    this._userZoomOverride ? render.zoom : 0);
+                this._appliedPerspectiveZoom = 0;
+            }
             this._clearAdoptedView();
-            return;
-        }
-        if (this._adoptedView != null) {
-            this._navigator.stateService.gravityTraverse();
-            this._clearAdoptedView();
+            settle();
+        };
+        if (!this._automaticHorizonLeveling ||
+            result?.computedCompassOutlier === true) {
+            fallback();
             return;
         }
 
         this._navigator.stateService.getCenter().pipe(first()).subscribe(
             (): void => {
-                if (this._activeId !== id || this._adoptedView != null ||
-                    this._dragging || this._userViewChanged) {
+                if (this._activeId !== id || this._dragging ||
+                    this._userViewChanged) {
                     this._clearAdoptedView();
                     return;
                 }
-                const target = [0.5, this._horizonY(0.5)];
+                const targetX = adoptedView?.[0] ?? 0.5;
+                const horizonY = this._horizonY(targetX);
+                const target = [targetX, horizonY];
+                const rollDeg = horizonY == null ? null :
+                    this._rollDeg(target);
+                if (!shouldLevelPerspective(rollDeg) ||
+                    !this._acceptLevel(rollDeg, horizonY)) {
+                    fallback();
+                    return;
+                }
                 this._container.renderService.renderCameraFrame$.pipe(
                     filter((render: RenderCamera): boolean =>
                         render.currentImageId === id),
                     first(),
                 ).subscribe((render: RenderCamera): void => {
-                    if (this._activeId !== id || this._adoptedView != null ||
-                        this._dragging || this._userViewChanged) {
+                    if (this._activeId !== id || this._dragging ||
+                        this._userViewChanged) {
                         this._clearAdoptedView();
                         return;
                     }
-                    const zoom = this._perspectiveAutoZoom(
-                        target, render.unzoomedCurrentFov);
-                    const stateService = this._navigator.stateService;
                     if (!this._sequenceChanged &&
                         Math.abs(render.zoom - this._appliedPerspectiveZoom) >
                             USER_ZOOM_EPSILON) {
                         this._userZoomOverride = true;
                     }
-                    if (zoom == null) {
-                        stateService.traverse();
-                        stateService.zoomTo(
-                            this._userZoomOverride ? render.zoom : 0);
-                        this._appliedPerspectiveZoom = 0;
+                    if (adoptedView != null) {
+                        this._levelAccepted = true;
+                        stateService.gravityTraverse();
+                        stateService.setCenter(adoptedView);
+                        this._clearAdoptedView();
+                        settle();
                         return;
                     }
+                    const zoom = this._perspectiveAutoZoom(
+                        target, render.unzoomedCurrentFov);
+                    if (zoom == null) {
+                        fallback(render);
+                        return;
+                    }
+                    this._levelAccepted = true;
                     stateService.gravityTraverse();
                     stateService.rotateToBasicSmooth(target);
                     stateService.zoomTo(
                         this._userZoomOverride ? render.zoom : zoom);
                     this._appliedPerspectiveZoom = zoom;
+                    settle();
                 });
             });
     }

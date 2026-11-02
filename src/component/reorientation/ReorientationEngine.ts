@@ -42,6 +42,7 @@ export interface ReorientationResult {
     prevId?: string;
     travel?: number;
     computedTravel?: number;
+    originalTravel?: number;
     basicX?: number;
     dist?: number;
     cca?: number;
@@ -52,6 +53,7 @@ export interface ReorientationResult {
     speed?: number;
     moving?: boolean;
     seq?: string;
+    cam?: string;
 }
 
 export const DEFAULT_REORIENTATION_CONFIGURATION:
@@ -298,12 +300,15 @@ export class ReorientationEngine {
                 cur,
                 previous.travel,
                 previous.computedCompassOffset,
-                previous.computedCompassOutlier);
+                previous.computedCompassOutlier,
+                undefined,
+                previous.originalTravel);
             this._cache.set(imgId, {
                 valid: true,
                 prevId,
                 travel: previous.travel,
                 computedTravel: previous.computedTravel,
+                originalTravel: previous.originalTravel,
                 basicX: bearingToBasicX(
                     previous.travel,
                     frame.viewCompassAngle),
@@ -313,6 +318,7 @@ export class ReorientationEngine {
                 speed: previous.speed,
                 moving: previous.moving,
                 seq: cur.seq,
+                cam: cur.cam,
             });
         });
     }
@@ -474,13 +480,15 @@ export class ReorientationEngine {
                 tb,
                 prev?.compassOffset,
                 prev?.computedCompassOutlier,
-                nxt);
+                nxt,
+                segment.originalTravel);
             const result: ReorientationResult = {
                 valid: true,
                 nextId,
                 prevId: idx > 0 ? ids[idx - 1] : undefined,
                 travel: tb,
                 computedTravel: segment.computedTravel,
+                originalTravel: segment.originalTravel,
                 basicX: bearingToBasicX(tb, frame.viewCompassAngle),
                 dist,
                 cca: cur.cca,
@@ -488,6 +496,7 @@ export class ReorientationEngine {
                 speed,
                 moving,
                 seq: cur.seq,
+                cam: cur.cam,
             };
             this._cache.set(imgId, result);
             this._prefetchNext(result, depth);
@@ -509,7 +518,8 @@ export class ReorientationEngine {
         travel: number,
         previousCompassOffset?: number,
         previousComputedCompassOutlier?: boolean,
-        next?: ReorientationImage): CompassFrame {
+        next?: ReorientationImage,
+        originalTravel?: number): CompassFrame {
         const hasCurrentCalibration =
             isNum(cur.computedCca) && isNum(cur.originalCca);
         const hasNextCalibration = next != null &&
@@ -528,10 +538,16 @@ export class ReorientationEngine {
             previousCompassOffset != null &&
             angleDelta(currentOffset, previousCompassOffset) <=
                 MAX_COMPUTED_COMPASS_DELTA_DEG;
-        const computedCompassOutlier =
-            hasCurrentCalibration &&
+        const rawTravel = isNum(originalTravel) ? originalTravel : travel;
+        const calibrationConflict = hasCurrentCalibration &&
             angleDelta(cur.computedCca, cur.originalCca) >
-                MAX_COMPUTED_COMPASS_DELTA_DEG &&
+                MAX_COMPUTED_COMPASS_DELTA_DEG;
+        const perspectiveOutlier = cur.cam === "perspective" &&
+            calibrationConflict &&
+            angleDelta(rawTravel, cur.originalCca) <
+                this._config.lowSpeedTurnMaxDeltaDeg;
+        const computedCompassOutlier = perspectiveOutlier ||
+            calibrationConflict &&
             angleDelta(travel, cur.originalCca) <
                 this._config.lowSpeedTurnMaxDeltaDeg &&
             ((hasNextCalibration &&
@@ -626,7 +642,8 @@ export class ReorientationEngine {
         if (!cur) {
             return "Missing image metadata";
         }
-        if (cur.cam !== "spherical" && cur.cam !== "equirectangular") {
+        if (cur.cam !== "spherical" && cur.cam !== "equirectangular" &&
+            cur.cam !== "perspective") {
             return "Camera: " + (cur.cam || "unknown");
         }
         if (!hasPosition(cur)) {

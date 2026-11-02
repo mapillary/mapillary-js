@@ -185,6 +185,48 @@ describe("ReorientationEngine.precompute", () => {
         expect(result.basicX).toBeCloseTo(0.5, 2);
     });
 
+    it("rejects a perspective heading that conflicts with raw travel", async () => {
+        const current = spherical("b", 0, 0, 150, 2000, 0, 0);
+        current.cam = "perspective";
+        current.computedCca = 150;
+        current.originalCca = 90;
+        const next = spherical("c", 0, 0.0001, 150, 3000, 0, 0.0001);
+        next.cam = "perspective";
+        next.computedCca = 150;
+        next.originalCca = 90;
+        const engine = new ReorientationEngine(provider(
+            { b: current, c: next }, ["b", "c"]));
+
+        await engine.precompute("b");
+        const result = engine.get("b");
+
+        expect(result.valid).toBe(true);
+        expect(result.cam).toBe("perspective");
+        expect(result.computedCompassOutlier).toBe(true);
+        expect(result.originalTravel).toBeCloseTo(90, 1);
+        expect(result.viewCompassAngle).toBeCloseTo(90, 1);
+    });
+
+    it("keeps a perspective heading that agrees with raw capture data", async () => {
+        const current = spherical("b", 0, 0, 100, 2000, 0, 0);
+        current.cam = "perspective";
+        current.computedCca = 100;
+        current.originalCca = 90;
+        const next = spherical("c", 0, 0.0001, 100, 3000, 0, 0.0001);
+        next.cam = "perspective";
+        next.computedCca = 100;
+        next.originalCca = 90;
+        const engine = new ReorientationEngine(provider(
+            { b: current, c: next }, ["b", "c"]));
+
+        await engine.precompute("b");
+        const result = engine.get("b");
+
+        expect(result.valid).toBe(true);
+        expect(result.computedCompassOutlier).toBe(false);
+        expect(result.viewCompassAngle).toBeCloseTo(100, 1);
+    });
+
     it("keeps reconstructed heading when raw compass conflicts with travel", async () => {
         const current = spherical("b", 0, 0, 0, 2000);
         current.computedCca = 0;
@@ -427,9 +469,9 @@ describe("ReorientationEngine.precompute", () => {
         expect(result.reason).toBe("End of sequence");
     });
 
-    it("skips non-spherical images", async () => {
+    it("skips unsupported camera types", async () => {
         const images: Fixture = {
-            a: { id: "a", lat: 0, lng: 0, cca: 0, cam: "perspective", seq: "s", ts: 0 },
+            a: { id: "a", lat: 0, lng: 0, cca: 0, cam: "fisheye", seq: "s", ts: 0 },
             b: spherical("b", 0, 0.0001, 0, 1000),
         };
         const engine = new ReorientationEngine(provider(images, ["a", "b"]));
