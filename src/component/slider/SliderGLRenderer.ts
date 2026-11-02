@@ -19,6 +19,7 @@ import { sliderHeadingRotation } from "./SliderHeading";
 import { translatedSliderPerspective } from "./SliderAutomaticMotion";
 import { sliderViewAlignedRoll } from "./SliderRoll";
 import { sliderReconstructionImage, sliderPairKey, sliderCameraOrigin, sliderViewAlignedStationary } from "./SliderReconstruction";
+import { sliderCurtainFeather } from "./SliderCurtain";
 export class SliderGLRenderer {
     private _factory: SliderMeshFactory;
     private _scene: SliderMeshScene;
@@ -33,6 +34,7 @@ export class SliderGLRenderer {
     private _mode: SliderConfigurationMode;
     private _viewAligned: boolean = false;
     private _automaticMotion: boolean = false;
+    private _curtainFeather: number = 0;
     private _motionOrigins: THREE.Vector3[] = [];
     private _viewAlignedPair: string;
     private _gravityAligned: boolean;
@@ -118,6 +120,14 @@ export class SliderGLRenderer {
             this._scene.clear();
             this._needsRender = true;
         }
+    }
+    /** Soft-edge half width at the curtain (fraction of viewport width); 0 is a hard split. */
+    public updateCurtainFeather(feather: number): void {
+        const next = sliderCurtainFeather(feather);
+        if (next === this._curtainFeather) { return; }
+        this._curtainFeather = next;
+        this._updateCurtain();
+        this._needsRender = true;
     }
     public updateCurtain(curtain: number, screenSpace: boolean = false): void {
         if (this._curtain === curtain && this._screenSpace === screenSpace) {
@@ -384,6 +394,9 @@ export class SliderGLRenderer {
             let shaderMaterial = <SliderBBoxProjectorShaderMaterial>plane.mesh.material;
             if (!!shaderMaterial.uniforms.curtain) {
                 shaderMaterial.uniforms.curtain.value = this._curtain;
+            }
+            if (shaderMaterial.uniforms.curtainFeather) {
+                shaderMaterial.uniforms.curtainFeather.value = this._curtainFeather;
             }
             if (shaderMaterial.uniforms.screenSpace) {
                 shaderMaterial.uniforms.screenSpace.value = this._screenSpace;

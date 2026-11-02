@@ -194,6 +194,7 @@ export class SliderMeshFactory {
             uniforms: {
                 curtain: { value: 1.0 },
                 screenSpace: { value: false },
+                curtainFeather: { value: 0 },
                 opacity: { value: 1.0 },
                 projectorMat: { value: transform.rt },
                 projectorTex: { value: texture },
@@ -268,6 +269,7 @@ export class SliderMeshFactory {
             uniforms: {
                 curtain: { value: 1.0 },
                 screenSpace: { value: false },
+                curtainFeather: { value: 0 },
                 focal: { value: transform.focal },
                 k1: { value: transform.ck1 },
                 k2: { value: transform.ck2 },
@@ -296,6 +298,7 @@ export class SliderMeshFactory {
             uniforms: {
                 curtain: { value: 1.0 },
                 screenSpace: { value: false },
+                curtainFeather: { value: 0 },
                 focal: { value: transform.focal },
                 k1: { value: transform.ck1 },
                 k2: { value: transform.ck2 },
@@ -324,6 +327,7 @@ export class SliderMeshFactory {
             uniforms: {
                 curtain: { value: 1.0 },
                 screenSpace: { value: false },
+                curtainFeather: { value: 0 },
                 opacity: { value: 1.0 },
                 projectorMat: { value: transform.projectorMatrix() },
                 projectorTex: { value: texture },

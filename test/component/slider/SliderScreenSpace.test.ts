@@ -58,7 +58,10 @@ describe("Slider opt-in screen-space curtain", () => {
             expect(p.vertexShader).toContain("vClipPosition = gl_Position;");
             expect(p.fragmentShader).toContain("vClipPosition.x / vClipPosition.w");
             expect(p.fragmentShader).toContain("curtain <= 0.0");
-            expect(p.fragmentShader).toContain("curtain < 1.0 && screenX >= curtain");
+            // Hard split (curtainFeather 0) keeps the original rule: hidden at
+            // <=0, full at >=1, otherwise visible only left of the curtain.
+            expect(p.fragmentShader).toContain("curtain >= 1.0");
+            expect(p.fragmentShader).toContain("return screenX < curtain ? 1.0 : 0.0;");
         });
     }
     function component(screenSpace: boolean): any {

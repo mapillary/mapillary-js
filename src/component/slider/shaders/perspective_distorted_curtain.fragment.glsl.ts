@@ -1,3 +1,5 @@
+import { SLIDER_CURTAIN_GLSL } from "../SliderCurtain";
+
 export const perspectiveDistortedCurtainFrag = `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
@@ -8,6 +10,7 @@ uniform sampler2D projectorTex;
 uniform float opacity;
 uniform float curtain;
 uniform bool screenSpace;
+${SLIDER_CURTAIN_GLSL}
 varying vec4 vClipPosition;
 varying vec4 vRstq;
 void main()
@@ -15,7 +18,8 @@ void main()
     // Homogeneous clip coordinates give the exact visible screen fraction,
     // independent of lens projection, image pose, roll or panorama wrapping.
     float screenX = (vClipPosition.x / vClipPosition.w + 1.0) * 0.5;
-    if (screenSpace && (curtain <= 0.0 || (curtain < 1.0 && screenX >= curtain))) {
+    float curtainAlpha = screenSpace ? sliderCurtainAlpha(screenX) : 1.0;
+    if (curtainAlpha <= 0.0) {
         discard;
     }
     float u = vRstq.x / vRstq.w;
@@ -23,7 +27,7 @@ void main()
     vec4 baseColor;
     if ((screenSpace || u < curtain || curtain >= 1.0) && u >= 0. && u <= 1. && v >= 0. && v <= 1.) {
         baseColor = texture2D(projectorTex, vec2(u, v));
-        baseColor.a = opacity;
+        baseColor.a = opacity * curtainAlpha;
     } else {
         baseColor = vec4(0.0, 0.0, 0.0, 0.0);
     }

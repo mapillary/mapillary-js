@@ -366,6 +366,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
         subs.push(decision$.pipe(
             map((decision): GLRendererOperation => (glRenderer): SliderGLRenderer => {
                 const c = decision.configuration;
+                glRenderer.updateCurtainFeather(c.curtainFeather);
                 if (decision.automatic) {
                     glRenderer.update(decision.frame, decision.mode,
                         c.gravityAligned === true, c.viewAligned === true, true);

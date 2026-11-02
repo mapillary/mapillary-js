@@ -110,6 +110,13 @@ export interface SliderConfiguration extends ComponentConfiguration {
      */
     screenSpace?: boolean;
     /**
+     * Soft edge for the screenSpace curtain: half width of the blend around
+     * the split, as a fraction of the viewport width (0 to 0.1). 0 keeps
+     * the hard split.
+     * @default 0
+     */
+    curtainFeather?: number;
+    /**
      * Initial position of the slider on the interval [0, 1].
      *
      * @description Configures the initial position of the slider.
