@@ -985,6 +985,9 @@ export class Graph {
         }
 
         const node: Image = this.getNode(key);
+        if (!node.hasInitializedCache()) {
+            throw new GraphMapillaryError(`Cannot cache spatial edges before initializing cache (${key}).`);
+        }
         const targetKeys = this.getSequenceSpatialTargetIds(key);
         const prevKey = targetKeys[0];
         const nextKey = targetKeys[1];
@@ -1021,11 +1024,11 @@ export class Graph {
         const edges: NavigationEdge[] =
             this._computeSpatialEdges(node, potentialNodes, prevKey, nextKey, fallbackKeys);
 
-        node.cacheSpatialEdges(edges);
-
         this._cachedSpatialEdges[key] = node;
         delete this._requiredSpatialArea[key];
         delete this._cachedNodeTiles[key];
+
+        node.cacheSpatialEdges(edges);
     }
 
     /**
@@ -1433,12 +1436,15 @@ export class Graph {
      * Reset all spatial edges of the graph nodes.
      */
     public resetSpatialEdges(): void {
-        for (const nodeId of Object.keys(this._cachedSpatialEdges)) {
-            const node = this._cachedSpatialEdges[nodeId];
-            node.resetSpatialEdges();
-        }
-
+        const cachedSpatialEdges = this._cachedSpatialEdges;
         this._cachedSpatialEdges = {};
+
+        for (const nodeId of Object.keys(cachedSpatialEdges)) {
+            const node = cachedSpatialEdges[nodeId];
+            if (!(nodeId in this._cachedSpatialEdges) && node.hasInitializedCache()) {
+                node.resetSpatialEdges();
+            }
+        }
     }
 
     /**
@@ -1692,6 +1698,7 @@ export class Graph {
             if (nodeId in this._cachedNodes) {
                 delete this._cachedNodes[nodeId];
             }
+            delete this._cachedSpatialEdges[nodeId];
 
             this._preDeletedNodes.delete(nodeId);
             node.dispose();
@@ -2223,6 +2230,7 @@ export class Graph {
             if (key in this._cachedNodes) {
                 delete this._cachedNodes[key];
             }
+            delete this._cachedSpatialEdges[key];
 
             const node = this._preStored[h][key];
             if (node.sequenceId in this._cachedSequenceNodes) {

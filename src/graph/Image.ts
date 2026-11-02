@@ -727,7 +727,9 @@ export class Image {
      * @ignore
      */
     public resetSpatialEdges(): void {
-        this._cache.resetSpatialEdges();
+        if (this._cache != null) {
+            this._cache.resetSpatialEdges();
+        }
     }
 
     /**

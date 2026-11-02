@@ -2,6 +2,9 @@ import {
     first,
     skip,
 } from "rxjs/operators";
+import { firstValueFrom } from "rxjs";
+import { MeshContract } from "../../src/api/contracts/MeshContract";
+import { SpatialImageEnt } from "../../src/api/ents/SpatialImageEnt";
 import { NavigationDirection } from "../../src/graph/edge/NavigationDirection";
 import { NavigationEdge } from "../../src/graph/edge/interfaces/NavigationEdge";
 import { NavigationEdgeStatus }
@@ -314,5 +317,142 @@ describe("ImageCache.cacheImage$", () => {
 
         cache.cacheImage$(new ImageHelper().createSpatialImageEnt()).subscribe();
         imageMock.dispatchEvent(new CustomEvent("load"));
+    });
+});
+
+type MeshFixture = {
+    cache: ImageCache;
+    provider: DataProvider;
+    spatial: SpatialImageEnt;
+    image: HTMLImageElement;
+    getMesh: jasmine.Spy;
+};
+
+function createMeshFixture(): MeshFixture {
+    const provider = new DataProvider();
+    spyOn(provider, "getImageBuffer").and.returnValue(Promise.resolve(new ArrayBuffer(0)));
+    const getMesh = spyOn(provider, "getMesh").and.returnValue(Promise.resolve({ faces: [], vertices: [] }));
+    const image = new Image();
+    spyOn(window, <keyof Window>"Image").and.returnValue(image);
+    new MockCreator().mockProperty(image, "src", "");
+    spyOn(window, "Blob").and.returnValue(<Blob>{});
+    spyOn(window.URL, "createObjectURL").and.returnValue("image-url");
+    return {
+        cache: new ImageCache(provider),
+        provider,
+        spatial: new ImageHelper().createSpatialImageEnt(),
+        image,
+        getMesh,
+    };
+}
+
+async function cacheMesh(fixture: MeshFixture, merged: boolean = true): Promise<ImageCache> {
+    const result = firstValueFrom(fixture.cache.cacheAssets$(fixture.spatial, merged));
+    await Promise.resolve();
+    fixture.image.dispatchEvent(new CustomEvent("load"));
+    return result;
+}
+
+const absentMeshValues: (string | null | undefined)[] = [null, undefined];
+
+describe("ImageCache mesh metadata and downloads", () => {
+    for (const meshId of absentMeshValues) {
+        for (const url of absentMeshValues) {
+            it(`should quietly use an empty mesh for absent metadata (${meshId}, ${url})`, async () => {
+                const fixture = createMeshFixture();
+                fixture.spatial.mesh = { id: meshId, url };
+                const warn = spyOn(console, "warn").and.stub();
+                const error = spyOn(console, "error").and.stub();
+
+                const cached = await cacheMesh(fixture);
+
+                expect(cached).toBe(fixture.cache);
+                expect(cached.mesh).toEqual({ faces: [], vertices: [] });
+                expect(cached.image).toBe(fixture.image);
+                expect(fixture.getMesh).not.toHaveBeenCalled();
+                expect(warn).not.toHaveBeenCalled();
+                expect(error).not.toHaveBeenCalled();
+            });
+        }
+    }
+
+    for (const url of absentMeshValues) {
+        it(`should warn when an advertised mesh has no URL (${url})`, async () => {
+            const fixture = createMeshFixture();
+            fixture.spatial.mesh = { id: "advertised-mesh", url };
+            const warn = spyOn(console, "warn").and.stub();
+
+            const cached = await cacheMesh(fixture);
+
+            expect(cached.mesh).toEqual({ faces: [], vertices: [] });
+            expect(fixture.getMesh).not.toHaveBeenCalled();
+            expect(warn.calls.count()).toBe(1);
+            expect(warn.calls.first().args).toEqual([
+                `Incorrect mesh URL for ${fixture.spatial.id} (advertised-mesh, ${url})`,
+            ]);
+        });
+    }
+
+    for (const meshId of [null, "advertised-mesh"]) {
+        it(`should warn for a malformed empty URL even with mesh id ${meshId}`, async () => {
+            const fixture = createMeshFixture();
+            fixture.spatial.mesh = { id: meshId, url: "" };
+            const warn = spyOn(console, "warn").and.stub();
+
+            const cached = await cacheMesh(fixture);
+
+            expect(cached.mesh).toEqual({ faces: [], vertices: [] });
+            expect(fixture.getMesh).not.toHaveBeenCalled();
+            expect(warn.calls.count()).toBe(1);
+            expect(warn.calls.first().args).toEqual([
+                `Incorrect mesh URL for ${fixture.spatial.id} (${meshId}, )`,
+            ]);
+        });
+    }
+
+    it("should not request or warn about a mesh for an unmerged image", async () => {
+        const fixture = createMeshFixture();
+        const warn = spyOn(console, "warn").and.stub();
+        const error = spyOn(console, "error").and.stub();
+
+        const cached = await cacheMesh(fixture, false);
+
+        expect(cached.mesh).toEqual({ faces: [], vertices: [] });
+        expect(fixture.getMesh).not.toHaveBeenCalled();
+        expect(warn).not.toHaveBeenCalled();
+        expect(error).not.toHaveBeenCalled();
+    });
+
+    it("should retain a successfully downloaded mesh", async () => {
+        const fixture = createMeshFixture();
+        const mesh: MeshContract = { faces: [0, 1, 2], vertices: [1, 2, 3] };
+        fixture.getMesh.and.returnValue(Promise.resolve(mesh));
+        const warn = spyOn(console, "warn").and.stub();
+        const error = spyOn(console, "error").and.stub();
+
+        const cached = await cacheMesh(fixture);
+
+        expect(cached.mesh).toBe(mesh);
+        expect(fixture.getMesh.calls.count()).toBe(1);
+        expect(fixture.getMesh.calls.first().args[0]).toBe(fixture.spatial.mesh.url);
+        expect(fixture.getMesh.calls.first().args[1]).toBeInstanceOf(Promise);
+        expect(warn).not.toHaveBeenCalled();
+        expect(error).not.toHaveBeenCalled();
+    });
+
+    it("should log a failed download and retain the empty-mesh fallback", async () => {
+        const fixture = createMeshFixture();
+        const downloadError = new Error("mesh download failed");
+        fixture.getMesh.and.returnValue(Promise.reject(downloadError));
+        const warn = spyOn(console, "warn").and.stub();
+        const error = spyOn(console, "error").and.stub();
+
+        const cached = await cacheMesh(fixture);
+
+        expect(cached.mesh).toEqual({ faces: [], vertices: [] });
+        expect(fixture.getMesh.calls.count()).toBe(1);
+        expect(warn).not.toHaveBeenCalled();
+        expect(error.calls.count()).toBe(1);
+        expect(error.calls.first().args).toEqual([downloadError]);
     });
 });
