@@ -16,13 +16,27 @@ export class SliderMeshFactory {
         this._imageSphereRadius = imageSphereRadius != null ? imageSphereRadius : 200;
     }
 
-    public createMesh(image: Image, transform: SliderTransform): THREE.Mesh {
+    /** Geometry only: exactly the clamped perspective reconstruction used by
+     * both curtain and background meshes. The caller owns/disposes the result.
+     * Does not allocate a texture or material, and never substitutes a plane.
+     */
+    public createReconstructionGeometry(
+        image: Image,
+        transform: SliderTransform): THREE.BufferGeometry {
+        return transform.cameraType === "perspective" && this._useMesh(transform, image) ?
+            this._getImagePlaneGeo(transform, image) : null;
+    }
+
+    public createMesh(
+        image: Image,
+        transform: SliderTransform,
+        useReconstruction: boolean = true): THREE.Mesh {
         if (isSpherical(transform.cameraType)) {
             return this._createImageSphere(image, transform);
         } else if (isFisheye(transform.cameraType)) {
             return this._createImagePlaneFisheye(image, transform);
         } else {
-            return this._createImagePlane(image, transform);
+            return this._createImagePlane(image, transform, useReconstruction);
         }
     }
 
@@ -44,13 +58,19 @@ export class SliderMeshFactory {
         return new THREE.Mesh(geometry, material);
     }
 
-    public createCurtainMesh(image: Image, transform: SliderTransform): THREE.Mesh {
+    public createCurtainMesh(
+        image: Image,
+        transform: SliderTransform,
+        useReconstruction: boolean = true): THREE.Mesh {
         if (isSpherical(transform.cameraType)) {
             return this._createSphereCurtainMesh(image, transform);
         } else if (isFisheye(transform.cameraType)) {
             return this._createCurtainMeshFisheye(image, transform);
         } else {
-            return this._createCurtainMesh(image, transform);
+            return this._createCurtainMesh(
+                image,
+                transform,
+                useReconstruction);
         }
     }
 
@@ -58,13 +78,16 @@ export class SliderMeshFactory {
         return this._createDistortedCurtainMesh(image, transform);
     }
 
-    private _createCurtainMesh(image: Image, transform: SliderTransform): THREE.Mesh {
+    private _createCurtainMesh(
+        image: Image,
+        transform: SliderTransform,
+        useReconstruction: boolean): THREE.Mesh {
         let texture: THREE.Texture = this._createTexture(image.image);
         let materialParameters: THREE.ShaderMaterialParameters =
             this._createCurtainPlaneMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
 
-        let geometry: THREE.BufferGeometry = this._useMesh(transform, image) ?
+        let geometry: THREE.BufferGeometry = useReconstruction && this._useMesh(transform, image) ?
             this._getImagePlaneGeo(transform, image) :
             this._getRegularFlatImagePlaneGeo(transform);
 
@@ -118,12 +141,15 @@ export class SliderMeshFactory {
         return mesh;
     }
 
-    private _createImagePlane(image: Image, transform: SliderTransform): THREE.Mesh {
+    private _createImagePlane(
+        image: Image,
+        transform: SliderTransform,
+        useReconstruction: boolean): THREE.Mesh {
         let texture: THREE.Texture = this._createTexture(image.image);
         let materialParameters: THREE.ShaderMaterialParameters = this._createPlaneMaterialParameters(transform, texture);
         let material: THREE.ShaderMaterial = new THREE.ShaderMaterial(materialParameters);
 
-        let geometry: THREE.BufferGeometry = this._useMesh(transform, image) ?
+        let geometry: THREE.BufferGeometry = useReconstruction && this._useMesh(transform, image) ?
             this._getImagePlaneGeo(transform, image) :
             this._getRegularFlatImagePlaneGeo(transform);
 
@@ -167,6 +193,8 @@ export class SliderMeshFactory {
             transparent: true,
             uniforms: {
                 curtain: { value: 1.0 },
+                screenSpace: { value: false },
+                curtainFeather: { value: 0 },
                 opacity: { value: 1.0 },
                 projectorMat: { value: transform.rt },
                 projectorTex: { value: texture },
@@ -240,6 +268,8 @@ export class SliderMeshFactory {
             transparent: true,
             uniforms: {
                 curtain: { value: 1.0 },
+                screenSpace: { value: false },
+                curtainFeather: { value: 0 },
                 focal: { value: transform.focal },
                 k1: { value: transform.ck1 },
                 k2: { value: transform.ck2 },
@@ -267,6 +297,8 @@ export class SliderMeshFactory {
             transparent: true,
             uniforms: {
                 curtain: { value: 1.0 },
+                screenSpace: { value: false },
+                curtainFeather: { value: 0 },
                 focal: { value: transform.focal },
                 k1: { value: transform.ck1 },
                 k2: { value: transform.ck2 },
@@ -294,6 +326,8 @@ export class SliderMeshFactory {
             transparent: true,
             uniforms: {
                 curtain: { value: 1.0 },
+                screenSpace: { value: false },
+                curtainFeather: { value: 0 },
                 opacity: { value: 1.0 },
                 projectorMat: { value: transform.projectorMatrix() },
                 projectorTex: { value: texture },

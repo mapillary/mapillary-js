@@ -1,3 +1,5 @@
+import { SLIDER_CURTAIN_GLSL } from "../SliderCurtain";
+
 export const perspectiveCurtainFrag = `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
@@ -13,9 +15,19 @@ uniform float scale_x;
 uniform float scale_y;
 uniform float radial_peak;
 uniform float curtain;
+uniform bool screenSpace;
+${SLIDER_CURTAIN_GLSL}
+varying vec4 vClipPosition;
 varying vec4 vRstq;
 void main()
 {
+    // Homogeneous clip coordinates give the exact visible screen fraction,
+    // independent of lens projection, image pose, roll or panorama wrapping.
+    float screenX = (vClipPosition.x / vClipPosition.w + 1.0) * 0.5;
+    float curtainAlpha = screenSpace ? sliderCurtainAlpha(screenX) : 1.0;
+    if (curtainAlpha <= 0.0) {
+        discard;
+    }
     float x = vRstq.x / vRstq.z;
     float y = vRstq.y / vRstq.z;
     float r2 = x * x + y * y;
@@ -26,9 +38,9 @@ void main()
     float u = scale_x * focal * d * x + 0.5;
     float v = - scale_y * focal * d * y + 0.5;
     vec4 baseColor;
-    if ((u < curtain || curtain >= 1.0) && u >= 0. && u <= 1. && v >= 0. && v <= 1.) {
+    if ((screenSpace || u < curtain || curtain >= 1.0) && u >= 0. && u <= 1. && v >= 0. && v <= 1.) {
         baseColor = texture2D(projectorTex, vec2(u, v));
-        baseColor.a = opacity;
+        baseColor.a = opacity * curtainAlpha;
     } else {
         baseColor = vec4(0.0, 0.0, 0.0, 0.0);
     }

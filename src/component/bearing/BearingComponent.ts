@@ -30,6 +30,7 @@ import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { ComponentSize } from "../util/ComponentSize";
+import { createTooltipProperties } from "../util/Tooltip";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { isSpherical } from "../../geo/Geo";
@@ -47,6 +48,31 @@ type ImageFovState = {
 
 interface ImageFovOperation {
     (state: ImageFovState): ImageFovState;
+}
+
+/**
+ * Create the bearing indicator container.
+ *
+ * @description virtual-dom writes the selector class names into the
+ * properties object passed to `h`. The properties must therefore be
+ * created for every render; a reused object makes the previous and next
+ * properties identical, so class changes (e.g. switching to and from the
+ * compact size when the viewer is resized) are never patched.
+ *
+ * @ignore
+ */
+export function createBearingContainer(
+    compact: boolean,
+    children: vd.VNode[]): vd.VNode {
+
+    return vd.h(
+        "div.mapillary-bearing-indicator-container" +
+        (compact ? ".mapillary-bearing-compact" : ""),
+        createTooltipProperties(
+            "Bearing",
+            { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
+            "left"),
+        children);
 }
 
 /**
@@ -268,15 +294,13 @@ export class BearingComponent extends Component<BearingConfiguration> {
                         const cameraSector: vd.VNode = this._createCircleSectorCompass(
                             this._createCircleSector(Math.max(Math.PI / 20, cf), "#FFF"));
 
-                        const compact: string = configuration.size === ComponentSize.Small ||
-                            configuration.size === ComponentSize.Automatic && size.width < 640 ?
-                            ".mapillary-bearing-compact" : "";
+                        const compact: boolean = configuration.size === ComponentSize.Small ||
+                            configuration.size === ComponentSize.Automatic && size.width < 640;
 
                         return {
                             name: this._name,
-                            vNode: vd.h(
-                                "div.mapillary-bearing-indicator-container" + compact,
-                                { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
+                            vNode: createBearingContainer(
+                                compact,
                                 [
                                     background,
                                     fovIndicator,

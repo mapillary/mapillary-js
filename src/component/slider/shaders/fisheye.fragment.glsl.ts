@@ -21,6 +21,10 @@ void main()
     float x = vRstq.x;
     float y = vRstq.y;
     float z = vRstq.z;
+    if (z <= 0.0) {
+        gl_FragColor = vec4(0.0);
+        return;
+    }
 
     float r = sqrt(x * x + y * y);
     float theta = atan(r, z);
@@ -31,7 +35,7 @@ void main()
 
     float theta2 = theta * theta;
     float theta_d = theta * (1.0 + theta2 * (k1 + theta2 * k2));
-    float s = focal * theta_d / r;
+    float s = r > 0.0 ? focal * theta_d / r : 0.0;
 
     float u = scale_x * s * x + 0.5;
     float v = -scale_y * s * y + 0.5;

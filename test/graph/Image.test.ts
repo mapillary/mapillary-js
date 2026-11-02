@@ -50,6 +50,30 @@ describe("Image.complete", () => {
     });
 });
 
+describe("Image.timezone", () => {
+    let helper: ImageHelper;
+
+    beforeEach(() => {
+        helper = new ImageHelper();
+    });
+
+    it("should return the capture timezone", () => {
+        const image = new MImage(helper.createCoreImageEnt());
+        const spatial = helper.createSpatialImageEnt();
+        spatial.timezone = "Asia/Kuala_Lumpur";
+        image.makeComplete(spatial);
+
+        expect(image.timezone).toBe("Asia/Kuala_Lumpur");
+    });
+
+    it("should stay undefined when capture timezone is unavailable", () => {
+        const image = new MImage(helper.createCoreImageEnt());
+        image.makeComplete(helper.createSpatialImageEnt());
+
+        expect(image.timezone).toBeUndefined();
+    });
+});
+
 describe("Image.dispose", () => {
     let helper: ImageHelper;
 

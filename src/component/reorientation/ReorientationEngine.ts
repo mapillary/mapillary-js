@@ -42,6 +42,7 @@ export interface ReorientationResult {
     prevId?: string;
     travel?: number;
     computedTravel?: number;
+    originalTravel?: number;
     basicX?: number;
     dist?: number;
     cca?: number;
@@ -52,6 +53,7 @@ export interface ReorientationResult {
     speed?: number;
     moving?: boolean;
     seq?: string;
+    cam?: string;
 }
 
 export const DEFAULT_REORIENTATION_CONFIGURATION:
@@ -144,10 +146,18 @@ interface Segment {
     originalTravel?: number;
 }
 
+interface CompassFrame {
+    viewCompassAngle: number;
+    computedCompassOutlier: boolean;
+    reconstructionDiscontinuity: boolean;
+    computedCompassOffset?: number;
+}
+
 /**
  * Resolves, for an image in a sequence, the basic-x that frames the
- * direction of travel toward the next image. Motion is detected from GPS
- * speed with a low-speed-turn allowance, GPS outliers are rejected against
+ * direction of travel. The final image uses its incoming segment because it
+ * has no following image. Motion is detected from GPS speed with a
+ * low-speed-turn allowance, GPS outliers are rejected against
  * recent bearings, and stationary images fall back to the last confirmed
  * moving bearing so the view is preserved rather than spun by noise.
  *
@@ -241,8 +251,7 @@ export class ReorientationEngine {
                     return;
                 }
                 if (idx >= ids.length - 1) {
-                    this._invalid(imgId, "End of sequence");
-                    return;
+                    return this._resolveEndpoint(imgId, cur, ids, idx);
                 }
                 const nextId = ids[idx + 1];
                 let warm: Promise<ReorientationImage[]> = Promise.resolve([]);
@@ -269,6 +278,49 @@ export class ReorientationEngine {
                             imgId, cur, nxt, ids, idx, nextId, depth);
                     });
             });
+    }
+
+    private _resolveEndpoint(
+        imgId: string,
+        cur: ReorientationImage,
+        ids: string[],
+        idx: number): Promise<void> {
+        if (idx === 0) {
+            this._invalid(imgId, "End of sequence");
+            return Promise.resolve();
+        }
+        const prevId = ids[idx - 1];
+        return this.precompute(prevId, undefined, 0).then((): void => {
+            const previous = this._cache.get(prevId);
+            if (!previous?.valid || !isNum(previous.travel)) {
+                this._invalid(imgId, "Previous image has no travel direction");
+                return;
+            }
+            const frame = this._compassFrame(
+                cur,
+                previous.travel,
+                previous.computedCompassOffset,
+                previous.computedCompassOutlier,
+                undefined,
+                previous.originalTravel);
+            this._cache.set(imgId, {
+                valid: true,
+                prevId,
+                travel: previous.travel,
+                computedTravel: previous.computedTravel,
+                originalTravel: previous.originalTravel,
+                basicX: bearingToBasicX(
+                    previous.travel,
+                    frame.viewCompassAngle),
+                dist: previous.dist,
+                cca: cur.cca,
+                ...frame,
+                speed: previous.speed,
+                moving: previous.moving,
+                seq: cur.seq,
+                cam: cur.cam,
+            });
+        });
     }
 
     private _decide(
@@ -423,56 +475,28 @@ export class ReorientationEngine {
                 }
             }
 
-            const hasCurrentCompassCalibration =
-                isNum(cur.computedCca) && isNum(cur.originalCca);
-            const hasNextCompassCalibration =
-                isNum(nxt.computedCca) && isNum(nxt.originalCca);
-            const currentCompassOffset = hasCurrentCompassCalibration ?
-                (cur.computedCca - cur.originalCca + 360) % 360 : 0;
-            const nextCompassOffset = hasNextCompassCalibration ?
-                (nxt.computedCca - nxt.originalCca + 360) % 360 : 0;
-            const reconstructionDiscontinuity =
-                hasCurrentCompassCalibration &&
-                prev?.compassOffset != null &&
-                angleDelta(currentCompassOffset, prev.compassOffset) >
-                    MAX_COMPUTED_COMPASS_DELTA_DEG;
-            const continuesRejectedCalibration =
-                hasCurrentCompassCalibration &&
-                prev?.computedCompassOutlier === true &&
-                prev.compassOffset != null &&
-                angleDelta(currentCompassOffset, prev.compassOffset) <=
-                    MAX_COMPUTED_COMPASS_DELTA_DEG;
-            const computedCompassOutlier =
-                hasCurrentCompassCalibration &&
-                angleDelta(cur.computedCca, cur.originalCca) >
-                    MAX_COMPUTED_COMPASS_DELTA_DEG &&
-                angleDelta(tb, cur.originalCca) <
-                    cfg.lowSpeedTurnMaxDeltaDeg &&
-                ((hasNextCompassCalibration &&
-                    angleDelta(currentCompassOffset, nextCompassOffset) >
-                        MAX_COMPUTED_COMPASS_DELTA_DEG) ||
-                    reconstructionDiscontinuity ||
-                    continuesRejectedCalibration);
-            const viewCompassAngle = computedCompassOutlier ?
-                cur.originalCca :
-                (isNum(cur.viewCompassAngle) ? cur.viewCompassAngle : cur.cca);
+            const frame = this._compassFrame(
+                cur,
+                tb,
+                prev?.compassOffset,
+                prev?.computedCompassOutlier,
+                nxt,
+                segment.originalTravel);
             const result: ReorientationResult = {
                 valid: true,
                 nextId,
                 prevId: idx > 0 ? ids[idx - 1] : undefined,
                 travel: tb,
                 computedTravel: segment.computedTravel,
-                basicX: bearingToBasicX(tb, viewCompassAngle),
+                originalTravel: segment.originalTravel,
+                basicX: bearingToBasicX(tb, frame.viewCompassAngle),
                 dist,
                 cca: cur.cca,
-                viewCompassAngle,
-                computedCompassOutlier,
-                reconstructionDiscontinuity,
-                computedCompassOffset: hasCurrentCompassCalibration ?
-                    currentCompassOffset : undefined,
+                ...frame,
                 speed,
                 moving,
                 seq: cur.seq,
+                cam: cur.cam,
             };
             this._cache.set(imgId, result);
             this._prefetchNext(result, depth);
@@ -487,6 +511,59 @@ export class ReorientationEngine {
                     .catch(() => { /* ignore prefetch errors */ });
             }
         });
+    }
+
+    private _compassFrame(
+        cur: ReorientationImage,
+        travel: number,
+        previousCompassOffset?: number,
+        previousComputedCompassOutlier?: boolean,
+        next?: ReorientationImage,
+        originalTravel?: number): CompassFrame {
+        const hasCurrentCalibration =
+            isNum(cur.computedCca) && isNum(cur.originalCca);
+        const hasNextCalibration = next != null &&
+            isNum(next.computedCca) && isNum(next.originalCca);
+        const currentOffset = hasCurrentCalibration ?
+            (cur.computedCca - cur.originalCca + 360) % 360 : 0;
+        const nextOffset = hasNextCalibration ?
+            (next.computedCca - next.originalCca + 360) % 360 : 0;
+        const reconstructionDiscontinuity =
+            hasCurrentCalibration && previousCompassOffset != null &&
+            angleDelta(currentOffset, previousCompassOffset) >
+                MAX_COMPUTED_COMPASS_DELTA_DEG;
+        const continuesRejectedCalibration =
+            hasCurrentCalibration &&
+            previousComputedCompassOutlier === true &&
+            previousCompassOffset != null &&
+            angleDelta(currentOffset, previousCompassOffset) <=
+                MAX_COMPUTED_COMPASS_DELTA_DEG;
+        const rawTravel = isNum(originalTravel) ? originalTravel : travel;
+        const calibrationConflict = hasCurrentCalibration &&
+            angleDelta(cur.computedCca, cur.originalCca) >
+                MAX_COMPUTED_COMPASS_DELTA_DEG;
+        const perspectiveOutlier = cur.cam === "perspective" &&
+            calibrationConflict &&
+            angleDelta(rawTravel, cur.originalCca) <
+                this._config.lowSpeedTurnMaxDeltaDeg;
+        const computedCompassOutlier = perspectiveOutlier ||
+            calibrationConflict &&
+            angleDelta(travel, cur.originalCca) <
+                this._config.lowSpeedTurnMaxDeltaDeg &&
+            ((hasNextCalibration &&
+                angleDelta(currentOffset, nextOffset) >
+                    MAX_COMPUTED_COMPASS_DELTA_DEG) ||
+                reconstructionDiscontinuity ||
+                continuesRejectedCalibration);
+        return {
+            viewCompassAngle: computedCompassOutlier ?
+                cur.originalCca :
+                (isNum(cur.viewCompassAngle) ? cur.viewCompassAngle : cur.cca),
+            computedCompassOutlier,
+            reconstructionDiscontinuity,
+            computedCompassOffset: hasCurrentCalibration ?
+                currentOffset : undefined,
+        };
     }
 
     private _segment(cur: ReorientationImage, nxt: ReorientationImage): Segment {
@@ -565,7 +642,8 @@ export class ReorientationEngine {
         if (!cur) {
             return "Missing image metadata";
         }
-        if (cur.cam !== "spherical" && cur.cam !== "equirectangular") {
+        if (cur.cam !== "spherical" && cur.cam !== "equirectangular" &&
+            cur.cam !== "perspective") {
             return "Camera: " + (cur.cam || "unknown");
         }
         if (!hasPosition(cur)) {

@@ -1,4 +1,4 @@
-.mapillary-viewer [data-mapillary-tooltip] {
+.mapillary-viewer [data-mapillary-tooltip]:not(.mapillary-bearing-indicator-container) {
     position: relative;
 }
 
@@ -54,6 +54,17 @@
     left: auto;
     right: calc(100% + 4px);
     top: calc(50% - 4px);
+}
+
+/* The compact bearing scales its pseudo-elements too; invert that scale so
+ * its tooltip remains the same size as the other controls. */
+.mapillary-viewer .mapillary-bearing-compact[data-mapillary-tooltip-position="left"]::before {
+    transform: translateY(-50%) scale(1.6666667);
+    transform-origin: right center;
+}
+
+.mapillary-viewer .mapillary-bearing-compact[data-mapillary-tooltip-position="left"]::after {
+    transform: rotate(45deg) scale(1.6666667);
 }
 
 @media (hover: hover) {

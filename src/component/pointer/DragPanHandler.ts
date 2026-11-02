@@ -172,14 +172,16 @@ export class DragPanHandler extends HandlerBase<PointerConfiguration> {
             withLatestFrom(
                 this._container.renderService.renderCamera$,
                 this._navigator.stateService.currentTransform$,
-                this._navigator.panService.panImages$),
+                this._navigator.panService.panImages$,
+                this._component.configuration$),
             map(
-                ([events, render, transform, nts]:
+                ([events, render, transform, nts, configuration]:
                     [
                         MouseTouchPair,
                         RenderCamera,
                         Transform,
                         [Image, Transform, number][],
+                        PointerConfiguration,
                     ]): EulerRotation => {
                     let previousEvent: MouseEvent | Touch = events[0];
                     let event: MouseEvent | Touch = events[1];
@@ -218,7 +220,11 @@ export class DragPanHandler extends HandlerBase<PointerConfiguration> {
                     let phi: number = (movementX > 0 ? 1 : -1) * directionX.angleTo(currentDirection);
                     let theta: number = (movementY > 0 ? -1 : 1) * directionY.angleTo(currentDirection);
 
-                    const distances: number[] = ImageBoundary.viewportDistances(transform, render.perspective, this._viewportCoords);
+                    const bounds: number[] | null =
+                        ImageBoundary.viewBoundsBasic(transform, render.perspective, configuration.viewBounds);
+                    const distances: number[] = bounds ?
+                        ImageBoundary.viewportDistances(transform, render.perspective, this._viewportCoords, bounds) :
+                        ImageBoundary.viewportDistances(transform, render.perspective, this._viewportCoords);
 
                     for (const [, t] of nts) {
                         const d: number[] = ImageBoundary.viewportDistances(t, render.perspective, this._viewportCoords);

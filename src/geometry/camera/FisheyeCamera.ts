@@ -47,6 +47,12 @@ function project(
     uniforms: Uniforms): number[] {
 
     const [x, y, z] = point;
+    if (z <= 0) {
+        return [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY];
+    }
+    if (x === 0 && y === 0) {
+        return [0, 0];
+    }
     const { focal, k1, k2 } = parameters;
     const radialPeak = <number>uniforms.radialPeak;
 
@@ -90,7 +96,7 @@ vec2 projectToSfm(vec3 bearing, Parameters parameters, Uniforms uniforms) {
     float radialPeak = uniforms.radialPeak;
 
     // Projection
-    if (z < 0.) {
+    if (z <= 0.) {
         return vec2(POSITIVE_INFINITY, POSITIVE_INFINITY);
     }
 
@@ -101,8 +107,9 @@ vec2 projectToSfm(vec3 bearing, Parameters parameters, Uniforms uniforms) {
         theta = radialPeak;
     }
 
-    float xp = theta / r * x;
-    float yp = theta / r * y;
+    float scale = r > 0.0 ? theta / r : 0.0;
+    float xp = scale * x;
+    float yp = scale * y;
 
     // Distortion
     float theta2 = theta * theta;

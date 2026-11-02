@@ -65,8 +65,10 @@ export { SimpleMarkerOptions }
 // Pointer
 export { DragPanHandler } from "../component/pointer/DragPanHandler";
 export { PointerComponent } from "../component/pointer/PointerComponent";
-export { PointerConfiguration }
-    from "../component/interfaces/PointerConfiguration";
+export {
+    PointerConfiguration,
+    PointerViewBounds,
+} from "../component/interfaces/PointerConfiguration";
 export { ScrollZoomHandler } from "../component/pointer/ScrollZoomHandler";
 export { TouchZoomHandler } from "../component/pointer/TouchZoomHandler";
 

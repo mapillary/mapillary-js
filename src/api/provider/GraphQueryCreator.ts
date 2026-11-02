@@ -36,6 +36,7 @@ export class GraphQueryCreator {
             'sfm_cluster',
             'thumb_1024_url',
             'thumb_2048_url',
+            'timezone',
             'width',
         ];
         this.imageTileFields = ['url', 'z', 'x', 'y'];

@@ -28,6 +28,11 @@ export interface SpatialImageEnt extends CameraEnt, IDEnt {
     captured_at: number;
 
     /**
+     * IANA timezone at the image capture location.
+     */
+    timezone?: string;
+
+    /**
      * Original EXIF compass angle, measured in degrees.
      */
     compass_angle: number;

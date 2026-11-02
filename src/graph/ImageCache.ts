@@ -430,10 +430,12 @@ export class ImageCache {
                 const url = spatial.mesh.url;
                 if (!url) {
                     const meshId = spatial.mesh.id;
-                    const message =
-                        `Incorrect mesh URL for ${spatial.id} ` +
-                        `(${meshId}, ${url})`;
-                    console.warn(message);
+                    if (meshId != null || url != null) {
+                        const message =
+                            `Incorrect mesh URL for ${spatial.id} ` +
+                            `(${meshId}, ${url})`;
+                        console.warn(message);
+                    }
                     subscriber.next(this._createEmptyMesh());
                     subscriber.complete();
                     return;

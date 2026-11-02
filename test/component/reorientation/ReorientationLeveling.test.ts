@@ -1,6 +1,7 @@
 import {
     horizonPitchDeg,
     isLevelPlausible,
+    shouldLevelPerspective,
 } from "../../../src/component/reorientation/ReorientationComponent";
 
 /**
@@ -76,6 +77,20 @@ describe("isLevelPlausible", () => {
 
     it("accepts the first pose without a consistency baseline", () => {
         expect(isLevelPlausible(34, 60, null, null)).toBe(true);
+    });
+});
+
+describe("shouldLevelPerspective", () => {
+    it("leaves small untrusted corrections in the raw camera frame", () => {
+        expect(shouldLevelPerspective(5.85)).toBe(false);
+    });
+
+    it("accepts a material perspective correction", () => {
+        expect(shouldLevelPerspective(7)).toBe(true);
+    });
+
+    it("rejects an implausibly large correction", () => {
+        expect(shouldLevelPerspective(46)).toBe(false);
     });
 });
 

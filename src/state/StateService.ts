@@ -521,6 +521,18 @@ export class StateService {
         this._invokeContextOperation((context: IStateContext) => { context.zoomIn(delta, reference); });
     }
 
+    /**
+     * Move between discrete zoom stops (1x, 1.5x, 2x, 3x, 4x, 6x, 8x) while
+     * keeping the reference point position approximately static.
+     *
+     * @parameter {number} steps - Number of stops; negative zooms out.
+     * @parameter {Array<number>} reference - Reference point in basic coordinates.
+     */
+    public stepZoom(steps: number, reference: number[]): void {
+        this._inMotionOperation$.next(true);
+        this._invokeContextOperation((context: IStateContext) => { context.stepZoom(steps, reference); });
+    }
+
     public getCenter(): Observable<number[]> {
         return this._lastState$.pipe(
             first(),

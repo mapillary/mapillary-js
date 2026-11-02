@@ -149,6 +149,17 @@ export class Image {
     }
 
     /**
+     * Get timezone.
+     *
+     * @description IANA timezone at the image capture location.
+     *
+     * @returns {string} Image capture timezone.
+     */
+    public get timezone(): string | undefined {
+        return this._spatial.timezone;
+    }
+
+    /**
      * Get clusterId.
      *
      * @returns {string} Globally unique id of the SfM cluster to which
@@ -716,7 +727,9 @@ export class Image {
      * @ignore
      */
     public resetSpatialEdges(): void {
-        this._cache.resetSpatialEdges();
+        if (this._cache != null) {
+            this._cache.resetSpatialEdges();
+        }
     }
 
     /**

@@ -1,6 +1,5 @@
 import { Observable, Subject } from "rxjs";
 import { filter, first } from "rxjs/operators";
-import * as THREE from "three";
 
 import { Component } from "../Component";
 import { ComponentName } from "../ComponentName";
@@ -22,6 +21,13 @@ import { Sequence } from "../../graph/Sequence";
 import { isSpherical } from "../../geo/Geo";
 import { Transform } from "../../geo/Transform";
 import { ViewportCoords } from "../../geo/ViewportCoords";
+import {
+    MAX_REORIENTATION_ROLL_DEG,
+    perspectiveAutoZoom,
+    perspectiveHorizonRow,
+    perspectiveRollDeg,
+    shouldLevelPerspective,
+} from "./PerspectiveLevel";
 import { RenderCamera } from "../../render/RenderCamera";
 import { hasReconstructionMesh } from "../../util/Mesh";
 import { Container } from "../../viewer/Container";
@@ -30,21 +36,19 @@ import { Navigator } from "../../viewer/Navigator";
 // Skip a reorientation when it would move the current view less than this many
 // degrees (on either axis) — small moves are just jitter.
 const MIN_REORIENT_DEG = 15;
-const MAX_HORIZON_CORRECTION_DEG = 75;
-const MAX_REORIENTATION_ROLL_DEG = 45;
 // Abrupt roll or pitch changes between neighboring captures are reconstruction
 // errors, not plausible camera motion, so their horizon is not worth using.
 const MAX_LEVEL_ROLL_DELTA_DEG = 15;
 const MAX_LEVEL_PITCH_DELTA_DEG = 15;
-const MAX_PERSPECTIVE_AUTO_ZOOM = 0.75;
-const MAX_PERSPECTIVE_FOV = 125;
-const PERSPECTIVE_EDGE_MARGIN = 1e-3;
 const USER_ZOOM_EPSILON = 1e-2;
 
 /** Pitch correction, in degrees, that levelling to a horizon row implies. */
 export function horizonPitchDeg(horizonY: number): number {
     return (0.5 - horizonY) * 180;
 }
+
+// The perspective levelling decision is shared with Time Travel comparisons.
+export { shouldLevelPerspective };
 
 /**
  * Whether a reconstructed pose is plausible enough to level to. Judged on its
@@ -63,6 +67,20 @@ export function isLevelPlausible(
     return baselineRollDeg == null || baselinePitchDeg == null ||
         Math.abs(rollDeg - baselineRollDeg) <= MAX_LEVEL_ROLL_DELTA_DEG &&
         Math.abs(pitchDeg - baselinePitchDeg) <= MAX_LEVEL_PITCH_DELTA_DEG;
+}
+
+// getCenter can still describe an interpolated camera when async preparation
+// resolves. Sequence steps carry the incoming bearing, so use its snapshot.
+export function settledViewX(
+    direction: NavigationDirection,
+    incomingBearing: number,
+    compassAngle: number,
+    sampledX: number): number {
+    const sequenceStep = direction === NavigationDirection.Next ||
+        direction === NavigationDirection.Prev;
+    return sequenceStep && Number.isFinite(incomingBearing) &&
+        Number.isFinite(compassAngle) ?
+        bearingToBasicX(incomingBearing, compassAngle) : sampledX;
 }
 
 /**
@@ -121,6 +139,7 @@ export class ReorientationComponent
     private _reorientToFront: boolean;
     private _reorientOnSpatialNav: boolean;
     private _adoptedView: number[];
+    private _adoptedZoom: number;
     private _adoptedSequence: string;
     private _settled$: Subject<ReorientationSettledEvent> =
         new Subject<ReorientationSettledEvent>();
@@ -190,6 +209,13 @@ export class ReorientationComponent
         if (!result || !result.valid || typeof result.travel !== "number") {
             return null;
         }
+        if (result.cam === "perspective") {
+            if (id === this._activeId && typeof this._liveBearing === "number") {
+                return this._mapBearing(result, this._liveBearing);
+            }
+            return typeof result.viewCompassAngle === "number" ?
+                result.viewCompassAngle : null;
+        }
         if (!this._reorientToFront &&
             result.seq != null && result.seq === this._lastSeq) {
             const active = this._engine.get(this._activeId);
@@ -247,11 +273,19 @@ export class ReorientationComponent
      * travel direction. Coordinates are passed in rather than read from the
      * viewer so the call does not race the host applying them.
      */
-    public adoptView(basic: number[]): void {
+    public adoptView(basic: number[], zoom?: number): void {
         this._adoptedView = basic != null && basic.length === 2 ?
             [basic[0], basic[1]] : null;
+        this._adoptedZoom = this._adoptedView != null &&
+            typeof zoom === "number" && Number.isFinite(zoom) ? zoom : null;
         this._adoptedSequence = this._adoptedView != null ?
             this._imageSequence : null;
+    }
+
+    /** Re-run reorientation for the displayed image without navigating. */
+    public reorientCurrent(): void {
+        this._navigator.stateService.currentImage$.pipe(first()).subscribe(
+            (image: Image): void => { this._reorientImage(image); });
     }
 
     /**
@@ -342,54 +376,7 @@ export class ReorientationComponent
         // currentImage$ fires reliably on every navigation, including in-app
         // jumps to another sequence (currentState$ did not deliver those).
         subs.push(this._navigator.stateService.currentImage$.subscribe(
-            (image: Image): void => {
-                if (!image) {
-                    return;
-                }
-                this._currentTransform = new Transform(
-                    image.exifOrientation,
-                    image.width,
-                    image.height,
-                    image.scale,
-                    image.rotation,
-                    [0, 0, 0],
-                    image.image,
-                    image.camera);
-                this._levelAccepted = false;
-                const fromId = this._activeId;
-                if (this._adoptedView != null &&
-                    this._adoptedSequence == null) {
-                    this._adoptedSequence = image.sequenceId;
-                }
-                this._sequenceChanged = fromId != null &&
-                    image.sequenceId !== this._imageSequence;
-                if (this._sequenceChanged) {
-                    this._navigator.stateService.setZoom(0);
-                    this._appliedPerspectiveZoom = 0;
-                    this._userZoomOverride = false;
-                }
-                this._activeId = image.id;
-                this._imageSequence = image.sequenceId;
-                // Snapshot now, synchronously with the change. By the time the
-                // engine resolves, the transition has already begun moving the
-                // camera, so neither the live bearing nor getCenter() still
-                // describes the view the user carried in.
-                this._incomingBearing = this._liveBearing;
-                // Consume the direction here, synchronously with the landing, so
-                // it attributes to this image and not a later re-emit.
-                const direction = this._navigator.consumeMoveDirection();
-                const commitSequenceView = this._userViewChanged &&
-                    (direction === NavigationDirection.Next ||
-                        direction === NavigationDirection.Prev);
-                this._userViewChanged = false;
-                this._reorient(
-                    image,
-                    direction,
-                    fromId,
-                    this._dragging,
-                    commitSequenceView,
-                    this._userViewRevision);
-            }));
+            (image: Image): void => { this._reorientImage(image); }));
 
         subs.push(this._container.renderService.bearing$.subscribe(
             (bearing: number): void => { this._liveBearing = bearing; }));
@@ -424,6 +411,55 @@ export class ReorientationComponent
 
     protected _getDefaultConfiguration(): ReorientationConfiguration {
         return {};
+    }
+
+    private _reorientImage(image: Image): void {
+        if (!image) {
+            return;
+        }
+        this._currentTransform = new Transform(
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
+            [0, 0, 0],
+            image.image,
+            image.camera);
+        this._levelAccepted = false;
+        const fromId = this._activeId;
+        if (this._adoptedView != null &&
+            this._adoptedSequence == null) {
+            this._adoptedSequence = image.sequenceId;
+        }
+        this._sequenceChanged = fromId != null &&
+            image.sequenceId !== this._imageSequence;
+        if (this._sequenceChanged) {
+            this._navigator.stateService.setZoom(0);
+            this._appliedPerspectiveZoom = 0;
+            this._userZoomOverride = false;
+        }
+        this._activeId = image.id;
+        this._imageSequence = image.sequenceId;
+        // Snapshot now, synchronously with the change. By the time the engine
+        // resolves, the transition has already begun moving the camera, so
+        // neither the live bearing nor getCenter() still describes the view
+        // the user carried in.
+        this._incomingBearing = this._liveBearing;
+        // Consume the direction here, synchronously with the landing, so it
+        // attributes to this image and not a later re-emit.
+        const direction = this._navigator.consumeMoveDirection();
+        const commitSequenceView = this._userViewChanged &&
+            (direction === NavigationDirection.Next ||
+                direction === NavigationDirection.Prev);
+        this._userViewChanged = false;
+        this._reorient(
+            image,
+            direction,
+            fromId,
+            this._dragging,
+            commitSequenceView,
+            this._userViewRevision);
     }
 
     private _reorient(
@@ -468,7 +504,12 @@ export class ReorientationComponent
                     return;
                 }
                 if (!isSpherical(image.cameraType)) {
-                    this._levelPerspective(id);
+                    if (freshSequence) {
+                        this._levelRollDeg = null;
+                        this._levelPitchDeg = null;
+                    }
+                    this._lastSeq = sequenceId;
+                    this._levelPerspective(id, result);
                     return;
                 }
                 // A disconnected image still hard-cuts after navigation so its
@@ -542,22 +583,73 @@ export class ReorientationComponent
                 }
 
                 if (!result || !result.valid) {
-                    this._levelAccepted = false;
-                    // Switching out of Gravity can reset a center queued before
-                    // the image loaded, so restore an explicit shared-link view
-                    // after the fallback transition. Keep it pending because an
-                    // endpoint has no travel result from which to derive the
-                    // offset that its first valid same-sequence neighbor needs.
+                    // Travel can be unavailable even when the reconstruction
+                    // still provides a valid gravity frame.
                     const adoptedView = this._adoptedView;
-                    this._navigator.stateService.traverse();
+                    const fallback = (): void => {
+                        this._levelAccepted = false;
+                        this._navigator.stateService.traverse();
+                        if (adoptedView != null) {
+                            this._navigator.stateService.setCenter(adoptedView);
+                        } else if (resetView) {
+                            this._navigator.stateService.setCenter([0.5, 0.5]);
+                        }
+                    };
                     if (resetView) {
                         this._resetOffset();
                     }
-                    if (adoptedView != null) {
-                        this._navigator.stateService.setCenter(adoptedView);
-                    } else if (resetView) {
-                        this._navigator.stateService.setCenter([0.5, 0.5]);
+                    if (!levelingActive) {
+                        fallback();
+                        return;
                     }
+                    this._navigator.stateService.getCenter().pipe(first())
+                        .subscribe((center: number[]): void => {
+                            if (this._activeId !== id ||
+                                this._engine !== engine) {
+                                return;
+                            }
+                            const viewX = adoptedView?.[0] ?? settledViewX(
+                                direction,
+                                this._incomingBearing,
+                                image.compassAngle,
+                                center[0]);
+                            const endpointHorizonRow =
+                                this._horizonRow(viewX);
+                            const endpointRollDeg =
+                                endpointHorizonRow == null ? null :
+                                    this._rollDeg([
+                                        viewX,
+                                        endpointHorizonRow,
+                                    ]);
+                            if (endpointHorizonRow == null ||
+                                endpointRollDeg == null ||
+                                endpointRollDeg >
+                                    MAX_REORIENTATION_ROLL_DEG ||
+                                !this._acceptLevel(
+                                    endpointRollDeg,
+                                    endpointHorizonRow)) {
+                                fallback();
+                                return;
+                            }
+                            this._levelAccepted = true;
+                            this._computedBasicX = viewX;
+                            this._navigator.stateService.gravityTraverse();
+                            if (adoptedView != null) {
+                                this._navigator.stateService
+                                    .setCenter(adoptedView);
+                                return;
+                            }
+                            if (!this._ySeeded) {
+                                this._userOffsetY = resetView ? 0 :
+                                    center[1] - this._horizonY(center[0]);
+                                this._ySeeded = true;
+                            }
+                            const targetY = Math.max(0, Math.min(
+                                1,
+                                endpointHorizonRow + this._userOffsetY));
+                            this._navigator.stateService
+                                .setCenter([viewX, targetY]);
+                        });
 
                     return;
                 }
@@ -662,10 +754,25 @@ export class ReorientationComponent
                         // host may not have applied them yet, and steering there
                         // ourselves would animate a rotation the user did not
                         // ask for. Equal to targetX, so this image never moves.
-                        let viewX = center[0];
+                        let viewX = settledViewX(
+                            direction,
+                            this._incomingBearing,
+                            result.cca,
+                            center[0]);
                         if (this._adoptedView != null) {
                             const adopted = this._adoptedView;
+                            const adoptedZoom = this._adoptedZoom;
                             this._clearAdoptedView();
+                            // The host may have set this view before the first
+                            // image existed. State transitions above can discard
+                            // that request, so apply it in the loaded image's
+                            // final frame rather than only adopting its offset.
+                            this._navigator.stateService.setCenter(adopted);
+                            if (adoptedZoom != null) {
+                                this._navigator.stateService.setZoom(adoptedZoom);
+                            }
+                            center = adopted;
+                            pitchResetDeg = 0;
                             viewX = adopted[0];
                             this._userOffsetX =
                                 wrapDelta(adopted[0] - result.basicX);
@@ -790,6 +897,7 @@ export class ReorientationComponent
 
     private _clearAdoptedView(): void {
         this._adoptedView = null;
+        this._adoptedZoom = null;
         this._adoptedSequence = null;
     }
 
@@ -854,55 +962,94 @@ export class ReorientationComponent
             .catch((): void => { /* skip */ });
     }
 
-    private _levelPerspective(id: string): void {
-        if (!this._automaticHorizonLeveling) {
+    private _levelPerspective(
+        id: string,
+        result: ReorientationResult): void {
+        const adoptedView = this._adoptedView;
+        const adoptedZoom = this._adoptedZoom;
+        const stateService = this._navigator.stateService;
+        const settle = (): void => {
+            const bearing = this.getReorientedBearing(id);
+            if (typeof bearing === "number") {
+                this._settled$.next({ id, bearing });
+            }
+        };
+        const fallback = (render?: RenderCamera): void => {
+            this._levelAccepted = false;
+            stateService.traverse();
+            if (adoptedView != null) {
+                stateService.setCenter(adoptedView);
+                if (adoptedZoom != null) {
+                    stateService.setZoom(adoptedZoom);
+                }
+            } else if (render != null) {
+                stateService.zoomTo(
+                    this._userZoomOverride ? render.zoom : 0);
+                this._appliedPerspectiveZoom = 0;
+            }
             this._clearAdoptedView();
-            return;
-        }
-        if (this._adoptedView != null) {
-            this._navigator.stateService.gravityTraverse();
-            this._clearAdoptedView();
+            settle();
+        };
+        if (!this._automaticHorizonLeveling ||
+            result?.computedCompassOutlier === true) {
+            fallback();
             return;
         }
 
         this._navigator.stateService.getCenter().pipe(first()).subscribe(
             (): void => {
-                if (this._activeId !== id || this._adoptedView != null ||
-                    this._dragging || this._userViewChanged) {
+                if (this._activeId !== id || this._dragging ||
+                    this._userViewChanged) {
                     this._clearAdoptedView();
                     return;
                 }
-                const target = [0.5, this._horizonY(0.5)];
+                const targetX = adoptedView?.[0] ?? 0.5;
+                const horizonY = this._horizonY(targetX);
+                const target = [targetX, horizonY];
+                const rollDeg = horizonY == null ? null :
+                    this._rollDeg(target);
+                if (!shouldLevelPerspective(rollDeg) ||
+                    !this._acceptLevel(rollDeg, horizonY)) {
+                    fallback();
+                    return;
+                }
                 this._container.renderService.renderCameraFrame$.pipe(
                     filter((render: RenderCamera): boolean =>
                         render.currentImageId === id),
                     first(),
                 ).subscribe((render: RenderCamera): void => {
-                    if (this._activeId !== id || this._adoptedView != null ||
-                        this._dragging || this._userViewChanged) {
+                    if (this._activeId !== id || this._dragging ||
+                        this._userViewChanged) {
                         this._clearAdoptedView();
                         return;
                     }
-                    const zoom = this._perspectiveAutoZoom(
-                        target, render.unzoomedCurrentFov);
-                    const stateService = this._navigator.stateService;
                     if (!this._sequenceChanged &&
                         Math.abs(render.zoom - this._appliedPerspectiveZoom) >
                             USER_ZOOM_EPSILON) {
                         this._userZoomOverride = true;
                     }
+                    const fittedTarget = adoptedView ?? target;
+                    const zoom = this._perspectiveAutoZoom(
+                        fittedTarget, render.unzoomedCurrentFov);
                     if (zoom == null) {
-                        stateService.traverse();
-                        stateService.zoomTo(
-                            this._userZoomOverride ? render.zoom : 0);
-                        this._appliedPerspectiveZoom = 0;
+                        fallback(render);
                         return;
                     }
+                    this._levelAccepted = true;
                     stateService.gravityTraverse();
-                    stateService.rotateToBasicSmooth(target);
-                    stateService.zoomTo(
-                        this._userZoomOverride ? render.zoom : zoom);
-                    this._appliedPerspectiveZoom = zoom;
+                    const appliedZoom = adoptedView != null ?
+                        Math.max(zoom, adoptedZoom ?? 0) :
+                        this._userZoomOverride ? render.zoom : zoom;
+                    if (adoptedView != null) {
+                        stateService.setCenter(adoptedView);
+                        stateService.setZoom(appliedZoom);
+                        this._clearAdoptedView();
+                    } else {
+                        stateService.rotateToBasicSmooth(target);
+                        stateService.zoomTo(appliedZoom);
+                    }
+                    this._appliedPerspectiveZoom = appliedZoom;
+                    settle();
                 });
             });
     }
@@ -925,93 +1072,21 @@ export class ReorientationComponent
     }
 
     private _rollDeg(center: number[]): number | null {
-        const transform = this._currentTransform;
-        if (transform == null) {
-            return null;
-        }
-        const origin = new THREE.Vector3().fromArray(
-            transform.unprojectSfM([0, 0], 0));
-        const direction = new THREE.Vector3().fromArray(
-            transform.unprojectBasic(center, 10))
-            .sub(origin)
-            .normalize();
-        const imageUp = transform.upVector()
-            .addScaledVector(direction, -transform.upVector().dot(direction))
-            .normalize();
-        const gravityUp = new THREE.Vector3(0, 0, 1)
-            .addScaledVector(direction, -direction.z)
-            .normalize();
-        const rollDeg = imageUp.angleTo(gravityUp) * 180 / Math.PI;
-        return Number.isFinite(rollDeg) ? rollDeg : null;
+        return perspectiveRollDeg(this._currentTransform, center);
     }
 
     private _perspectiveAutoZoom(
         center: number[], baseFov: number): number | null {
-        const transform = this._currentTransform;
         const element = this._container.container;
-        if (transform == null || element.offsetHeight === 0) {
+        if (this._currentTransform == null || element.offsetHeight === 0) {
             return null;
         }
-
-        const origin = new THREE.Vector3().fromArray(
-            transform.unprojectSfM([0, 0], 0));
-        const rollDeg = this._rollDeg(center);
-        if (rollDeg == null ||
-            rollDeg > MAX_REORIENTATION_ROLL_DEG) {
-            return null;
-        }
-
-        const camera = new THREE.PerspectiveCamera(
-            60,
+        return perspectiveAutoZoom(
+            this._currentTransform,
             element.offsetWidth / element.offsetHeight,
-            1e-1,
-            1e4);
-        camera.position.copy(origin);
-
-        const maxFov = (basic: number[], up: THREE.Vector3): number => {
-            camera.up.copy(up);
-            camera.lookAt(new THREE.Vector3().fromArray(
-                transform.unprojectBasic(basic, 10)));
-            camera.updateMatrixWorld(true);
-
-            const fits = (fov: number): boolean => {
-                camera.fov = fov;
-                camera.updateProjectionMatrix();
-                const corners = [
-                    this._viewportCoords.viewportToBasic(
-                        -1, 1, transform, camera),
-                    this._viewportCoords.viewportToBasic(
-                        1, 1, transform, camera),
-                    this._viewportCoords.viewportToBasic(
-                        1, -1, transform, camera),
-                    this._viewportCoords.viewportToBasic(
-                        -1, -1, transform, camera),
-                ];
-                return corners.every((point: number[]): boolean =>
-                    point != null &&
-                    point[0] >= PERSPECTIVE_EDGE_MARGIN &&
-                    point[0] <= 1 - PERSPECTIVE_EDGE_MARGIN &&
-                    point[1] >= PERSPECTIVE_EDGE_MARGIN &&
-                    point[1] <= 1 - PERSPECTIVE_EDGE_MARGIN);
-            };
-
-            let low = 0;
-            let high = MAX_PERSPECTIVE_FOV;
-            for (let i = 0; i < 16; i++) {
-                const middle = (low + high) / 2;
-                if (fits(middle)) {
-                    low = middle;
-                } else {
-                    high = middle;
-                }
-            }
-            return low;
-        };
-
-        const levelFov = maxFov(center, new THREE.Vector3(0, 0, 1));
-        const zoom = Math.max(0, Math.log(baseFov / levelFov) / Math.log(2));
-        return Number.isFinite(zoom) && zoom <= MAX_PERSPECTIVE_AUTO_ZOOM ?
-            zoom : null;
+            center,
+            baseFov,
+            this._viewportCoords);
     }
 
     private _captureOffset(): void {
@@ -1044,35 +1119,7 @@ export class ReorientationComponent
     }
 
     private _horizonRow(x: number): number | null {
-        const transform = this._currentTransform;
-        if (transform == null) {
-            return null;
-        }
-
-        const cameraZ = transform.unprojectSfM([0, 0], 0)[2];
-        let low = 0;
-        let high = 1;
-        let lowZ = transform.unprojectBasic([x, low], 10)[2] - cameraZ;
-        const highZ = transform.unprojectBasic([x, high], 10)[2] - cameraZ;
-        if (lowZ * highZ > 0) {
-            return null;
-        }
-
-        for (let i = 0; i < 32; i++) {
-            const middle = (low + high) / 2;
-            const middleZ =
-                transform.unprojectBasic([x, middle], 10)[2] - cameraZ;
-            if (lowZ * middleZ > 0) {
-                low = middle;
-                lowZ = middleZ;
-            } else {
-                high = middle;
-            }
-        }
-
-        const horizon = (low + high) / 2;
-        return Math.abs(horizon - 0.5) * 180 <=
-            MAX_HORIZON_CORRECTION_DEG ? horizon : null;
+        return perspectiveHorizonRow(this._currentTransform, x);
     }
 
     private _resetOffset(): void {

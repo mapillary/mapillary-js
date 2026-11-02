@@ -236,6 +236,10 @@ export class StateContext implements IStateContext {
         this._state.zoomIn(delta, reference);
     }
 
+    public stepZoom(steps: number, reference: number[]): void {
+        this._state.stepZoom(steps, reference);
+    }
+
     public setSpeed(speed: number): void {
         this._state.setSpeed(speed);
     }
@@ -257,8 +261,11 @@ export class StateContext implements IStateContext {
     }
 
     private _transition(to: State): void {
+        const from = this._transitions.getState(this._state);
+        if (from === to) {
+            return;
+        }
         if (!this._transitions.validate(this._state, to)) {
-            const from = this._transitions.getState(this._state);
             console.warn(
                 `Transition not valid (${State[from]} - ${State[to]})`);
             return;

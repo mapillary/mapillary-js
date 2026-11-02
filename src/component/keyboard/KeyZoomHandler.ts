@@ -73,7 +73,7 @@ export class KeyZoomHandler extends HandlerBase<KeyboardConfiguration> {
                     const unprojected: THREE.Vector3 = this._viewportCoords.unprojectFromViewport(0, 0, render.perspective);
                     const reference: number[] = transform.projectBasic(unprojected.toArray());
 
-                    this._navigator.stateService.zoomIn(delta, reference);
+                    this._navigator.stateService.stepZoom(delta, reference);
                 });
     }
 

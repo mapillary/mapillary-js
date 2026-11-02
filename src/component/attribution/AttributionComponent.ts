@@ -11,6 +11,37 @@ import { Component } from "../Component";
 import { ComponentConfiguration } from "../interfaces/ComponentConfiguration";
 import { ComponentName } from "../ComponentName";
 
+export function formatCaptureDate(
+    capturedAt: number,
+    compact: boolean,
+    locales?: string | string[],
+    timeZone?: string): string {
+    const date = new Date(capturedAt);
+
+    if (isNaN(date.getTime())) {
+        return date.toString();
+    }
+
+    const options: Intl.DateTimeFormatOptions = compact ?
+        { year: "numeric" } :
+        { day: "numeric", month: "short", year: "numeric" };
+
+    if (timeZone) {
+        options.timeZone = timeZone;
+    }
+
+    try {
+        return new Intl.DateTimeFormat(
+            compact ? "en-US" : locales,
+            options).format(date);
+    } catch {
+        options.timeZone = "UTC";
+        return new Intl.DateTimeFormat(
+            compact ? "en-US" : locales,
+            options).format(date);
+    }
+}
+
 export class AttributionComponent extends Component<ComponentConfiguration> {
     public static componentName: ComponentName = "attribution";
 
@@ -28,6 +59,7 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
                                     exploreUrl,
                                     image.id,
                                     image.capturedAt,
+                                    image.timezone,
                                     size.width);
                             return {
                                 name: this._name,
@@ -54,11 +86,12 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
         exploreUrl: string,
         imageId: string,
         capturedAt: number,
+        timeZone: string | undefined,
         viewportWidth: number)
         : vd.VNode {
         const compact = viewportWidth <= 640;
 
-        const date = this._makeDate(capturedAt, compact);
+        const date = [this._makeDate(capturedAt, compact, timeZone)];
         const by = this._makeBy(creatorUsername, exploreUrl, imageId, compact);
 
         const compactClass = compact ?
@@ -67,7 +100,7 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
         return vd.h(
             "div.mapillary-attribution-container" + compactClass,
             {},
-            [...by, date]);
+            [...by, ...date]);
     }
 
     private _makeBy(
@@ -152,20 +185,19 @@ export class AttributionComponent extends Component<ComponentConfiguration> {
         return [image];
     }
 
-    private _makeDate(capturedAt: number, compact: boolean): vd.VNode {
-        const date = new Date(capturedAt)
-            .toDateString()
-            .split(" ");
-
-        const formatted = (date.length > 3 ?
-            compact ?
-                [date[3]] :
-                [date[1], date[2] + ",", date[3]] :
-            date).join(" ");
-
+    private _makeDate(
+        capturedAt: number,
+        compact: boolean,
+        timeZone?: string): vd.VNode {
         return vd.h(
             "div.mapillary-attribution-date",
-            { textContent: formatted },
+            {
+                textContent: formatCaptureDate(
+                    capturedAt,
+                    compact,
+                    undefined,
+                    timeZone),
+            },
             []);
     }
 }
