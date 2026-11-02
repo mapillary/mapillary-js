@@ -30,6 +30,7 @@ import { ViewportSize } from "../../render/interfaces/ViewportSize";
 import { VirtualNodeHash } from "../../render/interfaces/VirtualNodeHash";
 import { AnimationFrame } from "../../state/interfaces/AnimationFrame";
 import { ComponentSize } from "../util/ComponentSize";
+import { createTooltipProperties } from "../util/Tooltip";
 import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { isSpherical } from "../../geo/Geo";
@@ -276,7 +277,10 @@ export class BearingComponent extends Component<BearingConfiguration> {
                             name: this._name,
                             vNode: vd.h(
                                 "div.mapillary-bearing-indicator-container" + compact,
-                                { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
+                                createTooltipProperties(
+                                    "Bearing",
+                                    { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
+                                    "left"),
                                 [
                                     background,
                                     fovIndicator,
