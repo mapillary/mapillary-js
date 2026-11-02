@@ -56,6 +56,7 @@ import { TextureProvider } from "../../tile/TextureProvider";
 import { Component } from "../Component";
 import {
     SliderConfiguration,
+    SliderConfigurationIds,
     SliderConfigurationMode,
 } from "../interfaces/SliderConfiguration";
 import { Transform } from "../../geo/Transform";
@@ -167,6 +168,32 @@ export class SliderComponent extends Component<SliderConfiguration> {
         this._position$.next(position);
     }
 
+    /**
+     * Cache a comparison pair, including its image assets, without showing it.
+     *
+     * @description A following `configure` with the same `ids` then
+     * switches to the pair within one frame, so the previous pair stays
+     * on screen while the next one loads instead of the viewer showing a
+     * partially configured state.
+     *
+     * @param {SliderConfigurationIds} ids Background and foreground ids.
+     * @returns {Promise<void>} Resolves when both images are cached and
+     * rejects when either fails to load.
+     */
+    public preload(ids: SliderConfigurationIds): Promise<void> {
+        if (!ids || !ids.background || !ids.foreground) {
+            return Promise.reject(new Error("Slider preload requires background and foreground ids"));
+        }
+        const graphService = this._navigator.graphService;
+        return new Promise<void>((resolve, reject) => {
+            observableZip(
+                graphService.cacheImage$(ids.background),
+                graphService.cacheImage$(ids.foreground)).pipe(
+                    first())
+                .subscribe(() => resolve(), reject);
+        });
+    }
+
     protected _activate(): void {
         const subs = this._subscriptions;
         subs.push(this._domRenderer.mode$
@@ -200,6 +227,29 @@ export class SliderComponent extends Component<SliderConfiguration> {
             observableMerge(this._domRenderer.position$, this._position$));
         const safety = new SliderAutomaticMotion();
         subs.push(new Subscription(() => safety.dispose()));
+        // Pair options (alignment, motion, scale, correction, visibility)
+        // describe the configured ids. Until the state shows that pair, keep
+        // the options the shown pair was configured with, so selecting a pair
+        // that is still loading never re-renders the old one with the new
+        // options (a hidden slider or a different framing for some frames).
+        // Frames, not the replayed last one: a render between frames would use
+        // the previous render camera with the new pair and options.
+        const pairState$ = observableCombineLatest(
+            this.configuration$,
+            this._navigator.stateService.currentState$).pipe(
+                scan(
+                    (previous: SliderPairState, [configuration, frame]: [SliderConfiguration, AnimationFrame]):
+                        SliderPairState => ({
+                            // Component configuration is one mutated object: keep a copy.
+                            configuration: previous == null || sliderShowsPair(configuration, frame.state) ?
+                                { ...configuration } : previous.configuration,
+                            frame,
+                        }),
+                    null),
+                publishReplay(1),
+                refCount());
+        const pairConfiguration$ = pairState$.pipe(
+            map((pair: SliderPairState): SliderConfiguration => pair.configuration));
         // Snapshot only changed views. Immediately revoke coverage, then check
         // after 100ms of stability: never raycast on each animation/drag frame.
         const coverageView$ = this.configuration$.pipe(
@@ -229,11 +279,10 @@ export class SliderComponent extends Component<SliderConfiguration> {
         // One decision (including its exact frame/config) is shared by DOM and
         // GL. In particular, a new ids selection can never enable the old pair.
         const decision$ = observableCombineLatest(
-            this.configuration$,
-            this._navigator.stateService.currentState$,
+            pairState$,
             coverageView$,
             this._container.renderService.size$.pipe(startWith(null))).pipe(
-                map(([configuration, frame, view, size]) => {
+                map(([{ configuration, frame }, view, size]) => {
                     const automatic = configuration.automaticMotion === true && configuration.viewAligned === true;
                     const stationaryOnly = sliderViewAlignedStationary(frame.state, configuration.viewAligned === true);
                     const currentView = view && size && view.size.width === size.width && view.size.height === size.height;
@@ -247,12 +296,12 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 }),
                 publishReplay(1),
                 refCount());
-        const viewAligned$ = this.configuration$.pipe(
+        const viewAligned$ = pairConfiguration$.pipe(
             map(
                 (configuration: SliderConfiguration): boolean =>
                     configuration.viewAligned === true),
             distinctUntilChanged());
-        const screenSpace$ = this.configuration$.pipe(
+        const screenSpace$ = pairConfiguration$.pipe(
             map((configuration: SliderConfiguration): boolean =>
                 configuration.screenSpace === true),
             distinctUntilChanged());
@@ -278,23 +327,9 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     return isSpherical(frame.state.currentImage.cameraType);
                 }),
             distinctUntilChanged());
-        const sliderVisible$ = observableCombineLatest(
-            this._configuration$.pipe(
-                map(
-                    (configuration: SliderConfiguration): boolean => {
-                        return configuration.sliderVisible;
-                    })),
-            this._navigator.stateService.currentState$,
-            viewAligned$).pipe(
-                map(
-                    ([sliderVisible, frame, viewAligned]:
-                        [boolean, AnimationFrame, boolean]): boolean => {
-                        return sliderVisible && !(frame.state.currentImage == null ||
-                            frame.state.previousImage == null ||
-                            (!viewAligned && isSpherical(
-                                frame.state.currentImage.cameraType) &&
-                                !isSpherical(frame.state.previousImage.cameraType)));
-                    }),
+        const sliderVisible$ = pairState$.pipe(
+                map(({ configuration, frame }: SliderPairState): boolean =>
+                    sliderPairVisible(configuration, frame.state)),
                 distinctUntilChanged());
         this._waitSubscription = observableCombineLatest(
             interactionDecision$,
@@ -345,19 +380,8 @@ export class SliderComponent extends Component<SliderConfiguration> {
             screenSpace$).pipe(
                 map(
                     ([position, spherical, visible, render, transform, screenSpace]:
-                        [number, boolean, boolean, RenderCamera, Transform, boolean]): [number, boolean] => {
-                        if (screenSpace) {
-                            return [visible ? position : 1, true];
-                        }
-                        if (!spherical) {
-                            return [visible ? position : 1, false];
-                        }
-                        const basicMin: number[] = this._viewportCoords.viewportToBasic(-1.15, 0, transform, render.perspective);
-                        const basicMax: number[] = this._viewportCoords.viewportToBasic(1.15, 0, transform, render.perspective);
-                        const shiftedMax: number = basicMax[0] < basicMin[0] ? basicMax[0] + 1 : basicMax[0];
-                        const basicPosition: number = basicMin[0] + position * (shiftedMax - basicMin[0]);
-                        return [basicPosition > 1 ? basicPosition - 1 : basicPosition, false];
-                    }),
+                        [number, boolean, boolean, RenderCamera, Transform, boolean]): [number, boolean] =>
+                        this._curtain(position, spherical, visible, render, transform, screenSpace)),
                 map(
                     ([position, screenSpace]: [number, boolean]): GLRendererOperation => {
                         return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
@@ -366,7 +390,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
                         };
                     }))
             .subscribe(this._glRendererOperation$));
-        subs.push(this._configuration$.pipe(
+        subs.push(pairConfiguration$.pipe(
             map((configuration: SliderConfiguration): number[] => configuration.viewCorrection ?? null),
             distinctUntilChanged((a: number[], b: number[]): boolean => JSON.stringify(a) === JSON.stringify(b)),
             map((correction: number[]): GLRendererOperation => (glRenderer): SliderGLRenderer => {
@@ -374,7 +398,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 return glRenderer;
             }))
             .subscribe(this._glRendererOperation$));
-        subs.push(this._configuration$.pipe(
+        subs.push(pairConfiguration$.pipe(
             map((configuration: SliderConfiguration): number => configuration.viewScale ?? 1),
             distinctUntilChanged(),
             map((scale: number): GLRendererOperation => (glRenderer): SliderGLRenderer => {
@@ -383,8 +407,23 @@ export class SliderComponent extends Component<SliderConfiguration> {
             }))
             .subscribe(this._glRendererOperation$));
         subs.push(decision$.pipe(
-            map((decision): GLRendererOperation => (glRenderer): SliderGLRenderer => {
+            // The first frame of a newly activated slider renders as soon as
+            // this update lands, before the curtain stream sees that frame.
+            // Apply its curtain here too, or it renders with the default one.
+            withLatestFrom(
+                position$,
+                this._container.renderService.renderCamera$.pipe(startWith(null)),
+                this._navigator.stateService.currentTransform$.pipe(startWith(null))),
+            map(([decision, position, render, transform]): GLRendererOperation => (glRenderer): SliderGLRenderer => {
                 const c = decision.configuration;
+                const state = decision.frame.state;
+                const spherical = !!state.currentImage && isSpherical(state.currentImage.cameraType);
+                const screenSpace = c.screenSpace === true;
+                if (screenSpace || !spherical || render != null && transform != null) {
+                    const visible = sliderPairVisible(c, state);
+                    const [curtain, inScreen] = this._curtain(position, spherical, visible, render, transform, screenSpace);
+                    glRenderer.updateCurtain(curtain, inScreen);
+                }
                 glRenderer.updateCurtainFeather(c.curtainFeather);
                 if (decision.automatic) {
                     glRenderer.update(decision.frame, decision.mode,
@@ -402,23 +441,30 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     return configuration.ids != null;
                 }),
             switchMap(
-                (configuration: SliderConfiguration): Observable<SliderCombination & { viewAligned: boolean }> => {
+                (configuration: SliderConfiguration): Observable<SliderPairLoad> => {
                     return observableZip(
                         this._catchCacheImage$(configuration.ids.background),
                         this._catchCacheImage$(configuration.ids.foreground)).pipe(
                             // Read the live source view after hydration, so wheel
                             // zoom while the new background loads is not undone.
+                            // The latest frame's state is the live context: a
+                            // cached pair then switches before the next frame
+                            // renders, together with any view change made in
+                            // the same task (no frame of old pair at new view).
                             switchMap((images: [Image, Image]) =>
-                                this._navigator.stateService.currentState$.pipe(
+                                this._navigator.stateService.lastState$.pipe(
                                     first(),
-                                    map((frame: AnimationFrame): SliderCombination & { viewAligned: boolean } => ({
+                                    map((frame: AnimationFrame): SliderPairLoad => ({
                                         images: { background: images[0], foreground: images[1] },
                                         state: frame.state,
                                         viewAligned: configuration.viewAligned === true,
+                                        interactive: configuration.viewAligned === true ||
+                                            configuration.mode === SliderConfigurationMode.Stationary ||
+                                            images.some((i: Image) => isSpherical(i.cameraType)),
                                     })))));
                 }))
             .subscribe(
-                (co: SliderCombination & { viewAligned: boolean }): void => {
+                (co: SliderPairLoad): void => {
                     if (co.state.currentImage != null &&
                         co.state.previousImage != null &&
                         co.state.currentImage.id === co.images.foreground.id &&
@@ -427,6 +473,15 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     }
                     const center = co.viewAligned && co.state.currentImage.id === co.images.foreground.id ?
                         co.state.currentTransform.projectBasic(co.state.camera.lookat.toArray()) : null;
+                    // Leave traversal before changing the trajectory: a
+                    // traversing state animates its first frame from the
+                    // comparison's viewpoint (a flash when the slider opens).
+                    // Same rule as the wait subscription; a no-op when waiting.
+                    if (co.interactive) {
+                        this._navigator.stateService.waitInteractively();
+                    } else {
+                        this._navigator.stateService.wait();
+                    }
                     if (co.state.currentImage.id === co.images.background.id) {
                         this._navigator.stateService.setImages([co.images.foreground]);
                     } else if (co.state.currentImage.id === co.images.foreground.id &&
@@ -868,6 +923,26 @@ export class SliderComponent extends Component<SliderConfiguration> {
             sliderVisible: true,
         };
     }
+    private _curtain(
+        position: number,
+        spherical: boolean,
+        visible: boolean,
+        render: RenderCamera,
+        transform: Transform,
+        screenSpace: boolean): [number, boolean] {
+        if (screenSpace) {
+            return [visible ? position : 1, true];
+        }
+        if (!spherical) {
+            return [visible ? position : 1, false];
+        }
+        const basicMin: number[] = this._viewportCoords.viewportToBasic(-1.15, 0, transform, render.perspective);
+        const basicMax: number[] = this._viewportCoords.viewportToBasic(1.15, 0, transform, render.perspective);
+        const shiftedMax: number = basicMax[0] < basicMin[0] ? basicMax[0] + 1 : basicMax[0];
+        const basicPosition: number = basicMin[0] + position * (shiftedMax - basicMin[0]);
+        return [basicPosition > 1 ? basicPosition - 1 : basicPosition, false];
+    }
+
     private _catchCacheImage$(imageId: string): Observable<Image> {
         return this._navigator.graphService.cacheImage$(imageId).pipe(
             catchError(
@@ -921,4 +996,26 @@ export class SliderComponent extends Component<SliderConfiguration> {
         bbox.minY = Math.max(0, Math.min(1, bbox.minY));
         bbox.maxY = Math.max(0, Math.min(1, bbox.maxY));
     }
+}
+
+interface SliderPairState {
+    configuration: SliderConfiguration;
+    frame: AnimationFrame;
+}
+
+/** Whether the state shows the pair the configuration selects (or none is selected). */
+export function sliderShowsPair(configuration: SliderConfiguration, state: IAnimationState): boolean {
+    const ids = configuration.ids;
+    return ids == null || (!!state.currentImage && !!state.previousImage &&
+        state.currentImage.id === ids.foreground && state.previousImage.id === ids.background);
+}
+
+type SliderPairLoad = SliderCombination & { viewAligned: boolean; interactive: boolean };
+
+/** Whether the curtain shows for this pair (both images, renderable combination). */
+function sliderPairVisible(configuration: SliderConfiguration, state: IAnimationState): boolean {
+    return configuration.sliderVisible && !(state.currentImage == null ||
+        state.previousImage == null ||
+        (configuration.viewAligned !== true && isSpherical(state.currentImage.cameraType) &&
+            !isSpherical(state.previousImage.cameraType)));
 }

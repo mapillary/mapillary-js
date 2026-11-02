@@ -205,6 +205,10 @@ export class SliderGLRenderer {
     public render(
         perspectiveCamera: THREE.PerspectiveCamera,
         renderer: THREE.WebGLRenderer): void {
+        // The comparison owns the background: never composite it over another
+        // background renderer still active in the same frame (e.g. the plain
+        // image while it hands over), which shows a mix of both views.
+        renderer.clear();
         if (!this.disabled) {
             renderer.render(
                 this._scene.sceneOld,

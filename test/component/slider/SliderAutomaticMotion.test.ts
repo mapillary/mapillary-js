@@ -117,7 +117,7 @@ describe("Slider automatic motion safety", () => {
             s.dispose();
         });
     }
-    describe("relaxed policy", () => {
+    describe("relaxed policy (prototype)", () => {
         function relaxed(): any {
             const f = fixture();
             f.configuration.automaticMotionPolicy = "relaxed";
@@ -436,7 +436,7 @@ describe("Slider automatic rendering", () => {
         for (const position of [0, 0.25, 0.5, 0.75, 1]) {
             r.updateCurtain(position, true);
             const render = jasmine.createSpy("render");
-            r.render(f.camera, { render });
+            r.render(f.camera, <any>{ render, clear: jasmine.createSpy("clear") });
             const cameras = render.calls.allArgs().map(args => args[1]);
             expect(cameras.length).toBe(2);
             cameras.forEach(camera => {
@@ -761,11 +761,25 @@ describe("Slider automatic shared decision and interactive state", () => {
         expect(f.navigator.stateService.wait).not.toHaveBeenCalled();
         f.component.deactivate();
     });
-    it("never enables a stale pair and mode button cannot override an unsafe rejection", () => {
+    it("keeps the shown pair's checked decision while a new pair loads, then checks the new pair", () => {
         const f = componentFixture(); jest.advanceTimersByTime(100);
+        expect(f.update.calls.mostRecent().args[1]).toBe(Mode.Motion);
+        const covered = spyOn(SliderAutomaticMotion.prototype as any, "_covered").and.callThrough();
+        // Selecting a pair that is still loading must not re-render the shown pair differently.
         f.component.configure({ ids: { background: "replacement", foreground: "current" } });
+        f.emitFrame();
+        expect(f.update.calls.mostRecent().args[1]).toBe(Mode.Motion);
+        expect(covered).not.toHaveBeenCalled();
+        // The new pair is never treated as checked: it is evaluated once shown.
+        const replacement = image("replacement");
+        f.state.previousImage = replacement;
+        f.state.previousTransform = transform(replacement, 0);
+        f.state.trajectory = [replacement, f.state.currentImage];
+        f.emitFrame();
+        expect(covered).toHaveBeenCalled();
+        f.state.currentImage.mergeId = "different-component";
+        f.emitFrame();
         expect(f.update.calls.mostRecent().args[1]).toBe(Mode.Stationary);
-        expect(f.dom.calls.mostRecent().args[2]).toBe(true);
         (f.component as any)._domRenderer._notifyModeChanged$.next(Mode.Motion);
         expect(f.update.calls.mostRecent().args[1]).toBe(Mode.Stationary);
         f.component.deactivate();

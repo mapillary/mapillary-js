@@ -171,7 +171,7 @@ describe("Slider opt-in common-world view", () => {
         r.update(frame(), SliderConfigurationMode.Stationary, false, true);
         const live = liveCamera();
         const render = jasmine.createSpy("render");
-        r.render(live, { render });
+        r.render(live, <any>{ render, clear: jasmine.createSpy("clear") });
         const calls = render.calls.allArgs();
         expect(calls[0][0]).toBe(r._scene.sceneOld);
         expectSameView(calls[0][1], live);
