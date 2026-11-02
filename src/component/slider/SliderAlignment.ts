@@ -3,6 +3,7 @@ import { Image } from "../../graph/Image";
 import { Transform } from "../../geo/Transform";
 import { isSpherical } from "../../geo/Geo";
 import { hasReconstructionMesh } from "../../util/Mesh";
+import { wouldAutoLevelPerspective } from "../reorientation/PerspectiveLevel";
 
 /** Match the ordinary viewer's refusal to level an uncalibrated panorama. */
 export function canLevelSliderImage(image: Image, transform: Transform): boolean {
@@ -20,4 +21,15 @@ export function canLevelSliderImage(image: Image, transform: Transform): boolean
     return Number.isFinite(roll) && Number.isFinite(pitch) &&
         Math.abs(pitch) <= 75 && roll <= 45 &&
         (isSpherical(image.cameraType) || roll >= 7);
+}
+
+/**
+ * Whether a view-aligned comparison may be shown in the gravity frame: a
+ * perspective comparison is levelled only when the ordinary viewer would level
+ * it too (same horizon, roll and auto-fit rules, in a viewport of `aspect`).
+ * Otherwise it keeps its own upright frame, as the ordinary viewer shows it.
+ */
+export function canLevelSliderComparison(image: Image, transform: Transform, aspect: number): boolean {
+    return canLevelSliderImage(image, transform) &&
+        (isSpherical(image.cameraType) || wouldAutoLevelPerspective(transform, aspect));
 }

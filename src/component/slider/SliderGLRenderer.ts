@@ -11,9 +11,10 @@ import { SliderMeshFactory } from "./SliderMeshFactory";
 import { isSpherical } from "../../geo/Geo";
 import { CameraType } from "../../geo/interfaces/CameraType";
 import { Camera } from "../../geo/Camera";
+import { Transform } from "../../geo/Transform";
 import { SliderTransform } from "./SliderTransform";
 import { SliderMeshScene, SliderMeshSceneItem } from "./SliderMeshScene";
-import { canLevelSliderImage } from "./SliderAlignment";
+import { canLevelSliderComparison, canLevelSliderImage } from "./SliderAlignment";
 import { sliderHeadingRotation } from "./SliderHeading";
 import { translatedSliderPerspective } from "./SliderAutomaticMotion";
 import { sliderViewAlignedRoll } from "./SliderRoll";
@@ -43,6 +44,9 @@ export class SliderGLRenderer {
     private _previousCamera: Camera;
     private _currentNativeUp: THREE.Vector3;
     private _previousNativeUp: THREE.Vector3;
+    private _previousLevelImage: { image: Image; transform: Transform } = null;
+    private _previousLevelAspect: number = null;
+    private _previousLevelResult: boolean = false;
     private _previousPerspective: THREE.PerspectiveCamera;
     private _previousRotation: THREE.Quaternion;
     private _headingRotation: THREE.Quaternion;
@@ -250,7 +254,7 @@ export class SliderGLRenderer {
             // not tilted by the two reconstructions' differing roll estimates.
             const roll = sliderViewAlignedRoll(current,
                 this._currentNativeUp, this._previousNativeUp,
-                this._previousGravityAligned);
+                this._previousViewAlignedLevel(current.aspect));
             if (this._mode === SliderConfigurationMode.Motion) {
                 this._previousPerspective.matrixAutoUpdate = false;
                 this._previousPerspective.matrix.copy(current.matrixWorld)
@@ -321,6 +325,19 @@ export class SliderGLRenderer {
         }
 
         return this._previousPerspective;
+    }
+    /** Comparison levelling, as the ordinary viewer decides it for this viewport. */
+    private _previousViewAlignedLevel(aspect: number): boolean {
+        const level = this._previousLevelImage;
+        if (level == null) {
+            return false;
+        }
+        if (this._previousLevelAspect == null ||
+            Math.abs(this._previousLevelAspect - aspect) > 1e-3) {
+            this._previousLevelAspect = aspect;
+            this._previousLevelResult = canLevelSliderComparison(level.image, level.transform, aspect);
+        }
+        return this._previousLevelResult;
     }
     private _getCameraQuaternion(camera: Camera): THREE.Quaternion {
         const matrix = new THREE.Matrix4().lookAt(
@@ -432,6 +449,11 @@ export class SliderGLRenderer {
         this._previousGravityAligned = gravityAligned &&
             state.previousImage != null &&
             canLevelSliderImage(state.previousImage, state.previousTransform);
+        // View-aligned comparisons follow the ordinary viewer's perspective
+        // levelling decision, evaluated for the rendered viewport.
+        this._previousLevelImage = this._previousGravityAligned && viewAligned ?
+            { image: state.previousImage, transform: state.previousTransform } : null;
+        this._previousLevelAspect = null;
         this._currentCamera = gravityAligned && state.currentTransform != null ?
             new Camera(state.currentTransform) : null;
         if (this._currentGravityAligned && this._currentCamera != null) {

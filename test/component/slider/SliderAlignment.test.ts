@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import { canLevelSliderImage } from "../../../src/component/slider/SliderAlignment";
+import { canLevelSliderComparison, canLevelSliderImage } from "../../../src/component/slider/SliderAlignment";
+import { ProjectionService } from "../../../src/viewer/ProjectionService";
 import { SliderGLRenderer } from "../../../src/component/slider/SliderGLRenderer";
 import { SliderConfigurationMode } from "../../../src/component/interfaces/SliderConfiguration";
 import { Camera } from "../../../src/geo/Camera";
@@ -39,6 +40,20 @@ describe("Slider horizon safety", () => {
     it("retains the ordinary viewer's small perspective correction guard", () => {
         expect(canLevelSliderImage(image(undefined, "perspective"), transform(6))).toBe(false);
         expect(canLevelSliderImage(image(undefined, "perspective"), transform(8))).toBe(true);
+    });
+    it("levels comparison panoramas like other slider images", () => {
+        expect(canLevelSliderComparison(image(), transform(38, 5), 1.6)).toBe(true);
+        expect(canLevelSliderComparison(image(), transform(46, 0), 1.6)).toBe(false);
+    });
+    it("keeps a perspective comparison upright when the ordinary viewer would not level it", () => {
+        // Reported pair: a separate reconstruction claims a 38 deg roll for an
+        // upright phone photo; the viewer's auto-fit refuses to level it.
+        const camera = new ProjectionService().makeCamera("perspective",
+            [0.73551162611046, -0.0015303224124321, -0.018730651694032]);
+        const reported = new Transform(3, 4032, 3024, 1,
+            [-1.2223267744317, 1.2079613891934, 0.1647357955055], [0, 0, 0], null, camera);
+        expect(canLevelSliderImage(image(undefined, "perspective"), reported)).toBe(true);
+        expect(canLevelSliderComparison(image(undefined, "perspective"), reported, 1.6)).toBe(false);
     });
     it("uses the normal camera unchanged when foreground gravity is untrusted", () => {
         const renderer = new SliderGLRenderer() as any;

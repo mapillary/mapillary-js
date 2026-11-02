@@ -1,6 +1,5 @@
 import { Observable, Subject } from "rxjs";
 import { filter, first } from "rxjs/operators";
-import * as THREE from "three";
 
 import { Component } from "../Component";
 import { ComponentName } from "../ComponentName";
@@ -22,6 +21,13 @@ import { Sequence } from "../../graph/Sequence";
 import { isSpherical } from "../../geo/Geo";
 import { Transform } from "../../geo/Transform";
 import { ViewportCoords } from "../../geo/ViewportCoords";
+import {
+    MAX_REORIENTATION_ROLL_DEG,
+    perspectiveAutoZoom,
+    perspectiveHorizonRow,
+    perspectiveRollDeg,
+    shouldLevelPerspective,
+} from "./PerspectiveLevel";
 import { RenderCamera } from "../../render/RenderCamera";
 import { hasReconstructionMesh } from "../../util/Mesh";
 import { Container } from "../../viewer/Container";
@@ -30,16 +36,10 @@ import { Navigator } from "../../viewer/Navigator";
 // Skip a reorientation when it would move the current view less than this many
 // degrees (on either axis) — small moves are just jitter.
 const MIN_REORIENT_DEG = 15;
-const MAX_HORIZON_CORRECTION_DEG = 75;
-const MAX_REORIENTATION_ROLL_DEG = 45;
-const MIN_PERSPECTIVE_LEVEL_ROLL_DEG = 7;
 // Abrupt roll or pitch changes between neighboring captures are reconstruction
 // errors, not plausible camera motion, so their horizon is not worth using.
 const MAX_LEVEL_ROLL_DELTA_DEG = 15;
 const MAX_LEVEL_PITCH_DELTA_DEG = 15;
-const MAX_PERSPECTIVE_AUTO_ZOOM = 0.75;
-const MAX_PERSPECTIVE_FOV = 125;
-const PERSPECTIVE_EDGE_MARGIN = 1e-3;
 const USER_ZOOM_EPSILON = 1e-2;
 
 /** Pitch correction, in degrees, that levelling to a horizon row implies. */
@@ -47,15 +47,8 @@ export function horizonPitchDeg(horizonY: number): number {
     return (0.5 - horizonY) * 180;
 }
 
-/**
- * Small perspective corrections are indistinguishable from a tilted SfM frame
- * without an independent gravity signal, so the raw camera frame is safer.
- */
-export function shouldLevelPerspective(rollDeg: number): boolean {
-    return Number.isFinite(rollDeg) &&
-        rollDeg >= MIN_PERSPECTIVE_LEVEL_ROLL_DEG &&
-        rollDeg <= MAX_REORIENTATION_ROLL_DEG;
-}
+// The perspective levelling decision is shared with Time Travel comparisons.
+export { shouldLevelPerspective };
 
 /**
  * Whether a reconstructed pose is plausible enough to level to. Judged on its
@@ -1079,93 +1072,21 @@ export class ReorientationComponent
     }
 
     private _rollDeg(center: number[]): number | null {
-        const transform = this._currentTransform;
-        if (transform == null) {
-            return null;
-        }
-        const origin = new THREE.Vector3().fromArray(
-            transform.unprojectSfM([0, 0], 0));
-        const direction = new THREE.Vector3().fromArray(
-            transform.unprojectBasic(center, 10))
-            .sub(origin)
-            .normalize();
-        const imageUp = transform.upVector()
-            .addScaledVector(direction, -transform.upVector().dot(direction))
-            .normalize();
-        const gravityUp = new THREE.Vector3(0, 0, 1)
-            .addScaledVector(direction, -direction.z)
-            .normalize();
-        const rollDeg = imageUp.angleTo(gravityUp) * 180 / Math.PI;
-        return Number.isFinite(rollDeg) ? rollDeg : null;
+        return perspectiveRollDeg(this._currentTransform, center);
     }
 
     private _perspectiveAutoZoom(
         center: number[], baseFov: number): number | null {
-        const transform = this._currentTransform;
         const element = this._container.container;
-        if (transform == null || element.offsetHeight === 0) {
+        if (this._currentTransform == null || element.offsetHeight === 0) {
             return null;
         }
-
-        const origin = new THREE.Vector3().fromArray(
-            transform.unprojectSfM([0, 0], 0));
-        const rollDeg = this._rollDeg(center);
-        if (rollDeg == null ||
-            rollDeg > MAX_REORIENTATION_ROLL_DEG) {
-            return null;
-        }
-
-        const camera = new THREE.PerspectiveCamera(
-            60,
+        return perspectiveAutoZoom(
+            this._currentTransform,
             element.offsetWidth / element.offsetHeight,
-            1e-1,
-            1e4);
-        camera.position.copy(origin);
-
-        const maxFov = (basic: number[], up: THREE.Vector3): number => {
-            camera.up.copy(up);
-            camera.lookAt(new THREE.Vector3().fromArray(
-                transform.unprojectBasic(basic, 10)));
-            camera.updateMatrixWorld(true);
-
-            const fits = (fov: number): boolean => {
-                camera.fov = fov;
-                camera.updateProjectionMatrix();
-                const corners = [
-                    this._viewportCoords.viewportToBasic(
-                        -1, 1, transform, camera),
-                    this._viewportCoords.viewportToBasic(
-                        1, 1, transform, camera),
-                    this._viewportCoords.viewportToBasic(
-                        1, -1, transform, camera),
-                    this._viewportCoords.viewportToBasic(
-                        -1, -1, transform, camera),
-                ];
-                return corners.every((point: number[]): boolean =>
-                    point != null &&
-                    point[0] >= PERSPECTIVE_EDGE_MARGIN &&
-                    point[0] <= 1 - PERSPECTIVE_EDGE_MARGIN &&
-                    point[1] >= PERSPECTIVE_EDGE_MARGIN &&
-                    point[1] <= 1 - PERSPECTIVE_EDGE_MARGIN);
-            };
-
-            let low = 0;
-            let high = MAX_PERSPECTIVE_FOV;
-            for (let i = 0; i < 16; i++) {
-                const middle = (low + high) / 2;
-                if (fits(middle)) {
-                    low = middle;
-                } else {
-                    high = middle;
-                }
-            }
-            return low;
-        };
-
-        const levelFov = maxFov(center, new THREE.Vector3(0, 0, 1));
-        const zoom = Math.max(0, Math.log(baseFov / levelFov) / Math.log(2));
-        return Number.isFinite(zoom) && zoom <= MAX_PERSPECTIVE_AUTO_ZOOM ?
-            zoom : null;
+            center,
+            baseFov,
+            this._viewportCoords);
     }
 
     private _captureOffset(): void {
@@ -1198,35 +1119,7 @@ export class ReorientationComponent
     }
 
     private _horizonRow(x: number): number | null {
-        const transform = this._currentTransform;
-        if (transform == null) {
-            return null;
-        }
-
-        const cameraZ = transform.unprojectSfM([0, 0], 0)[2];
-        let low = 0;
-        let high = 1;
-        let lowZ = transform.unprojectBasic([x, low], 10)[2] - cameraZ;
-        const highZ = transform.unprojectBasic([x, high], 10)[2] - cameraZ;
-        if (lowZ * highZ > 0) {
-            return null;
-        }
-
-        for (let i = 0; i < 32; i++) {
-            const middle = (low + high) / 2;
-            const middleZ =
-                transform.unprojectBasic([x, middle], 10)[2] - cameraZ;
-            if (lowZ * middleZ > 0) {
-                low = middle;
-                lowZ = middleZ;
-            } else {
-                high = middle;
-            }
-        }
-
-        const horizon = (low + high) / 2;
-        return Math.abs(horizon - 0.5) * 180 <=
-            MAX_HORIZON_CORRECTION_DEG ? horizon : null;
+        return perspectiveHorizonRow(this._currentTransform, x);
     }
 
     private _resetOffset(): void {
