@@ -377,7 +377,7 @@ describe("ReorientationEngine.precompute", () => {
         expect(result.moving).toBe(true);
     });
 
-    it("invalidates the last image in a sequence", async () => {
+    it("faces incoming travel on the last image in a sequence", async () => {
         const images: Fixture = {
             a: spherical("a", 0, 0.0000, 0, 0),
             b: spherical("b", 0, 0.0001, 0, 1000),
@@ -386,6 +386,42 @@ describe("ReorientationEngine.precompute", () => {
 
         await engine.precompute("b");
         const result = engine.get("b");
+
+        expect(result.valid).toBe(true);
+        expect(result.prevId).toBe("a");
+        expect(result.nextId).toBeUndefined();
+        expect(result.travel).toBeCloseTo(90, 1);
+        expect(result.basicX).toBeCloseTo(0.75, 2);
+    });
+
+    it("uses raw compass at an endpoint calibration discontinuity", async () => {
+        const previous = spherical("a", 0, 0.0000, 90, 0);
+        previous.computedCca = 90;
+        previous.originalCca = 90;
+        const endpoint = spherical("b", 0, 0.0001, 270, 1000);
+        endpoint.computedCca = 270;
+        endpoint.originalCca = 90;
+        const engine = new ReorientationEngine(provider(
+            { a: previous, b: endpoint }, ["a", "b"]));
+
+        await engine.precompute("b");
+        const result = engine.get("b");
+
+        expect(result.valid).toBe(true);
+        expect(result.computedCompassOutlier).toBe(true);
+        expect(result.reconstructionDiscontinuity).toBe(true);
+        expect(result.viewCompassAngle).toBeCloseTo(90, 1);
+        expect(result.basicX).toBeCloseTo(0.5, 2);
+    });
+
+    it("invalidates a sequence with no travel segment", async () => {
+        const images: Fixture = {
+            a: spherical("a", 0, 0.0000, 0, 0),
+        };
+        const engine = new ReorientationEngine(provider(images, ["a"]));
+
+        await engine.precompute("a");
+        const result = engine.get("a");
 
         expect(result.valid).toBe(false);
         expect(result.reason).toBe("End of sequence");
