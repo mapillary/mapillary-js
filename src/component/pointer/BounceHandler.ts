@@ -69,16 +69,19 @@ export class BounceHandler extends HandlerBase<PointerConfiguration> {
                     }),
                 distinctUntilChanged(),
                 switchMap(
-                    (noForce: boolean): Observable<[RenderCamera, Transform]> => {
+                    (noForce: boolean): Observable<[RenderCamera, Transform, PointerConfiguration]> => {
                         return noForce ?
                             observableEmpty() :
                             observableCombineLatest(
                                 this._container.renderService.renderCamera$,
-                                this._navigator.stateService.currentTransform$.pipe(first()));
+                                this._navigator.stateService.currentTransform$.pipe(first()),
+                                // A new window must take effect without waiting for a camera move.
+                                this._component.configuration$);
                     }),
                 withLatestFrom(this._navigator.panService.panImages$))
             .subscribe(
-                ([[render, transform], nts]: [[RenderCamera, Transform], [Image, Transform, number][]]): void => {
+                ([[render, transform, configuration], nts]:
+                    [[RenderCamera, Transform, PointerConfiguration], [Image, Transform, number][]]): void => {
                     if (!transform.hasValidScale && render.camera.focal < 0.1) {
                         return;
                     }
@@ -87,11 +90,15 @@ export class BounceHandler extends HandlerBase<PointerConfiguration> {
                         return;
                     }
 
-                    const distances: number[] = ImageBoundary.viewportDistances(transform, render.perspective, this._viewportCoords);
+                    const bounds: number[] | null =
+                        ImageBoundary.viewBoundsBasic(transform, render.perspective, configuration.viewBounds);
+                    const distances: number[] = bounds ?
+                        ImageBoundary.viewportDistances(transform, render.perspective, this._viewportCoords, bounds) :
+                        ImageBoundary.viewportDistances(transform, render.perspective, this._viewportCoords);
 
                     const basic: number[] = this._viewportCoords.viewportToBasic(0, 0, transform, render.perspective);
 
-                    if ((basic[0] < 0 || basic[0] > 1) && nts.length > 0) {
+                    if (!bounds && (basic[0] < 0 || basic[0] > 1) && nts.length > 0) {
                         distances[0] = distances[2] = 0;
                     }
 

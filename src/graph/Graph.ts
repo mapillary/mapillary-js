@@ -2059,7 +2059,7 @@ export class Graph {
     private _addClusterNode(node: Image): void {
         const clusterId = node.clusterId;
         if (clusterId == null) {
-            console.warn(`Cannot set cluster node, cluster ID is undefined for node ${node.id}.`);
+            // Images without a reconstruction belong to no cluster.
             return;
         }
 
