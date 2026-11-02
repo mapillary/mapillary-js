@@ -447,6 +447,9 @@ export class SliderTransform {
             if (bearing[2] > 0) {
                 const [x, y, z]: number[] = bearing;
                 const r: number = Math.sqrt(x * x + y * y);
+                if (r === 0) {
+                    return [0, 0];
+                }
                 let theta: number = Math.atan2(r, z);
 
                 if (theta > this._radialPeak) {

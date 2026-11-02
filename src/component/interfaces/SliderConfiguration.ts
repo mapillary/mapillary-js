@@ -78,6 +78,38 @@ export interface SliderConfiguration extends ComponentConfiguration {
      */
     gravityAligned?: boolean;
     /**
+     * Reproject the background into the foreground's live world view.
+     *
+     * @description Opt-in for calibrated common-view comparisons. Preserves
+     * the original foreground camera and each image's lens projection. Use
+     * Stationary mode; the caller must validate shared coverage, crop the
+     * view, and prevent interaction into uncovered regions. Overrides
+     * gravityAligned camera leveling for this comparison.
+     *
+     * @default false
+     */
+    viewAligned?: boolean;
+    /**
+     * Opt in to guarded, interactive 3D translation for viewAligned pairs.
+     *
+     * @description Only hydrated perspective pairs in the same nonempty merged
+     * component, with genuine meshes, valid poses/scales, <=2m baseline,
+     * <=10-degree sampled hit parallax and shared photo/mesh coverage can use Motion.
+     * Unsafe or unavailable data always uses Stationary; mode controls cannot
+     * override rejection. Explicit Stationary remains manual 2D. Coverage is a
+     * conservative bounded heuristic, not a mathematical guarantee.
+     * @default false
+     */
+    automaticMotion?: boolean;
+    /**
+     * Clip the foreground at a fraction of the visible viewport width.
+     *
+     * @description Keeps the split independent of image projection, pan,
+     * horizon leveling and zoom. Image-coordinate clipping remains the default.
+     * @default false
+     */
+    screenSpace?: boolean;
+    /**
      * Initial position of the slider on the interval [0, 1].
      *
      * @description Configures the initial position of the slider.

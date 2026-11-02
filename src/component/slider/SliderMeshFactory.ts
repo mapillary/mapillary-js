@@ -16,6 +16,17 @@ export class SliderMeshFactory {
         this._imageSphereRadius = imageSphereRadius != null ? imageSphereRadius : 200;
     }
 
+    /** Geometry only: exactly the clamped perspective reconstruction used by
+     * both curtain and background meshes. The caller owns/disposes the result.
+     * Does not allocate a texture or material, and never substitutes a plane.
+     */
+    public createReconstructionGeometry(
+        image: Image,
+        transform: SliderTransform): THREE.BufferGeometry {
+        return transform.cameraType === "perspective" && this._useMesh(transform, image) ?
+            this._getImagePlaneGeo(transform, image) : null;
+    }
+
     public createMesh(
         image: Image,
         transform: SliderTransform,
@@ -182,6 +193,7 @@ export class SliderMeshFactory {
             transparent: true,
             uniforms: {
                 curtain: { value: 1.0 },
+                screenSpace: { value: false },
                 opacity: { value: 1.0 },
                 projectorMat: { value: transform.rt },
                 projectorTex: { value: texture },
@@ -255,6 +267,7 @@ export class SliderMeshFactory {
             transparent: true,
             uniforms: {
                 curtain: { value: 1.0 },
+                screenSpace: { value: false },
                 focal: { value: transform.focal },
                 k1: { value: transform.ck1 },
                 k2: { value: transform.ck2 },
@@ -282,6 +295,7 @@ export class SliderMeshFactory {
             transparent: true,
             uniforms: {
                 curtain: { value: 1.0 },
+                screenSpace: { value: false },
                 focal: { value: transform.focal },
                 k1: { value: transform.ck1 },
                 k2: { value: transform.ck2 },
@@ -309,6 +323,7 @@ export class SliderMeshFactory {
             transparent: true,
             uniforms: {
                 curtain: { value: 1.0 },
+                screenSpace: { value: false },
                 opacity: { value: 1.0 },
                 projectorMat: { value: transform.projectorMatrix() },
                 projectorTex: { value: texture },

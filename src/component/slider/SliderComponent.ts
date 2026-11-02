@@ -2,7 +2,10 @@ import * as THREE from "three";
 import {
     combineLatest as observableCombineLatest,
     concat as observableConcat,
+    merge as observableMerge,
     empty as observableEmpty,
+    of as observableOf,
+    timer as observableTimer,
     zip as observableZip,
     Observable,
     Subscription,
@@ -25,7 +28,6 @@ import {
     withLatestFrom,
 } from "rxjs/operators";
 import {
-    SliderImages,
     SliderCombination,
     GLRendererOperation,
     PositionLookat,
@@ -61,6 +63,8 @@ import { SliderDOMRenderer } from "./SliderDOMRenderer";
 import { isSpherical } from "../../geo/Geo";
 import { ComponentName } from "../ComponentName";
 import { SliderGLRenderer } from "./SliderGLRenderer";
+import { SliderAutomaticMotion, translatedSliderPerspective } from "./SliderAutomaticMotion";
+import { sliderPairKey, sliderCameraOrigin, sliderViewAlignedStationary } from "./SliderReconstruction";
 /**
  * @class SliderComponent
  *
@@ -97,6 +101,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
     private _glRenderer$: Observable<SliderGLRenderer>;
     private _glRendererCreator$: Subject<void>;
     private _glRendererDisposer$: Subject<void>;
+    private _position$: Subject<number> = new Subject<number>();
     private _waitSubscription: Subscription;
     /** @ignore */
     constructor(
@@ -149,6 +154,19 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 }))
             .subscribe(this._glRendererOperation$);
     }
+    /**
+     * Set the curtain position without restarting the comparison renderer.
+     *
+     * @param {number} position Position on the interval [0, 1].
+     * @throws {RangeError} If position is outside the interval or not finite.
+     */
+    public setPosition(position: number): void {
+        if (!Number.isFinite(position) || position < 0 || position > 1) {
+            throw new RangeError("Slider position must be finite and between 0 and 1");
+        }
+        this._position$.next(position);
+    }
+
     protected _activate(): void {
         const subs = this._subscriptions;
         subs.push(this._domRenderer.mode$
@@ -179,24 +197,80 @@ export class SliderComponent extends Component<SliderConfiguration> {
                             configuration.initialPosition : 1;
                     }),
                 first()),
-            this._domRenderer.position$);
-        const mode$ = this.configuration$.pipe(
-            map(
-                (configuration: SliderConfiguration): SliderConfigurationMode => {
-                    return configuration.mode;
+            observableMerge(this._domRenderer.position$, this._position$));
+        const safety = new SliderAutomaticMotion();
+        subs.push(new Subscription(() => safety.dispose()));
+        // Snapshot only changed views. Immediately revoke coverage, then check
+        // after 100ms of stability: never raycast on each animation/drag frame.
+        const coverageView$ = this.configuration$.pipe(
+            map(c => c.automaticMotion === true && c.viewAligned === true),
+            distinctUntilChanged(),
+            switchMap(automatic => automatic ? observableCombineLatest(
+                observableMerge(this._container.renderService.renderCamera$,
+                    this._container.renderService.renderCameraFrame$),
+                this._container.renderService.size$).pipe(
+                    map(([render, size]: [RenderCamera, ViewportSize]) => ({
+                        render, size,
+                        key: render && render.perspective ?
+                            [render.currentImageId, ...render.perspective.projectionMatrix.elements,
+                                ...render.perspective.projectionMatrixInverse.elements,
+                                ...render.perspective.quaternion.toArray(), ...render.perspective.up.toArray(),
+                                ...render.perspective.matrixWorld.elements.slice(0, 12),
+                                render.perspective.near, render.perspective.far, size.width, size.height].join(",") : "invalid",
+                    })),
+                    distinctUntilChanged((a, b) => a.key === b.key),
+                    switchMap(({ render, size }) => {
+                        if (!render || !render.perspective) { return observableOf(null); }
+                        const view = { perspective: render.perspective.clone(), imageId: render.currentImageId,
+                            size: { width: size.width, height: size.height } };
+                        return observableConcat(observableOf(null), observableTimer(100).pipe(map(() => view)));
+                    }),
+                    startWith(null)) : observableOf(null)));
+        // One decision (including its exact frame/config) is shared by DOM and
+        // GL. In particular, a new ids selection can never enable the old pair.
+        const decision$ = observableCombineLatest(
+            this.configuration$,
+            this._navigator.stateService.currentState$,
+            coverageView$,
+            this._container.renderService.size$.pipe(startWith(null))).pipe(
+                map(([configuration, frame, view, size]) => {
+                    const automatic = configuration.automaticMotion === true && configuration.viewAligned === true;
+                    const stationaryOnly = sliderViewAlignedStationary(frame.state, configuration.viewAligned === true);
+                    const currentView = view && size && view.size.width === size.width && view.size.height === size.height;
+                    const eligible = automatic && !stationaryOnly && safety.resolve(
+                        { ...configuration, mode: SliderConfigurationMode.Motion }, frame.state,
+                        currentView ? view.perspective : null, size, view && view.imageId) === SliderConfigurationMode.Motion;
+                    const mode = stationaryOnly ? SliderConfigurationMode.Stationary :
+                        automatic ? eligible && configuration.mode === SliderConfigurationMode.Motion ?
+                            SliderConfigurationMode.Motion : SliderConfigurationMode.Stationary : configuration.mode;
+                    return { configuration, frame, mode, automatic, eligible, stationaryOnly };
                 }),
-            distinctUntilChanged());
-        const gravityAligned$ = this.configuration$.pipe(
+                publishReplay(1),
+                refCount());
+        const viewAligned$ = this.configuration$.pipe(
             map(
                 (configuration: SliderConfiguration): boolean =>
-                    configuration.gravityAligned === true),
+                    configuration.viewAligned === true),
             distinctUntilChanged());
-        const motionless$ = this._navigator.stateService.currentState$.pipe(
-            map(
-                (frame: AnimationFrame): boolean => {
-                    return frame.state.motionless;
-                }),
+        const screenSpace$ = this.configuration$.pipe(
+            map((configuration: SliderConfiguration): boolean =>
+                configuration.screenSpace === true),
             distinctUntilChanged());
+        const interactionDecision$ = decision$.pipe(
+            // AnimationFrame.state can be a shared mutable StateContext. Copy
+            // primitives BEFORE distinct, never compare aliases to old frames.
+            map(d => ({
+                mode: d.mode, automatic: d.automatic, viewAligned: d.configuration.viewAligned === true, motionless: d.frame.state.motionless,
+                paired: !!d.frame.state.currentImage && !!d.frame.state.previousImage,
+                spherical: !!d.frame.state.currentImage && isSpherical(d.frame.state.currentImage.cameraType),
+                key: JSON.stringify([d.mode, d.automatic, d.configuration.viewAligned === true, d.frame.state.motionless,
+                    !!d.frame.state.currentImage, !!d.frame.state.previousImage,
+                    d.frame.state.currentImage && d.frame.state.currentImage.id,
+                    d.frame.state.previousImage && d.frame.state.previousImage.id,
+                    d.frame.state.currentImage && d.frame.state.currentImage.cameraType,
+                    d.frame.state.previousImage && d.frame.state.previousImage.cameraType]),
+            })),
+            distinctUntilChanged((a, b) => a.key === b.key));
         const spherical$ = this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: AnimationFrame): boolean => {
@@ -209,70 +283,54 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     (configuration: SliderConfiguration): boolean => {
                         return configuration.sliderVisible;
                     })),
-            this._navigator.stateService.currentState$.pipe(
+            this._navigator.stateService.currentState$,
+            viewAligned$).pipe(
                 map(
-                    (frame: AnimationFrame): boolean => {
-                        return !(frame.state.currentImage == null ||
+                    ([sliderVisible, frame, viewAligned]:
+                        [boolean, AnimationFrame, boolean]): boolean => {
+                        return sliderVisible && !(frame.state.currentImage == null ||
                             frame.state.previousImage == null ||
-                            (isSpherical(
+                            (!viewAligned && isSpherical(
                                 frame.state.currentImage.cameraType) &&
-                                !isSpherical(
-                                    frame.state.previousImage.cameraType)));
+                                !isSpherical(frame.state.previousImage.cameraType)));
                     }),
-                distinctUntilChanged())).pipe(
-                    map(
-                        ([sliderVisible, enabledState]: [boolean, boolean]): boolean => {
-                            return sliderVisible && enabledState;
-                        }),
-                    distinctUntilChanged());
+                distinctUntilChanged());
         this._waitSubscription = observableCombineLatest(
-            mode$,
-            motionless$,
-            spherical$,
+            interactionDecision$,
             sliderVisible$,
             this._navigator.stateService.state$)
             .subscribe(
-                ([mode, motionless, spherical, sliderVisible, state]:
-                    [SliderConfigurationMode, boolean, boolean, boolean, State]): void => {
-                    const interactive: boolean = sliderVisible &&
-                        (motionless ||
-                            mode === SliderConfigurationMode.Stationary ||
-                            spherical);
+                ([decision, sliderVisible, state]): void => {
+                    // Waiting resets zoom and the selected direction. View-aligned
+                    // comparisons MUST stay interactive even in effective Motion;
+                    // only the GL clone translates, never the native source view.
+                    if (!sliderVisible || !decision.paired) { return; }
+                    const interactive = decision.viewAligned || decision.automatic || decision.motionless ||
+                        decision.mode === SliderConfigurationMode.Stationary || decision.spherical;
                     if (interactive && state !== State.WaitingInteractively) {
                         this._navigator.stateService.waitInteractively();
                     } else if (!interactive && state !== State.Waiting) {
                         this._navigator.stateService.wait();
                     }
                 });
+        subs.push(observableCombineLatest(position$, interactionDecision$, sliderVisible$)
+            .subscribe(([position, decision]): void => {
+                if (decision.viewAligned || decision.automatic || decision.motionless ||
+                    decision.mode === SliderConfigurationMode.Stationary || decision.spherical) {
+                    this._navigator.stateService.moveTo(1);
+                } else {
+                    this._navigator.stateService.moveTo(position);
+                }
+            }));
         subs.push(observableCombineLatest(
-            position$,
-            mode$,
-            motionless$,
-            spherical$,
-            sliderVisible$)
-            .subscribe(
-                ([position, mode, motionless, spherical]: [number, SliderConfigurationMode, boolean, boolean, boolean]): void => {
-                    if (motionless || mode === SliderConfigurationMode.Stationary || spherical) {
-                        this._navigator.stateService.moveTo(1);
-                    } else {
-                        this._navigator.stateService.moveTo(position);
-                    }
-                }));
-        subs.push(observableCombineLatest(
-            position$,
-            mode$,
-            motionless$,
-            spherical$,
-            sliderVisible$,
-            this._container.renderService.size$).pipe(
-                map(
-                    ([position, mode, motionless, spherical, sliderVisible]:
-                        [number, SliderConfigurationMode, boolean, boolean, boolean, ViewportSize]): VirtualNodeHash => {
-                        return {
-                            name: this._name,
-                            vNode: this._domRenderer.render(position, mode, motionless, spherical, sliderVisible),
-                        };
-                    }))
+            position$, decision$, sliderVisible$, this._container.renderService.size$).pipe(
+                map(([position, decision, sliderVisible]): VirtualNodeHash => ({
+                    name: this._name,
+                    vNode: this._domRenderer.render(position, decision.mode,
+                        decision.frame.state.motionless || decision.stationaryOnly || decision.automatic && !decision.eligible,
+                        !!decision.frame.state.currentImage && isSpherical(decision.frame.state.currentImage.cameraType),
+                        sliderVisible),
+                })))
             .subscribe(this._container.domRenderer.render$));
         this._glRendererCreator$.next(null);
         subs.push(observableCombineLatest(
@@ -280,38 +338,43 @@ export class SliderComponent extends Component<SliderConfiguration> {
             spherical$,
             sliderVisible$,
             this._container.renderService.renderCamera$,
-            this._navigator.stateService.currentTransform$).pipe(
+            this._navigator.stateService.currentTransform$,
+            screenSpace$).pipe(
                 map(
-                    ([position, spherical, visible, render, transform]: [number, boolean, boolean, RenderCamera, Transform]): number => {
+                    ([position, spherical, visible, render, transform, screenSpace]:
+                        [number, boolean, boolean, RenderCamera, Transform, boolean]): [number, boolean] => {
+                        if (screenSpace) {
+                            return [visible ? position : 1, true];
+                        }
                         if (!spherical) {
-                            return visible ? position : 1;
+                            return [visible ? position : 1, false];
                         }
                         const basicMin: number[] = this._viewportCoords.viewportToBasic(-1.15, 0, transform, render.perspective);
                         const basicMax: number[] = this._viewportCoords.viewportToBasic(1.15, 0, transform, render.perspective);
                         const shiftedMax: number = basicMax[0] < basicMin[0] ? basicMax[0] + 1 : basicMax[0];
                         const basicPosition: number = basicMin[0] + position * (shiftedMax - basicMin[0]);
-                        return basicPosition > 1 ? basicPosition - 1 : basicPosition;
+                        return [basicPosition > 1 ? basicPosition - 1 : basicPosition, false];
                     }),
                 map(
-                    (position: number): GLRendererOperation => {
+                    ([position, screenSpace]: [number, boolean]): GLRendererOperation => {
                         return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
-                            glRenderer.updateCurtain(position);
+                            glRenderer.updateCurtain(position, screenSpace);
                             return glRenderer;
                         };
                     }))
             .subscribe(this._glRendererOperation$));
-        subs.push(observableCombineLatest(
-            this._navigator.stateService.currentState$,
-            mode$,
-            gravityAligned$).pipe(
-                map(
-                    ([frame, mode, gravityAligned]:
-                        [AnimationFrame, SliderConfigurationMode, boolean]): GLRendererOperation => {
-                        return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
-                            glRenderer.update(frame, mode, gravityAligned);
-                            return glRenderer;
-                        };
-                    }))
+        subs.push(decision$.pipe(
+            map((decision): GLRendererOperation => (glRenderer): SliderGLRenderer => {
+                const c = decision.configuration;
+                if (decision.automatic) {
+                    glRenderer.update(decision.frame, decision.mode,
+                        c.gravityAligned === true, c.viewAligned === true, true);
+                } else {
+                    glRenderer.update(decision.frame, decision.mode,
+                        c.gravityAligned === true, c.viewAligned === true);
+                }
+                return glRenderer;
+            }))
             .subscribe(this._glRendererOperation$));
         subs.push(this._configuration$.pipe(
             filter(
@@ -319,43 +382,47 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     return configuration.ids != null;
                 }),
             switchMap(
-                (configuration: SliderConfiguration): Observable<SliderCombination> => {
+                (configuration: SliderConfiguration): Observable<SliderCombination & { viewAligned: boolean }> => {
                     return observableZip(
-                        observableZip(
-                            this._catchCacheImage$(
-                                configuration.ids.background),
-                            this._catchCacheImage$(
-                                configuration.ids.foreground)).pipe(
-                                    map(
-                                        (images: [Image, Image])
-                                            : SliderImages => {
-                                            return { background: images[0], foreground: images[1] };
-                                        })),
-                        this._navigator.stateService.currentState$.pipe(first())).pipe(
-                            map(
-                                (nf: [SliderImages, AnimationFrame]): SliderCombination => {
-                                    return { images: nf[0], state: nf[1].state };
-                                }));
+                        this._catchCacheImage$(configuration.ids.background),
+                        this._catchCacheImage$(configuration.ids.foreground)).pipe(
+                            // Read the live source view after hydration, so wheel
+                            // zoom while the new background loads is not undone.
+                            switchMap((images: [Image, Image]) =>
+                                this._navigator.stateService.currentState$.pipe(
+                                    first(),
+                                    map((frame: AnimationFrame): SliderCombination & { viewAligned: boolean } => ({
+                                        images: { background: images[0], foreground: images[1] },
+                                        state: frame.state,
+                                        viewAligned: configuration.viewAligned === true,
+                                    })))));
                 }))
             .subscribe(
-                (co: SliderCombination): void => {
+                (co: SliderCombination & { viewAligned: boolean }): void => {
                     if (co.state.currentImage != null &&
                         co.state.previousImage != null &&
                         co.state.currentImage.id === co.images.foreground.id &&
                         co.state.previousImage.id === co.images.background.id) {
                         return;
                     }
+                    const center = co.viewAligned && co.state.currentImage.id === co.images.foreground.id ?
+                        co.state.currentTransform.projectBasic(co.state.camera.lookat.toArray()) : null;
                     if (co.state.currentImage.id === co.images.background.id) {
                         this._navigator.stateService.setImages([co.images.foreground]);
-                        return;
-                    }
-                    if (co.state.currentImage.id === co.images.foreground.id &&
+                    } else if (co.state.currentImage.id === co.images.foreground.id &&
                         co.state.trajectory.length === 1) {
                         this._navigator.stateService.prependImages([co.images.background]);
-                        return;
+                    } else {
+                        this._navigator.stateService.setImages([co.images.background]);
+                        this._navigator.stateService.setImages([co.images.foreground]);
                     }
-                    this._navigator.stateService.setImages([co.images.background]);
-                    this._navigator.stateService.setImages([co.images.foreground]);
+                    // Replacing a regular-photo trajectory recreates its native
+                    // cameras. Retain the source's live center (including wheel
+                    // zoom's anchor) instead of snapping back to the optical axis.
+                    // Zoom is already retained by state; never overwrite it here.
+                    if (center != null) {
+                        this._navigator.stateService.setCenter(center);
+                    }
                 },
                 (e: Error): void => {
                     console.error(e);
@@ -368,6 +435,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
                             this._navigator.stateService.currentState$ :
                             new Subject();
                     }),
+                filter(frame => !!frame.state.currentImage && !!frame.state.currentTransform),
                 distinctUntilChanged(
                     undefined,
                     (frame: AnimationFrame): string => {
@@ -457,15 +525,37 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 withLatestFrom(
                     this._container.renderService.size$,
                     this._navigator.stateService.currentTransform$));
+        const viewAlignedRoiTrigger$ = observableCombineLatest(
+            decision$, position$, this._container.renderService.renderCameraFrame$, this._container.renderService.size$).pipe(
+                map(([d, position, camera, size]) => ({
+                    viewAligned: d.configuration.viewAligned === true, mode: d.mode,
+                    camera, size, transform: d.frame.state.currentTransform,
+                    key: [d.configuration.viewAligned === true, d.mode,
+                        d.configuration.viewAligned === true ? sliderPairKey(d.frame.state) : "legacy",
+                        d.frame.state.currentImage && d.frame.state.currentImage.id,
+                        d.frame.state.previousImage && d.frame.state.previousImage.id, position,
+                        ...camera.perspective.projectionMatrix.elements, ...camera.perspective.matrixWorld.elements.slice(0, 12),
+                        size.width, size.height].join(","),
+                })),
+                distinctUntilChanged((a, b) => a.key === b.key),
+                filter(d => d.viewAligned),
+                map(({ camera, size, transform }): [RenderCamera, ViewportSize, Transform] => [camera, size, transform]));
         subs.push(textureProvider$.pipe(
             switchMap(
                 (provider: TextureProvider): Observable<[TileRegionOfInterest, TextureProvider]> => {
-                    return roiTrigger$.pipe(
+                    return observableMerge(roiTrigger$, viewAlignedRoiTrigger$).pipe(
+                        withLatestFrom(decision$, position$),
+                        filter(([_view, decision]) => !provider.disposed &&
+                            (decision.configuration.viewAligned !== true ||
+                                !!decision.frame.state.currentImage && !!decision.frame.state.previousImage &&
+                                !!decision.frame.state.currentTransform && !!decision.frame.state.previousTransform)),
                         map(
-                            ([camera, size, transform]: [RenderCamera, ViewportSize, Transform]):
+                            ([[camera, size, transform], decision, position]):
                                 [TileRegionOfInterest, TextureProvider] => {
                                 return [
-                                    this._roiCalculator.computeRegionOfInterest(camera, size, transform),
+                                    decision.configuration.viewAligned === true && decision.mode === SliderConfigurationMode.Motion ?
+                                        this._getMotionRegionOfInterest(camera, size, transform, decision.frame, position) :
+                                        this._roiCalculator.computeRegionOfInterest(camera, size, transform),
                                     provider,
                                 ];
                             }));
@@ -499,7 +589,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     }),
                 filter(
                     (frame: AnimationFrame): boolean => {
-                        return !!frame.state.previousImage;
+                        return !!frame.state.previousImage && !!frame.state.previousTransform;
                     }),
                 distinctUntilChanged(
                     undefined,
@@ -591,12 +681,24 @@ export class SliderComponent extends Component<SliderConfiguration> {
         subs.push(textureProviderPrev$.pipe(
             switchMap(
                 (provider: TextureProvider): Observable<[TileRegionOfInterest, TextureProvider]> => {
-                    return roiTriggerPrev$.pipe(
+                    return observableMerge(roiTriggerPrev$, viewAlignedRoiTrigger$).pipe(
+                        withLatestFrom(
+                            decision$, position$),
+                        filter(([_view, decision]) => !provider.disposed &&
+                            (decision.configuration.viewAligned !== true ||
+                                !!decision.frame.state.currentImage && !!decision.frame.state.previousImage &&
+                                !!decision.frame.state.currentTransform && !!decision.frame.state.previousTransform)),
                         map(
-                            ([camera, size, transform]: [RenderCamera, ViewportSize, Transform]):
+                            ([[camera, size, transform], decision, position]):
                                 [TileRegionOfInterest, TextureProvider] => {
+                                const frame = decision.frame;
+                                const viewAligned = decision.configuration.viewAligned === true;
                                 return [
-                                    this._roiCalculator.computeRegionOfInterest(camera, size, transform),
+                                    decision.configuration.viewAligned === true && decision.mode === SliderConfigurationMode.Motion ?
+                                        this._getMotionRegionOfInterest(camera, size, frame.state.previousTransform, frame, position) :
+                                        viewAligned ? this._getViewAlignedRegionOfInterest(
+                                            camera, size, frame.state.previousTransform) :
+                                            this._roiCalculator.computeRegionOfInterest(camera, size, transform),
                                     provider,
                                 ];
                             }));
@@ -605,9 +707,14 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 (args: [TileRegionOfInterest, TextureProvider]): boolean => {
                     return !args[1].disposed;
                 }),
-            withLatestFrom(this._navigator.stateService.currentState$))
+            withLatestFrom(this._navigator.stateService.currentState$, viewAligned$))
             .subscribe(
-                ([[roi, provider], frame]: [[TileRegionOfInterest, TextureProvider], AnimationFrame]): void => {
+                ([[roi, provider], frame, viewAligned]:
+                    [[TileRegionOfInterest, TextureProvider], AnimationFrame, boolean]): void => {
+                    if (viewAligned) {
+                        provider.setRegionOfInterest(roi);
+                        return;
+                    }
                     let shiftedRoi: TileRegionOfInterest = null;
                     if (isSpherical(frame.state.previousImage.cameraType)) {
                         if (isSpherical(frame.state.currentImage.cameraType)) {
@@ -733,6 +840,8 @@ export class SliderComponent extends Component<SliderConfiguration> {
     }
     protected _getDefaultConfiguration(): SliderConfiguration {
         return {
+            viewAligned: false,
+            automaticMotion: false,
             initialPosition: 1,
             mode: SliderConfigurationMode.Motion,
             sliderVisible: true,
@@ -745,6 +854,33 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     console.error(`Failed to cache slider image (${imageId})`, error);
                     return observableEmpty();
                 }));
+    }
+    private _getMotionRegionOfInterest(
+        camera: RenderCamera,
+        size: ViewportSize,
+        transform: Transform,
+        frame: AnimationFrame,
+        position: number): TileRegionOfInterest {
+        const origins = [frame.state.previousTransform, frame.state.currentTransform].map(sliderCameraOrigin);
+        const perspective = translatedSliderPerspective(camera.perspective, origins[0], origins[1], position);
+        const roi = this._roiCalculator.computeRegionOfInterest({ perspective } as RenderCamera, size, transform);
+        // The general ROI calculator projects at a fixed depth, not at actual
+        // mesh hits. Use the full photo as a safe superset in view-aligned Motion;
+        // the provider still selects its bounded tile level from pixel size.
+        return { ...roi, bbox: { minX: 0, maxX: 1, minY: 0, maxY: 1 } };
+    }
+    private _getViewAlignedRegionOfInterest(
+        camera: RenderCamera,
+        size: ViewportSize,
+        transform: Transform): TileRegionOfInterest {
+        // Project the same live rays through the background's own pose/lens.
+        // Using its original origin is equivalent to a recentered panorama.
+        const perspective = camera.perspective.clone();
+        perspective.position.copy(sliderCameraOrigin(transform));
+        perspective.updateMatrix();
+        perspective.updateMatrixWorld(false);
+        return this._roiCalculator.computeRegionOfInterest(
+            { perspective } as RenderCamera, size, transform);
     }
     private _getBasicCorners(currentAspect: number, previousAspect: number): number[][] {
         let offsetX: number;

@@ -27,6 +27,15 @@ import { Container } from "../../viewer/Container";
 import { Navigator } from "../../viewer/Navigator";
 import { ComponentName } from "../ComponentName";
 
+// SDK zoom is logarithmic: zero is the unzoomed 1.0x view.
+export function formatZoomLevel(zoom: number): string {
+    if (!Number.isFinite(zoom)) {
+        return "";
+    }
+    const level: string = Math.pow(2, zoom).toFixed(1);
+    return level === "1.0" ? "" : level + "×";
+}
+
 /**
  * @class ZoomComponent
  *
@@ -89,12 +98,18 @@ export class ZoomComponent extends Component<ZoomConfiguration> {
                             configuration.size === ComponentSize.Automatic && size.width < 640 ?
                             ".mapillary-zoom-compact" : "";
 
+                        const label: string = state === State.Waiting ? "" : formatZoomLevel(zoom);
+                        const children: vd.VNode[] = [zoomInButton, zoomOutButton];
+                        if (label) {
+                            children.push(vd.h("div.mapillary-zoom-level", [label]));
+                        }
+
                         return {
                             name: this._name,
                             vNode: vd.h(
                                 "div.mapillary-zoom-container" + compact,
                                 { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
-                                [zoomInButton, zoomOutButton]),
+                                children),
                         };
                     }))
             .subscribe(this._container.domRenderer.render$));

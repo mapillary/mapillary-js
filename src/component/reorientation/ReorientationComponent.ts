@@ -768,7 +768,18 @@ export class ReorientationComponent
                             center[0]);
                         if (this._adoptedView != null) {
                             const adopted = this._adoptedView;
+                            const adoptedZoom = this._adoptedZoom;
                             this._clearAdoptedView();
+                            // The host may have set this view before the first
+                            // image existed. State transitions above can discard
+                            // that request, so apply it in the loaded image's
+                            // final frame rather than only adopting its offset.
+                            this._navigator.stateService.setCenter(adopted);
+                            if (adoptedZoom != null) {
+                                this._navigator.stateService.setZoom(adoptedZoom);
+                            }
+                            center = adopted;
+                            pitchResetDeg = 0;
                             viewX = adopted[0];
                             this._userOffsetX =
                                 wrapDelta(adopted[0] - result.basicX);
