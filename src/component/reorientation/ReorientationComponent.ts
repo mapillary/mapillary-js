@@ -65,6 +65,20 @@ export function isLevelPlausible(
         Math.abs(pitchDeg - baselinePitchDeg) <= MAX_LEVEL_PITCH_DELTA_DEG;
 }
 
+// getCenter can still describe an interpolated camera when async preparation
+// resolves. Sequence steps carry the incoming bearing, so use its snapshot.
+export function settledViewX(
+    direction: NavigationDirection,
+    incomingBearing: number,
+    compassAngle: number,
+    sampledX: number): number {
+    const sequenceStep = direction === NavigationDirection.Next ||
+        direction === NavigationDirection.Prev;
+    return sequenceStep && Number.isFinite(incomingBearing) &&
+        Number.isFinite(compassAngle) ?
+        bearingToBasicX(incomingBearing, compassAngle) : sampledX;
+}
+
 /**
  * The heading an image ended up being shown at, once reorientation has decided
  * whether to turn it. Emitted on {@link ReorientationComponent.settled$}.
@@ -662,7 +676,11 @@ export class ReorientationComponent
                         // host may not have applied them yet, and steering there
                         // ourselves would animate a rotation the user did not
                         // ask for. Equal to targetX, so this image never moves.
-                        let viewX = center[0];
+                        let viewX = settledViewX(
+                            direction,
+                            this._incomingBearing,
+                            result.cca,
+                            center[0]);
                         if (this._adoptedView != null) {
                             const adopted = this._adoptedView;
                             this._clearAdoptedView();
