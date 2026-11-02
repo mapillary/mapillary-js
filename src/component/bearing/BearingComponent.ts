@@ -72,6 +72,7 @@ export class BearingComponent extends Component<BearingConfiguration> {
     private _distinctThreshold: number;
 
     private _animationSpeed: number;
+    private _tooltipProperties: vd.createProperties;
 
     /** @ignore */
     constructor(name: string, container: Container, navigator: Navigator) {
@@ -84,6 +85,10 @@ export class BearingComponent extends Component<BearingConfiguration> {
         this._distinctThreshold = Math.PI / 360;
 
         this._animationSpeed = 0.075;
+        this._tooltipProperties = createTooltipProperties(
+            "Bearing",
+            { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
+            "left");
     }
 
     protected _activate(): void {
@@ -277,10 +282,7 @@ export class BearingComponent extends Component<BearingConfiguration> {
                             name: this._name,
                             vNode: vd.h(
                                 "div.mapillary-bearing-indicator-container" + compact,
-                                createTooltipProperties(
-                                    "Bearing",
-                                    { oncontextmenu: (event: MouseEvent): void => { event.preventDefault(); } },
-                                    "left"),
+                                this._tooltipProperties,
                                 [
                                     background,
                                     fovIndicator,
