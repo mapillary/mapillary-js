@@ -363,6 +363,14 @@ export class SliderComponent extends Component<SliderConfiguration> {
                         };
                     }))
             .subscribe(this._glRendererOperation$));
+        subs.push(this._configuration$.pipe(
+            map((configuration: SliderConfiguration): number[] => configuration.viewCorrection ?? null),
+            distinctUntilChanged((a: number[], b: number[]): boolean => JSON.stringify(a) === JSON.stringify(b)),
+            map((correction: number[]): GLRendererOperation => (glRenderer): SliderGLRenderer => {
+                glRenderer.updateViewCorrection(correction);
+                return glRenderer;
+            }))
+            .subscribe(this._glRendererOperation$));
         subs.push(decision$.pipe(
             map((decision): GLRendererOperation => (glRenderer): SliderGLRenderer => {
                 const c = decision.configuration;

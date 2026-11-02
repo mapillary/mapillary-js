@@ -51,6 +51,7 @@ export class SliderGLRenderer {
     private _previousLevelResult: boolean = false;
     private _previousPerspective: THREE.PerspectiveCamera;
     private _previousRotation: THREE.Quaternion;
+    private _viewCorrection: THREE.Quaternion = null;
     private _headingRotation: THREE.Quaternion;
     private _currentProviderDisposers: { [key: string]: () => void };
     private _previousProviderDisposers: { [key: string]: () => void };
@@ -127,6 +128,19 @@ export class SliderGLRenderer {
         if (next === this._curtainFeather) { return; }
         this._curtainFeather = next;
         this._updateCurtain();
+        this._needsRender = true;
+    }
+    /** Image-based background orientation refinement; null clears it. */
+    public updateViewCorrection(correction: number[]): void {
+        const valid = Array.isArray(correction) && correction.length === 4 &&
+            correction.every(Number.isFinite) && Math.hypot(...correction) > 0.5;
+        const next = valid ? new THREE.Quaternion(
+            correction[0], correction[1], correction[2], correction[3]).normalize() : null;
+        if (next === this._viewCorrection ||
+            next != null && this._viewCorrection != null && next.equals(this._viewCorrection)) {
+            return;
+        }
+        this._viewCorrection = next;
         this._needsRender = true;
     }
     public updateCurtain(curtain: number, screenSpace: boolean = false): void {
@@ -276,7 +290,12 @@ export class SliderGLRenderer {
                         new THREE.Matrix4().extractRotation(this._previousPerspective.matrix));
                 }
             } else {
-                if (roll !== 0) {
+                if (this._viewCorrection != null) {
+                    // Show the background content whose corrected ray C * r
+                    // is this pixel's live ray r: camera rotation C^-1 * Q.
+                    this._previousPerspective.quaternion.premultiply(
+                        this._viewCorrection.clone().invert());
+                } else if (roll !== 0) {
                     this._previousPerspective.quaternion.multiply(
                         new THREE.Quaternion().setFromAxisAngle(
                             new THREE.Vector3(0, 0, 1), roll));

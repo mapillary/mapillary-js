@@ -102,6 +102,18 @@ export interface SliderConfiguration extends ComponentConfiguration {
      */
     automaticMotion?: boolean;
     /**
+     * Image-based refinement of the background's reconstructed orientation.
+     *
+     * @description World-frame rotation quaternion [x, y, z, w] that maps the
+     * background's reconstructed viewing rays onto the foreground's, e.g.
+     * estimated by matching both photos. Applies to viewAligned Stationary
+     * rendering only and replaces the roll safeguard while set. Invalid
+     * values are ignored.
+     *
+     * @default undefined
+     */
+    viewCorrection?: number[];
+    /**
      * Clip the foreground at a fraction of the visible viewport width.
      *
      * @description Keeps the split independent of image projection, pan,
