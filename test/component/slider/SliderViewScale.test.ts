@@ -21,10 +21,10 @@ function image(id: string, cameraType: string, width: number, height: number): a
 }
 function transform(i: any, translation: number[]): any {
     return new SliderTransform(i.exifOrientation, i.width, i.height, i.scale,
-        i.rotation, translation, i.image, undefined,
-        Object.values(i.camera.parameters) as number[], i.cameraType);
+                               i.rotation, translation, i.image, undefined,
+                               Object.values(i.camera.parameters) as number[], i.cameraType);
 }
-function frame(currentType = "perspective", previousType = "spherical"): any {
+function frame(currentType: string = "perspective", previousType: string = "spherical"): any {
     const currentImage = image("current", currentType, 4000, 3000);
     const previousImage = image("previous", previousType, 4000, 2000);
     const currentTransform = transform(currentImage, [-2, -3, -4]);
@@ -64,7 +64,8 @@ describe("Slider view-aligned panorama widening", () => {
         expect(wide.quaternion.angleTo(plain.quaternion)).toBeCloseTo(0, 10);
         expect(wide.position.toArray()).toEqual(plain.position.toArray());
         const ray = new THREE.Vector3(0.1, -0.05, -1);
-        const a = project(plain, ray), b = project(wide, ray);
+        const a = project(plain, ray);
+        const b = project(wide, ray);
         const centre = project(plain, new THREE.Vector3(0, 0, -1));
         expect(project(wide, new THREE.Vector3(0, 0, -1)).distanceTo(centre)).toBeCloseTo(0, 10);
         // A direction lands half as far from the view centre.

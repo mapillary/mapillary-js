@@ -22,7 +22,8 @@ function screenAngle(c: THREE.Camera, up: THREE.Vector3): number {
 
 describe("Slider view-aligned roll", () => {
     it("shows an upright comparison upright despite opposite small reconstruction rolls", () => {
-        const currentUp = rolledUp(3.3 * deg), previousUp = rolledUp(-3.4 * deg);
+        const currentUp = rolledUp(3.3 * deg);
+        const previousUp = rolledUp(-3.4 * deg);
         const live = camera(currentUp);
         const roll = sliderViewAlignedRoll(live, currentUp, previousUp, false);
         expect(Math.abs(roll)).toBeCloseTo(6.7 * deg, 6);
@@ -33,7 +34,8 @@ describe("Slider view-aligned roll", () => {
         expect(screenAngle(comparison, previousUp)).toBeCloseTo(0, 6);
     });
     it("keeps native alignment when the original is panned or gravity-levelled", () => {
-        const currentUp = rolledUp(3 * deg), previousUp = rolledUp(-4 * deg);
+        const currentUp = rolledUp(3 * deg);
+        const previousUp = rolledUp(-4 * deg);
         const live = camera();
         const roll = sliderViewAlignedRoll(live, currentUp, previousUp, false);
         const comparison = live.clone();

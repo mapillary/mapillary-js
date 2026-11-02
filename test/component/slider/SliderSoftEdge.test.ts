@@ -24,7 +24,7 @@ function transform(i: any, east: number): any {
     const R = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), i.rotation[0]);
     const t = new THREE.Vector3(-east, 0, 0).applyMatrix4(R);
     return new SliderTransform(i.exifOrientation, i.width, i.height, i.scale,
-        i.rotation, t.toArray(), i.image, undefined, Object.values(i.camera.parameters), i.cameraType);
+                               i.rotation, t.toArray(), i.image, undefined, Object.values(i.camera.parameters), i.cameraType);
 }
 function state(): any {
     const previousImage = image("previous"); const currentImage = image("current");

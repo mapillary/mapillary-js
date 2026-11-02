@@ -1,7 +1,7 @@
 import { of, Subject } from "rxjs";
 import { ReorientationComponent } from "../../../src/component/reorientation/ReorientationComponent";
 
-function fixture() {
+function fixture(): any {
     const component: any = Object.create(ReorientationComponent.prototype);
     const image: any = { id: "image", sequenceId: "sequence", cameraType: "spherical" };
     const result: any = { valid: true, moving: true, seq: "sequence", basicX: 0.4, cca: 180, viewCompassAngle: 180 };

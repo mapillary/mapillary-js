@@ -3,7 +3,7 @@ import { SliderTransform } from "../../../src/component/slider/SliderTransform";
 
 function slider(): SliderTransform {
     return new SliderTransform(1, 4000, 3000, 1, [0, 0, 0], [0, 0, 0],
-        undefined, undefined, [0.7, 0.01, 0.02], "fisheye");
+                               undefined, undefined, [0.7, 0.01, 0.02], "fisheye");
 }
 
 describe("Fisheye exact optical-axis projection", () => {

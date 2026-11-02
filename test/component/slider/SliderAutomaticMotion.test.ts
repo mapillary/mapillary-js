@@ -24,7 +24,7 @@ function image(id: string): any {
 }
 function transform(i: any, origin: number): SliderTransform {
     return new SliderTransform(i.exifOrientation, i.width, i.height, i.scale,
-        i.rotation, [-origin, 0, 0], i.image, undefined, Object.values(i.camera.parameters), i.cameraType);
+                               i.rotation, [-origin, 0, 0], i.image, undefined, Object.values(i.camera.parameters), i.cameraType);
 }
 function fixture(): any {
     const previousImage = image("previous");
@@ -151,7 +151,7 @@ describe("Slider automatic motion safety", () => {
             s.dispose();
         });
         it("still fails closed without meshes, merged poses, perspective cameras or coverage", () => {
-            const cases: Array<(f: any) => void> = [
+            const cases: ((f: any) => void)[] = [
                 f => { f.state.previousImage.merged = false; },
                 f => { f.state.currentImage.mesh = null; },
                 f => { f.state.currentImage.cameraType = "spherical"; },
@@ -315,7 +315,7 @@ describe("Slider automatic rendering", () => {
         f.camera.matrixWorldNeedsUpdate = false;
         for (const position of [0, 0.5, 1]) {
             const translated = translatedSliderPerspective(f.camera,
-                new THREE.Vector3(0, 0, 0), new THREE.Vector3(2, 0, 0), position);
+                                                           new THREE.Vector3(0, 0, 0), new THREE.Vector3(2, 0, 0), position);
             const ray = new THREE.Raycaster(); ray.setFromCamera(new THREE.Vector2(), translated);
             expect(translated.position.toArray()).toEqual([2 * position, 0, 0]);
             expect(ray.ray.origin.toArray()).toEqual([2 * position, 0, 0]);
@@ -375,7 +375,10 @@ describe("Slider automatic rendering", () => {
         r.update(f.frame, Mode.Motion, false, true, true);
         expect(Array.from(r._scene.planes[0].mesh.geometry.getAttribute("position").array)).toEqual(before);
         // A new object is a new version and must be rejected/revalidated.
-        f.state.currentImage.mesh = { vertices: f.state.currentImage.mesh.vertices.slice(), faces: f.state.currentImage.mesh.faces.slice() };
+        f.state.currentImage.mesh = {
+            vertices: f.state.currentImage.mesh.vertices.slice(),
+            faces: f.state.currentImage.mesh.faces.slice(),
+        };
         expect(resolve(safety, f)).toBe(Mode.Stationary);
         r.dispose(); safety.dispose();
     });
@@ -396,7 +399,8 @@ describe("Slider automatic rendering", () => {
             providers.forEach(p => expect(p.dispose).not.toHaveBeenCalled());
             disposers.forEach(d => expect(d).not.toHaveBeenCalled());
         }
-        const previousImage = f.state.previousImage, previousTransform = f.state.previousTransform;
+        const previousImage = f.state.previousImage;
+        const previousTransform = f.state.previousTransform;
         f.state.previousImage = null; f.state.previousTransform = null;
         r.update(f.frame, Mode.Motion, false, true, automatic);
         expect(r.disabled).toBe(true);
@@ -526,7 +530,10 @@ describe("Slider view-aligned native mode roundtrip", () => {
             const previous = r._getPreviousPerspective(f.camera);
             expect(previous.position.x).toBeCloseTo(-1.25, 12);
             expect(new THREE.Vector3().setFromMatrixPosition(previous.matrixWorld).x).toBeCloseTo(-1.25, 12);
-            const component = new SliderComponent("slider", new ContainerMockCreator().create(), new NavigatorMockCreator().create()) as any;
+            const component = new SliderComponent(
+                "slider",
+                new ContainerMockCreator().create(),
+                new NavigatorMockCreator().create()) as any;
             const compute = spyOn(component._roiCalculator, "computeRegionOfInterest").and.returnValue({});
             component._getViewAlignedRegionOfInterest({ perspective: f.camera }, f.size, f.state.previousTransform);
             const roiCamera = compute.calls.mostRecent().args[0].perspective;
@@ -683,11 +690,13 @@ describe("Slider automatic shared decision and interactive state", () => {
             sameView(args[0].perspective, f.camera);
         });
         setROI.calls.allArgs().forEach(args => expect(args[0].bbox).toEqual({ minX: 0, maxX: 1, minY: 0, maxY: 1 }));
-        expect(new Set(compute.calls.allArgs().map(args => args[2]))).toEqual(new Set([f.state.currentTransform, f.state.previousTransform]));
+        expect(new Set(compute.calls.allArgs().map(args => args[2])))
+            .toEqual(new Set([f.state.currentTransform, f.state.previousTransform]));
         f.component.configure({ mode: Mode.Stationary });
         f.component.configure({ mode: Mode.Motion });
         expect(setROI.calls.count()).toBeGreaterThan(2);
-        const previousImage = f.state.previousImage, previousTransform = f.state.previousTransform;
+        const previousImage = f.state.previousImage;
+        const previousTransform = f.state.previousTransform;
         setROI.calls.reset(); compute.calls.reset();
         f.state.previousImage = null; f.state.previousTransform = null;
         f.emitFrame(); f.component.setPosition(0.75); f.emitView();
@@ -717,7 +726,9 @@ describe("Slider automatic shared decision and interactive state", () => {
         f.update.and.callThrough();
         const r = new SliderGLRenderer() as any; r.update(f.frame, Mode.Motion, false, true, false); r.updateCurtain(0.25, true);
         for (const args of compute.calls.allArgs()) {
-            const expected = args[2] === f.state.currentTransform ? r._getCurrentPerspective(f.camera) : r._getPreviousPerspective(f.camera);
+            const expected = args[2] === f.state.currentTransform ?
+                r._getCurrentPerspective(f.camera) :
+                r._getPreviousPerspective(f.camera);
             expect(args[0].perspective.matrixWorld.elements).toEqual(expected.matrixWorld.elements);
             sameView(args[0].perspective, expected);
         }

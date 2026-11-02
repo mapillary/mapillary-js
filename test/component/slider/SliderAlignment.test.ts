@@ -49,9 +49,9 @@ describe("Slider horizon safety", () => {
         // Reported pair: a separate reconstruction claims a 38 deg roll for an
         // upright phone photo; the viewer's auto-fit refuses to level it.
         const camera = new ProjectionService().makeCamera("perspective",
-            [0.73551162611046, -0.0015303224124321, -0.018730651694032]);
+                                                          [0.73551162611046, -0.0015303224124321, -0.018730651694032]);
         const reported = new Transform(3, 4032, 3024, 1,
-            [-1.2223267744317, 1.2079613891934, 0.1647357955055], [0, 0, 0], null, camera);
+                                       [-1.2223267744317, 1.2079613891934, 0.1647357955055], [0, 0, 0], null, camera);
         expect(canLevelSliderImage(image(undefined, "perspective"), reported)).toBe(true);
         expect(canLevelSliderComparison(image(undefined, "perspective"), reported, 1.6)).toBe(false);
     });

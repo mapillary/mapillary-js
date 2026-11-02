@@ -207,7 +207,7 @@ export class SliderComponent extends Component<SliderConfiguration> {
             distinctUntilChanged(),
             switchMap(automatic => automatic ? observableCombineLatest(
                 observableMerge(this._container.renderService.renderCamera$,
-                    this._container.renderService.renderCameraFrame$),
+                                this._container.renderService.renderCameraFrame$),
                 this._container.renderService.size$).pipe(
                     map(([render, size]: [RenderCamera, ViewportSize]) => ({
                         render, size,
@@ -260,7 +260,8 @@ export class SliderComponent extends Component<SliderConfiguration> {
             // AnimationFrame.state can be a shared mutable StateContext. Copy
             // primitives BEFORE distinct, never compare aliases to old frames.
             map(d => ({
-                mode: d.mode, automatic: d.automatic, viewAligned: d.configuration.viewAligned === true, motionless: d.frame.state.motionless,
+                mode: d.mode, automatic: d.automatic,
+                viewAligned: d.configuration.viewAligned === true, motionless: d.frame.state.motionless,
                 paired: !!d.frame.state.currentImage && !!d.frame.state.previousImage,
                 spherical: !!d.frame.state.currentImage && isSpherical(d.frame.state.currentImage.cameraType),
                 key: JSON.stringify([d.mode, d.automatic, d.configuration.viewAligned === true, d.frame.state.motionless,
@@ -326,7 +327,9 @@ export class SliderComponent extends Component<SliderConfiguration> {
             position$, decision$, sliderVisible$, this._container.renderService.size$).pipe(
                 map(([position, decision, sliderVisible]): VirtualNodeHash => ({
                     name: this._name,
-                    vNode: this._domRenderer.render(position, decision.mode,
+                    vNode: this._domRenderer.render(
+                        position,
+                        decision.mode,
                         decision.frame.state.motionless || decision.stationaryOnly || decision.automatic && !decision.eligible,
                         !!decision.frame.state.currentImage && isSpherical(decision.frame.state.currentImage.cameraType),
                         sliderVisible),
@@ -385,10 +388,10 @@ export class SliderComponent extends Component<SliderConfiguration> {
                 glRenderer.updateCurtainFeather(c.curtainFeather);
                 if (decision.automatic) {
                     glRenderer.update(decision.frame, decision.mode,
-                        c.gravityAligned === true, c.viewAligned === true, true);
+                                      c.gravityAligned === true, c.viewAligned === true, true);
                 } else {
                     glRenderer.update(decision.frame, decision.mode,
-                        c.gravityAligned === true, c.viewAligned === true);
+                                      c.gravityAligned === true, c.viewAligned === true);
                 }
                 return glRenderer;
             }))

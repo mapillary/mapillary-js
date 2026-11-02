@@ -10,7 +10,7 @@ import { Transform } from "../../../src/geo/Transform";
 import { ProjectionService } from "../../../src/viewer/ProjectionService";
 
 function makeTransform(rotation: number[], parameters: number[] = [0.85, 0, 0],
-    orientation: number = 1, width: number = 4000, height: number = 3000): Transform {
+                       orientation: number = 1, width: number = 4000, height: number = 3000): Transform {
     const camera = new ProjectionService().makeCamera("perspective", parameters);
     return new Transform(orientation, width, height, 1, rotation, [0, 0, 0], null, camera);
 }

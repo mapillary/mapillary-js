@@ -250,7 +250,7 @@ export class SliderGLRenderer {
         if (this._viewAligned &&
             this._mode === SliderConfigurationMode.Motion && this._motionOrigins.length === 2) {
             return translatedSliderPerspective(perspectiveCamera,
-                this._motionOrigins[0], this._motionOrigins[1], this._curtain);
+                                               this._motionOrigins[0], this._motionOrigins[1], this._curtain);
         }
         if (this._viewAligned || !this._currentGravityAligned) {
             return perspectiveCamera;
@@ -290,8 +290,8 @@ export class SliderGLRenderer {
             // Keep the comparison's native frame upright like the original's,
             // not tilted by the two reconstructions' differing roll estimates.
             const roll = sliderViewAlignedRoll(current,
-                this._currentNativeUp, this._previousNativeUp,
-                this._previousViewAlignedLevel(current.aspect));
+                                               this._currentNativeUp, this._previousNativeUp,
+                                               this._previousViewAlignedLevel(current.aspect));
             if (this._mode === SliderConfigurationMode.Motion) {
                 this._previousPerspective.matrixAutoUpdate = false;
                 this._previousPerspective.matrix.copy(current.matrixWorld)

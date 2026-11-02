@@ -7,7 +7,7 @@ import { NavigatorMockCreator } from "../../helper/NavigatorMockCreator";
 import { MockCreator } from "../../helper/MockCreator";
 
 describe("SliderComponent.setPosition", () => {
-    function fixture() {
+    function fixture(): any {
         const container = new ContainerMockCreator().create();
         const navigator = new NavigatorMockCreator().create();
         new MockCreator().mockProperty(container, "domContainer", document.createElement("div"));

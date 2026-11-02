@@ -9,14 +9,15 @@ import { MockCreator } from "../../helper/MockCreator";
 
 // Selected-pair hydration must retain the original's live wheel-zoom anchor.
 describe("Slider comparison selection framing", () => {
-    function fixture(viewAligned = true, single = false): any {
+    function fixture(viewAligned: boolean = true, single: boolean = false): any {
         const container = new ContainerMockCreator().create();
         const navigator = new NavigatorMockCreator().create();
         new MockCreator().mockProperty(container, "domContainer", document.createElement("div"));
         spyOn(SliderDOMRenderer.prototype, "render").and.returnValue(<any>{});
         spyOn(SliderGLRenderer.prototype, "update");
         const component = new SliderComponent("slider", container, navigator);
-        const background$ = new Subject<any>(), foreground$ = new Subject<any>();
+        const background$ = new Subject<any>();
+        const foreground$ = new Subject<any>();
         spyOn<any>(component, "_catchCacheImage$").and.callFake(id => id === "new" ? background$ : foreground$);
         component.activate();
         (<Subject<any>>container.renderService.size$).next({ width: 1440, height: 900 });

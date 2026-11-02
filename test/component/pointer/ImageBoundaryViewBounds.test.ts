@@ -14,7 +14,7 @@ function transform(cameraType: CameraType): Transform {
     const camera = new ProjectionService()
         .makeCamera(cameraType, spherical ? [] : [0.85, 0, 0]);
     return new Transform(1, spherical ? 4096 : 4000, spherical ? 2048 : 3000, 1,
-        [0, 0, 0], [0, 0, 0], null, camera);
+                         [0, 0, 0], [0, 0, 0], null, camera);
 }
 
 /** A render camera at the image position looking at a basic point. */
@@ -99,7 +99,8 @@ describe("ImageBoundary.viewportDistances with view bounds", () => {
             const t = transform(cameraType);
             const bounds = { center, fieldOfView: 30 };
             const rect = ImageBoundary.viewBoundsBasic(t, render(t, center, 15), bounds);
-            const width = rect[2] - rect[0], height = rect[3] - rect[1];
+            const width = rect[2] - rect[0];
+            const height = rect[3] - rect[1];
             const cases: [number[], number][] = [
                 // Straddling each window edge: that viewport side shows outside.
                 [[center[0] + width / 2, center[1]], 1],
@@ -119,7 +120,7 @@ describe("ImageBoundary.viewportDistances with view bounds", () => {
             const t = transform(cameraType);
             const p = render(t, center, 40);
             const distances = ImageBoundary.viewportDistances(t, p, coords,
-                ImageBoundary.viewBoundsBasic(t, p, { center, fieldOfView: 20 }));
+                                                              ImageBoundary.viewBoundsBasic(t, p, { center, fieldOfView: 20 }));
             expect(distances[1] - distances[3]).toBeCloseTo(0, 2);
             expect(distances[0] - distances[2]).toBeCloseTo(0, 2);
         });

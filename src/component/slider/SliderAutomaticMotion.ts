@@ -8,8 +8,10 @@ import { SliderMeshFactory } from "./SliderMeshFactory";
 import { SliderTransform } from "./SliderTransform";
 import { sliderReconstructionImage, sliderPairKey, sliderCameraOrigin } from "./SliderReconstruction";
 
-/** A camera-only translation: never interpolate direction/up or regenerate the
- * live projection (including its off-center crop). Curtain 0 is background. */
+/**
+ * A camera-only translation: never interpolate direction/up or regenerate the
+ * live projection (including its off-center crop). Curtain 0 is background.
+ */
 export function translatedSliderPerspective(
     live: THREE.PerspectiveCamera,
     previousOrigin: THREE.Vector3,
@@ -70,13 +72,13 @@ export function sliderMotionLimits(configuration: SliderConfiguration): SliderMo
 
 export class SliderAutomaticMotion {
     private _limits: SliderMotionLimits = STRICT_LIMITS;
-    private _factory = new SliderMeshFactory();
+    private _factory: SliderMeshFactory = new SliderMeshFactory();
     private _pair: string;
     private _meshes: object[] = [];
     private _geometries: THREE.BufferGeometry[] = [];
     private _transforms: SliderTransform[] = [];
     private _triangles: THREE.Triangle[][] = [];
-    private _coverage = new Map<string, boolean>();
+    private _coverage: Map<string, boolean> = new Map<string, boolean>();
     private _origins: THREE.Vector3[] = [];
     private _prepared: boolean = false;
 
@@ -167,8 +169,8 @@ export class SliderAutomaticMotion {
                 !t.rt.elements.every(Number.isFinite) || Math.abs(t.rt.determinant()) < 1e-8) { return false; }
             const e = t.rt.elements;
             this._transforms.push(new SliderTransform(i.exifOrientation, i.width, i.height, i.scale,
-                i.rotation, [e[12], e[13], e[14]], i.image, undefined,
-                Object.values(i.camera.parameters), "perspective"));
+                                                      i.rotation, [e[12], e[13], e[14]], i.image, undefined,
+                                                      Object.values(i.camera.parameters), "perspective"));
         }
         this._origins = transforms.map(sliderCameraOrigin);
         const distance = this._origins[0].distanceTo(this._origins[1]);

@@ -22,10 +22,10 @@ function image(id: string, cameraType: string, width: number, height: number): a
 }
 function transform(i: any, translation: number[]): any {
     return new SliderTransform(i.exifOrientation, i.width, i.height, i.scale,
-        i.rotation, translation, i.image, undefined,
-        Object.values(i.camera.parameters) as number[], i.cameraType);
+                               i.rotation, translation, i.image, undefined,
+                               Object.values(i.camera.parameters) as number[], i.cameraType);
 }
-function frame(currentType = "spherical", previousType = "perspective"): any {
+function frame(currentType: string = "spherical", previousType: string = "perspective"): any {
     const currentImage = image("current", currentType, 4000, 2000);
     const previousImage = image("previous", previousType, 1200, 1600);
     previousImage.exifOrientation = 6;
@@ -106,7 +106,7 @@ describe("Slider opt-in common-world view", () => {
     it("never bypasses missing-image guards", () => {
         const r = new SliderGLRenderer() as any;
         r._viewAligned = true;
-        for (const state of [
+        for (const state of <any[]>[
             { currentImage: null, previousImage: image("p", "perspective", 4, 3) },
             { currentImage: image("c", "spherical", 4, 2), previousImage: null },
             { currentImage: null, previousImage: null },

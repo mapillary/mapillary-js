@@ -33,8 +33,10 @@ export function sliderPairKey(state: IAnimationState): string {
     })]);
 }
 
-/** Read the actual current extrinsics, not a cached inverse which may predate
- * an in-place RT update. Used by coverage, render translation and tile ROI. */
+/**
+ * Read the actual current extrinsics, not a cached inverse which may predate
+ * an in-place RT update. Used by coverage, render translation and tile ROI.
+ */
 export function sliderCameraOrigin(transform: Transform): THREE.Vector3 {
     return new THREE.Vector3().setFromMatrixPosition(transform.rt.clone().invert());
 }
