@@ -244,7 +244,8 @@ export class TextureProvider {
      * @param {TileRegionOfInterest} roi - Spatial edges to cache.
      */
     public setRegionOfInterest(roi: TileRegionOfInterest): void {
-        if (!verifySize(this._size)) { return; }
+        // A disposed provider has no renderer; late requests must not fetch.
+        if (this._disposed || !verifySize(this._size)) { return; }
 
         const virtualWidth = 1 / roi.pixelWidth;
         const virtualHeight = 1 / roi.pixelHeight;
@@ -303,6 +304,7 @@ export class TextureProvider {
 
         const subscription = tile$.subscribe(
             (image: HTMLImageElement): void => {
+                if (this._disposed) { return; }
                 const pixels = tileToPixelCoords2D(
                     tile,
                     this._size,
@@ -358,7 +360,7 @@ export class TextureProvider {
 
         const subscription = urls$.subscribe(
             (): void => {
-                if (level !== this._level.z) { return; }
+                if (this._disposed || level !== this._level.z) { return; }
                 for (const tile of tiles) {
                     const ent: ImageTileEnt = {
                         x: tile.x,

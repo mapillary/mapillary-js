@@ -322,6 +322,14 @@ export class StateService {
         return this._currentState$;
     }
 
+    /**
+     * The latest animation frame, replayed to new subscribers. Its state is
+     * the live context, so reading it never waits for the next frame.
+     */
+    public get lastState$(): Observable<AnimationFrame> {
+        return this._lastState$;
+    }
+
     public get currentImage$(): Observable<Image> {
         return this._currentImage$;
     }

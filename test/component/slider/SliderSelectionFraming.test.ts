@@ -52,15 +52,22 @@ describe("Slider comparison selection framing", () => {
         expect(f.navigator.stateService.setZoom).not.toHaveBeenCalled();
         f.component.deactivate();
     });
-    it("does not drop synchronously cached pairs before a new state frame arrives", () => {
+    it("switches a synchronously cached pair before the next state frame renders", () => {
         const f = fixture();
         const cache = <jasmine.Spy><any>f.component._catchCacheImage$;
         cache.and.callFake(id => of(id === "new" ? { id: "new" } : f.original));
         f.component.configure({ ids: { foreground: "original", background: "new" }, viewAligned: true });
-        expect(f.navigator.stateService.setImages).not.toHaveBeenCalled();
-        f.frame();
         expect(f.navigator.stateService.setImages).toHaveBeenCalledTimes(2);
         expect(f.navigator.stateService.setCenter).toHaveBeenCalledWith([0.51, 0.49]);
+        f.component.deactivate();
+    });
+    it("leaves traversal before the trajectory changes so the first frame is not animated", () => {
+        const f = fixture(true, true);
+        const order: string[] = [];
+        f.navigator.stateService.waitInteractively.and.callFake(() => order.push("waitInteractively"));
+        f.navigator.stateService.prependImages.and.callFake(() => order.push("prepend"));
+        f.background$.next({ id: "new" }); f.foreground$.next(f.original);
+        expect(order).toEqual(["waitInteractively", "prepend"]);
         f.component.deactivate();
     });
     it("does not change legacy non-view-aligned pair handling", () => {

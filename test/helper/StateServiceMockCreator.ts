@@ -1,4 +1,4 @@
-import { Subject } from "rxjs";
+import { ReplaySubject, Subject } from "rxjs";
 
 import { MockCreator } from "./MockCreator";
 import { MockCreatorBase } from "./MockCreatorBase";
@@ -18,7 +18,11 @@ export class StateServiceMockCreator extends MockCreatorBase<StateService> {
         this._mockProperty(mock, "currentId$", new Subject<Image>());
         this._mockProperty(mock, "currentImage$", new Subject<Image>());
         this._mockProperty(mock, "currentImageExternal$", new Subject<Image>());
-        this._mockProperty(mock, "currentState$", new Subject<AnimationFrame>());
+        const currentState$ = new Subject<AnimationFrame>();
+        const lastState$ = new ReplaySubject<AnimationFrame>(1);
+        currentState$.subscribe(lastState$);
+        this._mockProperty(mock, "currentState$", currentState$);
+        this._mockProperty(mock, "lastState$", lastState$);
         this._mockProperty(mock, "currentTransform$", new Subject<Transform>());
         this._mockProperty(mock, "inMotion$", new Subject<boolean>());
         this._mockProperty(mock, "inTranslation$", new Subject<boolean>());
