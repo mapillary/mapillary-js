@@ -8,6 +8,13 @@ export interface XMLHttpRequestHeader {
     value: string,
 }
 
+const POP_SHARDED_FBCDN_HOST =
+    /^https:\/\/(external|scontent)-[^.]+\.xx\.fbcdn\.net/;
+
+export function normalizeFbCdnUrl(url: string): string {
+    return url.replace(POP_SHARDED_FBCDN_HOST, "https://$1.xx.fbcdn.net");
+}
+
 /**
  * Decompress and parse an array buffer containing zipped
  * json data and return as a json object.
@@ -67,10 +74,11 @@ export function xhrFetch<TResult>(
     body?: string,
     abort?: Promise<void>): Promise<TResult> {
 
+    const requestUrl = normalizeFbCdnUrl(url);
     const xhr = new XMLHttpRequest();
     const promise = new Promise<TResult>(
         (resolve, reject) => {
-            xhr.open(method, url, true);
+            xhr.open(method, requestUrl, true);
             for (const header of headers) {
                 xhr.setRequestHeader(header.name, header.value);
             }
@@ -80,25 +88,25 @@ export function xhrFetch<TResult>(
             xhr.onload = () => {
                 if (xhr.status !== 200) {
                     const error = xhr.response ??
-                        new MapillaryError(`Response status error: ${url}`);
+                        new MapillaryError(`Response status error: ${requestUrl}`);
                     reject(error);
                 }
 
                 if (!xhr.response) {
-                    reject(new MapillaryError(`Response empty: ${url}`));
+                    reject(new MapillaryError(`Response empty: ${requestUrl}`));
                 }
 
                 resolve(xhr.response);
             };
 
             xhr.onerror = () => {
-                reject(new MapillaryError(`Request error: ${url}`));
+                reject(new MapillaryError(`Request error: ${requestUrl}`));
             };
             xhr.ontimeout = () => {
-                reject(new MapillaryError(`Request timeout: ${url}`));
+                reject(new MapillaryError(`Request timeout: ${requestUrl}`));
             };
             xhr.onabort = () => {
-                reject(new MapillaryError(`Request aborted: ${url}`));
+                reject(new MapillaryError(`Request aborted: ${requestUrl}`));
             };
             xhr.send(method === "POST" ? body : null);
         });

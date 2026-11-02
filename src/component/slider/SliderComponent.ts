@@ -186,6 +186,11 @@ export class SliderComponent extends Component<SliderConfiguration> {
                     return configuration.mode;
                 }),
             distinctUntilChanged());
+        const gravityAligned$ = this.configuration$.pipe(
+            map(
+                (configuration: SliderConfiguration): boolean =>
+                    configuration.gravityAligned === true),
+            distinctUntilChanged());
         const motionless$ = this._navigator.stateService.currentState$.pipe(
             map(
                 (frame: AnimationFrame): boolean => {
@@ -224,11 +229,11 @@ export class SliderComponent extends Component<SliderConfiguration> {
             mode$,
             motionless$,
             spherical$,
-            sliderVisible$).pipe(
-                withLatestFrom(this._navigator.stateService.state$))
+            sliderVisible$,
+            this._navigator.stateService.state$)
             .subscribe(
-                ([[mode, motionless, spherical, sliderVisible], state]:
-                    [[SliderConfigurationMode, boolean, boolean, boolean], State]): void => {
+                ([mode, motionless, spherical, sliderVisible, state]:
+                    [SliderConfigurationMode, boolean, boolean, boolean, State]): void => {
                     const interactive: boolean = sliderVisible &&
                         (motionless ||
                             mode === SliderConfigurationMode.Stationary ||
@@ -297,11 +302,13 @@ export class SliderComponent extends Component<SliderConfiguration> {
             .subscribe(this._glRendererOperation$));
         subs.push(observableCombineLatest(
             this._navigator.stateService.currentState$,
-            mode$).pipe(
+            mode$,
+            gravityAligned$).pipe(
                 map(
-                    ([frame, mode]: [AnimationFrame, SliderConfigurationMode]): GLRendererOperation => {
+                    ([frame, mode, gravityAligned]:
+                        [AnimationFrame, SliderConfigurationMode, boolean]): GLRendererOperation => {
                         return (glRenderer: SliderGLRenderer): SliderGLRenderer => {
-                            glRenderer.update(frame, mode);
+                            glRenderer.update(frame, mode, gravityAligned);
                             return glRenderer;
                         };
                     }))

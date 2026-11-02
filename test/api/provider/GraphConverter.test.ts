@@ -193,6 +193,7 @@ describe("GraphConverter.spatialImage", () => {
             thumb: null,
             thumb_1024_url: '1024',
             thumb_2048_url: '2048',
+            timezone: 'Europe/Zurich',
             width: 4000,
         };
 
@@ -222,6 +223,7 @@ describe("GraphConverter.spatialImage", () => {
         expect(image.owner.id).toBe(ent.organization.id);
         expect(image.quality_score).toBe(ent.quality_score);
         expect(image.thumb.url).toBe(ent.thumb_1024_url);
+        expect(image.timezone).toBe(ent.timezone);
         expect(image.width).toBe(ent.width);
         expect(image.private).toBeNull();
     });

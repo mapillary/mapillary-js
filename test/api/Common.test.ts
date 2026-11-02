@@ -1,5 +1,5 @@
 import * as pako from "pako";
-import { decompress, xhrFetch } from "../../src/api/Common";
+import { decompress, normalizeFbCdnUrl, xhrFetch } from "../../src/api/Common";
 import { IDEnt } from "../../src/api/ents/IDEnt";
 import { GraphClusterContract } from "../../src/api/provider/GraphContracts";
 import { MapillaryError } from "../../src/error/MapillaryError";
@@ -23,6 +23,25 @@ describe("decompress", () => {
         expect(decompressed.reference_lla.altitude).toBe(1);
         expect(decompressed.reference_lla.latitude).toBe(2);
         expect(decompressed.reference_lla.longitude).toBe(3);
+    });
+});
+
+describe("normalizeFbCdnUrl", () => {
+    it("should replace POP-sharded external and scontent hosts", () => {
+        expect(normalizeFbCdnUrl(
+            "https://external-sea5-1.xx.fbcdn.net/maps/vt/style/mapillary/"))
+            .toBe("https://external.xx.fbcdn.net/maps/vt/style/mapillary/");
+        expect(normalizeFbCdnUrl(
+            "https://scontent-ams4-1.xx.fbcdn.net/m1/v/image"))
+            .toBe("https://scontent.xx.fbcdn.net/m1/v/image");
+    });
+
+    it("should keep stable and unrelated hosts unchanged", () => {
+        const stableUrl = "https://scontent.xx.fbcdn.net/m1/v/image";
+        const unrelatedUrl = "https://example.com/image";
+
+        expect(normalizeFbCdnUrl(stableUrl)).toBe(stableUrl);
+        expect(normalizeFbCdnUrl(unrelatedUrl)).toBe(unrelatedUrl);
     });
 });
 

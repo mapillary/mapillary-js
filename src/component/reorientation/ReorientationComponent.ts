@@ -146,6 +146,7 @@ export class ReorientationComponent
     private _reorientToFront: boolean;
     private _reorientOnSpatialNav: boolean;
     private _adoptedView: number[];
+    private _adoptedZoom: number;
     private _adoptedSequence: string;
     private _settled$: Subject<ReorientationSettledEvent> =
         new Subject<ReorientationSettledEvent>();
@@ -279,11 +280,19 @@ export class ReorientationComponent
      * travel direction. Coordinates are passed in rather than read from the
      * viewer so the call does not race the host applying them.
      */
-    public adoptView(basic: number[]): void {
+    public adoptView(basic: number[], zoom?: number): void {
         this._adoptedView = basic != null && basic.length === 2 ?
             [basic[0], basic[1]] : null;
+        this._adoptedZoom = this._adoptedView != null &&
+            typeof zoom === "number" && Number.isFinite(zoom) ? zoom : null;
         this._adoptedSequence = this._adoptedView != null ?
             this._imageSequence : null;
+    }
+
+    /** Re-run reorientation for the displayed image without navigating. */
+    public reorientCurrent(): void {
+        this._navigator.stateService.currentImage$.pipe(first()).subscribe(
+            (image: Image): void => { this._reorientImage(image); });
     }
 
     /**
@@ -374,54 +383,7 @@ export class ReorientationComponent
         // currentImage$ fires reliably on every navigation, including in-app
         // jumps to another sequence (currentState$ did not deliver those).
         subs.push(this._navigator.stateService.currentImage$.subscribe(
-            (image: Image): void => {
-                if (!image) {
-                    return;
-                }
-                this._currentTransform = new Transform(
-                    image.exifOrientation,
-                    image.width,
-                    image.height,
-                    image.scale,
-                    image.rotation,
-                    [0, 0, 0],
-                    image.image,
-                    image.camera);
-                this._levelAccepted = false;
-                const fromId = this._activeId;
-                if (this._adoptedView != null &&
-                    this._adoptedSequence == null) {
-                    this._adoptedSequence = image.sequenceId;
-                }
-                this._sequenceChanged = fromId != null &&
-                    image.sequenceId !== this._imageSequence;
-                if (this._sequenceChanged) {
-                    this._navigator.stateService.setZoom(0);
-                    this._appliedPerspectiveZoom = 0;
-                    this._userZoomOverride = false;
-                }
-                this._activeId = image.id;
-                this._imageSequence = image.sequenceId;
-                // Snapshot now, synchronously with the change. By the time the
-                // engine resolves, the transition has already begun moving the
-                // camera, so neither the live bearing nor getCenter() still
-                // describes the view the user carried in.
-                this._incomingBearing = this._liveBearing;
-                // Consume the direction here, synchronously with the landing, so
-                // it attributes to this image and not a later re-emit.
-                const direction = this._navigator.consumeMoveDirection();
-                const commitSequenceView = this._userViewChanged &&
-                    (direction === NavigationDirection.Next ||
-                        direction === NavigationDirection.Prev);
-                this._userViewChanged = false;
-                this._reorient(
-                    image,
-                    direction,
-                    fromId,
-                    this._dragging,
-                    commitSequenceView,
-                    this._userViewRevision);
-            }));
+            (image: Image): void => { this._reorientImage(image); }));
 
         subs.push(this._container.renderService.bearing$.subscribe(
             (bearing: number): void => { this._liveBearing = bearing; }));
@@ -456,6 +418,55 @@ export class ReorientationComponent
 
     protected _getDefaultConfiguration(): ReorientationConfiguration {
         return {};
+    }
+
+    private _reorientImage(image: Image): void {
+        if (!image) {
+            return;
+        }
+        this._currentTransform = new Transform(
+            image.exifOrientation,
+            image.width,
+            image.height,
+            image.scale,
+            image.rotation,
+            [0, 0, 0],
+            image.image,
+            image.camera);
+        this._levelAccepted = false;
+        const fromId = this._activeId;
+        if (this._adoptedView != null &&
+            this._adoptedSequence == null) {
+            this._adoptedSequence = image.sequenceId;
+        }
+        this._sequenceChanged = fromId != null &&
+            image.sequenceId !== this._imageSequence;
+        if (this._sequenceChanged) {
+            this._navigator.stateService.setZoom(0);
+            this._appliedPerspectiveZoom = 0;
+            this._userZoomOverride = false;
+        }
+        this._activeId = image.id;
+        this._imageSequence = image.sequenceId;
+        // Snapshot now, synchronously with the change. By the time the engine
+        // resolves, the transition has already begun moving the camera, so
+        // neither the live bearing nor getCenter() still describes the view
+        // the user carried in.
+        this._incomingBearing = this._liveBearing;
+        // Consume the direction here, synchronously with the landing, so it
+        // attributes to this image and not a later re-emit.
+        const direction = this._navigator.consumeMoveDirection();
+        const commitSequenceView = this._userViewChanged &&
+            (direction === NavigationDirection.Next ||
+                direction === NavigationDirection.Prev);
+        this._userViewChanged = false;
+        this._reorient(
+            image,
+            direction,
+            fromId,
+            this._dragging,
+            commitSequenceView,
+            this._userViewRevision);
     }
 
     private _reorient(
@@ -882,6 +893,7 @@ export class ReorientationComponent
 
     private _clearAdoptedView(): void {
         this._adoptedView = null;
+        this._adoptedZoom = null;
         this._adoptedSequence = null;
     }
 
@@ -950,6 +962,7 @@ export class ReorientationComponent
         id: string,
         result: ReorientationResult): void {
         const adoptedView = this._adoptedView;
+        const adoptedZoom = this._adoptedZoom;
         const stateService = this._navigator.stateService;
         const settle = (): void => {
             const bearing = this.getReorientedBearing(id);
@@ -962,6 +975,9 @@ export class ReorientationComponent
             stateService.traverse();
             if (adoptedView != null) {
                 stateService.setCenter(adoptedView);
+                if (adoptedZoom != null) {
+                    stateService.setZoom(adoptedZoom);
+                }
             } else if (render != null) {
                 stateService.zoomTo(
                     this._userZoomOverride ? render.zoom : 0);
@@ -1008,26 +1024,27 @@ export class ReorientationComponent
                             USER_ZOOM_EPSILON) {
                         this._userZoomOverride = true;
                     }
-                    if (adoptedView != null) {
-                        this._levelAccepted = true;
-                        stateService.gravityTraverse();
-                        stateService.setCenter(adoptedView);
-                        this._clearAdoptedView();
-                        settle();
-                        return;
-                    }
+                    const fittedTarget = adoptedView ?? target;
                     const zoom = this._perspectiveAutoZoom(
-                        target, render.unzoomedCurrentFov);
+                        fittedTarget, render.unzoomedCurrentFov);
                     if (zoom == null) {
                         fallback(render);
                         return;
                     }
                     this._levelAccepted = true;
                     stateService.gravityTraverse();
-                    stateService.rotateToBasicSmooth(target);
-                    stateService.zoomTo(
-                        this._userZoomOverride ? render.zoom : zoom);
-                    this._appliedPerspectiveZoom = zoom;
+                    const appliedZoom = adoptedView != null ?
+                        Math.max(zoom, adoptedZoom ?? 0) :
+                        this._userZoomOverride ? render.zoom : zoom;
+                    if (adoptedView != null) {
+                        stateService.setCenter(adoptedView);
+                        stateService.setZoom(appliedZoom);
+                        this._clearAdoptedView();
+                    } else {
+                        stateService.rotateToBasicSmooth(target);
+                        stateService.zoomTo(appliedZoom);
+                    }
+                    this._appliedPerspectiveZoom = appliedZoom;
                     settle();
                 });
             });

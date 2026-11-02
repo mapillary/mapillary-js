@@ -10,6 +10,7 @@ import { SliderConfigurationMode } from "../interfaces/SliderConfiguration";
 import { SliderMeshFactory } from "./SliderMeshFactory";
 import { isSpherical } from "../../geo/Geo";
 import { CameraType } from "../../geo/interfaces/CameraType";
+import { Camera } from "../../geo/Camera";
 import { SliderTransform } from "./SliderTransform";
 import { SliderMeshScene, SliderMeshSceneItem } from "./SliderMeshScene";
 export class SliderGLRenderer {
@@ -23,6 +24,10 @@ export class SliderGLRenderer {
     private _frameId: number;
     private _needsRender: boolean;
     private _mode: SliderConfigurationMode;
+    private _gravityAligned: boolean;
+    private _currentPerspective: THREE.PerspectiveCamera;
+    private _previousCamera: Camera;
+    private _previousPerspective: THREE.PerspectiveCamera;
     private _currentProviderDisposers: { [key: string]: () => void };
     private _previousProviderDisposers: { [key: string]: () => void };
     constructor() {
@@ -36,6 +41,10 @@ export class SliderGLRenderer {
         this._frameId = 0;
         this._needsRender = false;
         this._mode = null;
+        this._gravityAligned = false;
+        this._currentPerspective = null;
+        this._previousCamera = null;
+        this._previousPerspective = null;
         this._currentProviderDisposers = {};
         this._previousProviderDisposers = {};
     }
@@ -64,9 +73,12 @@ export class SliderGLRenderer {
             this._previousProviderDisposers,
             this._updateTexturePrev.bind(this));
     }
-    public update(frame: AnimationFrame, mode: SliderConfigurationMode): void {
+    public update(
+        frame: AnimationFrame,
+        mode: SliderConfigurationMode,
+        gravityAligned: boolean = false): void {
         this._updateFrameId(frame.id);
-        this._updateImagePlanes(frame.state, mode);
+        this._updateImagePlanes(frame.state, mode, gravityAligned);
     }
     public updateCurtain(curtain: number): void {
         if (this._curtain === curtain) {
@@ -117,9 +129,13 @@ export class SliderGLRenderer {
         perspectiveCamera: THREE.PerspectiveCamera,
         renderer: THREE.WebGLRenderer): void {
         if (!this.disabled) {
-            renderer.render(this._scene.sceneOld, perspectiveCamera);
+            renderer.render(
+                this._scene.sceneOld,
+                this._getPreviousPerspective(perspectiveCamera));
         }
-        renderer.render(this._scene.scene, perspectiveCamera);
+        renderer.render(
+            this._scene.scene,
+            this._getCurrentPerspective(perspectiveCamera));
         this._needsRender = false;
     }
     public dispose(): void {
@@ -150,6 +166,52 @@ export class SliderGLRenderer {
             offsetY = 0.5;
         }
         return [[0.5 - offsetX, 0.5 - offsetY], [0.5 + offsetX, 0.5 + offsetY]];
+    }
+    private _getCurrentPerspective(
+        perspectiveCamera: THREE.PerspectiveCamera)
+        : THREE.PerspectiveCamera {
+        if (!this._gravityAligned) {
+            return perspectiveCamera;
+        }
+        if (this._currentPerspective == null) {
+            this._currentPerspective = perspectiveCamera.clone();
+        } else {
+            this._currentPerspective.copy(perspectiveCamera);
+        }
+        const direction = perspectiveCamera.getWorldDirection(
+            new THREE.Vector3());
+        this._currentPerspective.up.set(0, 0, 1);
+        this._currentPerspective.matrixAutoUpdate = true;
+        this._currentPerspective.lookAt(
+            this._currentPerspective.position.clone().add(direction));
+        this._currentPerspective.matrixAutoUpdate = false;
+        this._currentPerspective.updateMatrix();
+        this._currentPerspective.updateMatrixWorld(false);
+
+        return this._currentPerspective;
+    }
+    private _getPreviousPerspective(
+        perspectiveCamera: THREE.PerspectiveCamera)
+        : THREE.PerspectiveCamera {
+        if (this._mode === SliderConfigurationMode.Motion) {
+            return this._getCurrentPerspective(perspectiveCamera);
+        }
+        if (this._previousCamera == null) {
+            return perspectiveCamera;
+        }
+        if (this._previousPerspective == null) {
+            this._previousPerspective = perspectiveCamera.clone();
+            this._previousPerspective.position.copy(
+                this._previousCamera.position);
+            this._previousPerspective.up.copy(this._previousCamera.up);
+            this._previousPerspective.matrixAutoUpdate = true;
+            this._previousPerspective.lookAt(this._previousCamera.lookat);
+            this._previousPerspective.matrixAutoUpdate = false;
+            this._previousPerspective.updateMatrix();
+            this._previousPerspective.updateMatrixWorld(false);
+        }
+
+        return this._previousPerspective;
     }
     private _setDisabled(state: IAnimationState): void {
         this._disabled = state.currentImage == null ||
@@ -197,16 +259,30 @@ export class SliderGLRenderer {
     private _updateFrameId(frameId: number): void {
         this._frameId = frameId;
     }
-    private _updateImagePlanes(state: IAnimationState, mode: SliderConfigurationMode): void {
+    private _updateImagePlanes(
+        state: IAnimationState,
+        mode: SliderConfigurationMode,
+        gravityAligned: boolean): void {
         const currentChanged: boolean = state.currentImage != null && this._currentKey !== state.currentImage.id;
         const previousChanged: boolean = state.previousImage != null && this._previousKey !== state.previousImage.id;
         const modeChanged: boolean = this._mode !== mode;
-        if (!(currentChanged || previousChanged || modeChanged)) {
+        const gravityAlignmentChanged: boolean =
+            this._gravityAligned !== gravityAligned;
+        if (!(currentChanged || previousChanged || modeChanged ||
+            gravityAlignmentChanged)) {
             return;
         }
         this._setDisabled(state);
         this._needsRender = true;
         this._mode = mode;
+        this._gravityAligned = gravityAligned;
+        this._previousCamera = state.previousCamera == null ? null :
+            gravityAligned ? new Camera(state.previousTransform) :
+                state.previousCamera.clone();
+        if (gravityAligned && this._previousCamera != null) {
+            this._previousCamera.up.set(0, 0, 1);
+        }
+        this._previousPerspective = null;
         const motionless =
             state.motionless ||
             mode === SliderConfigurationMode.Stationary ||
@@ -220,7 +296,7 @@ export class SliderGLRenderer {
         if (this.disabled) {
             this._scene.setImagePlanesOld([]);
         } else {
-            if (previousChanged || modeChanged) {
+            if (previousChanged || modeChanged || gravityAlignmentChanged) {
                 const previousNode: Image = state.previousImage;
                 this._previousKey = previousNode.id;
                 const elements: number[] = state.currentTransform.rt.elements;
@@ -297,14 +373,10 @@ export class SliderGLRenderer {
                             transform : previousTransform);
                 } else {
                     if (motionless) {
-                        const [[basicX0, basicY0], [basicX1, basicY1]]: number[][] = this._getBasicCorners(currentAspect, previousAspect);
-                        mesh = this._factory.createFlatMesh(
+                        mesh = this._factory.createMesh(
                             state.previousImage,
-                            transform,
-                            basicX0,
-                            basicX1,
-                            basicY0,
-                            basicY1);
+                            previousTransform,
+                            false);
                     } else {
                         mesh = this._factory.createMesh(state.previousImage, previousTransform);
                     }
@@ -313,7 +385,7 @@ export class SliderGLRenderer {
                 this._scene.setImagePlanesOld(previousPlanes);
             }
         }
-        if (currentChanged || modeChanged) {
+        if (currentChanged || modeChanged || gravityAlignmentChanged) {
             if (this._currentKey in this._currentProviderDisposers) {
                 this._currentProviderDisposers[this._currentKey]();
                 delete this._currentProviderDisposers[this._currentKey];
@@ -344,9 +416,10 @@ export class SliderGLRenderer {
             } else {
                 if (motionless) {
                     planes.push(
-                        {imageId: state.currentImage.id, mesh: this._factory.createDistortedCurtainMesh(
+                        {imageId: state.currentImage.id, mesh: this._factory.createCurtainMesh(
                             state.currentImage,
-                            currentTransform), camera: state.currentImage.camera}
+                            currentTransform,
+                            false), camera: state.currentImage.camera}
                     );
                 } else {
                     planes.push(

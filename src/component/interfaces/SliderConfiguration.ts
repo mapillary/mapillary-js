@@ -72,6 +72,12 @@ export interface SliderConfigurationIds {
  */
 export interface SliderConfiguration extends ComponentConfiguration {
     /**
+     * Keep stationary comparison cameras aligned to gravity.
+     *
+     * @default false
+     */
+    gravityAligned?: boolean;
+    /**
      * Initial position of the slider on the interval [0, 1].
      *
      * @description Configures the initial position of the slider.
