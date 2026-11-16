@@ -671,6 +671,11 @@ export class SliderTransform {
     }
 
     private _getRadialPeak(k1: number, k2: number): number {
+        if (k2 === 0) {
+            // The derivative 1 + 3 * k1 * r^2 is linear in r^2.
+            return k1 < 0 ? Math.sqrt(-1 / (3 * k1)) : undefined;
+        }
+
         const a: number = 5 * k2;
         const b: number = 3 * k1;
         const c: number = 1;
