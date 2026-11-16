@@ -45,3 +45,17 @@ describe("FisheyeCamera.bearingFromSfm", () => {
         expect(sfm[1]).toBeCloseTo(point[1], EPSILON);
     });
 });
+
+describe("FisheyeCamera.radialPeak", () => {
+    it("should be finite for negative k1 when k2 is zero", () => {
+        // theta_d(theta) = theta * (1 + k1 * theta^2) peaks where
+        // 1 + 3 * k1 * theta^2 = 0
+        const camera = new FisheyeCamera([0.5, -0.2, 0]);
+        expect(camera.uniforms.radialPeak).toBeCloseTo(Math.sqrt(1 / 0.6), 10);
+    });
+
+    it("should be infinite when distortion does not peak", () => {
+        expect(new FisheyeCamera([0.5, 0.1, 0]).uniforms.radialPeak)
+            .toBe(Number.POSITIVE_INFINITY);
+    });
+});
